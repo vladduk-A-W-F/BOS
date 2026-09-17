@@ -1,0 +1,367 @@
+# P04: підготовлено; CI не запущено. Лише ручний запуск погодженого suite.
+name: BoS — перевірка
+'on':
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: Один погоджений набір. full запускає всі шість jobs.
+        required: true
+        default: sqlite
+        type: choice
+        options:
+        - sqlite
+        - postgres
+        - e2e
+        - windows
+        - ui
+        - full
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: bos-verify-${{ github.ref }}-${{ inputs.suite }}
+  cancel-in-progress: false
+env:
+  PYTHONUTF8: '1'
+  PYTHONDONTWRITEBYTECODE: '1'
+  BOS_DATA_MODE: demo
+jobs:
+  sqlite:
+    name: sqlite
+    if: ${{ inputs.suite == 'sqlite' || inputs.suite == 'full' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+    - name: Джерела точного commit
+      id: checkout
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      with:
+        persist-credentials: false
+        fetch-depth: 1
+    - name: Python 3.12
+      id: python
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+      with:
+        python-version: '3.12'
+    - name: Залежності
+      id: dependencies
+      run: python -m pip install -r requirements-ci.txt
+    - name: Незмінний verify та перевірка походження
+      id: verify
+      run: python .github/ci/evidence.py run --suite sqlite --output "${{ runner.temp }}/bos-ci/sqlite"
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+    - name: Квитанція, включно з невиконаним запуском
+      id: receipt
+      if: ${{ always() }}
+      run: python .github/ci/evidence.py finish --suite sqlite --output "${{ runner.temp }}/bos-ci/sqlite"
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        BOS_STEPS_JSON: ${{ toJSON(steps) }}
+    - name: Зберегти докази після успіху або помилки
+      if: ${{ always() }}
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: bos-${{ github.run_id }}-${{ github.run_attempt }}-sqlite
+        path: ${{ runner.temp }}/bos-ci/sqlite
+        if-no-files-found: error
+        retention-days: 30
+        include-hidden-files: false
+  postgres:
+    name: postgres
+    if: ${{ inputs.suite == 'postgres' || inputs.suite == 'full' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      BOS_PG_DISPOSABLE: '1'
+      BOS_PGHOST: 127.0.0.1
+      BOS_PGUSER: bos_ci
+      BOS_PGPASSWORD: bos_synthetic_ci_only
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: bos_ci
+          POSTGRES_PASSWORD: bos_synthetic_ci_only
+          POSTGRES_DB: postgres
+        ports:
+        - 5432/tcp
+        options: --health-cmd "pg_isready -U bos_ci -d postgres" --health-interval 5s --health-timeout 5s --health-retries 12 --tmpfs
+          /var/lib/postgresql/data:rw
+    steps:
+    - name: Джерела точного commit
+      id: checkout
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      with:
+        persist-credentials: false
+        fetch-depth: 1
+    - name: Python 3.12
+      id: python
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+      with:
+        python-version: '3.12'
+    - name: Залежності
+      id: dependencies
+      run: python -m pip install -r requirements-ci.txt
+    - name: Незмінний verify та перевірка походження
+      id: verify
+      run: python .github/ci/evidence.py run --suite postgres --output "${{ runner.temp }}/bos-ci/postgres"
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        BOS_PGPORT: ${{ job.services.postgres.ports[5432] }}
+    - name: Квитанція, включно з невиконаним запуском
+      id: receipt
+      if: ${{ always() }}
+      run: python .github/ci/evidence.py finish --suite postgres --output "${{ runner.temp }}/bos-ci/postgres"
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        BOS_STEPS_JSON: ${{ toJSON(steps) }}
+    - name: Зберегти докази після успіху або помилки
+      if: ${{ always() }}
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: bos-${{ github.run_id }}-${{ github.run_attempt }}-postgres
+        path: ${{ runner.temp }}/bos-ci/postgres
+        if-no-files-found: error
+        retention-days: 30
+        include-hidden-files: false
+  e2e:
+    name: e2e
+    if: ${{ inputs.suite == 'e2e' || inputs.suite == 'full' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      BOS_PG_DISPOSABLE: '1'
+      BOS_PGHOST: 127.0.0.1
+      BOS_PGUSER: bos_ci
+      BOS_PGPASSWORD: bos_synthetic_ci_only
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: bos_ci
+          POSTGRES_PASSWORD: bos_synthetic_ci_only
+          POSTGRES_DB: postgres
+        ports:
+        - 5432/tcp
+        options: --health-cmd "pg_isready -U bos_ci -d postgres" --health-interval 5s --health-timeout 5s --health-retries 12 --tmpfs
+          /var/lib/postgresql/data:rw
+    steps:
+    - name: Джерела точного commit
+      id: checkout
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      with:
+        persist-credentials: false
+        fetch-depth: 1
+    - name: Python 3.12
+      id: python
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+      with:
+        python-version: '3.12'
+    - name: Залежності
+      id: dependencies
+      run: python -m pip install -r requirements-ci.txt
+    - name: Незмінний verify та перевірка походження
+      id: verify
+      run: python .github/ci/evidence.py run --suite e2e --output "${{ runner.temp }}/bos-ci/e2e"
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        BOS_PGPORT: ${{ job.services.postgres.ports[5432] }}
+    - name: Квитанція, включно з невиконаним запуском
+      id: receipt
+      if: ${{ always() }}
+      run: python .github/ci/evidence.py finish --suite e2e --output "${{ runner.temp }}/bos-ci/e2e"
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        BOS_STEPS_JSON: ${{ toJSON(steps) }}
+    - name: Зберегти докази після успіху або помилки
+      if: ${{ always() }}
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: bos-${{ github.run_id }}-${{ github.run_attempt }}-e2e
+        path: ${{ runner.temp }}/bos-ci/e2e
+        if-no-files-found: error
+        retention-days: 30
+        include-hidden-files: false
+  windows:
+    name: windows
+    if: ${{ inputs.suite == 'windows' || inputs.suite == 'full' }}
+    runs-on: windows-2025
+    timeout-minutes: 60
+    env:
+      BOS_PG_DISPOSABLE: '1'
+      BOS_PGHOST: 127.0.0.1
+      BOS_PGPORT: '55432'
+      BOS_PGUSER: bos_ci
+      BOS_PGPASSWORD: bos_synthetic_ci_only
+      BOS_PG16_BIN: ${{ vars.BOS_PG16_BIN }}
+    steps:
+    - name: Джерела точного commit
+      id: checkout
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      with:
+        persist-credentials: false
+        fetch-depth: 1
+    - name: Python 3.12
+      id: python
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+      with:
+        python-version: '3.12'
+    - name: Залежності
+      id: dependencies
+      run: python -m pip install -r requirements-ci.txt
+    - name: Власний native PostgreSQL 16
+      id: postgres
+      shell: pwsh
+      run: '& .github/ci/windows-pg16.ps1 -Action start
+
+        exit $LASTEXITCODE'
+    - name: Незмінний verify та перевірка походження
+      id: verify
+      run: python .github/ci/evidence.py run --suite windows --output "${{ runner.temp }}/bos-ci/windows"
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+    - name: Зупинити лише власний кластер
+      id: cleanup
+      if: ${{ always() }}
+      shell: pwsh
+      run: '& .github/ci/windows-pg16.ps1 -Action stop
+
+        exit $LASTEXITCODE'
+    - name: Квитанція, включно з невиконаним запуском
+      id: receipt
+      if: ${{ always() }}
+      run: python .github/ci/evidence.py finish --suite windows --output "${{ runner.temp }}/bos-ci/windows"
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        BOS_STEPS_JSON: ${{ toJSON(steps) }}
+    - name: Зберегти докази після успіху або помилки
+      if: ${{ always() }}
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: bos-${{ github.run_id }}-${{ github.run_attempt }}-windows
+        path: ${{ runner.temp }}/bos-ci/windows
+        if-no-files-found: error
+        retention-days: 30
+        include-hidden-files: false
+  ui:
+    name: ui
+    if: ${{ inputs.suite == 'ui' || inputs.suite == 'full' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+    - name: Джерела точного commit
+      id: checkout
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      with:
+        persist-credentials: false
+        fetch-depth: 1
+    - name: Python 3.12
+      id: python
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+      with:
+        python-version: '3.12'
+    - name: Залежності
+      id: dependencies
+      run: python -m pip install -r requirements-ci.txt
+    - name: Chromium для наявного реального UI-сценарію
+      id: browser
+      if: ${{ hashFiles('scripts/check_ui.py') != '' }}
+      run: python -m playwright install --with-deps chromium
+    - name: Незмінний verify та перевірка походження
+      id: verify
+      run: python .github/ci/evidence.py run --suite ui --output "${{ runner.temp }}/bos-ci/ui"
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+    - name: Квитанція, включно з невиконаним запуском
+      id: receipt
+      if: ${{ always() }}
+      run: python .github/ci/evidence.py finish --suite ui --output "${{ runner.temp }}/bos-ci/ui"
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        BOS_STEPS_JSON: ${{ toJSON(steps) }}
+    - name: Зберегти докази після успіху або помилки
+      if: ${{ always() }}
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: bos-${{ github.run_id }}-${{ github.run_attempt }}-ui
+        path: ${{ runner.temp }}/bos-ci/ui
+        if-no-files-found: error
+        retention-days: 30
+        include-hidden-files: false
+  full:
+    name: full
+    if: ${{ always() && inputs.suite == 'full' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    needs:
+    - sqlite
+    - postgres
+    - e2e
+    - windows
+    - ui
+    env:
+      BOS_PG_DISPOSABLE: '1'
+      BOS_PGHOST: 127.0.0.1
+      BOS_PGUSER: bos_ci
+      BOS_PGPASSWORD: bos_synthetic_ci_only
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: bos_ci
+          POSTGRES_PASSWORD: bos_synthetic_ci_only
+          POSTGRES_DB: postgres
+        ports:
+        - 5432/tcp
+        options: --health-cmd "pg_isready -U bos_ci -d postgres" --health-interval 5s --health-timeout 5s --health-retries 12 --tmpfs
+          /var/lib/postgresql/data:rw
+    steps:
+    - name: Джерела точного commit
+      id: checkout
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      with:
+        persist-credentials: false
+        fetch-depth: 1
+    - name: Python 3.12
+      id: python
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+      with:
+        python-version: '3.12'
+    - name: Залежності
+      id: dependencies
+      run: python -m pip install -r requirements-ci.txt
+    - name: Chromium для наявного реального UI-сценарію
+      id: browser
+      if: ${{ hashFiles('scripts/check_ui.py') != '' }}
+      run: python -m playwright install --with-deps chromium
+    - name: Докази тільки поточної спроби
+      id: download
+      uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+      with:
+        pattern: bos-${{ github.run_id }}-${{ github.run_attempt }}-*
+        path: ${{ runner.temp }}/bos-upstream
+        merge-multiple: false
+    - name: Незмінний verify та перевірка походження
+      id: verify
+      run: python .github/ci/evidence.py run --suite full --output "${{ runner.temp }}/bos-ci/full" --upstream "${{ runner.temp }}/bos-upstream"
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        BOS_NEEDS_JSON: ${{ toJSON(needs) }}
+        BOS_PGPORT: ${{ job.services.postgres.ports[5432] }}
+    - name: Квитанція, включно з невиконаним запуском
+      id: receipt
+      if: ${{ always() }}
+      run: python .github/ci/evidence.py finish --suite full --output "${{ runner.temp }}/bos-ci/full"
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        BOS_STEPS_JSON: ${{ toJSON(steps) }}
+    - name: Зберегти докази після успіху або помилки
+      if: ${{ always() }}
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: bos-${{ github.run_id }}-${{ github.run_attempt }}-full
+        path: ${{ runner.temp }}/bos-ci/full
+        if-no-files-found: error
+        retention-days: 30
+        include-hidden-files: false
