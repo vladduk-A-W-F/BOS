@@ -1,0 +1,58 @@
+{
+  "test": "a06_document_mutex_tests.A06DocumentMutexTests.test_review_locks_before_document_admission_reads_and_update",
+  "backend": "sqlite",
+  "trace": [
+    {
+      "worker": "review",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": false,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"id\" = %s limit 21",
+      "completed": true
+    },
+    {
+      "worker": "review",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": false,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"code\" = %s order by \"operations_document\".\"id\" desc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "review",
+      "operation": "update",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": false,
+      "sql": "update \"operations_document\" set \"status\" = %s, \"contract_id\" = null where \"operations_document\".\"id\" = %s",
+      "completed": true
+    },
+    {
+      "worker": "review",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": false,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"code\" = %s order by \"operations_document\".\"id\" desc limit 1",
+      "completed": true
+    }
+  ],
+  "database_version": "3.53.1",
+  "http": {
+    "status": 200,
+    "body": {
+      "id": 2,
+      "code": "A06-CERT",
+      "revision": "A",
+      "title": "Синтетичний сертифікат",
+      "status": "approved",
+      "filename": "a06-cert.txt",
+      "checksum": "a82aeaf8ea6130e9d4661b0a1c2de5af36d5463540fd4b46935b4439b38db08e",
+      "contract_id": null,
+      "created_at": "2026-09-11T20:39:04.603173+00:00",
+      "current": true
+    }
+  }
+}

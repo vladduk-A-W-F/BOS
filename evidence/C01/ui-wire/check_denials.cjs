@@ -1,0 +1,19 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert'),crypto=require('crypto'),path=require('path');
+const root='/workspace/scratch/c7b51e996a9f/tmp/c01_ui_candidate',s=fs.readFileSync(path.join(root,'frontend/boss_app_source.html'),'utf8'),base=fs.readFileSync(path.join(root,'base/boss_app_source.html'),'utf8'),out=process.argv[2]||'/workspace/scratch/c7b51e996a9f/tmp/c01_ui_wire_review/DENIAL_RED.json';
+const hash=b=>crypto.createHash('sha256').update(b).digest('hex'),helpers=s.match(/\/\/ C01_HELPERS_BEGIN\n([\s\S]*?)\/\/ C01_HELPERS_END/)[1],dialog=s.slice(s.indexOf('function ControlledTask('),s.indexOf('function ProcurementEntry('));
+const identities=s.slice(s.indexOf('function bosRole()'),s.indexOf('function bosCanView('));
+const proposalId='a0000000-0000-4000-8000-000000000001',auditId='b0000000-0000-4000-8000-000000000001';
+function context(){const map=new Map(),state={},calls=[];const c={JSON,Date,Number,TextEncoder,Promise,console,window:{BOS_RUNTIME:{user_id:7,role:'manager',mode:'demo'},Event:function Event(name){this.type=name;},dispatchEvent:()=>{}},sessionStorage:{getItem:k=>map.get(k)||null,setItem:(k,v)=>map.set(k,v)},lock:{current:false},alive:{current:true},controllers:{current:new Set()},ref:{current:{close:()=>{state.closed=true;}}},heading:{current:{focus:()=>{}}},writable:true,ready:true,canEdit:true,busy:'',task:{id:5,status:'active',assignee_id:3},targetId:5,initialMode:'edit',sourceRequest:undefined,asOf:'2026-09-12',values:{title:'Доручення',reason:'Змінено строк',deadline:'2026-09-13'},changed:['deadline'],proposal:{id:proposalId,payload:{action:'update_task',task_id:5}},pending:null,outcome:null,receipt:null,historyCursor:'signed/cursor',state,calls,map};for(const key of ['Receipt','Task','Pending','Proposal','Outcome','Error','ReadError','History','HistoryLoaded','HistoryCursor','Terminal','NoChange','Busy','Orders','OrderOpen','Ready','ScopeDenied'])c['set'+key]=value=>{state[key]=value;};c.onDone=()=>{};c.request=async(url,options={})=>{calls.push({url,options});throw Error('reply lost');};vm.createContext(c);vm.runInContext(identities+'\n'+helpers,c);for(const name of ['close','denyScope','accept','commit','recover','prepare','refreshRecord','loadHistory']){const line=dialog.split('\n').find(l=>l.trimStart().startsWith((['close','denyScope','accept'].includes(name)?'function ':'async function ')+name+'('));assert.ok(line,name);vm.runInContext(line,c);}return c;}
+
+const checks=[];
+(async()=>{
+ for(const method of ['recover','prepare','commit'])for(const status of [403,404]){
+  const c=context();c.pending=method==='prepare'?null:{proposal_id:proposalId,action:'update_task',task_id:5,user_id:7};c.outcome={same_session:true};
+  const sourceTask={id:5,status:'active',assignee_id:3,title:'NOW PRIVATE TASK'},sourceHistory=[{after:{result:'NOW PRIVATE RESULT'}}];c.task=sourceTask;c.history=sourceHistory;c.orders=[{id:9,code:'NOW PRIVATE ORDER'}];
+  c.request=async(url,options={})=>{c.calls.push({url,method:options.method||'GET'});return {ok:false,status,body:{error:'Source denied'}};};
+  await c[method]();
+  const cleared=c.state.Task===null&&c.state.History?.length===0&&c.state.Orders?.length===0&&c.state.Ready===false&&c.state.ScopeDenied===true;
+  checks.push({handler:method,status,passed:cleared,panel_clear_requested:cleared,state_keys:Object.keys(c.state),error:c.state.Error,request_calls:c.calls,pending_preserved:c.state.Pending!==null});
+ }
+ const report={scope:'Read-only actual extracted frozen UI handler execution with controlled denial replies; not browser/API/DB proof',source_sha256:hash(s),checks,passed:checks.filter(c=>c.passed).length,failed:checks.filter(c=>!c.passed).length};fs.writeFileSync(out,JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report,null,2));process.exitCode=report.failed?1:0;
+})();

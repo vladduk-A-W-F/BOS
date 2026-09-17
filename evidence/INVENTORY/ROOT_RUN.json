@@ -1,0 +1,88 @@
+{
+  "output": "/workspace/scratch/c7b51e996a9f/tmp/master_inventory_probe_output.json",
+  "cases": 18,
+  "all_defects_reproduced": true,
+  "checkout_databases_unchanged": true,
+  "application_python_sources_unchanged": true,
+  "case_results": {
+    "finish_repeated_lot": {
+      "defect_reproduced": true,
+      "quantity": "5.000",
+      "movement_total": "0"
+    },
+    "salary_concurrent_payment": {
+      "defect_reproduced": true,
+      "transaction_count": 2,
+      "transaction_total": "200"
+    },
+    "salary_serializer_create_paid": {
+      "defect_reproduced": true,
+      "http_status": 201
+    },
+    "salary_serializer_update_paid": {
+      "defect_reproduced": true,
+      "http_status": 200
+    },
+    "salary_serializer_reopen_then_pay": {
+      "defect_reproduced": true
+    },
+    "transaction_serializer_update_salary_expense": {
+      "defect_reproduced": true,
+      "http_status": 200
+    },
+    "salary_api_destroy": {
+      "defect_reproduced": true,
+      "http_status": 204
+    },
+    "transaction_api_destroy": {
+      "defect_reproduced": true,
+      "http_status": 204
+    },
+    "employee_api_destroy_salary_cascade": {
+      "defect_reproduced": true,
+      "http_status": 204
+    },
+    "salary_payment_currency": {
+      "defect_reproduced": true,
+      "salary_currency": "EUR",
+      "transaction_currency": "UAH"
+    },
+    "salary_admin_save_model": {
+      "defect_reproduced": true,
+      "http_status": 302
+    },
+    "transaction_admin_save_model": {
+      "defect_reproduced": true,
+      "http_status": 302
+    },
+    "salary_admin_delete_single": {
+      "defect_reproduced": true,
+      "http_status": 302
+    },
+    "salary_admin_delete_bulk": {
+      "defect_reproduced": true,
+      "http_status": 302
+    },
+    "transaction_admin_delete_single": {
+      "defect_reproduced": true,
+      "http_status": 302
+    },
+    "transaction_admin_delete_bulk": {
+      "defect_reproduced": true,
+      "http_status": 302
+    },
+    "employee_admin_delete_single": {
+      "defect_reproduced": true,
+      "http_status": 302
+    },
+    "employee_admin_delete_bulk": {
+      "defect_reproduced": true,
+      "http_status": 302
+    }
+  },
+  "exit_code": 0,
+  "command": "demo-check-env/bin/python -B tmp/master_inventory_probe.py",
+  "cwd": "/workspace/scratch/c7b51e996a9f",
+  "full_output_copy": "evidence/INVENTORY/DETAILS.json",
+  "meaning": "Дефекти відтворено; не приймання продукту."
+}

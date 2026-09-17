@@ -1,0 +1,10 @@
+{
+  "code": "        boss_project.migration_operations.PreserveSequenceAddConstraint(\n            model_name='invoice',\n            constraint=models.CheckConstraint(condition=models.Q(('amount__gte', 0)), name='a07_serialization_check'),\n        ),",
+  "imports": [
+    "from django.db import models",
+    "import boss_project.migration_operations"
+  ],
+  "module_path": "boss_project.migration_operations.PreserveSequenceAddConstraint",
+  "stable_module": true,
+  "identical_state": true
+}

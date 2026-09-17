@@ -1,0 +1,63 @@
+{
+  "time": "2026-09-11T21:29:36.390451+00:00",
+  "source_kind": "temporary draft verified against synthetic SQLite; root integrates and verifies full source",
+  "target_paths": {
+    "erp/test_database_boundaries.py": "a07_db_boundary_tests.py",
+    "boss_project/migration_operations.py": "a07_migration_operations.py",
+    "finance/migrations/0007_money_boundaries.py": "a07_finance_0007_money_boundaries.py",
+    "operations/migrations/0005_invoice_boundaries.py": "a07_operations_0005_invoice_boundaries.py",
+    "erp/migrations/0002_row_boundaries.py": "a07_erp_0002_row_boundaries.py",
+    "scripts/check_constraint_upgrade.py": "a07_check_constraint_upgrade.py",
+    "erp/test_constraint_upgrade.py": "a07_test_constraint_upgrade.py"
+  },
+  "sha256": {
+    "erp/test_database_boundaries.py": "12cc142a5f3db2dddde804b8d88a0f93a1c35b2fddacaa31102adcc29c0020d8",
+    "boss_project/migration_operations.py": "43e0f799fcf1be64ad3343a1c0073743e2889d35675c8557423d12968cb34d1f",
+    "finance/migrations/0007_money_boundaries.py": "614f20b07b155f2d27ef7e23ddac7ccd9b8fc649648e0dda99af5c4c50add99a",
+    "operations/migrations/0005_invoice_boundaries.py": "c4206c0301448e2d4cfe1c4d73188381138cf4d4f6d2a4891d77b9ac49032e1e",
+    "erp/migrations/0002_row_boundaries.py": "5d5646beb7025a2ad3525f3f1d9f3db40abe1c943ba65825a5e5c29acb9bdcf5",
+    "scripts/check_constraint_upgrade.py": "5f24652c33849e6063c2b9d6ff768bb84f49f9c220b77741591c92ce97197e5d",
+    "erp/test_constraint_upgrade.py": "01190becf6d3d0cb1be82735e2a8dc9d329432cd26f95b7c95b61e49f8933e9e"
+  },
+  "test_ids": [
+    "erp.test_database_boundaries.DatabaseMoneyStockBoundaryTests.test_invoice_amount_capacity_and_paid_range_are_enforced_by_sql",
+    "erp.test_database_boundaries.DatabaseMoneyStockBoundaryTests.test_purchase_quantity_and_received_are_bounded_in_database",
+    "erp.test_database_boundaries.DatabaseMoneyStockBoundaryTests.test_purchase_price_and_extras_cannot_be_negative_via_raw_sql",
+    "erp.test_database_boundaries.DatabaseMoneyStockBoundaryTests.test_production_quantity_and_produced_are_bounded_in_database",
+    "erp.test_database_boundaries.DatabaseMoneyStockBoundaryTests.test_production_planned_and_actual_cost_cannot_be_negative_via_sql",
+    "erp.test_database_boundaries.DatabaseMoneyStockBoundaryTests.test_sales_line_invoiced_shipped_quantity_chain_and_price",
+    "erp.test_database_boundaries.DatabaseMoneyStockBoundaryTests.test_lot_unit_cost_cannot_be_negative_via_raw_sql",
+    "erp.test_database_boundaries.DatabaseMoneyStockBoundaryTests.test_movement_cost_cannot_be_negative_but_quantity_stays_signed",
+    "erp.test_database_boundaries.DatabaseMoneyStockBoundaryTests.test_finance_positive_amount_and_field_capacity_also_hold_below_commands",
+    "erp.test_database_boundaries.DatabaseMoneyStockBoundaryTests.test_existing_three_currency_domain_is_enforced_below_writers",
+    "erp.test_database_boundaries.DatabaseMoneyStockBoundaryTests.test_valid_zero_equal_maximum_and_temporary_boundaries_remain_legal",
+    "erp.test_database_boundaries.DatabaseMoneyStockBoundaryTests.test_invoice_constraint_failure_rolls_back_prior_stock_line_and_audit_writes",
+    "erp.test_constraint_upgrade.ConstraintUpgradeTests.test_invalid_old_rows_refuse_each_migration_without_partial_ddl",
+    "erp.test_constraint_upgrade.ConstraintUpgradeTests.test_forward_reverse_high_water_and_next_ids_for_sparse_empty_and_larger_current",
+    "erp.test_constraint_upgrade.ConstraintUpgradeTests.test_null_high_water_is_refused_without_repairing_source_metadata"
+  ],
+  "boundary_methods": 12,
+  "permanent_migration_methods": 3,
+  "permanent_migration_cases": 7,
+  "boundary_red": {
+    "methods": 12,
+    "subtest_failures": 37,
+    "errors": 0,
+    "passed_method": "test_valid_zero_equal_maximum_and_temporary_boundaries_remain_legal",
+    "schema_manifest_sha256": "0e4e3b96649e12aa0a22c40d590b25de5eec55888479afb4980709d632ca6605",
+    "schema_before_after_equal": true
+  },
+  "boundary_final": {
+    "exit_code": 0,
+    "methods": 12,
+    "seconds": 0.088
+  },
+  "permanent_final": {
+    "exit_code": 0,
+    "methods": 3,
+    "seconds": 5.28
+  },
+  "actual_backend": "sqlite",
+  "sqlite_version": "3.53.1",
+  "postgresql_status": "НЕ ЗАПУЩЕНО"
+}

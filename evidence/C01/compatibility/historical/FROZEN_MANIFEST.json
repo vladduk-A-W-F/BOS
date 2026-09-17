@@ -1,0 +1,34 @@
+{
+  "format": "bos.c01-full24-fixture-repair.v1",
+  "files": {
+    "erp/test_schema_preflight.py": {
+      "sha256": "fe5907bc4910ba1bd5aa0af7970c691031eb47fda04430f8f1463939ec1648aa",
+      "base_sha256": "425c00095cd40064c977f95f5b0bd6e9f6e987001e77163a239737f9adcdd603"
+    },
+    "operations/test_document_migration.py": {
+      "sha256": "1608185fbb133e7aa58fb24c3ca7a5f9a8392ef39d9766e813cd0be41dcf9144",
+      "base_sha256": "0212400de39aad5bf9219d8d8ef895bf580d953df6975df8d12f78869594472f"
+    }
+  },
+  "evidence": {
+    "evidence/before.log": "1f4a633a3d07051b94f6d688c3705ada9dac17a85c087998a6541be299489476",
+    "evidence/after.log": "d161b3d267beabfd260276a2fe7891497c145db06f96bd50994f269215864f54",
+    "evidence/unchanged-oracles.json": "3d7afcb75e70fd9ed9cd35e020771f577dbeda5439bf30f89cc1ded79b4bdcf4",
+    "PATCH.diff": "96244e6f5c8c01ce8a4a616de565c2b26bd002ede8124b321c5143cac2587de8",
+    "REVIEW_UA.md": "0c6972e748da1198537fb5de1d81fbed07cf1b8b0ab08867720c1d93ad849280",
+    "BASE_PACKAGE_RESULT.json": "95a01c48ed82d88bda6a9b6b04d5a25bdce8c6a6026e1c2f1af2fdb75d12eeaf"
+  },
+  "actual": {
+    "red": {
+      "methods": 2,
+      "failures": 2,
+      "exit_code": 1
+    },
+    "green": {
+      "methods": 2,
+      "failures": 0,
+      "exit_code": 0
+    }
+  },
+  "scope": "two historical fixture target dictionaries only"
+}

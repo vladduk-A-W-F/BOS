@@ -1,0 +1,2042 @@
+Found 84 test(s).
+BOS_DATABASE {"vendor": "sqlite", "version": "3.53.1"}
+Found 84 test(s).
+BOS_DATABASE {"vendor": "sqlite", "version": "3.53.1"}
+System check identified no issues (0 silenced).
+A06_PAIR {"mode": "http", "action": "adjust", "currency": "EUR", "proposal_id": "e564f3e2-8693-4313-8957-8177ca5e9fac", "workers": [{"worker": 0, "connection": 139888347315744, "started": 8349.698374719, "ended": 8349.715695131, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888343384608, "started": 8349.697643591, "ended": 8349.751180055, "status": 200, "json": {"state": "succeeded", "lot_id": 1, "quantity": "3.000", "erp_event_id": 1, "impact": [{"kind": "lots", "id": 1, "code": "A06-4b37cab4-L", "field": "quantity", "label": "Фізичний залишок", "before": "10.000", "after": "3.000", "currency": "EUR"}, {"kind": "lots", "id": 1, "code": "A06-4b37cab4-L", "field": "available", "label": "Придатно й вільно", "before": "10.000", "after": "3.000", "currency": "EUR"}]}}]}
+A06_PASS {"mode": "http", "action": "adjust", "currency": "EUR", "inventory_id": "ERP-adjust", "erp_event_id": 1, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "adjust", "currency": "USD", "proposal_id": "2d239624-4abf-4222-b440-1735ec2f2861", "workers": [{"worker": 0, "connection": 139888343390128, "started": 8349.837279419, "ended": 8349.853048721, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888343393488, "started": 8349.836595993, "ended": 8349.895940459, "status": 200, "json": {"state": "succeeded", "lot_id": 2, "quantity": "3.000", "erp_event_id": 2, "impact": [{"kind": "lots", "id": 2, "code": "A06-ef815ed5-L", "field": "quantity", "label": "Фізичний залишок", "before": "10.000", "after": "3.000", "currency": "USD"}, {"kind": "lots", "id": 2, "code": "A06-ef815ed5-L", "field": "available", "label": "Придатно й вільно", "before": "10.000", "after": "3.000", "currency": "USD"}]}}]}
+A06_PASS {"mode": "http", "action": "adjust", "currency": "USD", "inventory_id": "ERP-adjust", "erp_event_id": 2, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "adjust", "currency": "UAH", "proposal_id": "906a1331-7029-4dc5-8f4c-64b89ec89a4a", "workers": [{"worker": 0, "connection": 139888343390368, "started": 8350.009027772, "ended": 8350.239510763, "status": 200, "json": {"state": "succeeded", "lot_id": 3, "quantity": "3.000", "erp_event_id": 3, "impact": [{"kind": "lots", "id": 3, "code": "A06-b91c16b5-L", "field": "quantity", "label": "Фізичний залишок", "before": "10.000", "after": "3.000", "currency": "UAH"}, {"kind": "lots", "id": 3, "code": "A06-b91c16b5-L", "field": "available", "label": "Придатно й вільно", "before": "10.000", "after": "3.000", "currency": "UAH"}]}}, {"worker": 1, "connection": 139888343395888, "started": 8350.008256108, "ended": 8350.177268194, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}]}
+A06_PASS {"mode": "http", "action": "adjust", "currency": "UAH", "inventory_id": "ERP-adjust", "erp_event_id": 3, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "apply_change", "currency": "EUR", "proposal_id": "b9d7d0bb-76b5-4c4a-9a59-22a736e704cf", "workers": [{"worker": 0, "connection": 139888347300864, "started": 8350.689449656, "ended": 8350.74542161, "status": 200, "json": {"state": "succeeded", "change_id": 1, "affected_jobs": [4], "note": "Відкриті роботи призупинено до окремого погодження; версію прийнятих продажів автоматично не змінено.", "erp_event_id": 4, "impact": [{"kind": "jobs", "id": 4, "code": "A06-80933221-J", "field": "needs_review", "label": "Потребує перегляду", "before": false, "after": true, "currency": "EUR"}, {"kind": "items", "id": 8, "code": "A06-80933221-F", "field": "revision", "label": "Версія виробу", "before": "A", "after": "B", "currency": "EUR"}, {"kind": "changes", "id": 1, "code": "A06-80933221-ECO", "field": "status", "label": "Стан зміни", "before": "draft", "after": "approved", "currency": ""}]}}, {"worker": 1, "connection": 139888344420160, "started": 8350.688801128, "ended": 8350.702842478, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}]}
+A06_PASS {"mode": "http", "action": "apply_change", "currency": "EUR", "inventory_id": "ERP-apply_change", "erp_event_id": 4, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "attach", "currency": "EUR", "proposal_id": "48330502-0e8a-4278-bf43-ba7bd3cee2a1", "workers": [{"worker": 0, "connection": 139888352361776, "started": 8351.186069495, "ended": 8351.199045803, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888352356976, "started": 8351.185418803, "ended": 8351.24310915, "status": 200, "json": {"state": "succeeded", "lot_id": 7, "document_id": 2, "erp_event_id": 5, "impact": [{"kind": "lots", "id": 7, "code": "A06-8771dc91-L", "field": "documents", "label": "Документи партії", "before": "Не додано", "after": "cert: A06-8771dc91-DOC · A", "currency": "EUR"}, {"kind": "lots", "id": 7, "code": "A06-8771dc91-L", "field": "missing_documents", "label": "Бракує документів", "before": "cert", "after": "Комплектно", "currency": "EUR"}]}}]}
+A06_PASS {"mode": "http", "action": "attach", "currency": "EUR", "inventory_id": "ERP-attach", "erp_event_id": 5, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "change", "currency": "EUR", "proposal_id": "0077e028-bb5a-45e2-a407-c3db97335d92", "workers": [{"worker": 0, "connection": 139888347306384, "started": 8351.685027407, "ended": 8351.697122175, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888347310944, "started": 8351.684261736, "ended": 8351.733664143, "status": 200, "json": {"state": "succeeded", "change_id": 2, "code": "A06-c4d8dc54-ECO", "erp_event_id": 6, "impact": [{"kind": "changes", "id": 2, "code": "A06-c4d8dc54-ECO", "field": "status", "label": "Стан зміни", "before": null, "after": "draft", "currency": ""}]}}]}
+A06_PASS {"mode": "http", "action": "change", "currency": "EUR", "inventory_id": "ERP-change", "erp_event_id": 6, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "confirm_order", "currency": "EUR", "proposal_id": "293e89a7-dea5-4f58-bcac-9a14d412cd0f", "workers": [{"worker": 0, "connection": 139888347314784, "started": 8352.188603981, "ended": 8352.202233851, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888347310704, "started": 8352.187898352, "ended": 8352.237062514, "status": 200, "json": {"state": "succeeded", "order_id": 7, "status": "confirmed", "erp_event_id": 7, "impact": [{"kind": "orders", "id": 7, "code": "A06-dcd2e520-SO", "field": "status", "label": "Стан замовлення", "before": "quote", "after": "confirmed", "currency": "EUR"}]}}]}
+A06_PASS {"mode": "http", "action": "confirm_order", "currency": "EUR", "inventory_id": "ERP-confirm_order", "erp_event_id": 7, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "finish", "currency": "EUR", "proposal_id": "8edf8242-8ad4-476c-a895-89a81793a5af", "workers": [{"worker": 0, "connection": 139888352360576, "started": 8352.692942486, "ended": 8352.706101469, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888352348816, "started": 8352.692262776, "ended": 8352.750895448, "status": 200, "json": {"state": "succeeded", "lot_id": 11, "production_id": 9, "cost": "21.00", "quality": "pending", "erp_event_id": 8, "impact": [{"kind": "lots", "id": 10, "code": "A06-29a98500-L", "field": "quantity", "label": "Фізичний залишок", "before": "10.000", "after": "3.000", "currency": "EUR"}, {"kind": "lots", "id": 10, "code": "A06-29a98500-L", "field": "reserved", "label": "У резерві", "before": "10", "after": "3", "currency": "EUR"}, {"kind": "lots", "id": 11, "code": "A06-29a98500-OUT", "field": "quantity", "label": "Фізичний залишок", "before": null, "after": "7.000", "currency": "EUR"}, {"kind": "lots", "id": 11, "code": "A06-29a98500-OUT", "field": "reserved", "label": "У резерві", "before": null, "after": "0", "currency": "EUR"}, {"kind": "lots", "id": 11, "code": "A06-29a98500-OUT", "field": "available", "label": "Придатно й вільно", "before": null, "after": "0", "currency": "EUR"}, {"kind": "lots", "id": 11, "code": "A06-29a98500-OUT", "field": "quality", "label": "Якість", "before": null, "after": "pending", "currency": "EUR"}, {"kind": "lots", "id": 11, "code": "A06-29a98500-OUT", "field": "documents", "label": "Документи партії", "before": null, "after": "Не додано", "currency": "EUR"}, {"kind": "lots", "id": 11, "code": "A06-29a98500-OUT", "field": "missing_documents", "label": "Бракує документів", "before": null, "after": "Комплектно", "currency": "EUR"}, {"kind": "jobs", "id": 9, "code": "A06-29a98500-J", "field": "produced", "label": "Випущено", "before": "0.000", "after": "7.000", "currency": "EUR"}, {"kind": "jobs", "id": 9, "code": "A06-29a98500-J", "field": "actual_cost", "label": "Фактичні витрати", "before": "0.00", "after": "21.00", "currency": "EUR"}, {"kind": "reservations", "id": 1, "code": "Резерв · A06-29a98500-L", "field": "quantity", "label": "Кількість резерву", "before": "5.000", "after": "0.000", "currency": ""}, {"kind": "reservations", "id": 2, "code": "Резерв · A06-29a98500-L", "field": "quantity", "label": "Кількість резерву", "before": "5.000", "after": "3.000", "currency": ""}]}}]}
+A06_PASS {"mode": "http", "action": "finish", "currency": "EUR", "inventory_id": "ERP-finish", "erp_event_id": 8, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "finish", "currency": "USD", "proposal_id": "5a3afd9e-8021-4a24-adea-70e20e8dfcd1", "workers": [{"worker": 0, "connection": 139888343389408, "started": 8352.853879302, "ended": 8352.866199199, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888343388208, "started": 8352.853009505, "ended": 8352.93725455, "status": 200, "json": {"state": "succeeded", "lot_id": 13, "production_id": 10, "cost": "21.00", "quality": "pending", "erp_event_id": 9, "impact": [{"kind": "lots", "id": 12, "code": "A06-447ae339-L", "field": "quantity", "label": "Фізичний залишок", "before": "10.000", "after": "3.000", "currency": "USD"}, {"kind": "lots", "id": 12, "code": "A06-447ae339-L", "field": "reserved", "label": "У резерві", "before": "10", "after": "3", "currency": "USD"}, {"kind": "lots", "id": 13, "code": "A06-447ae339-OUT", "field": "quantity", "label": "Фізичний залишок", "before": null, "after": "7.000", "currency": "USD"}, {"kind": "lots", "id": 13, "code": "A06-447ae339-OUT", "field": "reserved", "label": "У резерві", "before": null, "after": "0", "currency": "USD"}, {"kind": "lots", "id": 13, "code": "A06-447ae339-OUT", "field": "available", "label": "Придатно й вільно", "before": null, "after": "0", "currency": "USD"}, {"kind": "lots", "id": 13, "code": "A06-447ae339-OUT", "field": "quality", "label": "Якість", "before": null, "after": "pending", "currency": "USD"}, {"kind": "lots", "id": 13, "code": "A06-447ae339-OUT", "field": "documents", "label": "Документи партії", "before": null, "after": "Не додано", "currency": "USD"}, {"kind": "lots", "id": 13, "code": "A06-447ae339-OUT", "field": "missing_documents", "label": "Бракує документів", "before": null, "after": "Комплектно", "currency": "USD"}, {"kind": "jobs", "id": 10, "code": "A06-447ae339-J", "field": "produced", "label": "Випущено", "before": "0.000", "after": "7.000", "currency": "USD"}, {"kind": "jobs", "id": 10, "code": "A06-447ae339-J", "field": "actual_cost", "label": "Фактичні витрати", "before": "0.00", "after": "21.00", "currency": "USD"}, {"kind": "reservations", "id": 3, "code": "Резерв · A06-447ae339-L", "field": "quantity", "label": "Кількість резерву", "before": "5.000", "after": "0.000", "currency": ""}, {"kind": "reservations", "id": 4, "code": "Резерв · A06-447ae339-L", "field": "quantity", "label": "Кількість резерву", "before": "5.000", "after": "3.000", "currency": ""}]}}]}
+A06_PASS {"mode": "http", "action": "finish", "currency": "USD", "inventory_id": "ERP-finish", "erp_event_id": 9, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "finish", "currency": "UAH", "proposal_id": "ae28517c-cc3e-46bf-bed8-9c3f63fff7c2", "workers": [{"worker": 0, "connection": 139888352356976, "started": 8353.068761729, "ended": 8353.14753527, "status": 200, "json": {"state": "succeeded", "lot_id": 15, "production_id": 11, "cost": "21.00", "quality": "pending", "erp_event_id": 10, "impact": [{"kind": "lots", "id": 14, "code": "A06-1df9df45-L", "field": "quantity", "label": "Фізичний залишок", "before": "10.000", "after": "3.000", "currency": "UAH"}, {"kind": "lots", "id": 14, "code": "A06-1df9df45-L", "field": "reserved", "label": "У резерві", "before": "10", "after": "3", "currency": "UAH"}, {"kind": "lots", "id": 15, "code": "A06-1df9df45-OUT", "field": "quantity", "label": "Фізичний залишок", "before": null, "after": "7.000", "currency": "UAH"}, {"kind": "lots", "id": 15, "code": "A06-1df9df45-OUT", "field": "reserved", "label": "У резерві", "before": null, "after": "0", "currency": "UAH"}, {"kind": "lots", "id": 15, "code": "A06-1df9df45-OUT", "field": "available", "label": "Придатно й вільно", "before": null, "after": "0", "currency": "UAH"}, {"kind": "lots", "id": 15, "code": "A06-1df9df45-OUT", "field": "quality", "label": "Якість", "before": null, "after": "pending", "currency": "UAH"}, {"kind": "lots", "id": 15, "code": "A06-1df9df45-OUT", "field": "documents", "label": "Документи партії", "before": null, "after": "Не додано", "currency": "UAH"}, {"kind": "lots", "id": 15, "code": "A06-1df9df45-OUT", "field": "missing_documents", "label": "Бракує документів", "before": null, "after": "Комплектно", "currency": "UAH"}, {"kind": "jobs", "id": 11, "code": "A06-1df9df45-J", "field": "produced", "label": "Випущено", "before": "0.000", "after": "7.000", "currency": "UAH"}, {"kind": "jobs", "id": 11, "code": "A06-1df9df45-J", "field": "actual_cost", "label": "Фактичні витрати", "before": "0.00", "after": "21.00", "currency": "UAH"}, {"kind": "reservations", "id": 5, "code": "Резерв · A06-1df9df45-L", "field": "quantity", "label": "Кількість резерву", "before": "5.000", "after": "0.000", "currency": ""}, {"kind": "reservations", "id": 6, "code": "Резерв · A06-1df9df45-L", "field": "quantity", "label": "Кількість резерву", "before": "5.000", "after": "3.000", "currency": ""}]}}, {"worker": 1, "connection": 139888352359616, "started": 8353.06797633, "ended": 8353.084737678, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}]}
+A06_PASS {"mode": "http", "action": "finish", "currency": "UAH", "inventory_id": "ERP-finish", "erp_event_id": 10, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "invoice", "currency": "EUR", "proposal_id": "aec6e64f-5148-4e30-b4d7-bf699aac363a", "workers": [{"worker": 0, "connection": 139888347301344, "started": 8353.619349458, "ended": 8353.634059242, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888347302304, "started": 8353.618622947, "ended": 8353.671858267, "status": 200, "json": {"state": "succeeded", "invoice_id": 1, "code": "A06-14c464f8-INV2", "amount": "50.00", "erp_event_id": 11, "impact": [{"kind": "lines", "id": 11, "code": "A06-14c464f8-SO · A06-14c464f8-M", "field": "invoiced", "label": "Виставлено в рахунках", "before": "0.000", "after": "10.000", "currency": ""}, {"kind": "invoices", "id": 1, "code": "A06-14c464f8-INV2", "field": "amount", "label": "Сума рахунку", "before": null, "after": "50.00", "currency": "EUR"}, {"kind": "invoices", "id": 1, "code": "A06-14c464f8-INV2", "field": "paid", "label": "Сплачено", "before": null, "after": "0.00", "currency": "EUR"}, {"kind": "invoices", "id": 1, "code": "A06-14c464f8-INV2", "field": "open", "label": "До оплати", "before": null, "after": "50.00", "currency": "EUR"}]}}]}
+A06_PASS {"mode": "http", "action": "invoice", "currency": "EUR", "inventory_id": "ERP-invoice", "erp_event_id": 11, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "invoice", "currency": "USD", "proposal_id": "dfc599ec-f728-4db1-ab2c-ff46355175e2", "workers": [{"worker": 0, "connection": 139888347300864, "started": 8353.760072667, "ended": 8353.772804356, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888343386528, "started": 8353.759177631, "ended": 8353.820073208, "status": 200, "json": {"state": "succeeded", "invoice_id": 2, "code": "A06-ee111155-INV2", "amount": "50.00", "erp_event_id": 12, "impact": [{"kind": "lines", "id": 12, "code": "A06-ee111155-SO · A06-ee111155-M", "field": "invoiced", "label": "Виставлено в рахунках", "before": "0.000", "after": "10.000", "currency": ""}, {"kind": "invoices", "id": 2, "code": "A06-ee111155-INV2", "field": "amount", "label": "Сума рахунку", "before": null, "after": "50.00", "currency": "USD"}, {"kind": "invoices", "id": 2, "code": "A06-ee111155-INV2", "field": "paid", "label": "Сплачено", "before": null, "after": "0.00", "currency": "USD"}, {"kind": "invoices", "id": 2, "code": "A06-ee111155-INV2", "field": "open", "label": "До оплати", "before": null, "after": "50.00", "currency": "USD"}]}}]}
+A06_PASS {"mode": "http", "action": "invoice", "currency": "USD", "inventory_id": "ERP-invoice", "erp_event_id": 12, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "invoice", "currency": "UAH", "proposal_id": "9d658f68-0c43-4f61-a30c-ab3271900338", "workers": [{"worker": 0, "connection": 139888347309984, "started": 8353.920497604, "ended": 8353.994633982, "status": 200, "json": {"state": "succeeded", "invoice_id": 3, "code": "A06-23682469-INV2", "amount": "50.00", "erp_event_id": 13, "impact": [{"kind": "lines", "id": 13, "code": "A06-23682469-SO · A06-23682469-M", "field": "invoiced", "label": "Виставлено в рахунках", "before": "0.000", "after": "10.000", "currency": ""}, {"kind": "invoices", "id": 3, "code": "A06-23682469-INV2", "field": "amount", "label": "Сума рахунку", "before": null, "after": "50.00", "currency": "UAH"}, {"kind": "invoices", "id": 3, "code": "A06-23682469-INV2", "field": "paid", "label": "Сплачено", "before": null, "after": "0.00", "currency": "UAH"}, {"kind": "invoices", "id": 3, "code": "A06-23682469-INV2", "field": "open", "label": "До оплати", "before": null, "after": "50.00", "currency": "UAH"}]}}, {"worker": 1, "connection": 139888347300384, "started": 8353.919767838, "ended": 8353.935080972, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}]}
+A06_PASS {"mode": "http", "action": "invoice", "currency": "UAH", "inventory_id": "ERP-invoice", "erp_event_id": 13, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "item", "currency": "EUR", "proposal_id": "3359c7a9-d66c-4539-abf6-cc1d61c65d10", "workers": [{"worker": 0, "connection": 139888352361536, "started": 8354.442366547, "ended": 8354.490300901, "status": 200, "json": {"state": "succeeded", "item_id": 29, "code": "A06-281679be-NEW", "erp_event_id": 14, "impact": [{"kind": "items", "id": 29, "code": "A06-281679be-NEW", "field": "revision", "label": "Версія виробу", "before": null, "after": "A", "currency": "EUR"}, {"kind": "items", "id": 29, "code": "A06-281679be-NEW", "field": "name", "label": "Назва", "before": null, "after": "Синтетичний компонент", "currency": "EUR"}, {"kind": "items", "id": 29, "code": "A06-281679be-NEW", "field": "bom", "label": "Склад виробу", "before": null, "after": "Без компонентів", "currency": "EUR"}, {"kind": "items", "id": 29, "code": "A06-281679be-NEW", "field": "routing", "label": "Маршрут", "before": null, "after": "Виготовлення", "currency": "EUR"}]}}, {"worker": 1, "connection": 139888352360576, "started": 8354.441374755, "ended": 8354.455603574, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}]}
+A06_PASS {"mode": "http", "action": "item", "currency": "EUR", "inventory_id": "ERP-item", "erp_event_id": 14, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "item", "currency": "USD", "proposal_id": "dc03da31-a221-4761-8391-0638c1d2745d", "workers": [{"worker": 0, "connection": 139888343387968, "started": 8354.573554395, "ended": 8354.58706521, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888343385568, "started": 8354.572461491, "ended": 8354.635053551, "status": 200, "json": {"state": "succeeded", "item_id": 32, "code": "A06-23aa8fb5-NEW", "erp_event_id": 15, "impact": [{"kind": "items", "id": 32, "code": "A06-23aa8fb5-NEW", "field": "revision", "label": "Версія виробу", "before": null, "after": "A", "currency": "USD"}, {"kind": "items", "id": 32, "code": "A06-23aa8fb5-NEW", "field": "name", "label": "Назва", "before": null, "after": "Синтетичний компонент", "currency": "USD"}, {"kind": "items", "id": 32, "code": "A06-23aa8fb5-NEW", "field": "bom", "label": "Склад виробу", "before": null, "after": "Без компонентів", "currency": "USD"}, {"kind": "items", "id": 32, "code": "A06-23aa8fb5-NEW", "field": "routing", "label": "Маршрут", "before": null, "after": "Виготовлення", "currency": "USD"}]}}]}
+A06_PASS {"mode": "http", "action": "item", "currency": "USD", "inventory_id": "ERP-item", "erp_event_id": 15, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "item", "currency": "UAH", "proposal_id": "58bfef1f-8528-401b-9a1d-f7ee59c2280e", "workers": [{"worker": 0, "connection": 139888343392528, "started": 8354.731294105, "ended": 8354.798852258, "status": 200, "json": {"state": "succeeded", "item_id": 35, "code": "A06-926ff7b2-NEW", "erp_event_id": 16, "impact": [{"kind": "items", "id": 35, "code": "A06-926ff7b2-NEW", "field": "revision", "label": "Версія виробу", "before": null, "after": "A", "currency": "UAH"}, {"kind": "items", "id": 35, "code": "A06-926ff7b2-NEW", "field": "name", "label": "Назва", "before": null, "after": "Синтетичний компонент", "currency": "UAH"}, {"kind": "items", "id": 35, "code": "A06-926ff7b2-NEW", "field": "bom", "label": "Склад виробу", "before": null, "after": "Без компонентів", "currency": "UAH"}, {"kind": "items", "id": 35, "code": "A06-926ff7b2-NEW", "field": "routing", "label": "Маршрут", "before": null, "after": "Виготовлення", "currency": "UAH"}]}}, {"worker": 1, "connection": 139888343391568, "started": 8354.730297667, "ended": 8354.744881451, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}]}
+A06_PASS {"mode": "http", "action": "item", "currency": "UAH", "inventory_id": "ERP-item", "erp_event_id": 16, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "job", "currency": "EUR", "proposal_id": "e3f0657b-9e7f-4008-862a-a08f25f06979", "workers": [{"worker": 0, "connection": 139888352360576, "started": 8355.228734701, "ended": 8355.289229591, "status": 200, "json": {"state": "succeeded", "production_id": 19, "code": "A06-1bbcb88e-J2", "erp_event_id": 17, "impact": [{"kind": "jobs", "id": 19, "code": "A06-1bbcb88e-J2", "field": "status", "label": "Стан роботи", "before": null, "after": "planned", "currency": "EUR"}, {"kind": "jobs", "id": 19, "code": "A06-1bbcb88e-J2", "field": "produced", "label": "Випущено", "before": null, "after": "0.000", "currency": "EUR"}, {"kind": "jobs", "id": 19, "code": "A06-1bbcb88e-J2", "field": "actual_cost", "label": "Фактичні витрати", "before": null, "after": "0.00", "currency": "EUR"}, {"kind": "jobs", "id": 19, "code": "A06-1bbcb88e-J2", "field": "needs_review", "label": "Потребує перегляду", "before": null, "after": false, "currency": "EUR"}, {"kind": "jobs", "id": 19, "code": "A06-1bbcb88e-J2", "field": "due_date", "label": "Строк завершення", "before": null, "after": "2026-09-20", "currency": "EUR"}]}}, {"worker": 1, "connection": 139888352356976, "started": 8355.229761945, "ended": 8355.247689099, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}]}
+A06_PASS {"mode": "http", "action": "job", "currency": "EUR", "inventory_id": "ERP-job", "erp_event_id": 17, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "job", "currency": "USD", "proposal_id": "64d4f128-ec27-4e72-8f7e-12af4b7e8a6c", "workers": [{"worker": 0, "connection": 139888347304704, "started": 8355.374198804, "ended": 8355.391078051, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888347306624, "started": 8355.373032108, "ended": 8355.434269865, "status": 200, "json": {"state": "succeeded", "production_id": 21, "code": "A06-85e4a784-J2", "erp_event_id": 18, "impact": [{"kind": "jobs", "id": 21, "code": "A06-85e4a784-J2", "field": "status", "label": "Стан роботи", "before": null, "after": "planned", "currency": "USD"}, {"kind": "jobs", "id": 21, "code": "A06-85e4a784-J2", "field": "produced", "label": "Випущено", "before": null, "after": "0.000", "currency": "USD"}, {"kind": "jobs", "id": 21, "code": "A06-85e4a784-J2", "field": "actual_cost", "label": "Фактичні витрати", "before": null, "after": "0.00", "currency": "USD"}, {"kind": "jobs", "id": 21, "code": "A06-85e4a784-J2", "field": "needs_review", "label": "Потребує перегляду", "before": null, "after": false, "currency": "USD"}, {"kind": "jobs", "id": 21, "code": "A06-85e4a784-J2", "field": "due_date", "label": "Строк завершення", "before": null, "after": "2026-09-20", "currency": "USD"}]}}]}
+A06_PASS {"mode": "http", "action": "job", "currency": "USD", "inventory_id": "ERP-job", "erp_event_id": 18, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "job", "currency": "UAH", "proposal_id": "2f87314a-f827-459c-a923-3901e3828312", "workers": [{"worker": 0, "connection": 139888343386528, "started": 8355.528373014, "ended": 8355.600664308, "status": 200, "json": {"state": "succeeded", "production_id": 23, "code": "A06-6a7a5b8c-J2", "erp_event_id": 19, "impact": [{"kind": "jobs", "id": 23, "code": "A06-6a7a5b8c-J2", "field": "status", "label": "Стан роботи", "before": null, "after": "planned", "currency": "UAH"}, {"kind": "jobs", "id": 23, "code": "A06-6a7a5b8c-J2", "field": "produced", "label": "Випущено", "before": null, "after": "0.000", "currency": "UAH"}, {"kind": "jobs", "id": 23, "code": "A06-6a7a5b8c-J2", "field": "actual_cost", "label": "Фактичні витрати", "before": null, "after": "0.00", "currency": "UAH"}, {"kind": "jobs", "id": 23, "code": "A06-6a7a5b8c-J2", "field": "needs_review", "label": "Потребує перегляду", "before": null, "after": false, "currency": "UAH"}, {"kind": "jobs", "id": 23, "code": "A06-6a7a5b8c-J2", "field": "due_date", "label": "Строк завершення", "before": null, "after": "2026-09-20", "currency": "UAH"}]}}, {"worker": 1, "connection": 139888343391568, "started": 8355.527249493, "ended": 8355.542336938, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}]}
+A06_PASS {"mode": "http", "action": "job", "currency": "UAH", "inventory_id": "ERP-job", "erp_event_id": 19, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "location", "currency": "EUR", "proposal_id": "8ea52603-0d55-4dad-b3cb-d0d32b4907b2", "workers": [{"worker": 0, "connection": 139888343389168, "started": 8356.035912657, "ended": 8356.049707671, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888343384848, "started": 8356.034841385, "ended": 8356.089109365, "status": 200, "json": {"state": "succeeded", "location_id": 41, "code": "A06-345af96a-W2", "erp_event_id": 20, "impact": [{"kind": "locations", "id": 41, "code": "A06-345af96a-W2", "field": "name", "label": "Назва місця", "before": null, "after": "Синтетичний другий склад", "currency": ""}, {"kind": "locations", "id": 41, "code": "A06-345af96a-W2", "field": "kind", "label": "Тип місця", "before": null, "after": "warehouse", "currency": ""}]}}]}
+A06_PASS {"mode": "http", "action": "location", "currency": "EUR", "inventory_id": "ERP-location", "erp_event_id": 20, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "opening", "currency": "EUR", "proposal_id": "6030365a-83c0-4327-934a-aebc04d87a1a", "workers": [{"worker": 0, "connection": 139888347303504, "started": 8356.515239652, "ended": 8356.569266708, "status": 200, "json": {"state": "succeeded", "lot_id": 27, "code": "A06-e9160ac1-OPEN", "quality": "pending", "erp_event_id": 21, "impact": [{"kind": "lots", "id": 27, "code": "A06-e9160ac1-OPEN", "field": "quantity", "label": "Фізичний залишок", "before": null, "after": "10.000", "currency": "EUR"}, {"kind": "lots", "id": 27, "code": "A06-e9160ac1-OPEN", "field": "reserved", "label": "У резерві", "before": null, "after": "0", "currency": "EUR"}, {"kind": "lots", "id": 27, "code": "A06-e9160ac1-OPEN", "field": "available", "label": "Придатно й вільно", "before": null, "after": "0", "currency": "EUR"}, {"kind": "lots", "id": 27, "code": "A06-e9160ac1-OPEN", "field": "quality", "label": "Якість", "before": null, "after": "pending", "currency": "EUR"}, {"kind": "lots", "id": 27, "code": "A06-e9160ac1-OPEN", "field": "documents", "label": "Документи партії", "before": null, "after": "Не додано", "currency": "EUR"}, {"kind": "lots", "id": 27, "code": "A06-e9160ac1-OPEN", "field": "missing_documents", "label": "Бракує документів", "before": null, "after": "Комплектно", "currency": "EUR"}]}}, {"worker": 1, "connection": 139888347303264, "started": 8356.516295645, "ended": 8356.533101613, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}]}
+A06_PASS {"mode": "http", "action": "opening", "currency": "EUR", "inventory_id": "ERP-opening", "erp_event_id": 21, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "opening", "currency": "USD", "proposal_id": "684d1fcb-f6fa-4a7d-918e-77b42f96d402", "workers": [{"worker": 0, "connection": 139888352353376, "started": 8356.659667717, "ended": 8356.726210167, "status": 200, "json": {"state": "succeeded", "lot_id": 29, "code": "A06-5c44b7c2-OPEN", "quality": "pending", "erp_event_id": 22, "impact": [{"kind": "lots", "id": 29, "code": "A06-5c44b7c2-OPEN", "field": "quantity", "label": "Фізичний залишок", "before": null, "after": "10.000", "currency": "USD"}, {"kind": "lots", "id": 29, "code": "A06-5c44b7c2-OPEN", "field": "reserved", "label": "У резерві", "before": null, "after": "0", "currency": "USD"}, {"kind": "lots", "id": 29, "code": "A06-5c44b7c2-OPEN", "field": "available", "label": "Придатно й вільно", "before": null, "after": "0", "currency": "USD"}, {"kind": "lots", "id": 29, "code": "A06-5c44b7c2-OPEN", "field": "quality", "label": "Якість", "before": null, "after": "pending", "currency": "USD"}, {"kind": "lots", "id": 29, "code": "A06-5c44b7c2-OPEN", "field": "documents", "label": "Документи партії", "before": null, "after": "Не додано", "currency": "USD"}, {"kind": "lots", "id": 29, "code": "A06-5c44b7c2-OPEN", "field": "missing_documents", "label": "Бракує документів", "before": null, "after": "Комплектно", "currency": "USD"}]}}, {"worker": 1, "connection": 139888352353856, "started": 8356.660733981, "ended": 8356.678415594, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}]}
+A06_PASS {"mode": "http", "action": "opening", "currency": "USD", "inventory_id": "ERP-opening", "erp_event_id": 22, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "opening", "currency": "UAH", "proposal_id": "40707d42-9450-425c-b5a9-104367f82568", "workers": [{"worker": 0, "connection": 139888343385088, "started": 8356.833060024, "ended": 8356.846803901, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888343386528, "started": 8356.831976464, "ended": 8356.903153066, "status": 200, "json": {"state": "succeeded", "lot_id": 31, "code": "A06-538f22a4-OPEN", "quality": "pending", "erp_event_id": 23, "impact": [{"kind": "lots", "id": 31, "code": "A06-538f22a4-OPEN", "field": "quantity", "label": "Фізичний залишок", "before": null, "after": "10.000", "currency": "UAH"}, {"kind": "lots", "id": 31, "code": "A06-538f22a4-OPEN", "field": "reserved", "label": "У резерві", "before": null, "after": "0", "currency": "UAH"}, {"kind": "lots", "id": 31, "code": "A06-538f22a4-OPEN", "field": "available", "label": "Придатно й вільно", "before": null, "after": "0", "currency": "UAH"}, {"kind": "lots", "id": 31, "code": "A06-538f22a4-OPEN", "field": "quality", "label": "Якість", "before": null, "after": "pending", "currency": "UAH"}, {"kind": "lots", "id": 31, "code": "A06-538f22a4-OPEN", "field": "documents", "label": "Документи партії", "before": null, "after": "Не додано", "currency": "UAH"}, {"kind": "lots", "id": 31, "code": "A06-538f22a4-OPEN", "field": "missing_documents", "label": "Бракує документів", "before": null, "after": "Комплектно", "currency": "UAH"}]}}]}
+A06_PASS {"mode": "http", "action": "opening", "currency": "UAH", "inventory_id": "ERP-opening", "erp_event_id": 23, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "operator", "currency": "EUR", "proposal_id": "dba48723-cd07-4b28-b35e-e3865413dbf0", "workers": [{"worker": 0, "connection": 139888343388928, "started": 8357.349492434, "ended": 8357.398625066, "status": 200, "json": {"state": "succeeded", "entry_id": 5, "production_id": 28, "erp_event_id": 24, "impact": [{"kind": "operator_entries", "id": 5, "code": "Виготовлення", "field": "result", "label": "Результат операції", "before": null, "after": "done", "currency": ""}, {"kind": "operator_entries", "id": 5, "code": "Виготовлення", "field": "minutes", "label": "Витрачено хвилин", "before": null, "after": 10, "currency": ""}]}}, {"worker": 1, "connection": 139888343387968, "started": 8357.348398589, "ended": 8357.366981597, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}]}
+A06_PASS {"mode": "http", "action": "operator", "currency": "EUR", "inventory_id": "ERP-operator", "erp_event_id": 24, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "order", "currency": "EUR", "proposal_id": "988ad1a4-6052-4905-96ac-eff04f9869a7", "workers": [{"worker": 0, "connection": 139888352360816, "started": 8357.82921759, "ended": 8357.880577273, "status": 200, "json": {"state": "succeeded", "order_id": 26, "code": "A06-f128ee39-SO2", "erp_event_id": 25, "impact": [{"kind": "lines", "id": 26, "code": "A06-f128ee39-SO2 · A06-f128ee39-M", "field": "shipped", "label": "Відвантажено", "before": null, "after": "0.000", "currency": ""}, {"kind": "lines", "id": 26, "code": "A06-f128ee39-SO2 · A06-f128ee39-M", "field": "invoiced", "label": "Виставлено в рахунках", "before": null, "after": "0.000", "currency": ""}, {"kind": "orders", "id": 26, "code": "A06-f128ee39-SO2", "field": "status", "label": "Стан замовлення", "before": null, "after": "quote", "currency": "EUR"}]}}, {"worker": 1, "connection": 139888347304704, "started": 8357.82793489, "ended": 8357.844694297, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}]}
+A06_PASS {"mode": "http", "action": "order", "currency": "EUR", "inventory_id": "ERP-order", "erp_event_id": 25, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "order", "currency": "USD", "proposal_id": "e7b92dd1-e051-485f-a114-31590cb15cad", "workers": [{"worker": 0, "connection": 139888343398288, "started": 8357.966168885, "ended": 8357.981006717, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888343399728, "started": 8357.967166609, "ended": 8358.032291871, "status": 200, "json": {"state": "succeeded", "order_id": 28, "code": "A06-3b27ecac-SO2", "erp_event_id": 26, "impact": [{"kind": "lines", "id": 28, "code": "A06-3b27ecac-SO2 · A06-3b27ecac-M", "field": "shipped", "label": "Відвантажено", "before": null, "after": "0.000", "currency": ""}, {"kind": "lines", "id": 28, "code": "A06-3b27ecac-SO2 · A06-3b27ecac-M", "field": "invoiced", "label": "Виставлено в рахунках", "before": null, "after": "0.000", "currency": ""}, {"kind": "orders", "id": 28, "code": "A06-3b27ecac-SO2", "field": "status", "label": "Стан замовлення", "before": null, "after": "quote", "currency": "USD"}]}}]}
+A06_PASS {"mode": "http", "action": "order", "currency": "USD", "inventory_id": "ERP-order", "erp_event_id": 26, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "order", "currency": "UAH", "proposal_id": "f92d3cc1-e08d-4db9-bb04-69e786cf0677", "workers": [{"worker": 0, "connection": 139888343396608, "started": 8358.135554496, "ended": 8358.211556944, "status": 200, "json": {"state": "succeeded", "order_id": 30, "code": "A06-2e1bd5f7-SO2", "erp_event_id": 27, "impact": [{"kind": "lines", "id": 30, "code": "A06-2e1bd5f7-SO2 · A06-2e1bd5f7-M", "field": "shipped", "label": "Відвантажено", "before": null, "after": "0.000", "currency": ""}, {"kind": "lines", "id": 30, "code": "A06-2e1bd5f7-SO2 · A06-2e1bd5f7-M", "field": "invoiced", "label": "Виставлено в рахунках", "before": null, "after": "0.000", "currency": ""}, {"kind": "orders", "id": 30, "code": "A06-2e1bd5f7-SO2", "field": "status", "label": "Стан замовлення", "before": null, "after": "quote", "currency": "UAH"}]}}, {"worker": 1, "connection": 139888343384368, "started": 8358.134386564, "ended": 8358.148879821, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}]}
+A06_PASS {"mode": "http", "action": "order", "currency": "UAH", "inventory_id": "ERP-order", "erp_event_id": 27, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "payment", "currency": "EUR", "proposal_id": "afe338d5-214d-4035-8d2f-69a9409a81eb", "workers": [{"worker": 0, "connection": 139888343388688, "started": 8358.642628887, "ended": 8358.658083204, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888343400208, "started": 8358.641570375, "ended": 8358.696699164, "status": 200, "json": {"state": "succeeded", "invoice_id": 4, "paid": "7.00", "note": "Локальний обліковий запис; банківська операція не виконується.", "erp_event_id": 28, "impact": [{"kind": "invoices", "id": 4, "code": "A06-a2c44039-INV", "field": "paid", "label": "Сплачено", "before": "0.00", "after": "7.00", "currency": "EUR"}, {"kind": "invoices", "id": 4, "code": "A06-a2c44039-INV", "field": "open", "label": "До оплати", "before": "10.00", "after": "3.00", "currency": "EUR"}]}}]}
+A06_PASS {"mode": "http", "action": "payment", "currency": "EUR", "inventory_id": "ERP-payment", "erp_event_id": 28, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "payment", "currency": "USD", "proposal_id": "d2f917e5-e025-4831-9c9c-d497a1ac0256", "workers": [{"worker": 0, "connection": 139888343394928, "started": 8358.782508294, "ended": 8358.798705006, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888343385568, "started": 8358.781420067, "ended": 8358.844668908, "status": 200, "json": {"state": "succeeded", "invoice_id": 5, "paid": "7.00", "note": "Локальний обліковий запис; банківська операція не виконується.", "erp_event_id": 29, "impact": [{"kind": "invoices", "id": 5, "code": "A06-6b5931cf-INV", "field": "paid", "label": "Сплачено", "before": "0.00", "after": "7.00", "currency": "USD"}, {"kind": "invoices", "id": 5, "code": "A06-6b5931cf-INV", "field": "open", "label": "До оплати", "before": "10.00", "after": "3.00", "currency": "USD"}]}}]}
+A06_PASS {"mode": "http", "action": "payment", "currency": "USD", "inventory_id": "ERP-payment", "erp_event_id": 29, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "payment", "currency": "UAH", "proposal_id": "829d9522-0ff7-4b96-9d8e-a71b160eadab", "workers": [{"worker": 0, "connection": 139888343392528, "started": 8358.939882878, "ended": 8358.953945024, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888343397088, "started": 8358.938883279, "ended": 8359.011654492, "status": 200, "json": {"state": "succeeded", "invoice_id": 6, "paid": "7.00", "note": "Локальний обліковий запис; банківська операція не виконується.", "erp_event_id": 30, "impact": [{"kind": "invoices", "id": 6, "code": "A06-7234b9fc-INV", "field": "paid", "label": "Сплачено", "before": "0.00", "after": "7.00", "currency": "UAH"}, {"kind": "invoices", "id": 6, "code": "A06-7234b9fc-INV", "field": "open", "label": "До оплати", "before": "10.00", "after": "3.00", "currency": "UAH"}]}}]}
+A06_PASS {"mode": "http", "action": "payment", "currency": "UAH", "inventory_id": "ERP-payment", "erp_event_id": 30, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "postpone", "currency": "EUR", "proposal_id": "2594d893-9af5-4958-8320-2e9be5160fed", "workers": [{"worker": 0, "connection": 139888347300624, "started": 8359.43953877, "ended": 8359.45311869, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888347304704, "started": 8359.438408781, "ended": 8359.486314652, "status": 200, "json": {"state": "succeeded", "id": 31, "code": "A06-787d727b-PO", "due_date": "2026-10-01", "erp_event_id": 31, "impact": [{"kind": "purchases", "id": 31, "code": "A06-787d727b-PO", "field": "due_date", "label": "Очікувана дата", "before": "2026-09-20", "after": "2026-10-01", "currency": "EUR"}]}}]}
+A06_PASS {"mode": "http", "action": "postpone", "currency": "EUR", "inventory_id": "ERP-postpone", "erp_event_id": 31, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "postpone_job", "currency": "EUR", "proposal_id": "6d52c10d-af68-47b9-86fe-4efffa4ab34b", "workers": [{"worker": 0, "connection": 139888352354096, "started": 8359.912947651, "ended": 8359.928299254, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888352354336, "started": 8359.912246288, "ended": 8359.963669716, "status": 200, "json": {"state": "succeeded", "id": 36, "code": "A06-9be3a64f-J", "due_date": "2026-10-01", "erp_event_id": 32, "impact": [{"kind": "jobs", "id": 36, "code": "A06-9be3a64f-J", "field": "due_date", "label": "Строк завершення", "before": "2026-09-20", "after": "2026-10-01", "currency": "EUR"}]}}]}
+A06_PASS {"mode": "http", "action": "postpone_job", "currency": "EUR", "inventory_id": "ERP-postpone_job", "erp_event_id": 32, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "purchase", "currency": "EUR", "proposal_id": "805a6fc5-16fe-4c40-9329-0b2afbbcc9a0", "workers": [{"worker": 0, "connection": 139888347301344, "started": 8360.390103751, "ended": 8360.405700328, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888347313104, "started": 8360.389013882, "ended": 8360.439983971, "status": 200, "json": {"state": "succeeded", "purchase_id": 34, "code": "A06-cef2240d-PO2", "erp_event_id": 33, "impact": [{"kind": "purchases", "id": 34, "code": "A06-cef2240d-PO2", "field": "quantity", "label": "Замовлено", "before": null, "after": "10.000", "currency": "EUR"}, {"kind": "purchases", "id": 34, "code": "A06-cef2240d-PO2", "field": "price", "label": "Ціна одиниці", "before": null, "after": "2.00", "currency": "EUR"}, {"kind": "purchases", "id": 34, "code": "A06-cef2240d-PO2", "field": "extras", "label": "Додаткові витрати", "before": null, "after": "10.00", "currency": "EUR"}, {"kind": "purchases", "id": 34, "code": "A06-cef2240d-PO2", "field": "received", "label": "Отримано", "before": null, "after": "0.000", "currency": "EUR"}, {"kind": "purchases", "id": 34, "code": "A06-cef2240d-PO2", "field": "status", "label": "Стан поставки", "before": null, "after": "ordered", "currency": "EUR"}, {"kind": "purchases", "id": 34, "code": "A06-cef2240d-PO2", "field": "due_date", "label": "Очікувана дата", "before": null, "after": "2026-09-20", "currency": "EUR"}]}}]}
+A06_PASS {"mode": "http", "action": "purchase", "currency": "EUR", "inventory_id": "ERP-purchase", "erp_event_id": 33, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "purchase", "currency": "USD", "proposal_id": "26348078-a045-4668-bcd3-7e1dbae6c2e0", "workers": [{"worker": 0, "connection": 139888343399488, "started": 8360.52322715, "ended": 8360.535613889, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888343387008, "started": 8360.522214867, "ended": 8360.578475589, "status": 200, "json": {"state": "succeeded", "purchase_id": 36, "code": "A06-fd0d9318-PO2", "erp_event_id": 34, "impact": [{"kind": "purchases", "id": 36, "code": "A06-fd0d9318-PO2", "field": "quantity", "label": "Замовлено", "before": null, "after": "10.000", "currency": "USD"}, {"kind": "purchases", "id": 36, "code": "A06-fd0d9318-PO2", "field": "price", "label": "Ціна одиниці", "before": null, "after": "2.00", "currency": "USD"}, {"kind": "purchases", "id": 36, "code": "A06-fd0d9318-PO2", "field": "extras", "label": "Додаткові витрати", "before": null, "after": "10.00", "currency": "USD"}, {"kind": "purchases", "id": 36, "code": "A06-fd0d9318-PO2", "field": "received", "label": "Отримано", "before": null, "after": "0.000", "currency": "USD"}, {"kind": "purchases", "id": 36, "code": "A06-fd0d9318-PO2", "field": "status", "label": "Стан поставки", "before": null, "after": "ordered", "currency": "USD"}, {"kind": "purchases", "id": 36, "code": "A06-fd0d9318-PO2", "field": "due_date", "label": "Очікувана дата", "before": null, "after": "2026-09-20", "currency": "USD"}]}}]}
+A06_PASS {"mode": "http", "action": "purchase", "currency": "USD", "inventory_id": "ERP-purchase", "erp_event_id": 34, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "purchase", "currency": "UAH", "proposal_id": "7799c113-f904-49a3-98f8-bd3cd30410c5", "workers": [{"worker": 0, "connection": 139888343392288, "started": 8360.669859646, "ended": 8360.688236603, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888343391568, "started": 8360.668656761, "ended": 8360.746599082, "status": 200, "json": {"state": "succeeded", "purchase_id": 38, "code": "A06-b9eeac9f-PO2", "erp_event_id": 35, "impact": [{"kind": "purchases", "id": 38, "code": "A06-b9eeac9f-PO2", "field": "quantity", "label": "Замовлено", "before": null, "after": "10.000", "currency": "UAH"}, {"kind": "purchases", "id": 38, "code": "A06-b9eeac9f-PO2", "field": "price", "label": "Ціна одиниці", "before": null, "after": "2.00", "currency": "UAH"}, {"kind": "purchases", "id": 38, "code": "A06-b9eeac9f-PO2", "field": "extras", "label": "Додаткові витрати", "before": null, "after": "10.00", "currency": "UAH"}, {"kind": "purchases", "id": 38, "code": "A06-b9eeac9f-PO2", "field": "received", "label": "Отримано", "before": null, "after": "0.000", "currency": "UAH"}, {"kind": "purchases", "id": 38, "code": "A06-b9eeac9f-PO2", "field": "status", "label": "Стан поставки", "before": null, "after": "ordered", "currency": "UAH"}, {"kind": "purchases", "id": 38, "code": "A06-b9eeac9f-PO2", "field": "due_date", "label": "Очікувана дата", "before": null, "after": "2026-09-20", "currency": "UAH"}]}}]}
+A06_PASS {"mode": "http", "action": "purchase", "currency": "UAH", "inventory_id": "ERP-purchase", "erp_event_id": 35, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "quality", "currency": "EUR", "proposal_id": "2dacaf8f-619b-4e18-ba95-1c3cd5704eae", "workers": [{"worker": 0, "connection": 139888349646656, "started": 8361.175707281, "ended": 8361.224229682, "status": 200, "json": {"state": "succeeded", "inspection_id": 1, "lot_id": 44, "quality": "approved", "erp_event_id": 36, "impact": [{"kind": "lots", "id": 44, "code": "A06-2f9f0a6f-L", "field": "available", "label": "Придатно й вільно", "before": "0", "after": "10.000", "currency": "EUR"}, {"kind": "lots", "id": 44, "code": "A06-2f9f0a6f-L", "field": "quality", "label": "Якість", "before": "pending", "after": "approved", "currency": "EUR"}]}}, {"worker": 1, "connection": 139888349647616, "started": 8361.174511567, "ended": 8361.193213214, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}]}
+A06_PASS {"mode": "http", "action": "quality", "currency": "EUR", "inventory_id": "ERP-quality", "erp_event_id": 36, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "receive", "currency": "EUR", "proposal_id": "e8550fd5-ae7c-443b-b9cb-aedf45fe2395", "workers": [{"worker": 0, "connection": 139888352354576, "started": 8361.66492643, "ended": 8361.682894203, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888352348576, "started": 8361.664194846, "ended": 8361.719711756, "status": 200, "json": {"state": "succeeded", "lot_id": 46, "code": "A06-aab92744-RCV", "quality": "pending", "erp_event_id": 37, "impact": [{"kind": "lots", "id": 46, "code": "A06-aab92744-RCV", "field": "quantity", "label": "Фізичний залишок", "before": null, "after": "7.000", "currency": "EUR"}, {"kind": "lots", "id": 46, "code": "A06-aab92744-RCV", "field": "reserved", "label": "У резерві", "before": null, "after": "0", "currency": "EUR"}, {"kind": "lots", "id": 46, "code": "A06-aab92744-RCV", "field": "available", "label": "Придатно й вільно", "before": null, "after": "0", "currency": "EUR"}, {"kind": "lots", "id": 46, "code": "A06-aab92744-RCV", "field": "quality", "label": "Якість", "before": null, "after": "pending", "currency": "EUR"}, {"kind": "lots", "id": 46, "code": "A06-aab92744-RCV", "field": "documents", "label": "Документи партії", "before": null, "after": "Не додано", "currency": "EUR"}, {"kind": "lots", "id": 46, "code": "A06-aab92744-RCV", "field": "missing_documents", "label": "Бракує документів", "before": null, "after": "Комплектно", "currency": "EUR"}, {"kind": "purchases", "id": 40, "code": "A06-aab92744-PO", "field": "received", "label": "Отримано", "before": "0.000", "after": "7.000", "currency": "EUR"}, {"kind": "purchases", "id": 40, "code": "A06-aab92744-PO", "field": "status", "label": "Стан поставки", "before": "ordered", "after": "partial", "currency": "EUR"}]}}]}
+A06_PASS {"mode": "http", "action": "receive", "currency": "EUR", "inventory_id": "ERP-receive", "erp_event_id": 37, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "receive", "currency": "USD", "proposal_id": "cd742697-9040-418e-80d3-58528bfeab37", "workers": [{"worker": 0, "connection": 139888343389888, "started": 8361.810089205, "ended": 8361.824982075, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888343395168, "started": 8361.809418468, "ended": 8361.872446746, "status": 200, "json": {"state": "succeeded", "lot_id": 48, "code": "A06-4e02343a-RCV", "quality": "pending", "erp_event_id": 38, "impact": [{"kind": "lots", "id": 48, "code": "A06-4e02343a-RCV", "field": "quantity", "label": "Фізичний залишок", "before": null, "after": "7.000", "currency": "USD"}, {"kind": "lots", "id": 48, "code": "A06-4e02343a-RCV", "field": "reserved", "label": "У резерві", "before": null, "after": "0", "currency": "USD"}, {"kind": "lots", "id": 48, "code": "A06-4e02343a-RCV", "field": "available", "label": "Придатно й вільно", "before": null, "after": "0", "currency": "USD"}, {"kind": "lots", "id": 48, "code": "A06-4e02343a-RCV", "field": "quality", "label": "Якість", "before": null, "after": "pending", "currency": "USD"}, {"kind": "lots", "id": 48, "code": "A06-4e02343a-RCV", "field": "documents", "label": "Документи партії", "before": null, "after": "Не додано", "currency": "USD"}, {"kind": "lots", "id": 48, "code": "A06-4e02343a-RCV", "field": "missing_documents", "label": "Бракує документів", "before": null, "after": "Комплектно", "currency": "USD"}, {"kind": "purchases", "id": 41, "code": "A06-4e02343a-PO", "field": "received", "label": "Отримано", "before": "0.000", "after": "7.000", "currency": "USD"}, {"kind": "purchases", "id": 41, "code": "A06-4e02343a-PO", "field": "status", "label": "Стан поставки", "before": "ordered", "after": "partial", "currency": "USD"}]}}]}
+A06_PASS {"mode": "http", "action": "receive", "currency": "USD", "inventory_id": "ERP-receive", "erp_event_id": 38, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "receive", "currency": "UAH", "proposal_id": "cc68712d-88c8-44a3-841a-9f2ed7c886bb", "workers": [{"worker": 0, "connection": 139888343388928, "started": 8361.968906483, "ended": 8362.039906378, "status": 200, "json": {"state": "succeeded", "lot_id": 50, "code": "A06-0ab55a01-RCV", "quality": "pending", "erp_event_id": 39, "impact": [{"kind": "lots", "id": 50, "code": "A06-0ab55a01-RCV", "field": "quantity", "label": "Фізичний залишок", "before": null, "after": "7.000", "currency": "UAH"}, {"kind": "lots", "id": 50, "code": "A06-0ab55a01-RCV", "field": "reserved", "label": "У резерві", "before": null, "after": "0", "currency": "UAH"}, {"kind": "lots", "id": 50, "code": "A06-0ab55a01-RCV", "field": "available", "label": "Придатно й вільно", "before": null, "after": "0", "currency": "UAH"}, {"kind": "lots", "id": 50, "code": "A06-0ab55a01-RCV", "field": "quality", "label": "Якість", "before": null, "after": "pending", "currency": "UAH"}, {"kind": "lots", "id": 50, "code": "A06-0ab55a01-RCV", "field": "documents", "label": "Документи партії", "before": null, "after": "Не додано", "currency": "UAH"}, {"kind": "lots", "id": 50, "code": "A06-0ab55a01-RCV", "field": "missing_documents", "label": "Бракує документів", "before": null, "after": "Комплектно", "currency": "UAH"}, {"kind": "purchases", "id": 42, "code": "A06-0ab55a01-PO", "field": "received", "label": "Отримано", "before": "0.000", "after": "7.000", "currency": "UAH"}, {"kind": "purchases", "id": 42, "code": "A06-0ab55a01-PO", "field": "status", "label": "Стан поставки", "before": "ordered", "after": "partial", "currency": "UAH"}]}}, {"worker": 1, "connection": 139888343386528, "started": 8361.96809565, "ended": 8361.981154633, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}]}
+A06_PASS {"mode": "http", "action": "receive", "currency": "UAH", "inventory_id": "ERP-receive", "erp_event_id": 39, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "release", "currency": "EUR", "proposal_id": "fadd4634-79c7-4dd5-9691-ba679784d7c2", "workers": [{"worker": 0, "connection": 139888349647136, "started": 8362.469549866, "ended": 8362.484288374, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888349644496, "started": 8362.468894813, "ended": 8362.518712438, "status": 200, "json": {"state": "succeeded", "reservation_id": 7, "remaining": "3.000", "erp_event_id": 40, "impact": [{"kind": "lots", "id": 51, "code": "A06-86649018-L", "field": "reserved", "label": "У резерві", "before": "10", "after": "3", "currency": "EUR"}, {"kind": "lots", "id": 51, "code": "A06-86649018-L", "field": "available", "label": "Придатно й вільно", "before": "0.000", "after": "7.000", "currency": "EUR"}, {"kind": "reservations", "id": 7, "code": "Резерв · A06-86649018-L", "field": "quantity", "label": "Кількість резерву", "before": "10.000", "after": "3.000", "currency": ""}]}}]}
+A06_PASS {"mode": "http", "action": "release", "currency": "EUR", "inventory_id": "ERP-release", "erp_event_id": 40, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "release", "currency": "USD", "proposal_id": "89a42451-bcec-4a5b-9516-8e73c3908395", "workers": [{"worker": 0, "connection": 139888343392528, "started": 8362.598757199, "ended": 8362.655800826, "status": 200, "json": {"state": "succeeded", "reservation_id": 8, "remaining": "3.000", "erp_event_id": 41, "impact": [{"kind": "lots", "id": 52, "code": "A06-784f5877-L", "field": "reserved", "label": "У резерві", "before": "10", "after": "3", "currency": "USD"}, {"kind": "lots", "id": 52, "code": "A06-784f5877-L", "field": "available", "label": "Придатно й вільно", "before": "0.000", "after": "7.000", "currency": "USD"}, {"kind": "reservations", "id": 8, "code": "Резерв · A06-784f5877-L", "field": "quantity", "label": "Кількість резерву", "before": "10.000", "after": "3.000", "currency": ""}]}}, {"worker": 1, "connection": 139888343391808, "started": 8362.598122416, "ended": 8362.611073266, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}]}
+A06_PASS {"mode": "http", "action": "release", "currency": "USD", "inventory_id": "ERP-release", "erp_event_id": 41, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "release", "currency": "UAH", "proposal_id": "f4358ee8-abbc-4738-a956-b282c1835352", "workers": [{"worker": 0, "connection": 139888343389168, "started": 8362.745262415, "ended": 8362.819837343, "status": 200, "json": {"state": "succeeded", "reservation_id": 9, "remaining": "3.000", "erp_event_id": 42, "impact": [{"kind": "lots", "id": 53, "code": "A06-16460076-L", "field": "reserved", "label": "У резерві", "before": "10", "after": "3", "currency": "UAH"}, {"kind": "lots", "id": 53, "code": "A06-16460076-L", "field": "available", "label": "Придатно й вільно", "before": "0.000", "after": "7.000", "currency": "UAH"}, {"kind": "reservations", "id": 9, "code": "Резерв · A06-16460076-L", "field": "quantity", "label": "Кількість резерву", "before": "10.000", "after": "3.000", "currency": ""}]}}, {"worker": 1, "connection": 139888343386288, "started": 8362.744561883, "ended": 8362.759952474, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}]}
+A06_PASS {"mode": "http", "action": "release", "currency": "UAH", "inventory_id": "ERP-release", "erp_event_id": 42, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "reserve", "currency": "EUR", "proposal_id": "43d39afb-1065-4029-9968-fc93ab0814ce", "workers": [{"worker": 0, "connection": 139888349645216, "started": 8363.263023138, "ended": 8363.276599472, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888349648096, "started": 8363.262341605, "ended": 8363.313205729, "status": 200, "json": {"state": "succeeded", "reservation_id": 10, "quantity": "7", "erp_event_id": 43, "impact": [{"kind": "lots", "id": 54, "code": "A06-b7f91b4d-L", "field": "reserved", "label": "У резерві", "before": "0", "after": "7", "currency": "EUR"}, {"kind": "lots", "id": 54, "code": "A06-b7f91b4d-L", "field": "available", "label": "Придатно й вільно", "before": "10.000", "after": "3.000", "currency": "EUR"}, {"kind": "reservations", "id": 10, "code": "Резерв · A06-b7f91b4d-L", "field": "quantity", "label": "Кількість резерву", "before": null, "after": "7.000", "currency": ""}]}}]}
+A06_PASS {"mode": "http", "action": "reserve", "currency": "EUR", "inventory_id": "ERP-reserve", "erp_event_id": 43, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "reserve", "currency": "USD", "proposal_id": "10378c37-bf2a-491e-b7d0-5803179926a9", "workers": [{"worker": 0, "connection": 139888349651456, "started": 8363.399108343, "ended": 8363.411158304, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888349652416, "started": 8363.398469444, "ended": 8363.455176383, "status": 200, "json": {"state": "succeeded", "reservation_id": 11, "quantity": "7", "erp_event_id": 44, "impact": [{"kind": "lots", "id": 55, "code": "A06-d14166e6-L", "field": "reserved", "label": "У резерві", "before": "0", "after": "7", "currency": "USD"}, {"kind": "lots", "id": 55, "code": "A06-d14166e6-L", "field": "available", "label": "Придатно й вільно", "before": "10.000", "after": "3.000", "currency": "USD"}, {"kind": "reservations", "id": 11, "code": "Резерв · A06-d14166e6-L", "field": "quantity", "label": "Кількість резерву", "before": null, "after": "7.000", "currency": ""}]}}]}
+A06_PASS {"mode": "http", "action": "reserve", "currency": "USD", "inventory_id": "ERP-reserve", "erp_event_id": 44, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "reserve", "currency": "UAH", "proposal_id": "670b17bb-7cd7-4bf9-906e-16a641bc57be", "workers": [{"worker": 0, "connection": 139888347300624, "started": 8363.549990232, "ended": 8363.615120951, "status": 200, "json": {"state": "succeeded", "reservation_id": 12, "quantity": "7", "erp_event_id": 45, "impact": [{"kind": "lots", "id": 56, "code": "A06-0699c26e-L", "field": "reserved", "label": "У резерві", "before": "0", "after": "7", "currency": "UAH"}, {"kind": "lots", "id": 56, "code": "A06-0699c26e-L", "field": "available", "label": "Придатно й вільно", "before": "10.000", "after": "3.000", "currency": "UAH"}, {"kind": "reservations", "id": 12, "code": "Резерв · A06-0699c26e-L", "field": "quantity", "label": "Кількість резерву", "before": null, "after": "7.000", "currency": ""}]}}, {"worker": 1, "connection": 139888343394928, "started": 8363.549317032, "ended": 8363.562205438, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}]}
+A06_PASS {"mode": "http", "action": "reserve", "currency": "UAH", "inventory_id": "ERP-reserve", "erp_event_id": 45, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "resolve_job", "currency": "EUR", "proposal_id": "c8decf1b-2da1-4c02-9dfa-82a3d23a09e1", "workers": [{"worker": 0, "connection": 139888343399488, "started": 8364.038944814, "ended": 8364.088296877, "status": 200, "json": {"state": "succeeded", "production_id": 50, "revision": "A", "note": "Дозволено продовження за зафіксованою старою версією: Погоджено завершити версію A", "erp_event_id": 46, "impact": [{"kind": "jobs", "id": 50, "code": "A06-f042f899-J", "field": "needs_review", "label": "Потребує перегляду", "before": true, "after": false, "currency": "EUR"}]}}, {"worker": 1, "connection": 139888343391568, "started": 8364.038309932, "ended": 8364.053839833, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}]}
+A06_PASS {"mode": "http", "action": "resolve_job", "currency": "EUR", "inventory_id": "ERP-resolve_job", "erp_event_id": 46, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "return", "currency": "EUR", "proposal_id": "4333ba13-0ab3-4419-ac57-4ae8b3c2e9ea", "workers": [{"worker": 0, "connection": 139888349645696, "started": 8364.528201597, "ended": 8364.545815352, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888349655536, "started": 8364.52743162, "ended": 8364.580645739, "status": 200, "json": {"state": "succeeded", "lot_id": 59, "quality": "blocked", "note": "Повернення зареєстровано. Фінансове коригування та заміна потребують окремого рішення.", "erp_event_id": 47, "impact": [{"kind": "lots", "id": 59, "code": "A06-d3a8ff2f-RET", "field": "quantity", "label": "Фізичний залишок", "before": null, "after": "7.000", "currency": "EUR"}, {"kind": "lots", "id": 59, "code": "A06-d3a8ff2f-RET", "field": "reserved", "label": "У резерві", "before": null, "after": "0", "currency": "EUR"}, {"kind": "lots", "id": 59, "code": "A06-d3a8ff2f-RET", "field": "available", "label": "Придатно й вільно", "before": null, "after": "0", "currency": "EUR"}, {"kind": "lots", "id": 59, "code": "A06-d3a8ff2f-RET", "field": "quality", "label": "Якість", "before": null, "after": "blocked", "currency": "EUR"}, {"kind": "lots", "id": 59, "code": "A06-d3a8ff2f-RET", "field": "documents", "label": "Документи партії", "before": null, "after": "Не додано", "currency": "EUR"}, {"kind": "lots", "id": 59, "code": "A06-d3a8ff2f-RET", "field": "missing_documents", "label": "Бракує документів", "before": null, "after": "Комплектно", "currency": "EUR"}]}}]}
+A06_PASS {"mode": "http", "action": "return", "currency": "EUR", "inventory_id": "ERP-return", "erp_event_id": 47, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "return", "currency": "USD", "proposal_id": "e7e562df-adee-495a-a78f-8f3be995ed06", "workers": [{"worker": 0, "connection": 139888349656496, "started": 8364.670092145, "ended": 8364.733501832, "status": 200, "json": {"state": "succeeded", "lot_id": 61, "quality": "blocked", "note": "Повернення зареєстровано. Фінансове коригування та заміна потребують окремого рішення.", "erp_event_id": 48, "impact": [{"kind": "lots", "id": 61, "code": "A06-6224e250-RET", "field": "quantity", "label": "Фізичний залишок", "before": null, "after": "7.000", "currency": "USD"}, {"kind": "lots", "id": 61, "code": "A06-6224e250-RET", "field": "reserved", "label": "У резерві", "before": null, "after": "0", "currency": "USD"}, {"kind": "lots", "id": 61, "code": "A06-6224e250-RET", "field": "available", "label": "Придатно й вільно", "before": null, "after": "0", "currency": "USD"}, {"kind": "lots", "id": 61, "code": "A06-6224e250-RET", "field": "quality", "label": "Якість", "before": null, "after": "blocked", "currency": "USD"}, {"kind": "lots", "id": 61, "code": "A06-6224e250-RET", "field": "documents", "label": "Документи партії", "before": null, "after": "Не додано", "currency": "USD"}, {"kind": "lots", "id": 61, "code": "A06-6224e250-RET", "field": "missing_documents", "label": "Бракує документів", "before": null, "after": "Комплектно", "currency": "USD"}]}}, {"worker": 1, "connection": 139888349658656, "started": 8364.668953592, "ended": 8364.688520265, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}]}
+A06_PASS {"mode": "http", "action": "return", "currency": "USD", "inventory_id": "ERP-return", "erp_event_id": 48, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "return", "currency": "UAH", "proposal_id": "3441830e-880a-4cf5-a4db-3a78ba2e0b3b", "workers": [{"worker": 0, "connection": 139888349657696, "started": 8364.842095639, "ended": 8364.856694565, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888349644496, "started": 8364.841018363, "ended": 8364.917138002, "status": 200, "json": {"state": "succeeded", "lot_id": 63, "quality": "blocked", "note": "Повернення зареєстровано. Фінансове коригування та заміна потребують окремого рішення.", "erp_event_id": 49, "impact": [{"kind": "lots", "id": 63, "code": "A06-6b9422e3-RET", "field": "quantity", "label": "Фізичний залишок", "before": null, "after": "7.000", "currency": "UAH"}, {"kind": "lots", "id": 63, "code": "A06-6b9422e3-RET", "field": "reserved", "label": "У резерві", "before": null, "after": "0", "currency": "UAH"}, {"kind": "lots", "id": 63, "code": "A06-6b9422e3-RET", "field": "available", "label": "Придатно й вільно", "before": null, "after": "0", "currency": "UAH"}, {"kind": "lots", "id": 63, "code": "A06-6b9422e3-RET", "field": "quality", "label": "Якість", "before": null, "after": "blocked", "currency": "UAH"}, {"kind": "lots", "id": 63, "code": "A06-6b9422e3-RET", "field": "documents", "label": "Документи партії", "before": null, "after": "Не додано", "currency": "UAH"}, {"kind": "lots", "id": 63, "code": "A06-6b9422e3-RET", "field": "missing_documents", "label": "Бракує документів", "before": null, "after": "Комплектно", "currency": "UAH"}]}}]}
+A06_PASS {"mode": "http", "action": "return", "currency": "UAH", "inventory_id": "ERP-return", "erp_event_id": 49, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "ship", "currency": "EUR", "proposal_id": "d2bbb56d-5a2f-41b4-a1c0-50302be8f315", "workers": [{"worker": 0, "connection": 139888343399728, "started": 8365.371311666, "ended": 8365.424460006, "status": 200, "json": {"state": "succeeded", "line_id": 53, "shipped": "7", "reference": "A06-f62bf15e-SHIP", "erp_event_id": 50, "impact": [{"kind": "lots", "id": 64, "code": "A06-f62bf15e-L", "field": "quantity", "label": "Фізичний залишок", "before": "10.000", "after": "3.000", "currency": "EUR"}, {"kind": "lots", "id": 64, "code": "A06-f62bf15e-L", "field": "reserved", "label": "У резерві", "before": "10", "after": "3", "currency": "EUR"}, {"kind": "lines", "id": 53, "code": "A06-f62bf15e-SO · A06-f62bf15e-M", "field": "shipped", "label": "Відвантажено", "before": "0.000", "after": "7.000", "currency": ""}, {"kind": "reservations", "id": 13, "code": "Резерв · A06-f62bf15e-L", "field": "quantity", "label": "Кількість резерву", "before": "10.000", "after": "3.000", "currency": ""}]}}, {"worker": 1, "connection": 139888343394688, "started": 8365.370179463, "ended": 8365.391363796, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}]}
+A06_PASS {"mode": "http", "action": "ship", "currency": "EUR", "inventory_id": "ERP-ship", "erp_event_id": 50, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "ship", "currency": "USD", "proposal_id": "a4ebe990-9e2a-4012-b957-6fe35d1f361d", "workers": [{"worker": 0, "connection": 139888343394928, "started": 8365.507811081, "ended": 8365.519810675, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888343386288, "started": 8365.507160574, "ended": 8365.563053795, "status": 200, "json": {"state": "succeeded", "line_id": 54, "shipped": "7", "reference": "A06-de8c95b7-SHIP", "erp_event_id": 51, "impact": [{"kind": "lots", "id": 65, "code": "A06-de8c95b7-L", "field": "quantity", "label": "Фізичний залишок", "before": "10.000", "after": "3.000", "currency": "USD"}, {"kind": "lots", "id": 65, "code": "A06-de8c95b7-L", "field": "reserved", "label": "У резерві", "before": "10", "after": "3", "currency": "USD"}, {"kind": "lines", "id": 54, "code": "A06-de8c95b7-SO · A06-de8c95b7-M", "field": "shipped", "label": "Відвантажено", "before": "0.000", "after": "7.000", "currency": ""}, {"kind": "reservations", "id": 14, "code": "Резерв · A06-de8c95b7-L", "field": "quantity", "label": "Кількість резерву", "before": "10.000", "after": "3.000", "currency": ""}]}}]}
+A06_PASS {"mode": "http", "action": "ship", "currency": "USD", "inventory_id": "ERP-ship", "erp_event_id": 51, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "ship", "currency": "UAH", "proposal_id": "6d7d8c05-cdd2-404d-af51-51480259e6fa", "workers": [{"worker": 0, "connection": 139888345860272, "started": 8365.660210284, "ended": 8365.730881062, "status": 200, "json": {"state": "succeeded", "line_id": 55, "shipped": "7", "reference": "A06-44c40733-SHIP", "erp_event_id": 52, "impact": [{"kind": "lots", "id": 66, "code": "A06-44c40733-L", "field": "quantity", "label": "Фізичний залишок", "before": "10.000", "after": "3.000", "currency": "UAH"}, {"kind": "lots", "id": 66, "code": "A06-44c40733-L", "field": "reserved", "label": "У резерві", "before": "10", "after": "3", "currency": "UAH"}, {"kind": "lines", "id": 55, "code": "A06-44c40733-SO · A06-44c40733-M", "field": "shipped", "label": "Відвантажено", "before": "0.000", "after": "7.000", "currency": ""}, {"kind": "reservations", "id": 15, "code": "Резерв · A06-44c40733-L", "field": "quantity", "label": "Кількість резерву", "before": "10.000", "after": "3.000", "currency": ""}]}}, {"worker": 1, "connection": 139888345862192, "started": 8365.659104566, "ended": 8365.676439611, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}]}
+A06_PASS {"mode": "http", "action": "ship", "currency": "UAH", "inventory_id": "ERP-ship", "erp_event_id": 52, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "start", "currency": "EUR", "proposal_id": "14490dac-dbab-4b61-a5b6-0649a034862d", "workers": [{"worker": 0, "connection": 139888343399728, "started": 8366.170560408, "ended": 8366.183184836, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888343392288, "started": 8366.169671282, "ended": 8366.219007484, "status": 200, "json": {"state": "succeeded", "production_id": 57, "status": "running", "erp_event_id": 53, "impact": [{"kind": "jobs", "id": 57, "code": "A06-8f43ff81-J", "field": "status", "label": "Стан роботи", "before": "planned", "after": "running", "currency": "EUR"}]}}]}
+A06_PASS {"mode": "http", "action": "start", "currency": "EUR", "inventory_id": "ERP-start", "erp_event_id": 53, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "transfer", "currency": "EUR", "proposal_id": "e86fbd5a-9391-4061-bda2-ba491ceea484", "workers": [{"worker": 0, "connection": 139888349653136, "started": 8366.655123924, "ended": 8366.667342049, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888349647856, "started": 8366.654470158, "ended": 8366.704104375, "status": 200, "json": {"state": "succeeded", "lot_id": 69, "code": "A06-c014bf81-TR", "erp_event_id": 54, "impact": [{"kind": "lots", "id": 68, "code": "A06-c014bf81-L", "field": "quantity", "label": "Фізичний залишок", "before": "10.000", "after": "3.000", "currency": "EUR"}, {"kind": "lots", "id": 68, "code": "A06-c014bf81-L", "field": "available", "label": "Придатно й вільно", "before": "10.000", "after": "3.000", "currency": "EUR"}, {"kind": "lots", "id": 69, "code": "A06-c014bf81-TR", "field": "quantity", "label": "Фізичний залишок", "before": null, "after": "7.000", "currency": "EUR"}, {"kind": "lots", "id": 69, "code": "A06-c014bf81-TR", "field": "reserved", "label": "У резерві", "before": null, "after": "0", "currency": "EUR"}, {"kind": "lots", "id": 69, "code": "A06-c014bf81-TR", "field": "available", "label": "Придатно й вільно", "before": null, "after": "7.000", "currency": "EUR"}, {"kind": "lots", "id": 69, "code": "A06-c014bf81-TR", "field": "quality", "label": "Якість", "before": null, "after": "approved", "currency": "EUR"}, {"kind": "lots", "id": 69, "code": "A06-c014bf81-TR", "field": "documents", "label": "Документи партії", "before": null, "after": "Не додано", "currency": "EUR"}, {"kind": "lots", "id": 69, "code": "A06-c014bf81-TR", "field": "missing_documents", "label": "Бракує документів", "before": null, "after": "Комплектно", "currency": "EUR"}]}}]}
+A06_PASS {"mode": "http", "action": "transfer", "currency": "EUR", "inventory_id": "ERP-transfer", "erp_event_id": 54, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "transfer", "currency": "USD", "proposal_id": "413cdd60-c887-4603-9379-2d17e50bfbd3", "workers": [{"worker": 0, "connection": 139888349649296, "started": 8366.79740712, "ended": 8366.809611634, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}, {"worker": 1, "connection": 139888345863152, "started": 8366.79649248, "ended": 8366.858277751, "status": 200, "json": {"state": "succeeded", "lot_id": 71, "code": "A06-a2d05820-TR", "erp_event_id": 55, "impact": [{"kind": "lots", "id": 70, "code": "A06-a2d05820-L", "field": "quantity", "label": "Фізичний залишок", "before": "10.000", "after": "3.000", "currency": "USD"}, {"kind": "lots", "id": 70, "code": "A06-a2d05820-L", "field": "available", "label": "Придатно й вільно", "before": "10.000", "after": "3.000", "currency": "USD"}, {"kind": "lots", "id": 71, "code": "A06-a2d05820-TR", "field": "quantity", "label": "Фізичний залишок", "before": null, "after": "7.000", "currency": "USD"}, {"kind": "lots", "id": 71, "code": "A06-a2d05820-TR", "field": "reserved", "label": "У резерві", "before": null, "after": "0", "currency": "USD"}, {"kind": "lots", "id": 71, "code": "A06-a2d05820-TR", "field": "available", "label": "Придатно й вільно", "before": null, "after": "7.000", "currency": "USD"}, {"kind": "lots", "id": 71, "code": "A06-a2d05820-TR", "field": "quality", "label": "Якість", "before": null, "after": "approved", "currency": "USD"}, {"kind": "lots", "id": 71, "code": "A06-a2d05820-TR", "field": "documents", "label": "Документи партії", "before": null, "after": "Не додано", "currency": "USD"}, {"kind": "lots", "id": 71, "code": "A06-a2d05820-TR", "field": "missing_documents", "label": "Бракує документів", "before": null, "after": "Комплектно", "currency": "USD"}]}}]}
+A06_PASS {"mode": "http", "action": "transfer", "currency": "USD", "inventory_id": "ERP-transfer", "erp_event_id": 55, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "http", "action": "transfer", "currency": "UAH", "proposal_id": "a042c1f1-958b-4352-95fd-7cfa3ec2907b", "workers": [{"worker": 0, "connection": 139888345866032, "started": 8366.960712294, "ended": 8367.033533125, "status": 200, "json": {"state": "succeeded", "lot_id": 73, "code": "A06-06a8b0ff-TR", "erp_event_id": 56, "impact": [{"kind": "lots", "id": 72, "code": "A06-06a8b0ff-L", "field": "quantity", "label": "Фізичний залишок", "before": "10.000", "after": "3.000", "currency": "UAH"}, {"kind": "lots", "id": 72, "code": "A06-06a8b0ff-L", "field": "available", "label": "Придатно й вільно", "before": "10.000", "after": "3.000", "currency": "UAH"}, {"kind": "lots", "id": 73, "code": "A06-06a8b0ff-TR", "field": "quantity", "label": "Фізичний залишок", "before": null, "after": "7.000", "currency": "UAH"}, {"kind": "lots", "id": 73, "code": "A06-06a8b0ff-TR", "field": "reserved", "label": "У резерві", "before": null, "after": "0", "currency": "UAH"}, {"kind": "lots", "id": 73, "code": "A06-06a8b0ff-TR", "field": "available", "label": "Придатно й вільно", "before": null, "after": "7.000", "currency": "UAH"}, {"kind": "lots", "id": 73, "code": "A06-06a8b0ff-TR", "field": "quality", "label": "Якість", "before": null, "after": "approved", "currency": "UAH"}, {"kind": "lots", "id": 73, "code": "A06-06a8b0ff-TR", "field": "documents", "label": "Документи партії", "before": null, "after": "Не додано", "currency": "UAH"}, {"kind": "lots", "id": 73, "code": "A06-06a8b0ff-TR", "field": "missing_documents", "label": "Бракує документів", "before": null, "after": "Комплектно", "currency": "UAH"}]}}, {"worker": 1, "connection": 139888345867712, "started": 8366.959700908, "ended": 8366.973132964, "status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}}]}
+A06_PASS {"mode": "http", "action": "transfer", "currency": "UAH", "inventory_id": "ERP-transfer", "erp_event_id": 56, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}
+A06_PAIR {"mode": "orm", "case": "adjust", "currency": "EUR", "workers": [{"worker": 0, "connection": 139888349651696, "started": 8367.430145572, "ended": 8367.433053209, "status": "succeeded", "result": {"lot_id": 74, "quantity": "3.000", "erp_event_id": 57}}, {"worker": 1, "connection": 139888349657936, "started": 8367.429609353, "ended": 8367.431266433, "status": "OperationalError", "message": "database is locked"}]}
+A06_PASS {"mode": "orm", "case": "adjust", "currency": "EUR", "inventory_id": "ERP-adjust", "erp_event_id": 57, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "adjust", "currency": "USD", "workers": [{"worker": 0, "connection": 139888349650496, "started": 8367.455380506, "ended": 8367.458143325, "status": "succeeded", "result": {"lot_id": 75, "quantity": "3.000", "erp_event_id": 58}}, {"worker": 1, "connection": 139888343394928, "started": 8367.455782142, "ended": 8367.4565823, "status": "OperationalError", "message": "database is locked"}]}
+A06_PASS {"mode": "orm", "case": "adjust", "currency": "USD", "inventory_id": "ERP-adjust", "erp_event_id": 58, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "adjust", "currency": "UAH", "workers": [{"worker": 0, "connection": 139888343399968, "started": 8367.481806628, "ended": 8367.482580135, "status": "OperationalError", "message": "database is locked"}, {"worker": 1, "connection": 139888343399728, "started": 8367.481189206, "ended": 8367.484403786, "status": "succeeded", "result": {"lot_id": 76, "quantity": "3.000", "erp_event_id": 59}}]}
+A06_PASS {"mode": "orm", "case": "adjust", "currency": "UAH", "inventory_id": "ERP-adjust", "erp_event_id": 59, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "finish", "currency": "EUR", "workers": [{"worker": 0, "connection": 139888343388208, "started": 8367.864250371, "ended": 8367.865955694, "status": "OperationalError", "message": "database is locked"}, {"worker": 1, "connection": 139888343398768, "started": 8367.863352081, "ended": 8367.87213972, "status": "succeeded", "result": {"lot_id": 78, "production_id": 64, "cost": "21.00", "quality": "pending", "erp_event_id": 60}}]}
+A06_PASS {"mode": "orm", "case": "finish", "currency": "EUR", "inventory_id": "ERP-finish", "erp_event_id": 60, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "finish", "currency": "USD", "workers": [{"worker": 0, "connection": 139888343384368, "started": 8367.897625052, "ended": 8367.904231084, "status": "succeeded", "result": {"lot_id": 80, "production_id": 65, "cost": "21.00", "quality": "pending", "erp_event_id": 61}}, {"worker": 1, "connection": 139888345859072, "started": 8367.897185909, "ended": 8367.898503597, "status": "OperationalError", "message": "database is locked"}]}
+A06_PASS {"mode": "orm", "case": "finish", "currency": "USD", "inventory_id": "ERP-finish", "erp_event_id": 61, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "finish", "currency": "UAH", "workers": [{"worker": 0, "connection": 139888345863632, "started": 8367.931849605, "ended": 8367.932938418, "status": "OperationalError", "message": "database is locked"}, {"worker": 1, "connection": 139888345865792, "started": 8367.931406756, "ended": 8367.93882535, "status": "succeeded", "result": {"lot_id": 82, "production_id": 66, "cost": "21.00", "quality": "pending", "erp_event_id": 62}}]}
+A06_PASS {"mode": "orm", "case": "finish", "currency": "UAH", "inventory_id": "ERP-finish", "erp_event_id": 62, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "invoice", "currency": "EUR", "workers": [{"worker": 0, "connection": 139888345863392, "started": 8368.312953351, "ended": 8368.316545191, "status": "succeeded", "result": {"invoice_id": 7, "code": "A06-dd48d70a-INV2-A", "amount": "50.00", "erp_event_id": 63}}, {"worker": 1, "connection": 139888345859072, "started": 8368.312394393, "ended": 8368.314086676, "status": "OperationalError", "message": "database is locked"}]}
+A06_PASS {"mode": "orm", "case": "invoice", "currency": "EUR", "inventory_id": "ERP-invoice", "erp_event_id": 63, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "invoice", "currency": "USD", "workers": [{"worker": 0, "connection": 139888345870832, "started": 8368.34039126, "ended": 8368.343828225, "status": "succeeded", "result": {"invoice_id": 8, "code": "A06-422b3d87-INV2-A", "amount": "50.00", "erp_event_id": 64}}, {"worker": 1, "connection": 139888345871792, "started": 8368.340812099, "ended": 8368.34168717, "status": "OperationalError", "message": "database is locked"}]}
+A06_PASS {"mode": "orm", "case": "invoice", "currency": "USD", "inventory_id": "ERP-invoice", "erp_event_id": 64, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "invoice", "currency": "UAH", "workers": [{"worker": 0, "connection": 139888345873712, "started": 8368.369717913, "ended": 8368.371332309, "status": "OperationalError", "message": "database is locked"}, {"worker": 1, "connection": 139888350871856, "started": 8368.369299296, "ended": 8368.373837564, "status": "succeeded", "result": {"invoice_id": 9, "code": "A06-afb831b0-INV2-B", "amount": "50.00", "erp_event_id": 65}}]}
+A06_PASS {"mode": "orm", "case": "invoice", "currency": "UAH", "inventory_id": "ERP-invoice", "erp_event_id": 65, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "payment", "currency": "EUR", "workers": [{"worker": 0, "connection": 139888345871072, "started": 8368.746923929, "ended": 8368.749402949, "status": "succeeded", "result": {"invoice_id": 10, "paid": "7.00", "note": "Локальний обліковий запис; банківська операція не виконується.", "erp_event_id": 66}}, {"worker": 1, "connection": 139888350871856, "started": 8368.746380739, "ended": 8368.748024479, "status": "OperationalError", "message": "database is locked"}]}
+A06_PASS {"mode": "orm", "case": "payment", "currency": "EUR", "inventory_id": "ERP-payment", "erp_event_id": 66, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "payment", "currency": "USD", "workers": [{"worker": 0, "connection": 139888350873296, "started": 8368.773583413, "ended": 8368.774458673, "status": "OperationalError", "message": "database is locked"}, {"worker": 1, "connection": 139888350874256, "started": 8368.773167625, "ended": 8368.776506092, "status": "succeeded", "result": {"invoice_id": 11, "paid": "7.00", "note": "Локальний обліковий запис; банківська операція не виконується.", "erp_event_id": 67}}]}
+A06_PASS {"mode": "orm", "case": "payment", "currency": "USD", "inventory_id": "ERP-payment", "erp_event_id": 67, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "payment", "currency": "UAH", "workers": [{"worker": 0, "connection": 139888350875936, "started": 8368.800627787, "ended": 8368.801554245, "status": "OperationalError", "message": "database is locked"}, {"worker": 1, "connection": 139888350876896, "started": 8368.800172035, "ended": 8368.803899969, "status": "succeeded", "result": {"invoice_id": 12, "paid": "7.00", "note": "Локальний обліковий запис; банківська операція не виконується.", "erp_event_id": 68}}]}
+A06_PASS {"mode": "orm", "case": "payment", "currency": "UAH", "inventory_id": "ERP-payment", "erp_event_id": 68, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "payment_dup", "currency": "EUR", "workers": [{"worker": 0, "connection": 139888345872992, "started": 8369.180702731, "ended": 8369.181787658, "status": "OperationalError", "message": "database is locked"}, {"worker": 1, "connection": 139888345863152, "started": 8369.180193693, "ended": 8369.18333292, "status": "succeeded", "result": {"invoice_id": 13, "paid": "7.00", "note": "Локальний обліковий запис; банківська операція не виконується.", "erp_event_id": 69}}]}
+A06_PASS {"mode": "orm", "case": "payment_dup", "currency": "EUR", "inventory_id": "ERP-payment", "erp_event_id": 69, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "payment_dup", "currency": "USD", "workers": [{"worker": 0, "connection": 139888345860272, "started": 8369.20738162, "ended": 8369.20866779, "status": "OperationalError", "message": "database is locked"}, {"worker": 1, "connection": 139888345863632, "started": 8369.20782298, "ended": 8369.210070762, "status": "succeeded", "result": {"invoice_id": 14, "paid": "7.00", "note": "Локальний обліковий запис; банківська операція не виконується.", "erp_event_id": 70}}]}
+A06_PASS {"mode": "orm", "case": "payment_dup", "currency": "USD", "inventory_id": "ERP-payment", "erp_event_id": 70, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "payment_dup", "currency": "UAH", "workers": [{"worker": 0, "connection": 139888343397328, "started": 8369.233928043, "ended": 8369.235310238, "status": "OperationalError", "message": "database is locked"}, {"worker": 1, "connection": 139888343398768, "started": 8369.233530127, "ended": 8369.236247277, "status": "succeeded", "result": {"invoice_id": 15, "paid": "7.00", "note": "Локальний обліковий запис; банківська операція не виконується.", "erp_event_id": 71}}]}
+A06_PASS {"mode": "orm", "case": "payment_dup", "currency": "UAH", "inventory_id": "ERP-payment", "erp_event_id": 71, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "receive", "currency": "EUR", "workers": [{"worker": 0, "connection": 139888345874192, "started": 8369.609807247, "ended": 8369.611384197, "status": "OperationalError", "message": "database is locked"}, {"worker": 1, "connection": 139888343388208, "started": 8369.609219625, "ended": 8369.614702738, "status": "succeeded", "result": {"lot_id": 93, "code": "A06-1f1aab36-RCV-B", "quality": "pending", "erp_event_id": 72}}]}
+A06_PASS {"mode": "orm", "case": "receive", "currency": "EUR", "inventory_id": "ERP-receive", "erp_event_id": 72, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "receive", "currency": "USD", "workers": [{"worker": 0, "connection": 139888343385088, "started": 8369.638631197, "ended": 8369.643421795, "status": "succeeded", "result": {"lot_id": 95, "code": "A06-c24802a4-RCV-A", "quality": "pending", "erp_event_id": 73}}, {"worker": 1, "connection": 139888343390608, "started": 8369.639142363, "ended": 8369.640327, "status": "OperationalError", "message": "database is locked"}]}
+A06_PASS {"mode": "orm", "case": "receive", "currency": "USD", "inventory_id": "ERP-receive", "erp_event_id": 73, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "receive", "currency": "UAH", "workers": [{"worker": 0, "connection": 139888349656496, "started": 8369.669822923, "ended": 8369.670610471, "status": "OperationalError", "message": "database is locked"}, {"worker": 1, "connection": 139888349647856, "started": 8369.669365218, "ended": 8369.673813159, "status": "succeeded", "result": {"lot_id": 97, "code": "A06-ef2f1d79-RCV-B", "quality": "pending", "erp_event_id": 74}}]}
+A06_PASS {"mode": "orm", "case": "receive", "currency": "UAH", "inventory_id": "ERP-receive", "erp_event_id": 74, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "release", "currency": "EUR", "workers": [{"worker": 0, "connection": 139888343396848, "started": 8370.069109365, "ended": 8370.070193131, "status": "OperationalError", "message": "database is locked"}, {"worker": 1, "connection": 139888349645696, "started": 8370.068505749, "ended": 8370.071138301, "status": "succeeded", "result": {"reservation_id": 24, "remaining": "3.000", "erp_event_id": 75}}]}
+A06_PASS {"mode": "orm", "case": "release", "currency": "EUR", "inventory_id": "ERP-release", "erp_event_id": 75, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "release", "currency": "USD", "workers": [{"worker": 0, "connection": 139888349645216, "started": 8370.097505559, "ended": 8370.098514802, "status": "OperationalError", "message": "database is locked"}, {"worker": 1, "connection": 139888349655776, "started": 8370.097167974, "ended": 8370.099518961, "status": "succeeded", "result": {"reservation_id": 25, "remaining": "3.000", "erp_event_id": 76}}]}
+A06_PASS {"mode": "orm", "case": "release", "currency": "USD", "inventory_id": "ERP-release", "erp_event_id": 76, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "release", "currency": "UAH", "workers": [{"worker": 0, "connection": 139888350874496, "started": 8370.125272798, "ended": 8370.126308591, "status": "OperationalError", "message": "database is locked"}, {"worker": 1, "connection": 139888350872816, "started": 8370.124823305, "ended": 8370.12739177, "status": "succeeded", "result": {"reservation_id": 26, "remaining": "3.000", "erp_event_id": 77}}]}
+A06_PASS {"mode": "orm", "case": "release", "currency": "UAH", "inventory_id": "ERP-release", "erp_event_id": 77, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "reserve", "currency": "EUR", "workers": [{"worker": 0, "connection": 139888349645696, "started": 8370.536524761, "ended": 8370.541151252, "status": "succeeded", "result": {"reservation_id": 27, "quantity": "7", "erp_event_id": 78}}, {"worker": 1, "connection": 139888350871856, "started": 8370.535979668, "ended": 8370.537928919, "status": "OperationalError", "message": "database is locked"}]}
+A06_PASS {"mode": "orm", "case": "reserve", "currency": "EUR", "inventory_id": "ERP-reserve", "erp_event_id": 78, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "reserve", "currency": "USD", "workers": [{"worker": 0, "connection": 139888350876176, "started": 8370.567876203, "ended": 8370.571655466, "status": "succeeded", "result": {"reservation_id": 28, "quantity": "7", "erp_event_id": 79}}, {"worker": 1, "connection": 139888350874976, "started": 8370.568423899, "ended": 8370.569277377, "status": "OperationalError", "message": "database is locked"}]}
+A06_PASS {"mode": "orm", "case": "reserve", "currency": "USD", "inventory_id": "ERP-reserve", "erp_event_id": 79, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "reserve", "currency": "UAH", "workers": [{"worker": 0, "connection": 139888350877856, "started": 8370.598530178, "ended": 8370.602949356, "status": "succeeded", "result": {"reservation_id": 29, "quantity": "7", "erp_event_id": 80}}, {"worker": 1, "connection": 139888350878816, "started": 8370.598217296, "ended": 8370.59954552, "status": "OperationalError", "message": "database is locked"}]}
+A06_PASS {"mode": "orm", "case": "reserve", "currency": "UAH", "inventory_id": "ERP-reserve", "erp_event_id": 80, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "return", "currency": "EUR", "workers": [{"worker": 0, "connection": 139888349657456, "started": 8370.995151021, "ended": 8371.000146327, "status": "succeeded", "result": {"lot_id": 105, "quality": "blocked", "note": "Повернення зареєстровано. Фінансове коригування та заміна потребують окремого рішення.", "erp_event_id": 81}}, {"worker": 1, "connection": 139888349654096, "started": 8370.994572177, "ended": 8370.996357571, "status": "OperationalError", "message": "database is locked"}]}
+A06_PASS {"mode": "orm", "case": "return", "currency": "EUR", "inventory_id": "ERP-return", "erp_event_id": 81, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "return", "currency": "USD", "workers": [{"worker": 0, "connection": 139888343391808, "started": 8371.028346601, "ended": 8371.029461953, "status": "OperationalError", "message": "database is locked"}, {"worker": 1, "connection": 139888343385088, "started": 8371.027873862, "ended": 8371.032891493, "status": "succeeded", "result": {"lot_id": 107, "quality": "blocked", "note": "Повернення зареєстровано. Фінансове коригування та заміна потребують окремого рішення.", "erp_event_id": 82}}]}
+A06_PASS {"mode": "orm", "case": "return", "currency": "USD", "inventory_id": "ERP-return", "erp_event_id": 82, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "return", "currency": "UAH", "workers": [{"worker": 0, "connection": 139888343399728, "started": 8371.06167477, "ended": 8371.062477942, "status": "OperationalError", "message": "database is locked"}, {"worker": 1, "connection": 139888345868672, "started": 8371.061345453, "ended": 8371.066248311, "status": "succeeded", "result": {"lot_id": 109, "quality": "blocked", "note": "Повернення зареєстровано. Фінансове коригування та заміна потребують окремого рішення.", "erp_event_id": 83}}]}
+A06_PASS {"mode": "orm", "case": "return", "currency": "UAH", "inventory_id": "ERP-return", "erp_event_id": 83, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "ship", "currency": "EUR", "workers": [{"worker": 0, "connection": 139888343390608, "started": 8371.464974915, "ended": 8371.466277551, "status": "OperationalError", "message": "database is locked"}, {"worker": 1, "connection": 139888345868672, "started": 8371.464330277, "ended": 8371.470061705, "status": "succeeded", "result": {"line_id": 90, "shipped": "7", "reference": "A06-3a5a5bc6-SHIP-B", "erp_event_id": 84}}]}
+A06_PASS {"mode": "orm", "case": "ship", "currency": "EUR", "inventory_id": "ERP-ship", "erp_event_id": 84, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "ship", "currency": "USD", "workers": [{"worker": 0, "connection": 139888345874192, "started": 8371.494946851, "ended": 8371.495997626, "status": "OperationalError", "message": "database is locked"}, {"worker": 1, "connection": 139888345870592, "started": 8371.494527848, "ended": 8371.499121649, "status": "succeeded", "result": {"line_id": 91, "shipped": "7", "reference": "A06-a910c968-SHIP-B", "erp_event_id": 85}}]}
+A06_PASS {"mode": "orm", "case": "ship", "currency": "USD", "inventory_id": "ERP-ship", "erp_event_id": 85, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "ship", "currency": "UAH", "workers": [{"worker": 0, "connection": 139888345859072, "started": 8371.523974758, "ended": 8371.525031021, "status": "OperationalError", "message": "database is locked"}, {"worker": 1, "connection": 139888345873712, "started": 8371.523553538, "ended": 8371.528617558, "status": "succeeded", "result": {"line_id": 92, "shipped": "7", "reference": "A06-d4884ab8-SHIP-B", "erp_event_id": 86}}]}
+A06_PASS {"mode": "orm", "case": "ship", "currency": "UAH", "inventory_id": "ERP-ship", "erp_event_id": 86, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "transfer", "currency": "EUR", "workers": [{"worker": 0, "connection": 139888345868432, "started": 8371.947815333, "ended": 8371.949084578, "status": "OperationalError", "message": "database is locked"}, {"worker": 1, "connection": 139888345866512, "started": 8371.947239279, "ended": 8371.953356989, "status": "succeeded", "result": {"lot_id": 114, "code": "A06-1f909255-TR-B", "erp_event_id": 87}}]}
+A06_PASS {"mode": "orm", "case": "transfer", "currency": "EUR", "inventory_id": "ERP-transfer", "erp_event_id": 87, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "transfer", "currency": "USD", "workers": [{"worker": 0, "connection": 139888350872336, "started": 8371.978570041, "ended": 8371.982858671, "status": "succeeded", "result": {"lot_id": 116, "code": "A06-38e02e81-TR-A", "erp_event_id": 88}}, {"worker": 1, "connection": 139888350873056, "started": 8371.978154669, "ended": 8371.979404204, "status": "OperationalError", "message": "database is locked"}]}
+A06_PASS {"mode": "orm", "case": "transfer", "currency": "USD", "inventory_id": "ERP-transfer", "erp_event_id": 88, "one_effect": true, "loser_retry_rejected": true}
+A06_PAIR {"mode": "orm", "case": "transfer", "currency": "UAH", "workers": [{"worker": 0, "connection": 139888350873296, "started": 8372.009977257, "ended": 8372.011001492, "status": "OperationalError", "message": "database is locked"}, {"worker": 1, "connection": 139888350880496, "started": 8372.009604956, "ended": 8372.014852663, "status": "succeeded", "result": {"lot_id": 118, "code": "A06-37816c82-TR-B", "erp_event_id": 89}}]}
+A06_PASS {"mode": "orm", "case": "transfer", "currency": "UAH", "inventory_id": "ERP-transfer", "erp_event_id": 89, "one_effect": true, "loser_retry_rejected": true}
+{
+  "schema": 1,
+  "gate": 5,
+  "date": "2026-09-12T10:13:34.104754+00:00",
+  "complete": true,
+  "failures": [],
+  "tests": {
+    "required_ids": [
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_adjust",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_apply_change",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_attach",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_change",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_confirm_order",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_finish",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_invoice",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_location",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_opening",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_operator",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_order",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_payment",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_purchase",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_quality",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_receive",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_release",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_reserve",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_resolve_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_return",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_ship",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_start",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_transfer",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_adjust",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_finish",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_invoice",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment_dup",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_receive",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_release",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_reserve",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_return",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_ship",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_transfer",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_archive_and_restore_each_duplicate_command_has_one_audit_and_same_ids",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_different_keys_cannot_duplicate_one_salary_period",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_different_keys_identical_transaction_facts_remain_two_legitimate_rows",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_duplicate_money_update_has_one_audit_per_record_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_http_key_ascii_boundary_and_model_namespace",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_invalid_http_keys_are_400_without_writes",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_legacy_salary_helper_propagates_one_operation_key",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_legacy_transaction_helper_propagates_one_operation_key",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_mismatch_raises_explicit_intent_conflict_without_mutation",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_salary_equivalent_numbers_fk_and_explicit_defaults_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_transaction_equivalent_decimal_date_and_fk_forms_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_required_http_header_missing_is_400_without_writes",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_role_revocation_is_checked_before_financial_intent_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_audit_failure_rolls_back_intent_accrual_and_retries",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_create_racing_employee_archive_never_rewrites_history",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_create_replay_after_payment_does_not_reopen_or_add_expense",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_format_aliases_replay_one_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_replay_after_archive_preserves_marker_and_id",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_changed_full_payload_is_409",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_concurrent_mismatch_has_one_winner",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_orm_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_assignment_concurrent_salary_edit_has_one_update_audit",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_key_second_actor_creates_separate_legitimate_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_salary_pay_racing_archive_preserves_one_serial_history",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_salary_pay_racing_edit_keeps_matching_expense_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_audit_failure_rolls_back_intent_money_and_retries",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_edit_racing_archive_keeps_one_historical_id",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_format_aliases_replay_one_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_replay_after_archive_returns_fresh_historical_row",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_changed_full_payload_is_409",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_concurrent_mismatch_has_one_winner",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_orm_same_key_concurrent_all_currencies",
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_http_missing_intent_does_not_create_ambiguous_money",
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_http_same_intent_returns_one_transaction",
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_native_admin_supplies_stable_intent_and_resubmission_replays",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_each_currency_is_preserved",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_error_after_expense_insert_rolls_back_and_retry_succeeds",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_http_replay_returns_same_receipt_without_second_expense",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_inconsistent_paid_history_is_not_rewritten",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_two_concurrent_http_requests_return_identical_receipts",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_two_concurrent_stale_instances_produce_one_expense",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_review_cannot_commit_inside_quality_critical_section",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_review_locks_before_document_admission_reads_and_update",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_upload_cannot_commit_inside_shipment_critical_section",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_upload_locks_before_document_admission_reads_and_insert"
+    ],
+    "labels": [
+      "erp.test_concurrency",
+      "operations.test_document_mutex",
+      "finance.test_intent_adapters",
+      "finance.test_payment_integrity",
+      "finance.test_concurrency"
+    ],
+    "discovered_ids": [
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_http_missing_intent_does_not_create_ambiguous_money",
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_http_same_intent_returns_one_transaction",
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_native_admin_supplies_stable_intent_and_resubmission_replays",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_adjust",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_apply_change",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_attach",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_change",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_confirm_order",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_finish",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_invoice",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_location",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_opening",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_operator",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_order",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_payment",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_purchase",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_quality",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_receive",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_release",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_reserve",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_resolve_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_return",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_ship",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_start",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_transfer",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_adjust",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_finish",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_invoice",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment_dup",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_receive",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_release",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_reserve",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_return",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_ship",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_transfer",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_review_cannot_commit_inside_quality_critical_section",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_review_locks_before_document_admission_reads_and_update",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_upload_cannot_commit_inside_shipment_critical_section",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_upload_locks_before_document_admission_reads_and_insert",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_each_currency_is_preserved",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_error_after_expense_insert_rolls_back_and_retry_succeeds",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_http_replay_returns_same_receipt_without_second_expense",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_inconsistent_paid_history_is_not_rewritten",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_two_concurrent_http_requests_return_identical_receipts",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_two_concurrent_stale_instances_produce_one_expense",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_archive_and_restore_each_duplicate_command_has_one_audit_and_same_ids",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_different_keys_cannot_duplicate_one_salary_period",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_different_keys_identical_transaction_facts_remain_two_legitimate_rows",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_duplicate_money_update_has_one_audit_per_record_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_http_key_ascii_boundary_and_model_namespace",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_invalid_http_keys_are_400_without_writes",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_legacy_salary_helper_propagates_one_operation_key",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_legacy_transaction_helper_propagates_one_operation_key",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_mismatch_raises_explicit_intent_conflict_without_mutation",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_salary_equivalent_numbers_fk_and_explicit_defaults_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_transaction_equivalent_decimal_date_and_fk_forms_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_required_http_header_missing_is_400_without_writes",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_role_revocation_is_checked_before_financial_intent_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_audit_failure_rolls_back_intent_accrual_and_retries",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_create_racing_employee_archive_never_rewrites_history",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_create_replay_after_payment_does_not_reopen_or_add_expense",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_format_aliases_replay_one_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_replay_after_archive_preserves_marker_and_id",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_changed_full_payload_is_409",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_concurrent_mismatch_has_one_winner",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_orm_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_assignment_concurrent_salary_edit_has_one_update_audit",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_key_second_actor_creates_separate_legitimate_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_salary_pay_racing_archive_preserves_one_serial_history",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_salary_pay_racing_edit_keeps_matching_expense_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_audit_failure_rolls_back_intent_money_and_retries",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_edit_racing_archive_keeps_one_historical_id",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_format_aliases_replay_one_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_replay_after_archive_returns_fresh_historical_row",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_changed_full_payload_is_409",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_concurrent_mismatch_has_one_winner",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_orm_same_key_concurrent_all_currencies"
+    ],
+    "discovered": 84,
+    "started_ids": [
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_http_missing_intent_does_not_create_ambiguous_money",
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_http_same_intent_returns_one_transaction",
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_native_admin_supplies_stable_intent_and_resubmission_replays",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_adjust",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_apply_change",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_attach",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_change",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_confirm_order",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_finish",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_invoice",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_location",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_opening",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_operator",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_order",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_payment",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_purchase",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_quality",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_receive",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_release",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_reserve",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_resolve_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_return",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_ship",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_start",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_transfer",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_adjust",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_finish",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_invoice",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment_dup",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_receive",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_release",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_reserve",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_return",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_ship",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_transfer",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_review_cannot_commit_inside_quality_critical_section",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_review_locks_before_document_admission_reads_and_update",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_upload_cannot_commit_inside_shipment_critical_section",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_upload_locks_before_document_admission_reads_and_insert",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_each_currency_is_preserved",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_error_after_expense_insert_rolls_back_and_retry_succeeds",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_http_replay_returns_same_receipt_without_second_expense",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_inconsistent_paid_history_is_not_rewritten",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_two_concurrent_http_requests_return_identical_receipts",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_two_concurrent_stale_instances_produce_one_expense",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_archive_and_restore_each_duplicate_command_has_one_audit_and_same_ids",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_different_keys_cannot_duplicate_one_salary_period",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_different_keys_identical_transaction_facts_remain_two_legitimate_rows",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_duplicate_money_update_has_one_audit_per_record_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_http_key_ascii_boundary_and_model_namespace",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_invalid_http_keys_are_400_without_writes",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_legacy_salary_helper_propagates_one_operation_key",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_legacy_transaction_helper_propagates_one_operation_key",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_mismatch_raises_explicit_intent_conflict_without_mutation",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_salary_equivalent_numbers_fk_and_explicit_defaults_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_transaction_equivalent_decimal_date_and_fk_forms_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_required_http_header_missing_is_400_without_writes",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_role_revocation_is_checked_before_financial_intent_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_audit_failure_rolls_back_intent_accrual_and_retries",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_create_racing_employee_archive_never_rewrites_history",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_create_replay_after_payment_does_not_reopen_or_add_expense",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_format_aliases_replay_one_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_replay_after_archive_preserves_marker_and_id",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_changed_full_payload_is_409",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_concurrent_mismatch_has_one_winner",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_orm_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_assignment_concurrent_salary_edit_has_one_update_audit",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_key_second_actor_creates_separate_legitimate_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_salary_pay_racing_archive_preserves_one_serial_history",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_salary_pay_racing_edit_keeps_matching_expense_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_audit_failure_rolls_back_intent_money_and_retries",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_edit_racing_archive_keeps_one_historical_id",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_format_aliases_replay_one_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_replay_after_archive_returns_fresh_historical_row",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_changed_full_payload_is_409",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_concurrent_mismatch_has_one_winner",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_orm_same_key_concurrent_all_currencies"
+    ],
+    "started": 84,
+    "finished_ids": [
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_http_missing_intent_does_not_create_ambiguous_money",
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_http_same_intent_returns_one_transaction",
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_native_admin_supplies_stable_intent_and_resubmission_replays",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_adjust",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_apply_change",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_attach",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_change",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_confirm_order",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_finish",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_invoice",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_location",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_opening",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_operator",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_order",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_payment",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_purchase",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_quality",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_receive",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_release",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_reserve",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_resolve_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_return",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_ship",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_start",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_transfer",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_adjust",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_finish",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_invoice",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment_dup",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_receive",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_release",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_reserve",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_return",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_ship",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_transfer",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_review_cannot_commit_inside_quality_critical_section",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_review_locks_before_document_admission_reads_and_update",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_upload_cannot_commit_inside_shipment_critical_section",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_upload_locks_before_document_admission_reads_and_insert",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_each_currency_is_preserved",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_error_after_expense_insert_rolls_back_and_retry_succeeds",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_http_replay_returns_same_receipt_without_second_expense",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_inconsistent_paid_history_is_not_rewritten",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_two_concurrent_http_requests_return_identical_receipts",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_two_concurrent_stale_instances_produce_one_expense",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_archive_and_restore_each_duplicate_command_has_one_audit_and_same_ids",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_different_keys_cannot_duplicate_one_salary_period",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_different_keys_identical_transaction_facts_remain_two_legitimate_rows",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_duplicate_money_update_has_one_audit_per_record_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_http_key_ascii_boundary_and_model_namespace",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_invalid_http_keys_are_400_without_writes",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_legacy_salary_helper_propagates_one_operation_key",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_legacy_transaction_helper_propagates_one_operation_key",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_mismatch_raises_explicit_intent_conflict_without_mutation",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_salary_equivalent_numbers_fk_and_explicit_defaults_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_transaction_equivalent_decimal_date_and_fk_forms_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_required_http_header_missing_is_400_without_writes",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_role_revocation_is_checked_before_financial_intent_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_audit_failure_rolls_back_intent_accrual_and_retries",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_create_racing_employee_archive_never_rewrites_history",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_create_replay_after_payment_does_not_reopen_or_add_expense",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_format_aliases_replay_one_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_replay_after_archive_preserves_marker_and_id",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_changed_full_payload_is_409",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_concurrent_mismatch_has_one_winner",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_orm_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_assignment_concurrent_salary_edit_has_one_update_audit",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_key_second_actor_creates_separate_legitimate_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_salary_pay_racing_archive_preserves_one_serial_history",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_salary_pay_racing_edit_keeps_matching_expense_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_audit_failure_rolls_back_intent_money_and_retries",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_edit_racing_archive_keeps_one_historical_id",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_format_aliases_replay_one_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_replay_after_archive_returns_fresh_historical_row",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_changed_full_payload_is_409",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_concurrent_mismatch_has_one_winner",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_orm_same_key_concurrent_all_currencies"
+    ],
+    "finished": 84,
+    "succeeded_ids": [
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_http_missing_intent_does_not_create_ambiguous_money",
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_http_same_intent_returns_one_transaction",
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_native_admin_supplies_stable_intent_and_resubmission_replays",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_adjust",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_apply_change",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_attach",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_change",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_confirm_order",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_finish",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_invoice",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_location",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_opening",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_operator",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_order",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_payment",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_purchase",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_quality",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_receive",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_release",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_reserve",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_resolve_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_return",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_ship",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_start",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_transfer",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_adjust",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_finish",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_invoice",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment_dup",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_receive",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_release",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_reserve",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_return",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_ship",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_transfer",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_review_cannot_commit_inside_quality_critical_section",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_review_locks_before_document_admission_reads_and_update",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_upload_cannot_commit_inside_shipment_critical_section",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_upload_locks_before_document_admission_reads_and_insert",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_each_currency_is_preserved",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_error_after_expense_insert_rolls_back_and_retry_succeeds",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_http_replay_returns_same_receipt_without_second_expense",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_inconsistent_paid_history_is_not_rewritten",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_two_concurrent_http_requests_return_identical_receipts",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_two_concurrent_stale_instances_produce_one_expense",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_archive_and_restore_each_duplicate_command_has_one_audit_and_same_ids",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_different_keys_cannot_duplicate_one_salary_period",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_different_keys_identical_transaction_facts_remain_two_legitimate_rows",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_duplicate_money_update_has_one_audit_per_record_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_http_key_ascii_boundary_and_model_namespace",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_invalid_http_keys_are_400_without_writes",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_legacy_salary_helper_propagates_one_operation_key",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_legacy_transaction_helper_propagates_one_operation_key",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_mismatch_raises_explicit_intent_conflict_without_mutation",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_salary_equivalent_numbers_fk_and_explicit_defaults_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_transaction_equivalent_decimal_date_and_fk_forms_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_required_http_header_missing_is_400_without_writes",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_role_revocation_is_checked_before_financial_intent_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_audit_failure_rolls_back_intent_accrual_and_retries",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_create_racing_employee_archive_never_rewrites_history",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_create_replay_after_payment_does_not_reopen_or_add_expense",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_format_aliases_replay_one_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_replay_after_archive_preserves_marker_and_id",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_changed_full_payload_is_409",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_concurrent_mismatch_has_one_winner",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_orm_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_assignment_concurrent_salary_edit_has_one_update_audit",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_key_second_actor_creates_separate_legitimate_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_salary_pay_racing_archive_preserves_one_serial_history",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_salary_pay_racing_edit_keeps_matching_expense_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_audit_failure_rolls_back_intent_money_and_retries",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_edit_racing_archive_keeps_one_historical_id",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_format_aliases_replay_one_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_replay_after_archive_returns_fresh_historical_row",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_changed_full_payload_is_409",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_concurrent_mismatch_has_one_winner",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_orm_same_key_concurrent_all_currencies"
+    ],
+    "succeeded": 84,
+    "tests_run": 84,
+    "failures": [],
+    "errors": [],
+    "skipped": [],
+    "expected_failures": [],
+    "unexpected_successes": []
+  },
+  "database": {
+    "requested_backend": "sqlite",
+    "base_name": "/tmp/bos-verify-gb3_wqtr/check_2689ade90f71427d8b00129bbd902c94.sqlite3",
+    "expected_test_name": "/tmp/bos-verify-gb3_wqtr/check_2689ade90f71427d8b00129bbd902c94.sqlite3_django_test",
+    "actual_vendor": "sqlite",
+    "actual_test_name": "/tmp/bos-verify-gb3_wqtr/check_2689ade90f71427d8b00129bbd902c94.sqlite3_django_test",
+    "version": "3.53.1",
+    "engine_verified": true
+  },
+  "scope": "Synthetic concurrency on the actual selected backend only; no browser/Windows/LLM acceptance.",
+  "manifest_sha256": "83f3ee872b41c23ff30ffd8ce046365d0ca82d4d136d9ebb20f42d04d5814655",
+  "erp_schema": {
+    "required": [
+      "adjust",
+      "apply_change",
+      "attach",
+      "change",
+      "confirm_order",
+      "finish",
+      "invoice",
+      "item",
+      "job",
+      "location",
+      "opening",
+      "operator",
+      "order",
+      "payment",
+      "postpone",
+      "postpone_job",
+      "purchase",
+      "quality",
+      "receive",
+      "release",
+      "reserve",
+      "resolve_job",
+      "return",
+      "ship",
+      "start",
+      "transfer"
+    ],
+    "actual": [
+      "adjust",
+      "apply_change",
+      "attach",
+      "change",
+      "confirm_order",
+      "finish",
+      "invoice",
+      "item",
+      "job",
+      "location",
+      "opening",
+      "operator",
+      "order",
+      "payment",
+      "postpone",
+      "postpone_job",
+      "purchase",
+      "quality",
+      "receive",
+      "release",
+      "reserve",
+      "resolve_job",
+      "return",
+      "ship",
+      "start",
+      "transfer"
+    ]
+  },
+  "source_sha256_before": {
+    "erp.test_concurrency": "706463924630a913471023fb448efc1d944e962d4d08fb84f401713975a4ef09",
+    "operations.test_document_mutex": "8422fa81be652d961305986ac2c3f9c6151b07290951d0e8be4adb3d6a03a70e",
+    "finance.test_intent_adapters": "2d82e8dabd312cf89382d957571ec8e39443411c50c703ec57895336241b19d0",
+    "finance.test_payment_integrity": "aa7646ba7e7063621f42ca43efa334eb832e22c534ec587d81722c51775c8a8a",
+    "finance.test_concurrency": "df81f24abbae83155f799434fd7d00adf33f3cb8e9cff68a7a7037762be64ba0",
+    "verifier": "760ee6e9b19c4477b1a9a0b015f2484acc1a334e3f3be00657a071bfdea952a4",
+    "manifest": "83f3ee872b41c23ff30ffd8ce046365d0ca82d4d136d9ebb20f42d04d5814655",
+    "erp_service": "2484dc13241fc9c2a88911fead2a12d55ed336c12a113357fda851750724c400"
+  },
+  "runner_failures": 0,
+  "erp_stdout": {
+    "required": 89,
+    "observed": 89,
+    "unique": 89,
+    "missing": [],
+    "duplicates": [],
+    "records": [
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_adjust",
+        "record": {
+          "mode": "http",
+          "action": "adjust",
+          "currency": "EUR",
+          "inventory_id": "ERP-adjust",
+          "erp_event_id": 1,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_adjust",
+        "record": {
+          "mode": "http",
+          "action": "adjust",
+          "currency": "USD",
+          "inventory_id": "ERP-adjust",
+          "erp_event_id": 2,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_adjust",
+        "record": {
+          "mode": "http",
+          "action": "adjust",
+          "currency": "UAH",
+          "inventory_id": "ERP-adjust",
+          "erp_event_id": 3,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_apply_change",
+        "record": {
+          "mode": "http",
+          "action": "apply_change",
+          "currency": "EUR",
+          "inventory_id": "ERP-apply_change",
+          "erp_event_id": 4,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_attach",
+        "record": {
+          "mode": "http",
+          "action": "attach",
+          "currency": "EUR",
+          "inventory_id": "ERP-attach",
+          "erp_event_id": 5,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_change",
+        "record": {
+          "mode": "http",
+          "action": "change",
+          "currency": "EUR",
+          "inventory_id": "ERP-change",
+          "erp_event_id": 6,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_confirm_order",
+        "record": {
+          "mode": "http",
+          "action": "confirm_order",
+          "currency": "EUR",
+          "inventory_id": "ERP-confirm_order",
+          "erp_event_id": 7,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_finish",
+        "record": {
+          "mode": "http",
+          "action": "finish",
+          "currency": "EUR",
+          "inventory_id": "ERP-finish",
+          "erp_event_id": 8,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_finish",
+        "record": {
+          "mode": "http",
+          "action": "finish",
+          "currency": "USD",
+          "inventory_id": "ERP-finish",
+          "erp_event_id": 9,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_finish",
+        "record": {
+          "mode": "http",
+          "action": "finish",
+          "currency": "UAH",
+          "inventory_id": "ERP-finish",
+          "erp_event_id": 10,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_invoice",
+        "record": {
+          "mode": "http",
+          "action": "invoice",
+          "currency": "EUR",
+          "inventory_id": "ERP-invoice",
+          "erp_event_id": 11,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_invoice",
+        "record": {
+          "mode": "http",
+          "action": "invoice",
+          "currency": "USD",
+          "inventory_id": "ERP-invoice",
+          "erp_event_id": 12,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_invoice",
+        "record": {
+          "mode": "http",
+          "action": "invoice",
+          "currency": "UAH",
+          "inventory_id": "ERP-invoice",
+          "erp_event_id": 13,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item",
+        "record": {
+          "mode": "http",
+          "action": "item",
+          "currency": "EUR",
+          "inventory_id": "ERP-item",
+          "erp_event_id": 14,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item",
+        "record": {
+          "mode": "http",
+          "action": "item",
+          "currency": "USD",
+          "inventory_id": "ERP-item",
+          "erp_event_id": 15,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item",
+        "record": {
+          "mode": "http",
+          "action": "item",
+          "currency": "UAH",
+          "inventory_id": "ERP-item",
+          "erp_event_id": 16,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_job",
+        "record": {
+          "mode": "http",
+          "action": "job",
+          "currency": "EUR",
+          "inventory_id": "ERP-job",
+          "erp_event_id": 17,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_job",
+        "record": {
+          "mode": "http",
+          "action": "job",
+          "currency": "USD",
+          "inventory_id": "ERP-job",
+          "erp_event_id": 18,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_job",
+        "record": {
+          "mode": "http",
+          "action": "job",
+          "currency": "UAH",
+          "inventory_id": "ERP-job",
+          "erp_event_id": 19,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_location",
+        "record": {
+          "mode": "http",
+          "action": "location",
+          "currency": "EUR",
+          "inventory_id": "ERP-location",
+          "erp_event_id": 20,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_opening",
+        "record": {
+          "mode": "http",
+          "action": "opening",
+          "currency": "EUR",
+          "inventory_id": "ERP-opening",
+          "erp_event_id": 21,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_opening",
+        "record": {
+          "mode": "http",
+          "action": "opening",
+          "currency": "USD",
+          "inventory_id": "ERP-opening",
+          "erp_event_id": 22,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_opening",
+        "record": {
+          "mode": "http",
+          "action": "opening",
+          "currency": "UAH",
+          "inventory_id": "ERP-opening",
+          "erp_event_id": 23,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_operator",
+        "record": {
+          "mode": "http",
+          "action": "operator",
+          "currency": "EUR",
+          "inventory_id": "ERP-operator",
+          "erp_event_id": 24,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_order",
+        "record": {
+          "mode": "http",
+          "action": "order",
+          "currency": "EUR",
+          "inventory_id": "ERP-order",
+          "erp_event_id": 25,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_order",
+        "record": {
+          "mode": "http",
+          "action": "order",
+          "currency": "USD",
+          "inventory_id": "ERP-order",
+          "erp_event_id": 26,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_order",
+        "record": {
+          "mode": "http",
+          "action": "order",
+          "currency": "UAH",
+          "inventory_id": "ERP-order",
+          "erp_event_id": 27,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_payment",
+        "record": {
+          "mode": "http",
+          "action": "payment",
+          "currency": "EUR",
+          "inventory_id": "ERP-payment",
+          "erp_event_id": 28,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_payment",
+        "record": {
+          "mode": "http",
+          "action": "payment",
+          "currency": "USD",
+          "inventory_id": "ERP-payment",
+          "erp_event_id": 29,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_payment",
+        "record": {
+          "mode": "http",
+          "action": "payment",
+          "currency": "UAH",
+          "inventory_id": "ERP-payment",
+          "erp_event_id": 30,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone",
+        "record": {
+          "mode": "http",
+          "action": "postpone",
+          "currency": "EUR",
+          "inventory_id": "ERP-postpone",
+          "erp_event_id": 31,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone_job",
+        "record": {
+          "mode": "http",
+          "action": "postpone_job",
+          "currency": "EUR",
+          "inventory_id": "ERP-postpone_job",
+          "erp_event_id": 32,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_purchase",
+        "record": {
+          "mode": "http",
+          "action": "purchase",
+          "currency": "EUR",
+          "inventory_id": "ERP-purchase",
+          "erp_event_id": 33,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_purchase",
+        "record": {
+          "mode": "http",
+          "action": "purchase",
+          "currency": "USD",
+          "inventory_id": "ERP-purchase",
+          "erp_event_id": 34,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_purchase",
+        "record": {
+          "mode": "http",
+          "action": "purchase",
+          "currency": "UAH",
+          "inventory_id": "ERP-purchase",
+          "erp_event_id": 35,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_quality",
+        "record": {
+          "mode": "http",
+          "action": "quality",
+          "currency": "EUR",
+          "inventory_id": "ERP-quality",
+          "erp_event_id": 36,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_receive",
+        "record": {
+          "mode": "http",
+          "action": "receive",
+          "currency": "EUR",
+          "inventory_id": "ERP-receive",
+          "erp_event_id": 37,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_receive",
+        "record": {
+          "mode": "http",
+          "action": "receive",
+          "currency": "USD",
+          "inventory_id": "ERP-receive",
+          "erp_event_id": 38,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_receive",
+        "record": {
+          "mode": "http",
+          "action": "receive",
+          "currency": "UAH",
+          "inventory_id": "ERP-receive",
+          "erp_event_id": 39,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_release",
+        "record": {
+          "mode": "http",
+          "action": "release",
+          "currency": "EUR",
+          "inventory_id": "ERP-release",
+          "erp_event_id": 40,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_release",
+        "record": {
+          "mode": "http",
+          "action": "release",
+          "currency": "USD",
+          "inventory_id": "ERP-release",
+          "erp_event_id": 41,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_release",
+        "record": {
+          "mode": "http",
+          "action": "release",
+          "currency": "UAH",
+          "inventory_id": "ERP-release",
+          "erp_event_id": 42,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_reserve",
+        "record": {
+          "mode": "http",
+          "action": "reserve",
+          "currency": "EUR",
+          "inventory_id": "ERP-reserve",
+          "erp_event_id": 43,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_reserve",
+        "record": {
+          "mode": "http",
+          "action": "reserve",
+          "currency": "USD",
+          "inventory_id": "ERP-reserve",
+          "erp_event_id": 44,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_reserve",
+        "record": {
+          "mode": "http",
+          "action": "reserve",
+          "currency": "UAH",
+          "inventory_id": "ERP-reserve",
+          "erp_event_id": 45,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_resolve_job",
+        "record": {
+          "mode": "http",
+          "action": "resolve_job",
+          "currency": "EUR",
+          "inventory_id": "ERP-resolve_job",
+          "erp_event_id": 46,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_return",
+        "record": {
+          "mode": "http",
+          "action": "return",
+          "currency": "EUR",
+          "inventory_id": "ERP-return",
+          "erp_event_id": 47,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_return",
+        "record": {
+          "mode": "http",
+          "action": "return",
+          "currency": "USD",
+          "inventory_id": "ERP-return",
+          "erp_event_id": 48,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_return",
+        "record": {
+          "mode": "http",
+          "action": "return",
+          "currency": "UAH",
+          "inventory_id": "ERP-return",
+          "erp_event_id": 49,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_ship",
+        "record": {
+          "mode": "http",
+          "action": "ship",
+          "currency": "EUR",
+          "inventory_id": "ERP-ship",
+          "erp_event_id": 50,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_ship",
+        "record": {
+          "mode": "http",
+          "action": "ship",
+          "currency": "USD",
+          "inventory_id": "ERP-ship",
+          "erp_event_id": 51,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_ship",
+        "record": {
+          "mode": "http",
+          "action": "ship",
+          "currency": "UAH",
+          "inventory_id": "ERP-ship",
+          "erp_event_id": 52,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_start",
+        "record": {
+          "mode": "http",
+          "action": "start",
+          "currency": "EUR",
+          "inventory_id": "ERP-start",
+          "erp_event_id": 53,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_transfer",
+        "record": {
+          "mode": "http",
+          "action": "transfer",
+          "currency": "EUR",
+          "inventory_id": "ERP-transfer",
+          "erp_event_id": 54,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_transfer",
+        "record": {
+          "mode": "http",
+          "action": "transfer",
+          "currency": "USD",
+          "inventory_id": "ERP-transfer",
+          "erp_event_id": 55,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_transfer",
+        "record": {
+          "mode": "http",
+          "action": "transfer",
+          "currency": "UAH",
+          "inventory_id": "ERP-transfer",
+          "erp_event_id": 56,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_adjust",
+        "record": {
+          "mode": "orm",
+          "case": "adjust",
+          "currency": "EUR",
+          "inventory_id": "ERP-adjust",
+          "erp_event_id": 57,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_adjust",
+        "record": {
+          "mode": "orm",
+          "case": "adjust",
+          "currency": "USD",
+          "inventory_id": "ERP-adjust",
+          "erp_event_id": 58,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_adjust",
+        "record": {
+          "mode": "orm",
+          "case": "adjust",
+          "currency": "UAH",
+          "inventory_id": "ERP-adjust",
+          "erp_event_id": 59,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_finish",
+        "record": {
+          "mode": "orm",
+          "case": "finish",
+          "currency": "EUR",
+          "inventory_id": "ERP-finish",
+          "erp_event_id": 60,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_finish",
+        "record": {
+          "mode": "orm",
+          "case": "finish",
+          "currency": "USD",
+          "inventory_id": "ERP-finish",
+          "erp_event_id": 61,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_finish",
+        "record": {
+          "mode": "orm",
+          "case": "finish",
+          "currency": "UAH",
+          "inventory_id": "ERP-finish",
+          "erp_event_id": 62,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_invoice",
+        "record": {
+          "mode": "orm",
+          "case": "invoice",
+          "currency": "EUR",
+          "inventory_id": "ERP-invoice",
+          "erp_event_id": 63,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_invoice",
+        "record": {
+          "mode": "orm",
+          "case": "invoice",
+          "currency": "USD",
+          "inventory_id": "ERP-invoice",
+          "erp_event_id": 64,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_invoice",
+        "record": {
+          "mode": "orm",
+          "case": "invoice",
+          "currency": "UAH",
+          "inventory_id": "ERP-invoice",
+          "erp_event_id": 65,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment",
+        "record": {
+          "mode": "orm",
+          "case": "payment",
+          "currency": "EUR",
+          "inventory_id": "ERP-payment",
+          "erp_event_id": 66,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment",
+        "record": {
+          "mode": "orm",
+          "case": "payment",
+          "currency": "USD",
+          "inventory_id": "ERP-payment",
+          "erp_event_id": 67,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment",
+        "record": {
+          "mode": "orm",
+          "case": "payment",
+          "currency": "UAH",
+          "inventory_id": "ERP-payment",
+          "erp_event_id": 68,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment_dup",
+        "record": {
+          "mode": "orm",
+          "case": "payment_dup",
+          "currency": "EUR",
+          "inventory_id": "ERP-payment",
+          "erp_event_id": 69,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment_dup",
+        "record": {
+          "mode": "orm",
+          "case": "payment_dup",
+          "currency": "USD",
+          "inventory_id": "ERP-payment",
+          "erp_event_id": 70,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment_dup",
+        "record": {
+          "mode": "orm",
+          "case": "payment_dup",
+          "currency": "UAH",
+          "inventory_id": "ERP-payment",
+          "erp_event_id": 71,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_receive",
+        "record": {
+          "mode": "orm",
+          "case": "receive",
+          "currency": "EUR",
+          "inventory_id": "ERP-receive",
+          "erp_event_id": 72,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_receive",
+        "record": {
+          "mode": "orm",
+          "case": "receive",
+          "currency": "USD",
+          "inventory_id": "ERP-receive",
+          "erp_event_id": 73,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_receive",
+        "record": {
+          "mode": "orm",
+          "case": "receive",
+          "currency": "UAH",
+          "inventory_id": "ERP-receive",
+          "erp_event_id": 74,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_release",
+        "record": {
+          "mode": "orm",
+          "case": "release",
+          "currency": "EUR",
+          "inventory_id": "ERP-release",
+          "erp_event_id": 75,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_release",
+        "record": {
+          "mode": "orm",
+          "case": "release",
+          "currency": "USD",
+          "inventory_id": "ERP-release",
+          "erp_event_id": 76,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_release",
+        "record": {
+          "mode": "orm",
+          "case": "release",
+          "currency": "UAH",
+          "inventory_id": "ERP-release",
+          "erp_event_id": 77,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_reserve",
+        "record": {
+          "mode": "orm",
+          "case": "reserve",
+          "currency": "EUR",
+          "inventory_id": "ERP-reserve",
+          "erp_event_id": 78,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_reserve",
+        "record": {
+          "mode": "orm",
+          "case": "reserve",
+          "currency": "USD",
+          "inventory_id": "ERP-reserve",
+          "erp_event_id": 79,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_reserve",
+        "record": {
+          "mode": "orm",
+          "case": "reserve",
+          "currency": "UAH",
+          "inventory_id": "ERP-reserve",
+          "erp_event_id": 80,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_return",
+        "record": {
+          "mode": "orm",
+          "case": "return",
+          "currency": "EUR",
+          "inventory_id": "ERP-return",
+          "erp_event_id": 81,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_return",
+        "record": {
+          "mode": "orm",
+          "case": "return",
+          "currency": "USD",
+          "inventory_id": "ERP-return",
+          "erp_event_id": 82,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_return",
+        "record": {
+          "mode": "orm",
+          "case": "return",
+          "currency": "UAH",
+          "inventory_id": "ERP-return",
+          "erp_event_id": 83,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_ship",
+        "record": {
+          "mode": "orm",
+          "case": "ship",
+          "currency": "EUR",
+          "inventory_id": "ERP-ship",
+          "erp_event_id": 84,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_ship",
+        "record": {
+          "mode": "orm",
+          "case": "ship",
+          "currency": "USD",
+          "inventory_id": "ERP-ship",
+          "erp_event_id": 85,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_ship",
+        "record": {
+          "mode": "orm",
+          "case": "ship",
+          "currency": "UAH",
+          "inventory_id": "ERP-ship",
+          "erp_event_id": 86,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_transfer",
+        "record": {
+          "mode": "orm",
+          "case": "transfer",
+          "currency": "EUR",
+          "inventory_id": "ERP-transfer",
+          "erp_event_id": 87,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_transfer",
+        "record": {
+          "mode": "orm",
+          "case": "transfer",
+          "currency": "USD",
+          "inventory_id": "ERP-transfer",
+          "erp_event_id": 88,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_transfer",
+        "record": {
+          "mode": "orm",
+          "case": "transfer",
+          "currency": "UAH",
+          "inventory_id": "ERP-transfer",
+          "erp_event_id": 89,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      }
+    ],
+    "stdout_sha256": "b7ecab2ee1fab415a1cd814a286152a480b77551f4995e0ea1b58f070a5f9b6b",
+    "stdout_bytes": 109445
+  },
+  "source_sha256_after": {
+    "erp.test_concurrency": "706463924630a913471023fb448efc1d944e962d4d08fb84f401713975a4ef09",
+    "operations.test_document_mutex": "8422fa81be652d961305986ac2c3f9c6151b07290951d0e8be4adb3d6a03a70e",
+    "finance.test_intent_adapters": "2d82e8dabd312cf89382d957571ec8e39443411c50c703ec57895336241b19d0",
+    "finance.test_payment_integrity": "aa7646ba7e7063621f42ca43efa334eb832e22c534ec587d81722c51775c8a8a",
+    "finance.test_concurrency": "df81f24abbae83155f799434fd7d00adf33f3cb8e9cff68a7a7037762be64ba0",
+    "verifier": "760ee6e9b19c4477b1a9a0b015f2484acc1a334e3f3be00657a071bfdea952a4",
+    "manifest": "83f3ee872b41c23ff30ffd8ce046365d0ca82d4d136d9ebb20f42d04d5814655",
+    "erp_service": "2484dc13241fc9c2a88911fead2a12d55ed336c12a113357fda851750724c400"
+  }
+}
+
+--- STDERR ---
+Creating test database for alias 'default'...
+Destroying old test database for alias 'default'...
+....................................................................................
+----------------------------------------------------------------------
+Ran 84 tests in 43.346s
+
+OK
+Destroying test database for alias 'default'...

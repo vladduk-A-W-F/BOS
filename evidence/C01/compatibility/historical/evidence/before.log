@@ -1,0 +1,45 @@
+test_known_historical_state_uses_its_actual_project_state (erp.test_schema_preflight.SnapshotSchemaPreflightTests.test_known_historical_state_uses_its_actual_project_state) ... FAIL
+test_nullable_schema_upgrade_preserves_highwater_and_existing_rows (operations.test_document_migration.A08DocumentMigrationTests.test_nullable_schema_upgrade_preserves_highwater_and_existing_rows) ... FAIL
+
+======================================================================
+FAIL: test_known_historical_state_uses_its_actual_project_state (erp.test_schema_preflight.SnapshotSchemaPreflightTests.test_known_historical_state_uses_its_actual_project_state)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/c01_full24_compat/source/erp/test_schema_preflight.py", line 125, in test_known_historical_state_uses_its_actual_project_state
+    self.assertEqual(result['profile'], 'historical')
+AssertionError: 'latest' != 'historical'
+- latest
++ historical
+
+
+======================================================================
+FAIL: test_nullable_schema_upgrade_preserves_highwater_and_existing_rows (operations.test_document_migration.A08DocumentMigrationTests.test_nullable_schema_upgrade_preserves_highwater_and_existing_rows)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/c01_full24_compat/source/operations/test_document_migration.py", line 61, in test_nullable_schema_upgrade_preserves_highwater_and_existing_rows
+    self._case('highwater')
+  File "/workspace/scratch/c7b51e996a9f/tmp/c01_full24_compat/source/operations/test_document_migration.py", line 37, in _case
+    self.assertEqual(run.returncode, 0, run.stdout + '\n' + run.stderr)
+AssertionError: 1 != 0 : 
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/scratch/c7b51e996a9f/tmp/c01_full24_compat/source/operations/test_document_migration.py", line 369, in <module>
+    print(json.dumps(run_case(args.case, args.source_db, args.source_media, args.work), ensure_ascii=False))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/c01_full24_compat/source/operations/test_document_migration.py", line 156, in run_case
+    return historical_highwater_case(source_db, source_media, work)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/c01_full24_compat/source/operations/test_document_migration.py", line 117, in historical_highwater_case
+    assert not {'quote_id', 'approval_snapshot'} & {row[1] for row in cursor.fetchall()}
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 9.569s
+
+FAILED (failures=2)
+Found 2 test(s).
+Skipping setup of unused database(s): default.
+System check identified no issues (0 silenced).

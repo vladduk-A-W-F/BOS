@@ -1,0 +1,2691 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Помічник Керівника — Glass</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"
+        integrity="sha384-tMH8h3BGESGckSAVGZ82T9n90ztNXxvdwvdM6UoR56cYcf+0iGXBliJ29D+wZ/x8" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"
+        integrity="sha384-bm7MnzvK++ykSwVJ2tynSE5TRdN+xL418osEVF2DE/L/gfWHj91J2Sphe582B1Bh" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"
+        integrity="sha384-aGlMNK3U/x0wl4lEH5jD1PGhJlX9hApuPmIiA5gtiYCOQ1J8ejIdC0btaU/TMoBD" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"
+        integrity="sha384-NNQgBjjuhtXzPmmy4gurS5X7P4uTt1DThyevz4Ua0IVK5+kazYQI1W27JHjbbxQz" crossorigin="anonymous"></script>
+<style>
+/* ============================================================
+   Boss App — Liquid Glass edition
+   Дизайн-токены. Палитра: глубокий индиго-фон + аврора-подсветка,
+   лазурный акцент действий, семантические зелёный/янтарный/красный.
+   ============================================================ */
+:root{
+  --bg-deep:#060913;
+  --aur-1:rgba(56,92,255,.34);   /* индиго */
+  --aur-2:rgba(6,148,182,.26);   /* циан   */
+  --aur-3:rgba(124,58,237,.22);  /* виолет */
+
+  --glass-hi:rgba(255,255,255,.092);
+  --glass-lo:rgba(255,255,255,.038);
+  --glass-soft-hi:rgba(255,255,255,.055);
+  --glass-soft-lo:rgba(255,255,255,.022);
+  --stroke:rgba(255,255,255,.13);
+  --stroke-soft:rgba(255,255,255,.075);
+  --stroke-strong:rgba(255,255,255,.24);
+
+  --text:#F2F6FF;
+  --text-2:rgba(226,235,255,.66);
+  --text-3:rgba(226,235,255,.40);
+
+  --acc:#5CA8FF;                 /* лазурь — интерактив */
+  --acc-deep:#2E7CF6;
+  --acc-glow:rgba(78,148,255,.22);
+  --pos:#3DDC97;  --pos-glow:rgba(61,220,151,.16);
+  --neg:#FF7A70;  --neg-glow:rgba(255,122,112,.15);
+  --warn:#FFC24D; --warn-glow:rgba(255,194,77,.15);
+  --info:#8FB8FF;
+
+  --r-lg:20px; --r-md:13px; --r-sm:9px;
+  --blur-panel:26px; --blur-card:20px;
+  --font:'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --font-h:'Manrope','Inter',sans-serif;
+  --font-num:'JetBrains Mono',ui-monospace,monospace;
+  --ease-out:cubic-bezier(.16,1,.3,1);      /* framer-motion easeOutExpo-подобная */
+  --ease-spring:cubic-bezier(.34,1.45,.44,1); /* спринг с лёгким овершутом */
+}
+/* Аврора-муды (аналог тем оригинала) — меняют цвет свечения под стеклом */
+[data-mood="violet"]  {--aur-1:rgba(124,58,237,.36);--aur-2:rgba(56,92,255,.24);--aur-3:rgba(217,70,239,.18);}
+[data-mood="emerald"] {--aur-1:rgba(13,148,106,.34);--aur-2:rgba(6,148,182,.22);--aur-3:rgba(56,92,255,.16);}
+[data-mood="amber"]   {--aur-1:rgba(217,119,6,.30);--aur-2:rgba(190,60,80,.20);--aur-3:rgba(124,58,237,.16);}
+[data-mood="rose"]    {--aur-1:rgba(190,40,90,.30);--aur-2:rgba(124,58,237,.22);--aur-3:rgba(56,92,255,.16);}
+[data-mood="graphite"]{--aur-1:rgba(120,140,180,.20);--aur-2:rgba(70,90,120,.16);--aur-3:rgba(100,110,140,.12);}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--font);background:var(--bg-deep);color:var(--text);overflow:hidden;font-size:14px;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.16);border-radius:5px}
+::selection{background:rgba(92,168,255,.35)}
+input::placeholder,textarea::placeholder{color:var(--text-3)}
+input,select,textarea,button{font-family:inherit;color-scheme:dark}
+select option{background:#101627;color:var(--text)}
+
+/* ---------- фон: аврора под стеклом ---------- */
+.bg-stage{position:fixed;inset:0;z-index:0;overflow:hidden;background:
+  radial-gradient(120% 90% at 70% -10%,#0B1430 0%,var(--bg-deep) 55%)}
+.blob{position:absolute;width:900px;height:900px;border-radius:50%;
+  will-change:transform;pointer-events:none}
+.blob.b1{left:-18%;top:-32%;background:radial-gradient(circle at 50% 50%,var(--aur-1),transparent 62%);animation:drift1 34s var(--ease-out) infinite alternate}
+.blob.b2{right:-22%;top:6%;background:radial-gradient(circle at 50% 50%,var(--aur-2),transparent 60%);animation:drift2 41s var(--ease-out) infinite alternate}
+.blob.b3{left:16%;bottom:-46%;background:radial-gradient(circle at 50% 50%,var(--aur-3),transparent 64%);animation:drift3 47s var(--ease-out) infinite alternate}
+@keyframes drift1{from{transform:translate(0,0) scale(1)}to{transform:translate(90px,60px) scale(1.12)}}
+@keyframes drift2{from{transform:translate(0,0) scale(1.06)}to{transform:translate(-110px,70px) scale(.95)}}
+@keyframes drift3{from{transform:translate(0,0)}to{transform:translate(70px,-80px) scale(1.1)}}
+/* зерно — оптика реального стекла, дешёвый svg-шум */
+.grain{position:absolute;inset:0;opacity:.05;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E")}
+
+/* ---------- стекло ---------- */
+.glass{position:relative;
+  background:linear-gradient(163deg,var(--glass-hi),var(--glass-lo));
+  -webkit-backdrop-filter:blur(var(--blur-card)) saturate(1.55);
+  backdrop-filter:blur(var(--blur-card)) saturate(1.55);
+  border:1px solid var(--stroke);border-radius:var(--r-lg);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.15),inset 0 -1px 0 rgba(255,255,255,.03),0 16px 44px rgba(2,7,22,.44)}
+.glass-panel{background:linear-gradient(170deg,var(--glass-soft-hi),var(--glass-soft-lo));
+  -webkit-backdrop-filter:blur(var(--blur-panel)) saturate(1.5);
+  backdrop-filter:blur(var(--blur-panel)) saturate(1.5)}
+.glass-strong{background:linear-gradient(160deg,rgba(30,40,70,.72),rgba(16,22,42,.78));
+  -webkit-backdrop-filter:blur(34px) saturate(1.6);backdrop-filter:blur(34px) saturate(1.6);
+  border:1px solid var(--stroke-strong);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 30px 80px rgba(1,4,14,.65)}
+/* блик по верхней кромке — «свечение края» */
+.glass::before,.glass-strong::before{content:'';position:absolute;top:0;left:12%;right:12%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);opacity:.35;pointer-events:none;border-radius:1px}
+
+/* карточка с hover-подъёмом (whileHover аналог) */
+.lift{transition:transform .3s var(--ease-out),box-shadow .3s var(--ease-out),border-color .3s}
+.lift:hover{transform:translateY(-3px);border-color:var(--stroke-strong);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 22px 56px rgba(2,7,22,.55)}
+.press{transition:transform .18s var(--ease-spring)}
+.press:active{transform:scale(.97)}
+/* Fluent reveal — специфический блик, следующий за курсором (JS ставит --mx/--my) */
+.lift{position:relative}
+.lift::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .35s;
+  background:radial-gradient(460px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.10),transparent 62%)}
+.lift:hover::after{opacity:1}
+.h-grad{background:linear-gradient(180deg,#FFFFFF 25%,rgba(214,228,255,.68));-webkit-background-clip:text;background-clip:text;color:transparent}
+.blob-layer{position:absolute;inset:-70px;will-change:transform}
+
+/* ---------- анимации входа (variants + stagger) ---------- */
+@keyframes pageIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes itemIn{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes popIn{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideR{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+@keyframes toastIn{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes pulseDot{0%,100%{box-shadow:0 0 0 0 var(--pos-glow)}50%{box-shadow:0 0 0 6px transparent}}
+@keyframes pulseEv{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.22)}50%{box-shadow:0 0 0 5px transparent}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.page{animation:pageIn .42s var(--ease-out) both}
+.stag{animation:itemIn .5s var(--ease-out) both;animation-delay:calc(var(--i,0)*45ms)}
+
+/* ---------- кнопки ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;cursor:pointer;
+  border-radius:var(--r-md);font-weight:600;font-size:13px;padding:10px 18px;color:var(--text);
+  transition:transform .18s var(--ease-spring),box-shadow .25s,background .2s,border-color .2s}
+.btn:active{transform:scale(.965)}
+.btn:focus-visible,.input:focus-visible,.chip:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.btn-primary{background:linear-gradient(180deg,#4E9BFF,var(--acc-deep));color:#fff;
+  box-shadow:0 8px 24px var(--acc-glow),inset 0 1px 0 rgba(255,255,255,.32)}
+.btn-primary:hover{box-shadow:0 10px 30px rgba(78,148,255,.36),inset 0 1px 0 rgba(255,255,255,.32)}
+.btn-primary:disabled{opacity:.45;cursor:default}
+.btn-ghost{background:rgba(255,255,255,.06);border:1px solid var(--stroke);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.btn-ghost:hover{background:rgba(255,255,255,.1);border-color:var(--stroke-strong)}
+.btn-danger{background:linear-gradient(180deg,#FF8177,#E5544B);color:#fff;
+  box-shadow:0 8px 22px var(--neg-glow),inset 0 1px 0 rgba(255,255,255,.28)}
+.icon-btn{width:38px;height:38px;padding:0;display:inline-flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.055);border:1px solid var(--stroke);border-radius:var(--r-md);
+  color:var(--text-2);cursor:pointer;transition:all .2s}
+.icon-btn:hover{background:rgba(255,255,255,.1);color:var(--text)}
+.icon-btn.on{background:var(--acc-glow);border-color:rgba(92,168,255,.5);color:var(--acc)}
+.row-act{width:30px;height:30px;padding:0;display:inline-flex;align-items:center;justify-content:center;
+  background:transparent;border:1px solid var(--stroke-soft);border-radius:8px;color:var(--text-3);
+  cursor:pointer;transition:all .18s;flex-shrink:0}
+.row-act:hover{border-color:var(--stroke-strong);color:var(--text);background:rgba(255,255,255,.06)}
+.row-act.danger:hover{border-color:rgba(255,122,112,.5);color:var(--neg);background:var(--neg-glow)}
+
+/* ---------- инпуты ---------- */
+.input{background:rgba(8,12,26,.42);border:1px solid var(--stroke);border-radius:var(--r-md);
+  color:var(--text);padding:10px 13px;font-size:13px;outline:none;width:100%;
+  transition:border-color .2s,box-shadow .2s;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.input:focus{border-color:rgba(92,168,255,.65);box-shadow:0 0 0 3px rgba(92,168,255,.16)}
+textarea.input{resize:vertical;line-height:1.6}
+.lbl{display:block;color:var(--text-2);font-size:11.5px;font-weight:600;margin-bottom:5px;letter-spacing:.02em}
+
+/* ---------- фильтры-чипсы ---------- */
+.chip{padding:7px 14px;background:rgba(255,255,255,.045);border:1px solid var(--stroke-soft);
+  border-radius:999px;color:var(--text-2);font-size:12px;font-weight:500;cursor:pointer;
+  transition:all .2s;white-space:nowrap}
+.chip:hover{border-color:var(--stroke-strong);color:var(--text)}
+.chip.on{background:var(--acc-glow);border-color:rgba(92,168,255,.55);color:var(--acc);font-weight:600}
+
+/* ---------- таблицы ---------- */
+.tbl{padding:6px}
+.thead,.trow{display:grid;gap:12px;align-items:center;padding:12px 16px}
+.thead{border-bottom:1px solid var(--stroke-soft)}
+.thead span{color:var(--text-3);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em}
+.trow{border-bottom:1px solid var(--stroke-soft);transition:background .18s}
+.trow:last-child{border-bottom:none}
+.trow:hover{background:rgba(255,255,255,.032)}
+.num{font-family:var(--font-num);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.empty{padding:44px;text-align:center;color:var(--text-3);font-size:13px}
+
+/* ---------- pill / badge / avatar ---------- */
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 11px;
+  font-size:11px;font-weight:600;border:1px solid transparent;white-space:nowrap}
+.avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;
+  background:linear-gradient(160deg,rgba(92,168,255,.28),rgba(46,124,246,.16));
+  border:1px solid rgba(92,168,255,.35);color:var(--acc)}
+.bar{background:rgba(255,255,255,.08);border-radius:99px;height:5px;overflow:hidden}
+.bar>div{height:100%;border-radius:99px;transition:width .7s var(--ease-out)}
+
+/* ---------- PillSelect ---------- */
+.pill-sel{position:relative;display:inline-flex;align-items:center}
+.pill-sel select{appearance:none;-webkit-appearance:none;font-size:11px;font-weight:600;
+  padding:5px 24px 5px 11px;border-radius:999px;cursor:pointer;outline:none;transition:filter .15s;
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.pill-sel select:hover{filter:brightness(1.25)}
+.pill-sel .arr{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:8px;pointer-events:none}
+
+/* ---------- сайдбар ---------- */
+.nav-it{display:flex;align-items:center;gap:11px;padding:10px 13px;margin:2px 10px;cursor:pointer;
+  border-radius:var(--r-md);color:var(--text-2);border:1px solid transparent;position:relative;
+  transition:all .22s var(--ease-out);font-size:13px;font-weight:500}
+.nav-it:hover{color:var(--text);background:rgba(255,255,255,.05)}
+.nav-it.on{color:var(--text);font-weight:600;background:linear-gradient(160deg,rgba(255,255,255,.1),rgba(255,255,255,.04));
+  border-color:var(--stroke);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+.nav-it.on .nav-ic{color:var(--acc)}
+.nav-it.on::before{content:'';position:absolute;left:-10px;top:22%;bottom:22%;width:3px;border-radius:3px;
+  background:linear-gradient(180deg,var(--acc),var(--acc-deep));box-shadow:0 0 12px var(--acc-glow)}
+.nav-ic{display:flex;align-items:center;justify-content:center;width:20px;color:var(--text-3);transition:color .2s}
+.sub-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s var(--ease-out)}
+.sub-wrap.open{grid-template-rows:1fr}
+.sub-wrap>div{overflow:hidden}
+.nav-sub{display:flex;align-items:center;gap:9px;padding:7px 13px 7px 42px;margin:1px 10px;cursor:pointer;
+  border-radius:var(--r-sm);color:var(--text-3);font-size:12.5px;transition:all .18s}
+.nav-sub:hover{color:var(--text)}
+.nav-sub.on{color:var(--acc);background:var(--acc-glow);font-weight:600}
+
+/* ---------- модалки / оверлеи ---------- */
+.overlay{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;
+  background:rgba(4,7,16,.45);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  animation:fadeIn .25s var(--ease-out) both}
+.modal{animation:popIn .32s var(--ease-out) both;border-radius:var(--r-lg);max-width:92vw}
+
+/* ---------- тосты ---------- */
+.toasts{position:fixed;right:22px;bottom:22px;z-index:90;display:flex;flex-direction:column;gap:9px}
+.toast{animation:toastIn .35s var(--ease-out) both;padding:12px 16px;border-radius:var(--r-md);
+  font-size:13px;max-width:380px;white-space:pre-wrap}
+
+/* ---------- markdown в AI-чате ---------- */
+.ai-md p{margin:0 0 8px}.ai-md p:last-child{margin-bottom:0}
+.ai-md ul,.ai-md ol{margin:6px 0 6px 18px;padding:0}.ai-md li{margin:3px 0}
+.ai-md strong{color:var(--text);font-weight:600}
+.ai-md code{background:rgba(255,255,255,.1);padding:1px 6px;border-radius:5px;font-size:12px;font-family:var(--font-num)}
+
+/* ---------- стикеры ---------- */
+.note{position:absolute;width:158px;border-radius:10px;padding:13px;cursor:grab;user-select:none;
+  box-shadow:0 10px 24px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.5);
+  transition:border-radius .35s var(--ease-spring),padding .35s,transform .35s var(--ease-spring)}
+.note.crumpled{border-radius:50%;padding:26px 14px;transform:rotate(8deg) scale(.82)}
+.note-btn{background:rgba(0,0,0,.12);border:none;border-radius:5px;padding:3px 6px;cursor:pointer;
+  color:rgba(0,0,0,.65);display:inline-flex;align-items:center;transition:background .15s}
+.note-btn:hover{background:rgba(0,0,0,.22)}
+
+/* ---------- переключатель ---------- */
+.switch{width:44px;height:24px;border-radius:99px;background:rgba(255,255,255,.12);cursor:pointer;
+  position:relative;transition:background .25s;flex-shrink:0;border:1px solid var(--stroke)}
+.switch.on{background:linear-gradient(180deg,#4E9BFF,var(--acc-deep));border-color:transparent}
+.switch i{position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;
+  transition:left .25s var(--ease-spring);box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.switch.on i{left:22px}
+
+.spin{width:15px;height:15px;border:2px solid rgba(255,255,255,.25);border-top-color:var(--text);
+  border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+{% verbatim %}
+const {useState,useEffect,useRef,useContext,Fragment}=React;
+// Контракт API не меняется — тот же бекенд, что у оригинального фронтенда
+const API_BASE='/api';
+
+/* ============ ДАННЫЕ-КОНСТАНТЫ ============ */
+const INDUSTRIES=[
+  {id:'sales',label:'Продажі',icon:'📈',color:'#FF6B6B'},
+  {id:'construction',label:'Будівництво',icon:'🏗',color:'#FFA07A'},
+  {id:'it',label:'IT',icon:'💻',color:'#7C3AED'},
+  {id:'services',label:'Послуги',icon:'🛎',color:'#0EA5E9'},
+  {id:'retail',label:'Торгівля',icon:'🛒',color:'#10B981'},
+  {id:'manufacturing',label:'Виробництво',icon:'🏭',color:'#F59E0B'},
+];
+const NAV=[
+  {id:'dash',label:'Дашборд',ic:'dashboard',subs:[]},
+  {id:'finance',label:'Фінанси',ic:'finance',subs:[
+    {id:'bank',label:'Банк',ic:'bank'},
+    {id:'contractors',label:'Контрагенти',ic:'contractors'},
+    {id:'contracts',label:'Договори',ic:'contracts'},
+    {id:'salaries',label:'Зарплати',ic:'salaries'},
+  ]},
+  {id:'hr',label:'HR',ic:'hr',subs:[
+    {id:'tasks',label:'Доручення',ic:'tasks'},
+    {id:'employees',label:'Співробітники',ic:'employees'},
+    {id:'birthdays',label:'Дні народження',ic:'birthdays'},
+    {id:'kpi',label:'KPI',ic:'kpi'},
+  ]},
+  {id:'organizer',label:'Органайзер',ic:'organizer',subs:[
+    {id:'schedule',label:'Розклад',ic:'schedule'},
+    {id:'notes',label:'Нотатки',ic:'notes'},
+    {id:'reports',label:'Звітність',ic:'reports'},
+  ]},
+  {id:'ai',label:'AI Асистент',ic:'ai',subs:[
+    {id:'aichat',label:'Чат-бот',ic:'aichat'},
+    {id:'audiomeeting',label:'Аудіо нарада',ic:'audiomeeting'},
+    {id:'dictaphone',label:'Диктофон',ic:'dictaphone'},
+  ]},
+  {id:'settings',label:'Налаштування',ic:'settings',subs:[]},
+];
+// Аврора-муды — аналог тем: меняют свечение фона, стекло остаётся стеклом
+const MOODS={
+  azure:{name:'Лазурна'},violet:{name:'Фіолетова'},emerald:{name:'Смарагдова'},
+  amber:{name:'Бурштинова'},rose:{name:'Трояндова'},graphite:{name:'Графітова'},
+};
+const MOOD_PREVIEW={
+  azure:'linear-gradient(135deg,#0B1430,#1B2C6B,#0A4A66)',
+  violet:'linear-gradient(135deg,#160B30,#3A1B6B,#5B2C8F)',
+  emerald:'linear-gradient(135deg,#04140F,#0D5C44,#0A4A66)',
+  amber:'linear-gradient(135deg,#1C1005,#7A4A0C,#6B2434)',
+  rose:'linear-gradient(135deg,#1C0512,#7A1C3E,#3A1B6B)',
+  graphite:'linear-gradient(135deg,#0B0E14,#2A3648,#1A2230)',
+};
+const TX_CAT_LABELS={salary:'Зарплата',supplier:'Постачальник',customer:'Клієнт',utility:'Комунальні',rent:'Оренда',tax:'Податки',other:'Інше'};
+const CP_TYPES={supplier:'Постачальник',customer:'Клієнт',service:'Послуги',utility:'Комунальні',other:'Інше'};
+const CT_CATS={services:'Послуги',goods:'Товари',utility:'Комунальні',rent:'Оренда',supply:'Закупівля',other:'Інше'};
+const CT_STATUS={active:'Активний',closed:'Закритий',draft:'Чернетка'};
+const SAL_STATUS={pending:'Очікує',paid:'Виплачено',cancelled:'Скасовано'};
+const MONTHS_UA=['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+const INIT_NOTES=[
+  {id:1,text:'Зателефонувати Дмитру щодо договору',color:'#FFE066',x:14,y:14,deleted:false,crumpled:false},
+  {id:2,text:"Нарада у п'ятницю о 10:00",color:'#B5EAD7',x:236,y:46,deleted:false,crumpled:false},
+  {id:3,text:'Переглянути бюджет Q2',color:'#FF9AA2',x:458,y:18,deleted:false,crumpled:false},
+];
+const REPORTS_CAL=[
+  {title:'Звіт з ПДВ',date:'2026-04-20',dept:'Бухгалтерія'},
+  {title:'Виплата зарплати',date:'2026-03-25',dept:'Фінанси'},
+  {title:'Медогляд персоналу',date:'2026-04-01',dept:'HR'},
+  {title:'Списання матеріалів',date:'2026-03-31',dept:'Операції'},
+  {title:'Податок на прибуток',date:'2026-04-30',dept:'Бухгалтерія'},
+  {title:'Звіт з охорони праці',date:'2026-04-15',dept:'Безпека'},
+];
+const INIT_EVENTS=[
+  {id:1,day:1,hour:9,title:'Нарада команди',color:'#5CA8FF',important:true},
+  {id:2,day:2,hour:14,title:'Зустріч з підрядником',color:'#FF7A70',important:false},
+  {id:3,day:3,hour:11,title:'Фінансовий звіт',color:'#FFC24D',important:true},
+  {id:4,day:4,hour:10,title:'Огляд KPI',color:'#3DDC97',important:false},
+];
+const EV_COLORS=['#5CA8FF','#FF7A70','#FFC24D','#3DDC97','#C58BFF','#4FD1E0','#FF8FB0'];
+const INIT_SETTINGS={
+  profile:{name:'Олександр Директоренко',position:'Генеральний директор',initials:'ОД',avatarColor:'#2E7CF6'},
+  theme:'azure',currency:'UAH',language:'uk',dateFormat:'uk',
+  notifications:{tasks:true,birthdays:true,reports:true,overdue:true},
+  departments:['Управління','Фінанси','Операції','IT','HR','Безпека'],
+  dataSources:{finance:'manual',tasks:'manual',calendar:'manual',contractors:'manual'},
+};
+
+/* ============ УТИЛИТЫ ============ */
+const today=new Date();
+const fmt=(n,c='UAH')=>new Intl.NumberFormat('uk-UA',{maximumFractionDigits:0}).format(n)+(c==='USD'?'$':c==='EUR'?'€':'₴');
+const daysUntil=bd=>{if(!bd)return 9999;const b=new Date(bd);const n=new Date();const nx=new Date(n.getFullYear(),b.getMonth(),b.getDate());if(nx<n)nx.setFullYear(n.getFullYear()+1);return Math.ceil((nx-n)/864e5);};
+const genAvatar=fn=>!fn?'—':(fn.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase()||'—');
+// Семантика статусов/приоритетов — через CSS-переменные палитры
+const PRIORITY_META={high:{c:'#FF7A70',label:'Високий'},medium:{c:'#FFC24D',label:'Середній'},low:{c:'#8FB8FF',label:'Низький'},none:{c:'#8A93A8',label:'Нульовий'}};
+const prMeta=p=>PRIORITY_META[p]||PRIORITY_META.none;
+const STATUS_META={active:{c:'#FFC24D',label:'Активне'},process:{c:'#5CA8FF',label:'В роботі'},done:{c:'#3DDC97',label:'Виконано'},overdue:{c:'#FF7A70',label:'Прострочено'}};
+const stMeta=s=>STATUS_META[s]||{c:'#8A93A8',label:s||'—'};
+// hex + прозрачность → rgba-строка (для тонированных pill/select)
+const tint=(hex,a)=>{const h=hex.replace('#','');const n=parseInt(h,16);return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;};
+
+// Разбор ошибок DRF {field:[...]} → человекочитаемый текст. Единый паттерн для всех форм.
+const drfError=(data,status)=>{
+  if(data&&typeof data==='object'&&!Array.isArray(data))
+    return Object.entries(data).map(([f,e])=>`${f}: ${Array.isArray(e)?e.join(' '):e}`).join('\n');
+  return `Сервер повернув ${status}`;
+};
+const api={
+  get:p=>fetch(`${API_BASE}${p}`).then(r=>{if(!r.ok)throw new Error(`Сервер повернув ${r.status}`);return r.json();}),
+  send:async(method,p,body)=>{
+    const r=await fetch(`${API_BASE}${p}`,{method,headers:{'Content-Type':'application/json'},body:body!==undefined?JSON.stringify(body):undefined});
+    if(!r.ok){const d=await r.json().catch(()=>null);throw new Error(drfError(d,r.status));}
+    return r.status===204?null:r.json().catch(()=>null);
+  },
+};
+
+/* ============ ИКОНКИ (Lucide, stroke=currentColor) ============ */
+const I=(paths,s=18)=>(
+  <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths}</svg>
+);
+const ICONS={
+  dashboard:s=>I(<Fragment><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></Fragment>,s),
+  finance:s=>I(<Fragment><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></Fragment>,s),
+  hr:s=>I(<Fragment><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></Fragment>,s),
+  organizer:s=>I(<Fragment><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></Fragment>,s),
+  ai:s=>I(<path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z"/>,s),
+  settings:s=>I(<Fragment><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></Fragment>,s),
+  bank:s=>I(<Fragment><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></Fragment>,s),
+  contractors:s=>I(<Fragment><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></Fragment>,s),
+  contracts:s=>I(<Fragment><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></Fragment>,s),
+  salaries:s=>I(<Fragment><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="12" cy="12" r="3"/></Fragment>,s),
+  tasks:s=>I(<Fragment><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></Fragment>,s),
+  employees:s=>I(<Fragment><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></Fragment>,s),
+  birthdays:s=>I(<Fragment><path d="M20 21v-8H4v8"/><path d="M1 13h22v-3a2 2 0 0 0-2-2H3a2 2 0 0 0-2 2v3z"/><path d="M12 8V2"/><path d="M9 5h6"/></Fragment>,s),
+  kpi:s=>I(<Fragment><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></Fragment>,s),
+  schedule:s=>I(<Fragment><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></Fragment>,s),
+  notes:s=>I(<Fragment><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></Fragment>,s),
+  reports:s=>I(<Fragment><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></Fragment>,s),
+  aichat:s=>I(<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>,s),
+  audiomeeting:s=>I(<Fragment><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></Fragment>,s),
+  dictaphone:s=>I(<Fragment><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></Fragment>,s),
+  chevR:s=>I(<polyline points="9 18 15 12 9 6"/>,s),
+  chevD:s=>I(<polyline points="6 9 12 15 18 9"/>,s),
+  trendUp:s=>I(<Fragment><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></Fragment>,s),
+  trendDown:s=>I(<Fragment><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></Fragment>,s),
+  search:s=>I(<Fragment><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></Fragment>,s),
+  bell:s=>I(<Fragment><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></Fragment>,s),
+  plus:s=>I(<Fragment><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></Fragment>,s),
+  x:s=>I(<Fragment><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></Fragment>,s),
+  edit:s=>I(<Fragment><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></Fragment>,s),
+  trash:s=>I(<Fragment><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></Fragment>,s),
+  clip:s=>I(<path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>,s),
+  send:s=>I(<Fragment><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></Fragment>,s),
+  restore:s=>I(<Fragment><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></Fragment>,s),
+  copy:s=>I(<Fragment><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></Fragment>,s),
+  wave:s=>I(<path d="M2 12c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/>,s),
+  file:s=>I(<Fragment><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></Fragment>,s),
+  building:s=>I(<Fragment><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="9" y1="7" x2="10" y2="7"/><line x1="14" y1="7" x2="15" y2="7"/><line x1="9" y1="12" x2="10" y2="12"/><line x1="14" y1="12" x2="15" y2="12"/><line x1="9" y1="17" x2="15" y2="17"/></Fragment>,s),
+  user:s=>I(<Fragment><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></Fragment>,s),
+  palette:s=>I(<Fragment><circle cx="13.5" cy="6.5" r=".9"/><circle cx="17.5" cy="10.5" r=".9"/><circle cx="8.5" cy="7.5" r=".9"/><circle cx="6.5" cy="12.5" r=".9"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.5-.7 1.5-1.5 0-.4-.15-.74-.42-1-.26-.26-.42-.62-.42-1 0-.83.67-1.5 1.5-1.5H16c3.31 0 6-2.69 6-6 0-4.96-4.5-9-10-9z"/></Fragment>,s),
+  globe:s=>I(<Fragment><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></Fragment>,s),
+  db:s=>I(<Fragment><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></Fragment>,s),
+  briefcase:s=>I(<Fragment><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></Fragment>,s),
+  check:s=>I(<polyline points="20 6 9 17 4 12"/>,s),
+};
+
+/* ============ ERROR BOUNDARY ============ */
+class ErrorBoundary extends React.Component{
+  constructor(p){super(p);this.state={hasError:false,error:null};}
+  static getDerivedStateFromError(error){return{hasError:true,error};}
+  componentDidCatch(e,i){console.error('Boss App error:',e,i);}
+  render(){
+    if(this.state.hasError)return(
+      <div style={{padding:40,minHeight:'100vh',position:'relative',zIndex:1}}>
+        <div className="glass-strong" style={{maxWidth:560,margin:'80px auto',padding:32,borderRadius:20}}>
+          <h2 style={{color:'var(--neg)',marginBottom:14,fontFamily:'var(--font-h)'}}>Щось пішло не так</h2>
+          <p style={{color:'var(--text-2)',marginBottom:18,lineHeight:1.6}}>Boss App зіткнувся з помилкою. Спробуйте оновити сторінку (Cmd+R).</p>
+          <details style={{color:'var(--text-3)',fontSize:12,fontFamily:'var(--font-num)'}}>
+            <summary style={{cursor:'pointer'}}>Технічні деталі</summary>
+            <pre style={{marginTop:10,whiteSpace:'pre-wrap'}}>{String(this.state.error)}</pre>
+          </details>
+          <button className="btn btn-primary" style={{marginTop:22}} onClick={()=>window.location.reload()}>Оновити сторінку</button>
+        </div>
+      </div>
+    );
+    return this.props.children;
+  }
+}
+
+/* ============ ТОСТЫ + СТЕКЛЯННЫЙ CONFIRM ============ */
+const UICtx=React.createContext(null);
+const useUI=()=>useContext(UICtx);
+
+function UIProvider({children}){
+  const [toasts,setToasts]=useState([]);
+  const [confirmReq,setConfirmReq]=useState(null); // {message, resolve}
+  const idRef=useRef(0);
+
+  const toast=(text,kind='info')=>{
+    const id=++idRef.current;
+    setToasts(p=>[...p,{id,text,kind}]);
+    setTimeout(()=>setToasts(p=>p.filter(t=>t.id!==id)),4200);
+  };
+  // Промис-подтверждение: await confirmG('...') → true/false
+  const confirmG=message=>new Promise(resolve=>setConfirmReq({message,resolve}));
+  const answer=ok=>{confirmReq&&confirmReq.resolve(ok);setConfirmReq(null);};
+
+  const kindStyle=k=>k==='error'
+    ?{background:'linear-gradient(160deg,rgba(90,30,30,.85),rgba(50,16,20,.9))',border:'1px solid rgba(255,122,112,.45)',color:'#FFD9D5'}
+    :k==='success'
+    ?{background:'linear-gradient(160deg,rgba(16,64,48,.85),rgba(8,36,28,.9))',border:'1px solid rgba(61,220,151,.4)',color:'#CFF5E4'}
+    :{background:'linear-gradient(160deg,rgba(30,40,70,.85),rgba(16,22,42,.9))',border:'1px solid var(--stroke-strong)',color:'var(--text)'};
+
+  return(
+    <UICtx.Provider value={{toast,confirmG}}>
+      {children}
+      {confirmReq&&(
+        <div className="overlay" onClick={()=>answer(false)}>
+          <div className="modal glass-strong" style={{width:420,padding:26}} onClick={e=>e.stopPropagation()}>
+            <h3 style={{fontFamily:'var(--font-h)',fontSize:16,marginBottom:12}}>Підтвердження</h3>
+            <p style={{color:'var(--text-2)',fontSize:13.5,lineHeight:1.6,whiteSpace:'pre-wrap',marginBottom:22}}>{confirmReq.message}</p>
+            <div style={{display:'flex',gap:10,justifyContent:'flex-end'}}>
+              <button className="btn btn-ghost" onClick={()=>answer(false)}>Скасувати</button>
+              <button className="btn btn-danger" onClick={()=>answer(true)}>Підтвердити</button>
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="toasts">
+        {toasts.map(t=>(
+          <div key={t.id} className="toast" style={{...kindStyle(t.kind),backdropFilter:'blur(20px)',WebkitBackdropFilter:'blur(20px)',boxShadow:'0 16px 40px rgba(2,7,22,.5)'}}>{t.text}</div>
+        ))}
+      </div>
+    </UICtx.Provider>
+  );
+}
+
+/* ============ МЕЛКИЕ ПРИМИТИВЫ ============ */
+// Тонированный pill (статусы, метки)
+const Pill=({c,children})=>(
+  <span className="pill" style={{background:tint(c,.14),color:c,borderColor:tint(c,.32)}}>{children}</span>
+);
+// Кастомный цветной select-pill (Доручення: статус/пріоритет)
+function PillSelect({value,color,onChange,options}){
+  return(
+    <div className="pill-sel">
+      <select value={value} onChange={onChange}
+              style={{background:tint(color,.15),color,border:'1px solid '+tint(color,.4)}}>
+        {options.map(o=><option key={o.value} value={o.value}>{o.label}</option>)}
+      </select>
+      <span className="arr" style={{color}}>▾</span>
+    </div>
+  );
+}
+// Блок ошибки валидации — единый вид для всех форм
+const FormError=({err})=>err?(
+  <div style={{gridColumn:'1 / -1',padding:'10px 14px',borderRadius:'var(--r-sm)',fontSize:12.5,lineHeight:1.55,
+    whiteSpace:'pre-wrap',background:'var(--neg-glow)',border:'1px solid rgba(255,122,112,.4)',color:'#FFCFCA'}}>
+    {err}
+  </div>
+):null;
+// Баннер сетевой ошибки списков + retry
+const ErrorBanner=({text,onRetry})=>(
+  <div className="glass" style={{padding:'14px 18px',marginBottom:14,display:'flex',alignItems:'center',gap:14,
+    background:'linear-gradient(160deg,rgba(90,30,30,.4),rgba(50,16,20,.3))',borderColor:'rgba(255,122,112,.4)'}}>
+    <span style={{color:'#FFCFCA',fontSize:13,flex:1}}>{text}</span>
+    <button className="btn btn-ghost" style={{fontSize:12,padding:'7px 14px'}} onClick={onRetry}>Спробувати знову</button>
+  </div>
+);
+const Loading=({text})=>(
+  <div style={{padding:22,textAlign:'center',color:'var(--text-2)',fontSize:13,display:'flex',gap:10,alignItems:'center',justifyContent:'center'}}>
+    <span className="spin"/>{text}
+  </div>
+);
+// Счётчик с анимацией набегания (framer-motion animated counter, rAF-вариант)
+function CountUp({value,format}){
+  const [v,setV]=useState(value);
+  const raf=useRef(null);
+  useEffect(()=>{
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){setV(value);return;}
+    const from=typeof v==='number'?v:0, to=Number(value)||0, t0=performance.now(), dur=650;
+    cancelAnimationFrame(raf.current);
+    const step=t=>{
+      const p=Math.min(1,(t-t0)/dur);
+      const e=1-Math.pow(1-p,3); // easeOutCubic
+      setV(from+(to-from)*e);
+      if(p<1)raf.current=requestAnimationFrame(step);
+    };
+    raf.current=requestAnimationFrame(step);
+    return()=>cancelAnimationFrame(raf.current);
+  },[value]);
+  return <Fragment>{format?format(Math.round(v)):Math.round(v)}</Fragment>;
+}
+
+/* ============ ОНБОРДИНГ ============ */
+function Onboarding({onComplete}){
+  const [sel,setSel]=useState(null);
+  return(
+    <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:24,position:'relative',zIndex:1}}>
+      <div className="page" style={{textAlign:'center',marginBottom:44}}>
+        <div className="glass" style={{width:76,height:76,borderRadius:22,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 20px',color:'var(--acc)'}}>
+          {ICONS.briefcase(34)}
+        </div>
+        <h1 style={{fontFamily:'var(--font-h)',fontSize:30,fontWeight:800,letterSpacing:'-.01em'}}>Помічник Керівника</h1>
+        <p style={{color:'var(--text-2)',marginTop:10,fontSize:15}}>Оберіть сферу діяльності підприємства</p>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:16,maxWidth:600,width:'100%'}}>
+        {INDUSTRIES.map((ind,i)=>(
+          <div key={ind.id} onClick={()=>setSel(ind.id)}
+               className={'glass lift press stag'}
+               style={{'--i':i,padding:'24px 16px',textAlign:'center',cursor:'pointer',
+                       border:sel===ind.id?'1px solid rgba(92,168,255,.7)':'1px solid var(--stroke)',
+                       boxShadow:sel===ind.id?'0 0 0 3px rgba(92,168,255,.18), 0 16px 44px rgba(2,7,22,.44)':undefined}}>
+            <div style={{fontSize:30,marginBottom:10}}>{ind.icon}</div>
+            <div style={{fontWeight:600,fontSize:13.5}}>{ind.label}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{height:76,display:'flex',alignItems:'center'}}>
+        {sel&&(
+          <button className="btn btn-primary" style={{padding:'14px 42px',fontSize:15,animation:'popIn .35s var(--ease-out) both'}}
+                  onClick={()=>onComplete(INDUSTRIES.find(i=>i.id===sel))}>
+            Розпочати роботу →
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ============ САЙДБАР ============ */
+function Sidebar({nav,setNav,settings,hrBadge}){
+  const {name,initials,avatarColor,position}=settings.profile;
+  return(
+    <aside className="glass glass-panel" style={{width:252,minWidth:252,display:'flex',flexDirection:'column',overflow:'hidden'}}>
+      {/* Лого */}
+      <div style={{padding:'20px 18px 14px',display:'flex',alignItems:'center',gap:11}}>
+        <div style={{width:38,height:38,borderRadius:12,background:'linear-gradient(160deg,#4E9BFF,var(--acc-deep))',
+             display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'var(--font-h)',fontWeight:800,fontSize:19,color:'#fff',
+             boxShadow:'0 8px 20px var(--acc-glow), inset 0 1px 0 rgba(255,255,255,.4)'}}>B</div>
+        <div>
+          <div style={{fontFamily:'var(--font-h)',fontWeight:800,fontSize:15,lineHeight:1.15}}>Boss</div>
+          <div style={{color:'var(--text-3)',fontSize:10.5,marginTop:2}}>Помічник Керівника</div>
+        </div>
+      </div>
+      {/* Переключатель компании — заглушка multi-tenancy */}
+      <div className="glass press" style={{margin:'0 12px 14px',padding:'10px 12px',display:'flex',alignItems:'center',gap:10,cursor:'pointer',borderRadius:'var(--r-md)'}}>
+        <div style={{width:28,height:28,borderRadius:8,background:'linear-gradient(135deg,#4F46E5,#818CF8)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:'#fff',flexShrink:0}}>ТК</div>
+        <div style={{flex:1,overflow:'hidden'}}>
+          <div style={{fontSize:12.5,fontWeight:600,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>ТОВ «Карпати»</div>
+          <div style={{color:'var(--text-3)',fontSize:10.5}}>{position}</div>
+        </div>
+        <span style={{color:'var(--text-3)',display:'flex'}}>{ICONS.chevR(14)}</span>
+      </div>
+      <div style={{padding:'0 22px 8px',color:'var(--text-3)',fontSize:10,fontWeight:700,textTransform:'uppercase',letterSpacing:'.09em'}}>Навігація</div>
+      {/* Пункты */}
+      <nav style={{flex:1,overflowY:'auto',paddingBottom:8}}>
+        {NAV.map(n=>{
+          const isActive=nav.section===n.id;
+          return(
+            <div key={n.id}>
+              <div className={'nav-it'+(isActive?' on':'')} onClick={()=>setNav({section:n.id,sub:n.subs[0]?.id||null})}
+                   role="button" tabIndex={0} onKeyDown={e=>e.key==='Enter'&&setNav({section:n.id,sub:n.subs[0]?.id||null})}>
+                <span className="nav-ic">{ICONS[n.ic](18)}</span>
+                <span style={{flex:1}}>{n.label}</span>
+                {n.id==='hr'&&hrBadge>0&&(
+                  <span style={{background:'var(--acc-glow)',color:'var(--acc)',fontSize:10.5,fontWeight:700,padding:'2px 8px',borderRadius:99,border:'1px solid rgba(92,168,255,.35)'}} className="num">{hrBadge}</span>
+                )}
+                {n.id==='ai'&&(
+                  <span title="онлайн" style={{width:8,height:8,borderRadius:'50%',background:'var(--pos)',animation:'pulseDot 2.4s infinite'}}/>
+                )}
+                {n.subs.length>0&&(
+                  <span style={{color:'var(--text-3)',display:'flex',transform:isActive?'rotate(0)':'rotate(-90deg)',transition:'transform .3s var(--ease-out)'}}>{ICONS.chevD(13)}</span>
+                )}
+              </div>
+              {n.subs.length>0&&(
+                <div className={'sub-wrap'+(isActive?' open':'')}>
+                  <div>
+                    {n.subs.map(s=>(
+                      <div key={s.id} className={'nav-sub'+(nav.sub===s.id&&isActive?' on':'')}
+                           onClick={()=>setNav({section:n.id,sub:s.id})}
+                           role="button" tabIndex={isActive?0:-1} onKeyDown={e=>e.key==='Enter'&&setNav({section:n.id,sub:s.id})}>
+                        <span style={{display:'flex',width:15}}>{ICONS[s.ic](14)}</span>
+                        <span>{s.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </nav>
+      {/* Профиль внизу */}
+      <div style={{padding:'13px 16px',borderTop:'1px solid var(--stroke-soft)',display:'flex',alignItems:'center',gap:11}}>
+        <div style={{width:34,height:34,borderRadius:'50%',background:avatarColor,display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'#fff',flexShrink:0,boxShadow:'inset 0 1px 0 rgba(255,255,255,.35)'}}>{initials}</div>
+        <div style={{flex:1,overflow:'hidden'}}>
+          <div style={{fontSize:12.5,fontWeight:600,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{name}</div>
+          <div style={{color:'var(--text-3)',fontSize:10.5,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{position}</div>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+/* ============ ТОПБАР ============ */
+const PAGE_TITLES={
+  'dash':'Дашборд',
+  'finance:bank':'Банк','finance:contractors':'Контрагенти','finance:contracts':'Договори','finance:salaries':'Зарплати','finance':'Фінанси',
+  'hr:tasks':'Доручення','hr:employees':'Співробітники','hr:birthdays':'Дні народження','hr:kpi':'KPI','hr':'HR',
+  'organizer:schedule':'Розклад','organizer:notes':'Нотатки','organizer:reports':'Звітність','organizer':'Органайзер',
+  'ai:aichat':'AI Чат-бот','ai:audiomeeting':'Аудіо нарада','ai:dictaphone':'Диктофон','ai':'AI Асистент',
+  'settings':'Налаштування',
+};
+function Topbar({nav,setNav,settings,aiPanelOpen,setAiPanelOpen}){
+  const {toast}=useUI();
+  const key=nav.sub?`${nav.section}:${nav.sub}`:nav.section;
+  const title=PAGE_TITLES[key]||PAGE_TITLES[nav.section]||'Boss App';
+  const dateStr=new Date().toLocaleDateString('uk-UA',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const {initials,avatarColor}=settings.profile;
+  return(
+    <header style={{height:66,padding:'0 22px',display:'flex',alignItems:'center',gap:14,flexShrink:0,borderBottom:'1px solid var(--stroke-soft)'}}>
+      <div style={{flex:'0 0 auto'}}>
+        <div style={{fontFamily:'var(--font-h)',fontSize:18,fontWeight:800,lineHeight:1.2,letterSpacing:'-.01em'}}>{title}</div>
+        <div style={{color:'var(--text-3)',fontSize:11,marginTop:2,textTransform:'capitalize'}}>{dateStr}</div>
+      </div>
+      {/* Глобальный поиск — заглушка, как в исходном функционале */}
+      <div style={{flex:1,maxWidth:460,marginLeft:18}}>
+        <div style={{display:'flex',alignItems:'center',gap:9,padding:'9px 14px',background:'rgba(8,12,26,.4)',border:'1px solid var(--stroke)',borderRadius:'var(--r-md)',backdropFilter:'blur(8px)',WebkitBackdropFilter:'blur(8px)'}}>
+          <span style={{color:'var(--text-3)',display:'flex'}}>{ICONS.search(14)}</span>
+          <input placeholder="Пошук задач, людей, документів..." aria-label="Глобальний пошук"
+                 style={{flex:1,background:'transparent',border:'none',outline:'none',color:'var(--text)',fontSize:13}}/>
+          <span style={{padding:'2px 7px',background:'rgba(255,255,255,.07)',borderRadius:6,color:'var(--text-3)',fontSize:10,fontWeight:600}}>⌘K</span>
+        </div>
+      </div>
+      {/* Уведомления — заглушка */}
+      <button className="icon-btn" aria-label="Сповіщення" style={{position:'relative'}}
+              onClick={()=>toast('Сповіщення поки що в розробці')}>
+        {ICONS.bell(17)}
+        <span style={{position:'absolute',top:8,right:9,width:7,height:7,borderRadius:'50%',background:'var(--neg)',border:'2px solid rgba(10,14,28,.9)'}}/>
+      </button>
+      {/* Быстрое создание задачи → раздел Доручення */}
+      <button className="btn btn-primary" style={{fontSize:13,padding:'10px 16px'}}
+              onClick={()=>setNav({section:'hr',sub:'tasks'})}>
+        {ICONS.plus(14)}<span>Нова задача</span>
+      </button>
+      {/* Тогл AI-панели */}
+      <button className={'icon-btn'+(aiPanelOpen?' on':'')} onClick={()=>setAiPanelOpen(p=>!p)}
+              title={aiPanelOpen?'Згорнути AI':'Відкрити AI'} aria-label="AI панель">
+        {ICONS.ai(17)}
+      </button>
+      <div style={{width:38,height:38,borderRadius:'50%',background:avatarColor,display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:'#fff',cursor:'pointer',flexShrink:0,boxShadow:'inset 0 1px 0 rgba(255,255,255,.35)'}}>{initials}</div>
+    </header>
+  );
+}
+
+/* ============ AI ЧАТ (полный + compact для панели) ============ */
+function AIChat({refetchTasks,refetchEmployees,refetchFinance,compact=false}){
+  const {toast,confirmG}=useUI();
+  const [msgs,setMsgs]=useState([]);
+  const [input,setInput]=useState('');
+  const [loading,setLoading]=useState(false);
+  const [file,setFile]=useState(null);
+  const fileInputRef=useRef(null);
+  const bottom=useRef(null);
+  const GREETING='Вітаю! Я ваш AI-асистент керівника. Можу допомогти з аналізом, документами та управлінськими рішеннями.';
+
+  useEffect(()=>{
+    api.get('/chat/history/')
+      .then(data=>{
+        if(data.length>0)setMsgs(data.map(m=>({role:m.role,text:m.content,file:m.file_name||null})));
+        else setMsgs([{role:'assistant',text:GREETING}]);
+      })
+      .catch(err=>{
+        console.error('Історія чату:',err);
+        setMsgs([{role:'assistant',text:GREETING+' (попередню історію не вдалось завантажити)'}]);
+      });
+  },[]);
+  useEffect(()=>{bottom.current?.scrollIntoView({behavior:'smooth'});},[msgs]);
+
+  const send=async()=>{
+    if((!input.trim()&&!file)||loading)return;
+    const q=input.trim(),f=file;
+    setInput('');setFile(null);
+    setMsgs(p=>[...p,{role:'user',text:f?`[Файл: ${f.name}] ${q}`:q}]);
+    setLoading(true);
+    try{
+      let data;
+      if(f){
+        const fd=new FormData();
+        fd.append('file',f);
+        fd.append('message',q||'Опиши, що в цьому файлі.');
+        const res=await fetch(`${API_BASE}/chat/file/`,{method:'POST',body:fd});
+        data=await res.json();
+        if(!res.ok)throw new Error(data.error||`Сервер повернув ${res.status}`);
+      }else{
+        const res=await fetch(`${API_BASE}/chat/`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q})});
+        data=await res.json();
+      }
+      setMsgs(p=>[...p,{role:'assistant',text:data.reply}]);
+      // AI мог изменить задачи/сотрудников/финансы через tools — обновляем всё
+      refetchTasks();refetchEmployees();refetchFinance&&refetchFinance();
+    }catch(e){
+      setMsgs(p=>[...p,{role:'assistant',text:'Помилка зʼєднання: '+e.message}]);
+    }
+    setLoading(false);
+  };
+
+  const doClearHistory=async()=>{
+    try{
+      const data=await api.send('DELETE','/chat/history/');
+      setMsgs([{role:'assistant',text:GREETING}]);
+      toast(`Історію очищено: ${data.deleted_messages} повідомлень, ${data.deleted_files} файлів.`,'success');
+    }catch(e){toast('Не вдалося очистити історію: '+e.message,'error');}
+  };
+  // Кнопка в шапке AIPanel шлёт событие — слушаем здесь
+  useEffect(()=>{
+    const h=()=>doClearHistory();
+    window.addEventListener('boss:clear-chat',h);
+    return()=>window.removeEventListener('boss:clear-chat',h);
+  },[]);
+
+  const quick=['Порядок денний наради','Покращення KPI команди','Шаблон протоколу','Аналіз ризиків Q2'];
+
+  return(
+    <div style={{padding:compact?0:24,display:'flex',flexDirection:'column',height:compact?'100%':'calc(100vh - 148px)'}}>
+      {!compact&&(
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',margin:'0 0 14px'}}>
+          <h2 style={{fontFamily:'var(--font-h)',fontSize:20,fontWeight:800}}>AI Чат-бот</h2>
+          <button className="btn btn-ghost" style={{fontSize:12,padding:'7px 14px'}}
+                  onClick={async()=>{if(await confirmG('Видалити всю історію чату? Це також знищить прикріплені файли з сервера. Дію не можна скасувати.'))doClearHistory();}}>
+            {ICONS.trash(13)} Очистити
+          </button>
+        </div>
+      )}
+      <div style={{display:'flex',gap:6,marginBottom:12,flexWrap:'wrap',padding:compact?'12px 14px 0':0}}>
+        {quick.map(q=>(
+          <button key={q} className="chip" style={{fontSize:11}} onClick={()=>setInput(q)}>{q}</button>
+        ))}
+      </div>
+      {/* Сообщения */}
+      <div className={compact?'':'glass'} style={{flex:1,padding:compact?'14px':18,overflowY:'auto',marginBottom:compact?0:12,display:'flex',flexDirection:'column',gap:12}}>
+        {msgs.map((m,i)=>(
+          <div key={i} style={{display:'flex',gap:9,alignItems:'flex-start',flexDirection:m.role==='user'?'row-reverse':'row',animation:'itemIn .35s var(--ease-out) both'}}>
+            <div className="avatar" style={{width:28,height:28,fontSize:10,
+                 ...(m.role==='user'?{background:'linear-gradient(180deg,#4E9BFF,var(--acc-deep))',color:'#fff',border:'none'}:{})}}>
+              {m.role==='user'?'Д':'AI'}
+            </div>
+            <div style={{maxWidth:'80%',padding:'10px 14px',fontSize:13,lineHeight:1.6,
+                 borderRadius:m.role==='user'?'16px 5px 16px 16px':'5px 16px 16px 16px',
+                 background:m.role==='user'?'linear-gradient(160deg,rgba(78,148,255,.22),rgba(46,124,246,.12))':'linear-gradient(163deg,var(--glass-hi),var(--glass-lo))',
+                 border:'1px solid '+(m.role==='user'?'rgba(92,168,255,.35)':'var(--stroke)'),
+                 backdropFilter:'blur(12px)',WebkitBackdropFilter:'blur(12px)'}}>
+              {m.file&&(
+                <div style={{display:'inline-flex',alignItems:'center',gap:5,padding:'3px 9px',background:'var(--acc-glow)',color:'var(--acc)',borderRadius:7,fontSize:10.5,fontWeight:600,marginBottom:6}}>
+                  {ICONS.clip(11)} {m.file}
+                </div>
+              )}
+              {m.role==='assistant'
+                ?<div className="ai-md" dangerouslySetInnerHTML={{__html:marked.parse(m.text||'')}}/>
+                :m.text}
+            </div>
+          </div>
+        ))}
+        {loading&&<div style={{color:'var(--text-2)',fontSize:12,display:'flex',gap:9,alignItems:'center'}}><span className="spin"/>AI друкує...</div>}
+        <div ref={bottom}/>
+      </div>
+      {/* Превью прикреплённого файла */}
+      {file&&(
+        <div style={{padding:compact?'8px 14px 0':'8px 0 0',display:'flex'}}>
+          <div style={{display:'flex',alignItems:'center',gap:8,padding:'6px 11px',background:'var(--acc-glow)',border:'1px solid rgba(92,168,255,.4)',borderRadius:'var(--r-sm)',color:'var(--acc)',fontSize:11.5,fontWeight:500}}>
+            {ICONS.clip(12)} {file.name} · {(file.size/1024).toFixed(0)} KB
+            <button onClick={()=>setFile(null)} aria-label="Прибрати файл" style={{background:'transparent',border:'none',color:'var(--acc)',cursor:'pointer',display:'flex',padding:0,marginLeft:2}}>{ICONS.x(13)}</button>
+          </div>
+        </div>
+      )}
+      {/* Ввод */}
+      <div style={{display:'flex',gap:7,padding:compact?'12px 14px':'12px 0 0',borderTop:compact?'1px solid var(--stroke-soft)':'none',alignItems:'center',marginTop:compact?8:0}}>
+        <input ref={fileInputRef} type="file" accept=".pdf,.docx,.xlsx,.xlsm" style={{display:'none'}}
+               onChange={e=>{
+                 const f=e.target.files[0];
+                 if(!f)return;
+                 if(f.size>30*1024*1024){toast('Файл занадто великий (>30 MB)','error');return;}
+                 setFile(f);e.target.value='';
+               }}/>
+        <button className="icon-btn" title="Прикріпити файл (PDF, DOCX, XLSX)" aria-label="Прикріпити файл"
+                onClick={()=>fileInputRef.current?.click()}>{ICONS.clip(16)}</button>
+        <input className="input" style={{flex:1}} value={input}
+               onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()}
+               placeholder={file?'Питання до файлу...':'Введіть запит...'}/>
+        <button className="btn btn-primary" style={{padding:'10px 15px'}} disabled={loading} aria-label="Надіслати" onClick={send}>
+          {loading?<span className="spin"/>:ICONS.send(15)}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ============ AI-ПАНЕЛЬ (правая, сворачиваемая) ============ */
+function AIPanel({open,onClose,refetchTasks,refetchEmployees,refetchFinance}){
+  const {confirmG}=useUI();
+  // Ширина анимируется контейнером; внутренность фиксированной ширины скользит следом
+  return(
+    <div style={{width:open?372:0,marginLeft:open?0:-14,flexShrink:0,overflow:'hidden',transition:'width .42s var(--ease-out),margin-left .42s var(--ease-out)',display:'flex',justifyContent:'flex-end'}}>
+      <div className="glass glass-panel" style={{width:372,display:'flex',flexDirection:'column',overflow:'hidden',
+           transform:open?'none':'translateX(30px)',opacity:open?1:0,transition:'transform .42s var(--ease-out),opacity .3s'}}>
+        <div style={{height:66,padding:'0 16px',borderBottom:'1px solid var(--stroke-soft)',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
+          <div style={{display:'flex',alignItems:'center',gap:10}}>
+            <div className="avatar" style={{width:34,height:34,fontSize:12}}>AI</div>
+            <div>
+              <div style={{fontSize:14,fontWeight:600}}>AI Асистент</div>
+              <div style={{color:'var(--pos)',fontSize:10.5,display:'flex',alignItems:'center',gap:5}}>
+                <span style={{width:6,height:6,borderRadius:'50%',background:'var(--pos)',animation:'pulseDot 2.4s infinite'}}/> онлайн
+              </div>
+            </div>
+          </div>
+          <div style={{display:'flex',gap:6}}>
+            <button className="icon-btn" style={{width:32,height:32}} title="Очистити історію" aria-label="Очистити історію"
+                    onClick={async()=>{if(await confirmG('Видалити всю історію чату? Це також знищить прикріплені файли з сервера. Дію не можна скасувати.'))window.dispatchEvent(new CustomEvent('boss:clear-chat'));}}>
+              {ICONS.trash(14)}
+            </button>
+            <button className="icon-btn" style={{width:32,height:32}} title="Згорнути" aria-label="Згорнути панель" onClick={onClose}>
+              {ICONS.x(15)}
+            </button>
+          </div>
+        </div>
+        <div style={{flex:1,minHeight:0,display:'flex',flexDirection:'column'}}>
+          <AIChat compact refetchTasks={refetchTasks} refetchEmployees={refetchEmployees} refetchFinance={refetchFinance}/>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============ АУДІО НАРАДА ============ */
+function AudioMeeting(){
+  const [text,setText]=useState('');
+  const [result,setResult]=useState('');
+  const [loading,setLoading]=useState(false);
+  const demoText=`Нарада від 16 березня 2026 року. Присутні: директор Іванов, фінансовий директор Петренко, керівник відділу Сидоренко.\n\nПетренко: Надходження за березень склали 1 200 000 гривень, що на 14% більше плану.\nІванов: Відмінно. Потрібно підготувати звіт Q1 до 25 березня.\nСидоренко: Підрядник "БудГрупп" просить перенести зустріч на наступний тиждень.\nІванов: Добре, Василь — уточни дату та повідом мені до п'ятниці.\nПетренко: Також потрібно переглянути бюджет на квітень — пропоную зустрітися 20 числа.`;
+  const analyze=async()=>{
+    if(!text.trim())return;setLoading(true);
+    try{
+      const d=await api.send('POST','/meeting/protocol/',{text});
+      setResult(d.result||'Помилка.');
+    }catch(e){setResult('Помилка зʼєднання: '+e.message);}
+    setLoading(false);
+  };
+  return(
+    <div className="page" style={{padding:24,maxWidth:860}}>
+      <h2 style={{fontFamily:'var(--font-h)',fontSize:20,fontWeight:800,margin:'0 0 6px'}}>Аудіо нарада → Протокол</h2>
+      <p style={{color:'var(--text-2)',fontSize:13,margin:'0 0 20px'}}>Вставте текст наради — AI створить протокол та список доручень</p>
+      <div className="glass" style={{padding:20,marginBottom:14}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+          <label className="lbl" style={{margin:0}}>Текст наради</label>
+          <button className="btn btn-ghost" style={{fontSize:11.5,padding:'6px 12px'}} onClick={()=>setText(demoText)}>{ICONS.file(13)} Демо</button>
+        </div>
+        <textarea className="input" style={{minHeight:150}} value={text} onChange={e=>setText(e.target.value)} placeholder="Вставте стенограму наради..."/>
+        <button className="btn btn-primary" style={{marginTop:14,width:'100%',fontSize:14,padding:12}} disabled={loading||!text.trim()} onClick={analyze}>
+          {loading?<Fragment><span className="spin"/>AI опрацьовує...</Fragment>:'Створити протокол'}
+        </button>
+      </div>
+      {result&&(
+        <div className="glass" style={{padding:20,animation:'popIn .35s var(--ease-out) both'}}>
+          <h3 style={{fontSize:14,fontWeight:700,margin:'0 0 14px'}}>Результат</h3>
+          <pre style={{fontSize:13,lineHeight:1.7,whiteSpace:'pre-wrap',margin:0,fontFamily:'inherit',color:'var(--text)'}}>{result}</pre>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ============ ДИКТОФОН ============ */
+function Dictaphone(){
+  const {toast}=useUI();
+  const [text,setText]=useState('');
+  const [style_,setStyle]=useState('official');
+  const [lang,setLang]=useState('uk');
+  const [result,setResult]=useState('');
+  const [loading,setLoading]=useState(false);
+  const process=async()=>{
+    if(!text.trim())return;setLoading(true);
+    try{
+      const d=await api.send('POST','/dictate/process/',{text,style:style_,lang});
+      setResult(d.result||'Помилка.');
+    }catch(e){setResult('Помилка зʼєднання: '+e.message);}
+    setLoading(false);
+  };
+  return(
+    <div className="page" style={{padding:24,maxWidth:860}}>
+      <h2 style={{fontFamily:'var(--font-h)',fontSize:20,fontWeight:800,margin:'0 0 6px'}}>Диктофон → Текст</h2>
+      <p style={{color:'var(--text-2)',fontSize:13,margin:'0 0 20px'}}>Введіть текст — AI відредагує стиль та перекладе</p>
+      <div className="glass" style={{padding:20,marginBottom:14}}>
+        <textarea className="input" style={{minHeight:130,marginBottom:14}} value={text} onChange={e=>setText(e.target.value)} placeholder="Введіть голосовий запис..."/>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
+          <div>
+            <label className="lbl">Стиль</label>
+            <select className="input" value={style_} onChange={e=>setStyle(e.target.value)}>
+              <option value="official">Офіційно-діловий</option>
+              <option value="professional">Професійний</option>
+              <option value="brief">Стислий</option>
+            </select>
+          </div>
+          <div>
+            <label className="lbl">Мова</label>
+            <select className="input" value={lang} onChange={e=>setLang(e.target.value)}>
+              <option value="uk">Українська</option>
+              <option value="ru">Русский</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+        </div>
+        <button className="btn btn-primary" style={{width:'100%',fontSize:14,padding:12}} disabled={loading||!text.trim()} onClick={process}>
+          {loading?<Fragment><span className="spin"/>AI обробляє...</Fragment>:'Обробити'}
+        </button>
+      </div>
+      {result&&(
+        <div className="glass" style={{padding:20,animation:'popIn .35s var(--ease-out) both'}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+            <h3 style={{fontSize:14,fontWeight:700,margin:0}}>Результат</h3>
+            <button className="btn btn-ghost" style={{fontSize:11.5,padding:'6px 12px'}}
+                    onClick={()=>{navigator.clipboard?.writeText(result);toast('Скопійовано в буфер обміну','success');}}>
+              {ICONS.copy(13)} Копіювати
+            </button>
+          </div>
+          <div style={{fontSize:14,lineHeight:1.7,whiteSpace:'pre-wrap'}}>{result}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ============ ДАШБОРД ============ */
+// Мини-спарклайн — тренд за 6 месяцев одним штрихом
+const Spark=({data,color})=>{
+  const w=88,h=30;
+  const min=Math.min(...data),max=Math.max(...data),rng=(max-min)||1;
+  const pts=data.map((v,i)=>`${(i/(data.length-1))*w},${h-3-((v-min)/rng)*(h-6)}`).join(' ');
+  return(
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} fill="none" aria-hidden="true">
+      <polyline points={pts} stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity=".9"/>
+    </svg>
+  );
+};
+function Dashboard({tasks,employees,settings,setNav,transactions}){
+  const active=tasks.filter(t=>t.status==='active').length;
+  const overdue=tasks.filter(t=>t.status==='overdue').length;
+  const cur=settings.currency;
+  const income=transactions.filter(t=>t.direction==='in').reduce((s,t)=>s+Number(t.amount),0);
+  const expense=transactions.filter(t=>t.direction==='out').reduce((s,t)=>s+Number(t.amount),0);
+  const balance=income-expense;
+  // Чистый поток по 6 месяцам — для спарклайна на карточке баланса
+  const mNet=[];
+  for(let i=5;i>=0;i--){
+    const dt=new Date(today.getFullYear(),today.getMonth()-i,1);
+    const k=`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`;
+    const inc=transactions.filter(t=>t.direction==='in'&&(t.date||'').startsWith(k)).reduce((sm,t)=>sm+Number(t.amount||0),0);
+    const out=transactions.filter(t=>t.direction==='out'&&(t.date||'').startsWith(k)).reduce((sm,t)=>sm+Number(t.amount||0),0);
+    mNet.push(inc-out);
+  }
+  const firstName=(settings.profile.name||'').split(' ')[0]||'';
+  // Тренды задач — заглушки (исторических данных нет), финансы/команда — реальные
+  const stats=[
+    {label:'Активні задачі',ic:'tasks',iCol:'#5CA8FF',value:active,isMoney:false,trend:{kind:'up',text:'+12%'},desc:`${overdue} з простроченим терміном`,nav:{section:'hr',sub:'tasks'}},
+    {label:'Прострочені',ic:'schedule',iCol:'#FF7A70',value:overdue,isMoney:false,trend:{kind:'down',text:`+${overdue}`},desc:'Потребують уваги',nav:{section:'hr',sub:'tasks'}},
+    {label:'Баланс',ic:'bank',iCol:'#3DDC97',value:balance,isMoney:true,spark:mNet,desc:`${transactions.length} транзакцій`,nav:{section:'finance',sub:'bank'}},
+    {label:'Команда сьогодні',ic:'employees',iCol:'#C58BFF',value:employees.length,isMoney:false,desc:'осіб у команді',nav:{section:'hr',sub:'employees'}},
+  ];
+  const trendColor=k=>k==='up'?'var(--pos)':'var(--neg)';
+  const topTasks=[...tasks].sort((a,b)=>{
+    const o={high:0,medium:1,low:2};
+    return (o[a.priority]??3)-(o[b.priority]??3);
+  }).slice(0,7);
+  const filters=[
+    {key:'all',label:'Усі',count:tasks.length},
+    {key:'process',label:'В роботі',count:tasks.filter(t=>t.status==='process').length},
+    {key:'overdue',label:'Прострочені',count:overdue},
+    {key:'done',label:'Завершено',count:tasks.filter(t=>t.status==='done').length},
+  ];
+  return(
+    <div className="page" style={{padding:22}}>
+      {/* Герой-приветствие */}
+      <div className="stag" style={{'--i':0,margin:'4px 4px 20px'}}>
+        <div className="h-grad" style={{fontFamily:'var(--font-h)',fontSize:26,fontWeight:800,letterSpacing:'-.02em'}}>
+          Доброго дня, {firstName}
+        </div>
+        <div style={{color:'var(--text-2)',fontSize:13.5,marginTop:5}}>Ось стан вашого бізнесу на сьогодні</div>
+      </div>
+      {/* Сводные показатели */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:20}}>
+        {stats.map((s,i)=>(
+          <div key={i} className="glass lift press stag" style={{'--i':i+1,padding:'18px 20px',cursor:'pointer'}}
+               onClick={()=>setNav(s.nav)} role="button" tabIndex={0} onKeyDown={e=>e.key==='Enter'&&setNav(s.nav)}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+              <span style={{display:'flex',alignItems:'center',gap:9,color:'var(--text-2)',fontSize:12.5}}>
+                <span style={{width:28,height:28,borderRadius:9,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,
+                      background:tint(s.iCol,.14),border:'1px solid '+tint(s.iCol,.35),color:s.iCol}}>{ICONS[s.ic](14)}</span>
+                {s.label}
+              </span>
+              {s.trend&&(
+                <span style={{display:'flex',alignItems:'center',gap:4,color:trendColor(s.trend.kind),fontSize:12,fontWeight:600}}>
+                  {s.trend.kind==='up'?ICONS.trendUp(13):ICONS.trendDown(13)}<span className="num">{s.trend.text}</span>
+                </span>
+              )}
+            </div>
+            <div style={{display:'flex',alignItems:'flex-end',justifyContent:'space-between',gap:8,marginBottom:10}}>
+              <div className="num" style={{fontSize:29,fontWeight:700,lineHeight:1,
+                   color:s.isMoney?(s.value>=0?'var(--pos)':'var(--neg)'):'var(--text)'}}>
+                {s.isMoney?<CountUp value={s.value} format={v=>fmt(v,cur)}/>:<CountUp value={s.value}/>}
+              </div>
+              {s.spark&&s.spark.some(v=>v!==0)&&<Spark data={s.spark} color={s.value>=0?'#3DDC97':'#FF7A70'}/>}
+            </div>
+            <div style={{color:'var(--text-3)',fontSize:12}}>{s.desc}</div>
+          </div>
+        ))}
+      </div>
+      {/* Топ доручень */}
+      <div className="glass stag" style={{'--i':4,padding:'20px 18px 14px'}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end',marginBottom:16,flexWrap:'wrap',gap:14,padding:'0 6px'}}>
+          <div>
+            <h3 style={{fontFamily:'var(--font-h)',fontSize:16,fontWeight:800,margin:0}}>Доручення команді</h3>
+            <div style={{color:'var(--text-3)',fontSize:11.5,marginTop:4}}>Топ-7 за пріоритетом</div>
+          </div>
+          <div style={{display:'flex',gap:6}}>
+            {filters.map(f=>(
+              <button key={f.key} className={'chip'+(f.key==='all'?' on':'')} onClick={()=>setNav({section:'hr',sub:'tasks'})}>
+                {f.label} · <span className="num">{f.count}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="thead" style={{gridTemplateColumns:'2.5fr 1.5fr 1fr 1fr 1fr'}}>
+          {['Задача','Виконавець','Термін','Пріоритет','Статус'].map((h,i)=><span key={i}>{h}</span>)}
+        </div>
+        {topTasks.map((t,i)=>{
+          const pm=prMeta(t.priority),sm=stMeta(t.status);
+          return(
+            <div key={t.id} className="trow stag" style={{'--i':i,gridTemplateColumns:'2.5fr 1.5fr 1fr 1fr 1fr'}}>
+              <div>
+                <div style={{fontSize:13,fontWeight:500}}>{t.title}</div>
+                <div style={{color:'var(--text-3)',fontSize:10.5,marginTop:2}}>#{t.id} · {t.category||'без категорії'}</div>
+              </div>
+              <div style={{display:'flex',alignItems:'center',gap:8}}>
+                <div className="avatar" style={{width:28,height:28,fontSize:10}}>{genAvatar(t.assignee)}</div>
+                <span style={{fontSize:13}}>{t.assignee||'—'}</span>
+              </div>
+              <span className="num" style={{color:t.status==='overdue'?'var(--neg)':'var(--text)',fontSize:12.5}}>
+                {t.status==='overdue'?'Прострочено':(t.deadline||'Без терміну')}
+              </span>
+              <span><Pill c={pm.c}>{pm.label}</Pill></span>
+              <span><Pill c={sm.c}>● {sm.label}</Pill></span>
+            </div>
+          );
+        })}
+        {topTasks.length===0&&<div className="empty">Немає доручень</div>}
+        <div style={{marginTop:12,padding:'0 6px 6px'}}>
+          <button onClick={()=>setNav({section:'hr',sub:'tasks'})}
+                  style={{background:'transparent',border:'none',color:'var(--acc)',fontSize:13,fontWeight:600,cursor:'pointer',padding:0}}>
+            Показати всі {tasks.length} →
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============ ЗАГОЛОВОК СТРАНИЦЫ (общий) ============ */
+const PageHead=({title,sub,children})=>(
+  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:18,flexWrap:'wrap',gap:12}}>
+    <div>
+      <h2 className="h-grad" style={{fontFamily:'var(--font-h)',fontSize:21,fontWeight:800,margin:0,letterSpacing:'-.01em'}}>{title}</h2>
+      {sub&&<div style={{color:'var(--text-3)',fontSize:12,marginTop:4}}>{sub}</div>}
+    </div>
+    {children}
+  </div>
+);
+
+/* ============ БАНК ============ */
+function Bank({settings,transactions,counterparties,refetch}){
+  const {toast,confirmG}=useUI();
+  const cur=settings?.currency||'UAH';
+  const EMPTY={direction:'out',amount:'',date:'',description:'',category:'other',counterparty:''};
+  const [showAdd,setShowAdd]=useState(false);
+  const [form,setForm]=useState(EMPTY);
+  const [formErr,setFormErr]=useState(null);
+  const [tabSearch,setTabSearch]=useState('');
+  const [tabDirection,setTabDirection]=useState('all');
+  const [tabCategory,setTabCategory]=useState('all');
+
+  const filteredTx=transactions.filter(t=>{
+    if(tabDirection!=='all'&&t.direction!==tabDirection)return false;
+    if(tabCategory!=='all'&&t.category!==tabCategory)return false;
+    if(tabSearch.trim()){
+      const q=tabSearch.toLowerCase();
+      if(!((t.description||'').toLowerCase().includes(q)||(t.counterparty_name||'').toLowerCase().includes(q)||(t.category||'').toLowerCase().includes(q)))return false;
+    }
+    return true;
+  });
+  // 6 месячных корзин
+  const now=new Date();
+  const months=[];
+  for(let i=5;i>=0;i--){
+    const dt=new Date(now.getFullYear(),now.getMonth()-i,1);
+    months.push({key:`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`,label:dt.toLocaleDateString('uk-UA',{month:'short'})});
+  }
+  const sumBy=(dir,key)=>transactions.filter(t=>t.direction===dir&&(t.date||'').startsWith(key)).reduce((s,t)=>s+Number(t.amount||0),0);
+  const income6=months.map(m=>sumBy('in',m.key));
+  const expense6=months.map(m=>sumBy('out',m.key));
+  const maxV=Math.max(1,...income6,...expense6);
+  const income=income6[5],expense=expense6[5],balance=income-expense;
+  const outTx=transactions.filter(t=>t.direction==='out');
+  const totalOut=outTx.reduce((s,t)=>s+Number(t.amount||0),0)||1;
+  const byCat={};
+  outTx.forEach(t=>{byCat[t.category]=(byCat[t.category]||0)+Number(t.amount||0);});
+  const catRows=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
+  const catColors={salary:'#5CA8FF',supplier:'#8FB8FF',customer:'#3DDC97',utility:'#4FD1E0',rent:'#FFC24D',tax:'#FF7A70',other:'#8A93A8'};
+
+  const addTx=async()=>{
+    if(!form.amount||!form.date||!form.description.trim()){setFormErr('Заповніть суму, дату та опис');return;}
+    try{
+      await api.send('POST','/transactions/',{direction:form.direction,amount:form.amount,date:form.date,description:form.description,category:form.category,counterparty:form.counterparty||null});
+      refetch();setShowAdd(false);setForm(EMPTY);setFormErr(null);
+      toast('Транзакцію збережено','success');
+    }catch(e){setFormErr(e.message);}
+  };
+  const delTx=async id=>{
+    if(!(await confirmG('Видалити транзакцію?')))return;
+    try{await api.send('DELETE',`/transactions/${id}/`);refetch();}
+    catch(e){toast('Не вдалося видалити: '+e.message,'error');}
+  };
+
+  return(
+    <div className="page" style={{padding:22}}>
+      <PageHead title="Банк">
+        <button className="btn btn-primary" onClick={()=>{setShowAdd(p=>!p);setFormErr(null);}}>
+          {showAdd?'Закрити':<Fragment>{ICONS.plus(14)}Нова транзакція</Fragment>}
+        </button>
+      </PageHead>
+
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:18}}>
+        {[{l:'Баланс місяця',v:balance,c:balance>=0?'var(--pos)':'var(--neg)'},{l:'Надходження',v:income,c:'var(--pos)'},{l:'Витрати',v:expense,c:'var(--neg)'}].map((it,i)=>(
+          <div key={i} className="glass stag" style={{'--i':i,padding:'18px 20px'}}>
+            <div style={{color:'var(--text-2)',fontSize:12.5,marginBottom:8}}>{it.l}</div>
+            <div className="num" style={{fontSize:22,fontWeight:700,color:it.c}}><CountUp value={it.v} format={v=>fmt(v,cur)}/></div>
+          </div>
+        ))}
+      </div>
+
+      {showAdd&&(
+        <div className="glass" style={{padding:20,marginBottom:16,animation:'popIn .3s var(--ease-out) both'}}>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:11,marginBottom:12}}>
+            <FormError err={formErr}/>
+            <select className="input" value={form.direction} onChange={e=>setForm(p=>({...p,direction:e.target.value}))}>
+              <option value="out">Витрата</option><option value="in">Дохід</option>
+            </select>
+            <input className="input" type="number" placeholder="Сума *" value={form.amount} onChange={e=>setForm(p=>({...p,amount:e.target.value}))}/>
+            <input className="input" type="date" value={form.date} onChange={e=>setForm(p=>({...p,date:e.target.value}))}/>
+            <select className="input" value={form.category} onChange={e=>setForm(p=>({...p,category:e.target.value}))}>
+              {Object.entries(TX_CAT_LABELS).map(([k,l])=><option key={k} value={k}>{l}</option>)}
+            </select>
+            <input className="input" style={{gridColumn:'span 2'}} placeholder="Опис *" value={form.description} onChange={e=>setForm(p=>({...p,description:e.target.value}))}/>
+            <select className="input" style={{gridColumn:'span 2'}} value={form.counterparty} onChange={e=>setForm(p=>({...p,counterparty:e.target.value}))}>
+              <option value="">Без контрагента</option>
+              {counterparties.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          </div>
+          <div style={{display:'flex',gap:8}}>
+            <button className="btn btn-primary" style={{padding:'9px 18px'}} onClick={addTx}>Зберегти</button>
+            <button className="btn btn-ghost" style={{padding:'9px 18px'}} onClick={()=>{setShowAdd(false);setFormErr(null);}}>Скасувати</button>
+          </div>
+        </div>
+      )}
+
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginBottom:16}}>
+        {/* Динамика 6 месяцев */}
+        <div className="glass stag" style={{'--i':3,padding:20}}>
+          <h3 style={{fontSize:14,fontWeight:700,margin:'0 0 16px'}}>Динаміка 6 місяців</h3>
+          <div style={{display:'flex',alignItems:'flex-end',gap:8,height:140}}>
+            {months.map((m,i)=>(
+              <div key={m.key} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:4}}>
+                <div style={{width:'100%',display:'flex',gap:3,alignItems:'flex-end',height:118}}>
+                  <div title={'Дохід: '+fmt(income6[i],cur)} style={{flex:1,borderRadius:'5px 5px 2px 2px',height:Math.max(2,Math.round(income6[i]/maxV*118)),
+                       background:'linear-gradient(180deg,#3DDC97,rgba(61,220,151,.35))',boxShadow:'0 0 14px rgba(61,220,151,.25)',transition:'height .7s var(--ease-out)'}}/>
+                  <div title={'Витрати: '+fmt(expense6[i],cur)} style={{flex:1,borderRadius:'5px 5px 2px 2px',height:Math.max(2,Math.round(expense6[i]/maxV*118)),
+                       background:'linear-gradient(180deg,#FF7A70,rgba(255,122,112,.35))',boxShadow:'0 0 14px rgba(255,122,112,.2)',transition:'height .7s var(--ease-out)'}}/>
+                </div>
+                <div style={{color:'var(--text-3)',fontSize:10.5}}>{m.label}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{display:'flex',gap:16,marginTop:12}}>
+            <span style={{display:'flex',alignItems:'center',gap:6,color:'var(--text-2)',fontSize:11.5}}><i style={{width:10,height:10,borderRadius:3,background:'var(--pos)',display:'inline-block'}}/>Дохід</span>
+            <span style={{display:'flex',alignItems:'center',gap:6,color:'var(--text-2)',fontSize:11.5}}><i style={{width:10,height:10,borderRadius:3,background:'var(--neg)',display:'inline-block'}}/>Витрати</span>
+          </div>
+        </div>
+        {/* Структура расходов */}
+        <div className="glass stag" style={{'--i':4,padding:20}}>
+          <h3 style={{fontSize:14,fontWeight:700,margin:'0 0 14px'}}>Структура витрат</h3>
+          {catRows.length===0
+            ?<p style={{color:'var(--text-3)',fontSize:12}}>Витрат ще немає</p>
+            :catRows.map(([cat,val])=>(
+              <div key={cat} style={{marginBottom:10}}>
+                <div style={{display:'flex',justifyContent:'space-between',color:'var(--text-2)',fontSize:12,marginBottom:4}}>
+                  <span>{TX_CAT_LABELS[cat]||cat}</span><span className="num" style={{fontWeight:600}}>{fmt(val,cur)}</span>
+                </div>
+                <div className="bar"><div style={{background:catColors[cat]||'var(--acc)',width:`${Math.round(val/totalOut*100)}%`}}/></div>
+              </div>
+            ))}
+        </div>
+      </div>
+
+      {/* Фильтры транзакций */}
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14,flexWrap:'wrap',gap:12}}>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+          {[{k:'all',l:'Усі'},{k:'in',l:'Надходження'},{k:'out',l:'Витрати'}].map(f=>{
+            const count=f.k==='all'?transactions.length:transactions.filter(t=>t.direction===f.k).length;
+            return(
+              <button key={f.k} className={'chip'+(tabDirection===f.k?' on':'')} onClick={()=>setTabDirection(f.k)}>
+                {f.l} · <span className="num">{count}</span>
+              </button>
+            );
+          })}
+        </div>
+        <div style={{display:'flex',gap:8}}>
+          <select className="input" style={{width:'auto',fontSize:12,padding:'7px 11px'}} value={tabCategory} onChange={e=>setTabCategory(e.target.value)}>
+            <option value="all">Всі категорії</option>
+            {Object.entries(TX_CAT_LABELS).map(([k,l])=><option key={k} value={k}>{l}</option>)}
+          </select>
+          <input className="input" style={{width:200,fontSize:12,padding:'7px 11px'}} placeholder="Пошук..." value={tabSearch} onChange={e=>setTabSearch(e.target.value)}/>
+        </div>
+      </div>
+
+      {/* Таблица транзакций */}
+      <div className="glass tbl">
+        <div className="thead" style={{gridTemplateColumns:'1fr 2fr 1.5fr 1fr 1.2fr 44px'}}>
+          {['Дата','Опис','Контрагент','Категорія','Сума',''].map((h,i)=><span key={i}>{h}</span>)}
+        </div>
+        {filteredTx.map(t=>(
+          <div key={t.id} className="trow" style={{gridTemplateColumns:'1fr 2fr 1.5fr 1fr 1.2fr 44px'}}>
+            <span className="num" style={{color:'var(--text-2)',fontSize:12}}>{t.date}</span>
+            <div style={{display:'flex',alignItems:'center',gap:9}}>
+              <span style={{width:26,height:26,borderRadius:8,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',
+                    background:t.direction==='in'?'var(--pos-glow)':'var(--neg-glow)',color:t.direction==='in'?'var(--pos)':'var(--neg)'}}>
+                {t.direction==='in'?ICONS.trendUp(12):ICONS.trendDown(12)}
+              </span>
+              <span style={{fontSize:13}}>{t.description}</span>
+            </div>
+            <span style={{color:'var(--text-2)',fontSize:12}}>{t.counterparty_name||'—'}</span>
+            <span style={{color:'var(--text-3)',fontSize:12}}>{TX_CAT_LABELS[t.category]||t.category}</span>
+            <span className="num" style={{fontWeight:700,fontSize:13,color:t.direction==='in'?'var(--pos)':'var(--neg)'}}>
+              {t.direction==='in'?'+':'−'}{fmt(Number(t.amount),cur)}
+            </span>
+            <button className="row-act danger" title="Видалити" aria-label="Видалити транзакцію" onClick={()=>delTx(t.id)}>{ICONS.x(13)}</button>
+          </div>
+        ))}
+        {filteredTx.length===0&&<div className="empty">{tabSearch?'Нічого не знайдено за «'+tabSearch+'»':'Транзакцій ще немає'}</div>}
+      </div>
+    </div>
+  );
+}
+
+/* ============ КОНТРАГЕНТИ ============ */
+const cpTypeColor=t=>t==='customer'?'#3DDC97':t==='supplier'?'#8FB8FF':t==='utility'?'#FFC24D':t==='service'?'#5CA8FF':'#8A93A8';
+
+function Contractors({counterparties,refetch}){
+  const {toast,confirmG}=useUI();
+  const EMPTY={name:'',type:'other',edrpou:'',phone:'',email:'',address:'',notes:''};
+  const [filter,setFilter]=useState('all');
+  const [search,setSearch]=useState('');
+  const [showAdd,setShowAdd]=useState(false);
+  const [editId,setEditId]=useState(null);
+  const [form,setForm]=useState(EMPTY);
+  const [formErr,setFormErr]=useState(null);
+
+  const byType=filter==='all'?counterparties:counterparties.filter(c=>c.type===filter);
+  const filtered=search.trim()
+    ?byType.filter(c=>(c.name||'').toLowerCase().includes(search.toLowerCase())||(c.edrpou||'').includes(search))
+    :byType;
+  const totalDebit=counterparties.reduce((s,c)=>s+Number(c.total_debit||0),0);
+  const totalCredit=counterparties.reduce((s,c)=>s+Number(c.total_credit||0),0);
+
+  const save=async(method,url)=>{
+    if(!form.name.trim()){setFormErr('Назва обовʼязкова');return;}
+    try{
+      await api.send(method,url,form);
+      refetch();setShowAdd(false);setEditId(null);setForm(EMPTY);setFormErr(null);
+      toast('Контрагента збережено','success');
+    }catch(e){setFormErr(e.message);}
+  };
+  const startAdd=()=>{setForm(EMPTY);setShowAdd(true);setEditId(null);setFormErr(null);};
+  const startEdit=c=>{setEditId(c.id);setForm({name:c.name,type:c.type,edrpou:c.edrpou||'',phone:c.phone||'',email:c.email||'',address:c.address||'',notes:c.notes||''});setShowAdd(false);setFormErr(null);};
+  const del=async id=>{
+    if(!(await confirmG('Видалити контрагента?')))return;
+    try{await api.send('DELETE',`/counterparties/${id}/`);refetch();}
+    catch(e){toast('Не вдалося видалити: '+e.message,'error');}
+  };
+
+  const renderForm=(onSave,onCancel)=>(
+    <div className="glass" style={{padding:20,marginBottom:16,animation:'popIn .3s var(--ease-out) both'}}>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:11,marginBottom:12}}>
+        <FormError err={formErr}/>
+        <input className="input" style={{gridColumn:'span 2'}} placeholder="Назва *" value={form.name} onChange={e=>setForm(p=>({...p,name:e.target.value}))}/>
+        <select className="input" value={form.type} onChange={e=>setForm(p=>({...p,type:e.target.value}))}>
+          {Object.entries(CP_TYPES).map(([k,l])=><option key={k} value={k}>{l}</option>)}
+        </select>
+        <input className="input" placeholder="ЄДРПОУ / ІПН" value={form.edrpou} onChange={e=>setForm(p=>({...p,edrpou:e.target.value}))}/>
+        <input className="input" placeholder="Телефон" value={form.phone} onChange={e=>setForm(p=>({...p,phone:e.target.value}))}/>
+        <input className="input" placeholder="Email" value={form.email} onChange={e=>setForm(p=>({...p,email:e.target.value}))}/>
+        <input className="input" style={{gridColumn:'span 2'}} placeholder="Адреса" value={form.address} onChange={e=>setForm(p=>({...p,address:e.target.value}))}/>
+      </div>
+      <div style={{display:'flex',gap:8}}>
+        <button className="btn btn-primary" style={{padding:'9px 18px'}} onClick={onSave}>Зберегти</button>
+        <button className="btn btn-ghost" style={{padding:'9px 18px'}} onClick={onCancel}>Скасувати</button>
+      </div>
+    </div>
+  );
+
+  return(
+    <div className="page" style={{padding:22}}>
+      <PageHead title="Контрагенти" sub={`${counterparties.length} записів`}>
+        <button className="btn btn-primary" onClick={startAdd}>{ICONS.plus(14)}Новий контрагент</button>
+      </PageHead>
+
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:18}}>
+        {[{l:'Всього дебіт',v:totalDebit,c:'var(--pos)'},{l:'Всього кредит',v:totalCredit,c:'var(--neg)'},{l:'Баланс',v:totalDebit-totalCredit,c:totalDebit-totalCredit>=0?'var(--pos)':'var(--neg)'}].map((it,i)=>(
+          <div key={i} className="glass stag" style={{'--i':i,padding:'16px 20px'}}>
+            <div style={{color:'var(--text-2)',fontSize:12.5,marginBottom:6}}>{it.l}</div>
+            <div className="num" style={{fontWeight:700,fontSize:18,color:it.c}}>{fmt(it.v,'UAH')}</div>
+          </div>
+        ))}
+      </div>
+
+      {showAdd&&renderForm(()=>save('POST','/counterparties/'),()=>{setShowAdd(false);setFormErr(null);})}
+
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14,flexWrap:'wrap',gap:12}}>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+          {[['all','Всі'],...Object.entries(CP_TYPES)].map(([k,l])=>(
+            <button key={k} className={'chip'+(filter===k?' on':'')} onClick={()=>setFilter(k)}>{l}</button>
+          ))}
+        </div>
+        <input className="input" style={{width:200,fontSize:12,padding:'7px 11px'}} placeholder="Пошук..." value={search} onChange={e=>setSearch(e.target.value)}/>
+      </div>
+
+      <div className="glass tbl">
+        <div className="thead" style={{gridTemplateColumns:'2fr 1fr 1fr 1fr 1fr 1fr 80px'}}>
+          {['Назва','Тип','ЄДРПОУ','Дебіт','Кредит','Баланс',''].map((h,i)=><span key={i}>{h}</span>)}
+        </div>
+        {filtered.map(c=>{
+          const bal=Number(c.balance||0);
+          return(
+            <Fragment key={c.id}>
+              <div className="trow" style={{gridTemplateColumns:'2fr 1fr 1fr 1fr 1fr 1fr 80px'}}>
+                <div>
+                  <div style={{fontSize:13,fontWeight:500}}>{c.name}</div>
+                  <div style={{color:'var(--text-3)',fontSize:10.5,marginTop:2}}>#{c.id} · {c.phone||'—'}</div>
+                </div>
+                <span><Pill c={cpTypeColor(c.type)}>{CP_TYPES[c.type]||c.type}</Pill></span>
+                <span className="num" style={{color:'var(--text-2)',fontSize:12}}>{c.edrpou||'—'}</span>
+                <span className="num" style={{color:'var(--pos)',fontSize:12.5,fontWeight:600}}>{fmt(Number(c.total_debit||0),'UAH')}</span>
+                <span className="num" style={{color:'var(--neg)',fontSize:12.5,fontWeight:600}}>{fmt(Number(c.total_credit||0),'UAH')}</span>
+                <span className="num" style={{color:bal>=0?'var(--pos)':'var(--neg)',fontSize:12.5,fontWeight:600}}>{fmt(bal,'UAH')}</span>
+                <div style={{display:'flex',gap:5,justifyContent:'flex-end'}}>
+                  <button className="row-act" title="Редагувати" aria-label="Редагувати" onClick={()=>startEdit(c)}>{ICONS.edit(13)}</button>
+                  <button className="row-act danger" title="Видалити" aria-label="Видалити" onClick={()=>del(c.id)}>{ICONS.x(13)}</button>
+                </div>
+              </div>
+              {editId===c.id&&<div style={{padding:'14px 16px',borderBottom:'1px solid var(--stroke-soft)'}}>{renderForm(()=>save('PATCH',`/counterparties/${c.id}/`),()=>setEditId(null))}</div>}
+            </Fragment>
+          );
+        })}
+        {filtered.length===0&&<div className="empty">{search?'Нічого не знайдено':'Немає контрагентів'}</div>}
+      </div>
+    </div>
+  );
+}
+
+/* ============ ДОГОВОРИ ============ */
+function Contracts({contracts,counterparties,refetch}){
+  const {toast,confirmG}=useUI();
+  const EMPTY={number:'',name:'',counterparty:'',category:'other',status:'active',amount:'',start_date:'',end_date:'',notes:''};
+  const [status,setStatus]=useState('all');
+  const [cat,setCat]=useState('all');
+  const [search,setSearch]=useState('');
+  const [showAdd,setShowAdd]=useState(false);
+  const [editId,setEditId]=useState(null);
+  const [form,setForm]=useState(EMPTY);
+  const [formErr,setFormErr]=useState(null);
+
+  const filtered=contracts.filter(c=>{
+    if(status!=='all'&&c.status!==status)return false;
+    if(cat!=='all'&&c.category!==cat)return false;
+    if(search.trim()){
+      const q=search.toLowerCase();
+      if(!((c.number||'').toLowerCase().includes(q)||(c.name||'').toLowerCase().includes(q)||(c.counterparty_name||'').toLowerCase().includes(q)))return false;
+    }
+    return true;
+  });
+  const totalActive=contracts.filter(c=>c.status==='active').reduce((s,c)=>s+Number(c.amount||0),0);
+
+  const save=async(method,url)=>{
+    if(!form.number.trim()||!form.name.trim()){setFormErr('Номер та назва обовʼязкові');return;}
+    if(!form.counterparty){setFormErr('Оберіть контрагента');return;}
+    try{
+      await api.send(method,url,{...form,amount:form.amount||0,start_date:form.start_date||null,end_date:form.end_date||null});
+      refetch();setShowAdd(false);setEditId(null);setForm(EMPTY);setFormErr(null);
+      toast('Договір збережено','success');
+    }catch(e){setFormErr(e.message);}
+  };
+  const startAdd=()=>{setForm(EMPTY);setShowAdd(true);setEditId(null);setFormErr(null);};
+  const startEdit=c=>{setEditId(c.id);setForm({number:c.number,name:c.name,counterparty:c.counterparty,category:c.category,status:c.status,amount:c.amount,start_date:c.start_date||'',end_date:c.end_date||'',notes:c.notes||''});setShowAdd(false);setFormErr(null);};
+  const del=async id=>{
+    if(!(await confirmG('Видалити договір?')))return;
+    try{await api.send('DELETE',`/contracts/${id}/`);refetch();}
+    catch(e){toast('Не вдалося видалити: '+e.message,'error');}
+  };
+
+  const renderForm=(onSave,onCancel)=>(
+    <div className="glass" style={{padding:20,marginBottom:16,animation:'popIn .3s var(--ease-out) both'}}>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:11,marginBottom:12}}>
+        <FormError err={formErr}/>
+        <input className="input" placeholder="Номер *" value={form.number} onChange={e=>setForm(p=>({...p,number:e.target.value}))}/>
+        <input className="input" placeholder="Назва *" value={form.name} onChange={e=>setForm(p=>({...p,name:e.target.value}))}/>
+        <select className="input" style={{gridColumn:'span 2'}} value={form.counterparty} onChange={e=>setForm(p=>({...p,counterparty:e.target.value}))}>
+          <option value="">Оберіть контрагента *</option>
+          {counterparties.map(c=><option key={c.id} value={c.id}>{c.name} ({CP_TYPES[c.type]||c.type})</option>)}
+        </select>
+        <select className="input" value={form.category} onChange={e=>setForm(p=>({...p,category:e.target.value}))}>
+          {Object.entries(CT_CATS).map(([k,l])=><option key={k} value={k}>{l}</option>)}
+        </select>
+        <select className="input" value={form.status} onChange={e=>setForm(p=>({...p,status:e.target.value}))}>
+          {Object.entries(CT_STATUS).map(([k,l])=><option key={k} value={k}>{l}</option>)}
+        </select>
+        <input className="input" type="number" placeholder="Сума" value={form.amount} onChange={e=>setForm(p=>({...p,amount:e.target.value}))}/>
+        <div style={{display:'flex',gap:8}}>
+          <input className="input" type="date" style={{flex:1}} value={form.start_date} onChange={e=>setForm(p=>({...p,start_date:e.target.value}))}/>
+          <input className="input" type="date" style={{flex:1}} value={form.end_date} onChange={e=>setForm(p=>({...p,end_date:e.target.value}))}/>
+        </div>
+      </div>
+      <div style={{display:'flex',gap:8}}>
+        <button className="btn btn-primary" style={{padding:'9px 18px'}} onClick={onSave}>Зберегти</button>
+        <button className="btn btn-ghost" style={{padding:'9px 18px'}} onClick={onCancel}>Скасувати</button>
+      </div>
+    </div>
+  );
+
+  return(
+    <div className="page" style={{padding:22}}>
+      <PageHead title="Договори" sub={`${contracts.length} договорів`}>
+        <button className="btn btn-primary" onClick={startAdd}>{ICONS.plus(14)}Новий договір</button>
+      </PageHead>
+
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:18}}>
+        <div className="glass stag" style={{'--i':0,padding:'16px 20px'}}>
+          <div style={{color:'var(--text-2)',fontSize:12.5,marginBottom:6}}>Активних</div>
+          <div className="num" style={{fontWeight:700,fontSize:22}}>{contracts.filter(c=>c.status==='active').length}</div>
+        </div>
+        <div className="glass stag" style={{'--i':1,padding:'16px 20px'}}>
+          <div style={{color:'var(--text-2)',fontSize:12.5,marginBottom:6}}>Закритих</div>
+          <div className="num" style={{fontWeight:700,fontSize:22,color:'var(--text-2)'}}>{contracts.filter(c=>c.status==='closed').length}</div>
+        </div>
+        <div className="glass stag" style={{'--i':2,padding:'16px 20px'}}>
+          <div style={{color:'var(--text-2)',fontSize:12.5,marginBottom:6}}>Сума (активних)</div>
+          <div className="num" style={{fontWeight:700,fontSize:18,color:'var(--pos)'}}>{fmt(totalActive,'UAH')}</div>
+        </div>
+      </div>
+
+      {showAdd&&renderForm(()=>save('POST','/contracts/'),()=>{setShowAdd(false);setFormErr(null);})}
+
+      <div style={{marginBottom:10,display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:12}}>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+          {[['all','Всі'],...Object.entries(CT_STATUS)].map(([k,l])=>(
+            <button key={k} className={'chip'+(status===k?' on':'')} onClick={()=>setStatus(k)}>{l}</button>
+          ))}
+        </div>
+        <input className="input" style={{width:220,fontSize:12,padding:'7px 11px'}} placeholder="Пошук..." value={search} onChange={e=>setSearch(e.target.value)}/>
+      </div>
+      <div style={{display:'flex',gap:6,marginBottom:14,flexWrap:'wrap'}}>
+        {[['all','Всі'],...Object.entries(CT_CATS)].map(([k,l])=>(
+          <button key={k} className={'chip'+(cat===k?' on':'')} style={{fontSize:11,padding:'5px 12px'}} onClick={()=>setCat(k)}>{l}</button>
+        ))}
+      </div>
+
+      <div className="glass tbl">
+        <div className="thead" style={{gridTemplateColumns:'0.8fr 2fr 1.5fr 1fr 1.2fr 1fr 80px'}}>
+          {['№','Назва','Контрагент','Категорія','Сума','Статус',''].map((h,i)=><span key={i}>{h}</span>)}
+        </div>
+        {filtered.map(c=>(
+          <Fragment key={c.id}>
+            <div className="trow" style={{gridTemplateColumns:'0.8fr 2fr 1.5fr 1fr 1.2fr 1fr 80px'}}>
+              <span className="num" style={{color:'var(--text-2)',fontSize:12}}>{c.number}</span>
+              <div>
+                <div style={{fontSize:13,fontWeight:500}}>{c.name}</div>
+                <div className="num" style={{color:'var(--text-3)',fontSize:10.5,marginTop:2}}>{c.start_date||'—'} – {c.end_date||'—'}</div>
+              </div>
+              <span style={{color:'var(--text-2)',fontSize:12}}>{c.counterparty_name||'—'}</span>
+              <span><Pill c="#5CA8FF">{CT_CATS[c.category]||c.category}</Pill></span>
+              <span className="num" style={{fontSize:13,fontWeight:700}}>{fmt(Number(c.amount||0),'UAH')}</span>
+              <span><Pill c={c.status==='active'?'#3DDC97':c.status==='draft'?'#FFC24D':'#8A93A8'}>{CT_STATUS[c.status]||c.status}</Pill></span>
+              <div style={{display:'flex',gap:5,justifyContent:'flex-end'}}>
+                <button className="row-act" title="Редагувати" aria-label="Редагувати" onClick={()=>startEdit(c)}>{ICONS.edit(13)}</button>
+                <button className="row-act danger" title="Видалити" aria-label="Видалити" onClick={()=>del(c.id)}>{ICONS.x(13)}</button>
+              </div>
+            </div>
+            {editId===c.id&&<div style={{padding:'14px 16px',borderBottom:'1px solid var(--stroke-soft)'}}>{renderForm(()=>save('PATCH',`/contracts/${c.id}/`),()=>setEditId(null))}</div>}
+          </Fragment>
+        ))}
+        {filtered.length===0&&<div className="empty">Немає договорів</div>}
+      </div>
+    </div>
+  );
+}
+
+/* ============ ЗАРПЛАТИ ============ */
+const salStColor=s=>s==='paid'?'#3DDC97':s==='pending'?'#FFC24D':'#8A93A8';
+
+function Salaries({salaries,employees,refetch,refetchTransactions}){
+  const {toast,confirmG}=useUI();
+  const now=new Date();
+  const EMPTY={employee:'',amount:'',period_year:now.getFullYear(),period_month:now.getMonth()+1,notes:''};
+  const [statusF,setStatusF]=useState('all');
+  const [search,setSearch]=useState('');
+  const [employeeF,setEmployeeF]=useState('all');
+  const [periodF,setPeriodF]=useState('all');
+  const [showAdd,setShowAdd]=useState(false);
+  const [form,setForm]=useState(EMPTY);
+  const [formErr,setFormErr]=useState(null);
+
+  const filtered=salaries.filter(s=>{
+    if(statusF!=='all'&&s.status!==statusF)return false;
+    if(employeeF!=='all'&&String(s.employee)!==String(employeeF))return false;
+    if(periodF!=='all'){
+      const [yy,mm]=periodF.split('-');
+      if(String(s.period_year)!==yy||String(s.period_month).padStart(2,'0')!==mm)return false;
+    }
+    if(search.trim()){
+      const q=search.toLowerCase();
+      if(!((s.employee_name||'').toLowerCase().includes(q)||(s.employee_role||'').toLowerCase().includes(q)||(s.employee_dept||'').toLowerCase().includes(q)))return false;
+    }
+    return true;
+  });
+  const uniquePeriods=[...new Set(salaries.map(s=>`${s.period_year}-${String(s.period_month).padStart(2,'0')}`))].sort().reverse();
+  const sumBy=pred=>salaries.filter(pred).reduce((s,x)=>s+Number(x.amount||0),0);
+
+  const add=async()=>{
+    if(!form.employee||!form.amount){setFormErr('Оберіть співробітника та вкажіть суму');return;}
+    try{
+      await api.send('POST','/salaries/',{employee:form.employee,amount:form.amount,period_year:Number(form.period_year),period_month:Number(form.period_month),notes:form.notes});
+      refetch();setShowAdd(false);setForm(EMPTY);setFormErr(null);
+      toast('Зарплату нараховано','success');
+    }catch(e){setFormErr(e.message);}
+  };
+  const pay=async id=>{
+    try{
+      await api.send('POST',`/salaries/${id}/pay/`,{});
+      refetch();refetchTransactions&&refetchTransactions();
+      toast('Виплату проведено','success');
+    }catch(e){toast('Не вдалося виплатити: '+e.message,'error');}
+  };
+  const del=async id=>{
+    if(!(await confirmG('Видалити нарахування?')))return;
+    try{await api.send('DELETE',`/salaries/${id}/`);refetch();}
+    catch(e){toast('Не вдалося видалити: '+e.message,'error');}
+  };
+
+  return(
+    <div className="page" style={{padding:22}}>
+      <PageHead title="Зарплати команди" sub={`${salaries.length} нарахувань`}>
+        <button className="btn btn-primary" onClick={()=>{setShowAdd(p=>!p);setFormErr(null);}}>
+          {showAdd?'Закрити':<Fragment>{ICONS.plus(14)}Нарахувати зарплату</Fragment>}
+        </button>
+      </PageHead>
+
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:18}}>
+        {[{l:'Всього нараховано',v:sumBy(()=>true),c:'var(--text)'},{l:'Виплачено',v:sumBy(s=>s.status==='paid'),c:'var(--pos)'},{l:'Очікує виплати',v:sumBy(s=>s.status==='pending'),c:'var(--warn)'}].map((it,i)=>(
+          <div key={i} className="glass stag" style={{'--i':i,padding:'16px 20px'}}>
+            <div style={{color:'var(--text-2)',fontSize:12.5,marginBottom:6}}>{it.l}</div>
+            <div className="num" style={{fontWeight:700,fontSize:18,color:it.c}}>{fmt(it.v,'UAH')}</div>
+          </div>
+        ))}
+      </div>
+
+      {showAdd&&(
+        <div className="glass" style={{padding:20,marginBottom:16,animation:'popIn .3s var(--ease-out) both'}}>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:11,marginBottom:12}}>
+            <FormError err={formErr}/>
+            <select className="input" style={{gridColumn:'span 2'}} value={form.employee} onChange={e=>setForm(p=>({...p,employee:e.target.value}))}>
+              <option value="">Оберіть співробітника *</option>
+              {employees.map(e=><option key={e.id} value={e.id}>{e.name} — {e.dept||'—'}</option>)}
+            </select>
+            <input className="input" type="number" placeholder="Сума *" value={form.amount} onChange={e=>setForm(p=>({...p,amount:e.target.value}))}/>
+            <div style={{display:'flex',gap:8}}>
+              <select className="input" style={{flex:1}} value={form.period_month} onChange={e=>setForm(p=>({...p,period_month:e.target.value}))}>
+                {MONTHS_UA.map((m,i)=><option key={i} value={i+1}>{m}</option>)}
+              </select>
+              <input className="input" type="number" style={{width:92}} value={form.period_year} onChange={e=>setForm(p=>({...p,period_year:e.target.value}))}/>
+            </div>
+          </div>
+          <div style={{display:'flex',gap:8}}>
+            <button className="btn btn-primary" style={{padding:'9px 18px'}} onClick={add}>Нарахувати</button>
+            <button className="btn btn-ghost" style={{padding:'9px 18px'}} onClick={()=>{setShowAdd(false);setFormErr(null);}}>Скасувати</button>
+          </div>
+        </div>
+      )}
+
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14,flexWrap:'wrap',gap:12}}>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+          {[['all','Всі'],...Object.entries(SAL_STATUS)].map(([k,l])=>(
+            <button key={k} className={'chip'+(statusF===k?' on':'')} onClick={()=>setStatusF(k)}>{l}</button>
+          ))}
+        </div>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          <select className="input" style={{width:'auto',fontSize:12,padding:'7px 11px'}} value={employeeF} onChange={e=>setEmployeeF(e.target.value)}>
+            <option value="all">Всі співробітники</option>
+            {employees.map(emp=><option key={emp.id} value={emp.id}>{emp.name}</option>)}
+          </select>
+          <select className="input" style={{width:'auto',fontSize:12,padding:'7px 11px'}} value={periodF} onChange={e=>setPeriodF(e.target.value)}>
+            <option value="all">Всі періоди</option>
+            {uniquePeriods.map(p=><option key={p} value={p}>{p}</option>)}
+          </select>
+          <input className="input" style={{width:200,fontSize:12,padding:'7px 11px'}} placeholder="Пошук..." value={search} onChange={e=>setSearch(e.target.value)}/>
+        </div>
+      </div>
+
+      <div className="glass tbl">
+        <div className="thead" style={{gridTemplateColumns:'2fr 1.5fr 1fr 1.2fr 1.2fr 1fr 96px'}}>
+          {['Співробітник','Посада / Відділ','Період','Сума','Дата виплати','Статус',''].map((h,i)=><span key={i}>{h}</span>)}
+        </div>
+        {filtered.map(s=>(
+          <div key={s.id} className="trow" style={{gridTemplateColumns:'2fr 1.5fr 1fr 1.2fr 1.2fr 1fr 96px'}}>
+            <div style={{display:'flex',alignItems:'center',gap:9}}>
+              <div className="avatar" style={{width:28,height:28,fontSize:10}}>{genAvatar(s.employee_name)}</div>
+              <span style={{fontSize:13}}>{s.employee_name}</span>
+            </div>
+            <span style={{color:'var(--text-2)',fontSize:12}}>{s.employee_role||'—'} · {s.employee_dept||'—'}</span>
+            <span className="num" style={{color:'var(--text-2)',fontSize:12}}>{s.period_year}-{String(s.period_month).padStart(2,'0')}</span>
+            <span className="num" style={{fontSize:13,fontWeight:700}}>{fmt(Number(s.amount||0),'UAH')}</span>
+            <span className="num" style={{color:'var(--text-3)',fontSize:12}}>{s.payment_date||'—'}</span>
+            <span><Pill c={salStColor(s.status)}>{SAL_STATUS[s.status]||s.status}</Pill></span>
+            <div style={{display:'flex',gap:5,justifyContent:'flex-end'}}>
+              {s.status==='pending'&&(
+                <button className="btn btn-primary" style={{fontSize:11,padding:'5px 10px',borderRadius:8}} title="Виплатити" onClick={()=>pay(s.id)}>₴</button>
+              )}
+              <button className="row-act danger" title="Видалити" aria-label="Видалити" onClick={()=>del(s.id)}>{ICONS.x(13)}</button>
+            </div>
+          </div>
+        ))}
+        {filtered.length===0&&<div className="empty">{search?'Нічого не знайдено за «'+search+'»':'Немає нарахувань'}</div>}
+      </div>
+    </div>
+  );
+}
+
+/* ============ ДОРУЧЕННЯ (задачи) ============ */
+function Tasks({tasks,setTasks,loading,error,refetchTasks}){
+  const {toast,confirmG}=useUI();
+  const [filter,setFilter]=useState('all');
+  const [search,setSearch]=useState('');
+  const [sortBy,setSortBy]=useState('priority');
+  const [showAdd,setShowAdd]=useState(false);
+  const [form,setForm]=useState({title:'',priority:'medium',assignee:'',deadline:'',cat:'Загальне',status:'active'});
+  const [formErr,setFormErr]=useState(null);
+  const [editingId,setEditingId]=useState(null);
+  const [editForm,setEditForm]=useState({title:'',assignee:'',deadline:'',category:''});
+  const [editErr,setEditErr]=useState(null);
+
+  useEffect(()=>{refetchTasks();},[]);
+
+  const addTask=async()=>{
+    if(!form.title.trim()){setFormErr('Назва задачі обовʼязкова');return;}
+    try{
+      const nt=await api.send('POST','/tasks/',{title:form.title,priority:form.priority||null,status:form.status,assignee:form.assignee,deadline:form.deadline||null,category:form.cat});
+      setTasks(p=>[...p,nt]);
+      setForm({title:'',priority:'medium',assignee:'',deadline:'',cat:'Загальне',status:'active'});
+      setShowAdd(false);setFormErr(null);
+    }catch(e){setFormErr(e.message);}
+  };
+  const startEdit=t=>{
+    setEditingId(t.id);setEditErr(null);
+    setEditForm({title:t.title||'',assignee:t.assignee||'',deadline:t.deadline||'',category:t.category||''});
+  };
+  const saveEdit=async()=>{
+    if(!editForm.title.trim()){setEditErr('Назва не може бути порожньою');return;}
+    try{
+      const upd=await api.send('PATCH',`/tasks/${editingId}/`,{title:editForm.title,assignee:editForm.assignee,deadline:editForm.deadline||null,category:editForm.category});
+      setTasks(p=>p.map(x=>x.id===editingId?upd:x));
+      setEditingId(null);setEditErr(null);
+    }catch(e){setEditErr(e.message);}
+  };
+  // Перевод в done авто-очищает приоритет (как в исходной логике)
+  const updateStatus=async(id,newStatus)=>{
+    const payload=newStatus==='done'?{status:newStatus,priority:null}:{status:newStatus};
+    try{
+      const upd=await api.send('PATCH',`/tasks/${id}/`,payload);
+      setTasks(p=>p.map(x=>x.id===id?upd:x));
+    }catch(e){toast('Не вдалося оновити статус: '+e.message,'error');}
+  };
+  const updatePriority=async(id,newPriority)=>{
+    try{
+      const upd=await api.send('PATCH',`/tasks/${id}/`,{priority:newPriority||null});
+      setTasks(p=>p.map(x=>x.id===id?upd:x));
+    }catch(e){toast('Не вдалося оновити пріоритет: '+e.message,'error');}
+  };
+  const deleteTask=async id=>{
+    if(!(await confirmG('Видалити задачу?')))return;
+    try{
+      await api.send('DELETE',`/tasks/${id}/`);
+      setTasks(p=>p.filter(x=>x.id!==id));
+    }catch(e){toast('Не вдалося видалити: '+e.message,'error');}
+  };
+
+  const byStatus=filter==='all'?tasks:tasks.filter(t=>t.status===filter);
+  const bySearch=search.trim()
+    ?byStatus.filter(t=>(t.title||'').toLowerCase().includes(search.toLowerCase())||(t.assignee||'').toLowerCase().includes(search.toLowerCase()))
+    :byStatus;
+  const pOrder={high:0,medium:1,low:2};
+  const filtered=[...bySearch].sort((a,b)=>{
+    if(sortBy==='priority')return(pOrder[a.priority]??3)-(pOrder[b.priority]??3);
+    if(!a.deadline)return 1;
+    if(!b.deadline)return -1;
+    return a.deadline.localeCompare(b.deadline);
+  });
+  const counts={
+    all:tasks.length,
+    active:tasks.filter(t=>t.status==='active').length,
+    process:tasks.filter(t=>t.status==='process').length,
+    done:tasks.filter(t=>t.status==='done').length,
+    overdue:tasks.filter(t=>t.status==='overdue').length,
+  };
+
+  return(
+    <div className="page" style={{padding:22}}>
+      <PageHead title="Доручення команді" sub={`${tasks.length} задач · ${counts.overdue} прострочено`}>
+        <button className="btn btn-primary" onClick={()=>{setShowAdd(p=>!p);setFormErr(null);}}>
+          {showAdd?'Закрити':<Fragment>{ICONS.plus(14)}Нова задача</Fragment>}
+        </button>
+      </PageHead>
+
+      {error&&<ErrorBanner text={'Помилка завантаження задач: '+error} onRetry={refetchTasks}/>}
+      {loading&&!error&&<Loading text="Завантажую задачі..."/>}
+
+      {showAdd&&(
+        <div className="glass" style={{padding:20,marginBottom:16,animation:'popIn .3s var(--ease-out) both'}}>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:11,marginBottom:12}}>
+            <FormError err={formErr}/>
+            <input className="input" style={{gridColumn:'span 2'}} placeholder="Назва задачі *" value={form.title} onChange={e=>setForm(p=>({...p,title:e.target.value}))}/>
+            <select className="input" value={form.priority} onChange={e=>setForm(p=>({...p,priority:e.target.value}))}>
+              <option value="high">Високий пріоритет</option>
+              <option value="medium">Середній</option>
+              <option value="low">Низький</option>
+              <option value="">Нульовий</option>
+            </select>
+            <input className="input" placeholder="Виконавець" value={form.assignee} onChange={e=>setForm(p=>({...p,assignee:e.target.value}))}/>
+            <input className="input" type="date" value={form.deadline} onChange={e=>setForm(p=>({...p,deadline:e.target.value}))}/>
+            <input className="input" placeholder="Категорія" value={form.cat} onChange={e=>setForm(p=>({...p,cat:e.target.value}))}/>
+          </div>
+          <div style={{display:'flex',gap:8}}>
+            <button className="btn btn-primary" style={{padding:'9px 18px'}} onClick={addTask}>Зберегти</button>
+            <button className="btn btn-ghost" style={{padding:'9px 18px'}} onClick={()=>{setShowAdd(false);setFormErr(null);}}>Скасувати</button>
+          </div>
+        </div>
+      )}
+
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14,flexWrap:'wrap',gap:12}}>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+          {[{k:'all',l:'Усі'},{k:'active',l:'Активні'},{k:'process',l:'В роботі'},{k:'done',l:'Виконані'},{k:'overdue',l:'Прострочені'}].map(t=>(
+            <button key={t.k} className={'chip'+(filter===t.k?' on':'')} onClick={()=>setFilter(t.k)}>
+              {t.l} · <span className="num">{counts[t.k]}</span>
+            </button>
+          ))}
+        </div>
+        <div style={{display:'flex',gap:8}}>
+          <input className="input" style={{width:200,fontSize:12,padding:'7px 11px'}} placeholder="Пошук..." value={search} onChange={e=>setSearch(e.target.value)}/>
+          <select className="input" style={{width:'auto',fontSize:12,padding:'7px 11px'}} value={sortBy} onChange={e=>setSortBy(e.target.value)}>
+            <option value="priority">За пріоритетом</option>
+            <option value="deadline">За терміном</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="glass tbl">
+        <div className="thead" style={{gridTemplateColumns:'2.5fr 1.5fr 1fr 1fr 1.2fr 80px'}}>
+          {['Задача','Виконавець','Термін','Пріоритет','Статус',''].map((h,i)=><span key={i}>{h}</span>)}
+        </div>
+        {filtered.map(t=>{
+          const pm=prMeta(t.priority),sm=stMeta(t.status);
+          return(
+            <Fragment key={t.id}>
+              <div className="trow" style={{gridTemplateColumns:'2.5fr 1.5fr 1fr 1fr 1.2fr 80px'}}>
+                <div>
+                  <div style={{fontSize:13,fontWeight:500,color:t.status==='done'?'var(--text-3)':'var(--text)',textDecoration:t.status==='done'?'line-through':'none'}}>{t.title}</div>
+                  <div style={{color:'var(--text-3)',fontSize:10.5,marginTop:2}}>#{t.id} · {t.category||'без категорії'}</div>
+                </div>
+                <div style={{display:'flex',alignItems:'center',gap:8}}>
+                  <div className="avatar" style={{width:28,height:28,fontSize:10}}>{genAvatar(t.assignee)}</div>
+                  <span style={{fontSize:13}}>{t.assignee||'—'}</span>
+                </div>
+                <span className="num" style={{color:t.status==='overdue'?'var(--neg)':'var(--text)',fontSize:12.5}}>
+                  {t.status==='overdue'?'Прострочено':(t.deadline||'Без терміну')}
+                </span>
+                <PillSelect value={t.priority||''} color={pm.c}
+                            onChange={e=>updatePriority(t.id,e.target.value)}
+                            options={[{value:'high',label:'Високий'},{value:'medium',label:'Середній'},{value:'low',label:'Низький'},{value:'',label:'Нульовий'}]}/>
+                <PillSelect value={t.status} color={sm.c}
+                            onChange={e=>updateStatus(t.id,e.target.value)}
+                            options={[{value:'active',label:'Активне'},{value:'process',label:'В роботі'},{value:'done',label:'Виконано'},{value:'overdue',label:'Прострочено'}]}/>
+                <div style={{display:'flex',gap:5,justifyContent:'flex-end'}}>
+                  <button className="row-act" title="Редагувати" aria-label="Редагувати" onClick={()=>startEdit(t)}>{ICONS.edit(13)}</button>
+                  <button className="row-act danger" title="Видалити" aria-label="Видалити" onClick={()=>deleteTask(t.id)}>{ICONS.x(13)}</button>
+                </div>
+              </div>
+              {editingId===t.id&&(
+                <div style={{padding:'14px 16px',borderBottom:'1px solid var(--stroke-soft)',background:'rgba(255,255,255,.025)',animation:'fadeIn .25s both'}}>
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:11,marginBottom:12}}>
+                    <FormError err={editErr}/>
+                    <input className="input" style={{gridColumn:'span 2'}} placeholder="Назва задачі *" value={editForm.title} onChange={e=>setEditForm(p=>({...p,title:e.target.value}))}/>
+                    <input className="input" placeholder="Виконавець" value={editForm.assignee} onChange={e=>setEditForm(p=>({...p,assignee:e.target.value}))}/>
+                    <input className="input" type="date" value={editForm.deadline} onChange={e=>setEditForm(p=>({...p,deadline:e.target.value}))}/>
+                    <input className="input" style={{gridColumn:'span 2'}} placeholder="Категорія" value={editForm.category} onChange={e=>setEditForm(p=>({...p,category:e.target.value}))}/>
+                  </div>
+                  <div style={{display:'flex',gap:8}}>
+                    <button className="btn btn-primary" style={{padding:'8px 16px',fontSize:12}} onClick={saveEdit}>Зберегти</button>
+                    <button className="btn btn-ghost" style={{padding:'8px 16px',fontSize:12}} onClick={()=>setEditingId(null)}>Скасувати</button>
+                  </div>
+                </div>
+              )}
+            </Fragment>
+          );
+        })}
+        {filtered.length===0&&!loading&&<div className="empty">{search?'Нічого не знайдено за «'+search+'»':'Немає доручень'}</div>}
+      </div>
+    </div>
+  );
+}
+
+/* ============ СПІВРОБІТНИКИ ============ */
+const kpiColor=k=>k>=90?'#3DDC97':k>=80?'#FFC24D':'#FF7A70';
+
+function Employees({employees,depts,loading,error,refetchEmployees}){
+  const {toast,confirmG}=useUI();
+  const EMPTY={name:'',role:'',dept:depts[0]||'',birthday:'',kpi:80,phone:'',email:''};
+  const [editId,setEditId]=useState(null);
+  const [showAdd,setShowAdd]=useState(false);
+  const [form,setForm]=useState({});
+  const [formErr,setFormErr]=useState(null);
+  const [search,setSearch]=useState('');
+  const [deptFilter,setDeptFilter]=useState('all');
+  const [sortBy,setSortBy]=useState('name');
+
+  const payload=()=>({full_name:form.name,role:form.role,department:form.dept,birthday:form.birthday||null,kpi:form.kpi||0,phone:form.phone,email:form.email});
+  const startEdit=e=>{setEditId(e.id);setForm({...e});setShowAdd(false);setFormErr(null);};
+  const saveEdit=async()=>{
+    try{
+      await api.send('PATCH',`/employees/${editId}/`,payload());
+      refetchEmployees();setEditId(null);setFormErr(null);
+    }catch(e){setFormErr(e.message);}
+  };
+  const startAdd=()=>{setForm({...EMPTY});setShowAdd(true);setEditId(null);setFormErr(null);};
+  const saveAdd=async()=>{
+    if(!form.name||!form.name.trim()){setFormErr('Імʼя обовʼязкове');return;}
+    try{
+      await api.send('POST','/employees/',payload());
+      refetchEmployees();setShowAdd(false);setFormErr(null);
+    }catch(e){setFormErr(e.message);}
+  };
+  const deleteEmployee=async id=>{
+    if(!(await confirmG('Видалити співробітника?')))return;
+    try{await api.send('DELETE',`/employees/${id}/`);refetchEmployees();}
+    catch(e){toast('Не вдалося видалити: '+e.message,'error');}
+  };
+
+  const byDept=deptFilter==='all'?employees:employees.filter(e=>e.dept===deptFilter);
+  const bySearch=search.trim()
+    ?byDept.filter(e=>(e.name||'').toLowerCase().includes(search.toLowerCase())||(e.role||'').toLowerCase().includes(search.toLowerCase())||(e.email||'').toLowerCase().includes(search.toLowerCase()))
+    :byDept;
+  const filtered=[...bySearch].sort((a,b)=>{
+    if(sortBy==='kpi')return(b.kpi||0)-(a.kpi||0);
+    if(sortBy==='birthday')return daysUntil(a.birthday)-daysUntil(b.birthday);
+    return(a.name||'').localeCompare(b.name||'');
+  });
+
+  // Форма — функция, не компонент (сохранение фокуса при перерисовке)
+  const renderForm=(onSave,onCancel)=>(
+    <div className="glass" style={{padding:20,marginBottom:16,animation:'popIn .3s var(--ease-out) both'}}>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:11,marginBottom:12}}>
+        <FormError err={formErr}/>
+        <input className="input" style={{gridColumn:'span 2'}} placeholder="Повне імʼя *" value={form.name||''} onChange={e=>setForm(p=>({...p,name:e.target.value}))}/>
+        <input className="input" placeholder="Посада" value={form.role||''} onChange={e=>setForm(p=>({...p,role:e.target.value}))}/>
+        <select className="input" value={form.dept||''} onChange={e=>setForm(p=>({...p,dept:e.target.value}))}>
+          {depts.map(d=><option key={d} value={d}>{d}</option>)}
+        </select>
+        <input className="input" placeholder="Телефон" value={form.phone||''} onChange={e=>setForm(p=>({...p,phone:e.target.value}))}/>
+        <input className="input" placeholder="Email" value={form.email||''} onChange={e=>setForm(p=>({...p,email:e.target.value}))}/>
+        <input className="input" type="date" value={form.birthday||''} onChange={e=>setForm(p=>({...p,birthday:e.target.value}))}/>
+        <div style={{display:'flex',alignItems:'center',gap:10,padding:'8px 13px',background:'rgba(8,12,26,.42)',border:'1px solid var(--stroke)',borderRadius:'var(--r-md)'}}>
+          <span style={{color:'var(--text-2)',fontSize:11.5,fontWeight:600}}>KPI:</span>
+          <input type="range" min="0" max="100" step="1" value={form.kpi||0} onChange={e=>setForm(p=>({...p,kpi:+e.target.value}))} style={{flex:1,accentColor:'var(--acc)'}}/>
+          <span className="num" style={{color:kpiColor(form.kpi||0),fontSize:13,fontWeight:600,minWidth:40,textAlign:'right'}}>{form.kpi||0}%</span>
+        </div>
+      </div>
+      <div style={{display:'flex',gap:8}}>
+        <button className="btn btn-primary" style={{padding:'9px 18px'}} onClick={onSave}>Зберегти</button>
+        <button className="btn btn-ghost" style={{padding:'9px 18px'}} onClick={onCancel}>Скасувати</button>
+      </div>
+    </div>
+  );
+
+  return(
+    <div className="page" style={{padding:22}}>
+      <PageHead title="Співробітники" sub={`${employees.length} осіб · ${depts.length} відділів`}>
+        <button className="btn btn-primary" onClick={startAdd}>{ICONS.plus(14)}Новий співробітник</button>
+      </PageHead>
+
+      {loading&&<Loading text="Завантажую співробітників..."/>}
+      {error&&<ErrorBanner text={'Помилка завантаження: '+error} onRetry={refetchEmployees}/>}
+      {showAdd&&renderForm(saveAdd,()=>{setShowAdd(false);setFormErr(null);})}
+
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14,flexWrap:'wrap',gap:12}}>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+          <button className={'chip'+(deptFilter==='all'?' on':'')} onClick={()=>setDeptFilter('all')}>
+            Усі · <span className="num">{employees.length}</span>
+          </button>
+          {depts.map(d=>(
+            <button key={d} className={'chip'+(deptFilter===d?' on':'')} onClick={()=>setDeptFilter(d)}>
+              {d} · <span className="num">{employees.filter(e=>e.dept===d).length}</span>
+            </button>
+          ))}
+        </div>
+        <div style={{display:'flex',gap:8}}>
+          <input className="input" style={{width:200,fontSize:12,padding:'7px 11px'}} placeholder="Пошук..." value={search} onChange={e=>setSearch(e.target.value)}/>
+          <select className="input" style={{width:'auto',fontSize:12,padding:'7px 11px'}} value={sortBy} onChange={e=>setSortBy(e.target.value)}>
+            <option value="name">За імʼям</option>
+            <option value="kpi">За KPI</option>
+            <option value="birthday">За днем народження</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="glass tbl">
+        <div className="thead" style={{gridTemplateColumns:'2fr 1.5fr 1fr 1fr 1.5fr 80px'}}>
+          {['Співробітник','Посада','Відділ','KPI','Контакти',''].map((h,i)=><span key={i}>{h}</span>)}
+        </div>
+        {filtered.map(e=>(
+          <Fragment key={e.id}>
+            <div className="trow" style={{gridTemplateColumns:'2fr 1.5fr 1fr 1fr 1.5fr 80px'}}>
+              <div style={{display:'flex',alignItems:'center',gap:10}}>
+                <div className="avatar" style={{width:36,height:36,fontSize:11}}>{genAvatar(e.name)}</div>
+                <div>
+                  <div style={{fontSize:13,fontWeight:500}}>{e.name}</div>
+                  <div style={{color:'var(--text-3)',fontSize:10.5,marginTop:2}}>#{e.id}</div>
+                </div>
+              </div>
+              <span style={{fontSize:13}}>{e.role||'—'}</span>
+              <span style={{color:'var(--text-2)',fontSize:12}}>{e.dept||'—'}</span>
+              <div>
+                <div className="num" style={{color:kpiColor(e.kpi||0),fontSize:14,fontWeight:700,marginBottom:4}}>{e.kpi||0}%</div>
+                <div className="bar" style={{height:4}}><div style={{background:kpiColor(e.kpi||0),width:(e.kpi||0)+'%'}}/></div>
+              </div>
+              <div style={{display:'flex',flexDirection:'column'}}>
+                <span className="num" style={{fontSize:12}}>{e.phone||'—'}</span>
+                <span style={{color:'var(--text-3)',fontSize:11}}>{e.email||'—'}</span>
+              </div>
+              <div style={{display:'flex',gap:5,justifyContent:'flex-end'}}>
+                <button className="row-act" title="Редагувати" aria-label="Редагувати" onClick={()=>startEdit(e)}>{ICONS.edit(13)}</button>
+                <button className="row-act danger" title="Видалити" aria-label="Видалити" onClick={()=>deleteEmployee(e.id)}>{ICONS.x(13)}</button>
+              </div>
+            </div>
+            {editId===e.id&&(
+              <div style={{padding:'14px 16px',borderBottom:'1px solid var(--stroke-soft)'}}>
+                {renderForm(saveEdit,()=>setEditId(null))}
+              </div>
+            )}
+          </Fragment>
+        ))}
+        {filtered.length===0&&!loading&&<div className="empty">{search?'Нічого не знайдено за «'+search+'»':'Немає співробітників'}</div>}
+      </div>
+    </div>
+  );
+}
+
+/* ============ ДНІ НАРОДЖЕННЯ ============ */
+function Birthdays({employees}){
+  const sorted=[...employees].map(e=>({...e,days:daysUntil(e.birthday)})).sort((a,b)=>a.days-b.days);
+  const dayPill=d=>{
+    if(d===0)return{c:'#FF7A70',label:'Сьогодні!'};
+    if(d===1)return{c:'#FFC24D',label:'Завтра'};
+    if(d<=7)return{c:'#FFC24D',label:d+' днів'};
+    if(d<=30)return{c:'#5CA8FF',label:d+' днів'};
+    return{c:'#8A93A8',label:d>=9999?'—':d+' днів'};
+  };
+  return(
+    <div className="page" style={{padding:22}}>
+      <PageHead title="Дні народження" sub={`${employees.length} осіб у списку`}/>
+      <div style={{display:'flex',flexDirection:'column',gap:9}}>
+        {sorted.map((e,i)=>{
+          const p=dayPill(e.days);
+          const dateStr=e.birthday?new Date(e.birthday).toLocaleDateString('uk-UA',{day:'numeric',month:'long'}):'—';
+          return(
+            <div key={e.id} className="glass lift stag" style={{'--i':i,padding:'14px 20px',display:'flex',alignItems:'center',gap:16}}>
+              <div className="avatar" style={{width:44,height:44,fontSize:13}}>{genAvatar(e.name)}</div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontWeight:600,fontSize:14}}>{e.name}</div>
+                <div style={{color:'var(--text-2)',fontSize:11.5,marginTop:2}}>{e.role||'—'} · {e.dept||'—'}</div>
+              </div>
+              <div style={{textAlign:'center',minWidth:110}}>
+                <div style={{color:'var(--text-3)',fontSize:10,textTransform:'uppercase',letterSpacing:'.06em'}}>Дата</div>
+                <div style={{fontSize:13,fontWeight:500,marginTop:2}}>{dateStr}</div>
+              </div>
+              <div style={{minWidth:96,textAlign:'center'}}><Pill c={p.c}>{p.label}</Pill></div>
+            </div>
+          );
+        })}
+        {employees.length===0&&<div className="glass empty">Немає співробітників</div>}
+      </div>
+    </div>
+  );
+}
+
+/* ============ KPI ============ */
+function KPI({employees}){
+  const sorted=[...employees].sort((a,b)=>(b.kpi||0)-(a.kpi||0));
+  const kpiLabel=k=>k>=90?'Відмінно':k>=80?'Добре':'Потребує уваги';
+  const avg=employees.length>0?Math.round(employees.reduce((s,e)=>s+(e.kpi||0),0)/employees.length):0;
+  return(
+    <div className="page" style={{padding:22}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end',marginBottom:18,flexWrap:'wrap',gap:12}}>
+        <div>
+          <h2 style={{fontFamily:'var(--font-h)',fontSize:21,fontWeight:800,margin:0}}>KPI Працівників</h2>
+          <div style={{color:'var(--text-3)',fontSize:12,marginTop:4}}>{employees.length} осіб · середній {avg}%</div>
+        </div>
+        <div className="glass" style={{padding:'11px 18px',display:'flex',alignItems:'center',gap:12}}>
+          <span style={{color:'var(--text-2)',fontSize:11,textTransform:'uppercase',letterSpacing:'.06em',fontWeight:600}}>Команда</span>
+          <span className="num" style={{color:kpiColor(avg),fontSize:24,fontWeight:700}}><CountUp value={avg}/>%</span>
+        </div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:12}}>
+        {sorted.map((e,i)=>{
+          const k=e.kpi||0,c=kpiColor(k);
+          return(
+            <div key={e.id} className="glass lift stag" style={{'--i':i,padding:18}}>
+              <div style={{display:'flex',alignItems:'center',gap:11,marginBottom:14}}>
+                <div className="avatar" style={{width:40,height:40,fontSize:12}}>{genAvatar(e.name)}</div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontWeight:600,fontSize:13.5}}>{e.name}</div>
+                  <div style={{color:'var(--text-2)',fontSize:11.5}}>{e.dept||'—'}</div>
+                </div>
+                <div style={{textAlign:'right'}}>
+                  <div className="num" style={{color:c,fontSize:22,fontWeight:700,lineHeight:1}}>{k}%</div>
+                  <div style={{color:c,fontSize:10.5,fontWeight:600,marginTop:3}}>{kpiLabel(k)}</div>
+                </div>
+              </div>
+              <div className="bar" style={{height:6}}><div style={{background:'linear-gradient(90deg,'+tint(c,.6)+','+c+')',width:k+'%',boxShadow:'0 0 12px '+tint(c,.4)}}/></div>
+            </div>
+          );
+        })}
+        {employees.length===0&&<div className="glass empty" style={{gridColumn:'span 2'}}>Немає співробітників</div>}
+      </div>
+    </div>
+  );
+}
+
+/* ============ РОЗКЛАД ============ */
+function Schedule(){
+  const days=['Пн','Вт','Ср','Чт','Пт','Сб','Нд'];
+  const hours=[8,9,10,11,12,13,14,15,16,17,18];
+  const [events,setEvents]=useState(INIT_EVENTS);
+  const [modal,setModal]=useState(null); // {day,hour}
+  const [form,setForm]=useState({title:'',color:EV_COLORS[0],important:false});
+  const openAdd=(day,hour)=>{setModal({day,hour});setForm({title:'',color:EV_COLORS[0],important:false});};
+  const saveEvent=()=>{
+    if(!form.title.trim())return;
+    setEvents(p=>[...p,{id:Date.now(),...modal,...form}]);
+    setModal(null);
+  };
+  return(
+    <div className="page" style={{padding:22}}>
+      <PageHead title="Розклад на тиждень">
+        <div style={{color:'var(--text-3)',fontSize:11.5}}>Клік по клітинці — додати подію</div>
+      </PageHead>
+      {/* Модалка новой встречи — стеклянная, по центру */}
+      {modal&&(
+        <div className="overlay" onClick={()=>setModal(null)}>
+          <div className="modal glass-strong" style={{width:460,padding:24}} onClick={e=>e.stopPropagation()}>
+            <h4 style={{fontFamily:'var(--font-h)',fontSize:15,fontWeight:700,margin:'0 0 14px'}}>Нова подія — {days[modal.day]} {modal.hour}:00</h4>
+            <input className="input" style={{marginBottom:12}} placeholder="Назва події *" autoFocus
+                   value={form.title} onChange={e=>setForm(p=>({...p,title:e.target.value}))} onKeyDown={e=>e.key==='Enter'&&saveEvent()}/>
+            <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16,flexWrap:'wrap'}}>
+              <span style={{color:'var(--text-2)',fontSize:12}}>Колір:</span>
+              <div style={{display:'flex',gap:7}}>
+                {EV_COLORS.map(c=>(
+                  <div key={c} onClick={()=>setForm(p=>({...p,color:c}))}
+                       style={{width:22,height:22,borderRadius:'50%',background:c,cursor:'pointer',transition:'transform .18s var(--ease-spring)',
+                               border:form.color===c?'2px solid #fff':'2px solid transparent',transform:form.color===c?'scale(1.18)':'scale(1)',
+                               boxShadow:form.color===c?'0 0 12px '+tint(c,.6):'none'}}/>
+                ))}
+              </div>
+              <label style={{display:'flex',alignItems:'center',gap:7,color:'var(--text-2)',fontSize:12,cursor:'pointer',marginLeft:'auto'}}>
+                <input type="checkbox" checked={form.important} onChange={e=>setForm(p=>({...p,important:e.target.checked}))} style={{accentColor:'var(--acc)'}}/>Важлива
+              </label>
+            </div>
+            <div style={{display:'flex',gap:8,justifyContent:'flex-end'}}>
+              <button className="btn btn-ghost" onClick={()=>setModal(null)}>Скасувати</button>
+              <button className="btn btn-primary" onClick={saveEvent}>Зберегти</button>
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="glass" style={{padding:16,overflowX:'auto'}}>
+        <div style={{display:'grid',gridTemplateColumns:'48px repeat(7,1fr)',gap:3,minWidth:640}}>
+          <div/>
+          {days.map((d,i)=>(
+            <div key={d} style={{textAlign:'center',color:i<5?'var(--text)':'var(--text-3)',fontSize:11.5,fontWeight:700,padding:'8px 0',borderBottom:'1px solid var(--stroke-soft)'}}>{d}</div>
+          ))}
+          {hours.map(h=>(
+            <Fragment key={h}>
+              <div className="num" style={{color:'var(--text-3)',fontSize:10,display:'flex',alignItems:'center',justifyContent:'flex-end',paddingRight:8,height:42}}>{h}:00</div>
+              {days.map((_,di)=>{
+                const ev=events.find(e=>e.day===di&&e.hour===h);
+                return(
+                  <div key={di} onClick={()=>!ev&&openAdd(di,h)}
+                       style={{height:42,background:'rgba(255,255,255,.028)',borderRadius:6,border:'1px solid var(--stroke-soft)',position:'relative',cursor:ev?'default':'pointer',transition:'background .18s,border-color .18s'}}
+                       onMouseEnter={e=>{if(!ev){e.currentTarget.style.background='var(--acc-glow)';e.currentTarget.style.borderColor='rgba(92,168,255,.4)';}}}
+                       onMouseLeave={e=>{if(!ev){e.currentTarget.style.background='rgba(255,255,255,.028)';e.currentTarget.style.borderColor='var(--stroke-soft)';}}}>
+                    {ev&&(
+                      <div style={{position:'absolute',inset:2,background:tint(ev.color,.18),border:'1px solid '+tint(ev.color,.65),borderRadius:5,
+                           display:'flex',alignItems:'center',padding:'0 6px',gap:4,backdropFilter:'blur(6px)',WebkitBackdropFilter:'blur(6px)',
+                           animation:ev.important?'pulseEv 2.2s infinite':'none'}}>
+                        {ev.important&&<span style={{width:5,height:5,borderRadius:'50%',background:ev.color,flexShrink:0}}/>}
+                        <span style={{fontSize:9.5,fontWeight:600,flex:1,overflow:'hidden',whiteSpace:'nowrap',textOverflow:'ellipsis'}}>{ev.title}</span>
+                        <span onClick={e=>{e.stopPropagation();setEvents(p=>p.filter(x=>x.id!==ev.id));}}
+                              role="button" aria-label="Видалити подію"
+                              style={{color:'var(--neg)',fontSize:11,cursor:'pointer',display:'flex'}}>{ICONS.x(10)}</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </Fragment>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============ НОТАТКИ (стикеры: drag, сминание, корзина) ============ */
+function Notes({notes,setNotes}){
+  const [trash,setTrash]=useState(false);
+  const [drag,setDrag]=useState(null);
+  const [newText,setNewText]=useState('');
+  const colors=['#FFE066','#B5EAD7','#FF9AA2','#C7CEEA','#FFDAC1','#E2F0CB'];
+  const [selColor,setSelColor]=useState(colors[0]);
+  const addNote=()=>{
+    if(!newText.trim())return;
+    setNotes(p=>[...p,{id:Date.now(),text:newText,color:selColor,x:Math.random()*300+20,y:Math.random()*80+10,deleted:false,crumpled:false}]);
+    setNewText('');
+  };
+  const del=id=>setNotes(p=>p.map(n=>n.id===id?{...n,deleted:true}:n));
+  const restore=id=>setNotes(p=>p.map(n=>n.id===id?{...n,deleted:false}:n));
+  const permDel=id=>setNotes(p=>p.filter(n=>n.id!==id));
+  const crumple=id=>setNotes(p=>p.map(n=>n.id===id?{...n,crumpled:!n.crumpled}:n));
+  const startDrag=(e,id)=>{
+    const note=notes.find(n=>n.id===id);
+    setDrag({id,ox:e.clientX-note.x,oy:e.clientY-note.y});
+  };
+  useEffect(()=>{
+    const mm=e=>{if(!drag)return;setNotes(p=>p.map(n=>n.id===drag.id?{...n,x:e.clientX-drag.ox,y:e.clientY-drag.oy}:n));};
+    const mu=()=>setDrag(null);
+    window.addEventListener('mousemove',mm);window.addEventListener('mouseup',mu);
+    return()=>{window.removeEventListener('mousemove',mm);window.removeEventListener('mouseup',mu);};
+  },[drag]);
+  const visible=notes.filter(n=>!n.deleted);
+  const deleted=notes.filter(n=>n.deleted);
+  return(
+    <div className="page" style={{padding:22}}>
+      <PageHead title="Нотатки">
+        <button className={'btn '+(trash?'btn-danger':'btn-ghost')} style={{fontSize:12.5,padding:'8px 15px'}} onClick={()=>setTrash(p=>!p)}>
+          {ICONS.trash(14)} Кошик ({deleted.length})
+        </button>
+      </PageHead>
+      {!trash?(
+        <Fragment>
+          <div className="glass" style={{padding:14,marginBottom:14,display:'flex',gap:11,alignItems:'center',flexWrap:'wrap'}}>
+            <input className="input" style={{flex:1,minWidth:220}} placeholder="Нова нотатка..." value={newText}
+                   onChange={e=>setNewText(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addNote()}/>
+            <div style={{display:'flex',gap:6}}>
+              {colors.map(c=>(
+                <div key={c} onClick={()=>setSelColor(c)}
+                     style={{width:20,height:20,borderRadius:'50%',background:c,cursor:'pointer',transition:'transform .18s var(--ease-spring)',
+                             border:selColor===c?'2px solid #fff':'2px solid transparent',transform:selColor===c?'scale(1.15)':'scale(1)'}}/>
+              ))}
+            </div>
+            <button className="btn btn-primary" style={{fontSize:12.5}} onClick={addNote}>{ICONS.plus(13)}Додати</button>
+          </div>
+          {/* Доска — стеклянная поверхность, стикеры — «физические» объекты поверх стекла */}
+          <div className="glass glass-panel" style={{position:'relative',minHeight:380,overflow:'hidden'}}>
+            {visible.map(n=>(
+              <div key={n.id} className={'note'+(n.crumpled?' crumpled':'')}
+                   onMouseDown={e=>startDrag(e,n.id)}
+                   style={{left:n.x,top:n.y,background:'linear-gradient(165deg,'+n.color+',color-mix(in srgb,'+n.color+' 82%,#B08900))',
+                           cursor:drag&&drag.id===n.id?'grabbing':'grab',minHeight:n.crumpled?56:72}}>
+                {!n.crumpled&&(
+                  <Fragment>
+                    <p style={{color:'#332F26',fontSize:12.5,margin:0,lineHeight:1.5,wordBreak:'break-word'}}>{n.text}</p>
+                    <div style={{display:'flex',gap:5,marginTop:9}}>
+                      <button className="note-btn" title="Зім'яти" aria-label="Зім'яти нотатку" onClick={e=>{e.stopPropagation();crumple(n.id);}} onMouseDown={e=>e.stopPropagation()}>{ICONS.wave(12)}</button>
+                      <button className="note-btn" title="До кошика" aria-label="Видалити нотатку" onClick={e=>{e.stopPropagation();del(n.id);}} onMouseDown={e=>e.stopPropagation()}>{ICONS.x(12)}</button>
+                    </div>
+                  </Fragment>
+                )}
+                {n.crumpled&&(
+                  <div onClick={()=>crumple(n.id)} onMouseDown={e=>e.stopPropagation()}
+                       style={{textAlign:'center',cursor:'pointer',color:'rgba(0,0,0,.55)',display:'flex',justifyContent:'center'}} title="Розгорнути">
+                    {ICONS.file(17)}
+                  </div>
+                )}
+              </div>
+            ))}
+            {visible.length===0&&<div className="empty" style={{paddingTop:160}}>Дошка порожня — додайте нотатку</div>}
+          </div>
+        </Fragment>
+      ):(
+        <div className="glass" style={{padding:20}}>
+          <h3 style={{fontSize:13.5,fontWeight:700,margin:'0 0 14px'}}>Кошик</h3>
+          {deleted.length===0
+            ?<p style={{color:'var(--text-3)',fontSize:12}}>Порожній</p>
+            :deleted.map(n=>(
+              <div key={n.id} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 0',borderBottom:'1px solid var(--stroke-soft)'}}>
+                <span style={{width:12,height:12,borderRadius:3,background:n.color,flexShrink:0}}/>
+                <span style={{flex:1,color:'var(--text-3)',fontSize:12.5,textDecoration:'line-through'}}>{n.text}</span>
+                <button className="btn btn-ghost" style={{fontSize:11,padding:'6px 10px'}} title="Відновити" onClick={()=>restore(n.id)}>{ICONS.restore(12)}</button>
+                <button className="btn btn-danger" style={{fontSize:11,padding:'6px 12px'}} onClick={()=>permDel(n.id)}>Знищити</button>
+              </div>
+            ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ============ ЗВІТНІСТЬ ============ */
+function Reports(){
+  return(
+    <div className="page" style={{padding:22,maxWidth:860}}>
+      <PageHead title="Календар звітності"/>
+      <div style={{display:'flex',flexDirection:'column',gap:9}}>
+        {REPORTS_CAL.map((r,i)=>{
+          const d=new Date(r.date);
+          const days=Math.ceil((d-today)/864e5);
+          const col=days<0?'#FF7A70':days<=3?'#FFC24D':'#3DDC97';
+          const label=days<0?'Прострочено':days===0?'Сьогодні':days+' днів';
+          return(
+            <div key={i} className="glass lift stag" style={{'--i':i,padding:'13px 18px',display:'flex',alignItems:'center',gap:15}}>
+              <div style={{width:44,height:44,borderRadius:11,background:'linear-gradient(160deg,'+tint(col,.28)+','+tint(col,.12)+')',
+                   border:'1px solid '+tint(col,.5),display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                <div className="num" style={{color:col,fontSize:14,fontWeight:700,lineHeight:1}}>{d.getDate()}</div>
+                <div style={{color:col,fontSize:8.5,fontWeight:700,marginTop:2}}>{d.toLocaleString('uk-UA',{month:'short'}).toUpperCase()}</div>
+              </div>
+              <div style={{flex:1}}>
+                <div style={{fontSize:13.5,fontWeight:500}}>{r.title}</div>
+                <div style={{color:'var(--text-3)',fontSize:11,marginTop:2}}>{r.dept}</div>
+              </div>
+              <Pill c={col}>{label}</Pill>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ============ НАЛАШТУВАННЯ ============ */
+function Settings({settings,setSettings,employees,industry,setIndustry}){
+  const [tab,setTab]=useState('profile');
+  const [newD,setNewD]=useState('');
+  const upd=(path,val)=>{
+    setSettings(prev=>{
+      const s=JSON.parse(JSON.stringify(prev));
+      const parts=path.split('.');
+      let cur=s;
+      for(let i=0;i<parts.length-1;i++)cur=cur[parts[i]];
+      cur[parts[parts.length-1]]=val;
+      return s;
+    });
+  };
+  const COLORS=['#2E7CF6','#EF4444','#F7971E','#10B981','#0EA5E9','#E879F9','#F43F5E','#6366F1'];
+  const STABS=[
+    {id:'profile',l:'Профіль',ic:'user'},
+    {id:'theme',l:'Вигляд',ic:'palette'},
+    {id:'employees',l:'Співробітники',ic:'employees'},
+    {id:'departments',l:'Відділи',ic:'building'},
+    {id:'industry',l:'Діяльність',ic:'briefcase'},
+    {id:'notifications',l:'Сповіщення',ic:'bell'},
+    {id:'regional',l:'Регіональні',ic:'globe'},
+    {id:'data',l:'Дані',ic:'db'},
+  ];
+  return(
+    <div className="page" style={{padding:22}}>
+      <PageHead title="Налаштування"/>
+      <div style={{display:'flex',gap:14,alignItems:'flex-start'}}>
+        <div style={{width:172,flexShrink:0,display:'flex',flexDirection:'column',gap:4}}>
+          {STABS.map(t=>(
+            <div key={t.id} className={'nav-it'+(tab===t.id?' on':'')} style={{margin:0,fontSize:12.5}}
+                 onClick={()=>setTab(t.id)} role="button" tabIndex={0} onKeyDown={e=>e.key==='Enter'&&setTab(t.id)}>
+              <span className="nav-ic">{ICONS[t.ic](15)}</span>{t.l}
+            </div>
+          ))}
+        </div>
+        <div style={{flex:1,minWidth:0}} key={tab}>
+          {tab==='profile'&&(
+            <div className="glass page" style={{padding:24}}>
+              <h3 style={{fontSize:14,fontWeight:700,margin:'0 0 18px'}}>Профіль керівника</h3>
+              <div style={{display:'flex',gap:22,alignItems:'flex-start',flexWrap:'wrap'}}>
+                <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:12,flexShrink:0}}>
+                  <div style={{width:72,height:72,borderRadius:'50%',background:settings.profile.avatarColor,display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,fontWeight:700,color:'#fff',boxShadow:'inset 0 1px 0 rgba(255,255,255,.35), 0 10px 26px rgba(2,7,22,.4)'}}>{settings.profile.initials}</div>
+                  <div style={{display:'flex',flexWrap:'wrap',gap:6,maxWidth:120,justifyContent:'center'}}>
+                    {COLORS.map(c=>(
+                      <div key={c} onClick={()=>upd('profile.avatarColor',c)}
+                           style={{width:21,height:21,borderRadius:'50%',background:c,cursor:'pointer',transition:'transform .18s var(--ease-spring)',
+                                   border:settings.profile.avatarColor===c?'2px solid #fff':'2px solid transparent',transform:settings.profile.avatarColor===c?'scale(1.15)':'scale(1)'}}/>
+                    ))}
+                  </div>
+                </div>
+                <div style={{flex:1,minWidth:240,display:'flex',flexDirection:'column',gap:12}}>
+                  <div><label className="lbl">Ім'я</label><input className="input" value={settings.profile.name} onChange={e=>upd('profile.name',e.target.value)}/></div>
+                  <div><label className="lbl">Посада</label><input className="input" value={settings.profile.position} onChange={e=>upd('profile.position',e.target.value)}/></div>
+                  <div><label className="lbl">Ініціали</label><input className="input" style={{width:90}} maxLength={3} value={settings.profile.initials} onChange={e=>upd('profile.initials',e.target.value.slice(0,3).toUpperCase())}/></div>
+                </div>
+              </div>
+            </div>
+          )}
+          {tab==='theme'&&(
+            <div className="glass page" style={{padding:24}}>
+              <h3 style={{fontSize:14,fontWeight:700,margin:'0 0 6px'}}>Аврора-підсвітка</h3>
+              <p style={{color:'var(--text-3)',fontSize:12,margin:'0 0 16px'}}>Колір свічення фону під стеклом</p>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:11}}>
+                {Object.entries(MOODS).map(([k,t])=>(
+                  <div key={k} onClick={()=>upd('theme',k)} className="lift"
+                       style={{borderRadius:'var(--r-md)',overflow:'hidden',cursor:'pointer',
+                               border:settings.theme===k?'2px solid var(--acc)':'1px solid var(--stroke)',
+                               opacity:settings.theme===k?1:.75}}>
+                    <div style={{height:54,background:MOOD_PREVIEW[k]}}/>
+                    <div style={{background:'rgba(255,255,255,.05)',padding:'8px 11px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                      <span style={{fontSize:11.5,fontWeight:settings.theme===k?700:400}}>{t.name}</span>
+                      {settings.theme===k&&<span style={{color:'var(--acc)',display:'flex'}}>{ICONS.check(13)}</span>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {tab==='employees'&&(
+            <div className="glass page" style={{padding:22}}>
+              <h3 style={{fontSize:14,fontWeight:700,margin:'0 0 8px'}}>Перегляд ({employees.length})</h3>
+              <p style={{color:'var(--text-3)',fontSize:12,margin:'0 0 12px'}}>Повне редагування — HR → Співробітники</p>
+              {employees.map(e=>(
+                <div key={e.id} style={{display:'flex',alignItems:'center',gap:10,padding:'9px 0',borderBottom:'1px solid var(--stroke-soft)'}}>
+                  <div className="avatar" style={{width:30,height:30,fontSize:10}}>{genAvatar(e.name)}</div>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:12.5}}>{e.name}</div>
+                    <div style={{color:'var(--text-3)',fontSize:10.5}}>{e.dept}</div>
+                  </div>
+                  <Pill c={kpiColor(e.kpi||0)}>{e.kpi}%</Pill>
+                </div>
+              ))}
+              {employees.length===0&&<p style={{color:'var(--text-3)',fontSize:12}}>Немає співробітників</p>}
+            </div>
+          )}
+          {tab==='departments'&&(
+            <div className="glass page" style={{padding:24}}>
+              <h3 style={{fontSize:14,fontWeight:700,margin:'0 0 14px'}}>Відділи підприємства</h3>
+              <div style={{display:'flex',gap:9,marginBottom:16}}>
+                <input className="input" style={{flex:1}} placeholder="Новий відділ" value={newD}
+                       onChange={e=>setNewD(e.target.value)}
+                       onKeyDown={e=>{if(e.key==='Enter'&&newD.trim()){upd('departments',[...settings.departments,newD.trim()]);setNewD('');}}}/>
+                <button className="btn btn-primary" style={{fontSize:12.5}} onClick={()=>{if(!newD.trim())return;upd('departments',[...settings.departments,newD.trim()]);setNewD('');}}>{ICONS.plus(13)}Додати</button>
+              </div>
+              <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
+                {settings.departments.map(d=>(
+                  <div key={d} style={{display:'flex',alignItems:'center',gap:8,background:'var(--acc-glow)',border:'1px solid rgba(92,168,255,.4)',borderRadius:999,padding:'6px 14px'}}>
+                    <span style={{fontSize:12.5}}>{d}</span>
+                    <span onClick={()=>upd('departments',settings.departments.filter(x=>x!==d))}
+                          role="button" aria-label={'Видалити відділ '+d}
+                          style={{color:'var(--neg)',cursor:'pointer',display:'flex'}}>{ICONS.x(12)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {tab==='industry'&&(
+            <div className="glass page" style={{padding:24}}>
+              <h3 style={{fontSize:14,fontWeight:700,margin:'0 0 14px'}}>Сфера діяльності</h3>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:11}}>
+                {INDUSTRIES.map(ind=>(
+                  <div key={ind.id} className="glass lift press" onClick={()=>{localStorage.setItem('industry',JSON.stringify(ind));setIndustry(ind);}}
+                       style={{padding:'16px 12px',textAlign:'center',cursor:'pointer',
+                               border:industry?.id===ind.id?'1px solid rgba(92,168,255,.7)':'1px solid var(--stroke)',
+                               boxShadow:industry?.id===ind.id?'0 0 0 3px rgba(92,168,255,.16)':undefined}}>
+                    <div style={{fontSize:23,marginBottom:6}}>{ind.icon}</div>
+                    <div style={{fontWeight:600,fontSize:12}}>{ind.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {tab==='notifications'&&(
+            <div className="glass page" style={{padding:24}}>
+              <h3 style={{fontSize:14,fontWeight:700,margin:'0 0 14px'}}>Сповіщення</h3>
+              {[{k:'tasks',l:'Доручення',d:'За день до дедлайну'},{k:'birthdays',l:'Дні народження',d:'За 3 дні'},{k:'reports',l:'Звітність',d:'За тиждень'},{k:'overdue',l:'Прострочені',d:'Щоденно'}].map(it=>(
+                <div key={it.k} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'13px 0',borderBottom:'1px solid var(--stroke-soft)'}}>
+                  <div>
+                    <div style={{fontSize:13}}>{it.l}</div>
+                    <div style={{color:'var(--text-3)',fontSize:11}}>{it.d}</div>
+                  </div>
+                  <div className={'switch'+(settings.notifications[it.k]?' on':'')} role="switch" aria-checked={settings.notifications[it.k]} tabIndex={0}
+                       onClick={()=>upd('notifications.'+it.k,!settings.notifications[it.k])}
+                       onKeyDown={e=>e.key==='Enter'&&upd('notifications.'+it.k,!settings.notifications[it.k])}>
+                    <i/>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {tab==='regional'&&(
+            <div className="glass page" style={{padding:24}}>
+              <h3 style={{fontSize:14,fontWeight:700,margin:'0 0 18px'}}>Регіональні налаштування</h3>
+              <div style={{display:'flex',flexDirection:'column',gap:14,maxWidth:380}}>
+                <div>
+                  <label className="lbl">Валюта</label>
+                  <select className="input" value={settings.currency} onChange={e=>upd('currency',e.target.value)}>
+                    <option value="UAH">₴ Гривня</option><option value="USD">$ Долар</option><option value="EUR">€ Євро</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="lbl">Мова</label>
+                  <select className="input" value={settings.language} onChange={e=>upd('language',e.target.value)}>
+                    <option value="uk">Українська</option><option value="ru">Русский</option><option value="en">English</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="lbl">Формат дати</label>
+                  <select className="input" value={settings.dateFormat} onChange={e=>upd('dateFormat',e.target.value)}>
+                    <option value="uk">ДД.ММ.РРРР</option><option value="iso">РРРР-ММ-ДД</option><option value="us">ММ/ДД/РРРР</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
+          {tab==='data'&&(
+            <div className="glass page" style={{padding:24}}>
+              <h3 style={{fontSize:14,fontWeight:700,margin:'0 0 6px'}}>Джерела даних</h3>
+              <p style={{color:'var(--text-3)',fontSize:12,margin:'0 0 16px'}}>Оберіть звідки завантажуються дані</p>
+              {[{k:'finance',l:'Фінансові дані'},{k:'tasks',l:'Доручення'},{k:'calendar',l:'Розклад'},{k:'contractors',l:'Контрагенти'}].map(m=>(
+                <div key={m.k} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 0',borderBottom:'1px solid var(--stroke-soft)',gap:12}}>
+                  <span style={{fontSize:13}}>{m.l}</span>
+                  <select className="input" style={{width:190}} value={settings.dataSources[m.k]} onChange={e=>upd('dataSources.'+m.k,e.target.value)}>
+                    <option value="manual">Ручне введення</option>
+                    <option value="csv">Імпорт CSV / Excel</option>
+                    <option value="api">API інтеграція</option>
+                    <option value="bank">Банківська виписка</option>
+                  </select>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============ APP ============ */
+function App(){
+  const savedIndustry=(()=>{
+    try{const raw=localStorage.getItem('industry');return raw?JSON.parse(raw):null;}
+    catch{return null;}
+  })();
+
+  const [screen,setScreen]=useState(savedIndustry?'app':'onboarding');
+  const [industry,setIndustry]=useState(savedIndustry);
+  const [nav,setNav]=useState({section:'dash',sub:null});
+  const [aiPanelOpen,setAiPanelOpen]=useState(()=>typeof window!=='undefined'&&window.innerWidth>=1400);
+  const [tasks,setTasks]=useState([]);
+  const [tasksLoading,setTasksLoading]=useState(true);
+  const [tasksError,setTasksError]=useState(null);
+  const [notes,setNotes]=useState(INIT_NOTES);
+  const [employees,setEmployees]=useState([]);
+  const [employeesLoading,setEmployeesLoading]=useState(true);
+  const [employeesError,setEmployeesError]=useState(null);
+  const [settings,setSettings]=useState(INIT_SETTINGS);
+  const [counterparties,setCounterparties]=useState([]);
+  const [contracts,setContracts]=useState([]);
+  const [transactions,setTransactions]=useState([]);
+  const [salaries,setSalaries]=useState([]);
+
+  // Сотрудники: бекенд full_name/department → фронт name/dept (контракт не меняем)
+  const refetchEmployees=()=>{
+    setEmployeesLoading(true);setEmployeesError(null);
+    api.get('/employees/')
+      .then(data=>{
+        setEmployees(data.map(e=>({id:e.id,name:e.full_name,role:e.role,dept:e.department,birthday:e.birthday,kpi:e.kpi,phone:e.phone,email:e.email,avatar:genAvatar(e.full_name)})));
+        setEmployeesLoading(false);
+      })
+      .catch(err=>{
+        console.error('Співробітники:',err);
+        setEmployeesError(err.message||'Помилка зʼєднання');
+        setEmployeesLoading(false);
+      });
+  };
+  const refetchTasks=()=>{
+    setTasksLoading(true);setTasksError(null);
+    api.get('/tasks/')
+      .then(data=>{setTasks(data);setTasksLoading(false);})
+      .catch(err=>{
+        console.error('Задачі:',err);
+        setTasksError(err.message||'Помилка зʼєднання');
+        setTasksLoading(false);
+      });
+  };
+  const refetchCounterparties=()=>api.get('/counterparties/').then(setCounterparties).catch(console.error);
+  const refetchContracts=()=>api.get('/contracts/').then(setContracts).catch(console.error);
+  const refetchTransactions=()=>api.get('/transactions/').then(setTransactions).catch(console.error);
+  const refetchSalaries=()=>api.get('/salaries/').then(setSalaries).catch(console.error);
+  const refetchFinance=()=>{refetchCounterparties();refetchContracts();refetchTransactions();refetchSalaries();};
+
+  useEffect(()=>{refetchEmployees();refetchTasks();refetchFinance();},[]);
+
+  // Параллакс ауроры + Fluent reveal на карточках. Одно делегированное событие,
+  // пишем только CSS-переменные/transform — без ре-рендеров (правило MotionValues).
+  useEffect(()=>{
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    const mm=e=>{
+      const el=e.target.closest&&e.target.closest('.lift');
+      if(el){
+        const r=el.getBoundingClientRect();
+        el.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');
+        el.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%');
+      }
+      const lay=document.querySelector('.blob-layer');
+      if(lay){
+        const dx=(e.clientX/window.innerWidth-.5)*30,dy=(e.clientY/window.innerHeight-.5)*20;
+        lay.style.transform=`translate(${dx}px,${dy}px)`;
+      }
+    };
+    window.addEventListener('pointermove',mm,{passive:true});
+    return()=>window.removeEventListener('pointermove',mm);
+  },[]);
+
+  const bg=(
+    <div className="bg-stage">
+      <div className="blob-layer">
+        <div className="blob b1"/><div className="blob b2"/><div className="blob b3"/>
+      </div>
+      <div className="grain"/>
+    </div>
+  );
+
+  if(screen==='onboarding')return(
+    <div data-mood={settings.theme}>
+      {bg}
+      <Onboarding onComplete={ind=>{
+        localStorage.setItem('industry',JSON.stringify(ind));
+        setIndustry(ind);
+        setScreen('app');
+      }}/>
+    </div>
+  );
+
+  const {section,sub}=nav;
+  const renderContent=()=>{
+    if(section==='dash')return <Dashboard tasks={tasks} employees={employees} settings={settings} setNav={setNav} transactions={transactions}/>;
+    if(section==='finance'){
+      if(sub==='bank'||!sub)return <Bank settings={settings} transactions={transactions} counterparties={counterparties} refetch={refetchTransactions}/>;
+      if(sub==='contractors')return <Contractors counterparties={counterparties} refetch={refetchCounterparties}/>;
+      if(sub==='contracts')return <Contracts contracts={contracts} counterparties={counterparties} refetch={refetchContracts}/>;
+      if(sub==='salaries')return <Salaries salaries={salaries} employees={employees} refetch={refetchSalaries} refetchTransactions={refetchTransactions}/>;
+    }
+    if(section==='hr'){
+      if(sub==='tasks'||!sub)return <Tasks tasks={tasks} setTasks={setTasks} loading={tasksLoading} error={tasksError} refetchTasks={refetchTasks}/>;
+      if(sub==='employees')return <Employees employees={employees} depts={settings.departments} loading={employeesLoading} error={employeesError} refetchEmployees={refetchEmployees}/>;
+      if(sub==='birthdays')return <Birthdays employees={employees}/>;
+      if(sub==='kpi')return <KPI employees={employees}/>;
+    }
+    if(section==='organizer'){
+      if(sub==='schedule'||!sub)return <Schedule/>;
+      if(sub==='notes')return <Notes notes={notes} setNotes={setNotes}/>;
+      if(sub==='reports')return <Reports/>;
+    }
+    if(section==='ai'){
+      if(sub==='aichat'||!sub)return <AIChat refetchTasks={refetchTasks} refetchEmployees={refetchEmployees} refetchFinance={refetchFinance}/>;
+      if(sub==='audiomeeting')return <AudioMeeting/>;
+      if(sub==='dictaphone')return <Dictaphone/>;
+    }
+    if(section==='settings')return <Settings settings={settings} setSettings={setSettings} employees={employees} industry={industry} setIndustry={setIndustry}/>;
+    return null;
+  };
+
+  // Бейдж HR — живой счётчик: активные + просроченные задачи
+  const hrBadge=tasks.filter(t=>t.status==='active'||t.status==='overdue').length;
+
+  return(
+    <div data-mood={settings.theme} style={{height:'100vh',overflow:'hidden'}}>
+      {bg}
+      {/* Плавающие стеклянные острова над авророй */}
+      <div style={{position:'relative',zIndex:1,display:'flex',height:'100vh',padding:14,gap:14}}>
+        <Sidebar nav={nav} setNav={setNav} settings={settings} hrBadge={hrBadge}/>
+        <div className="glass glass-panel" style={{flex:1,minWidth:0,display:'flex',flexDirection:'column',overflow:'hidden'}}>
+          <Topbar nav={nav} setNav={setNav} settings={settings} aiPanelOpen={aiPanelOpen} setAiPanelOpen={setAiPanelOpen}/>
+          <div style={{flex:1,overflowY:'auto',overflowX:'hidden'}} key={section+':'+(sub||'')}>
+            {renderContent()}
+          </div>
+        </div>
+        <AIPanel open={aiPanelOpen} onClose={()=>setAiPanelOpen(false)}
+                 refetchTasks={refetchTasks} refetchEmployees={refetchEmployees} refetchFinance={refetchFinance}/>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <ErrorBoundary><UIProvider><App/></UIProvider></ErrorBoundary>
+);
+{% endverbatim %}
+</script>
+</body>
+</html>

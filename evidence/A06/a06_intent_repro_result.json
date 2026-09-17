@@ -1,0 +1,27 @@
+{
+  "passed": 17,
+  "checks": [
+    "HTTP initial create",
+    "canonical numeric replay returns same source",
+    "same key changed description rejects without write",
+    "no-key HTTP create rejected",
+    "HTTP replay still requires CSRF",
+    "replay returns current source, not restoring original payload",
+    "same token other actor creates independent source",
+    "role revoked before replay returns 403",
+    "technical admin native login",
+    "native salary form readable",
+    "native salary first submit",
+    "native salary same-token replay",
+    "native replay preserves one receipt",
+    "native accrual replay after pay preserves paid source and ledger",
+    "native replay does not bypass CSRF",
+    "native replay payload mismatch rejected",
+    "native replay rechecks staff permission"
+  ],
+  "database": "synthetic in-memory SQLite",
+  "money_sources": 3,
+  "salary_sources": 1,
+  "receipts": 3,
+  "postgres": "not run"
+}

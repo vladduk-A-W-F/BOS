@@ -1,0 +1,11 @@
+"""Frozen baseline tables plus explicitly accepted additive B02 ledgers."""
+BASELINE_45_TABLES = frozenset(['ai_assistant_chatfile', 'ai_assistant_chatmessage', 'ai_assistant_claudeusagelog', 'ai_assistant_employeechangelog', 'ai_assistant_taskchangelog', 'auth_group', 'auth_group_permissions', 'auth_permission', 'auth_user', 'auth_user_groups', 'auth_user_user_permissions', 'branches_branch', 'django_admin_log', 'django_content_type', 'django_migrations', 'django_session', 'employees_employee', 'erp_changeorder', 'erp_event', 'erp_inspection', 'erp_invoicelink', 'erp_item', 'erp_location', 'erp_lot', 'erp_movement', 'erp_operatorentry', 'erp_production', 'erp_purchase', 'erp_reservation', 'erp_salesline', 'erp_salesorder', 'finance_contract', 'finance_counterparty', 'finance_financialintent', 'finance_salary', 'finance_transaction', 'operations_actionproposal', 'operations_auditevent', 'operations_configuration', 'operations_document', 'operations_invoice', 'operations_loginattempt', 'operations_procurementrequest', 'operations_supplierquote', 'tasks_task'])
+B02_TABLES = BASELINE_45_TABLES | frozenset({'erp_importbatch', 'erp_importidentity'})
+
+B03_TABLES = B02_TABLES | frozenset({'erp_invoiceadjustment', 'erp_ordercancellation', 'erp_invoiceadjustmentline', 'erp_supplierclaim', 'erp_goodsreturn', 'erp_cancellationrelease'})
+
+
+# C03 is additive; every prior physical table remains part of native transfer.
+C03_TABLES = B03_TABLES | {
+    "finance_statementimport", "finance_statementline", "finance_statementallocation",
+}

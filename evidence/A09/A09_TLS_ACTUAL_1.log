@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_proxy_draft/tls_probe.py", line 240, in <module>
+    main()
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_proxy_draft/tls_probe.py", line 73, in main
+    assert result.returncode == 0, result.stderr
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+  File "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/django/db/models/manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/django/db/models/query.py", line 639, in get
+    raise self.model.DoesNotExist(
+django.contrib.auth.models.Group.DoesNotExist: Group matching query does not exist.
+

@@ -1,0 +1,52 @@
+{
+  "scope": "Additive source/actual Django HTTP access compatibility; not fullgate acceptance",
+  "initial_red": {
+    "passed": 1,
+    "failed": 7,
+    "http": 7
+  },
+  "core_initial_eight": {
+    "passed": 8,
+    "failed": 0,
+    "http": 34
+  },
+  "first_surface_counts": {
+    "selected_definitions": 10,
+    "concrete_urls": 11,
+    "surface_http": 504,
+    "surface_passed": 503,
+    "control_groups": 12,
+    "control_passed": 10,
+    "control_http": 127,
+    "redirect_http": 0
+  },
+  "affected_checkpoint2": {
+    "control_groups": 2,
+    "control_passed": 2,
+    "control_http": 11,
+    "export_http": 1,
+    "export_passed": true
+  },
+  "closed_initial_failures": [
+    {
+      "first_failure_id": "/api/statements/imports/c11126b3-0f37-4f7e-b71e-12deeaa9ef20/export/",
+      "first_method": "GET",
+      "classification": "product_export_wire",
+      "closed_by": "AFFECTED_CHECKPOINT2_GREEN.json"
+    },
+    {
+      "first_failure_id": "statement_bound_transaction_protection",
+      "first_method": null,
+      "classification": "own_harness",
+      "closed_by": "AFFECTED_CHECKPOINT2_GREEN.json"
+    },
+    {
+      "first_failure_id": "statement_exact_replay",
+      "first_method": null,
+      "classification": "own_harness",
+      "closed_by": "AFFECTED_CHECKPOINT2_GREEN.json"
+    }
+  ],
+  "open_failures": [],
+  "global_fullgate_executed": false
+}

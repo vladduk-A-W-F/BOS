@@ -1,0 +1,18 @@
+test_forward_reverse_high_water_and_next_ids_for_sparse_empty_and_larger_current (a07_test_constraint_upgrade.ConstraintUpgradeTests.test_forward_reverse_high_water_and_next_ids_for_sparse_empty_and_larger_current) ... ok
+test_invalid_old_rows_refuse_each_migration_without_partial_ddl (a07_test_constraint_upgrade.ConstraintUpgradeTests.test_invalid_old_rows_refuse_each_migration_without_partial_ddl) ... ok
+test_null_high_water_is_refused_without_repairing_source_metadata (a07_test_constraint_upgrade.ConstraintUpgradeTests.test_null_high_water_is_refused_without_repairing_source_metadata) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 5.280s
+
+OK
+Found 3 test(s).
+Skipping setup of unused database(s): default.
+System check identified no issues (0 silenced).
+BOS_A07_MIGRATION {"applied": true, "backend": "sqlite", "case": "sequence", "database_version": "3.53.1", "ddl_unchanged": false, "denied": null, "next_ids": [90002, 90003], "passed": true, "reverse_rows_unchanged": true, "reverse_sequence": 90001, "rows_unchanged": true, "sequence_after": 90001, "sequence_before": 90001}
+BOS_A07_MIGRATION {"applied": true, "backend": "sqlite", "case": "sequence_empty", "database_version": "3.53.1", "ddl_unchanged": false, "denied": null, "next_ids": [90002, 90003], "passed": true, "reverse_rows_unchanged": true, "reverse_sequence": 90001, "rows_unchanged": true, "sequence_after": 90001, "sequence_before": 90001}
+BOS_A07_MIGRATION {"applied": true, "backend": "sqlite", "case": "sequence_current", "database_version": "3.53.1", "ddl_unchanged": false, "denied": null, "next_ids": [8, 9], "passed": true, "reverse_rows_unchanged": true, "reverse_sequence": 7, "rows_unchanged": true, "sequence_after": 7, "sequence_before": 5}
+BOS_A07_MIGRATION {"applied": false, "backend": "sqlite", "case": "finance", "database_version": "3.53.1", "ddl_unchanged": true, "denied": "CHECK constraint failed: finance_transaction_amount", "passed": true, "rows_unchanged": true, "sequence_after": 1, "sequence_before": 1}
+BOS_A07_MIGRATION {"applied": false, "backend": "sqlite", "case": "operations", "database_version": "3.53.1", "ddl_unchanged": true, "denied": "CHECK constraint failed: bos_invoice_paid_range", "passed": true, "rows_unchanged": true, "sequence_after": 1, "sequence_before": 1}
+BOS_A07_MIGRATION {"applied": false, "backend": "sqlite", "case": "erp", "database_version": "3.53.1", "ddl_unchanged": true, "denied": "CHECK constraint failed: erp_purchase_quantity", "passed": true, "rows_unchanged": true, "sequence_after": 1, "sequence_before": 1}
+BOS_A07_MIGRATION {"applied": false, "backend": "sqlite", "case": "sequence_null", "database_version": "3.53.1", "ddl_unchanged": true, "denied": "Invalid SQLite sequence metadata for operations_invoice", "passed": true, "rows_unchanged": true, "sequence_after": null, "sequence_before": null}

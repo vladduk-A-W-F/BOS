@@ -1,0 +1,105 @@
+{
+  "scope": "Actual extracted source JS helper/command closures, controlled transport and storage; no browser/API/DB acceptance",
+  "source_sha256": "fd283ac01fd50fd2478a5902e492fbed5f16da943ac3731a01b4903a96dec801",
+  "compiled_sha256": "b8f3f00701e52d4be433a17a9cd27bee934d15ae980afff977ebb4566a3825f0",
+  "checks": [
+    {
+      "name": "unknown confirm retains exact proposal before send",
+      "passed": true
+    },
+    {
+      "name": "storage refusal prevents confirm request",
+      "passed": true
+    },
+    {
+      "name": "generic 409 preserves pending intent",
+      "passed": true
+    },
+    {
+      "name": "locked proposal_stale allows explicit new preview",
+      "passed": true
+    },
+    {
+      "name": "locked proposal_expired allows explicit new preview",
+      "passed": true
+    },
+    {
+      "name": "successful receipt survives parent refresh failure",
+      "passed": true
+    },
+    {
+      "name": "double confirm cannot send concurrently",
+      "passed": true
+    },
+    {
+      "name": "same ID retry after lost confirm",
+      "passed": true
+    },
+    {
+      "name": "expired GET is not definitive failure",
+      "passed": true
+    },
+    {
+      "name": "new session cannot replay old proposal",
+      "passed": true
+    },
+    {
+      "name": "lookup receipt uses exact proposal identity",
+      "passed": true
+    },
+    {
+      "name": "Escape cancels read and discards late preview response",
+      "passed": true
+    },
+    {
+      "name": "archive payload excludes status/result changes",
+      "passed": true
+    },
+    {
+      "name": "legacy metadata edit does not backfill null FK/result/date",
+      "passed": true
+    },
+    {
+      "name": "new completion requires explicit result and FK",
+      "passed": true
+    },
+    {
+      "name": "reopen omits previous result and priority",
+      "passed": true
+    },
+    {
+      "name": "server-derived task segments preserve legacy status",
+      "passed": true
+    },
+    {
+      "name": "FK impact displays verified identity not object string",
+      "passed": true
+    },
+    {
+      "name": "JSON rejects duplicate keys and raw assignee",
+      "passed": true
+    },
+    {
+      "name": "literal result newlines and nullable priority preserved",
+      "passed": true
+    },
+    {
+      "name": "pending queue is IDs-only and not hidden by access revision",
+      "passed": true
+    },
+    {
+      "name": "task entrypoints have no raw Task writes",
+      "passed": true
+    },
+    {
+      "name": "ERP B02 B03 immutable action and dialog sections unchanged",
+      "passed": true
+    },
+    {
+      "name": "exact Babel compile matches final app",
+      "passed": true
+    }
+  ],
+  "passed": 24,
+  "failed": 0
+}

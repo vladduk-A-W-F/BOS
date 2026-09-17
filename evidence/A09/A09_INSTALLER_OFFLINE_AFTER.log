@@ -1,0 +1,25 @@
+{
+  "case": "offline_direct_local_url_dependency",
+  "refusal": "Крок pip-check не виконано; власну незавершену інсталяцію збережено.",
+  "outside_dependency_installed": false,
+  "installed_distribution_names": [
+    "Django",
+    "pip",
+    "waitress"
+  ],
+  "database_created": false,
+  "commands": [
+    {
+      "step": "venv",
+      "returncode": 0
+    },
+    {
+      "step": "offline-pip",
+      "returncode": 0
+    },
+    {
+      "step": "pip-check",
+      "returncode": 1
+    }
+  ]
+}

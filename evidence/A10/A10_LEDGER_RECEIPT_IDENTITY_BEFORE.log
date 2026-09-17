@@ -1,0 +1,25 @@
+test_copied_operation_receipt_inode_is_refused (__main__.GenerationLedgerTests.test_copied_operation_receipt_inode_is_refused) ... FAIL
+test_replaced_control_directory_refuses (__main__.GenerationLedgerTests.test_replaced_control_directory_refuses) ... FAIL
+
+======================================================================
+FAIL: test_copied_operation_receipt_inode_is_refused (__main__.GenerationLedgerTests.test_copied_operation_receipt_inode_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a10_generation_ledger_tests.py", line 191, in test_copied_operation_receipt_inode_is_refused
+    with self.assertRaises(self.module.LedgerRefused): self.ledger.seal(candidate)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: LedgerRefused not raised
+
+======================================================================
+FAIL: test_replaced_control_directory_refuses (__main__.GenerationLedgerTests.test_replaced_control_directory_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a10_generation_ledger_tests.py", line 199, in test_replaced_control_directory_refuses
+    with self.assertRaises(self.module.LedgerRefused): self.ledger.current()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: LedgerRefused not raised
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.107s
+
+FAILED (failures=2)

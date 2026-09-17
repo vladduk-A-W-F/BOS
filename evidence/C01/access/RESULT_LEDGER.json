@@ -1,0 +1,58 @@
+{
+  "scope": "B03→C01 access compatibility; additive Task surfaces only; no full gate or browser acceptance",
+  "owned_files": {
+    "scripts/access_fixtures.py": "6d787e06862fba2149b946a7950b95f02b0877b82cb30ad6c73cd16b6e62b323",
+    "scripts/access_routes.json": "182639ea19916ca2c8f4a7c51b1b936e6bcf19d7148f5328b1166d5ca73d8597",
+    "scripts/check_access.py": "0e0f4b6ebd2b2af77d750d466eeb5bc83bce682c5ff0cb3a2688862159ee5694"
+  },
+  "catalogue": {
+    "old_retained_exact": 177,
+    "new_explicit": 3,
+    "actual_total": 180,
+    "accepted_field_ids_unchanged": 57,
+    "accepted_field_suite_run": false
+  },
+  "first_surface_pass": {
+    "cases": 774,
+    "passed": 730,
+    "failed": 44,
+    "evidence": "SURFACES_FIRST.json"
+  },
+  "targeted_retest": {
+    "cases": 44,
+    "passed": 44,
+    "exactly_prior_failed_case_keys": true,
+    "evidence": "SURFACES_PATCH1.json"
+  },
+  "final_controls": {
+    "groups": 12,
+    "passed": 12,
+    "http": 104,
+    "evidence": "CONTROLS_FINAL.json"
+  },
+  "same_focused_red_green": {
+    "red": {
+      "passed": 0,
+      "failed": 7
+    },
+    "green": {
+      "passed": 7,
+      "failed": 0
+    }
+  },
+  "backend_checkpoint_files": [
+    "BACKEND_CHECKPOINT.json",
+    "BACKEND_CHECKPOINT_PATCH1.json"
+  ],
+  "not_run": [
+    "full check_access main",
+    "57 accepted field test suite",
+    "full verify",
+    "browser",
+    "PostgreSQL",
+    "A09",
+    "gate6"
+  ],
+  "canonical_writes": false,
+  "backend_edits_by_this_agent": false
+}

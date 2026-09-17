@@ -1,0 +1,26 @@
+Creating test database for alias 'default'...
+Destroying old test database for alias 'default'...
+FF
+======================================================================
+FAIL: test_duplicate_top_level_or_nested_json_keys_do_not_create_proposals (erp.test_json_input.JSONIntentBoundaryTests.test_duplicate_top_level_or_nested_json_keys_do_not_create_proposals) (nested=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/erp/test_json_input.py", line 19, in test_duplicate_top_level_or_nested_json_keys_do_not_create_proposals
+    self.assertEqual(response.status_code, 422, response.content[:600])
+AssertionError: 200 != 422 : b'{"id": "122ce341-8e65-4852-a779-9bb76570927c", "payload": {"action": "erp_opening", "code": "A06-60894c52-OPEN", "item_id": 1, "location_id": 1, "quantity": "1.000", "unit_cost": "2.00", "currency": "EUR", "revision": "A"}, "expires_at": "2026-09-11T21:24:55.886434+00:00", "effect": {"lot_id": 2, "code": "A06-60894c52-OPEN", "quality": "pending"}, "impact": [{"kind": "lots", "id": 2, "code": "A06-60894c52-OPEN", "field": "quantity", "label": "\\u0424\\u0456\\u0437\\u0438\\u0447\\u043d\\u0438\\u0439 \\u0437\\u0430\\u043b\\u0438\\u0448\\u043e\\u043a", "before": null, "after": "1.000", "currency": "EUR"}, {"kin'
+
+======================================================================
+FAIL: test_duplicate_top_level_or_nested_json_keys_do_not_create_proposals (erp.test_json_input.JSONIntentBoundaryTests.test_duplicate_top_level_or_nested_json_keys_do_not_create_proposals) (nested=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/erp/test_json_input.py", line 19, in test_duplicate_top_level_or_nested_json_keys_do_not_create_proposals
+    self.assertEqual(response.status_code, 422, response.content[:600])
+AssertionError: 200 != 422 : b'{"id": "4c23b89d-12d7-4ac5-a9de-a80b0b35d7ea", "payload": {"action": "erp_item", "code": "A06-c39f66b3-NEW", "name": "\\u0421\\u0438\\u043d\\u0442\\u0435\\u0442\\u0438\\u0447\\u043d\\u0438\\u0439 \\u043a\\u043e\\u043c\\u043f\\u043e\\u043d\\u0435\\u043d\\u0442", "unit": "\\u0448\\u0442.", "kind": "component", "method": "buy", "revision": "A", "currency": "EUR", "external_codes": {"supplier": "B"}}, "expires_at": "2026-09-11T21:24:55.937887+00:00", "effect": {"item_id": 5, "code": "A06-c39f66b3-NEW"}, "impact": [{"kind": "items", "id": 5, "code": "A06-c39f66b3-NEW", "field": "revision", "label": "\\u0412\\u0435\\u0440\\u'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.466s
+
+FAILED (failures=2)
+Destroying test database for alias 'default'...
+Found 1 test(s).
+System check identified no issues (0 silenced).

@@ -1,0 +1,34 @@
+{
+  "complete": true,
+  "scope": "10 Linux same-process controller unit regression methods; actual pinned Waitress subprocesses and synthetic held SQLite writers; no TLS/installation/backup/restore/upgrade acceptance claim",
+  "canonical_imports": [
+    "scripts.install_server",
+    "scripts.maintenance_control",
+    "scripts.start_server"
+  ],
+  "source_sha256": {
+    "/workspace/scratch/c7b51e996a9f/tmp/a10_control_unittest_draft/boss_project/test_maintenance_control.py": "687c0a4200f728cd08dc47de3820862ef5ad64bbf5f342ca9fcd5e4a4c3245ed",
+    "/workspace/scratch/c7b51e996a9f/tmp/a10_control_unittest_draft/fixtures/synthetic/maintenance_wsgi.py": "bc0c58dc1cdae7a383d41d58745651ee8f54e803e303e101eb1f041ecdbfcbc3",
+    "/workspace/sites/bos-original-refined/scripts/maintenance_control.py": "4e9b33059b6faa7bb8a03a6dedecfc08d29493e0f0333fb231920c6e80714223",
+    "/workspace/sites/bos-original-refined/scripts/start_server.py": "f25b421aa9f5c2542ebecbe5cea3f6a70bad25d6bbfb8e27accbe01e3eced6c6"
+  },
+  "methods": [
+    "test_instance_flock_and_unissued_capability_refuse_second_owner",
+    "test_held_http_write_and_response_complete_before_quiescent_lease",
+    "test_live_capture_callback_reads_unchanged_database_under_fence",
+    "test_lease_bindings_refuse_other_installation_root_operation_and_mutation",
+    "test_active_generation_refuses_same_generation_resume_and_fresh_start",
+    "test_capture_fence_blocks_release_then_real_resume_revokes_old_lease",
+    "test_external_kernel_unlock_invalidates_lease_without_relocking",
+    "test_closed_owner_invalidates_lease_and_leaves_unrelated_owned_child_alive",
+    "test_real_drain_timeout_refuses_lease_and_has_no_post_exit_write",
+    "test_same_generation_cycle_preserves_data_and_closes_every_owned_child"
+  ],
+  "method_count": 10,
+  "skipped": 0,
+  "log": "/workspace/scratch/c7b51e996a9f/tmp/A10_CONTROL_UNITTEST_DISCOVER_FINAL.log",
+  "log_sha256": "ddf572ee7a92a062def930f97b0cd9744217d489d12163559e39a26334e447aa",
+  "cleanup_assertions": "every method: all own controller children, readers and test threads stopped; admission database bytes and canonical config unchanged",
+  "fixture_admission": "fresh installer-owned bundle with explicit synthetic controller precondition; not a real provisioner completion receipt",
+  "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/workspace/sites/bos-original-refined demo-check-env/bin/python -B -m unittest discover -s tmp/a10_control_unittest_draft/boss_project -p test_maintenance_control.py -v"
+}

@@ -1,0 +1,99 @@
+test_completed_record_refuses_reprovision_before_runtime_changes (__main__.InstallerTrustBoundaryTests.test_completed_record_refuses_reprovision_before_runtime_changes) ... 
+  test_completed_record_refuses_reprovision_before_runtime_changes (__main__.InstallerTrustBoundaryTests.test_completed_record_refuses_reprovision_before_runtime_changes) (entry='bootstrap') ... FAIL
+  test_completed_record_refuses_reprovision_before_runtime_changes (__main__.InstallerTrustBoundaryTests.test_completed_record_refuses_reprovision_before_runtime_changes) (entry='runtime') ... FAIL
+test_completed_record_refuses_reprovision_before_runtime_changes (__main__.InstallerTrustBoundaryTests.test_completed_record_refuses_reprovision_before_runtime_changes) ... FAIL
+test_own_venv_hardlink_cannot_overwrite_second_company (__main__.InstallerTrustBoundaryTests.test_own_venv_hardlink_cannot_overwrite_second_company) ... FAIL
+test_source_pip_module_cannot_shadow_bootstrap (__main__.InstallerTrustBoundaryTests.test_source_pip_module_cannot_shadow_bootstrap) ... FAIL
+test_source_registry_all_overlap_directions_refuse_before_writes (__main__.InstallerTrustBoundaryTests.test_source_registry_all_overlap_directions_refuse_before_writes) ... 
+  test_source_registry_all_overlap_directions_refuse_before_writes (__main__.InstallerTrustBoundaryTests.test_source_registry_all_overlap_directions_refuse_before_writes) (registry='/tmp/a09-independent-boundaries-wvvei0i_/source/new-registry') ... FAIL
+test_source_registry_all_overlap_directions_refuse_before_writes (__main__.InstallerTrustBoundaryTests.test_source_registry_all_overlap_directions_refuse_before_writes) ... FAIL
+test_source_venv_module_cannot_shadow_bootstrap (__main__.InstallerTrustBoundaryTests.test_source_venv_module_cannot_shadow_bootstrap) ... FAIL
+
+======================================================================
+FAIL: test_completed_record_refuses_reprovision_before_runtime_changes (__main__.InstallerTrustBoundaryTests.test_completed_record_refuses_reprovision_before_runtime_changes) (entry='bootstrap')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_install_server_review_tests.py", line 138, in test_completed_record_refuses_reprovision_before_runtime_changes
+    with self.subTest(entry=entry), self.assertRaisesRegex(installer.InstallRefused, 'готової інсталяції'):
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: InstallRefused not raised
+
+======================================================================
+FAIL: test_completed_record_refuses_reprovision_before_runtime_changes (__main__.InstallerTrustBoundaryTests.test_completed_record_refuses_reprovision_before_runtime_changes) (entry='runtime')
+----------------------------------------------------------------------
+installer_independent_tests.InstallRefused: Крок offline-pip не виконано; власну незавершену інсталяцію збережено.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_install_server_review_tests.py", line 138, in test_completed_record_refuses_reprovision_before_runtime_changes
+    with self.subTest(entry=entry), self.assertRaisesRegex(installer.InstallRefused, 'готової інсталяції'):
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "готової інсталяції" does not match "Крок offline-pip не виконано; власну незавершену інсталяцію збережено."
+
+======================================================================
+FAIL: test_completed_record_refuses_reprovision_before_runtime_changes (__main__.InstallerTrustBoundaryTests.test_completed_record_refuses_reprovision_before_runtime_changes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_install_server_review_tests.py", line 143, in test_completed_record_refuses_reprovision_before_runtime_changes
+    self.assertEqual(self.files(self.target), before)
+AssertionError: {'INS[81 chars]a', 'venv/pyvenv.cfg': '9de88c87b9099c81fda6f1[130624 chars]ec3'} != {'INS[81 chars]a', 'config/server.json': '94521aa7ce91c27bb1c[42 chars]650'}
+Diff is 133655 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_own_venv_hardlink_cannot_overwrite_second_company (__main__.InstallerTrustBoundaryTests.test_own_venv_hardlink_cannot_overwrite_second_company)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_install_server_review_tests.py", line 108, in test_own_venv_hardlink_cannot_overwrite_second_company
+    self.assertNotEqual(record['id'], other['installation_id'])
+AssertionError: '2aaedf3f-d223-464f-8f18-703603f93783' == '2aaedf3f-d223-464f-8f18-703603f93783'
+
+======================================================================
+FAIL: test_source_pip_module_cannot_shadow_bootstrap (__main__.InstallerTrustBoundaryTests.test_source_pip_module_cannot_shadow_bootstrap)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_install_server_review_tests.py", line 101, in test_source_pip_module_cannot_shadow_bootstrap
+    self.module_shadow('pip')
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_install_server_review_tests.py", line 89, in module_shadow
+    self.assertFalse(marker.exists(), 'Source package shadowed trusted Python bootstrap module')
+AssertionError: True is not false : Source package shadowed trusted Python bootstrap module
+
+======================================================================
+FAIL: test_source_registry_all_overlap_directions_refuse_before_writes (__main__.InstallerTrustBoundaryTests.test_source_registry_all_overlap_directions_refuse_before_writes) (registry='/tmp/a09-independent-boundaries-wvvei0i_/source/new-registry')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_install_server_review_tests.py", line 74, in test_source_registry_all_overlap_directions_refuse_before_writes
+    with self.subTest(registry=str(registry)), self.assertRaisesRegex(installer.InstallRefused, 'окремими каталогами'):
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: InstallRefused not raised
+
+======================================================================
+FAIL: test_source_registry_all_overlap_directions_refuse_before_writes (__main__.InstallerTrustBoundaryTests.test_source_registry_all_overlap_directions_refuse_before_writes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_install_server_review_tests.py", line 76, in test_source_registry_all_overlap_directions_refuse_before_writes
+    self.assertFalse(self.target.exists())
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_source_venv_module_cannot_shadow_bootstrap (__main__.InstallerTrustBoundaryTests.test_source_venv_module_cannot_shadow_bootstrap)
+----------------------------------------------------------------------
+installer_independent_tests.InstallRefused: Крок venv не виконано; власну незавершену інсталяцію збережено.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_install_server_review_tests.py", line 98, in test_source_venv_module_cannot_shadow_bootstrap
+    self.module_shadow('venv')
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_install_server_review_tests.py", line 88, in module_shadow
+    record = self.failed_empty_pip()
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_install_server_review_tests.py", line 63, in failed_empty_pip
+    with self.assertRaisesRegex(installer.InstallRefused, 'offline-pip'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "offline-pip" does not match "Крок venv не виконано; власну незавершену інсталяцію збережено."
+
+----------------------------------------------------------------------
+Ran 5 tests in 6.738s
+
+FAILED (failures=8)

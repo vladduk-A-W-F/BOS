@@ -1,0 +1,23 @@
+test_invalid_configuration_refuses_before_bind_or_database (__main__.A09WaitressTests.test_invalid_configuration_refuses_before_bind_or_database) ... FAIL
+test_real_http_keeps_actual_peer_and_checks_forwarded_headers (__main__.A09WaitressTests.test_real_http_keeps_actual_peer_and_checks_forwarded_headers) ... FAIL
+
+======================================================================
+FAIL: test_invalid_configuration_refuses_before_bind_or_database (__main__.A09WaitressTests.test_invalid_configuration_refuses_before_bind_or_database)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_waitress_server.py", line 81, in test_invalid_configuration_refuses_before_bind_or_database
+    self.assertIn('BOS_SECRET_KEY', process.stderr)
+AssertionError: 'BOS_SECRET_KEY' not found in ''
+
+======================================================================
+FAIL: test_real_http_keeps_actual_peer_and_checks_forwarded_headers (__main__.A09WaitressTests.test_real_http_keeps_actual_peer_and_checks_forwarded_headers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_waitress_server.py", line 120, in test_real_http_keeps_actual_peer_and_checks_forwarded_headers
+    self.assertIsNotNone(ready, 'Supported Waitress runner did not bind: ' + repr(lines))
+AssertionError: unexpectedly None : Supported Waitress runner did not bind: ['{"event": "a09.failure", "exception": "FileNotFoundError"}']
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.118s
+
+FAILED (failures=2)

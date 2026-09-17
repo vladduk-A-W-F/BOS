@@ -1,0 +1,234 @@
+{
+  "scope": "Actual C01-base Django HTTP + fixed manifest expectations; own synthetic SQLite/media; no fullgate/browser/A09; marker fixture explicitly synthetic",
+  "root": "/workspace/scratch/c7b51e996a9f/tmp/c03_access_candidate/source",
+  "checks": [
+    {
+      "name": "explicit190 catalogue with no statement ledger admin",
+      "passed": true,
+      "http": []
+    },
+    {
+      "name": "actual CEO source review import and exact replay without cash",
+      "passed": true,
+      "http": [
+        {
+          "method": "POST",
+          "path": "/api/statements/sources/",
+          "status": 201
+        },
+        {
+          "method": "POST",
+          "path": "/api/operations/documents/8/review/",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/api/erp/preview/",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/api/operations/confirm/",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/api/operations/confirm/",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "name": "manager cannot upload financial source before parser",
+      "passed": true,
+      "http": [
+        {
+          "method": "POST",
+          "path": "/api/statements/sources/",
+          "status": 403
+        }
+      ]
+    },
+    {
+      "name": "observer cannot upload financial source before parser",
+      "passed": true,
+      "http": [
+        {
+          "method": "POST",
+          "path": "/api/statements/sources/",
+          "status": 403
+        }
+      ]
+    },
+    {
+      "name": "manager new reads denied including financial summary aliases",
+      "passed": true,
+      "http": [
+        {
+          "method": "GET",
+          "path": "/api/statements/imports/",
+          "status": 403
+        },
+        {
+          "method": "GET",
+          "path": "/api/statements/imports/417a9537-3de8-4bf5-b99c-638cefcb96f0/",
+          "status": 403
+        },
+        {
+          "method": "GET",
+          "path": "/api/statements/imports/417a9537-3de8-4bf5-b99c-638cefcb96f0/export/",
+          "status": 403
+        },
+        {
+          "method": "GET",
+          "path": "/api/statements/lines/",
+          "status": 403
+        },
+        {
+          "method": "GET",
+          "path": "/api/statements/lines/417a9537-3de8-4bf5-b99c-638cefcb96f0/",
+          "status": 403
+        },
+        {
+          "method": "GET",
+          "path": "/api/statements/lines/417a9537-3de8-4bf5-b99c-638cefcb96f0/candidates/",
+          "status": 403
+        },
+        {
+          "method": "GET",
+          "path": "/api/statements/summary/",
+          "status": 403
+        },
+        {
+          "method": "GET",
+          "path": "/api/transactions/summary/",
+          "status": 403
+        },
+        {
+          "method": "GET",
+          "path": "/api/transactions/summary.json",
+          "status": 403
+        },
+        {
+          "method": "GET",
+          "path": "/api/transactions/summary.json/",
+          "status": 403
+        }
+      ]
+    },
+    {
+      "name": "observer new reads denied including financial summary aliases",
+      "passed": true,
+      "http": [
+        {
+          "method": "GET",
+          "path": "/api/statements/imports/",
+          "status": 403
+        },
+        {
+          "method": "GET",
+          "path": "/api/statements/imports/417a9537-3de8-4bf5-b99c-638cefcb96f0/",
+          "status": 403
+        },
+        {
+          "method": "GET",
+          "path": "/api/statements/imports/417a9537-3de8-4bf5-b99c-638cefcb96f0/export/",
+          "status": 403
+        },
+        {
+          "method": "GET",
+          "path": "/api/statements/lines/",
+          "status": 403
+        },
+        {
+          "method": "GET",
+          "path": "/api/statements/lines/417a9537-3de8-4bf5-b99c-638cefcb96f0/",
+          "status": 403
+        },
+        {
+          "method": "GET",
+          "path": "/api/statements/lines/417a9537-3de8-4bf5-b99c-638cefcb96f0/candidates/",
+          "status": 403
+        },
+        {
+          "method": "GET",
+          "path": "/api/statements/summary/",
+          "status": 403
+        },
+        {
+          "method": "GET",
+          "path": "/api/transactions/summary/",
+          "status": 403
+        },
+        {
+          "method": "GET",
+          "path": "/api/transactions/summary.json",
+          "status": 403
+        },
+        {
+          "method": "GET",
+          "path": "/api/transactions/summary.json/",
+          "status": 403
+        }
+      ]
+    },
+    {
+      "name": "CEO exact journal summary three currencies and aliases",
+      "passed": true,
+      "http": [
+        {
+          "method": "GET",
+          "path": "/api/transactions/summary/",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/transactions/summary.json",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/transactions/summary.json/",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "name": "permanent marker hides old document and historical Task source",
+      "passed": true,
+      "http": [
+        {
+          "method": "GET",
+          "path": "/api/operations/documents/8/",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "path": "/api/operations/documents/8/download/",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "path": "/api/tasks/9/",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "path": "/api/tasks/9/history/",
+          "status": 404
+        }
+      ]
+    }
+  ],
+  "passed": 8,
+  "failed": 0,
+  "http_count": 34,
+  "source_sha256": {
+    "scripts/access_routes.json": "182639ea19916ca2c8f4a7c51b1b936e6bcf19d7148f5328b1166d5ca73d8597",
+    "scripts/access_fixtures.py": "6d787e06862fba2149b946a7950b95f02b0877b82cb30ad6c73cd16b6e62b323",
+    "scripts/check_access.py": "0e0f4b6ebd2b2af77d750d466eeb5bc83bce682c5ff0cb3a2688862159ee5694",
+    "finance/views.py": "25530c5b48da5cfe8e6ff0cb672fca7a84ce275a53824f5c26e4a9659cbe254d",
+    "boss_project/policy.py": "eb94c341d19f671d07b3c52b090e6d70c0da2ed12947af72b1fd91d51a83b1a9"
+  },
+  "working_database_opened": false
+}

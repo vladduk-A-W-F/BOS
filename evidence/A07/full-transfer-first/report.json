@@ -1,0 +1,953 @@
+{
+  "complete": true,
+  "scope": "A07 synthetic full-model SQLite transfer rehearsal",
+  "backend": "sqlite",
+  "source_sha256": "8cadf18471827cd626934e736e9f0f0dc985abee41f8908cf457711f85a5aceb",
+  "source_database_sha256": "d99be5acad24a532585415bfcac34e67305cafc10802b6246700a1079e8fd91b",
+  "source_unchanged": true,
+  "table_count": 45,
+  "tables": {
+    "ai_assistant_chatfile": {
+      "count": 1,
+      "rows_sha256": "95a8fd779c988c332a5dd261d601d8275a04cb16cab2c8aab3b3efcad5957cae",
+      "primary_keys_sha256": "8cf982eba5d8f7a93d3c6c916a2cba5a989d2ff93289038338e81083523579a1",
+      "foreign_keys_sha256": "ef42b77b9993147e4bf5f1ec2665a3c5d40a33e860fc23810baabf21515b2bac",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "ai_assistant_chatmessage": {
+      "count": 1,
+      "rows_sha256": "646b143067748ef5017bdcbad6cf88c2177fcb8449061488e574b9c9cfeb3537",
+      "primary_keys_sha256": "8cf982eba5d8f7a93d3c6c916a2cba5a989d2ff93289038338e81083523579a1",
+      "foreign_keys_sha256": "d0c6190bde5c470e62bf717397f97760b2e7c9492ce45b52f8bd007d9eb49552",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "ai_assistant_claudeusagelog": {
+      "count": 0,
+      "rows_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "primary_keys_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "foreign_keys_sha256": "941c47f2dbb1617ac35dbd187eb8aca45e21f91cb9d1d39a13f45ba49ba3a547",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "ai_assistant_employeechangelog": {
+      "count": 0,
+      "rows_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "primary_keys_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "foreign_keys_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "ai_assistant_taskchangelog": {
+      "count": 0,
+      "rows_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "primary_keys_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "foreign_keys_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "auth_group": {
+      "count": 1,
+      "rows_sha256": "4a3ae90764ad3cf19c6e8274ad2f6805dcbc350e9613f7c2bc7fa211698caaa7",
+      "primary_keys_sha256": "8cf982eba5d8f7a93d3c6c916a2cba5a989d2ff93289038338e81083523579a1",
+      "foreign_keys_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "auth_group_permissions": {
+      "count": 0,
+      "rows_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "primary_keys_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "foreign_keys_sha256": "cb9844cbc7982ccb158091b7815186b0970ce8f561d272b9260b7c915d1f0452",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "auth_permission": {
+      "count": 166,
+      "rows_sha256": "65847882f7a3035e2cf1be8476365bebaed84259e0c6813230fda61c1faf3074",
+      "primary_keys_sha256": "4c4025acd9c5fb0e6262dbdf0e2132be013e182faea905ccea80c5b4db85af5a",
+      "foreign_keys_sha256": "39d73aa122325625f6bdd5d77493100c3e4453a7a9c7df6a7c3daa0a5c4a16e9",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "auth_user": {
+      "count": 1,
+      "rows_sha256": "406256c67d35553c08c31ee8b72e7adc323c1cef496628bc392f56632a088292",
+      "primary_keys_sha256": "8cf982eba5d8f7a93d3c6c916a2cba5a989d2ff93289038338e81083523579a1",
+      "foreign_keys_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "auth_user_groups": {
+      "count": 1,
+      "rows_sha256": "4357f1e5dcd7e354e6301fb04550a02086a75599d2bb7ed7d83c3c8f2b03136e",
+      "primary_keys_sha256": "8cf982eba5d8f7a93d3c6c916a2cba5a989d2ff93289038338e81083523579a1",
+      "foreign_keys_sha256": "3fdd878f56b44c7dbc63bf10a88e4765b9e722e3b72c2bb862528d82b22c80c5",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "auth_user_user_permissions": {
+      "count": 0,
+      "rows_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "primary_keys_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "foreign_keys_sha256": "74db8e3c244e77255853ca314632755944da1967ce8575e19d57bd54b3e9203f",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "branches_branch": {
+      "count": 0,
+      "rows_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "primary_keys_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "foreign_keys_sha256": "c680f2753ff652805ee81b51ad413e51da365adf664f187d2be375aea753f66b",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "django_admin_log": {
+      "count": 0,
+      "rows_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "primary_keys_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "foreign_keys_sha256": "d5d21d96045df1d19ebefe12646a947a372e89988f78605c09a51e632dce4b6b",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "django_content_type": {
+      "count": 41,
+      "rows_sha256": "910023fc859f1e23c580ca49d0e8617bf92b6cfb1a142f52da0ea8fdec07cde1",
+      "primary_keys_sha256": "1595ea970e8b39e97579098714c2d0196418a7fd1fcfbc7058bddc9682d3fd85",
+      "foreign_keys_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "django_migrations": {
+      "count": 52,
+      "rows_sha256": "2c5cb972f66268bbf7ea31acf7d0a5b7ad223003fbd8fab145c72bfbe40f422d",
+      "primary_keys_sha256": "3338830c25e752e8cc969f33171c40f3e1293d935575cb2402ef62426a3abd29",
+      "foreign_keys_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "django_session": {
+      "count": 1,
+      "rows_sha256": "4c2e5c7d52dd9198a010ffb5d9fdd58d614773428578d7a0e62b2b84f805d168",
+      "primary_keys_sha256": "af07b5c9ab191cbf240d09197c2bba0dfed1445f34e4cb3659427bf33ccd6d2d",
+      "foreign_keys_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "employees_employee": {
+      "count": 3,
+      "rows_sha256": "17dad4139fa9e324c8866b513f32a94ec6fe5e540a1739ecd2e12d54e9f3cb13",
+      "primary_keys_sha256": "201d208efaaeb0c2b445a83771de47efa01723e8f07f81eea4b733c364fc14b4",
+      "foreign_keys_sha256": "a54a0fe9a058c1d41ef12f11e45ec27ab4f0cd8dd23f2001ab61274477d315dd",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "erp_changeorder": {
+      "count": 0,
+      "rows_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "primary_keys_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "foreign_keys_sha256": "065b7c5d63ee99cf7e3952442a10341d0a4eaf01d1a31d6a05b664b7a6f73164",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "erp_event": {
+      "count": 66,
+      "rows_sha256": "ef9d70619a27f2a0267956f7e7df63db9b181125d762d49500b1f07c4b85bb25",
+      "primary_keys_sha256": "90005d09b6943f98af6be5c0da72b0a7dd81220da983358ccdc887b2be11dfd2",
+      "foreign_keys_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "erp_inspection": {
+      "count": 6,
+      "rows_sha256": "05e9078841de7ac93a6898843e23e6c5cad82d6e10d9eec9b285f31980b7c6a4",
+      "primary_keys_sha256": "acc2a3fea9a14234de6572db85c0959d560d6e0a21f85898c462a8f8fce87c25",
+      "foreign_keys_sha256": "a81cde827c5db849eded3e2f49886be9bcf865d8db86ea43f6481519749ef9f9",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "erp_invoicelink": {
+      "count": 3,
+      "rows_sha256": "f2e11d8bc7705675713a159c9cc5d2d7220969c40a1a3c48fea58d91c0cf4888",
+      "primary_keys_sha256": "201d208efaaeb0c2b445a83771de47efa01723e8f07f81eea4b733c364fc14b4",
+      "foreign_keys_sha256": "d58f67bbba19f37b8c9224d0fa6e30355c795862b42a97a0c56d2adcf836e541",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "erp_item": {
+      "count": 6,
+      "rows_sha256": "e10fb1ecddff40ad645c4808e8dbd527c513eeabef36daafa8dc8964638659f3",
+      "primary_keys_sha256": "acc2a3fea9a14234de6572db85c0959d560d6e0a21f85898c462a8f8fce87c25",
+      "foreign_keys_sha256": "4fb598472988f345f75d3cfe0ca3d4c03783bb0bf4cd289975ccd12d5651690e",
+      "decimal_totals": {
+        "minimum": {
+          "EUR": "0",
+          "UAH": "0",
+          "USD": "0"
+        },
+        "planned_cost": {
+          "EUR": "3",
+          "UAH": "3",
+          "USD": "3"
+        }
+      },
+      "decimal_totals_by_direction": {}
+    },
+    "erp_location": {
+      "count": 6,
+      "rows_sha256": "1fb0010aa5c5c1f828041294a02334e75416f2617d7900f0f3c623b8cb2fb697",
+      "primary_keys_sha256": "acc2a3fea9a14234de6572db85c0959d560d6e0a21f85898c462a8f8fce87c25",
+      "foreign_keys_sha256": "d9ae6daca1d5a35e54b3aeba962ae53682acf8d7302f56e507f520819354143e",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "erp_lot": {
+      "count": 12,
+      "rows_sha256": "be88efb8eee347e1f745d8938d4bf482ea967fed3f5f0712e91ffb860ffa26ac",
+      "primary_keys_sha256": "3fb3bfb4b6307dda5183f81a0ed5f5c92997b4d0c4d9e592c8cc9759c0544e8d",
+      "foreign_keys_sha256": "f229c0a8b1b0425ec53f5f9bc55a1f0c7eb5baa4cdd7886d47c3efe7b025eaa4",
+      "decimal_totals": {
+        "quantity": {
+          "EUR": "15",
+          "UAH": "15",
+          "USD": "15"
+        },
+        "unit_cost": {
+          "EUR": "11",
+          "UAH": "11",
+          "USD": "11"
+        }
+      },
+      "decimal_totals_by_direction": {}
+    },
+    "erp_movement": {
+      "count": 18,
+      "rows_sha256": "90ebd724a4d4ff4ed8a798e9fd9ebf1b95af7d10e2a6f95809420adf7d3e7dab",
+      "primary_keys_sha256": "4f63a6c55e7308a3f43c9bc44e8879ef2332340a82c6a973158dc0b8ef5f24a3",
+      "foreign_keys_sha256": "440110477a38718fd639ac80bf06e3627d549c2ff92c4eb678bcf469e48998e6",
+      "decimal_totals": {
+        "quantity": {
+          "(no currency column)": "45"
+        },
+        "cost": {
+          "(no currency column)": "219"
+        }
+      },
+      "decimal_totals_by_direction": {}
+    },
+    "erp_operatorentry": {
+      "count": 3,
+      "rows_sha256": "ce7e57470df421c8a062933eeabdc79fc39debf4e567edec9a96426b73c83c25",
+      "primary_keys_sha256": "201d208efaaeb0c2b445a83771de47efa01723e8f07f81eea4b733c364fc14b4",
+      "foreign_keys_sha256": "8205f006405f5418e87c63b941d415d21de5bd5944af9eb9fe0641b4f737b715",
+      "decimal_totals": {
+        "defects": {
+          "(no currency column)": "0"
+        }
+      },
+      "decimal_totals_by_direction": {}
+    },
+    "erp_production": {
+      "count": 3,
+      "rows_sha256": "447d5c5c3c8c471c70da5b914908f281c164d952443ac018eb524961116797a5",
+      "primary_keys_sha256": "201d208efaaeb0c2b445a83771de47efa01723e8f07f81eea4b733c364fc14b4",
+      "foreign_keys_sha256": "8ce1030317a6c14b71ae7cbad7d77d0277fec102cf15f0536146d5d613ae4a2c",
+      "decimal_totals": {
+        "quantity": {
+          "EUR": "10",
+          "UAH": "10",
+          "USD": "10"
+        },
+        "produced": {
+          "EUR": "4",
+          "UAH": "4",
+          "USD": "4"
+        },
+        "planned_cost": {
+          "EUR": "30",
+          "UAH": "30",
+          "USD": "30"
+        },
+        "actual_cost": {
+          "EUR": "12",
+          "UAH": "12",
+          "USD": "12"
+        }
+      },
+      "decimal_totals_by_direction": {}
+    },
+    "erp_purchase": {
+      "count": 3,
+      "rows_sha256": "7a100c9e60439363a4ca2cdf72b6c6b2a358d4c7947309ae3d5149b2cc072beb",
+      "primary_keys_sha256": "201d208efaaeb0c2b445a83771de47efa01723e8f07f81eea4b733c364fc14b4",
+      "foreign_keys_sha256": "47a084399b67ec7434a90bf44f829be58722cc7c4c6d45fc0c2f475deeca8425",
+      "decimal_totals": {
+        "quantity": {
+          "EUR": "10",
+          "UAH": "10",
+          "USD": "10"
+        },
+        "received": {
+          "EUR": "7",
+          "UAH": "7",
+          "USD": "7"
+        },
+        "price": {
+          "EUR": "2",
+          "UAH": "2",
+          "USD": "2"
+        },
+        "extras": {
+          "EUR": "10",
+          "UAH": "10",
+          "USD": "10"
+        }
+      },
+      "decimal_totals_by_direction": {}
+    },
+    "erp_reservation": {
+      "count": 9,
+      "rows_sha256": "335a910b31cf215ce18357753f4dfe670199b1e5bd7954a265474a7e1515072d",
+      "primary_keys_sha256": "0b8e65ac55512776c3309c1080766c96af3dc4361d8d679a60ac82355ddb6e00",
+      "foreign_keys_sha256": "1c866e37be2133a3aea815a6027d026a5d32a9c71192ad01632c457bc98611e8",
+      "decimal_totals": {
+        "quantity": {
+          "(no currency column)": "18"
+        }
+      },
+      "decimal_totals_by_direction": {}
+    },
+    "erp_salesline": {
+      "count": 3,
+      "rows_sha256": "a29fbe13c81fe270d24dbcdb6a57aaedad7ae1b09e56f5d0b8dbba58256b7c8f",
+      "primary_keys_sha256": "201d208efaaeb0c2b445a83771de47efa01723e8f07f81eea4b733c364fc14b4",
+      "foreign_keys_sha256": "2ebc7717ed79f97e7e31be242b278a65ee31420e96a32b368470af847da042ff",
+      "decimal_totals": {
+        "quantity": {
+          "(no currency column)": "9"
+        },
+        "price": {
+          "(no currency column)": "15"
+        },
+        "shipped": {
+          "(no currency column)": "9"
+        },
+        "invoiced": {
+          "(no currency column)": "9"
+        }
+      },
+      "decimal_totals_by_direction": {}
+    },
+    "erp_salesorder": {
+      "count": 3,
+      "rows_sha256": "f0abe38425bf97b115e146850103c594489781e85abfe2a50f6b2fc8673e2942",
+      "primary_keys_sha256": "201d208efaaeb0c2b445a83771de47efa01723e8f07f81eea4b733c364fc14b4",
+      "foreign_keys_sha256": "33fe01decefeea8fbf1463a42ca6ceb695038eba82a0b7aee60f54f5ffdd83cd",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "finance_contract": {
+      "count": 0,
+      "rows_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "primary_keys_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "foreign_keys_sha256": "964e7caf606f5f9b9acbb6921e0f41e6365274f4e78f1e5a49ab5d74a0ac883f",
+      "decimal_totals": {
+        "amount": {}
+      },
+      "decimal_totals_by_direction": {}
+    },
+    "finance_counterparty": {
+      "count": 6,
+      "rows_sha256": "befe7c9cdb301de19d94451d90968e3c925ee4533fac738bacc870e8687be125",
+      "primary_keys_sha256": "acc2a3fea9a14234de6572db85c0959d560d6e0a21f85898c462a8f8fce87c25",
+      "foreign_keys_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "finance_financialintent": {
+      "count": 6,
+      "rows_sha256": "a09abefba039a96bd374461d6ad2b8dc92d983c8924d7793425313cc3e5821f1",
+      "primary_keys_sha256": "2ae68a4b182a1f9f7127ffd0ac4aa48a0c3e437b5216a0cba39f070b6673024a",
+      "foreign_keys_sha256": "9c7163712e9c388a85784e313b36cc3976f870b5394fd9d267bf63a1e531a8d5",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "finance_salary": {
+      "count": 3,
+      "rows_sha256": "9a973525d7e6a7d9349cd29297c90b4f7dc1af63ca569e0073efc2ce927e3bea",
+      "primary_keys_sha256": "201d208efaaeb0c2b445a83771de47efa01723e8f07f81eea4b733c364fc14b4",
+      "foreign_keys_sha256": "f7bfafec517cea434dca9658407eb0ba740ed0ccc63f176a9bef64a7ad1c021c",
+      "decimal_totals": {
+        "amount": {
+          "EUR": "100",
+          "UAH": "100",
+          "USD": "100"
+        }
+      },
+      "decimal_totals_by_direction": {}
+    },
+    "finance_transaction": {
+      "count": 6,
+      "rows_sha256": "907a01e1bbc154d0cc9cf4db005a6bc36d8be6b7cdcd373136295f3aa463e1f3",
+      "primary_keys_sha256": "acc2a3fea9a14234de6572db85c0959d560d6e0a21f85898c462a8f8fce87c25",
+      "foreign_keys_sha256": "f80856425cba274d76d44f5cd51d47464fb0ee1ab7fea19edf4517088cdfa8c6",
+      "decimal_totals": {
+        "amount": {
+          "EUR": "300",
+          "UAH": "300",
+          "USD": "300"
+        }
+      },
+      "decimal_totals_by_direction": {
+        "amount": [
+          {
+            "currency": "EUR",
+            "direction": "in",
+            "total": "200"
+          },
+          {
+            "currency": "EUR",
+            "direction": "out",
+            "total": "100"
+          },
+          {
+            "currency": "UAH",
+            "direction": "in",
+            "total": "200"
+          },
+          {
+            "currency": "UAH",
+            "direction": "out",
+            "total": "100"
+          },
+          {
+            "currency": "USD",
+            "direction": "in",
+            "total": "200"
+          },
+          {
+            "currency": "USD",
+            "direction": "out",
+            "total": "100"
+          }
+        ]
+      }
+    },
+    "operations_actionproposal": {
+      "count": 2,
+      "rows_sha256": "c2b86f55c41cb269e4d984aeee2d8aad6f3b05c11d0f1f0c5e2313de33fca66f",
+      "primary_keys_sha256": "b7ae981c7bae39f4738c05d3baf6f6a503e33f609d61748f10b091c4e6e431f3",
+      "foreign_keys_sha256": "82aee9fb22e8f2be5879640f5ac8869178485ea29a11de57a0dd347283a6d5d7",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "operations_auditevent": {
+      "count": 13,
+      "rows_sha256": "ffb020849b357dc15765962c050e66e1bcc3c540b996c1e98d789d8531ffe402",
+      "primary_keys_sha256": "c2882e23451e6bc8125b063714084fe30089bd3afaad64f7181be6eda1518bc2",
+      "foreign_keys_sha256": "b7bef9e123789d89abd102e83896b50e230a8d5f80e5ad512e802d289314fa96",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "operations_configuration": {
+      "count": 2,
+      "rows_sha256": "232fb086cb7ea534a95e89529e1c342ef103742e332c9e04ddf771d7bae1fe50",
+      "primary_keys_sha256": "e429425287b7d78fd5d348dc39f43cc263d03e84960c87d8e20d6be69cbed8cb",
+      "foreign_keys_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "operations_document": {
+      "count": 3,
+      "rows_sha256": "cceb79423f320b1bcbb59c0855aaebf801313a9b70c6aa9bd9d24ceb94f4c447",
+      "primary_keys_sha256": "57fc679511627d376c437b608767fd425c4bbb88be6212e94b1f259b41d6b92c",
+      "foreign_keys_sha256": "368fbda77575728ddd4d4a501d40aee41e68b1dbe1ff2f6f6d2d3ffadb4b73a0",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "operations_invoice": {
+      "count": 3,
+      "rows_sha256": "b98b506302f2e1e0d30ece656db30181d1327bee5077200980982c55e2d3486e",
+      "primary_keys_sha256": "201d208efaaeb0c2b445a83771de47efa01723e8f07f81eea4b733c364fc14b4",
+      "foreign_keys_sha256": "bded033596cb86dde66818b551ea0b3b53b917a7cc5085fca45f9335b63214b6",
+      "decimal_totals": {
+        "amount": {
+          "EUR": "15",
+          "UAH": "15",
+          "USD": "15"
+        },
+        "paid": {
+          "EUR": "5",
+          "UAH": "5",
+          "USD": "5"
+        }
+      },
+      "decimal_totals_by_direction": {}
+    },
+    "operations_loginattempt": {
+      "count": 1,
+      "rows_sha256": "c31f49874613eb8f72f6637324750ca79ba962c93d0bf97d7be7e50398a69e5f",
+      "primary_keys_sha256": "fbaebe902d6e52484a2d933335206dfa9322107a2a13637a6aacc3e3be8a6441",
+      "foreign_keys_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "operations_procurementrequest": {
+      "count": 0,
+      "rows_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "primary_keys_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "foreign_keys_sha256": "60539a7ff425a88249dda831ccbc3a10dc6255aae53ec4457a4efa39892b6ca2",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "operations_supplierquote": {
+      "count": 0,
+      "rows_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "primary_keys_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "foreign_keys_sha256": "34e689705d35404c13cd887a4cd42e3a7ec44c252cc0831cca050bc97538020a",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    },
+    "tasks_task": {
+      "count": 0,
+      "rows_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "primary_keys_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "foreign_keys_sha256": "b912e92d84bb1a28327d5e8c0bd5c5e22e48e4b3eb3fd846195df7e14694aa5b",
+      "decimal_totals": {},
+      "decimal_totals_by_direction": {}
+    }
+  },
+  "sequences_preserved": true,
+  "files_preserved": true,
+  "business_before": {
+    "facts_verified": true,
+    "backend": "sqlite",
+    "facts": {
+      "status": "passed",
+      "format": "bos-a07-latest-fixture/1",
+      "facts": {
+        "EUR": {
+          "raw_quantity": "13.000",
+          "finished_quantity": "2.000",
+          "stock_value": "39.00",
+          "production_actual": "12.00",
+          "invoice_amount": "15.00",
+          "invoice_paid": "5.00",
+          "invoice_open": "10.00",
+          "finance_in": "200.00",
+          "finance_out": "100.00",
+          "finance_net": "100.00"
+        },
+        "USD": {
+          "raw_quantity": "13.000",
+          "finished_quantity": "2.000",
+          "stock_value": "39.00",
+          "production_actual": "12.00",
+          "invoice_amount": "15.00",
+          "invoice_paid": "5.00",
+          "invoice_open": "10.00",
+          "finance_in": "200.00",
+          "finance_out": "100.00",
+          "finance_net": "100.00"
+        },
+        "UAH": {
+          "raw_quantity": "13.000",
+          "finished_quantity": "2.000",
+          "stock_value": "39.00",
+          "production_actual": "12.00",
+          "invoice_amount": "15.00",
+          "invoice_paid": "5.00",
+          "invoice_open": "10.00",
+          "finance_in": "200.00",
+          "finance_out": "100.00",
+          "finance_net": "100.00"
+        }
+      },
+      "model_counts": {
+        "admin.logentry": 0,
+        "ai_assistant.chatfile": 1,
+        "ai_assistant.chatmessage": 1,
+        "ai_assistant.claudeusagelog": 0,
+        "ai_assistant.employeechangelog": 0,
+        "ai_assistant.taskchangelog": 0,
+        "auth.group": 1,
+        "auth.group_permissions": 0,
+        "auth.user": 1,
+        "auth.user_groups": 1,
+        "auth.user_user_permissions": 0,
+        "branches.branch": 0,
+        "employees.employee": 3,
+        "erp.changeorder": 0,
+        "erp.event": 66,
+        "erp.inspection": 6,
+        "erp.invoicelink": 3,
+        "erp.item": 6,
+        "erp.location": 6,
+        "erp.lot": 12,
+        "erp.movement": 18,
+        "erp.operatorentry": 3,
+        "erp.production": 3,
+        "erp.purchase": 3,
+        "erp.reservation": 9,
+        "erp.salesline": 3,
+        "erp.salesorder": 3,
+        "finance.contract": 0,
+        "finance.counterparty": 6,
+        "finance.financialintent": 6,
+        "finance.salary": 3,
+        "finance.transaction": 6,
+        "operations.actionproposal": 2,
+        "operations.auditevent": 13,
+        "operations.configuration": 2,
+        "operations.document": 3,
+        "operations.invoice": 3,
+        "operations.loginattempt": 1,
+        "operations.procurementrequest": 0,
+        "operations.supplierquote": 0,
+        "sessions.session": 1,
+        "tasks.task": 0
+      },
+      "rows_sha256": "8efcbbf44390ab6db50c51e8caf5422c98e916437585a8b57cfeae2c65f5cabf",
+      "documents": {
+        "7": {
+          "id": 7,
+          "code": "A07-SPEC",
+          "revision": "A",
+          "bytes": {
+            "$bytes": "0KHQuNC90YLQtdGC0LjRh9C90LAg0YHQv9C10YbQuNGE0ZbQutCw0YbRltGPIEEgwrcg0IfQhNKQIPCfmYIAQQ==",
+            "sha256": "e777992e54e7c19341de38a19449d75c986d02acf71c169c7a4e1ebdf58d02b4",
+            "size": 64
+          }
+        },
+        "1001": {
+          "id": 1001,
+          "code": "A07-SPEC",
+          "revision": "B",
+          "bytes": {
+            "$bytes": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/9Ch0LjQvdGC0LXRgtC40YfQvdCwINGB0L/QtdGG0LjRhNGW0LrQsNGG0ZbRjyBCIMK3INCH0ITSkCDwn5mC",
+            "sha256": "0ca1f8b55b1843a11d8c5dfc60a2554f29eeb1b5effb799d9aa757c8b571f334",
+            "size": 318
+          }
+        },
+        "90001": {
+          "id": 90001,
+          "code": "A07-TEXT-ONLY",
+          "revision": "A",
+          "bytes": {
+            "$bytes": "",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "size": 0
+          }
+        }
+      },
+      "chat_file": {
+        "$bytes": "AP/+AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/9Ch0LjQvdGC0LXRgtC40YfQvdC40Lkg0YTQsNC50Lsgwrcg0IfQhNKQIPCfmYI=",
+        "sha256": "57cc50404f044a9b62bfb03f49d5e6358b165c9fbda8fb68db18b3780ec56679",
+        "size": 305
+      }
+    }
+  },
+  "business_after": {
+    "facts_verified": true,
+    "backend": "sqlite",
+    "facts": {
+      "status": "passed",
+      "format": "bos-a07-latest-fixture/1",
+      "facts": {
+        "EUR": {
+          "raw_quantity": "13.000",
+          "finished_quantity": "2.000",
+          "stock_value": "39.00",
+          "production_actual": "12.00",
+          "invoice_amount": "15.00",
+          "invoice_paid": "5.00",
+          "invoice_open": "10.00",
+          "finance_in": "200.00",
+          "finance_out": "100.00",
+          "finance_net": "100.00"
+        },
+        "USD": {
+          "raw_quantity": "13.000",
+          "finished_quantity": "2.000",
+          "stock_value": "39.00",
+          "production_actual": "12.00",
+          "invoice_amount": "15.00",
+          "invoice_paid": "5.00",
+          "invoice_open": "10.00",
+          "finance_in": "200.00",
+          "finance_out": "100.00",
+          "finance_net": "100.00"
+        },
+        "UAH": {
+          "raw_quantity": "13.000",
+          "finished_quantity": "2.000",
+          "stock_value": "39.00",
+          "production_actual": "12.00",
+          "invoice_amount": "15.00",
+          "invoice_paid": "5.00",
+          "invoice_open": "10.00",
+          "finance_in": "200.00",
+          "finance_out": "100.00",
+          "finance_net": "100.00"
+        }
+      },
+      "model_counts": {
+        "admin.logentry": 0,
+        "ai_assistant.chatfile": 1,
+        "ai_assistant.chatmessage": 1,
+        "ai_assistant.claudeusagelog": 0,
+        "ai_assistant.employeechangelog": 0,
+        "ai_assistant.taskchangelog": 0,
+        "auth.group": 1,
+        "auth.group_permissions": 0,
+        "auth.user": 1,
+        "auth.user_groups": 1,
+        "auth.user_user_permissions": 0,
+        "branches.branch": 0,
+        "employees.employee": 3,
+        "erp.changeorder": 0,
+        "erp.event": 66,
+        "erp.inspection": 6,
+        "erp.invoicelink": 3,
+        "erp.item": 6,
+        "erp.location": 6,
+        "erp.lot": 12,
+        "erp.movement": 18,
+        "erp.operatorentry": 3,
+        "erp.production": 3,
+        "erp.purchase": 3,
+        "erp.reservation": 9,
+        "erp.salesline": 3,
+        "erp.salesorder": 3,
+        "finance.contract": 0,
+        "finance.counterparty": 6,
+        "finance.financialintent": 6,
+        "finance.salary": 3,
+        "finance.transaction": 6,
+        "operations.actionproposal": 2,
+        "operations.auditevent": 13,
+        "operations.configuration": 2,
+        "operations.document": 3,
+        "operations.invoice": 3,
+        "operations.loginattempt": 1,
+        "operations.procurementrequest": 0,
+        "operations.supplierquote": 0,
+        "sessions.session": 1,
+        "tasks.task": 0
+      },
+      "rows_sha256": "8efcbbf44390ab6db50c51e8caf5422c98e916437585a8b57cfeae2c65f5cabf",
+      "documents": {
+        "7": {
+          "id": 7,
+          "code": "A07-SPEC",
+          "revision": "A",
+          "bytes": {
+            "$bytes": "0KHQuNC90YLQtdGC0LjRh9C90LAg0YHQv9C10YbQuNGE0ZbQutCw0YbRltGPIEEgwrcg0IfQhNKQIPCfmYIAQQ==",
+            "sha256": "e777992e54e7c19341de38a19449d75c986d02acf71c169c7a4e1ebdf58d02b4",
+            "size": 64
+          }
+        },
+        "1001": {
+          "id": 1001,
+          "code": "A07-SPEC",
+          "revision": "B",
+          "bytes": {
+            "$bytes": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/9Ch0LjQvdGC0LXRgtC40YfQvdCwINGB0L/QtdGG0LjRhNGW0LrQsNGG0ZbRjyBCIMK3INCH0ITSkCDwn5mC",
+            "sha256": "0ca1f8b55b1843a11d8c5dfc60a2554f29eeb1b5effb799d9aa757c8b571f334",
+            "size": 318
+          }
+        },
+        "90001": {
+          "id": 90001,
+          "code": "A07-TEXT-ONLY",
+          "revision": "A",
+          "bytes": {
+            "$bytes": "",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "size": 0
+          }
+        }
+      },
+      "chat_file": {
+        "$bytes": "AP/+AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/9Ch0LjQvdGC0LXRgtC40YfQvdC40Lkg0YTQsNC50Lsgwrcg0IfQhNKQIPCfmYI=",
+        "sha256": "57cc50404f044a9b62bfb03f49d5e6358b165c9fbda8fb68db18b3780ec56679",
+        "size": 305
+      }
+    }
+  },
+  "accounting_totals": {
+    "stock": {
+      "lot_count": 12,
+      "movement_count": 18,
+      "recorded_cost_basis_by_currency": {
+        "EUR": "39",
+        "USD": "39",
+        "UAH": "39"
+      },
+      "quantity_by_item": {
+        "1": {
+          "stock": "13",
+          "movements": "13"
+        },
+        "2": {
+          "stock": "2",
+          "movements": "2"
+        },
+        "3": {
+          "stock": "13",
+          "movements": "13"
+        },
+        "4": {
+          "stock": "2",
+          "movements": "2"
+        },
+        "5": {
+          "stock": "13",
+          "movements": "13"
+        },
+        "6": {
+          "stock": "2",
+          "movements": "2"
+        }
+      }
+    },
+    "finance": {
+      "salary_rows": 3,
+      "transaction_rows": 6,
+      "salary_amounts": [
+        {
+          "currency": "EUR",
+          "status": "paid",
+          "amount": "100"
+        },
+        {
+          "currency": "UAH",
+          "status": "paid",
+          "amount": "100"
+        },
+        {
+          "currency": "USD",
+          "status": "paid",
+          "amount": "100"
+        }
+      ],
+      "transaction_amounts": [
+        {
+          "currency": "EUR",
+          "direction": "in",
+          "amount": "200"
+        },
+        {
+          "currency": "EUR",
+          "direction": "out",
+          "amount": "100"
+        },
+        {
+          "currency": "UAH",
+          "direction": "in",
+          "amount": "200"
+        },
+        {
+          "currency": "UAH",
+          "direction": "out",
+          "amount": "100"
+        },
+        {
+          "currency": "USD",
+          "direction": "in",
+          "amount": "200"
+        },
+        {
+          "currency": "USD",
+          "direction": "out",
+          "amount": "100"
+        }
+      ]
+    }
+  },
+  "accounting_warnings": [],
+  "sequence_proof": {
+    "proof": true,
+    "backend": "sqlite",
+    "old_max": 90001,
+    "source_high_water": 90001,
+    "next_ids": [
+      90002,
+      90003
+    ],
+    "replay": {
+      "status": "passed",
+      "completed_proposal_id": "105bf9c0-c87a-4d4f-8afa-2c710a966390",
+      "http_receipt_equal": true,
+      "mutex_increment": 1,
+      "financial_replays": {
+        "EUR": {
+          "salary_id": 1,
+          "expense_id": 1,
+          "income_id": 2,
+          "same_sources": true
+        },
+        "USD": {
+          "salary_id": 2,
+          "expense_id": 3,
+          "income_id": 4,
+          "same_sources": true
+        },
+        "UAH": {
+          "salary_id": 3,
+          "expense_id": 5,
+          "income_id": 6,
+          "same_sources": true
+        }
+      },
+      "facts": {
+        "EUR": {
+          "raw_quantity": "13.000",
+          "finished_quantity": "2.000",
+          "stock_value": "39.00",
+          "production_actual": "12.00",
+          "invoice_amount": "15.00",
+          "invoice_paid": "5.00",
+          "invoice_open": "10.00",
+          "finance_in": "200.00",
+          "finance_out": "100.00",
+          "finance_net": "100.00"
+        },
+        "USD": {
+          "raw_quantity": "13.000",
+          "finished_quantity": "2.000",
+          "stock_value": "39.00",
+          "production_actual": "12.00",
+          "invoice_amount": "15.00",
+          "invoice_paid": "5.00",
+          "invoice_open": "10.00",
+          "finance_in": "200.00",
+          "finance_out": "100.00",
+          "finance_net": "100.00"
+        },
+        "UAH": {
+          "raw_quantity": "13.000",
+          "finished_quantity": "2.000",
+          "stock_value": "39.00",
+          "production_actual": "12.00",
+          "invoice_amount": "15.00",
+          "invoice_paid": "5.00",
+          "invoice_open": "10.00",
+          "finance_in": "200.00",
+          "finance_out": "100.00",
+          "finance_net": "100.00"
+        }
+      },
+      "rows_sha256": "432b854e25e5a3953a9df1283a4389a244b7d3e96c8ba86cd4a03e0879f09877"
+    }
+  },
+  "rollback_source_verified": true,
+  "target_unchanged_by_proof": true,
+  "not_checked": [
+    "real_customer_data",
+    "postgresql",
+    "production_cutover",
+    "A09_A10_installation_upgrade"
+  ]
+}

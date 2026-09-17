@@ -1,0 +1,85 @@
+--- a/scripts/server_http_checks.py
++++ b/scripts/server_http_checks.py
+@@ -9,13 +9,46 @@
+ import json
+ import secrets
+ import time
++import threading
+ from urllib.parse import urlsplit
++
++
++def request_with_early_response(connection, method, path, body, headers):
++    """Read an actual early HTTP refusal while sending the proposed body.
++
++    Oversize servers can close before sendall finishes. A sender OSError never
++    substitutes for an HTTP response: the caller must still observe status 413.
++    Keep the exact socket so HTTPConnection cannot reopen during this transfer.
++    """
++    connection.request(method, path, headers={**headers, 'Content-Length': str(len(body))})
++    wire = connection.sock
++    transfer = {'sent_bytes': 0, 'sender_error': None}
++    def send_body():
++        try:
++            for offset in range(0, len(body), 65536):
++                chunk = body[offset:offset + 65536]
++                wire.sendall(chunk)
++                transfer['sent_bytes'] += len(chunk)
++        except OSError as error:
++            transfer['sender_error'] = type(error).__name__
++    sender = threading.Thread(target=send_body, daemon=True)
++    sender.start()
++    try:
++        response = connection.getresponse()
++        data, received = response.read(), response.getheaders()
++        return response.status, data, received, transfer
++    finally:
++        connection.close()
++        wire.close()
++        sender.join(timeout=9)
++        if sender.is_alive():
++            raise RuntimeError('HTTP body sender did not terminate')
+ 
+ 
+ def exercise_https(*, origin, http_port, context, password, canary_values, private_snapshot, checks):
+     https_port = urlsplit(origin).port or 443
+     cookies = {}
+-    def request(method, path, body=None, *, extra=None, csrf=True, plain=False, remember=True):
++    def request(method, path, body=None, *, extra=None, csrf=True, plain=False, remember=True, early_response=False):
+         headers = {'Host': f'localhost:{http_port if plain else https_port}'}
+         if cookies:
+             headers['Cookie'] = '; '.join(k + '=' + v for k, v in cookies.items())
+@@ -30,9 +63,13 @@
+         conn = (http.client.HTTPConnection('127.0.0.1', http_port, timeout=8) if plain else
+                 http.client.HTTPSConnection('localhost', https_port, context=context, timeout=8))
+         try:
+-            conn.request(method, path, body=body, headers=headers)
+-            response = conn.getresponse()
+-            data, received = response.read(), response.getheaders()
++            if early_response:
++                status, data, received, _transfer = request_with_early_response(conn, method, path, body, headers)
++            else:
++                conn.request(method, path, body=body, headers=headers)
++                response = conn.getresponse()
++                status = response.status
++                data, received = response.read(), response.getheaders()
+             if remember:
+                 for name, value in received:
+                     if name.lower() == 'set-cookie':
+@@ -41,7 +78,7 @@
+                             if morsel.value and morsel.value not in canary_values:
+                                 canary_values.append(morsel.value)
+                         cookies.update({k: v.value for k, v in parsed.items()})
+-            return response.status, data, dict(received), received
++            return status, data, dict(received), received
+         finally:
+             conn.close()
+     deadline = time.monotonic() + 10
+@@ -124,7 +161,7 @@
+     status, before_documents, _, _ = request('GET', '/api/operations/documents/')
+     assert status == 200
+     status, body, _, _ = request('POST', '/api/operations/documents/upload/', b'x' * (13 * 1024 * 1024),
+-        extra={'Content-Type': 'application/octet-stream'})
++        extra={'Content-Type': 'application/octet-stream'}, early_response=True)
+     assert status == 413, ('oversized request', status)
+     status, after_documents, _, _ = request('GET', '/api/operations/documents/')
+     assert status == 200 and before_documents == after_documents

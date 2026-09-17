@@ -1,0 +1,54 @@
+{
+  "scope": "Actual extracted UI closures and independent SHA256 expected identity; controlled responses, no API/browser",
+  "source_sha256": "4c681814518937d35f4617499ffc36e81176a75471eddd9bfa672112e0b804ec",
+  "checks": [
+    {
+      "name": "import stores exact digest before first POST without raw account metadata",
+      "passed": true,
+      "actual": [
+        {
+          "proposal_id": "46dfd4b4-7666-4caa-8284-7d4705ab2cd2",
+          "action": "erp_statement_import",
+          "line_id": null,
+          "document_id": 27,
+          "allocation_keys": [],
+          "source_identity_sha256": "bcad6dbc7434424ad4421ef2e25ecfd90edd4a894cab71c516cca2a7fbbea7af"
+        }
+      ]
+    },
+    {
+      "name": "legal domain replay accepts first Document differing from uploaded Document",
+      "passed": true
+    },
+    {
+      "name": "first confirm rejects wrong domain receipt and retains same pending ID",
+      "passed": true
+    },
+    {
+      "name": "reopened pending uses same proposal and source digest while accepting first Document replay",
+      "passed": true
+    },
+    {
+      "name": "missing/invalid digest keeps unknown IDs and never sends new confirm null",
+      "passed": true
+    },
+    {
+      "name": "missing/invalid digest keeps unknown IDs and never sends new confirm invalid",
+      "passed": true
+    },
+    {
+      "name": "no-change import preview verifies canonical source identity too",
+      "passed": false
+    },
+    {
+      "name": "same payload with wrong effect amount cannot expose confirm",
+      "passed": true
+    },
+    {
+      "name": "unreadable successful upload response preserves unknown source intent",
+      "passed": false
+    }
+  ],
+  "passed": 7,
+  "failed": 2
+}

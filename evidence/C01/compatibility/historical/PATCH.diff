@@ -1,0 +1,28 @@
+--- a/erp/test_schema_preflight.py
++++ b/erp/test_schema_preflight.py
+@@ -28,8 +28,10 @@
+ executor = MigrationExecutor(connection)
+ targets = executor.loader.graph.leaf_nodes()
+ if sys.argv[1] == 'historical':
++    # C01 tasks0005 depends on ERP0005; retain the actual pre-C01 graph here.
+     old = {'erp':'0001_initial', 'finance':'0006_financialintent',
+-           'operations':'0004_alter_document_options_document_access_level'}
++           'operations':'0004_alter_document_options_document_access_level',
++           'tasks':'0004_task_branch'}
+     targets = [(app, old.get(app, name)) for app, name in targets]
+ executor.migrate(targets)
+ connection.close()
+--- a/operations/test_document_migration.py
++++ b/operations/test_document_migration.py
+@@ -88,9 +88,10 @@
+     from django.db.migrations.executor import MigrationExecutor
+ 
+     executor = MigrationExecutor(connection)
++    # C01 tasks0005 would pull ERP0005 and A08 back into this historical source.
+     previous = {'operations': '0005_invoice_boundaries',
+         'ai_assistant': '0008_chatmessage_archived_at_chatmessage_user_and_more',
+-        'erp': '0002_row_boundaries'}
++        'erp': '0002_row_boundaries', 'tasks': '0004_task_branch'}
+     targets = [(app, previous.get(app, migration))
+                for app, migration in executor.loader.graph.leaf_nodes()]
+     executor.migrate(targets)

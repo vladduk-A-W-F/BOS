@@ -1,0 +1,90 @@
+Creating test database for alias 'default' ('/workspace/scratch/c7b51e996a9f/tmp/c03_concurrency_candidate/check_f0ea1f8be1d54d679719361a6a0754a7.sqlite3_django_test')...
+Destroying old test database for alias 'default' ('/workspace/scratch/c7b51e996a9f/tmp/c03_concurrency_candidate/check_f0ea1f8be1d54d679719361a6a0754a7.sqlite3_django_test')...
+Found 5 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: django_filters, messages, rest_framework, staticfiles
+  Apply all migrations: admin, ai_assistant, auth, branches, contenttypes, employees, erp, finance, operations, sessions, tasks
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying ai_assistant.0001_initial... OK
+  Applying ai_assistant.0002_taskchangelog... OK
+  Applying ai_assistant.0003_claudeusagelog... OK
+  Applying ai_assistant.0004_employeechangelog... OK
+  Applying ai_assistant.0005_chatfile... OK
+  Applying ai_assistant.0006_alter_chatmessage_created_at_and_more... OK
+  Applying ai_assistant.0007_employeechangelog_undone_at... OK
+  Applying ai_assistant.0008_chatmessage_archived_at_chatmessage_user_and_more... OK
+  Applying ai_assistant.0009_private_documents... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying branches.0001_initial... OK
+  Applying branches.0002_branch_short_name... OK
+  Applying branches.0003_fill_short_names... OK
+  Applying employees.0001_initial... OK
+  Applying employees.0002_alter_employee_department... OK
+  Applying employees.0003_employee_branch... OK
+  Applying employees.0004_employee_archived_at... OK
+  Applying employees.0005_employee_user... OK
+  Applying tasks.0001_initial... OK
+  Applying tasks.0002_alter_task_priority... OK
+  Applying tasks.0003_alter_task_deadline_alter_task_priority_and_more... OK
+  Applying tasks.0004_task_branch... OK
+  Applying finance.0001_initial... OK
+  Applying finance.0002_alter_salary_unique_together_alter_contract_status_and_more... OK
+  Applying finance.0003_transaction_branch... OK
+  Applying operations.0001_initial... OK
+  Applying operations.0002_actionproposal_user... OK
+  Applying operations.0003_loginattempt... OK
+  Applying operations.0004_alter_document_options_document_access_level... OK
+  Applying operations.0005_invoice_boundaries... OK
+  Applying operations.0006_private_documents... OK
+  Applying finance.0004_salary_archived_at_transaction_archived_at_and_more... OK
+  Applying finance.0005_alter_transaction_branch_alter_transaction_contract_and_more... OK
+  Applying finance.0006_financialintent... OK
+  Applying finance.0007_money_boundaries... OK
+  Applying erp.0001_initial... OK
+  Applying erp.0002_row_boundaries... OK
+  Applying erp.0003_purchase_source... OK
+  Applying erp.0004_initial_import_ledger... OK
+  Applying erp.0005_source_corrections... OK
+  Applying finance.0008_statement_ledgers... OK
+  Applying sessions.0001_initial... OK
+  Applying tasks.0005_controlled_tasks...test_distinct_import_proposals_same_source_have_one_immutable_effect (finance.test_statement_concurrency.StatementConcurrencyTests.test_distinct_import_proposals_same_source_have_one_immutable_effect) ... ok
+test_distinct_reconcile_proposals_same_allocation_key_have_one_cash_payment (finance.test_statement_concurrency.StatementConcurrencyTests.test_distinct_reconcile_proposals_same_allocation_key_have_one_cash_payment) ... ok
+test_held_transaction_writes_serialize_before_reconcile_fingerprint_and_binding (finance.test_statement_concurrency.StatementConcurrencyTests.test_held_transaction_writes_serialize_before_reconcile_fingerprint_and_binding) ... ok
+test_http_pair_statement_import (finance.test_statement_concurrency.StatementConcurrencyTests.test_http_pair_statement_import) ... ok
+test_http_pair_statement_reconcile (finance.test_statement_concurrency.StatementConcurrencyTests.test_http_pair_statement_reconcile) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 5.228s
+
+OK
+Destroying test database for alias 'default' ('/workspace/scratch/c7b51e996a9f/tmp/c03_concurrency_candidate/check_f0ea1f8be1d54d679719361a6a0754a7.sqlite3_django_test')...
+ OK
+System check identified no issues (0 silenced).
+C03_HELD_TRANSACTION {"currency": "EUR", "actual_vendor": "sqlite", "patch_then_reconcile_statuses": [200, 409], "reconcile_then_patch_statuses": [200, 400], "bound_edit_retry_status": 400, "first_trace": ["erp_mutex"], "reverse_trace": ["transaction"], "first_lock": {"waited": false, "controlled_conflict_while_held": true, "uncommitted_business_not_visible": true}, "reverse_lock": {"waited": true, "controlled_conflict_while_held": false, "uncommitted_business_not_visible": true}, "stale_reconcile_refused": true, "bound_source_edit_refused": true}
+C03_HELD_TRANSACTION {"currency": "USD", "actual_vendor": "sqlite", "patch_then_reconcile_statuses": [200, 409], "reconcile_then_patch_statuses": [200, 400], "bound_edit_retry_status": 400, "first_trace": ["erp_mutex"], "reverse_trace": ["transaction"], "first_lock": {"waited": false, "controlled_conflict_while_held": true, "uncommitted_business_not_visible": true}, "reverse_lock": {"waited": true, "controlled_conflict_while_held": false, "uncommitted_business_not_visible": true}, "stale_reconcile_refused": true, "bound_source_edit_refused": true}
+C03_HELD_TRANSACTION {"currency": "UAH", "actual_vendor": "sqlite", "patch_then_reconcile_statuses": [200, 409], "reconcile_then_patch_statuses": [200, 400], "bound_edit_retry_status": 400, "first_trace": ["erp_mutex"], "reverse_trace": ["transaction"], "first_lock": {"waited": false, "controlled_conflict_while_held": true, "uncommitted_business_not_visible": true}, "reverse_lock": {"waited": true, "controlled_conflict_while_held": false, "uncommitted_business_not_visible": true}, "stale_reconcile_refused": true, "bound_source_edit_refused": true}
+A06_PASS {"mode": "http", "action": "statement_import", "currency": "EUR", "inventory_id": "ERP-statement_import", "erp_event_id": 22, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PASS {"mode": "http", "action": "statement_import", "currency": "USD", "inventory_id": "ERP-statement_import", "erp_event_id": 23, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}
+A06_PASS {"mode": "http", "action": "statement_import", "currency": "UAH", "inventory_id": "ERP-statement_import", "erp_event_id": 24, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PASS {"mode": "http", "action": "statement_reconcile", "currency": "EUR", "inventory_id": "ERP-statement_reconcile", "erp_event_id": 27, "statuses": [409, 200], "one_effect": true, "replay_unchanged": true}
+A06_PASS {"mode": "http", "action": "statement_reconcile", "currency": "USD", "inventory_id": "ERP-statement_reconcile", "erp_event_id": 30, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}
+A06_PASS {"mode": "http", "action": "statement_reconcile", "currency": "UAH", "inventory_id": "ERP-statement_reconcile", "erp_event_id": 33, "statuses": [200, 409], "one_effect": true, "replay_unchanged": true}

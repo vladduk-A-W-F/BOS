@@ -1,0 +1,716 @@
+test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) ... 
+  test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) (key='permissions') ... FAIL
+  test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) (key='authentication') ... FAIL
+  test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) (key='BOS_DATA_MODE') ... FAIL
+  test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) (key='DEBUG') ... FAIL
+  test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) (key='SESSION_COOKIE_SECURE') ... FAIL
+  test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) (key='CSRF_COOKIE_SECURE') ... FAIL
+  test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) (key='SECURE_SSL_HOST') ... FAIL
+  test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) (key='remove_middleware') ... FAIL
+  test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) (key='remove_middleware') ... FAIL
+  test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) (key='MIDDLEWARE') ... FAIL
+test_empty_wildcard_foreign_hosts_and_invalid_origins_refused (__main__.A09ServerConfigurationTests.test_empty_wildcard_foreign_hosts_and_invalid_origins_refused) ... 
+  test_empty_wildcard_foreign_hosts_and_invalid_origins_refused (__main__.A09ServerConfigurationTests.test_empty_wildcard_foreign_hosts_and_invalid_origins_refused) (key='BOS_ALLOWED_HOSTS', value='') ... FAIL
+  test_empty_wildcard_foreign_hosts_and_invalid_origins_refused (__main__.A09ServerConfigurationTests.test_empty_wildcard_foreign_hosts_and_invalid_origins_refused) (key='BOS_ALLOWED_HOSTS', value='*') ... FAIL
+  test_empty_wildcard_foreign_hosts_and_invalid_origins_refused (__main__.A09ServerConfigurationTests.test_empty_wildcard_foreign_hosts_and_invalid_origins_refused) (key='BOS_ALLOWED_HOSTS', value='.example.test') ... FAIL
+  test_empty_wildcard_foreign_hosts_and_invalid_origins_refused (__main__.A09ServerConfigurationTests.test_empty_wildcard_foreign_hosts_and_invalid_origins_refused) (key='BOS_ALLOWED_HOSTS', value='other.example.test') ... FAIL
+  test_empty_wildcard_foreign_hosts_and_invalid_origins_refused (__main__.A09ServerConfigurationTests.test_empty_wildcard_foreign_hosts_and_invalid_origins_refused) (key='BOS_PUBLIC_ORIGIN', value='http://bos.example.test:8443') ... FAIL
+  test_empty_wildcard_foreign_hosts_and_invalid_origins_refused (__main__.A09ServerConfigurationTests.test_empty_wildcard_foreign_hosts_and_invalid_origins_refused) (key='BOS_PUBLIC_ORIGIN', value='https://user:password@bos.example.test') ... FAIL
+  test_empty_wildcard_foreign_hosts_and_invalid_origins_refused (__main__.A09ServerConfigurationTests.test_empty_wildcard_foreign_hosts_and_invalid_origins_refused) (key='BOS_PUBLIC_ORIGIN', value='https://bos.example.test/path') ... FAIL
+  test_empty_wildcard_foreign_hosts_and_invalid_origins_refused (__main__.A09ServerConfigurationTests.test_empty_wildcard_foreign_hosts_and_invalid_origins_refused) (key='BOS_PUBLIC_ORIGIN', value='https://bos.example.test?secret=canary') ... FAIL
+test_forwarded_headers_apply_only_from_defined_peer (__main__.A09ServerConfigurationTests.test_forwarded_headers_apply_only_from_defined_peer) ... 
+  test_forwarded_headers_apply_only_from_defined_peer (__main__.A09ServerConfigurationTests.test_forwarded_headers_apply_only_from_defined_peer) (proxy={'peer': '127.0.0.1'}) ... FAIL
+  test_forwarded_headers_apply_only_from_defined_peer (__main__.A09ServerConfigurationTests.test_forwarded_headers_apply_only_from_defined_peer) (proxy={'peer': '203.0.113.19'}) ... FAIL
+  test_forwarded_headers_apply_only_from_defined_peer (__main__.A09ServerConfigurationTests.test_forwarded_headers_apply_only_from_defined_peer) (proxy={'peer': '127.0.0.1', 'proto': 'https,http'}) ... FAIL
+  test_forwarded_headers_apply_only_from_defined_peer (__main__.A09ServerConfigurationTests.test_forwarded_headers_apply_only_from_defined_peer) (proxy={'peer': '127.0.0.1', 'client': '198.51.100.18,198.51.100.19'}) ... FAIL
+test_missing_demo_and_weak_secrets_refused_before_io (__main__.A09ServerConfigurationTests.test_missing_demo_and_weak_secrets_refused_before_io) ... 
+  test_missing_demo_and_weak_secrets_refused_before_io (__main__.A09ServerConfigurationTests.test_missing_demo_and_weak_secrets_refused_before_io) (value_type='absent') ... FAIL
+  test_missing_demo_and_weak_secrets_refused_before_io (__main__.A09ServerConfigurationTests.test_missing_demo_and_weak_secrets_refused_before_io) (value_type='invalid secret') ... FAIL
+  test_missing_demo_and_weak_secrets_refused_before_io (__main__.A09ServerConfigurationTests.test_missing_demo_and_weak_secrets_refused_before_io) (value_type='invalid secret') ... FAIL
+  test_missing_demo_and_weak_secrets_refused_before_io (__main__.A09ServerConfigurationTests.test_missing_demo_and_weak_secrets_refused_before_io) (value_type='invalid secret') ... FAIL
+  test_missing_demo_and_weak_secrets_refused_before_io (__main__.A09ServerConfigurationTests.test_missing_demo_and_weak_secrets_refused_before_io) (value_type='invalid secret') ... FAIL
+  test_missing_demo_and_weak_secrets_refused_before_io (__main__.A09ServerConfigurationTests.test_missing_demo_and_weak_secrets_refused_before_io) (value_type='invalid secret') ... FAIL
+test_nonisolated_and_aliased_paths_refused (__main__.A09ServerConfigurationTests.test_nonisolated_and_aliased_paths_refused) ... 
+  test_nonisolated_and_aliased_paths_refused (__main__.A09ServerConfigurationTests.test_nonisolated_and_aliased_paths_refused) (index=0) ... FAIL
+  test_nonisolated_and_aliased_paths_refused (__main__.A09ServerConfigurationTests.test_nonisolated_and_aliased_paths_refused) (index=1) ... FAIL
+  test_nonisolated_and_aliased_paths_refused (__main__.A09ServerConfigurationTests.test_nonisolated_and_aliased_paths_refused) (index=2) ... FAIL
+  test_nonisolated_and_aliased_paths_refused (__main__.A09ServerConfigurationTests.test_nonisolated_and_aliased_paths_refused) (index=3) ... FAIL
+  test_nonisolated_and_aliased_paths_refused (__main__.A09ServerConfigurationTests.test_nonisolated_and_aliased_paths_refused) (index=4) ... FAIL
+  test_nonisolated_and_aliased_paths_refused (__main__.A09ServerConfigurationTests.test_nonisolated_and_aliased_paths_refused) (index=5) ... FAIL
+  test_nonisolated_and_aliased_paths_refused (__main__.A09ServerConfigurationTests.test_nonisolated_and_aliased_paths_refused) (index=6) ... FAIL
+  test_nonisolated_and_aliased_paths_refused (__main__.A09ServerConfigurationTests.test_nonisolated_and_aliased_paths_refused) (index=7) ... FAIL
+  test_nonisolated_and_aliased_paths_refused (__main__.A09ServerConfigurationTests.test_nonisolated_and_aliased_paths_refused) (index=8) ... FAIL
+test_proxy_config_requires_explicit_exact_peers (__main__.A09ServerConfigurationTests.test_proxy_config_requires_explicit_exact_peers) ... 
+  test_proxy_config_requires_explicit_exact_peers (__main__.A09ServerConfigurationTests.test_proxy_config_requires_explicit_exact_peers) (peers='') ... FAIL
+  test_proxy_config_requires_explicit_exact_peers (__main__.A09ServerConfigurationTests.test_proxy_config_requires_explicit_exact_peers) (peers='*') ... FAIL
+  test_proxy_config_requires_explicit_exact_peers (__main__.A09ServerConfigurationTests.test_proxy_config_requires_explicit_exact_peers) (peers='0.0.0.0') ... FAIL
+  test_proxy_config_requires_explicit_exact_peers (__main__.A09ServerConfigurationTests.test_proxy_config_requires_explicit_exact_peers) (peers='::') ... FAIL
+  test_proxy_config_requires_explicit_exact_peers (__main__.A09ServerConfigurationTests.test_proxy_config_requires_explicit_exact_peers) (peers='127.0.0.0/8') ... FAIL
+  test_proxy_config_requires_explicit_exact_peers (__main__.A09ServerConfigurationTests.test_proxy_config_requires_explicit_exact_peers) (peers='127.0.0.1,127.0.0.1') ... FAIL
+test_two_clean_explicit_profiles_create_application_without_io (__main__.A09ServerConfigurationTests.test_two_clean_explicit_profiles_create_application_without_io) ... FAIL
+test_wrong_entrypoint_modes_and_backend_refused_before_io (__main__.A09ServerConfigurationTests.test_wrong_entrypoint_modes_and_backend_refused_before_io) ... 
+  test_wrong_entrypoint_modes_and_backend_refused_before_io (__main__.A09ServerConfigurationTests.test_wrong_entrypoint_modes_and_backend_refused_before_io) (key='DJANGO_SETTINGS_MODULE', value='demo_settings') ... FAIL
+  test_wrong_entrypoint_modes_and_backend_refused_before_io (__main__.A09ServerConfigurationTests.test_wrong_entrypoint_modes_and_backend_refused_before_io) (key='DJANGO_SETTINGS_MODULE', value='verification_settings') ... FAIL
+  test_wrong_entrypoint_modes_and_backend_refused_before_io (__main__.A09ServerConfigurationTests.test_wrong_entrypoint_modes_and_backend_refused_before_io) (key='DJANGO_SETTINGS_MODULE', value='boss_project.settings') ... FAIL
+  test_wrong_entrypoint_modes_and_backend_refused_before_io (__main__.A09ServerConfigurationTests.test_wrong_entrypoint_modes_and_backend_refused_before_io) (key='BOS_DATA_MODE', value=None) ... FAIL
+  test_wrong_entrypoint_modes_and_backend_refused_before_io (__main__.A09ServerConfigurationTests.test_wrong_entrypoint_modes_and_backend_refused_before_io) (key='BOS_DATA_MODE', value='demo') ... FAIL
+  test_wrong_entrypoint_modes_and_backend_refused_before_io (__main__.A09ServerConfigurationTests.test_wrong_entrypoint_modes_and_backend_refused_before_io) (key='BOS_DATABASE_ENGINE', value=None) ... FAIL
+  test_wrong_entrypoint_modes_and_backend_refused_before_io (__main__.A09ServerConfigurationTests.test_wrong_entrypoint_modes_and_backend_refused_before_io) (key='BOS_DATABASE_ENGINE', value='postgresql') ... FAIL
+
+======================================================================
+FAIL: test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) (key='permissions')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 203, in test_effective_configuration_is_checked_after_module_import
+    self.refused(mutation=mutation)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_effective_configuration_is_checked_after_module_import', 'mutation': 'permissions', 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) (key='authentication')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 203, in test_effective_configuration_is_checked_after_module_import
+    self.refused(mutation=mutation)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_effective_configuration_is_checked_after_module_import', 'mutation': 'authentication', 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) (key='BOS_DATA_MODE')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 203, in test_effective_configuration_is_checked_after_module_import
+    self.refused(mutation=mutation)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_effective_configuration_is_checked_after_module_import', 'mutation': 'BOS_DATA_MODE', 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) (key='DEBUG')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 203, in test_effective_configuration_is_checked_after_module_import
+    self.refused(mutation=mutation)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_effective_configuration_is_checked_after_module_import', 'mutation': 'DEBUG', 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) (key='SESSION_COOKIE_SECURE')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 203, in test_effective_configuration_is_checked_after_module_import
+    self.refused(mutation=mutation)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_effective_configuration_is_checked_after_module_import', 'mutation': 'SESSION_COOKIE_SECURE', 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) (key='CSRF_COOKIE_SECURE')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 203, in test_effective_configuration_is_checked_after_module_import
+    self.refused(mutation=mutation)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_effective_configuration_is_checked_after_module_import', 'mutation': 'CSRF_COOKIE_SECURE', 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) (key='SECURE_SSL_HOST')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 203, in test_effective_configuration_is_checked_after_module_import
+    self.refused(mutation=mutation)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_effective_configuration_is_checked_after_module_import', 'mutation': 'SECURE_SSL_HOST', 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) (key='remove_middleware')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 203, in test_effective_configuration_is_checked_after_module_import
+    self.refused(mutation=mutation)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_effective_configuration_is_checked_after_module_import', 'mutation': 'remove_middleware', 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) (key='remove_middleware')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 203, in test_effective_configuration_is_checked_after_module_import
+    self.refused(mutation=mutation)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_effective_configuration_is_checked_after_module_import', 'mutation': 'remove_middleware', 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) (key='MIDDLEWARE')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 203, in test_effective_configuration_is_checked_after_module_import
+    self.refused(mutation=mutation)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_effective_configuration_is_checked_after_module_import', 'mutation': 'MIDDLEWARE', 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_empty_wildcard_foreign_hosts_and_invalid_origins_refused (__main__.A09ServerConfigurationTests.test_empty_wildcard_foreign_hosts_and_invalid_origins_refused) (key='BOS_ALLOWED_HOSTS', value='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 167, in test_empty_wildcard_foreign_hosts_and_invalid_origins_refused
+    self.refused(env_changes={key: value})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_empty_wildcard_foreign_hosts_and_invalid_origins_refused', 'mutation': None, 'environment_keys_changed': ['BOS_ALLOWED_HOSTS']}
+
+======================================================================
+FAIL: test_empty_wildcard_foreign_hosts_and_invalid_origins_refused (__main__.A09ServerConfigurationTests.test_empty_wildcard_foreign_hosts_and_invalid_origins_refused) (key='BOS_ALLOWED_HOSTS', value='*')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 167, in test_empty_wildcard_foreign_hosts_and_invalid_origins_refused
+    self.refused(env_changes={key: value})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_empty_wildcard_foreign_hosts_and_invalid_origins_refused', 'mutation': None, 'environment_keys_changed': ['BOS_ALLOWED_HOSTS']}
+
+======================================================================
+FAIL: test_empty_wildcard_foreign_hosts_and_invalid_origins_refused (__main__.A09ServerConfigurationTests.test_empty_wildcard_foreign_hosts_and_invalid_origins_refused) (key='BOS_ALLOWED_HOSTS', value='.example.test')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 167, in test_empty_wildcard_foreign_hosts_and_invalid_origins_refused
+    self.refused(env_changes={key: value})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_empty_wildcard_foreign_hosts_and_invalid_origins_refused', 'mutation': None, 'environment_keys_changed': ['BOS_ALLOWED_HOSTS']}
+
+======================================================================
+FAIL: test_empty_wildcard_foreign_hosts_and_invalid_origins_refused (__main__.A09ServerConfigurationTests.test_empty_wildcard_foreign_hosts_and_invalid_origins_refused) (key='BOS_ALLOWED_HOSTS', value='other.example.test')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 167, in test_empty_wildcard_foreign_hosts_and_invalid_origins_refused
+    self.refused(env_changes={key: value})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_empty_wildcard_foreign_hosts_and_invalid_origins_refused', 'mutation': None, 'environment_keys_changed': ['BOS_ALLOWED_HOSTS']}
+
+======================================================================
+FAIL: test_empty_wildcard_foreign_hosts_and_invalid_origins_refused (__main__.A09ServerConfigurationTests.test_empty_wildcard_foreign_hosts_and_invalid_origins_refused) (key='BOS_PUBLIC_ORIGIN', value='http://bos.example.test:8443')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 167, in test_empty_wildcard_foreign_hosts_and_invalid_origins_refused
+    self.refused(env_changes={key: value})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_empty_wildcard_foreign_hosts_and_invalid_origins_refused', 'mutation': None, 'environment_keys_changed': ['BOS_PUBLIC_ORIGIN']}
+
+======================================================================
+FAIL: test_empty_wildcard_foreign_hosts_and_invalid_origins_refused (__main__.A09ServerConfigurationTests.test_empty_wildcard_foreign_hosts_and_invalid_origins_refused) (key='BOS_PUBLIC_ORIGIN', value='https://user:password@bos.example.test')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 167, in test_empty_wildcard_foreign_hosts_and_invalid_origins_refused
+    self.refused(env_changes={key: value})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_empty_wildcard_foreign_hosts_and_invalid_origins_refused', 'mutation': None, 'environment_keys_changed': ['BOS_PUBLIC_ORIGIN']}
+
+======================================================================
+FAIL: test_empty_wildcard_foreign_hosts_and_invalid_origins_refused (__main__.A09ServerConfigurationTests.test_empty_wildcard_foreign_hosts_and_invalid_origins_refused) (key='BOS_PUBLIC_ORIGIN', value='https://bos.example.test/path')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 167, in test_empty_wildcard_foreign_hosts_and_invalid_origins_refused
+    self.refused(env_changes={key: value})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_empty_wildcard_foreign_hosts_and_invalid_origins_refused', 'mutation': None, 'environment_keys_changed': ['BOS_PUBLIC_ORIGIN']}
+
+======================================================================
+FAIL: test_empty_wildcard_foreign_hosts_and_invalid_origins_refused (__main__.A09ServerConfigurationTests.test_empty_wildcard_foreign_hosts_and_invalid_origins_refused) (key='BOS_PUBLIC_ORIGIN', value='https://bos.example.test?secret=canary')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 167, in test_empty_wildcard_foreign_hosts_and_invalid_origins_refused
+    self.refused(env_changes={key: value})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_empty_wildcard_foreign_hosts_and_invalid_origins_refused', 'mutation': None, 'environment_keys_changed': ['BOS_PUBLIC_ORIGIN']}
+
+======================================================================
+FAIL: test_forwarded_headers_apply_only_from_defined_peer (__main__.A09ServerConfigurationTests.test_forwarded_headers_apply_only_from_defined_peer) (proxy={'peer': '127.0.0.1'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 220, in test_forwarded_headers_apply_only_from_defined_peer
+    self.assertEqual(result['status'], 'started', result)
+AssertionError: 'refused' != 'started'
+- refused
++ started
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_forwarded_headers_apply_only_from_defined_peer', 'mutation': None, 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_forwarded_headers_apply_only_from_defined_peer (__main__.A09ServerConfigurationTests.test_forwarded_headers_apply_only_from_defined_peer) (proxy={'peer': '203.0.113.19'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 220, in test_forwarded_headers_apply_only_from_defined_peer
+    self.assertEqual(result['status'], 'started', result)
+AssertionError: 'refused' != 'started'
+- refused
++ started
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_forwarded_headers_apply_only_from_defined_peer', 'mutation': None, 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_forwarded_headers_apply_only_from_defined_peer (__main__.A09ServerConfigurationTests.test_forwarded_headers_apply_only_from_defined_peer) (proxy={'peer': '127.0.0.1', 'proto': 'https,http'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 220, in test_forwarded_headers_apply_only_from_defined_peer
+    self.assertEqual(result['status'], 'started', result)
+AssertionError: 'refused' != 'started'
+- refused
++ started
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_forwarded_headers_apply_only_from_defined_peer', 'mutation': None, 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_forwarded_headers_apply_only_from_defined_peer (__main__.A09ServerConfigurationTests.test_forwarded_headers_apply_only_from_defined_peer) (proxy={'peer': '127.0.0.1', 'client': '198.51.100.18,198.51.100.19'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 220, in test_forwarded_headers_apply_only_from_defined_peer
+    self.assertEqual(result['status'], 'started', result)
+AssertionError: 'refused' != 'started'
+- refused
++ started
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_forwarded_headers_apply_only_from_defined_peer', 'mutation': None, 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_missing_demo_and_weak_secrets_refused_before_io (__main__.A09ServerConfigurationTests.test_missing_demo_and_weak_secrets_refused_before_io) (value_type='absent')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 148, in test_missing_demo_and_weak_secrets_refused_before_io
+    self.refused(env_changes={'BOS_SECRET_KEY': value})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_missing_demo_and_weak_secrets_refused_before_io', 'mutation': None, 'environment_keys_changed': ['BOS_SECRET_KEY']}
+
+======================================================================
+FAIL: test_missing_demo_and_weak_secrets_refused_before_io (__main__.A09ServerConfigurationTests.test_missing_demo_and_weak_secrets_refused_before_io) (value_type='invalid secret')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 148, in test_missing_demo_and_weak_secrets_refused_before_io
+    self.refused(env_changes={'BOS_SECRET_KEY': value})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_missing_demo_and_weak_secrets_refused_before_io', 'mutation': None, 'environment_keys_changed': ['BOS_SECRET_KEY']}
+
+======================================================================
+FAIL: test_missing_demo_and_weak_secrets_refused_before_io (__main__.A09ServerConfigurationTests.test_missing_demo_and_weak_secrets_refused_before_io) (value_type='invalid secret')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 148, in test_missing_demo_and_weak_secrets_refused_before_io
+    self.refused(env_changes={'BOS_SECRET_KEY': value})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_missing_demo_and_weak_secrets_refused_before_io', 'mutation': None, 'environment_keys_changed': ['BOS_SECRET_KEY']}
+
+======================================================================
+FAIL: test_missing_demo_and_weak_secrets_refused_before_io (__main__.A09ServerConfigurationTests.test_missing_demo_and_weak_secrets_refused_before_io) (value_type='invalid secret')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 148, in test_missing_demo_and_weak_secrets_refused_before_io
+    self.refused(env_changes={'BOS_SECRET_KEY': value})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_missing_demo_and_weak_secrets_refused_before_io', 'mutation': None, 'environment_keys_changed': ['BOS_SECRET_KEY']}
+
+======================================================================
+FAIL: test_missing_demo_and_weak_secrets_refused_before_io (__main__.A09ServerConfigurationTests.test_missing_demo_and_weak_secrets_refused_before_io) (value_type='invalid secret')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 148, in test_missing_demo_and_weak_secrets_refused_before_io
+    self.refused(env_changes={'BOS_SECRET_KEY': value})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_missing_demo_and_weak_secrets_refused_before_io', 'mutation': None, 'environment_keys_changed': ['BOS_SECRET_KEY']}
+
+======================================================================
+FAIL: test_missing_demo_and_weak_secrets_refused_before_io (__main__.A09ServerConfigurationTests.test_missing_demo_and_weak_secrets_refused_before_io) (value_type='invalid secret')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 148, in test_missing_demo_and_weak_secrets_refused_before_io
+    self.refused(env_changes={'BOS_SECRET_KEY': value})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_missing_demo_and_weak_secrets_refused_before_io', 'mutation': None, 'environment_keys_changed': ['BOS_SECRET_KEY']}
+
+======================================================================
+FAIL: test_nonisolated_and_aliased_paths_refused (__main__.A09ServerConfigurationTests.test_nonisolated_and_aliased_paths_refused) (index=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 190, in test_nonisolated_and_aliased_paths_refused
+    self.refused(arrange=arrange)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_nonisolated_and_aliased_paths_refused', 'mutation': None, 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_nonisolated_and_aliased_paths_refused (__main__.A09ServerConfigurationTests.test_nonisolated_and_aliased_paths_refused) (index=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 190, in test_nonisolated_and_aliased_paths_refused
+    self.refused(arrange=arrange)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_nonisolated_and_aliased_paths_refused', 'mutation': None, 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_nonisolated_and_aliased_paths_refused (__main__.A09ServerConfigurationTests.test_nonisolated_and_aliased_paths_refused) (index=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 190, in test_nonisolated_and_aliased_paths_refused
+    self.refused(arrange=arrange)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_nonisolated_and_aliased_paths_refused', 'mutation': None, 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_nonisolated_and_aliased_paths_refused (__main__.A09ServerConfigurationTests.test_nonisolated_and_aliased_paths_refused) (index=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 190, in test_nonisolated_and_aliased_paths_refused
+    self.refused(arrange=arrange)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_nonisolated_and_aliased_paths_refused', 'mutation': None, 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_nonisolated_and_aliased_paths_refused (__main__.A09ServerConfigurationTests.test_nonisolated_and_aliased_paths_refused) (index=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 190, in test_nonisolated_and_aliased_paths_refused
+    self.refused(arrange=arrange)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_nonisolated_and_aliased_paths_refused', 'mutation': None, 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_nonisolated_and_aliased_paths_refused (__main__.A09ServerConfigurationTests.test_nonisolated_and_aliased_paths_refused) (index=5)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 190, in test_nonisolated_and_aliased_paths_refused
+    self.refused(arrange=arrange)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_nonisolated_and_aliased_paths_refused', 'mutation': None, 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_nonisolated_and_aliased_paths_refused (__main__.A09ServerConfigurationTests.test_nonisolated_and_aliased_paths_refused) (index=6)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 190, in test_nonisolated_and_aliased_paths_refused
+    self.refused(arrange=arrange)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_nonisolated_and_aliased_paths_refused', 'mutation': None, 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_nonisolated_and_aliased_paths_refused (__main__.A09ServerConfigurationTests.test_nonisolated_and_aliased_paths_refused) (index=7)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 190, in test_nonisolated_and_aliased_paths_refused
+    self.refused(arrange=arrange)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_nonisolated_and_aliased_paths_refused', 'mutation': None, 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_nonisolated_and_aliased_paths_refused (__main__.A09ServerConfigurationTests.test_nonisolated_and_aliased_paths_refused) (index=8)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 190, in test_nonisolated_and_aliased_paths_refused
+    self.refused(arrange=arrange)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_nonisolated_and_aliased_paths_refused', 'mutation': None, 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_proxy_config_requires_explicit_exact_peers (__main__.A09ServerConfigurationTests.test_proxy_config_requires_explicit_exact_peers) (peers='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 208, in test_proxy_config_requires_explicit_exact_peers
+    self.refused(env_changes={'BOS_TRUSTED_PROXY_IPS': peers})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_proxy_config_requires_explicit_exact_peers', 'mutation': None, 'environment_keys_changed': ['BOS_TRUSTED_PROXY_IPS']}
+
+======================================================================
+FAIL: test_proxy_config_requires_explicit_exact_peers (__main__.A09ServerConfigurationTests.test_proxy_config_requires_explicit_exact_peers) (peers='*')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 208, in test_proxy_config_requires_explicit_exact_peers
+    self.refused(env_changes={'BOS_TRUSTED_PROXY_IPS': peers})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_proxy_config_requires_explicit_exact_peers', 'mutation': None, 'environment_keys_changed': ['BOS_TRUSTED_PROXY_IPS']}
+
+======================================================================
+FAIL: test_proxy_config_requires_explicit_exact_peers (__main__.A09ServerConfigurationTests.test_proxy_config_requires_explicit_exact_peers) (peers='0.0.0.0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 208, in test_proxy_config_requires_explicit_exact_peers
+    self.refused(env_changes={'BOS_TRUSTED_PROXY_IPS': peers})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_proxy_config_requires_explicit_exact_peers', 'mutation': None, 'environment_keys_changed': ['BOS_TRUSTED_PROXY_IPS']}
+
+======================================================================
+FAIL: test_proxy_config_requires_explicit_exact_peers (__main__.A09ServerConfigurationTests.test_proxy_config_requires_explicit_exact_peers) (peers='::')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 208, in test_proxy_config_requires_explicit_exact_peers
+    self.refused(env_changes={'BOS_TRUSTED_PROXY_IPS': peers})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_proxy_config_requires_explicit_exact_peers', 'mutation': None, 'environment_keys_changed': ['BOS_TRUSTED_PROXY_IPS']}
+
+======================================================================
+FAIL: test_proxy_config_requires_explicit_exact_peers (__main__.A09ServerConfigurationTests.test_proxy_config_requires_explicit_exact_peers) (peers='127.0.0.0/8')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 208, in test_proxy_config_requires_explicit_exact_peers
+    self.refused(env_changes={'BOS_TRUSTED_PROXY_IPS': peers})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_proxy_config_requires_explicit_exact_peers', 'mutation': None, 'environment_keys_changed': ['BOS_TRUSTED_PROXY_IPS']}
+
+======================================================================
+FAIL: test_proxy_config_requires_explicit_exact_peers (__main__.A09ServerConfigurationTests.test_proxy_config_requires_explicit_exact_peers) (peers='127.0.0.1,127.0.0.1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 208, in test_proxy_config_requires_explicit_exact_peers
+    self.refused(env_changes={'BOS_TRUSTED_PROXY_IPS': peers})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_proxy_config_requires_explicit_exact_peers', 'mutation': None, 'environment_keys_changed': ['BOS_TRUSTED_PROXY_IPS']}
+
+======================================================================
+FAIL: test_two_clean_explicit_profiles_create_application_without_io (__main__.A09ServerConfigurationTests.test_two_clean_explicit_profiles_create_application_without_io)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 136, in test_two_clean_explicit_profiles_create_application_without_io
+    self.assertEqual(result['status'], 'started', result)
+AssertionError: 'refused' != 'started'
+- refused
++ started
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_two_clean_explicit_profiles_create_application_without_io', 'mutation': None, 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_wrong_entrypoint_modes_and_backend_refused_before_io (__main__.A09ServerConfigurationTests.test_wrong_entrypoint_modes_and_backend_refused_before_io) (key='DJANGO_SETTINGS_MODULE', value='demo_settings')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 157, in test_wrong_entrypoint_modes_and_backend_refused_before_io
+    self.refused(env_changes={key: value})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_wrong_entrypoint_modes_and_backend_refused_before_io', 'mutation': None, 'environment_keys_changed': ['DJANGO_SETTINGS_MODULE']}
+
+======================================================================
+FAIL: test_wrong_entrypoint_modes_and_backend_refused_before_io (__main__.A09ServerConfigurationTests.test_wrong_entrypoint_modes_and_backend_refused_before_io) (key='DJANGO_SETTINGS_MODULE', value='verification_settings')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 157, in test_wrong_entrypoint_modes_and_backend_refused_before_io
+    self.refused(env_changes={key: value})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_wrong_entrypoint_modes_and_backend_refused_before_io', 'mutation': None, 'environment_keys_changed': ['DJANGO_SETTINGS_MODULE']}
+
+======================================================================
+FAIL: test_wrong_entrypoint_modes_and_backend_refused_before_io (__main__.A09ServerConfigurationTests.test_wrong_entrypoint_modes_and_backend_refused_before_io) (key='DJANGO_SETTINGS_MODULE', value='boss_project.settings')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 157, in test_wrong_entrypoint_modes_and_backend_refused_before_io
+    self.refused(env_changes={key: value})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_wrong_entrypoint_modes_and_backend_refused_before_io', 'mutation': None, 'environment_keys_changed': ['DJANGO_SETTINGS_MODULE']}
+
+======================================================================
+FAIL: test_wrong_entrypoint_modes_and_backend_refused_before_io (__main__.A09ServerConfigurationTests.test_wrong_entrypoint_modes_and_backend_refused_before_io) (key='BOS_DATA_MODE', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 157, in test_wrong_entrypoint_modes_and_backend_refused_before_io
+    self.refused(env_changes={key: value})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_wrong_entrypoint_modes_and_backend_refused_before_io', 'mutation': None, 'environment_keys_changed': ['BOS_DATA_MODE']}
+
+======================================================================
+FAIL: test_wrong_entrypoint_modes_and_backend_refused_before_io (__main__.A09ServerConfigurationTests.test_wrong_entrypoint_modes_and_backend_refused_before_io) (key='BOS_DATA_MODE', value='demo')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 157, in test_wrong_entrypoint_modes_and_backend_refused_before_io
+    self.refused(env_changes={key: value})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_wrong_entrypoint_modes_and_backend_refused_before_io', 'mutation': None, 'environment_keys_changed': ['BOS_DATA_MODE']}
+
+======================================================================
+FAIL: test_wrong_entrypoint_modes_and_backend_refused_before_io (__main__.A09ServerConfigurationTests.test_wrong_entrypoint_modes_and_backend_refused_before_io) (key='BOS_DATABASE_ENGINE', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 157, in test_wrong_entrypoint_modes_and_backend_refused_before_io
+    self.refused(env_changes={key: value})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_wrong_entrypoint_modes_and_backend_refused_before_io', 'mutation': None, 'environment_keys_changed': ['BOS_DATABASE_ENGINE']}
+
+======================================================================
+FAIL: test_wrong_entrypoint_modes_and_backend_refused_before_io (__main__.A09ServerConfigurationTests.test_wrong_entrypoint_modes_and_backend_refused_before_io) (key='BOS_DATABASE_ENGINE', value='postgresql')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 157, in test_wrong_entrypoint_modes_and_backend_refused_before_io
+    self.refused(env_changes={key: value})
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 129, in refused
+    self.assertEqual(result['exception'], 'ImproperlyConfigured', result)
+AssertionError: 'ModuleNotFoundError' != 'ImproperlyConfigured'
+- ModuleNotFoundError
++ ImproperlyConfigured
+ : {'attempts': [], 'status': 'refused', 'exception': 'ModuleNotFoundError', 'case': 'test_wrong_entrypoint_modes_and_backend_refused_before_io', 'mutation': None, 'environment_keys_changed': ['BOS_DATABASE_ENGINE']}
+
+----------------------------------------------------------------------
+Ran 8 tests in 2.813s
+
+FAILED (failures=51)

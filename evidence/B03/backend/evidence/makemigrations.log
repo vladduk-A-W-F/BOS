@@ -1,0 +1,27 @@
+Migrations for 'erp':
+  erp/migrations/0005_source_corrections.py
+    + Create model GoodsReturn
+    + Create model InvoiceAdjustment
+    + Create model InvoiceAdjustmentLine
+    + Create model OrderCancellation
+    + Create model CancellationRelease
+    + Create model SupplierClaim
+    + Create constraint bos_return_kind_currency on model goodsreturn
+    + Create constraint bos_return_quantities on model goodsreturn
+    + Create constraint bos_return_costs on model goodsreturn
+    + Create constraint bos_return_distinct_source on model goodsreturn
+    + Create constraint bos_credit_amount_currency on model invoiceadjustment
+    + Create constraint bos_credit_kind_source on model invoiceadjustment
+    + Create constraint bos_credit_distinct_reverse on model invoiceadjustment
+    + Create constraint bos_credit_line_amount on model invoiceadjustmentline
+    + Create constraint bos_credit_line_source on model invoiceadjustmentline
+    + Create constraint bos_credit_return_line_once on model invoiceadjustmentline
+    + Create constraint bos_credit_commercial_line_once on model invoiceadjustmentline
+    + Create constraint bos_cancel_target on model ordercancellation
+    + Create constraint bos_cancel_quantity on model ordercancellation
+    + Create constraint bos_cancel_release_once on model cancellationrelease
+    + Create constraint bos_cancel_release_balance on model cancellationrelease
+    + Create constraint bos_claim_currency on model supplierclaim
+    + Create constraint bos_claim_amount on model supplierclaim
+    + Create constraint bos_claim_record_shape on model supplierclaim
+    + Create constraint bos_claim_distinct_parent on model supplierclaim

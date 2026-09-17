@@ -1,0 +1,559 @@
+Creating test database for alias 'default' ('/tmp/bos-a03-before.sqlite3_django_test')...
+Destroying old test database for alias 'default' ('/tmp/bos-a03-before.sqlite3_django_test')...
+Found 29 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: django_filters, messages, rest_framework, staticfiles
+  Apply all migrations: admin, ai_assistant, auth, branches, contenttypes, employees, erp, finance, operations, sessions, tasks
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying ai_assistant.0001_initial... OK
+  Applying ai_assistant.0002_taskchangelog... OK
+  Applying ai_assistant.0003_claudeusagelog... OK
+  Applying ai_assistant.0004_employeechangelog... OK
+  Applying ai_assistant.0005_chatfile... OK
+  Applying ai_assistant.0006_alter_chatmessage_created_at_and_more... OK
+  Applying ai_assistant.0007_employeechangelog_undone_at... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying branches.0001_initial... OK
+  Applying branches.0002_branch_short_name... OK
+  Applying branches.0003_fill_short_names... OK
+  Applying employees.0001_initial... OK
+  Applying employees.0002_alter_employee_department... OK
+  Applying employees.0003_employee_branch... OK
+  Applying employees.0004_employee_archived_at... OK
+  Applying tasks.0001_initial... OK
+  Applying tasks.0002_alter_task_priority... OK
+  Applying tasks.0003_alter_task_deadline_alter_task_priority_and_more... OK
+  Applying tasks.0004_task_branch... OK
+  Applying finance.0001_initial... OK
+  Applying finance.0002_alter_salary_unique_together_alter_contract_status_and_more... OK
+  Applying finance.0003_transaction_branch... OK
+  Applying operations.0001_initial... OK
+  Applying erp.0001_initial... OK
+  Applying finance.0004_salary_archived_at_transaction_archived_at_and_more... OK
+  Applying finance.0005_alter_transaction_branch_alter_transaction_contract_and_more... OK
+  Applying sessions.0001_initial...test_anonymous_fake_session_role_has_no_business_access (employees.test_identity.AuthenticationTests.test_anonymous_fake_session_role_has_no_business_access) ... FAIL
+test_bad_credentials_and_inactive_user_cannot_login (employees.test_identity.AuthenticationTests.test_bad_credentials_and_inactive_user_cannot_login) ... FAIL
+test_csrf_bootstrap_never_creates_a_ceo_session (employees.test_identity.AuthenticationTests.test_csrf_bootstrap_never_creates_a_ceo_session) ... FAIL
+test_deactivated_user_and_revoked_group_lose_existing_access (employees.test_identity.AuthenticationTests.test_deactivated_user_and_revoked_group_lose_existing_access) ... FAIL
+test_five_failed_logins_limit_the_sixth_for_60_seconds (employees.test_identity.AuthenticationTests.test_five_failed_logins_limit_the_sixth_for_60_seconds) ... FAIL
+test_login_payload_and_session_role_do_not_grant_ceo (employees.test_identity.AuthenticationTests.test_login_payload_and_session_role_do_not_grant_ceo) ... FAIL
+test_login_requires_csrf_and_rotates_session_and_token (employees.test_identity.AuthenticationTests.test_login_requires_csrf_and_rotates_session_and_token) ... FAIL
+test_login_requires_exactly_one_business_group (employees.test_identity.AuthenticationTests.test_login_requires_exactly_one_business_group) ... 
+  test_login_requires_exactly_one_business_group (employees.test_identity.AuthenticationTests.test_login_requires_exactly_one_business_group) (username='a03-no-role') ... FAIL
+  test_login_requires_exactly_one_business_group (employees.test_identity.AuthenticationTests.test_login_requires_exactly_one_business_group) (username='a03-multiple') ... FAIL
+test_login_requires_exactly_one_business_group (employees.test_identity.AuthenticationTests.test_login_requires_exactly_one_business_group) ... FAIL
+test_logout_requires_csrf_and_invalidates_old_cookie (employees.test_identity.AuthenticationTests.test_logout_requires_csrf_and_invalidates_old_cookie) ... FAIL
+test_working_role_setter_is_404_for_every_method (employees.test_identity.AuthenticationTests.test_working_role_setter_is_404_for_every_method) ... FAIL
+test_demo_switch_uses_real_users_without_creating_a_seventh_employee (employees.test_identity.DemoIdentityTests.test_demo_switch_uses_real_users_without_creating_a_seventh_employee) ... FAIL
+test_archiving_linked_employee_revokes_access_without_losing_history (employees.test_identity.IdentityLinkTests.test_archiving_linked_employee_revokes_access_without_losing_history) ... ERROR
+test_conflicting_mapping_is_rejected_without_rebinding (employees.test_identity.IdentityLinkTests.test_conflicting_mapping_is_rejected_without_rebinding) ... ERROR
+test_database_rejects_two_employees_for_the_same_user (employees.test_identity.IdentityLinkTests.test_database_rejects_two_employees_for_the_same_user) ... ERROR
+test_employee_user_schema_is_nullable_one_to_one_set_null (employees.test_identity.IdentityLinkTests.test_employee_user_schema_is_nullable_one_to_one_set_null) ... ERROR
+test_explicit_link_preserves_employee_and_payroll_ids (employees.test_identity.IdentityLinkTests.test_explicit_link_preserves_employee_and_payroll_ids) ... ERROR
+test_link_does_not_infer_authority_from_employee_job_title (employees.test_identity.IdentityLinkTests.test_link_does_not_infer_authority_from_employee_job_title) ... ERROR
+test_link_to_missing_id_does_not_create_or_guess_an_employee (employees.test_identity.IdentityLinkTests.test_link_to_missing_id_does_not_create_or_guess_an_employee) ... ERROR
+test_set_null_keeps_employee_and_salary_when_synthetic_user_is_deleted (employees.test_identity.IdentityLinkTests.test_set_null_keeps_employee_and_salary_when_synthetic_user_is_deleted) ... ERROR
+test_author_and_legacy_checks_happen_before_receipt (employees.test_identity.ProposalIdentityTests.test_author_and_legacy_checks_happen_before_receipt) ... 
+  test_author_and_legacy_checks_happen_before_receipt (employees.test_identity.ProposalIdentityTests.test_author_and_legacy_checks_happen_before_receipt) (author=4) ... FAIL
+  test_author_and_legacy_checks_happen_before_receipt (employees.test_identity.ProposalIdentityTests.test_author_and_legacy_checks_happen_before_receipt) (author=None) ... FAIL
+test_deactivation_prevents_confirmation (employees.test_identity.ProposalIdentityTests.test_deactivation_prevents_confirmation) ... FAIL
+test_different_author_is_rejected_even_if_session_field_matches (employees.test_identity.ProposalIdentityTests.test_different_author_is_rejected_even_if_session_field_matches) ... FAIL
+test_legacy_proposal_without_author_requires_a_new_preview (employees.test_identity.ProposalIdentityTests.test_legacy_proposal_without_author_requires_a_new_preview) ... FAIL
+test_logout_and_relogin_does_not_reuse_old_proposal (employees.test_identity.ProposalIdentityTests.test_logout_and_relogin_does_not_reuse_old_proposal) ... FAIL
+test_proposal_has_nullable_real_user_fk_for_legacy_migration (employees.test_identity.ProposalIdentityTests.test_proposal_has_nullable_real_user_fk_for_legacy_migration) ... ERROR
+test_real_author_session_and_successful_replay (employees.test_identity.ProposalIdentityTests.test_real_author_session_and_successful_replay) ... FAIL
+test_role_change_between_preview_and_confirm_is_rechecked (employees.test_identity.ProposalIdentityTests.test_role_change_between_preview_and_confirm_is_rechecked) ... FAIL
+test_role_revocation_is_checked_before_returning_old_receipt (employees.test_identity.ProposalIdentityTests.test_role_revocation_is_checked_before_returning_old_receipt) ... FAIL
+test_same_user_in_another_real_session_cannot_confirm (employees.test_identity.ProposalIdentityTests.test_same_user_in_another_real_session_cannot_confirm) ... FAIL
+
+======================================================================
+ERROR: test_archiving_linked_employee_revokes_access_without_losing_history (employees.test_identity.IdentityLinkTests.test_archiving_linked_employee_revokes_access_without_losing_history)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/django/core/management/__init__.py", line 110, in call_command
+    app_name = get_commands()[command_name]
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+KeyError: 'link_bos_user'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 321, in test_archiving_linked_employee_revokes_access_without_losing_history
+    self.link(self.manager, employee)
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 79, in link
+    call_command('link_bos_user', user_id=user.pk, employee_id=employee.pk,
+  File "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/django/core/management/__init__.py", line 112, in call_command
+    raise CommandError("Unknown command: %r" % command_name)
+django.core.management.base.CommandError: Unknown command: 'link_bos_user'
+
+======================================================================
+ERROR: test_conflicting_mapping_is_rejected_without_rebinding (employees.test_identity.IdentityLinkTests.test_conflicting_mapping_is_rejected_without_rebinding)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/django/core/management/__init__.py", line 110, in call_command
+    app_name = get_commands()[command_name]
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+KeyError: 'link_bos_user'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 276, in test_conflicting_mapping_is_rejected_without_rebinding
+    self.link(self.manager, first)
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 79, in link
+    call_command('link_bos_user', user_id=user.pk, employee_id=employee.pk,
+  File "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/django/core/management/__init__.py", line 112, in call_command
+    raise CommandError("Unknown command: %r" % command_name)
+django.core.management.base.CommandError: Unknown command: 'link_bos_user'
+
+======================================================================
+ERROR: test_database_rejects_two_employees_for_the_same_user (employees.test_identity.IdentityLinkTests.test_database_rejects_two_employees_for_the_same_user)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/django/core/management/__init__.py", line 110, in call_command
+    app_name = get_commands()[command_name]
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+KeyError: 'link_bos_user'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 300, in test_database_rejects_two_employees_for_the_same_user
+    self.link(self.manager, first)
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 79, in link
+    call_command('link_bos_user', user_id=user.pk, employee_id=employee.pk,
+  File "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/django/core/management/__init__.py", line 112, in call_command
+    raise CommandError("Unknown command: %r" % command_name)
+django.core.management.base.CommandError: Unknown command: 'link_bos_user'
+
+======================================================================
+ERROR: test_employee_user_schema_is_nullable_one_to_one_set_null (employees.test_identity.IdentityLinkTests.test_employee_user_schema_is_nullable_one_to_one_set_null)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/django/db/models/options.py", line 684, in get_field
+    return self.fields_map[field_name]
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'user'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 245, in test_employee_user_schema_is_nullable_one_to_one_set_null
+    field = Employee._meta.get_field('user')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/django/db/models/options.py", line 686, in get_field
+    raise FieldDoesNotExist(
+django.core.exceptions.FieldDoesNotExist: Employee has no field named 'user'
+
+======================================================================
+ERROR: test_explicit_link_preserves_employee_and_payroll_ids (employees.test_identity.IdentityLinkTests.test_explicit_link_preserves_employee_and_payroll_ids)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/django/core/management/__init__.py", line 110, in call_command
+    app_name = get_commands()[command_name]
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+KeyError: 'link_bos_user'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 259, in test_explicit_link_preserves_employee_and_payroll_ids
+    self.link(self.manager, employee)
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 79, in link
+    call_command('link_bos_user', user_id=user.pk, employee_id=employee.pk,
+  File "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/django/core/management/__init__.py", line 112, in call_command
+    raise CommandError("Unknown command: %r" % command_name)
+django.core.management.base.CommandError: Unknown command: 'link_bos_user'
+
+======================================================================
+ERROR: test_link_does_not_infer_authority_from_employee_job_title (employees.test_identity.IdentityLinkTests.test_link_does_not_infer_authority_from_employee_job_title)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/django/core/management/__init__.py", line 110, in call_command
+    app_name = get_commands()[command_name]
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+KeyError: 'link_bos_user'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 270, in test_link_does_not_infer_authority_from_employee_job_title
+    self.link(self.observer, employee)
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 79, in link
+    call_command('link_bos_user', user_id=user.pk, employee_id=employee.pk,
+  File "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/django/core/management/__init__.py", line 112, in call_command
+    raise CommandError("Unknown command: %r" % command_name)
+django.core.management.base.CommandError: Unknown command: 'link_bos_user'
+
+======================================================================
+ERROR: test_link_to_missing_id_does_not_create_or_guess_an_employee (employees.test_identity.IdentityLinkTests.test_link_to_missing_id_does_not_create_or_guess_an_employee)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 296, in test_link_to_missing_id_does_not_create_or_guess_an_employee
+    self.assertIsNone(employee.user_id)
+                      ^^^^^^^^^^^^^^^^
+AttributeError: 'Employee' object has no attribute 'user_id'
+
+======================================================================
+ERROR: test_set_null_keeps_employee_and_salary_when_synthetic_user_is_deleted (employees.test_identity.IdentityLinkTests.test_set_null_keeps_employee_and_salary_when_synthetic_user_is_deleted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/django/core/management/__init__.py", line 110, in call_command
+    app_name = get_commands()[command_name]
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+KeyError: 'link_bos_user'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 310, in test_set_null_keeps_employee_and_salary_when_synthetic_user_is_deleted
+    self.link(self.manager, employee)
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 79, in link
+    call_command('link_bos_user', user_id=user.pk, employee_id=employee.pk,
+  File "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/django/core/management/__init__.py", line 112, in call_command
+    raise CommandError("Unknown command: %r" % command_name)
+django.core.management.base.CommandError: Unknown command: 'link_bos_user'
+
+======================================================================
+ERROR: test_proposal_has_nullable_real_user_fk_for_legacy_migration (employees.test_identity.ProposalIdentityTests.test_proposal_has_nullable_real_user_fk_for_legacy_migration)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/django/db/models/options.py", line 684, in get_field
+    return self.fields_map[field_name]
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'user'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 351, in test_proposal_has_nullable_real_user_fk_for_legacy_migration
+    field = ActionProposal._meta.get_field('user')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/django/db/models/options.py", line 686, in get_field
+    raise FieldDoesNotExist(
+django.core.exceptions.FieldDoesNotExist: ActionProposal has no field named 'user'
+
+======================================================================
+FAIL: test_anonymous_fake_session_role_has_no_business_access (employees.test_identity.AuthenticationTests.test_anonymous_fake_session_role_has_no_business_access)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 183, in test_anonymous_fake_session_role_has_no_business_access
+    client = self.new_client()
+             ^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 52, in new_client
+    self.assertEqual(response.status_code, 200, response.content)
+AssertionError: 404 != 200 : b'\n<!doctype html>\n<html lang="en">\n<head>\n  <title>Not Found</title>\n</head>\n<body>\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\n</body>\n</html>\n'
+
+======================================================================
+FAIL: test_bad_credentials_and_inactive_user_cannot_login (employees.test_identity.AuthenticationTests.test_bad_credentials_and_inactive_user_cannot_login)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 145, in test_bad_credentials_and_inactive_user_cannot_login
+    client = self.new_client()
+             ^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 52, in new_client
+    self.assertEqual(response.status_code, 200, response.content)
+AssertionError: 404 != 200 : b'\n<!doctype html>\n<html lang="en">\n<head>\n  <title>Not Found</title>\n</head>\n<body>\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\n</body>\n</html>\n'
+
+======================================================================
+FAIL: test_csrf_bootstrap_never_creates_a_ceo_session (employees.test_identity.AuthenticationTests.test_csrf_bootstrap_never_creates_a_ceo_session)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 117, in test_csrf_bootstrap_never_creates_a_ceo_session
+    client = self.new_client()
+             ^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 52, in new_client
+    self.assertEqual(response.status_code, 200, response.content)
+AssertionError: 404 != 200 : b'\n<!doctype html>\n<html lang="en">\n<head>\n  <title>Not Found</title>\n</head>\n<body>\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\n</body>\n</html>\n'
+
+======================================================================
+FAIL: test_deactivated_user_and_revoked_group_lose_existing_access (employees.test_identity.AuthenticationTests.test_deactivated_user_and_revoked_group_lose_existing_access)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 208, in test_deactivated_user_and_revoked_group_lose_existing_access
+    client = self.login(self.ceo)
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 61, in login
+    client = client or self.new_client()
+                       ^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 52, in new_client
+    self.assertEqual(response.status_code, 200, response.content)
+AssertionError: 404 != 200 : b'\n<!doctype html>\n<html lang="en">\n<head>\n  <title>Not Found</title>\n</head>\n<body>\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\n</body>\n</html>\n'
+
+======================================================================
+FAIL: test_five_failed_logins_limit_the_sixth_for_60_seconds (employees.test_identity.AuthenticationTests.test_five_failed_logins_limit_the_sixth_for_60_seconds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 226, in test_five_failed_logins_limit_the_sixth_for_60_seconds
+    client = self.new_client()
+             ^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 52, in new_client
+    self.assertEqual(response.status_code, 200, response.content)
+AssertionError: 404 != 200 : b'\n<!doctype html>\n<html lang="en">\n<head>\n  <title>Not Found</title>\n</head>\n<body>\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\n</body>\n</html>\n'
+
+======================================================================
+FAIL: test_login_payload_and_session_role_do_not_grant_ceo (employees.test_identity.AuthenticationTests.test_login_payload_and_session_role_do_not_grant_ceo)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 172, in test_login_payload_and_session_role_do_not_grant_ceo
+    client = self.login(self.manager, role='ceo')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 61, in login
+    client = client or self.new_client()
+                       ^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 52, in new_client
+    self.assertEqual(response.status_code, 200, response.content)
+AssertionError: 404 != 200 : b'\n<!doctype html>\n<html lang="en">\n<head>\n  <title>Not Found</title>\n</head>\n<body>\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\n</body>\n</html>\n'
+
+======================================================================
+FAIL: test_login_requires_csrf_and_rotates_session_and_token (employees.test_identity.AuthenticationTests.test_login_requires_csrf_and_rotates_session_and_token)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 124, in test_login_requires_csrf_and_rotates_session_and_token
+    client = self.new_client()
+             ^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 52, in new_client
+    self.assertEqual(response.status_code, 200, response.content)
+AssertionError: 404 != 200 : b'\n<!doctype html>\n<html lang="en">\n<head>\n  <title>Not Found</title>\n</head>\n<body>\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\n</body>\n</html>\n'
+
+======================================================================
+FAIL: test_login_requires_exactly_one_business_group (employees.test_identity.AuthenticationTests.test_login_requires_exactly_one_business_group) (username='a03-no-role')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 162, in test_login_requires_exactly_one_business_group
+    client = self.new_client()
+             ^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 52, in new_client
+    self.assertEqual(response.status_code, 200, response.content)
+AssertionError: 404 != 200 : b'\n<!doctype html>\n<html lang="en">\n<head>\n  <title>Not Found</title>\n</head>\n<body>\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\n</body>\n</html>\n'
+
+======================================================================
+FAIL: test_login_requires_exactly_one_business_group (employees.test_identity.AuthenticationTests.test_login_requires_exactly_one_business_group) (username='a03-multiple')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 162, in test_login_requires_exactly_one_business_group
+    client = self.new_client()
+             ^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 52, in new_client
+    self.assertEqual(response.status_code, 200, response.content)
+AssertionError: 404 != 200 : b'\n<!doctype html>\n<html lang="en">\n<head>\n  <title>Not Found</title>\n</head>\n<body>\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\n</body>\n</html>\n'
+
+======================================================================
+FAIL: test_login_requires_exactly_one_business_group (employees.test_identity.AuthenticationTests.test_login_requires_exactly_one_business_group)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 169, in test_login_requires_exactly_one_business_group
+    self.me(self.login(self.manager), self.manager, 'manager')
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 61, in login
+    client = client or self.new_client()
+                       ^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 52, in new_client
+    self.assertEqual(response.status_code, 200, response.content)
+AssertionError: 404 != 200 : b'\n<!doctype html>\n<html lang="en">\n<head>\n  <title>Not Found</title>\n</head>\n<body>\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\n</body>\n</html>\n'
+
+======================================================================
+FAIL: test_logout_requires_csrf_and_invalidates_old_cookie (employees.test_identity.AuthenticationTests.test_logout_requires_csrf_and_invalidates_old_cookie)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 196, in test_logout_requires_csrf_and_invalidates_old_cookie
+    client = self.login(self.ceo)
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 61, in login
+    client = client or self.new_client()
+                       ^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 52, in new_client
+    self.assertEqual(response.status_code, 200, response.content)
+AssertionError: 404 != 200 : b'\n<!doctype html>\n<html lang="en">\n<head>\n  <title>Not Found</title>\n</head>\n<body>\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\n</body>\n</html>\n'
+
+======================================================================
+FAIL: test_working_role_setter_is_404_for_every_method (employees.test_identity.AuthenticationTests.test_working_role_setter_is_404_for_every_method)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 216, in test_working_role_setter_is_404_for_every_method
+    client = self.login(self.ceo)
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 61, in login
+    client = client or self.new_client()
+                       ^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 52, in new_client
+    self.assertEqual(response.status_code, 200, response.content)
+AssertionError: 404 != 200 : b'\n<!doctype html>\n<html lang="en">\n<head>\n  <title>Not Found</title>\n</head>\n<body>\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\n</body>\n</html>\n'
+
+======================================================================
+FAIL: test_demo_switch_uses_real_users_without_creating_a_seventh_employee (employees.test_identity.DemoIdentityTests.test_demo_switch_uses_real_users_without_creating_a_seventh_employee)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 438, in test_demo_switch_uses_real_users_without_creating_a_seventh_employee
+    client = self.new_client()
+             ^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 52, in new_client
+    self.assertEqual(response.status_code, 200, response.content)
+AssertionError: 404 != 200 : b'\n<!doctype html>\n<html lang="en">\n<head>\n  <title>Not Found</title>\n</head>\n<body>\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\n</body>\n</html>\n'
+
+======================================================================
+FAIL: test_author_and_legacy_checks_happen_before_receipt (employees.test_identity.ProposalIdentityTests.test_author_and_legacy_checks_happen_before_receipt) (author=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 411, in test_author_and_legacy_checks_happen_before_receipt
+    client = self.login(self.ceo)
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 61, in login
+    client = client or self.new_client()
+                       ^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 52, in new_client
+    self.assertEqual(response.status_code, 200, response.content)
+AssertionError: 404 != 200 : b'\n<!doctype html>\n<html lang="en">\n<head>\n  <title>Not Found</title>\n</head>\n<body>\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\n</body>\n</html>\n'
+
+======================================================================
+FAIL: test_author_and_legacy_checks_happen_before_receipt (employees.test_identity.ProposalIdentityTests.test_author_and_legacy_checks_happen_before_receipt) (author=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 411, in test_author_and_legacy_checks_happen_before_receipt
+    client = self.login(self.ceo)
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 61, in login
+    client = client or self.new_client()
+                       ^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 52, in new_client
+    self.assertEqual(response.status_code, 200, response.content)
+AssertionError: 404 != 200 : b'\n<!doctype html>\n<html lang="en">\n<head>\n  <title>Not Found</title>\n</head>\n<body>\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\n</body>\n</html>\n'
+
+======================================================================
+FAIL: test_deactivation_prevents_confirmation (employees.test_identity.ProposalIdentityTests.test_deactivation_prevents_confirmation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 426, in test_deactivation_prevents_confirmation
+    client = self.login(self.ceo)
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 61, in login
+    client = client or self.new_client()
+                       ^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 52, in new_client
+    self.assertEqual(response.status_code, 200, response.content)
+AssertionError: 404 != 200 : b'\n<!doctype html>\n<html lang="en">\n<head>\n  <title>Not Found</title>\n</head>\n<body>\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\n</body>\n</html>\n'
+
+======================================================================
+FAIL: test_different_author_is_rejected_even_if_session_field_matches (employees.test_identity.ProposalIdentityTests.test_different_author_is_rejected_even_if_session_field_matches)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 376, in test_different_author_is_rejected_even_if_session_field_matches
+    client = self.login(self.ceo)
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 61, in login
+    client = client or self.new_client()
+                       ^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 52, in new_client
+    self.assertEqual(response.status_code, 200, response.content)
+AssertionError: 404 != 200 : b'\n<!doctype html>\n<html lang="en">\n<head>\n  <title>Not Found</title>\n</head>\n<body>\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\n</body>\n</html>\n'
+
+======================================================================
+FAIL: test_legacy_proposal_without_author_requires_a_new_preview (employees.test_identity.ProposalIdentityTests.test_legacy_proposal_without_author_requires_a_new_preview)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 384, in test_legacy_proposal_without_author_requires_a_new_preview
+    client = self.login(self.ceo)
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 61, in login
+    client = client or self.new_client()
+                       ^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 52, in new_client
+    self.assertEqual(response.status_code, 200, response.content)
+AssertionError: 404 != 200 : b'\n<!doctype html>\n<html lang="en">\n<head>\n  <title>Not Found</title>\n</head>\n<body>\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\n</body>\n</html>\n'
+
+======================================================================
+FAIL: test_logout_and_relogin_does_not_reuse_old_proposal (employees.test_identity.ProposalIdentityTests.test_logout_and_relogin_does_not_reuse_old_proposal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 418, in test_logout_and_relogin_does_not_reuse_old_proposal
+    client = self.login(self.ceo)
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 61, in login
+    client = client or self.new_client()
+                       ^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 52, in new_client
+    self.assertEqual(response.status_code, 200, response.content)
+AssertionError: 404 != 200 : b'\n<!doctype html>\n<html lang="en">\n<head>\n  <title>Not Found</title>\n</head>\n<body>\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\n</body>\n</html>\n'
+
+======================================================================
+FAIL: test_real_author_session_and_successful_replay (employees.test_identity.ProposalIdentityTests.test_real_author_session_and_successful_replay)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 356, in test_real_author_session_and_successful_replay
+    client = self.login(self.ceo)
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 61, in login
+    client = client or self.new_client()
+                       ^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 52, in new_client
+    self.assertEqual(response.status_code, 200, response.content)
+AssertionError: 404 != 200 : b'\n<!doctype html>\n<html lang="en">\n<head>\n  <title>Not Found</title>\n</head>\n<body>\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\n</body>\n</html>\n'
+
+======================================================================
+FAIL: test_role_change_between_preview_and_confirm_is_rechecked (employees.test_identity.ProposalIdentityTests.test_role_change_between_preview_and_confirm_is_rechecked)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 395, in test_role_change_between_preview_and_confirm_is_rechecked
+    client = self.login(self.ceo)
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 61, in login
+    client = client or self.new_client()
+                       ^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 52, in new_client
+    self.assertEqual(response.status_code, 200, response.content)
+AssertionError: 404 != 200 : b'\n<!doctype html>\n<html lang="en">\n<head>\n  <title>Not Found</title>\n</head>\n<body>\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\n</body>\n</html>\n'
+
+======================================================================
+FAIL: test_role_revocation_is_checked_before_returning_old_receipt (employees.test_identity.ProposalIdentityTests.test_role_revocation_is_checked_before_returning_old_receipt)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 402, in test_role_revocation_is_checked_before_returning_old_receipt
+    client = self.login(self.ceo)
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 61, in login
+    client = client or self.new_client()
+                       ^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 52, in new_client
+    self.assertEqual(response.status_code, 200, response.content)
+AssertionError: 404 != 200 : b'\n<!doctype html>\n<html lang="en">\n<head>\n  <title>Not Found</title>\n</head>\n<body>\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\n</body>\n</html>\n'
+
+======================================================================
+FAIL: test_same_user_in_another_real_session_cannot_confirm (employees.test_identity.ProposalIdentityTests.test_same_user_in_another_real_session_cannot_confirm)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 370, in test_same_user_in_another_real_session_cannot_confirm
+    first = self.login(self.ceo)
+            ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 61, in login
+    client = client or self.new_client()
+                       ^^^^^^^^^^^^^^^^^
+  File "/workspace/sites/bos-original-refined/employees/test_identity.py", line 52, in new_client
+    self.assertEqual(response.status_code, 200, response.content)
+AssertionError: 404 != 200 : b'\n<!doctype html>\n<html lang="en">\n<head>\n  <title>Not Found</title>\n</head>\n<body>\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\n</body>\n</html>\n'
+
+----------------------------------------------------------------------
+Ran 29 tests in 3.003s
+
+FAILED (failures=23, errors=9)
+Destroying test database for alias 'default' ('/tmp/bos-a03-before.sqlite3_django_test')...
+ OK
+System check identified no issues (0 silenced).

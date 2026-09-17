@@ -1,0 +1,64 @@
+{
+  "gate": 7,
+  "complete": false,
+  "version": "0.2.12-dev",
+  "synthetic_work": "/tmp/bos-restore-check-6neubaq5",
+  "scope": "actual same-N TLS, capture, clean restore and restored HTTPS; no upgrade/rollback or Windows/PG",
+  "checks": [
+    {
+      "case": "fresh_offline_install_and_independent_three_currency_fixture",
+      "passed": true
+    },
+    {
+      "case": "original_real_TLS_login_document",
+      "passed": true,
+      "document_sha256": "bba0159323a4d10c1954fea3eb175e0b9a10eb26a76b80dcf4a0f310264f2111"
+    },
+    {
+      "case": "actual_TLS_import_populated_ledger_and_source_document",
+      "passed": true,
+      "batch_id": "f8ad5092-3705-4bc2-85f5-c64ad59c4bc4",
+      "mapping_count": 27,
+      "export_sha256": "ad65918da63af106d95475040b68d637eb94d27dd23eacce52f40c4d985443fb"
+    }
+  ],
+  "management_code_sha256": {
+    "maintenance_control": "4e9b33059b6faa7bb8a03a6dedecfc08d29493e0f0333fb231920c6e80714223",
+    "generation_ledger": "b68298be377367ae8bfcddd3ec44cfff446dcd9dc0698864a9a822ea6b8df3f1",
+    "backup_server": "27430b053bf714b09b89214278454144b6587040754f0db8d1d79f874e0cbed8",
+    "restore_server": "baaf64239df69dd0a2c19bcab7b67044af3ad19cd9790f7d95e0b47f5b323eb0",
+    "managed_runtime": "be7e26c107248ff3dc13d86acf700a9d84784f82df386b36d2e9e855ec181840"
+  },
+  "package": {
+    "version": "0.2.12-dev",
+    "source_sha256": "df0b895e6aa7a630ad34b8b64b110abddfc1c3280d06df4019fa9653e587d3c4",
+    "files": 284,
+    "database_files": 0,
+    "output": "/tmp/bos-restore-check-6neubaq5/package"
+  },
+  "seed": {
+    "user_id": 1,
+    "employee_id": 1,
+    "document_id": 1,
+    "import_document": {
+      "document_id": 3,
+      "code": "RESTORE-IMPORT",
+      "revision": "A",
+      "checksum": "1d6432f290d6c0d47600c86dca7b826d164703272398541293ba648634c05acd"
+    },
+    "transaction_ids": [
+      1,
+      2,
+      3
+    ],
+    "currencies": 3,
+    "amounts": [
+      "17.39",
+      "123.45",
+      "9801.07"
+    ],
+    "stored_session_rows": 1
+  },
+  "error_type": "AssertionError",
+  "reason": "Перевірка не завершена; див. останній успішний сценарій."
+}

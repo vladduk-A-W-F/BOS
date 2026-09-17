@@ -1,0 +1,188 @@
+{
+  "complete": true,
+  "cases": [
+    {
+      "case": "A09_legacy_false_success",
+      "work": "/tmp/bos-a10-drain-lqim_spi",
+      "complete": true,
+      "exit_code": 0,
+      "events": [
+        {
+          "event": "bos.server.bound",
+          "port": 37009
+        },
+        {
+          "event": "bos.legacy.exit",
+          "shutdown_result": true,
+          "active": 1,
+          "queued": 0,
+          "dispatcher_threads": 1
+        }
+      ],
+      "responses": [
+        {
+          "id": 0,
+          "error": "RemoteDisconnected"
+        }
+      ],
+      "persisted_rows": [],
+      "old_false_graceful_exit_observed": true,
+      "process_stopped": true
+    },
+    {
+      "case": "A10_finish_active_and_queued_before_ack",
+      "work": "/tmp/bos-a10-drain-dn_q78hx",
+      "complete": true,
+      "draining": {
+        "event": "bos.server.draining",
+        "version": "0.2.9-dev",
+        "queued": 1,
+        "active": 4,
+        "dispatcher_threads": 4,
+        "live_workers": 4,
+        "pending_requests": 5,
+        "pending_output_bytes": 0
+      },
+      "new_listener_connection_refused": true,
+      "exit_code": 0,
+      "events": [
+        {
+          "event": "bos.server.bound",
+          "host": "127.0.0.1",
+          "port": 44873,
+          "version": "0.2.9-dev",
+          "runtime": "waitress",
+          "runtime_version": "3.0.2"
+        },
+        {
+          "event": "bos.server.draining",
+          "version": "0.2.9-dev",
+          "queued": 1,
+          "active": 4,
+          "dispatcher_threads": 4,
+          "live_workers": 4,
+          "pending_requests": 5,
+          "pending_output_bytes": 0
+        },
+        {
+          "event": "bos.server.quiescent",
+          "version": "0.2.9-dev",
+          "runtime": "waitress",
+          "runtime_version": "3.0.2",
+          "active": 0,
+          "queued": 0,
+          "workers": 0,
+          "sockets_closed": true
+        }
+      ],
+      "responses": [
+        {
+          "id": 0,
+          "status": 200,
+          "body": "completed:0"
+        },
+        {
+          "id": 4,
+          "status": 200,
+          "body": "completed:4"
+        },
+        {
+          "id": 3,
+          "status": 200,
+          "body": "completed:3"
+        },
+        {
+          "id": 1,
+          "status": 200,
+          "body": "completed:1"
+        },
+        {
+          "id": 2,
+          "status": 200,
+          "body": "completed:2"
+        }
+      ],
+      "persisted_rows": [
+        [
+          "0",
+          "committed"
+        ],
+        [
+          "1",
+          "committed"
+        ],
+        [
+          "2",
+          "committed"
+        ],
+        [
+          "3",
+          "committed"
+        ],
+        [
+          "4",
+          "committed"
+        ]
+      ],
+      "process_stopped": true
+    },
+    {
+      "case": "A10_timeout_nonzero_no_quiescent",
+      "work": "/tmp/bos-a10-drain-y7u9wc7x",
+      "complete": true,
+      "draining": {
+        "event": "bos.server.draining",
+        "version": "0.2.9-dev",
+        "queued": 0,
+        "active": 1,
+        "dispatcher_threads": 4,
+        "live_workers": 4,
+        "pending_requests": 1,
+        "pending_output_bytes": 0
+      },
+      "new_listener_connection_refused": true,
+      "exit_code": 6,
+      "events": [
+        {
+          "event": "bos.server.bound",
+          "host": "127.0.0.1",
+          "port": 46335,
+          "version": "0.2.9-dev",
+          "runtime": "waitress",
+          "runtime_version": "3.0.2"
+        },
+        {
+          "event": "bos.server.draining",
+          "version": "0.2.9-dev",
+          "queued": 0,
+          "active": 1,
+          "dispatcher_threads": 4,
+          "live_workers": 4,
+          "pending_requests": 1,
+          "pending_output_bytes": 0
+        },
+        {
+          "event": "bos.server.drain_failed",
+          "version": "0.2.9-dev",
+          "reason": "timeout",
+          "queued": 0,
+          "active": 1,
+          "dispatcher_threads": 4,
+          "live_workers": 4,
+          "pending_requests": 1,
+          "pending_output_bytes": 0
+        }
+      ],
+      "responses": [
+        {
+          "id": 0,
+          "error": "RemoteDisconnected"
+        }
+      ],
+      "persisted_rows": [],
+      "no_post_exit_write": true,
+      "process_stopped": true
+    }
+  ],
+  "runner_sha256": "f25b421aa9f5c2542ebecbe5cea3f6a70bad25d6bbfb8e27accbe01e3eced6c6"
+}

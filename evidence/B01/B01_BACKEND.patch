@@ -1,0 +1,879 @@
+--- a/boss_project/migration_operations.py
++++ b/boss_project/migration_operations.py
+@@ -62,3 +62,18 @@
+         if self.allow_migrate_model(schema_editor.connection.alias, model):
+             with _preserve_sqlite_sequence(schema_editor, model._meta.db_table):
+                 super().database_backwards(app_label, schema_editor, from_state, to_state)
++
++
++class PreserveSequenceAddField(migrations.AddField):
++    """Retain historical SQLite sequence high-water if a field rebuilds a table."""
++    def database_forwards(self, app_label, schema_editor, from_state, to_state):
++        model = to_state.apps.get_model(app_label, self.model_name)
++        if self.allow_migrate_model(schema_editor.connection.alias, model):
++            with _preserve_sqlite_sequence(schema_editor, model._meta.db_table):
++                super().database_forwards(app_label, schema_editor, from_state, to_state)
++
++    def database_backwards(self, app_label, schema_editor, from_state, to_state):
++        model = from_state.apps.get_model(app_label, self.model_name)
++        if self.allow_migrate_model(schema_editor.connection.alias, model):
++            with _preserve_sqlite_sequence(schema_editor, model._meta.db_table):
++                super().database_backwards(app_label, schema_editor, from_state, to_state)
+--- a/boss_project/policy.py
++++ b/boss_project/policy.py
+@@ -139,9 +139,16 @@
+         lines = set(SalesLine.objects.filter(order_id__in=orders, item_id__in=items).values_list('pk', flat=True))
+         jobs = {x.pk for x in Production.objects.all() if x.item_id in items and (x.line_id is None or x.line_id in lines) and all(b.get('item_id') in items for b in x.bom)}
+         requests = set(self.requests().values_list('pk', flat=True))
+-        purchases = {x.pk for x in Purchase.objects.all() if x.item_id in items and (x.request_id is None or x.request_id in requests) and (x.production_id is None or x.production_id in jobs)}
++        quotes = set(self.quotes().values_list('pk', flat=True))
++        from erp.procurement import source_document_ids
++        purchases = {x.pk for x in Purchase.objects.all() if x.item_id in items
++            and (x.request_id is None or x.request_id in requests)
++            and (x.quote_id is None or x.quote_id in quotes)
++            and (x.production_id is None or x.production_id in jobs)
++            and source_document_ids(x.approval_snapshot) is not None
++            and source_document_ids(x.approval_snapshot).issubset(docs)}
+         changes = set(ChangeOrder.objects.filter(item_id__in=items, document_id__in=docs).values_list('pk', flat=True))
+-        self._erp_ids = {'document_id': docs, 'item_id': items, 'lot_id': lots, 'order_id': orders, 'line_id': lines, 'production_id': jobs, 'purchase_id': purchases, 'change_id': changes, 'request_id': requests}
++        self._erp_ids = {'document_id': docs, 'item_id': items, 'lot_id': lots, 'order_id': orders, 'line_id': lines, 'production_id': jobs, 'purchase_id': purchases, 'change_id': changes, 'request_id': requests, 'quote_id': quotes}
+         return self._erp_ids
+ 
+     def check_reference(self, name, value):
+--- a/erp/management/commands/seed_erp_demo.py
++++ b/erp/management/commands/seed_erp_demo.py
+@@ -38,8 +38,8 @@
+         for code,item,qty,cost,quality,docs in [('LOT-MAT',raw,'24','12','approved',documents),('LOT-FAST',fast,'60','2','approved',{}),('LOT-FG-OK',product,'10','40','approved',documents),('LOT-FG-HOLD',product,'10','40','blocked',{})]:
+             lot=act('opening',code=code,item_id=item,location_id=main,quantity=qty,unit_cost=cost,currency='EUR',revision='A',documents=docs)['lot_id'];act('quality',lot_id=lot,result=quality,inspector_id=engineer.id,note='Навчальна перевірка' if quality=='approved' else 'Немає сертифіката; відвантаження заблоковано');lots.append(lot)
+         act('reserve',lot_id=lots[2],quantity='10',line_id=line.id)
+-        act('purchase',code='PO-MAT',item_id=raw,supplier_id=supplier.id,quantity='8',price='12',currency='EUR',due_date='2026-09-16',revision='A',production_id=job)
+-        act('purchase',code='PO-FAST',item_id=fast,supplier_id=supplier.id,quantity='20',price='2',currency='EUR',due_date='2026-09-12',revision='A',production_id=job)
++        act('purchase',code='PO-MAT',item_id=raw,supplier_id=supplier.id,quantity='8',price='12',currency='EUR',due_date='2026-09-16',revision='A',production_id=job,direct_reason='Навчальна пряма закупівля матеріалу для демонстраційного виробництва')
++        act('purchase',code='PO-FAST',item_id=fast,supplier_id=supplier.id,quantity='20',price='2',currency='EUR',due_date='2026-09-12',revision='A',production_id=job,direct_reason='Навчальна пряма закупівля кріплень для демонстраційного виробництва')
+         act('change',code='ECO-101',item_id=product,document_id=spec_b.id,target_revision='B',reason='Навчальний сценарій зміни контролю поверхні після запуску підготовки.')
+         Configuration.objects.create(key='erp_dataset',value={'version':'1.0','synthetic':True,'as_of':'2026-09-09','primary_order':'SO-101','competing_order':'SO-102','main_job':'MO-101','scenario':'50 виробів: 10 зарезервовано, 40 виготовити, 10 заблоковано; дефіцит 8 кг та 20 кріплень закривають дві очікувані поставки.'})
+         self.stdout.write('ERP-демо створено: замовлення, матеріали, резерви, підрядник, закупівлі та зміна версії.')
+--- a/erp/migrations/0003_purchase_source.py
++++ b/erp/migrations/0003_purchase_source.py
+@@ -0,0 +1,27 @@
++"""B01: retain historical purchases without inventing source approvals."""
++from django.db import migrations, models
++import django.db.models.deletion
++from boss_project.migration_operations import PreserveSequenceAddField
++
++
++def refuse_approved_source_loss(apps, schema_editor):
++    Purchase = apps.get_model('erp', 'Purchase')
++    populated = Purchase.objects.using(schema_editor.connection.alias).filter(
++        models.Q(quote_id__isnull=False) | models.Q(approval_snapshot__isnull=False))
++    if populated.exists():
++        raise RuntimeError('Відкат B01 зупинено: він видалив би збережені джерела або погодження закупівель.')
++
++
++class Migration(migrations.Migration):
++    dependencies = [('erp','0002_row_boundaries'),('operations','0006_private_documents')]
++
++    operations = [
++        PreserveSequenceAddField(model_name='purchase',name='quote',
++            field=models.ForeignKey(blank=True,null=True,on_delete=django.db.models.deletion.PROTECT,
++                                    to='operations.supplierquote')),
++        PreserveSequenceAddField(model_name='purchase',name='approval_snapshot',
++            field=models.JSONField(blank=True,null=True)),
++        # Reverse operations run from the end: refuse before either field is
++        # removed. Historical all-null rows remain reversibly migratable.
++        migrations.RunPython(migrations.RunPython.noop, reverse_code=refuse_approved_source_loss),
++    ]
+--- a/erp/models.py
++++ b/erp/models.py
+@@ -123,6 +123,8 @@
+     revision=models.CharField(max_length=40)
+     production=models.ForeignKey(Production,null=True,blank=True,on_delete=models.PROTECT)
+     request=models.ForeignKey('operations.ProcurementRequest',null=True,blank=True,on_delete=models.PROTECT)
++    quote=models.ForeignKey('operations.SupplierQuote',null=True,blank=True,on_delete=models.PROTECT)
++    approval_snapshot=models.JSONField(null=True,blank=True)
+     status=models.CharField(max_length=20,default='ordered')
+ 
+     class Meta:
+--- a/erp/procurement.py
++++ b/erp/procurement.py
+@@ -0,0 +1,129 @@
++"""Purchase source admission; called only by the existing locked ERP writer."""
++from copy import deepcopy
++from datetime import date, timedelta
++from decimal import Decimal as D
++
++from django.db.models import Sum
++
++from operations.models import ProcurementRequest, SupplierQuote
++from operations.private_storage import verified_document_bytes
++from operations.service import as_of, newest
++from .models import Purchase
++
++
++def document_source(document):
++    if document.status not in ('approved', 'supplier_quote') or newest(document.code).pk != document.pk:
++        raise ValueError('Потрібна перевірена актуальна версія джерельного документа.')
++    verified_document_bytes(document)
++    return {'document_id':document.pk,'code':document.code,'revision':document.revision,
++            'checksum':document.checksum}
++
++
++def statement(value, label):
++    if not isinstance(value, str) or not 3 <= len(value.strip()) <= 1000:
++        raise ValueError(label + ': потрібне явне посилання або обґрунтування, 3–1000 символів.')
++    return value.strip()
++
++
++def purchase_source(data, item):
++    """Bind user-entered fields to checked sources; do not infer item mapping.
++
++The supplier confirmation is a manager's attestation, not independent external
++verification. Calculated lead time cannot override that agreed date.
++    """
++    from .service import money_total, number
++    data = dict(data)
++    quote_id = data.pop('quote_id', None)
++    confirmation = data.pop('supplier_confirmation', None)
++    direct_reason = data.pop('direct_reason', None)
++    quantity = D(data['quantity'])
++    today = as_of()
++    due = date.fromisoformat(data['due_date'])
++    if due < today:
++        raise ValueError('Погоджена дата поставки не може бути раніше дати поточного зрізу.')
++    snapshot = {'source':'quote' if quote_id else 'direct', 'item_id':item.pk,
++        'supplier_id':data['supplier_id'], 'unit':item.unit,
++        'agreed_quantity':str(quantity), 'agreed_due_date':str(due),
++        'revision':data['revision'], 'currency':data['currency'],
++        'price':data['price'], 'extras':data.get('extras','0'), 'source_documents':{}}
++    request = None
++    if data.get('request_id'):
++        request = ProcurementRequest.objects.select_related('document').get(pk=data['request_id'])
++        if (item.document_id != request.document_id and item.code != request.part):
++            raise ValueError('Номенклатура має явно відповідати коду або документу вимоги.')
++        if item.unit != request.unit or item.revision != request.revision or data['revision'] != request.revision:
++            raise ValueError('Одиниця або версія номенклатури не відповідає вимозі.')
++        if data['currency'] != request.currency:
++            raise ValueError('Валюта закупівлі має відповідати вимозі; автоматичної конвертації немає.')
++        if due > request.required_by:
++            raise ValueError('Погоджена дата поставки пізніше потрібної дати вимоги.')
++        allocated = Purchase.objects.filter(request=request).aggregate(total=Sum('quantity'))['total'] or D('0')
++        if quantity > D(request.quantity) - allocated:
++            raise ValueError('Закупівля перевищує нерозподілену кількість вимоги.')
++        snapshot.update(request_id=request.pk, request_code=request.code)
++        snapshot['source_documents']['request'] = document_source(request.document)
++    if quote_id:
++        if direct_reason not in (None, ''):
++            raise ValueError('Оберіть один шлях: пропозиція або пряма закупівля.')
++        confirmation = statement(confirmation, 'Підтвердження кількості та строку постачальником')
++        quote = SupplierQuote.objects.select_related('document').get(pk=quote_id)
++        if request is None or quote.request_id != request.pk:
++            raise ValueError('Пропозиція має належати явно зазначеній вимозі.')
++        terms = quote.terms
++        if not isinstance(terms, dict):
++            raise ValueError('Умови пропозиції мають бути структурованими.')
++        required = {'unit_price','setup','shipping','tooling','special_processes','currency','revision',
++                    'lead_weeks','valid_until','moq','coating_included','material_certificate'}
++        if not required.issubset(terms) or set(terms) - required - {'tax_basis'}:
++            raise ValueError('Потрібні повні відомі умови пропозиції.')
++        if terms.get('tax_basis', 'excluding_VAT') != 'excluding_VAT':
++            raise ValueError('Підтримано лише явно погоджені суми без ПДВ; інша податкова база не реалізована.')
++        if (type(terms['moq']) is not int or not 1 <= terms['moq'] <= 100000
++                or quantity < terms['moq']):
++            raise ValueError('Кількість менша за мінімальну партію або MOQ не підтверджено.')
++        if type(terms['lead_weeks']) is not int or not 0 <= terms['lead_weeks'] <= 520:
++            raise ValueError('Розрахунковий строк пропозиції некоректний.')
++        if terms['coating_included'] is not True or terms['material_certificate'] is not True:
++            raise ValueError('Не підтверджено обов’язкову комплектність пропозиції.')
++        if not isinstance(terms['valid_until'], str) or date.fromisoformat(terms['valid_until']) < today:
++            raise ValueError('Строк чинності пропозиції минув.')
++        price = number(terms['unit_price'], places=2)
++        extras = money_total(sum((number(terms[key], places=2)
++                                 for key in ('setup','shipping','tooling','special_processes')), D('0')))
++        if (quote.supplier_id != data['supplier_id'] or terms['currency'] != request.currency
++                or terms['revision'] != request.revision or D(data['price']) != price
++                or D(data.get('extras','0')) != extras):
++            raise ValueError('Постачальник, версія, валюта або суми не відповідають вибраній пропозиції.')
++        money_total(quantity * price + extras)
++        snapshot.update(quote_id=quote.pk, quote_code=quote.code,
++            original_terms=deepcopy(terms), supplier_confirmation=confirmation,
++            confirmation_kind='manager_attestation',
++            confirmation_notice='Це засвідчення менеджера; BoS не отримував незалежного підтвердження постачальника.',
++            calculated_arrival=str(today + timedelta(weeks=terms['lead_weeks'])),
++            checks={'original_bytes':'sha256_verified','source_terms':'server_checked'})
++        snapshot['source_documents']['quote'] = document_source(quote.document)
++        data['quote_id'] = quote.pk
++        # Keep the stored numeric terms canonical and server-derived.
++        data['price'], data['extras'] = str(price), str(extras)
++        snapshot['price'], snapshot['extras'] = data['price'], data['extras']
++    else:
++        if confirmation not in (None, ''):
++            raise ValueError('Посилання на підтвердження пропозиції потребує вибраної пропозиції.')
++        snapshot['direct_reason'] = statement(direct_reason, 'Причина прямої закупівлі')
++        money_total(quantity * D(data['price']) + D(data.get('extras','0')))
++    data['approval_snapshot'] = snapshot
++    return data
++
++
++def source_document_ids(snapshot):
++    """Stored source identity controls history even after mutable Quote changes."""
++    if snapshot is None:
++        return set()  # Historical PO without invented approval.
++    if not isinstance(snapshot, dict) or not isinstance(snapshot.get('source_documents'), dict):
++        return None
++    ids = set()
++    for document in snapshot['source_documents'].values():
++        if not isinstance(document, dict) or type(document.get('document_id')) is not int:
++            return None
++        ids.add(document['document_id'])
++    return ids
+--- a/erp/seed/assistant_examples_ua.json
++++ b/erp/seed/assistant_examples_ua.json
+@@ -142,6 +142,11 @@
+     "days": "Ціле число",
+     "reserve": "Вкажіть рівно один із line_id / production_id",
+     "documents": "Тип документа → ID перевіреного документа",
+-    "finish.labor_cost": "Витрати робіт лише для поточної кількості випуску, не весь бюджет роботи"
++    "finish.labor_cost": "Витрати робіт лише для поточної кількості випуску, не весь бюджет роботи",
++    "purchase.quote_id": "ID доступної пропозиції; разом із request_id і явно зіставленою номенклатурою. Постачальник, версія, валюта, ціна й додаткові витрати мають точно відповідати пропозиції.",
++    "purchase.supplier_confirmation": "Обов’язкове для quote_id посилання менеджера на підтвердження обраних кількості й due_date, 3–1000 символів. Це засвідчення менеджера, не незалежна перевірка постачальника; calculated_arrival не є гарантією.",
++    "purchase.direct_reason": "Без quote_id потрібна явна причина прямої закупівлі, 3–1000 символів. Не вигадуй погодження для історичних PO.",
++    "purchase.quantity": "Розподіл вимоги між кількома PO дозволений до 0,001 одиниці, але сума всіх PO не може перевищувати вимогу. MOQ перевіряється для кожного PO.",
++    "purchase.due_date": "Погоджена дата не раніше as_of; для пов’язаної вимоги — не пізніше required_by. Зміна кількості чи дати потребує актуального перегляду й явного supplier_confirmation."
+   }
+ }
+--- a/erp/service.py
++++ b/erp/service.py
+@@ -21,7 +21,7 @@
+ 'order':('code customer_id owner_id due_date currency lines','notes'),
+ 'confirm_order':('order_id',''),
+ 'opening':('code item_id location_id quantity unit_cost currency revision','documents reason'),
+-'purchase':('code item_id supplier_id quantity price currency due_date revision','extras production_id request_id'),
++'purchase':('code item_id supplier_id quantity price currency due_date revision','extras production_id request_id quote_id supplier_confirmation direct_reason'),
+ 'receive':('purchase_id code location_id quantity','documents'),
+ 'job':('code item_id quantity location_id owner_id due_date','line_id'),
+ 'reserve':('lot_id quantity','line_id production_id'),
+@@ -158,6 +158,9 @@
+     state={m.__name__:list(m.objects.order_by('pk').values()) for m in MODELS}
+     state['invoices']=list(Invoice.objects.order_by('pk').values())
+     state['docs']=list(Document.objects.order_by('pk').values('id','checksum','status'))
++    from operations.models import ProcurementRequest, SupplierQuote
++    state['procurement_requests']=list(ProcurementRequest.objects.order_by('pk').values())
++    state['supplier_quotes']=list(SupplierQuote.objects.order_by('pk').values())
+     return hashlib.sha256(json.dumps(state,sort_keys=True,default=str).encode()).hexdigest()
+ 
+ def write_lock():
+@@ -207,6 +210,8 @@
+         if d.get('production_id'):
+             job=Production.objects.get(pk=d['production_id'])
+             if item.pk not in [b['item_id'] for b in job.bom]:raise ValueError('Матеріал не входить до специфікації роботи.')
++        from .procurement import purchase_source
++        d=purchase_source(d,item)
+         obj=Purchase.objects.create(original_due=d['due_date'],**d);out={'purchase_id':obj.id,'code':obj.code}
+     elif a=='receive':
+         po=Purchase.objects.get(pk=d['purchase_id']);qty=D(d['quantity'])
+--- a/erp/test_concurrency.py
++++ b/erp/test_concurrency.py
+@@ -220,7 +220,7 @@
+         elif action == 'purchase':
+             payload.update(code=f.code('PO2'), item_id=f.material.pk, supplier_id=f.supplier.pk,
+                 quantity='10', price='2.00', extras='10.00', currency=currency,
+-                due_date='2026-09-20', revision='A')
++                due_date='2026-09-20', revision='A',direct_reason='Синтетична пряма закупівля для перевірки конкурентності')
+         elif action == 'receive':
+             payload.update(purchase_id=f.purchase.pk, code=f.code('RCV'),
+                            location_id=f.warehouse.pk, quantity='7')
+--- a/erp/test_procurement_bridge.py
++++ b/erp/test_procurement_bridge.py
+@@ -0,0 +1,503 @@
++"""B01 real HTTP/ORM regression contract, only owned synthetic databases."""
++from concurrent.futures import ThreadPoolExecutor
++from copy import deepcopy
++from datetime import date
++from decimal import Decimal as D
++import hashlib
++import json
++import os
++from pathlib import Path
++import threading
++from types import SimpleNamespace
++from uuid import uuid4
++
++from django.conf import settings
++from django.db import connection, connections
++from django.db.models import Sum
++from django.db.models.deletion import ProtectedError
++from django.db.migrations.executor import MigrationExecutor
++from django.test import Client, TestCase, TransactionTestCase, override_settings
++from django.test.utils import CaptureQueriesContext
++
++from employees.models import Employee
++from finance.models import Counterparty
++from operations.models import ActionProposal, Configuration, Document, ProcurementRequest, SupplierQuote
++from operations.private_storage import private_document_storage
++from scripts.check_support import login_test_client
++from erp import service
++from erp.models import Event, Item, Location, Lot, Movement, Purchase
++
++
++class BridgeFixture:
++    def setUp(self):
++        self.assertEqual(os.environ.get('DJANGO_SETTINGS_MODULE'), 'verification_settings')
++        if connection.vendor == 'sqlite':
++            self.assertTrue(Path(str(connection.settings_dict['NAME'])).name.startswith('check_'))
++        self.http = Client(enforce_csrf_checks=True, raise_request_exception=False)
++        self.user = login_test_client(self.http, 'ceo', capabilities=('view_document', 'export_workspace'))
++        self.owner = Employee.objects.create(full_name='B01 синтетичний закупівельник')
++        self.location = Location.objects.create(code='B01-W', name='B01 синтетичний склад')
++        Configuration.objects.create(key='dataset', value={'as_of':'2026-09-12'})
++        Configuration.objects.get_or_create(key='erp_write', defaults={'value':{'revision':0}})
++        self.f = self.fixture('BASE')
++
++    def document(self, code):
++        raw = ('B01 synthetic source ' + code).encode()
++        return Document.objects.create(code=code, revision='A', title=code, content=raw,
++            text=raw.decode(), checksum=hashlib.sha256(raw).hexdigest(), status='approved', access_level='operational')
++
++    def fixture(self, suffix, currency='EUR'):
++        f = SimpleNamespace()
++        f.spec = self.document('B01-SPEC-'+suffix)
++        f.source = self.document('B01-QUOTE-'+suffix)
++        f.supplier = Counterparty.objects.create(name='B01 постачальник '+suffix, type='supplier')
++        f.item = Item.objects.create(code='B01-I-'+suffix, name='B01 номенклатура', unit='шт.',
++            revision='A', document=f.spec, currency=currency)
++        f.request = ProcurementRequest.objects.create(code='B01-R-'+suffix, part=f.item.code,
++            revision='A', quantity=10, unit='шт.', currency=currency, required_by='2026-10-31',
++            owner=self.owner, document=f.spec)
++        f.terms = {'unit_price':'12.34','setup':'2.00','shipping':'3.00','tooling':'0.00',
++            'special_processes':'0.00','currency':currency,'revision':'A','lead_weeks':12,
++            'valid_until':'2026-10-31','moq':1,'coating_included':True,'material_certificate':True}
++        f.quote = SupplierQuote.objects.create(code='B01-Q-'+suffix, request=f.request,
++            supplier=f.supplier, document=f.source, terms=f.terms)
++        return f
++
++    def payload(self, f=None, **changes):
++        f = f or self.f
++        return {'action':'erp_purchase','code':'B01-PO-'+uuid4().hex[:12], 'item_id':f.item.pk,
++            'supplier_id':f.supplier.pk,'quantity':'10','price':'12.34','extras':'5.00',
++            'currency':f.request.currency,'due_date':'2026-10-20','revision':'A',
++            'request_id':f.request.pk,'quote_id':f.quote.pk,
++            'supplier_confirmation':'B01 лист CONF-001: менеджер підтвердив кількість і дату', **changes}
++
++    def post(self, path, payload, client=None):
++        client = client or self.http
++        return client.post(path, payload, content_type='application/json',
++                           HTTP_X_CSRFTOKEN=client.cookies[settings.CSRF_COOKIE_NAME].value)
++
++    def preview(self, payload, client=None):
++        before = self.state()
++        response = self.post('/api/erp/preview/', payload, client)
++        self.assertEqual(response.status_code, 200, response.content)
++        self.assertEqual(self.state(), before, 'Preview changed business rows')
++        return response.json()['id']
++
++    def confirm(self, proposal, client=None):
++        return self.post('/api/operations/confirm/', {'proposal_id':proposal,'confirmed':True}, client)
++
++    def buy(self, payload, client=None):
++        proposal = self.preview(payload, client)
++        response = self.confirm(proposal, client)
++        self.assertEqual(response.status_code, 200, response.content)
++        return proposal, response.json(), Purchase.objects.get(pk=response.json()['purchase_id'])
++
++    def state(self):
++        return {model._meta.label:list(model.objects.order_by('pk').values())
++                for model in (Purchase, Lot, Movement, Event)} | {
++            'operations.Configuration':list(Configuration.objects.exclude(key='erp_write').order_by('pk').values())}
++
++
++@override_settings(BOS_DATA_MODE='working', DEBUG=False, ANTHROPIC_API_KEY='',
++                   PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'])
++class ProcurementBridgeTests(BridgeFixture, TestCase):
++    def test_direct_purchase_needs_reason_and_preserves_explicit_reason(self):
++        payload = self.payload()
++        for field in ('quote_id','request_id','supplier_confirmation'):
++            payload.pop(field)
++        before = self.state()
++        denied = self.post('/api/erp/preview/', payload)
++        self.assertEqual(denied.status_code, 422, denied.content)
++        self.assertEqual(self.state(), before)
++        _, _, po = self.buy({**payload,'direct_reason':'Пряма синтетична закупівля за терміновою потребою'})
++        self.assertIsNone(po.quote_id)
++        self.assertEqual(po.approval_snapshot['source'], 'direct')
++        self.assertEqual(po.approval_snapshot['direct_reason'], 'Пряма синтетична закупівля за терміновою потребою')
++        self.assertEqual(Movement.objects.count(), 0)
++
++    def test_quote_purchase_and_partial_receipts_in_three_currencies(self):
++        for currency in ('EUR','USD','UAH'):
++            with self.subTest(currency=currency):
++                f = self.fixture(currency,currency)
++                payload = self.payload(f)
++                proposal, receipt, po = self.buy(payload)
++                self.assertEqual((po.quote_id,po.request_id,po.item_id,po.supplier_id),
++                                 (f.quote.pk,f.request.pk,f.item.pk,f.supplier.pk))
++                self.assertEqual((po.quantity,po.price,po.extras,po.received,po.currency,po.revision),
++                                 (D('10'),D('12.34'),D('5'),D('0'),currency,'A'))
++                snap = po.approval_snapshot
++                self.assertEqual((snap['source'],snap['quote_code'],snap['request_code']),
++                                 ('quote',f.quote.code,f.request.code))
++                self.assertEqual(snap['original_terms'], f.terms)
++                self.assertEqual(snap['agreed_quantity'], '10')
++                self.assertEqual(snap['agreed_due_date'], '2026-10-20')
++                self.assertEqual(snap['supplier_confirmation'], payload['supplier_confirmation'])
++                self.assertEqual(snap['confirmation_kind'], 'manager_attestation')
++                self.assertEqual(snap['source_documents']['quote']['checksum'], f.source.checksum)
++                self.assertEqual(snap['source_documents']['request']['document_id'], f.spec.pk)
++                before = self.state()
++                self.assertEqual(self.confirm(proposal).json(), receipt)
++                self.assertEqual(self.state(), before)
++                for n in ('4','6'):
++                    receive = {'action':'erp_receive','purchase_id':po.pk,'quantity':n,
++                               'code':'B01-RCV-'+uuid4().hex[:12],'location_id':self.location.pk}
++                    pid = self.preview(receive)
++                    response = self.confirm(pid)
++                    self.assertEqual(response.status_code, 200, response.content)
++                    after = self.state()
++                    self.assertEqual(self.confirm(pid).json(), response.json())
++                    self.assertEqual(self.state(), after)
++                po.refresh_from_db()
++                self.assertEqual((po.received,po.status), (D('10'),'received'))
++                movements = Movement.objects.filter(purchase=po).order_by('pk')
++                self.assertEqual(list(movements.values_list('quantity',flat=True)), [D('4'),D('6')])
++                self.assertEqual(movements.aggregate(n=Sum('cost'))['n'], D('128.40'))
++                self.assertTrue(all(m.lot.quality=='pending' and m.lot.currency==currency for m in movements))
++                over = self.post('/api/erp/preview/', {**receive,'code':'B01-OVER-'+currency,'quantity':'1'})
++                self.assertEqual(over.status_code, 422, over.content)
++
++    def test_quote_bound_fields_and_confirmation_are_not_client_controlled(self):
++        wrong_supplier = Counterparty.objects.create(name='B01 інший постачальник', type='supplier')
++        wrong_item = Item.objects.create(code='B01-UNMAPPED',name='Інший',unit='шт.',revision='A')
++        for changes in ({'supplier_id':wrong_supplier.pk},{'item_id':wrong_item.pk},{'price':'12.35'},
++                {'extras':'4.99'},{'currency':'USD'},{'revision':'B'},{'request_id':None},
++                {'supplier_confirmation':''},{'supplier_confirmation':True},
++                {'due_date':'2026-09-11'},{'due_date':'2026-11-01'},{'quantity':'10.001'},
++                {'direct_reason':'Неприпустимий подвійний шлях'}):
++            with self.subTest(changes=changes):
++                before = self.state()
++                response = self.post('/api/erp/preview/', self.payload(**changes))
++                self.assertEqual(response.status_code, 422, response.content)
++                self.assertEqual(self.state(), before)
++        self.f.item.unit='кг'; self.f.item.save(update_fields=['unit'])
++        response=self.post('/api/erp/preview/',self.payload())
++        self.assertEqual(response.status_code,422,response.content)
++
++    def test_ineligible_or_unverified_source_is_refused(self):
++        for terms in ({'valid_until':'2026-09-11'},{'moq':11},{'coating_included':False},
++                      {'material_certificate':False},{'currency':'USD'},{'revision':'B'}):
++            with self.subTest(terms=terms):
++                self.f.quote.terms={**self.f.terms,**terms};self.f.quote.save(update_fields=['terms'])
++                response=self.post('/api/erp/preview/',self.payload())
++                self.assertEqual(response.status_code,422,response.content)
++        self.f.quote.terms=deepcopy(self.f.terms);self.f.quote.save(update_fields=['terms'])
++        self.f.source.status='needs_review';self.f.source.save(update_fields=['status'])
++        response=self.post('/api/erp/preview/',self.payload())
++        self.assertEqual(response.status_code,422,response.content)
++        self.assertFalse(Purchase.objects.exists())
++
++    def test_existing_netto_tax_basis_is_preserved_and_unknown_tax_basis_refused(self):
++        self.f.quote.terms={**self.f.terms,'tax_basis':'excluding_VAT'}
++        self.f.quote.save(update_fields=['terms'])
++        _,_,po=self.buy(self.payload(quantity='4'))
++        self.assertEqual(po.approval_snapshot['original_terms']['tax_basis'],'excluding_VAT')
++        self.f.quote.terms={**self.f.terms,'tax_basis':'including_VAT'}
++        self.f.quote.save(update_fields=['terms'])
++        before=self.state()
++        response=self.post('/api/erp/preview/',self.payload(quantity='4'))
++        self.assertEqual(response.status_code,422,response.content)
++        self.assertEqual(self.state(),before)
++
++    def test_changed_request_or_quote_invalidates_old_proposal_without_rewriting_history(self):
++        for model, obj, changes in ((SupplierQuote,self.f.quote,{'terms':{**self.f.terms,'shipping':'4.00'}}),
++                                    (ProcurementRequest,self.f.request,{'quantity':9})):
++            with self.subTest(model=model._meta.label):
++                pid=self.preview(self.payload())
++                prior={key:getattr(obj,key) for key in changes}
++                model.objects.filter(pk=obj.pk).update(**changes)
++                before=self.state()
++                response=self.confirm(pid)
++                self.assertEqual(response.status_code,409,response.content)
++                self.assertEqual(self.state(),before)
++                self.assertIsNone(ActionProposal.objects.get(pk=pid).receipt)
++                model.objects.filter(pk=obj.pk).update(**prior)
++        _,_,po=self.buy(self.payload())
++        approved=deepcopy(po.approval_snapshot)
++        self.f.quote.terms={**self.f.terms,'unit_price':'99.99'};self.f.quote.save(update_fields=['terms'])
++        pid=self.preview({'action':'erp_postpone','purchase_id':po.pk,'due_date':'2026-10-25','reason':'Синтетичне перенесення'})
++        self.assertEqual(self.confirm(pid).status_code,200)
++        po.refresh_from_db()
++        self.assertEqual(po.approval_snapshot,approved)
++        self.assertEqual((po.price,po.original_due), (D('12.34'),date(2026,10,20)))
++
++    def test_original_bytes_and_latest_version_rechecked_at_confirmation(self):
++        pid=self.preview(self.payload())
++        self.f.source.content=b'B01 changed original, unchanged recorded SHA'
++        self.f.source.save(update_fields=['content'])
++        before=self.state()
++        response=self.confirm(pid)
++        self.assertEqual(response.status_code,422,response.content)
++        self.assertEqual(self.state(),before)
++        self.assertIsNone(ActionProposal.objects.get(pk=pid).receipt)
++        self.f.source.content=('B01 synthetic source '+self.f.source.code).encode();self.f.source.save(update_fields=['content'])
++        pid=self.preview(self.payload())
++        newer=self.document('B01-NEW')
++        newer.code=self.f.source.code;newer.revision='B';newer.save()
++        response=self.confirm(pid)
++        self.assertEqual(response.status_code,409,response.content)
++        self.assertFalse(Purchase.objects.exists())
++
++    def test_split_allocation_and_compare_remainder_preserve_multiple_suppliers(self):
++        _,_,first=self.buy(self.payload(quantity='6'))
++        other=Counterparty.objects.create(name='B01 другий постачальник',type='supplier')
++        quote=SupplierQuote.objects.create(code='B01-Q-SECOND',request=self.f.request,
++                                          supplier=other,document=self.f.source,terms=self.f.terms)
++        response=self.http.get('/api/operations/compare/?code='+self.f.request.code+'&quantity=4')
++        self.assertEqual(response.status_code,200,response.content)
++        data=response.json()
++        self.assertEqual((data['request']['id'],data['request']['original_quantity'],data['request']['quantity']),
++                         (self.f.request.pk,10,4))
++        self.assertEqual((D(data['request']['allocated_quantity']),D(data['request']['remaining_quantity'])),(D('6'),D('4')))
++        row=next(x for x in data['rows'] if x['id']==quote.pk)
++        self.assertEqual(row['supplier_id'],other.pk)
++        self.buy(self.payload(quantity='4',quote_id=quote.pk,supplier_id=other.pk))
++        before=self.state()
++        denied=self.post('/api/erp/preview/',self.payload(quantity='1'))
++        self.assertEqual(denied.status_code,422,denied.content)
++        self.assertEqual(self.state(),before)
++        self.assertEqual(Purchase.objects.filter(request=self.f.request).aggregate(n=Sum('quantity'))['n'],D('10'))
++        self.assertEqual(Purchase.objects.filter(request=self.f.request).count(),2)
++
++    def test_direct_request_allocation_and_mapping_are_checked(self):
++        payload=self.payload(quantity='6')
++        payload.pop('quote_id');payload.pop('supplier_confirmation')
++        payload['direct_reason']='Синтетична пряма закупівля частини вимоги'
++        self.buy(payload)
++        for changes in ({'quantity':'5'},{'revision':'B'},{'currency':'USD'}):
++            response=self.post('/api/erp/preview/',{**payload,'code':'B01-DIR-'+uuid4().hex[:8],**changes})
++            self.assertEqual(response.status_code,422,response.content)
++        self.assertEqual(Purchase.objects.count(),1)
++
++    def test_fractional_allocation_and_item_planning_currency_are_not_extra_restrictions(self):
++        self.f.item.currency='USD';self.f.item.save(update_fields=['currency'])
++        self.buy(self.payload(quantity='6.5'))
++        self.buy(self.payload(quantity='3.5'))
++        self.assertEqual(Purchase.objects.aggregate(n=Sum('quantity'))['n'],D('10'))
++        self.assertEqual(set(Purchase.objects.values_list('currency',flat=True)),{'EUR'})
++
++    def test_event_failure_rolls_back_po_and_receipt_then_retry_succeeds(self):
++        pid=self.preview(self.payload())
++        if connection.vendor=='sqlite':
++            create="CREATE TRIGGER b01_event_failure BEFORE INSERT ON erp_event BEGIN SELECT RAISE(ABORT, 'B01 synthetic event failure'); END"
++            drop=['DROP TRIGGER b01_event_failure']
++        else:
++            create="CREATE FUNCTION b01_event_fail() RETURNS trigger AS $$ BEGIN RAISE EXCEPTION 'B01 synthetic event failure' USING ERRCODE='23514'; END; $$ LANGUAGE plpgsql"
++            drop=['DROP TRIGGER b01_event_failure ON erp_event','DROP FUNCTION b01_event_fail()']
++        with connection.cursor() as cursor:
++            cursor.execute(create)
++            if connection.vendor!='sqlite':
++                cursor.execute('CREATE TRIGGER b01_event_failure BEFORE INSERT ON erp_event FOR EACH ROW EXECUTE FUNCTION b01_event_fail()')
++        try:
++            before=self.state()
++            response=self.confirm(pid)
++            self.assertEqual(response.status_code,409,response.content)
++            self.assertEqual(self.state(),before)
++            self.assertIsNone(ActionProposal.objects.get(pk=pid).receipt)
++        finally:
++            with connection.cursor() as cursor:
++                for sql in drop:cursor.execute(sql)
++        response=self.confirm(pid)
++        self.assertEqual(response.status_code,200,response.content)
++        self.assertEqual(Purchase.objects.count(),1)
++        self.assertEqual(Event.objects.filter(action='erp_purchase').count(),1)
++        with self.assertRaises(ProtectedError):
++            self.f.quote.delete()
++
++    def test_bound_private_file_bytes_are_rechecked_without_fallback(self):
++        raw=b'B01 real private quote original'
++        receipt=private_document_storage.save_verified(raw,hashlib.sha256(raw).hexdigest(),legacy_blob_bytes=0)
++        doc=Document.objects.create(code='B01-PRIVATE-Q',revision='A',title='B01 private quote',
++            original_file=receipt.name,size=receipt.size,content=b'',text=raw.decode(),
++            checksum=receipt.checksum,status='approved',access_level='operational')
++        private_document_storage.finalize(receipt)
++        self.f.quote.document=doc;self.f.quote.save(update_fields=['document'])
++        pid=self.preview(self.payload())
++        path=Path(settings.MEDIA_ROOT)/receipt.name
++        try:
++            path.write_bytes(b'B01 real private altered file')
++            before=self.state()
++            response=self.confirm(pid)
++            self.assertEqual(response.status_code,422,response.content)
++            self.assertEqual(self.state(),before)
++            self.assertIsNone(ActionProposal.objects.get(pk=pid).receipt)
++        finally:
++            path.unlink()
++
++    def test_source_scope_and_observer_projection_are_enforced(self):
++        manager=Client(enforce_csrf_checks=True,raise_request_exception=False)
++        login_test_client(manager,'manager',capabilities=('view_document','export_workspace'))
++        observer=Client(enforce_csrf_checks=True,raise_request_exception=False)
++        login_test_client(observer,'observer',capabilities=('view_document',))
++        pid,_,po=self.buy(self.payload(),manager)
++        for client in (self.http,manager):
++            response=client.get('/api/erp/snapshot/')
++            row=next(x for x in response.json()['purchases'] if x['id']==po.pk)
++            self.assertEqual(row['approval_snapshot']['original_terms'],self.f.terms)
++        response=observer.get('/api/erp/snapshot/')
++        row=next(x for x in response.json()['purchases'] if x['id']==po.pk)
++        self.assertEqual(row['approval_snapshot']['quote_code'],self.f.quote.code)
++        for key in ('original_terms','supplier_confirmation','direct_reason','price','extras','confirmation_kind'):
++            self.assertNotIn(key,row['approval_snapshot'])
++        self.assertNotIn('price',row)
++        self.assertEqual(self.post('/api/erp/preview/',self.payload(),observer).status_code,403)
++        self.f.source.access_level='ceo';self.f.source.save(update_fields=['access_level'])
++        for path in ('/api/erp/snapshot/','/api/erp/export/','/api/operations/export/'):
++            response=manager.get(path)
++            self.assertEqual(response.status_code,200,response.content)
++            self.assertNotIn(self.f.quote.code,response.content.decode())
++            self.assertNotIn('CONF-001',response.content.decode())
++        self.assertEqual(self.confirm(pid,manager).status_code,404)
++        denied=self.post('/api/erp/preview/',self.payload(quantity='1'),manager)
++        self.assertEqual(denied.status_code,404,denied.content)
++
++    def test_historical_snapshot_source_hides_po_not_an_operational_lot_or_partial_aggregate(self):
++        manager=Client(enforce_csrf_checks=True,raise_request_exception=False)
++        login_test_client(manager,'manager',capabilities=('view_document','export_workspace'))
++        _,_,po=self.buy(self.payload(quantity='6'))
++        pid=self.preview({'action':'erp_receive','purchase_id':po.pk,'code':'B01-SCOPED-LOT',
++                          'quantity':'6','location_id':self.location.pk})
++        received=self.confirm(pid)
++        self.assertEqual(received.status_code,200,received.content)
++        lot_id=received.json()['lot_id']
++        # Current Quote now refers to a visible different document, but the
++        # approved source remains the original document in the immutable PO.
++        visible=self.document('B01-REPLACEMENT-SOURCE')
++        self.f.quote.document=visible;self.f.quote.save(update_fields=['document'])
++        self.f.source.access_level='ceo';self.f.source.save(update_fields=['access_level'])
++        snapshot=manager.get('/api/erp/snapshot/').json()
++        self.assertFalse(any(x['id']==po.pk for x in snapshot['purchases']))
++        self.assertFalse(any(x.get('purchase_id')==po.pk for x in snapshot['movements']))
++        lot=next(x for x in snapshot['lots'] if x['id']==lot_id)
++        self.assertEqual(D(lot['quantity']),D('6'))
++        self.assertNotIn('approval_snapshot',lot)
++        self.assertNotIn('CONF-001',json.dumps(snapshot))
++        limited=manager.get('/api/operations/compare/?code='+self.f.request.code).json()['request']
++        self.assertEqual((limited['allocated_quantity'],limited['remaining_quantity'],limited['allocation_visibility']),
++                         (None,None,'restricted'))
++        complete=self.http.get('/api/operations/compare/?code='+self.f.request.code).json()['request']
++        self.assertEqual((D(complete['allocated_quantity']),D(complete['remaining_quantity'])),(D('6'),D('4')))
++
++    def test_creation_writers_lock_before_reading_source_rows(self):
++        request={'code':'B01-R-HTTP','part':self.f.item.code,'revision':'A','quantity':10,'unit':'шт.',
++            'currency':'EUR','required_by':'2026-10-31','owner_id':self.owner.pk,
++            'document_id':self.f.spec.pk,'details':{}}
++        quote={'code':'B01-Q-HTTP','request_code':self.f.request.code,'supplier_id':self.f.supplier.pk,
++            'document_id':self.f.source.pk,'terms':self.f.terms}
++        for path,payload in (('/api/operations/requests/create/',request),('/api/operations/quotes/create/',quote)):
++            with self.subTest(path=path), CaptureQueriesContext(connection) as captured:
++                response=self.post(path,payload)
++            self.assertEqual(response.status_code,201,response.content)
++            sql=[query['sql'].lower() for query in captured.captured_queries]
++            locks=[i for i,x in enumerate(sql) if x.startswith('update "operations_configuration"')]
++            reads=[i for i,x in enumerate(sql) if x.startswith('select') and any('"'+table+'"' in x
++                    for table in ('operations_document','operations_procurementrequest','operations_supplierquote'))]
++            self.assertTrue(locks,'Source writer did not acquire the canonical ERP mutex')
++            self.assertTrue(reads)
++            self.assertLess(locks[0],min(reads))
++
++
++@override_settings(BOS_DATA_MODE='working', DEBUG=False, ANTHROPIC_API_KEY='',
++                   PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'])
++class ProcurementBridgeConcurrencyTests(BridgeFixture, TransactionTestCase):
++    def test_two_confirmations_cannot_overallocate_and_successful_replay_is_identical(self):
++        proposals=[self.preview(self.payload(quantity='6')) for _ in range(2)]
++        cookies=deepcopy(self.http.cookies)
++        barrier=threading.Barrier(2)
++        def worker(pid):
++            connections.close_all()
++            client=Client(enforce_csrf_checks=True,raise_request_exception=False)
++            client.cookies=deepcopy(cookies)
++            try:
++                barrier.wait(timeout=10)
++                response=self.confirm(pid,client)
++                return {'status':response.status_code,'json':response.json(),'proposal':pid}
++            finally:
++                connections.close_all()
++        with ThreadPoolExecutor(max_workers=2) as pool:
++            results=list(pool.map(worker,proposals))
++        print('B01_CONCURRENCY '+json.dumps(results,ensure_ascii=False))
++        self.assertEqual(sorted(x['status'] for x in results),[200,409],results)
++        self.assertEqual(Purchase.objects.count(),1)
++        self.assertEqual(Purchase.objects.aggregate(n=Sum('quantity'))['n'],D('6'))
++        self.assertEqual(Event.objects.filter(action='erp_purchase').count(),1)
++        winner=next(x for x in results if x['status']==200)
++        before=self.state()
++        self.assertEqual(self.confirm(winner['proposal']).json(),winner['json'])
++        self.assertEqual(self.state(),before)
++        loser=next(x for x in results if x['status']==409)
++        self.assertEqual(self.confirm(loser['proposal']).status_code,409)
++        self.assertEqual(self.state(),before)
++
++
++class PurchaseSourceMigrationTests(TransactionTestCase):
++    def test_historical_rows_ids_and_deleted_highwater_survive_forwards_and_backwards(self):
++        self.assertEqual(os.environ.get('DJANGO_SETTINGS_MODULE'),'verification_settings')
++        executor=MigrationExecutor(connection)
++        latest=executor.loader.graph.leaf_nodes()
++        self.addCleanup(lambda:MigrationExecutor(connection).migrate(latest))
++        old_target=[('erp','0002_row_boundaries')]
++        executor.migrate(old_target)
++        apps=executor.loader.project_state(old_target).apps
++        OldItem=apps.get_model('erp','Item');OldPurchase=apps.get_model('erp','Purchase')
++        supplier=Counterparty.objects.create(name='B01 historical supplier',type='supplier')
++        item=OldItem.objects.create(code='B01-HIST-I',name='B01 історична номенклатура')
++        values={'item_id':item.pk,'supplier_id':supplier.pk,'quantity':'10','received':'4',
++                'price':'12.34','extras':'5.00','currency':'EUR','due_date':'2026-10-20',
++                'original_due':'2026-10-20','revision':'A','status':'partial'}
++        po=OldPurchase.objects.create(code='B01-HIST-PO',**values)
++        # Raise the sequence via an actual generated ID, then delete only this
++        # own synthetic row. No existing installation is read or migrated.
++        removed=OldPurchase.objects.create(code='B01-HIST-DELETED',**values)
++        removed_id=removed.pk;removed.delete()
++        before=list(OldPurchase.objects.order_by('pk').values())
++        MigrationExecutor(connection).migrate(latest)
++        after=list(Purchase.objects.order_by('pk').values())
++        self.assertEqual([{k:v for k,v in row.items() if k not in ('quote_id','approval_snapshot')} for row in after],before)
++        self.assertTrue(all(row['quote_id'] is None and row['approval_snapshot'] is None for row in after))
++        migrated=Purchase.objects.create(code='B01-HIST-NEXT',**values)
++        self.assertGreater(migrated.pk,removed_id)
++        last_id=migrated.pk;migrated.delete()
++        MigrationExecutor(connection).migrate(old_target)
++        self.assertEqual(list(OldPurchase.objects.order_by('pk').values()),before)
++        next_row=OldPurchase.objects.create(code='B01-HIST-ROLLBACK-NEXT',**values)
++        self.assertGreater(next_row.pk,last_id)
++        next_row.delete()
++        MigrationExecutor(connection).migrate(latest)
++
++
++@override_settings(BOS_DATA_MODE='working', DEBUG=False, ANTHROPIC_API_KEY='',
++                   PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'])
++class PurchaseSourceRollbackRefusalTests(BridgeFixture, TransactionTestCase):
++    def test_actual_approved_po_refuses_lossy_rollback_with_schema_and_rows_unchanged(self):
++        _,_,po=self.buy(self.payload())
++        executor=MigrationExecutor(connection)
++        latest=executor.loader.graph.leaf_nodes()
++        self.addCleanup(lambda:MigrationExecutor(connection).migrate(latest))
++        def state():
++            with connection.cursor() as cursor:
++                description=connection.introspection.get_table_description(cursor,'erp_purchase')
++                columns=[tuple(row) for row in description]
++                constraints=connection.introspection.get_constraints(cursor,'erp_purchase')
++                cursor.execute('SELECT * FROM erp_purchase ORDER BY id')
++                rows=cursor.fetchall()
++                cursor.execute('SELECT app,name FROM django_migrations ORDER BY app,name')
++                migrations=cursor.fetchall()
++                if connection.vendor=='sqlite':
++                    cursor.execute("SELECT seq FROM sqlite_sequence WHERE name='erp_purchase'")
++                else:
++                    cursor.execute("SELECT last_value,is_called FROM erp_purchase_id_seq")
++                sequence=cursor.fetchall()
++            return {'columns':columns,'constraints':constraints,'rows':rows,
++                    'migrations':migrations,'sequence':sequence}
++        before=state()
++        refused=False
++        try:
++            MigrationExecutor(connection).migrate([('erp','0002_row_boundaries')])
++        except RuntimeError:
++            refused=True
++        after=state()
++        changed=[key for key in before if before[key]!=after[key]]
++        print('B01_SOURCE_ROLLBACK '+json.dumps({'refused':refused,'changed':changed,
++              'purchase_id':po.pk,'source':'actual HTTP approved quote purchase'},ensure_ascii=False))
++        self.assertTrue(refused,'Rollback removed approved source fields instead of refusing')
++        self.assertEqual(after,before,'Refused migration changed schema, purchase rows, migration receipt or sequence')
+--- a/operations/projections.py
++++ b/operations/projections.py
+@@ -11,7 +11,7 @@
+     'lines': 'id order_id item_id revision quantity shipped invoiced',
+     'jobs': 'id code line_id item_id quantity produced revision bom routing location_id owner_id due_date status needs_review currency',
+     'reservations': 'id lot_id line_id production_id quantity',
+-    'purchases': 'id code item_id supplier_id quantity received currency due_date original_due revision production_id request_id status',
++    'purchases': 'id code item_id supplier_id quantity received currency due_date original_due revision production_id request_id quote_id approval_snapshot status',
+     'inspections': 'id lot_id result inspector_id created_at',
+     'changes': 'id code item_id document_id target_revision status created_at',
+     'operator_entries': 'id production_id operation operator_id result minutes defects created_at',
+@@ -35,6 +35,14 @@
+         if policy.role == 'manager' and name == 'lines':
+             allowed += ['price']
+         data[name] = [select(x, allowed) for x in data.get(name, [])]
++        if name == 'purchases' and policy.role == 'observer':
++            for row in data[name]:
++                source = row.get('approval_snapshot')
++                if isinstance(source, dict):
++                    public = select(source, ('source','request_id','request_code','quote_id','quote_code'))
++                    public['source_documents'] = {kind:select(document, ('document_id','code'))
++                        for kind,document in source.get('source_documents',{}).items()}
++                    row['approval_snapshot'] = public
+     # Events contain arbitrary prior payloads. Non-CEO history uses metadata
+     # only, after checking every referenced object with today's permissions.
+     events = []
+@@ -64,6 +72,13 @@
+     quote_codes = set(policy.quotes().values_list('code', flat=True))
+     data = deepcopy(data)
+     data['rows'] = [x for x in data['rows'] if x['code'] in quote_codes]
++    data['request']['allocation_visibility'] = 'complete'
++    if not policy.ceo:
++        from erp.models import Purchase
++        linked = Purchase.objects.filter(request__code=data['request']['code'])
++        if linked.exclude(pk__in=policy.queryset(Purchase).values('pk')).exists():
++            data['request'].update(allocated_quantity=None, remaining_quantity=None,
++                                   allocation_visibility='restricted')
+     if policy.role == 'observer':
+         for row in data['rows']:
+             row.pop('total', None)
+--- a/operations/service.py
++++ b/operations/service.py
+@@ -27,6 +27,8 @@
+ def newest(code):return Document.objects.filter(code=code).defer('content').order_by('-id').first()
+ 
+ def compare(code,quantity=None):
++    from erp.models import Purchase
++    from django.db.models import Sum
+     r=ProcurementRequest.objects.select_related('owner','document').get(code=code)
+     q=r.quantity if quantity is None else quantity
+     if type(q)!=int or not 1<=q<=100000:raise ValueError('Кількість: ціле число від 1 до 100000.')
+@@ -45,10 +47,11 @@
+         if q<t.get('moq',1):reasons.append('Менше мінімальної партії')
+         if not spec_current or newest(item.document.code).id!=item.document_id:reasons.append('Є нова версія документа: потрібен перегляд')
+         total=Decimal(t['unit_price'])*q+sum((Decimal(t.get(x,'0')) for x in ['setup','shipping','tooling','special_processes']),Decimal(0))
+-        rows.append({'code':item.code,'supplier':item.supplier.name,'total':str(total),'currency':t['currency'],'arrival':str(arrival),'reasons':reasons,'terms':t,'document_id':item.document_id})
++        rows.append({'id':item.pk,'code':item.code,'supplier_id':item.supplier_id,'supplier':item.supplier.name,'total':str(total),'currency':t['currency'],'arrival':str(arrival),'reasons':reasons,'terms':t,'document_id':item.document_id})
+     eligible=[x for x in rows if not x['reasons']]
+     chosen=min(eligible,key=lambda x:Decimal(x['total']))['code'] if eligible else None
+-    return {'request':{'code':r.code,'part':r.part,'revision':r.revision,'quantity':q,'unit':r.unit,'required_by':str(r.required_by),'owner':r.owner.full_name,'owner_id':r.owner_id,'document_id':r.document_id,'details':r.details},'rows':rows,'recommended':chosen,'simulation':quantity is not None,'as_of':str(current)}
++    allocated=Purchase.objects.filter(request=r).aggregate(total=Sum('quantity'))['total'] or Decimal(0)
++    return {'request':{'id':r.pk,'code':r.code,'part':r.part,'revision':r.revision,'quantity':q,'original_quantity':r.quantity,'allocated_quantity':str(allocated),'remaining_quantity':str(max(Decimal(0),Decimal(r.quantity)-allocated)),'unit':r.unit,'required_by':str(r.required_by),'owner':r.owner.full_name,'owner_id':r.owner_id,'document_id':r.document_id,'details':r.details},'rows':rows,'recommended':chosen,'simulation':quantity is not None,'as_of':str(current)}
+ 
+ def validate(data):
+     if not isinstance(data,dict):raise ValueError('Потрібен об’єкт дії.')
+--- a/operations/views.py
++++ b/operations/views.py
+@@ -225,7 +225,10 @@
+ 
+ @require_POST
+ @errors
++@transaction.atomic
+ def request_create(request):
++    from erp.service import write_lock
++    write_lock()
+     d=body(request)
+     fields={'code','part','revision','quantity','unit','currency','required_by','owner_id','document_id','details'}
+     if set(d)!=fields:raise ValueError()
+@@ -241,7 +244,10 @@
+ 
+ @require_POST
+ @errors
++@transaction.atomic
+ def quote_create(request):
++    from erp.service import write_lock
++    write_lock()
+     d=body(request)
+     if set(d)!={'code','request_code','supplier_id','document_id','terms'}:raise ValueError()
+     if not isinstance(d['code'],str) or not 1<=len(d['code'])<=30:raise ValueError()

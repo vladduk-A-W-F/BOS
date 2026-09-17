@@ -1,0 +1,107 @@
+test_changed_content_on_owned_inode_is_not_deleted (__main__.StorageOwnershipReview.test_changed_content_on_owned_inode_is_not_deleted) ... FAIL
+test_changed_receipt_payload_and_root_replacement_are_refused (__main__.StorageOwnershipReview.test_changed_receipt_payload_and_root_replacement_are_refused) ... FAIL
+test_commit_finalize_revokes_cleanup_and_raw_delete_stays_forbidden (__main__.StorageOwnershipReview.test_commit_finalize_revokes_cleanup_and_raw_delete_stays_forbidden) ... FAIL
+test_existing_shared_media0755_unchanged_private_subdirs0700 (__main__.StorageOwnershipReview.test_existing_shared_media0755_unchanged_private_subdirs0700) ... ERROR
+test_forged_equal_receipt_or_other_storage_instance_cannot_cleanup (__main__.StorageOwnershipReview.test_forged_equal_receipt_or_other_storage_instance_cannot_cleanup) ... FAIL
+test_replaced_inode_is_not_deleted_even_when_bytes_match (__main__.StorageOwnershipReview.test_replaced_inode_is_not_deleted_even_when_bytes_match) ... FAIL
+test_sql_rollback_discards_only_this_new_file_and_revokes_receipt (__main__.StorageOwnershipReview.test_sql_rollback_discards_only_this_new_file_and_revokes_receipt) ... FAIL
+test_symlink_replacement_cannot_delete_the_destination (__main__.StorageOwnershipReview.test_symlink_replacement_cannot_delete_the_destination) ... FAIL
+
+======================================================================
+ERROR: test_existing_shared_media0755_unchanged_private_subdirs0700 (__main__.StorageOwnershipReview.test_existing_shared_media0755_unchanged_private_subdirs0700)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a08_storage_ownership_tests.py", line 43, in test_existing_shared_media0755_unchanged_private_subdirs0700
+    result = self.save()
+             ^^^^^^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/a08_storage_ownership_tests.py", line 29, in save
+    return self.store.save_verified(data, sha(data), legacy_blob_bytes=0)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/a08_private_storage.py", line 45, in guarded
+    return function(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/a08_private_storage.py", line 350, in save_verified
+    tree = _Tree(self.root, create=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/a08_private_storage.py", line 135, in __init__
+    _private_mode(info, 0o700)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a08_private_storage.py", line 95, in _private_mode
+    _error('Права доступу до приватного сховища не відповідають налаштуванню.')
+  File "/workspace/scratch/c7b51e996a9f/tmp/a08_private_storage.py", line 56, in _error
+    raise PrivateFileError(message)
+a08_private_storage.PrivateFileError: Права доступу до приватного сховища не відповідають налаштуванню.
+
+======================================================================
+FAIL: test_changed_content_on_owned_inode_is_not_deleted (__main__.StorageOwnershipReview.test_changed_content_on_owned_inode_is_not_deleted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a08_storage_ownership_tests.py", line 115, in test_changed_content_on_owned_inode_is_not_deleted
+    self.require_api()
+  File "/workspace/scratch/c7b51e996a9f/tmp/a08_storage_ownership_tests.py", line 32, in require_api
+    self.assertTrue(callable(getattr(self.store, 'discard_new', None)),
+AssertionError: False is not true : A08 DOC13 needs owned rollback cleanup
+
+======================================================================
+FAIL: test_changed_receipt_payload_and_root_replacement_are_refused (__main__.StorageOwnershipReview.test_changed_receipt_payload_and_root_replacement_are_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a08_storage_ownership_tests.py", line 137, in test_changed_receipt_payload_and_root_replacement_are_refused
+    self.require_api()
+  File "/workspace/scratch/c7b51e996a9f/tmp/a08_storage_ownership_tests.py", line 32, in require_api
+    self.assertTrue(callable(getattr(self.store, 'discard_new', None)),
+AssertionError: False is not true : A08 DOC13 needs owned rollback cleanup
+
+======================================================================
+FAIL: test_commit_finalize_revokes_cleanup_and_raw_delete_stays_forbidden (__main__.StorageOwnershipReview.test_commit_finalize_revokes_cleanup_and_raw_delete_stays_forbidden)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a08_storage_ownership_tests.py", line 78, in test_commit_finalize_revokes_cleanup_and_raw_delete_stays_forbidden
+    self.require_api()
+  File "/workspace/scratch/c7b51e996a9f/tmp/a08_storage_ownership_tests.py", line 32, in require_api
+    self.assertTrue(callable(getattr(self.store, 'discard_new', None)),
+AssertionError: False is not true : A08 DOC13 needs owned rollback cleanup
+
+======================================================================
+FAIL: test_forged_equal_receipt_or_other_storage_instance_cannot_cleanup (__main__.StorageOwnershipReview.test_forged_equal_receipt_or_other_storage_instance_cannot_cleanup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a08_storage_ownership_tests.py", line 87, in test_forged_equal_receipt_or_other_storage_instance_cannot_cleanup
+    self.require_api()
+  File "/workspace/scratch/c7b51e996a9f/tmp/a08_storage_ownership_tests.py", line 32, in require_api
+    self.assertTrue(callable(getattr(self.store, 'discard_new', None)),
+AssertionError: False is not true : A08 DOC13 needs owned rollback cleanup
+
+======================================================================
+FAIL: test_replaced_inode_is_not_deleted_even_when_bytes_match (__main__.StorageOwnershipReview.test_replaced_inode_is_not_deleted_even_when_bytes_match)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a08_storage_ownership_tests.py", line 101, in test_replaced_inode_is_not_deleted_even_when_bytes_match
+    self.require_api()
+  File "/workspace/scratch/c7b51e996a9f/tmp/a08_storage_ownership_tests.py", line 32, in require_api
+    self.assertTrue(callable(getattr(self.store, 'discard_new', None)),
+AssertionError: False is not true : A08 DOC13 needs owned rollback cleanup
+
+======================================================================
+FAIL: test_sql_rollback_discards_only_this_new_file_and_revokes_receipt (__main__.StorageOwnershipReview.test_sql_rollback_discards_only_this_new_file_and_revokes_receipt)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a08_storage_ownership_tests.py", line 53, in test_sql_rollback_discards_only_this_new_file_and_revokes_receipt
+    self.require_api()
+  File "/workspace/scratch/c7b51e996a9f/tmp/a08_storage_ownership_tests.py", line 32, in require_api
+    self.assertTrue(callable(getattr(self.store, 'discard_new', None)),
+AssertionError: False is not true : A08 DOC13 needs owned rollback cleanup
+
+======================================================================
+FAIL: test_symlink_replacement_cannot_delete_the_destination (__main__.StorageOwnershipReview.test_symlink_replacement_cannot_delete_the_destination)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a08_storage_ownership_tests.py", line 124, in test_symlink_replacement_cannot_delete_the_destination
+    self.require_api()
+  File "/workspace/scratch/c7b51e996a9f/tmp/a08_storage_ownership_tests.py", line 32, in require_api
+    self.assertTrue(callable(getattr(self.store, 'discard_new', None)),
+AssertionError: False is not true : A08 DOC13 needs owned rollback cleanup
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.003s
+
+FAILED (failures=7, errors=1)

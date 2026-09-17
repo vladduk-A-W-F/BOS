@@ -1,0 +1,397 @@
+{
+  "date": "2026-09-12T09:25:09.456813+00:00",
+  "methods": 7,
+  "failures": 1,
+  "errors": 0,
+  "success": false,
+  "scenarios": [
+    {
+      "case": "ready_missing",
+      "started": true,
+      "answers": [
+        {
+          "method": "get",
+          "status": 503,
+          "body": {
+            "status": "unavailable"
+          },
+          "correlation": "de709e7b26dd47d6b23b27fe9866c243",
+          "cache_control": "no-store",
+          "allow": null,
+          "response_sha256": "0db79d833f0771c2743443c0d398c694bbb1eda07f468bdfa9e443b2a033f3ca"
+        }
+      ],
+      "files_unchanged": true,
+      "io": [],
+      "query_verbs": [],
+      "stderr_lines": [
+        "{\"event\":\"dependency_unavailable\",\"status\":503,\"version\":\"0.2.8-dev\",\"correlation_id\":\"de709e7b26dd47d6b23b27fe9866c243\"}",
+        "{\"event\":\"request\",\"status\":503,\"version\":\"0.2.8-dev\",\"correlation_id\":\"de709e7b26dd47d6b23b27fe9866c243\"}",
+        "{\"event\":\"application_error\",\"status\":503,\"version\":\"0.2.8-dev\",\"correlation_id\":\"cb553410d7a64d8cb40893d76ba353c1\"}"
+      ]
+    },
+    {
+      "case": "ready_empty",
+      "started": true,
+      "answers": [
+        {
+          "method": "get",
+          "status": 503,
+          "body": {
+            "status": "unavailable"
+          },
+          "correlation": "ac0d1e404b7f43389b8086c47b733098",
+          "cache_control": "no-store",
+          "allow": null,
+          "response_sha256": "0db79d833f0771c2743443c0d398c694bbb1eda07f468bdfa9e443b2a033f3ca"
+        }
+      ],
+      "files_unchanged": true,
+      "io": [
+        {
+          "event": "sqlite3.connect",
+          "phase": "requests",
+          "read_only": true
+        }
+      ],
+      "query_verbs": [],
+      "stderr_lines": [
+        "{\"event\":\"dependency_unavailable\",\"status\":503,\"version\":\"0.2.8-dev\",\"correlation_id\":\"ac0d1e404b7f43389b8086c47b733098\"}",
+        "{\"event\":\"request\",\"status\":503,\"version\":\"0.2.8-dev\",\"correlation_id\":\"ac0d1e404b7f43389b8086c47b733098\"}",
+        "{\"event\":\"application_error\",\"status\":503,\"version\":\"0.2.8-dev\",\"correlation_id\":\"e6ee050991ea44cfa7447decf10811d2\"}"
+      ]
+    },
+    {
+      "case": "ready_corrupt",
+      "started": true,
+      "answers": [
+        {
+          "method": "get",
+          "status": 503,
+          "body": {
+            "status": "unavailable"
+          },
+          "correlation": "7c34562504384229ad4cb6f0a7b1d9e8",
+          "cache_control": "no-store",
+          "allow": null,
+          "response_sha256": "0db79d833f0771c2743443c0d398c694bbb1eda07f468bdfa9e443b2a033f3ca"
+        }
+      ],
+      "files_unchanged": true,
+      "io": [
+        {
+          "event": "sqlite3.connect",
+          "phase": "requests",
+          "read_only": true
+        }
+      ],
+      "query_verbs": [],
+      "stderr_lines": [
+        "{\"event\":\"dependency_unavailable\",\"status\":503,\"version\":\"0.2.8-dev\",\"correlation_id\":\"7c34562504384229ad4cb6f0a7b1d9e8\"}",
+        "{\"event\":\"request\",\"status\":503,\"version\":\"0.2.8-dev\",\"correlation_id\":\"7c34562504384229ad4cb6f0a7b1d9e8\"}",
+        "{\"event\":\"application_error\",\"status\":503,\"version\":\"0.2.8-dev\",\"correlation_id\":\"af5aad734a694c59b7af4aecad9df40c\"}"
+      ]
+    },
+    {
+      "case": "ready_pending",
+      "started": true,
+      "answers": [
+        {
+          "method": "get",
+          "status": 503,
+          "body": {
+            "status": "unavailable"
+          },
+          "correlation": "1154bbe804f54317a349b43a53c22983",
+          "cache_control": "no-store",
+          "allow": null,
+          "response_sha256": "0db79d833f0771c2743443c0d398c694bbb1eda07f468bdfa9e443b2a033f3ca"
+        }
+      ],
+      "files_unchanged": true,
+      "io": [
+        {
+          "event": "sqlite3.connect",
+          "phase": "requests",
+          "read_only": true
+        }
+      ],
+      "query_verbs": [],
+      "stderr_lines": [
+        "{\"event\":\"dependency_unavailable\",\"status\":503,\"version\":\"0.2.8-dev\",\"correlation_id\":\"1154bbe804f54317a349b43a53c22983\"}",
+        "{\"event\":\"request\",\"status\":503,\"version\":\"0.2.8-dev\",\"correlation_id\":\"1154bbe804f54317a349b43a53c22983\"}",
+        "{\"event\":\"application_error\",\"status\":503,\"version\":\"0.2.8-dev\",\"correlation_id\":\"fc93ea5a6cb64024a7b5bc2a5461c175\"}"
+      ]
+    },
+    {
+      "case": "configuration_refused",
+      "exception": "ImproperlyConfigured",
+      "io": [],
+      "query_verbs": [],
+      "stderr_lines": [
+        "{\"event\":\"configuration_refused\",\"status\":503,\"version\":\"0.2.8-dev\",\"correlation_id\":\"6b70e2c6850b472eb1a6ffdca8b6b31f\"}"
+      ]
+    },
+    {
+      "case": "live_missing",
+      "started": true,
+      "answers": [
+        {
+          "method": "get",
+          "status": 200,
+          "body": {
+            "status": "alive"
+          },
+          "correlation": "8e3db2605fb44afeb1c0460bbfa57faa",
+          "cache_control": "no-store",
+          "allow": null,
+          "response_sha256": "09cff42e0cbfe11915a333cc5d2b988b2e364cc939c3aa2102688933499e437b"
+        }
+      ],
+      "files_unchanged": true,
+      "io": [],
+      "query_verbs": [],
+      "stderr_lines": [
+        "{\"event\":\"request\",\"status\":200,\"version\":\"0.2.8-dev\",\"correlation_id\":\"8e3db2605fb44afeb1c0460bbfa57faa\"}"
+      ]
+    },
+    {
+      "case": "ready_media_missing",
+      "started": true,
+      "answers": [
+        {
+          "method": "get",
+          "status": 503,
+          "body": {
+            "status": "unavailable"
+          },
+          "correlation": "9d24b78b1fea48d08eeea4efa7114877",
+          "cache_control": "no-store",
+          "allow": null,
+          "response_sha256": "0db79d833f0771c2743443c0d398c694bbb1eda07f468bdfa9e443b2a033f3ca"
+        }
+      ],
+      "files_unchanged": true,
+      "io": [
+        {
+          "event": "sqlite3.connect",
+          "phase": "requests",
+          "read_only": true
+        }
+      ],
+      "query_verbs": [],
+      "stderr_lines": [
+        "{\"event\":\"dependency_unavailable\",\"status\":503,\"version\":\"0.2.8-dev\",\"correlation_id\":\"9d24b78b1fea48d08eeea4efa7114877\"}",
+        "{\"event\":\"request\",\"status\":503,\"version\":\"0.2.8-dev\",\"correlation_id\":\"9d24b78b1fea48d08eeea4efa7114877\"}",
+        "{\"event\":\"application_error\",\"status\":503,\"version\":\"0.2.8-dev\",\"correlation_id\":\"0dcd2c69db664665ab3a45586bcb772e\"}"
+      ]
+    },
+    {
+      "case": "ready_media_file",
+      "started": true,
+      "answers": [
+        {
+          "method": "get",
+          "status": 503,
+          "body": {
+            "status": "unavailable"
+          },
+          "correlation": "e607a754a3d4450dac205c98d01bf408",
+          "cache_control": "no-store",
+          "allow": null,
+          "response_sha256": "0db79d833f0771c2743443c0d398c694bbb1eda07f468bdfa9e443b2a033f3ca"
+        }
+      ],
+      "files_unchanged": true,
+      "io": [],
+      "query_verbs": [],
+      "stderr_lines": [
+        "{\"event\":\"dependency_unavailable\",\"status\":503,\"version\":\"0.2.8-dev\",\"correlation_id\":\"e607a754a3d4450dac205c98d01bf408\"}",
+        "{\"event\":\"request\",\"status\":503,\"version\":\"0.2.8-dev\",\"correlation_id\":\"e607a754a3d4450dac205c98d01bf408\"}",
+        "{\"event\":\"application_error\",\"status\":503,\"version\":\"0.2.8-dev\",\"correlation_id\":\"be2aa3bd3bf84a9da2f700a40ec76afb\"}"
+      ]
+    },
+    {
+      "case": "ready_media_readonly",
+      "started": true,
+      "answers": [
+        {
+          "method": "get",
+          "status": 503,
+          "body": {
+            "status": "unavailable"
+          },
+          "correlation": "99128440da6e4cfb8b17a65855c7c203",
+          "cache_control": "no-store",
+          "allow": null,
+          "response_sha256": "0db79d833f0771c2743443c0d398c694bbb1eda07f468bdfa9e443b2a033f3ca"
+        }
+      ],
+      "files_unchanged": true,
+      "io": [
+        {
+          "event": "sqlite3.connect",
+          "phase": "requests",
+          "read_only": true
+        }
+      ],
+      "query_verbs": [],
+      "stderr_lines": [
+        "{\"event\":\"dependency_unavailable\",\"status\":503,\"version\":\"0.2.8-dev\",\"correlation_id\":\"99128440da6e4cfb8b17a65855c7c203\"}",
+        "{\"event\":\"request\",\"status\":503,\"version\":\"0.2.8-dev\",\"correlation_id\":\"99128440da6e4cfb8b17a65855c7c203\"}",
+        "{\"event\":\"application_error\",\"status\":503,\"version\":\"0.2.8-dev\",\"correlation_id\":\"a6f3247c36ab4f4cb75a785f8429b3ed\"}"
+      ]
+    },
+    {
+      "case": "methods",
+      "started": true,
+      "answers": [
+        {
+          "method": "post",
+          "status": 405,
+          "body": {
+            "status": "method_not_allowed"
+          },
+          "correlation": "80ae49f47300464ea33f4fedf77702c8",
+          "cache_control": "no-store",
+          "allow": "GET",
+          "response_sha256": "9941508f690553075cdadaf38145dfa3e313973f6b71407eb1a8b2655185cabf"
+        },
+        {
+          "method": "post",
+          "status": 405,
+          "body": {
+            "status": "method_not_allowed"
+          },
+          "correlation": "69037ce23f654e5f9f1dddcb2dd1c79f",
+          "cache_control": "no-store",
+          "allow": "GET",
+          "response_sha256": "9941508f690553075cdadaf38145dfa3e313973f6b71407eb1a8b2655185cabf"
+        }
+      ],
+      "files_unchanged": true,
+      "io": [],
+      "query_verbs": [],
+      "stderr_lines": [
+        "{\"event\":\"request\",\"status\":405,\"version\":\"0.2.8-dev\",\"correlation_id\":\"80ae49f47300464ea33f4fedf77702c8\"}",
+        "{\"event\":\"security_rejection\",\"status\":405,\"version\":\"0.2.8-dev\",\"correlation_id\":\"45352a7fea93471d96b8aa6990bcf8eb\"}",
+        "{\"event\":\"request\",\"status\":405,\"version\":\"0.2.8-dev\",\"correlation_id\":\"69037ce23f654e5f9f1dddcb2dd1c79f\"}",
+        "{\"event\":\"security_rejection\",\"status\":405,\"version\":\"0.2.8-dev\",\"correlation_id\":\"349cbe9dad2145599f99af9f770d072e\"}"
+      ]
+    },
+    {
+      "case": "ready_healthy",
+      "started": true,
+      "answers": [
+        {
+          "method": "get",
+          "status": 503,
+          "body": {
+            "status": "unavailable"
+          },
+          "correlation": "a4e61a17b7ff4ad8a9fab808699a2318",
+          "cache_control": "no-store",
+          "allow": null,
+          "response_sha256": "0db79d833f0771c2743443c0d398c694bbb1eda07f468bdfa9e443b2a033f3ca"
+        }
+      ],
+      "files_unchanged": true,
+      "io": [
+        {
+          "event": "sqlite3.connect",
+          "phase": "requests",
+          "read_only": true
+        }
+      ],
+      "query_verbs": [],
+      "stderr_lines": [
+        "{\"event\":\"dependency_unavailable\",\"status\":503,\"version\":\"0.2.8-dev\",\"correlation_id\":\"a4e61a17b7ff4ad8a9fab808699a2318\"}",
+        "{\"event\":\"request\",\"status\":503,\"version\":\"0.2.8-dev\",\"correlation_id\":\"a4e61a17b7ff4ad8a9fab808699a2318\"}",
+        "{\"event\":\"application_error\",\"status\":503,\"version\":\"0.2.8-dev\",\"correlation_id\":\"2b194d42fbf14ad3b9fb07186224025e\"}"
+      ]
+    },
+    {
+      "case": "logs",
+      "started": true,
+      "answers": [
+        {
+          "method": "post",
+          "status": 200,
+          "body": {
+            "ok": true
+          },
+          "correlation": "bb828412f31b403e9f0893b4800d1276",
+          "cache_control": null,
+          "allow": null,
+          "response_sha256": "6bc0da1f42f96fc37b8bd7ed20ba57606d2a0da5cda2b135c7854fbdc985b8a3"
+        },
+        {
+          "method": "post",
+          "status": 500,
+          "body": null,
+          "correlation": "0ed0feadf3e34555ad2c7cc34424ce27",
+          "cache_control": null,
+          "allow": null,
+          "response_sha256": "fd62a53afdd49595ccd111b6ac06466a1690e7c8da4aeb0e884b5e0f4e937624"
+        },
+        {
+          "method": "get",
+          "status": 404,
+          "body": null,
+          "correlation": "937b978d8044427b829207d2cb66c1e8",
+          "cache_control": null,
+          "allow": null,
+          "response_sha256": "5547992afdadb59737c5c0feb1a35dff294cd27145bf290c031737ecf8a2577d"
+        },
+        {
+          "method": "get",
+          "status": 400,
+          "body": null,
+          "correlation": "b68caa3e4ed84cb499f25a77b6d879da",
+          "cache_control": null,
+          "allow": null,
+          "response_sha256": "65b0d4aef304dcf46bffd8a20b46f7fc441e2ab0848ea3197caf713de1babb63"
+        },
+        {
+          "method": "get",
+          "status": 403,
+          "body": {
+            "error": "Пряме підключення до сервера BoS заборонено."
+          },
+          "correlation": "c6d77a1252ef4928886c2867319bd93c",
+          "cache_control": null,
+          "allow": null,
+          "response_sha256": "1aea30f91d54a257c9c529fe9ecc7d787200efe719aa3a70729f1578fe06b80b"
+        },
+        {
+          "method": "get",
+          "status": 301,
+          "body": null,
+          "correlation": "cc32e8e0106945df8385a8a2e0a8be61",
+          "cache_control": null,
+          "allow": null,
+          "response_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "files_unchanged": true,
+      "io": [],
+      "query_verbs": [],
+      "stderr_lines": [
+        "{\"event\":\"application_error\",\"status\":500,\"version\":\"0.2.8-dev\",\"correlation_id\":\"bb828412f31b403e9f0893b4800d1276\"}",
+        "{\"event\":\"security_rejection\",\"status\":400,\"version\":\"0.2.8-dev\",\"correlation_id\":\"bb828412f31b403e9f0893b4800d1276\"}",
+        "{\"event\":\"application_error\",\"status\":500,\"version\":\"0.2.8-dev\",\"correlation_id\":\"bb828412f31b403e9f0893b4800d1276\"}",
+        "{\"event\":\"request\",\"status\":200,\"version\":\"0.2.8-dev\",\"correlation_id\":\"bb828412f31b403e9f0893b4800d1276\"}",
+        "{\"event\":\"application_error\",\"status\":500,\"version\":\"0.2.8-dev\",\"correlation_id\":\"0ed0feadf3e34555ad2c7cc34424ce27\"}",
+        "{\"event\":\"request\",\"status\":500,\"version\":\"0.2.8-dev\",\"correlation_id\":\"0ed0feadf3e34555ad2c7cc34424ce27\"}",
+        "{\"event\":\"request\",\"status\":404,\"version\":\"0.2.8-dev\",\"correlation_id\":\"937b978d8044427b829207d2cb66c1e8\"}",
+        "{\"event\":\"security_rejection\",\"status\":404,\"version\":\"0.2.8-dev\",\"correlation_id\":\"f869fdecd7684ba3a9297f4691015016\"}",
+        "{\"event\":\"application_error\",\"status\":400,\"version\":\"0.2.8-dev\",\"correlation_id\":\"b68caa3e4ed84cb499f25a77b6d879da\"}",
+        "{\"event\":\"request\",\"status\":400,\"version\":\"0.2.8-dev\",\"correlation_id\":\"b68caa3e4ed84cb499f25a77b6d879da\"}",
+        "{\"event\":\"request\",\"status\":403,\"version\":\"0.2.8-dev\",\"correlation_id\":\"c6d77a1252ef4928886c2867319bd93c\"}",
+        "{\"event\":\"security_rejection\",\"status\":403,\"version\":\"0.2.8-dev\",\"correlation_id\":\"5ee1467157564daca2475d968bbf18d8\"}",
+        "{\"event\":\"request\",\"status\":301,\"version\":\"0.2.8-dev\",\"correlation_id\":\"cc32e8e0106945df8385a8a2e0a8be61\"}"
+      ]
+    }
+  ],
+  "scope": "Actual isolated SQLite and Django requests/log streams; no production HTTP/TLS/network/Windows/PG acceptance"
+}

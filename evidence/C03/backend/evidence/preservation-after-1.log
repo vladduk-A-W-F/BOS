@@ -1,0 +1,118 @@
+Creating test database for alias 'default'...
+Destroying old test database for alias 'default'...
+..........FFound 12 test(s).
+System check identified no issues (0 silenced).
+BOS_A07_TRANSFER {"backend": "sqlite", "complete": true, "table_count": 56, "source_sha256": "9b92c6c6316861512bcd5209fa8956fdef429ea74f4cf3200be8b64edc9ab76b", "source_unchanged": true, "accounting_totals": {"stock": {"lot_count": 12, "movement_count": 18, "recorded_cost_basis_by_currency": {"EUR": "39", "USD": "39", "UAH": "39"}, "quantity_by_item": {"1": {"stock": "13", "movements": "13"}, "2": {"stock": "2", "movements": "2"}, "3": {"stock": "13", "movements": "13"}, "4": {"stock": "2", "movements": "2"}, "5": {"stock": "13", "movements": "13"}, "6": {"stock": "2", "movements": "2"}}}, "finance": {"salary_rows": 3, "transaction_rows": 6, "salary_amounts": [{"currency": "EUR", "status": "paid", "amount": "100"}, {"currency": "UAH", "status": "paid", "amount": "100"}, {"currency": "USD", "status": "paid", "amount": "100"}], "transaction_amounts": [{"currency": "EUR", "direction": "in", "amount": "200"}, {"currency": "EUR", "direction": "out", "amount": "100"}, {"currency": "UAH", "direction": "in", "amount": "200"}, {"currency": "UAH", "direction": "out", "amount": "100"}, {"currency": "USD", "direction": "in", "amount": "200"}, {"currency": "USD", "direction": "out", "amount": "100"}]}}, "next_ids": [90002, 90003], "http_receipt_equal": true, "not_checked": ["real_customer_data", "postgresql", "production_cutover", "A09_A10_installation_upgrade"]}
+C01_SCHEMA_ISOLATED {"case": "erp.test_import_preservation.ImportPreservationTests.test_populated_import_history_refuses_backward_migration_unchanged", "actual_child_exit": 0, "historical_task_boundary": null}
+B03_TYPED {"exact_tables": 56, "populated_models": 6, "source_unchanged": true, "receipt_replays": 5}
+C01_SCHEMA_ISOLATED {"case": "erp.test_correction_preservation.CorrectionPreservationTests.test_populated_corrections_refuse_lossy_backward_before_any_schema_or_row_change", "actual_child_exit": 0, "historical_task_boundary": "0004_task_branch"}
+B03_REVERSE_REFUSED {"populated_models": 6, "schema_rows_sequences_migrations_unchanged": true}
+C01_LEGACY {"exact_old_rows": true, "all_new_fields_null": true, "highwater": 80001, "next_id": 80002}
+C01_TYPED {"exact_tables": 56, "tasks": 2, "receipt_replays": 3, "legacy_null": true, "source_unchanged": true}
+BOS_A08_DOCUMENT_CASE {"case": "highwater", "passed": true, "input_unchanged": true, "details": {"document_high_water": 400001, "chat_high_water": 500001, "actual_next_document_id": 400002, "historical_schema_created": true, "b01_source_fields_never_created_or_erased": true, "historical_media_unchanged": true}}
+.
+======================================================================
+FAIL: test_earlier_schema_reverse_guard_and_populated_typed_transfer (finance.test_statement_preservation.StatementPreservationIsolationTests.test_earlier_schema_reverse_guard_and_populated_typed_transfer)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/c03_candidate/source/finance/test_statement_preservation.py", line 13, in test_earlier_schema_reverse_guard_and_populated_typed_transfer
+    self.assertEqual(run.returncode,0,run.stdout+'\n'+run.stderr);self.assertIn('Ran 3 tests',run.stderr);self.assertIn('OK',run.stderr)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Found 3 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: django_filters, messages, rest_framework, staticfiles
+  Apply all migrations: admin, ai_assistant, auth, branches, contenttypes, employees, erp, finance, operations, sessions, tasks
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying ai_assistant.0001_initial... OK
+  Applying ai_assistant.0002_taskchangelog... OK
+  Applying ai_assistant.0003_claudeusagelog... OK
+  Applying ai_assistant.0004_employeechangelog... OK
+  Applying ai_assistant.0005_chatfile... OK
+  Applying ai_assistant.0006_alter_chatmessage_created_at_and_more... OK
+  Applying ai_assistant.0007_employeechangelog_undone_at... OK
+  Applying ai_assistant.0008_chatmessage_archived_at_chatmessage_user_and_more... OK
+  Applying ai_assistant.0009_private_documents... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying branches.0001_initial... OK
+  Applying branches.0002_branch_short_name... OK
+  Applying branches.0003_fill_short_names... OK
+  Applying employees.0001_initial... OK
+  Applying employees.0002_alter_employee_department... OK
+  Applying employees.0003_employee_branch... OK
+  Applying employees.0004_employee_archived_at... OK
+  Applying employees.0005_employee_user... OK
+  Applying tasks.0001_initial... OK
+  Applying tasks.0002_alter_task_priority... OK
+  Applying tasks.0003_alter_task_deadline_alter_task_priority_and_more... OK
+  Applying tasks.0004_task_branch... OK
+  Applying finance.0001_initial... OK
+  Applying finance.0002_alter_salary_unique_together_alter_contract_status_and_more... OK
+  Applying finance.0003_transaction_branch... OK
+  Applying operations.0001_initial... OK
+  Applying operations.0002_actionproposal_user... OK
+  Applying operations.0003_loginattempt... OK
+  Applying operations.0004_alter_document_options_document_access_level... OK
+  Applying operations.0005_invoice_boundaries... OK
+  Applying operations.0006_private_documents... OK
+  Applying finance.0004_salary_archived_at_transaction_archived_at_and_more... OK
+  Applying finance.0005_alter_transaction_branch_alter_transaction_contract_and_more... OK
+  Applying finance.0006_financialintent... OK
+  Applying finance.0007_money_boundaries... OK
+  Applying erp.0001_initial... OK
+  Applying erp.0002_row_boundaries... OK
+  Applying erp.0003_purchase_source... OK
+  Applying erp.0004_initial_import_ledger... OK
+  Applying erp.0005_source_corrections... OK
+  Applying finance.0008_statement_ledgers... OK
+  Applying sessions.0001_initial... OK
+  Applying tasks.0005_controlled_tasks... OK
+System check identified no issues (0 silenced).
+C03_TYPED {"exact_tables": 56, "populated_models": 3, "literal_receipts": 2, "source_bytes_and_ids_unchanged": true}
+C03_REVERSE_REFUSED {"populated_models": 3, "schema_rows_sequences_migrations_unchanged": true}
+
+Creating test database for alias 'default' ('/tmp/bos-c03-preservation-d7ei4zuq/check_73f7d76f7bca4a6592d7b11dbf93ddd8.sqlite3_django_test')...
+Destroying old test database for alias 'default' ('/tmp/bos-c03-preservation-d7ei4zuq/check_73f7d76f7bca4a6592d7b11dbf93ddd8.sqlite3_django_test')...
+test_earlier_schema_addition_and_empty_reverse_preserve_all_old_rows_and_sequences (fixtures.synthetic.statement_migration.StatementMigrationTests.test_earlier_schema_addition_and_empty_reverse_preserve_all_old_rows_and_sequences) ... FAIL
+test_populated_full_typed_transfer_preserves_ids_bytes_binding_and_receipts (fixtures.synthetic.statement_migration.StatementMigrationTests.test_populated_full_typed_transfer_preserves_ids_bytes_binding_and_receipts) ... ok
+test_populated_reverse_refuses_before_any_schema_or_history_change (fixtures.synthetic.statement_migration.StatementMigrationTests.test_populated_reverse_refuses_before_any_schema_or_history_change) ... ok
+
+======================================================================
+FAIL: test_earlier_schema_addition_and_empty_reverse_preserve_all_old_rows_and_sequences (fixtures.synthetic.statement_migration.StatementMigrationTests.test_earlier_schema_addition_and_empty_reverse_preserve_all_old_rows_and_sequences)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/c03_candidate/source/fixtures/synthetic/statement_migration.py", line 46, in test_earlier_schema_addition_and_empty_reverse_preserve_all_old_rows_and_sequences
+    for name,value in old_sequence.items():self.assertEqual(dict(after['sequences'])[name],value,name)
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 60 != 59 : django_migrations
+
+----------------------------------------------------------------------
+Ran 3 tests in 4.920s
+
+FAILED (failures=1)
+Destroying test database for alias 'default' ('/tmp/bos-c03-preservation-d7ei4zuq/check_73f7d76f7bca4a6592d7b11dbf93ddd8.sqlite3_django_test')...
+
+
+----------------------------------------------------------------------
+Ran 12 tests in 58.476s
+
+FAILED (failures=1)
+Destroying test database for alias 'default'...

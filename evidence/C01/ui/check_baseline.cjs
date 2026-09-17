@@ -1,0 +1,9 @@
+const fs=require('fs'),vm=require('vm'),crypto=require('crypto');const p=process.argv[2],out=process.argv[3],s=fs.readFileSync(p,'utf8');const checks=[];
+(async()=>{
+const old=s.match(/function ControlledTask\([\s\S]*?\n}\nfunction ProcurementEntry/)[0];const line=old.split('\n').find(x=>x.includes('async function commit()'));
+const proposal={id:'a0000000-0000-4000-8000-000000000001'},ctx={lock:{current:false},proposal,opFetch:async()=>{throw Error('Reply lost after commit');},setBusy:()=>{},setError:()=>{},setProposal:p=>ctx.saved=p,ref:{current:{close:()=>{}}},onDone:()=>{}};ctx.saved=proposal;vm.createContext(ctx);vm.runInContext(line,ctx);await ctx.commit();checks.push({name:'unknown confirm retains exact pending proposal',passed:ctx.saved?.id===proposal.id,actual:ctx.saved});
+const tasks=s.slice(s.indexOf('function Tasks('),s.indexOf('function Employees('));checks.push({name:'all Tasks writes use proposal',passed:!['method:\'POST\'','method:\'PATCH\'','method:\'DELETE\''].some(x=>tasks.includes(x)),actual_raw_write_count:(tasks.match(/method:'(?:POST|PATCH|DELETE)'/g)||[]).length});
+const top=s.slice(s.indexOf('function Topbar('),s.indexOf('// AI-панель справа'));checks.push({name:'Topbar uses shared ControlledTask',passed:top.includes('<ControlledTask')&&!top.includes("method:'POST'")});
+checks.push({name:'refetch preserves persisted status',passed:!s.includes("status:t.status!=='done'&&t.deadline&&t.deadline<date?'overdue':t.status")});
+const report={scope:'Baseline actual commit closure under simulated lost reply + source entrypoint inventory; no browser/API/DB',source_sha256:crypto.createHash('sha256').update(s).digest('hex'),checks};fs.writeFileSync(out,JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report,null,2));process.exitCode=checks.some(c=>!c.passed)?1:0;
+})();

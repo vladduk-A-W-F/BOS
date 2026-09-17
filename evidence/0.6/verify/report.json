@@ -1,0 +1,77 @@
+{
+  "schema": 1,
+  "suite": "postgres",
+  "source_sha256": "410ddc7e89243d6c735cd0c8323f4194eb81a32d2dd4d72175975b8d37278ba1",
+  "date": "2026-09-11T19:06:10.566195+00:00",
+  "complete": false,
+  "environment": {
+    "system": "Linux",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "python_minor": [
+      3,
+      12
+    ]
+  },
+  "ci": {
+    "pipeline_id": null,
+    "job_url": null,
+    "commit": null
+  },
+  "data": "Лише нові синтетичні бази та контрольний файл.",
+  "gates": [
+    {
+      "id": 1,
+      "name": "Міграції на порожніх SQLite і PostgreSQL",
+      "status": "НЕ ЗАПУЩЕНО",
+      "reason": "Усі підперевірки обов’язкові.",
+      "parts": [
+        {
+          "status": "НЕ ЗАПУЩЕНО",
+          "reason": "Немає налаштованого ізольованого PostgreSQL; потрібні BOS_PGHOST/USER/PASSWORD і BOS_PG_DISPOSABLE=1.",
+          "backend": "postgres"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "151 функціональна + 5 launcher + решта тестів на обох СУБД",
+      "status": "НЕ ЗАПУЩЕНО",
+      "reason": "Усі підперевірки обов’язкові.",
+      "parts": [
+        {
+          "status": "НЕ ЗАПУЩЕНО",
+          "reason": "Немає налаштованого ізольованого PostgreSQL; потрібні BOS_PGHOST/USER/PASSWORD і BOS_PG_DISPOSABLE=1.",
+          "backend": "postgres"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "П’ять інваріантів, мінімум 1000 випадкових прогонів кожний",
+      "status": "НЕ ЗАПУЩЕНО",
+      "reason": "Усі підперевірки обов’язкові.",
+      "parts": [
+        {
+          "status": "НЕ ЗАПУЩЕНО",
+          "reason": "Немає налаштованого ізольованого PostgreSQL; потрібні BOS_PGHOST/USER/PASSWORD і BOS_PG_DISPOSABLE=1.",
+          "backend": "postgres"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Два одночасні виклики кожної грошової та складської дії",
+      "status": "НЕ РЕАЛІЗОВАНО",
+      "reason": "Усі підперевірки обов’язкові.",
+      "parts": [
+        {
+          "status": "НЕ РЕАЛІЗОВАНО",
+          "reason": "Потрібна справжня перевірка: scripts/check_concurrency.py",
+          "backend": "postgres"
+        }
+      ]
+    }
+  ],
+  "source_database_count": 2,
+  "source_databases_unchanged": true
+}

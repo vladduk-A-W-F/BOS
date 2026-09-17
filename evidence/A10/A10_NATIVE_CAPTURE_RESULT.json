@@ -1,0 +1,75 @@
+{
+  "complete": true,
+  "scope": "actual same-N TLS, capture, clean restore and restored HTTPS; no upgrade/rollback or Windows/PG",
+  "checks": [
+    {
+      "case": "original_real_TLS_login_document",
+      "passed": true,
+      "document_sha256": "bba0159323a4d10c1954fea3eb175e0b9a10eb26a76b80dcf4a0f310264f2111"
+    },
+    {
+      "case": "actual_quiescence_native_capture",
+      "passed": true,
+      "scope": "capture_only",
+      "installation_id": "8e0d42f3-82c0-457a-b4c4-f3838830b1dd",
+      "operation_id": "57e60f03-70ee-476d-8487-a9361bdae96f",
+      "version": "0.2.10-dev",
+      "manifest_sha256": "86e846e359f9643fb3022b3890e4bcda1462de68c162148f2f526219e7c0110b",
+      "database_sha256": "dce9e6edeb26d964737179cdc7d32a66fcfb534c656b7bdb0180b9cefc195297",
+      "private_files": 2,
+      "elapsed_seconds": 4.804,
+      "lease_retained": true,
+      "restore_verified": false
+    },
+    {
+      "case": "corrupt_backup_refused",
+      "passed": true
+    },
+    {
+      "case": "existing_installation_restore_refused_without_writes",
+      "passed": true
+    },
+    {
+      "case": "new_installation_native_restore",
+      "passed": true,
+      "scope": "clean_restore_data_and_code_only",
+      "installation_id": "b792d543-5ccb-47e2-b5fa-acbe9bf17123",
+      "source_installation_id": "8e0d42f3-82c0-457a-b4c4-f3838830b1dd",
+      "version": "0.2.10-dev",
+      "database_sha256": "dce9e6edeb26d964737179cdc7d32a66fcfb534c656b7bdb0180b9cefc195297",
+      "private_files": 2,
+      "tables": 45,
+      "elapsed_seconds": 29.393,
+      "backup_unchanged": true,
+      "post_restore_http_verified": false,
+      "identity_policy": "new installation UUID, secret and cookie namespace; stored identities/history unchanged"
+    },
+    {
+      "case": "original_same_N_resumed",
+      "passed": true,
+      "health": {
+        "live": 200,
+        "ready": 200
+      }
+    },
+    {
+      "case": "restored_real_TLS_login_document_and_version",
+      "passed": true,
+      "new_cookie_namespace": true,
+      "document_sha256": "bba0159323a4d10c1954fea3eb175e0b9a10eb26a76b80dcf4a0f310264f2111",
+      "version": "0.2.10-dev"
+    },
+    {
+      "case": "all_owned_processes_stopped_and_source_backup_still_valid",
+      "passed": true,
+      "backup_manifest_sha256": "86e846e359f9643fb3022b3890e4bcda1462de68c162148f2f526219e7c0110b"
+    }
+  ],
+  "management_code_sha256": {
+    "maintenance_control": "4e9b33059b6faa7bb8a03a6dedecfc08d29493e0f0333fb231920c6e80714223",
+    "generation_ledger": "b68298be377367ae8bfcddd3ec44cfff446dcd9dc0698864a9a822ea6b8df3f1",
+    "backup_server": "27430b053bf714b09b89214278454144b6587040754f0db8d1d79f874e0cbed8",
+    "restore_server": "c3d4dba5051a4ca7b739192944ecb0c6bcbf7f9821f1b37f296e22537a7bdfaf",
+    "managed_runtime": "85e9ad9d42af5b30cdef1d56f0f7fb8a9c0744ad614a8885b6fea77a10cb10f7"
+  }
+}

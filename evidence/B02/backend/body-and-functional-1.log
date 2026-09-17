@@ -1,0 +1,104 @@
+Creating test database for alias 'default' ('/workspace/scratch/c7b51e996a9f/tmp/b02_candidate/check_body_green.sqlite3_django_test')...
+Destroying old test database for alias 'default' ('/workspace/scratch/c7b51e996a9f/tmp/b02_candidate/check_body_green.sqlite3_django_test')...
+Found 19 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: django_filters, messages, rest_framework, staticfiles
+  Apply all migrations: admin, ai_assistant, auth, branches, contenttypes, employees, erp, finance, operations, sessions, tasks
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying ai_assistant.0001_initial... OK
+  Applying ai_assistant.0002_taskchangelog... OK
+  Applying ai_assistant.0003_claudeusagelog... OK
+  Applying ai_assistant.0004_employeechangelog... OK
+  Applying ai_assistant.0005_chatfile... OK
+  Applying ai_assistant.0006_alter_chatmessage_created_at_and_more... OK
+  Applying ai_assistant.0007_employeechangelog_undone_at... OK
+  Applying ai_assistant.0008_chatmessage_archived_at_chatmessage_user_and_more... OK
+  Applying ai_assistant.0009_private_documents... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying branches.0001_initial... OK
+  Applying branches.0002_branch_short_name... OK
+  Applying branches.0003_fill_short_names... OK
+  Applying employees.0001_initial... OK
+  Applying employees.0002_alter_employee_department... OK
+  Applying employees.0003_employee_branch... OK
+  Applying employees.0004_employee_archived_at... OK
+  Applying employees.0005_employee_user... OK
+  Applying finance.0001_initial... OK
+  Applying finance.0002_alter_salary_unique_together_alter_contract_status_and_more... OK
+  Applying finance.0003_transaction_branch... OK
+  Applying finance.0004_salary_archived_at_transaction_archived_at_and_more... OK
+  Applying finance.0005_alter_transaction_branch_alter_transaction_contract_and_more... OK
+  Applying finance.0006_financialintent... OK
+  Applying finance.0007_money_boundaries... OK
+  Applying tasks.0001_initial... OK
+  Applying tasks.0002_alter_task_priority... OK
+  Applying tasks.0003_alter_task_deadline_alter_task_priority_and_more... OK
+  Applying tasks.0004_task_branch... OK
+  Applying operations.0001_initial... OK
+  Applying operations.0002_actionproposal_user... OK
+  Applying operations.0003_loginattempt... OK
+  Applying operations.0004_alter_document_options_document_access_level... OK
+  Applying operations.0005_invoice_boundaries... OK
+  Applying operations.0006_private_documents... OK
+  Applying erp.0001_initial... OK
+  Applying erp.0002_row_boundaries... OK
+  Applying erp.0003_purchase_source... OK
+  Applying erp.0004_initial_import_ledger... OK
+  Applying sessions.0001_initial...test_actual_three_currency_import_preserves_overdue_origin_and_pending_stock (erp.test_initial_import.InitialImportTests.test_actual_three_currency_import_preserves_overdue_origin_and_pending_stock) ... ok
+test_binding_only_mapping_reuse_and_profile_validation (erp.test_initial_import.InitialImportTests.test_binding_only_mapping_reuse_and_profile_validation) ... ok
+test_current_targets_include_reused_rows_without_reparenting_identities (erp.test_initial_import.InitialImportTests.test_current_targets_include_reused_rows_without_reparenting_identities) ... ok
+test_exact_replay_after_actual_receipt_keeps_source_totals_and_current_rows (erp.test_initial_import.InitialImportTests.test_exact_replay_after_actual_receipt_keeps_source_totals_and_current_rows) ... ok
+test_existing_source_document_bytes_and_versions_are_rechecked (erp.test_initial_import.InitialImportTests.test_existing_source_document_bytes_and_versions_are_rechecked) ... ok
+test_explicit_multipart_binding_keeps_raw_source_and_rejects_duplicate (erp.test_initial_import.InitialImportTests.test_explicit_multipart_binding_keeps_raw_source_and_rejects_duplicate) ... ok
+test_forged_context_and_preview_phase_cannot_commit_historical_purchase (erp.test_initial_import.InitialImportTests.test_forged_context_and_preview_phase_cannot_commit_historical_purchase) ... ok
+test_import_does_not_bypass_normal_purchase_and_roles_or_stale_owner (erp.test_initial_import.InitialImportTests.test_import_does_not_bypass_normal_purchase_and_roles_or_stale_owner) ... ok
+test_imported_source_projection_hides_commercial_values_from_observer (erp.test_initial_import.InitialImportTests.test_imported_source_projection_hides_commercial_values_from_observer) ... ok
+test_json_csv_canonical_identity_and_whole_sales_composition (erp.test_initial_import.InitialImportTests.test_json_csv_canonical_identity_and_whole_sales_composition) ... ok
+test_late_real_sql_failure_rolls_back_all_new_rows_and_receipt (erp.test_initial_import.InitialImportTests.test_late_real_sql_failure_rolls_back_all_new_rows_and_receipt) ... ok
+test_late_sql_value_tampering_is_detected_before_atomic_commit (erp.test_initial_import.InitialImportTests.test_late_sql_value_tampering_is_detected_before_atomic_commit) ... ok
+test_multiple_row_errors_and_totals_mismatch_never_commit (erp.test_initial_import.InitialImportTests.test_multiple_row_errors_and_totals_mismatch_never_commit) ... ok
+test_new_rows_recheck_profile_of_reused_bindings (erp.test_initial_import.InitialImportTests.test_new_rows_recheck_profile_of_reused_bindings) ... ok
+test_persisted_opening_conflict_and_batch_source_export (erp.test_initial_import.InitialImportTests.test_persisted_opening_conflict_and_batch_source_export) ... ok
+test_raw_duplicate_json_oversize_and_server_templates (erp.test_initial_import.InitialImportTests.test_raw_duplicate_json_oversize_and_server_templates) ... ok
+test_strict_uuid_text_and_control_count_types_refuse_without_http500 (erp.test_initial_import.InitialImportTests.test_strict_uuid_text_and_control_count_types_refuse_without_http500) ... ok
+test_local_and_server_hooks_reject_before_downstream_parsing (erp.test_import_body.ImportBodyBoundaryTests.test_local_and_server_hooks_reject_before_downstream_parsing) ... ok
+test_missing_or_forged_length_reads_at_most_limit_plus_one_before_parser (erp.test_import_body.ImportBodyBoundaryTests.test_missing_or_forged_length_reads_at_most_limit_plus_one_before_parser) ... ERROR
+
+======================================================================
+ERROR: test_missing_or_forged_length_reads_at_most_limit_plus_one_before_parser (erp.test_import_body.ImportBodyBoundaryTests.test_missing_or_forged_length_reads_at_most_limit_plus_one_before_parser)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/b02_candidate/source/erp/test_import_body.py", line 30, in test_missing_or_forged_length_reads_at_most_limit_plus_one_before_parser
+    self.assertIsNone(capture_import_body(request));value,_,_=read_input(request);self.assertEqual(value,{})
+                                                              ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/b02_candidate/source/erp/import_views.py", line 58, in read_input
+    if request.content_type!='multipart/form-data':raise ValueError('Потрібен JSON або multipart/form-data.')
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: Потрібен JSON або multipart/form-data.
+
+----------------------------------------------------------------------
+Ran 19 tests in 2.520s
+
+FAILED (errors=1)
+Destroying test database for alias 'default' ('/workspace/scratch/c7b51e996a9f/tmp/b02_candidate/check_body_green.sqlite3_django_test')...
+ OK
+System check identified no issues (0 silenced).

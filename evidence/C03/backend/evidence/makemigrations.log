@@ -1,0 +1,15 @@
+Migrations for 'finance':
+  finance/migrations/0008_statement_ledgers.py
+    + Create model StatementImport
+    + Create model StatementLine
+    + Create model StatementAllocation
+    + Create constraint statement_import_source on model statementimport
+    + Create constraint statement_line_identity on model statementline
+    + Create constraint statement_line_amount on model statementline
+    + Create constraint statement_line_currency on model statementline
+    + Create constraint statement_line_direction on model statementline
+    + Create constraint statement_binding_complete on model statementline
+    + Create constraint statement_allocation_identity on model statementallocation
+    + Create constraint statement_allocation_amount on model statementallocation
+    + Create constraint statement_allocation_currency on model statementallocation
+    + Create constraint statement_allocation_mode on model statementallocation

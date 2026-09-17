@@ -1,0 +1,94 @@
+[
+  {
+    "pattern": "api/statements/sources/",
+    "name": "statement-source",
+    "callback": "finance.statement_views.sources",
+    "actions": null,
+    "model": null,
+    "converters": {}
+  },
+  {
+    "pattern": "api/statements/imports/",
+    "name": "statement-imports",
+    "callback": "finance.statement_views.imports",
+    "actions": null,
+    "model": null,
+    "converters": {}
+  },
+  {
+    "pattern": "api/statements/imports/<uuid:pk>/",
+    "name": "statement-import-detail",
+    "callback": "finance.statement_views.import_detail",
+    "actions": null,
+    "model": null,
+    "converters": {
+      "pk": "UUIDConverter"
+    }
+  },
+  {
+    "pattern": "api/statements/imports/<uuid:pk>/export/",
+    "name": "statement-export",
+    "callback": "finance.statement_views.export",
+    "actions": null,
+    "model": null,
+    "converters": {
+      "pk": "UUIDConverter"
+    }
+  },
+  {
+    "pattern": "api/statements/lines/",
+    "name": "statement-lines",
+    "callback": "finance.statement_views.lines",
+    "actions": null,
+    "model": null,
+    "converters": {}
+  },
+  {
+    "pattern": "api/statements/lines/<uuid:pk>/",
+    "name": "statement-line-detail",
+    "callback": "finance.statement_views.line_detail",
+    "actions": null,
+    "model": null,
+    "converters": {
+      "pk": "UUIDConverter"
+    }
+  },
+  {
+    "pattern": "api/statements/lines/<uuid:pk>/candidates/",
+    "name": "statement-candidates",
+    "callback": "finance.statement_views.candidates",
+    "actions": null,
+    "model": null,
+    "converters": {
+      "pk": "UUIDConverter"
+    }
+  },
+  {
+    "pattern": "api/statements/summary/",
+    "name": "statement-summary",
+    "callback": "finance.statement_views.summary",
+    "actions": null,
+    "model": null,
+    "converters": {}
+  },
+  {
+    "pattern": "api/^transactions/summary/$",
+    "name": "transaction-summary",
+    "callback": "finance.views.TransactionViewSet",
+    "actions": {
+      "get": "summary"
+    },
+    "model": null,
+    "converters": {}
+  },
+  {
+    "pattern": "api/^transactions/summary\\.(?P<format>[a-z0-9]+)/?$",
+    "name": "transaction-summary",
+    "callback": "finance.views.TransactionViewSet",
+    "actions": {
+      "get": "summary"
+    },
+    "model": null,
+    "converters": {}
+  }
+]

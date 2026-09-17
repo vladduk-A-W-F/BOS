@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a10_control_draft/control_fixture.py", line 88, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/a10_control_draft/control_fixture.py", line 37, in main
+    with ipc.SupervisorControl(installer=installer, target=args.target, registry=args.registry,
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/a10_control_draft/scripts/maintenance_control.py", line 118, in __init__
+    self.server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted

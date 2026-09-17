@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a10_ledger_control_probe.py", line 60, in <module>
+    ready = event('fixture.control.ready')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/a10_ledger_control_probe.py", line 58, in event
+    item = events.get(timeout=max(.05,deadline-time.monotonic()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/queue.py", line 179, in get
+    raise Empty
+_queue.Empty

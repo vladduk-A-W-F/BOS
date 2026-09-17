@@ -1,0 +1,65 @@
+{
+  "reviewed_at": "2026-09-12T09:10:06.567474+00:00",
+  "scope": "A08 gate4 real-commit checker isolation on exclusively created SQLite only",
+  "decision": "scoped_consensus",
+  "cause": "check_access outer transaction.atomic conflicts with real durable upload",
+  "production_durable_changed": false,
+  "all_routes_roles_methods_and_201_oracle_preserved": true,
+  "repaired_case_count": 5,
+  "source_sha256": {
+    "scripts/check_access.py": "8ba57309ccf17ce182cfbf97e058ad956ceaf7bb52198a9e1018549ab8d3062f",
+    "scripts/access_isolation.py": "adf55daf9724e91ec10920b9d50d0477e95d0a0da52e947da0dfbcc1fd92475e",
+    "draft_permanent_test": "d2429858115401510e50e3e912e1e017fce59c9811eef38f888e5a47d44be16d"
+  },
+  "actual_probe": {
+    "red": [
+      {
+        "role": "ceo",
+        "status": 500,
+        "exception": "A durable atomic block cannot be nested within another atomic block.",
+        "original_rows_unchanged": true
+      },
+      {
+        "role": "manager",
+        "status": 500,
+        "exception": "A durable atomic block cannot be nested within another atomic block.",
+        "original_rows_unchanged": true
+      }
+    ],
+    "green": [
+      {
+        "role": "ceo",
+        "status": 201,
+        "changed": true,
+        "actual_private_bytes_match": true,
+        "isolation": {
+          "isolation": "actual_commit_then_owned_sqlite_restore",
+          "restored": true
+        }
+      },
+      {
+        "role": "manager",
+        "status": 201,
+        "changed": true,
+        "actual_private_bytes_match": true,
+        "isolation": {
+          "isolation": "actual_commit_then_owned_sqlite_restore",
+          "restored": true
+        }
+      }
+    ],
+    "guards": {
+      "existing_database_refused": true,
+      "forged_owner_refused": true,
+      "replaced_inode_refused": true
+    },
+    "exception_after_commit_restored": true
+  },
+  "not_accepted": [
+    "complete8370+9sweepafterpatch pending root",
+    "57 mandatory fieldtests still mandatory",
+    "PostgreSQL isolation",
+    "Windows",
+    "release"
+  ]
+}

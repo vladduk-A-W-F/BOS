@@ -1,0 +1,98 @@
+stages: [verify, acceptance]
+
+default:
+  image: python:3.12
+  before_script:
+    - python -m pip install -r requirements-ci.txt
+  artifacts:
+    when: always
+    expire_in: 30 days
+    paths:
+      - evidence/ci/
+
+variables:
+  PYTHONUTF8: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  BOS_PG_DISPOSABLE: "1"
+  BOS_PGHOST: postgres
+  BOS_PGPORT: "5432"
+  BOS_PGUSER: bos_ci
+  BOS_PGPASSWORD: bos_synthetic_ci_only
+  POSTGRES_USER: bos_ci
+  POSTGRES_PASSWORD: bos_synthetic_ci_only
+  POSTGRES_DB: postgres
+
+.postgres:
+  services:
+    - name: postgres:16
+      alias: postgres
+
+tests-sqlite:
+  stage: verify
+  script:
+    - bash scripts/verify.sh --suite sqlite --output evidence/ci/sqlite/report.json
+
+tests-postgres:
+  extends: .postgres
+  stage: verify
+  script:
+    - bash scripts/verify.sh --suite postgres --output evidence/ci/postgres/report.json
+
+e2e:
+  extends: .postgres
+  stage: verify
+  script:
+    - bash scripts/verify.sh --suite e2e --output evidence/ci/e2e/report.json
+
+ui-playwright:
+  stage: verify
+  before_script:
+    - python -m pip install -r requirements-ci.txt
+    - python -m playwright install --with-deps chromium
+  script:
+    - bash scripts/verify.sh --suite ui --output evidence/ci/ui/report.json
+
+tests-windows:
+  stage: verify
+  tags: [windows]
+  when: manual
+  allow_failure: false
+  resource_group: bos-windows-postgres
+  before_script: []
+  script:
+    - py -3.12 -m venv .venv-ci
+    - .\.venv-ci\Scripts\python.exe -m pip install -r requirements-ci.txt
+    - $env:COMPOSE_PROJECT_NAME = "bos_ci_$env:CI_JOB_ID"
+    - $env:BOS_PGHOST = "127.0.0.1"
+    - $env:BOS_PGPORT = "55432"
+    - docker compose up -d --wait postgres
+    - .\scripts\verify.ps1 -Suite windows -Python .\.venv-ci\Scripts\python.exe -Output evidence/ci/windows/report.json
+  after_script:
+    - $env:COMPOSE_PROJECT_NAME = "bos_ci_$env:CI_JOB_ID"
+    - docker compose down
+
+verify-full:
+  extends: .postgres
+  stage: acceptance
+  when: always
+  needs:
+    - job: tests-sqlite
+      artifacts: true
+    - job: tests-postgres
+      artifacts: true
+    - job: e2e
+      artifacts: true
+    - job: ui-playwright
+      artifacts: true
+    - job: tests-windows
+      artifacts: true
+  variables:
+    BOS_WINDOWS_REPORT: evidence/ci/windows/report.json
+  before_script:
+    - python -m pip install -r requirements-ci.txt
+    - python -m playwright install --with-deps chromium
+  script:
+    - bash scripts/verify.sh --suite full --output evidence/ci/full/report.json
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^release\// || $CI_COMMIT_TAG'

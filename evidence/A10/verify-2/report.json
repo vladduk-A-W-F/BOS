@@ -1,0 +1,321 @@
+{
+  "schema": 1,
+  "suite": "full",
+  "source_sha256": "1643988a1aea1d67275495a376f4b74e08cbeeafe3fc73bd5c7c71551efe3d8c",
+  "date": "2026-09-12T11:15:57.863655+00:00",
+  "complete": false,
+  "environment": {
+    "system": "Linux",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "python_minor": [
+      3,
+      12
+    ]
+  },
+  "ci": {
+    "pipeline_id": null,
+    "job_url": null,
+    "commit": null
+  },
+  "data": "Лише нові синтетичні бази та контрольний файл.",
+  "gates": [
+    {
+      "id": 1,
+      "name": "Міграції на порожніх SQLite і PostgreSQL",
+      "status": "НЕ ЗАПУЩЕНО",
+      "reason": "Усі підперевірки обов’язкові.",
+      "parts": [
+        {
+          "status": "ПРОЙДЕНО",
+          "reason": "",
+          "backend": "sqlite",
+          "command": [
+            "/workspace/scratch/c7b51e996a9f/demo-check-env/bin/python",
+            "-c",
+            "import os; os.environ['DJANGO_SETTINGS_MODULE']='verification_settings'; import django; django.setup(); from scripts.check_support import prove_database; prove_database(); from django.core.management import call_command; call_command('migrate',verbosity=1)"
+          ],
+          "returncode": 0,
+          "log": "/workspace/sites/bos-original-refined/evidence/A10/verify-2/migrations-sqlite.log"
+        },
+        {
+          "status": "НЕ ЗАПУЩЕНО",
+          "reason": "Немає налаштованого ізольованого PostgreSQL; потрібні BOS_PGHOST/USER/PASSWORD і BOS_PG_DISPOSABLE=1.",
+          "backend": "postgres"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "151 функціональна + 5 launcher + решта тестів на обох СУБД",
+      "status": "НЕ ЗАПУЩЕНО",
+      "reason": "Усі підперевірки обов’язкові.",
+      "parts": [
+        {
+          "status": "ПРОЙДЕНО",
+          "reason": "",
+          "parts": [
+            {
+              "status": "ПРОЙДЕНО",
+              "reason": "",
+              "filename": "check_workspace.py",
+              "checks": 22,
+              "expected": 22,
+              "engine_verified": true,
+              "command": [
+                "/workspace/scratch/c7b51e996a9f/demo-check-env/bin/python",
+                "-B",
+                "scripts/check_workspace.py"
+              ],
+              "returncode": 0,
+              "log": "/workspace/sites/bos-original-refined/evidence/A10/verify-2/sqlite-check_workspace.py.log"
+            },
+            {
+              "status": "ПРОЙДЕНО",
+              "reason": "",
+              "filename": "check_erp.py",
+              "checks": 49,
+              "expected": 49,
+              "engine_verified": true,
+              "command": [
+                "/workspace/scratch/c7b51e996a9f/demo-check-env/bin/python",
+                "-B",
+                "scripts/check_erp.py"
+              ],
+              "returncode": 0,
+              "log": "/workspace/sites/bos-original-refined/evidence/A10/verify-2/sqlite-check_erp.py.log"
+            },
+            {
+              "status": "ПРОЙДЕНО",
+              "reason": "",
+              "filename": "check_operations.py",
+              "checks": 48,
+              "expected": 48,
+              "engine_verified": true,
+              "command": [
+                "/workspace/scratch/c7b51e996a9f/demo-check-env/bin/python",
+                "-B",
+                "scripts/check_operations.py"
+              ],
+              "returncode": 0,
+              "log": "/workspace/sites/bos-original-refined/evidence/A10/verify-2/sqlite-check_operations.py.log"
+            },
+            {
+              "status": "ПРОЙДЕНО",
+              "reason": "",
+              "filename": "check_original.py",
+              "checks": 32,
+              "expected": 32,
+              "engine_verified": true,
+              "command": [
+                "/workspace/scratch/c7b51e996a9f/demo-check-env/bin/python",
+                "-B",
+                "scripts/check_original.py"
+              ],
+              "returncode": 0,
+              "log": "/workspace/sites/bos-original-refined/evidence/A10/verify-2/sqlite-check_original.py.log"
+            },
+            {
+              "status": "ПРОЙДЕНО",
+              "reason": "",
+              "filename": "check_launcher.py",
+              "checks": 5,
+              "expected": 5,
+              "engine_verified": true,
+              "command": [
+                "/workspace/scratch/c7b51e996a9f/demo-check-env/bin/python",
+                "-B",
+                "scripts/check_launcher.py"
+              ],
+              "returncode": 0,
+              "log": "/workspace/sites/bos-original-refined/evidence/A10/verify-2/sqlite-check_launcher.py.log"
+            },
+            {
+              "status": "ПРОЙДЕНО",
+              "reason": "Решта Django-тестів; не заміняють 151+5.",
+              "command": [
+                "/workspace/scratch/c7b51e996a9f/demo-check-env/bin/python",
+                "-B",
+                "manage.py",
+                "test",
+                "--noinput",
+                "--settings=verification_settings",
+                "--verbosity=1"
+              ],
+              "returncode": 0,
+              "log": "/workspace/sites/bos-original-refined/evidence/A10/verify-2/sqlite-django-tests.log"
+            }
+          ],
+          "backend": "sqlite"
+        },
+        {
+          "status": "НЕ ЗАПУЩЕНО",
+          "reason": "Немає налаштованого ізольованого PostgreSQL; потрібні BOS_PGHOST/USER/PASSWORD і BOS_PG_DISPOSABLE=1.",
+          "backend": "postgres"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "П’ять інваріантів, мінімум 1000 випадкових прогонів кожний",
+      "status": "НЕ ЗАПУЩЕНО",
+      "reason": "Усі підперевірки обов’язкові.",
+      "parts": [
+        {
+          "status": "ПРОЙДЕНО",
+          "reason": "",
+          "backend": "sqlite",
+          "command": [
+            "/workspace/scratch/c7b51e996a9f/demo-check-env/bin/python",
+            "-B",
+            "scripts/check_invariants.py"
+          ],
+          "returncode": 0,
+          "log": "/workspace/sites/bos-original-refined/evidence/A10/verify-2/gate-03-sqlite.log"
+        },
+        {
+          "status": "НЕ ЗАПУЩЕНО",
+          "reason": "Немає налаштованого ізольованого PostgreSQL; потрібні BOS_PGHOST/USER/PASSWORD і BOS_PG_DISPOSABLE=1.",
+          "backend": "postgres"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Права всіх ролей на всіх API/admin та всіх поверхнях даних",
+      "status": "ПРОЙДЕНО",
+      "reason": "",
+      "parts": [
+        {
+          "status": "ПРОЙДЕНО",
+          "reason": "",
+          "backend": "sqlite",
+          "command": [
+            "/workspace/scratch/c7b51e996a9f/demo-check-env/bin/python",
+            "-B",
+            "scripts/check_access.py"
+          ],
+          "returncode": 0,
+          "log": "/workspace/sites/bos-original-refined/evidence/A10/verify-2/gate-04-sqlite.log"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Два одночасні виклики кожної грошової та складської дії",
+      "status": "НЕ ЗАПУЩЕНО",
+      "reason": "Усі підперевірки обов’язкові.",
+      "parts": [
+        {
+          "status": "ПРОЙДЕНО",
+          "reason": "",
+          "backend": "sqlite",
+          "command": [
+            "/workspace/scratch/c7b51e996a9f/demo-check-env/bin/python",
+            "-B",
+            "scripts/check_concurrency.py"
+          ],
+          "returncode": 0,
+          "log": "/workspace/sites/bos-original-refined/evidence/A10/verify-2/gate-05-sqlite.log"
+        },
+        {
+          "status": "НЕ ЗАПУЩЕНО",
+          "reason": "Немає налаштованого ізольованого PostgreSQL; потрібні BOS_PGHOST/USER/PASSWORD і BOS_PG_DISPOSABLE=1.",
+          "backend": "postgres"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Наскрізний процес на чистій базі, звірка до копійки",
+      "status": "НЕ РЕАЛІЗОВАНО",
+      "reason": "Усі підперевірки обов’язкові.",
+      "parts": [
+        {
+          "status": "НЕ РЕАЛІЗОВАНО",
+          "reason": "Потрібна справжня перевірка: scripts/e2e_scenario.py",
+          "backend": "sqlite"
+        },
+        {
+          "status": "НЕ РЕАЛІЗОВАНО",
+          "reason": "Потрібна справжня перевірка: scripts/e2e_scenario.py",
+          "backend": "postgres"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Backup/restore у чисту установку: кількості, суми, версії, SHA",
+      "status": "ПРОЙДЕНО",
+      "reason": "",
+      "parts": [
+        {
+          "status": "ПРОЙДЕНО",
+          "reason": "",
+          "backend": "sqlite",
+          "command": [
+            "/workspace/scratch/c7b51e996a9f/demo-check-env/bin/python",
+            "-B",
+            "scripts/check_restore.py"
+          ],
+          "returncode": 0,
+          "log": "/workspace/sites/bos-original-refined/evidence/A10/verify-2/gate-07-sqlite.log"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Чиста виробнича установка: TLS, cookies, proxy, health, logs",
+      "status": "ПОМИЛКА",
+      "reason": "Усі підперевірки обов’язкові.",
+      "parts": [
+        {
+          "status": "ПОМИЛКА",
+          "reason": "",
+          "backend": "sqlite",
+          "command": [
+            "/workspace/scratch/c7b51e996a9f/demo-check-env/bin/python",
+            "-B",
+            "scripts/check_install.py"
+          ],
+          "returncode": 1,
+          "log": "/workspace/sites/bos-original-refined/evidence/A10/verify-2/gate-08-sqlite.log"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Оновлення N → N+1 та відновлення N після rollback",
+      "status": "НЕ РЕАЛІЗОВАНО",
+      "reason": "Усі підперевірки обов’язкові.",
+      "parts": [
+        {
+          "status": "НЕ РЕАЛІЗОВАНО",
+          "reason": "Потрібна справжня перевірка: scripts/check_upgrade.py",
+          "backend": "sqlite"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Браузер: 390/768/1440, 200%, клавіатура, Escape, мережа",
+      "status": "НЕ РЕАЛІЗОВАНО",
+      "reason": "Усі підперевірки обов’язкові.",
+      "parts": [
+        {
+          "status": "НЕ РЕАЛІЗОВАНО",
+          "reason": "Потрібна справжня перевірка: scripts/check_ui.py",
+          "backend": "sqlite"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "name": "Чиста Windows / Python 3.12: критерії 1–3 і 6",
+      "status": "НЕ ЗАПУЩЕНО",
+      "reason": "Немає результату реального Windows runner.",
+      "expected_report": "/workspace/sites/bos-original-refined/evidence/ci/windows/report.json"
+    }
+  ],
+  "source_database_count": 2,
+  "source_databases_unchanged": true
+}

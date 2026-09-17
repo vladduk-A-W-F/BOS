@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a10_cli_actual_probe.py", line 50, in <module>
+    command({'action':'stop'});event('bos.maintenance.stop_requested');assert process.wait(timeout=20)==0;reader.join(timeout=3);assert not reader.is_alive();assert unavailable();check('stdin_stop_drains_and_closes')
+                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

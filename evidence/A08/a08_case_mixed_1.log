@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/run_a08_migration_case_draft.py", line 15, in <module>
+    print(json.dumps(run_case(sys.argv[1], Path(expected['origin']['database']),Path('/workspace/scratch/c7b51e996a9f/tmp/a07_full_transfer_1/source-media'),Path(sys.argv[2])),ensure_ascii=False))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/a08_document_migration_tests.py", line 153, in run_case
+    assert runner._rows(connection) == final_rows
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

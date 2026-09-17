@@ -1,0 +1,18 @@
+{
+  "scope": "stdin interpreter shutdown fix only; full CLI/BoS acceptance pending root",
+  "baseline_cli_sha256": "99fa1717c55662aec4d51107c08e2758383a247fe90f048af87cd5575bd46394",
+  "files": {
+    "scripts/maintenance_server.py": "0986f037cf99f9ada33e58716f40d8c407b415f039d936ce145e60215e12ebb5",
+    "scripts/managed_runtime.py": "be7e26c107248ff3dc13d86acf700a9d84784f82df386b36d2e9e855ec181840",
+    "boss_project/test_maintenance_cli.py": "ab2cde588f53674a47e811ae480c2d24eb452b6cdeca61c0b3cf6aa241c674a1",
+    "CLI_CONTRACT_UA.md": "597e26cd59b1fd76342ebf3f8bfcc856d3062e4909adbd2477013fc98c05f5a3",
+    "stdin_shutdown.patch": "e248ac92cbfdfa00a19794d1ffed1f9323fb65fef205acad2b69c2af437ecfad"
+  },
+  "evidence": [
+    "tmp/A10_CLI_STDIN_SHUTDOWN_BEFORE.json",
+    "tmp/A10_CLI_STDIN_SHUTDOWN_AFTER.json",
+    "tmp/A10_CLI_STDIN_FRAMING_AFTER.log"
+  ],
+  "shutdown_probes_this_agent": 2,
+  "checkout_edited": false
+}

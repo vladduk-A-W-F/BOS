@@ -1,0 +1,33 @@
+{
+  "complete": false,
+  "scope": "actual Linux Unix IPC and own pinned Waitress; no backup/restore/upgrade gate",
+  "work": "/workspace/scratch/c7b51e996a9f/tmp/a10-control-svzn1u_9",
+  "checks": [],
+  "control_sha256": "200c6f8bd37ec53eaa9cf118c78d270cd53f56786edbd66a8d5e2f9862a06387",
+  "runner_sha256": "f25b421aa9f5c2542ebecbe5cea3f6a70bad25d6bbfb8e27accbe01e3eced6c6",
+  "all_owned_supervisors_stopped": true
+}
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a10_control_draft/control_probe.py", line 58, in event
+    try:event=self.events.get(timeout=.1)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/queue.py", line 179, in get
+    raise Empty
+_queue.Empty
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a10_control_draft/control_probe.py", line 197, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/a10_control_draft/control_probe.py", line 85, in main
+    fixture=Fixture(work/'normal');fixtures.append(fixture)
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/a10_control_draft/control_probe.py", line 54, in __init__
+    self.ready=self.event('fixture.control.ready')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/a10_control_draft/control_probe.py", line 60, in event
+    if self.process.poll() is not None:raise AssertionError((name,self.process.returncode,self.process.stderr.read(),self.lines))
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('fixture.control.ready', 1, 'Traceback (most recent call last):\n  File "/workspace/scratch/c7b51e996a9f/tmp/a10_control_draft/control_fixture.py", line 88, in <module>\n    raise SystemExit(main())\n                     ^^^^^^\n  File "/workspace/scratch/c7b51e996a9f/tmp/a10_control_draft/control_fixture.py", line 37, in main\n    with ipc.SupervisorControl(installer=installer, target=args.target, registry=args.registry,\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/scratch/c7b51e996a9f/tmp/a10_control_draft/scripts/maintenance_control.py", line 118, in __init__\n    self.server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/socket.py", line 233, in __init__\n    _socket.socket.__init__(self, family, type, proto, fileno)\nPermissionError: [Errno 1] Operation not permitted\n', [])

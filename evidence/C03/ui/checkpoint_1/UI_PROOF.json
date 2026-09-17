@@ -1,0 +1,133 @@
+{
+  "scope": "Actual extracted candidate JavaScript and React closures, controlled state/storage/transport; no browser/API/DB execution",
+  "source_sha256": "957faab6bc306ea0a0e7be80ec5e98a4eac7def62e1a117970aaa24b5993342f",
+  "checks": [
+    {
+      "name": "money retains exact cents",
+      "passed": true
+    },
+    {
+      "name": "maximum-money exact string",
+      "passed": true
+    },
+    {
+      "name": "reject noncanonical amount \"1.230\"",
+      "passed": true
+    },
+    {
+      "name": "reject noncanonical amount \"1e2\"",
+      "passed": true
+    },
+    {
+      "name": "reject noncanonical amount \"+1\"",
+      "passed": true
+    },
+    {
+      "name": "reject noncanonical amount \"0\"",
+      "passed": true
+    },
+    {
+      "name": "reject noncanonical amount \"1000000000000.00\"",
+      "passed": true
+    },
+    {
+      "name": "reject noncanonical amount 1.23",
+      "passed": true
+    },
+    {
+      "name": "existing payment retains exact Event and does not request new payment",
+      "passed": true
+    },
+    {
+      "name": "imported extra actor rejected",
+      "passed": true
+    },
+    {
+      "name": "nested extra paid rejected",
+      "passed": true
+    },
+    {
+      "name": "nested duplicate JSON key rejected",
+      "passed": true
+    },
+    {
+      "name": "multiple allocations same field names valid",
+      "passed": true
+    },
+    {
+      "name": "duplicate allocation key rejected",
+      "passed": true
+    },
+    {
+      "name": "ID-only queue no money reason or payload",
+      "passed": true
+    },
+    {
+      "name": "permission revision preserves pending IDs",
+      "passed": true
+    },
+    {
+      "name": "pending queue is not truncated",
+      "passed": true
+    },
+    {
+      "name": "pending IDs saved before first confirm POST",
+      "passed": true
+    },
+    {
+      "name": "unknown confirm keeps same proposal and allocation key",
+      "passed": true
+    },
+    {
+      "name": "reopening same line resumes queued intent instead of new keys",
+      "passed": true
+    },
+    {
+      "name": "generic 409 retains pending and sends same ID",
+      "passed": true
+    },
+    {
+      "name": "storage failure prevents financial confirm POST",
+      "passed": true
+    },
+    {
+      "name": "confirm 403 clears source panels and retains IDs",
+      "passed": true
+    },
+    {
+      "name": "confirm 404 clears source panels and retains IDs",
+      "passed": true
+    },
+    {
+      "name": "confirmed no-change receipt accepts without invented Event ID",
+      "passed": true
+    },
+    {
+      "name": "late read after close cannot apply source data",
+      "passed": true
+    },
+    {
+      "name": "selected EUR total never sums USD/UAH",
+      "passed": true
+    },
+    {
+      "name": "truthful net label replaces bank balance",
+      "passed": true
+    },
+    {
+      "name": "manual journal explicitly submits selected currency and exact amount",
+      "passed": true,
+      "actual": {
+        "direction": "in",
+        "amount": "17.39",
+        "currency": "EUR",
+        "date": "2026-09-12",
+        "description": "Синтетичний запис",
+        "category": "customer",
+        "counterparty": 7
+      }
+    }
+  ],
+  "passed": 29,
+  "failed": 0
+}

@@ -1,0 +1,62 @@
+{
+  "date": "2026-09-12T08:43:20.427304+00:00",
+  "kind": "read-only diagnostic; not gate 8 acceptance",
+  "database_connection_attempts": [],
+  "entrypoint": "boss_project.wsgi:application",
+  "entrypoint_created": true,
+  "profile": "boss_project.settings",
+  "mode": "demo",
+  "demo_secret": true,
+  "allowed_hosts": [
+    "testserver",
+    "localhost",
+    "127.0.0.1"
+  ],
+  "middleware": [
+    "boss_project.demo_middleware.LocalDemoGuard",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "operations.middleware.LocalRoleGuard"
+  ],
+  "session_cookie_secure": false,
+  "session_cookie_httponly": true,
+  "csrf_cookie_secure": false,
+  "secure_ssl_redirect": false,
+  "secure_proxy_ssl_header": null,
+  "csrf_trusted_origins": [],
+  "permissions": [
+    "rest_framework.permissions.IsAuthenticated"
+  ],
+  "logging_defined": false,
+  "security_checks": [
+    {
+      "id": "security.W012",
+      "message": "SESSION_COOKIE_SECURE is not set to True. Using a secure-only session cookie makes it more difficult for network traffic sniffers to hijack user sessions."
+    },
+    {
+      "id": "security.W003",
+      "message": "You don't appear to be using Django's built-in cross-site request forgery protection via the middleware ('django.middleware.csrf.CsrfViewMiddleware' is not in your MIDDLEWARE). Enabling the middleware is the safest approach to ensure you don't leave any holes."
+    },
+    {
+      "id": "security.W009",
+      "message": "Your SECRET_KEY has less than 50 characters, less than 5 unique characters, or it's prefixed with 'django-insecure-' indicating that it was generated automatically by Django. Please generate a long and random value, otherwise many of Django's security-critical features will be vulnerable to attack."
+    },
+    {
+      "id": "security.W001",
+      "message": "You do not have 'django.middleware.security.SecurityMiddleware' in your MIDDLEWARE so the SECURE_HSTS_SECONDS, SECURE_CONTENT_TYPE_NOSNIFF, SECURE_REFERRER_POLICY, SECURE_CROSS_ORIGIN_OPENER_POLICY, and SECURE_SSL_REDIRECT settings will have no effect."
+    },
+    {
+      "id": "security.W002",
+      "message": "You do not have 'django.middleware.clickjacking.XFrameOptionsMiddleware' in your MIDDLEWARE, so your pages will not be served with an 'x-frame-options' header. Unless there is a good reason for your site to be served in a frame, you should consider enabling this header to help prevent clickjacking attacks."
+    }
+  ],
+  "missing_files": [
+    "server_settings.py",
+    "scripts/start_server.py",
+    "scripts/install_server.py",
+    "scripts/check_install.py",
+    "scripts/check_upgrade.py"
+  ]
+}

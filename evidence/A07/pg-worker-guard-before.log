@@ -1,0 +1,18 @@
+test_postgres_name_ticket_alone_does_not_authorize_a_proof_worker (erp.test_transfer_runner_guards.TransferWorkerGuardTests.test_postgres_name_ticket_alone_does_not_authorize_a_proof_worker) ... FAIL
+test_proof_worker_refuses_unissued_external_database_without_touching_it (erp.test_transfer_runner_guards.TransferWorkerGuardTests.test_proof_worker_refuses_unissued_external_database_without_touching_it) ... ok
+
+======================================================================
+FAIL: test_postgres_name_ticket_alone_does_not_authorize_a_proof_worker (erp.test_transfer_runner_guards.TransferWorkerGuardTests.test_postgres_name_ticket_alone_does_not_authorize_a_proof_worker)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/erp/test_transfer_runner_guards.py", line 32, in test_postgres_name_ticket_alone_does_not_authorize_a_proof_worker
+    self.assertNotEqual(result.returncode, 0,
+AssertionError: 0 == 0 : A name ticket without a successful CREATE proof was accepted
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.066s
+
+FAILED (failures=1)
+Found 2 test(s).
+Skipping setup of unused database(s): default.
+System check identified no issues (0 silenced).

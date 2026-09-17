@@ -1,0 +1,114 @@
+[
+  {
+    "probe": "media_below_nonexistent_database",
+    "result": {
+      "attempts": [],
+      "status": "started",
+      "callable": true,
+      "mode": "working",
+      "cookie": "bos_session_4753ac29a36249c9bb38993a3e787bd0",
+      "secret_sha": "7745a924b912a575b2a589b0260faedc6fa24ec884991204b258f023710add73",
+      "settings": "server_settings",
+      "installed_apps": 15,
+      "local": {
+        "secret_unchanged": true,
+        "guard_unchanged": true,
+        "permission_unchanged": true
+      },
+      "case": "test_nonisolated_and_aliased_paths_refused",
+      "mutation": null,
+      "environment_keys_changed": []
+    }
+  },
+  {
+    "probe": "media_below_existing_plain_database_file",
+    "result": {
+      "attempts": [],
+      "status": "started",
+      "callable": true,
+      "mode": "working",
+      "cookie": "bos_session_161b9f2e8c554d6f8f679fee024c2c43",
+      "secret_sha": "a9e0d4086ba056e1955e7d4530cfbf80d0c35cf4fed1cbdf865e652b9dade7a2",
+      "settings": "server_settings",
+      "installed_apps": 15,
+      "local": {
+        "secret_unchanged": true,
+        "guard_unchanged": true,
+        "permission_unchanged": true
+      },
+      "case": "test_nonisolated_and_aliased_paths_refused",
+      "mutation": null,
+      "environment_keys_changed": []
+    }
+  },
+  {
+    "probe": "private_root_without_owner_write",
+    "result": {
+      "attempts": [],
+      "status": "started",
+      "callable": true,
+      "mode": "working",
+      "cookie": "bos_session_51d4b2939d34493c97c2a2b125b54e3d",
+      "secret_sha": "487dffa3c9bb5f42365527bdcebfa454090a89f6e941f77ca97dd4bc9b7a30c2",
+      "settings": "server_settings",
+      "installed_apps": 15,
+      "local": {
+        "secret_unchanged": true,
+        "guard_unchanged": true,
+        "permission_unchanged": true
+      },
+      "case": "test_nonisolated_and_aliased_paths_refused",
+      "mutation": null,
+      "environment_keys_changed": []
+    }
+  },
+  {
+    "probe": "effective_installation_cookie_identity_mutated",
+    "result": {
+      "attempts": [],
+      "status": "started",
+      "callable": true,
+      "mode": "working",
+      "cookie": "sessionid",
+      "secret_sha": "104e3a1ac36aca207726c17a769c063117ee7ea56dc5efab18207cb39438983d",
+      "settings": "server_settings",
+      "installed_apps": 15,
+      "local": {
+        "secret_unchanged": true,
+        "guard_unchanged": true,
+        "permission_unchanged": true
+      },
+      "case": "test_nonisolated_and_aliased_paths_refused",
+      "mutation": "SESSION_COOKIE_NAME",
+      "environment_keys_changed": []
+    }
+  },
+  {
+    "probe": "effective_csrf_cookie_name_breaks_existing_frontend",
+    "result": {
+      "attempts": [],
+      "status": "started",
+      "callable": true,
+      "mode": "working",
+      "cookie": "bos_session_7e9270251ae140ceabaa5cbba8c81120",
+      "secret_sha": "f0f1c5755fef4ad2ec0a47e16e029a803c6b0b115e62789aabfa66286d329cc3",
+      "settings": "server_settings",
+      "installed_apps": 15,
+      "local": {
+        "secret_unchanged": true,
+        "guard_unchanged": true,
+        "permission_unchanged": true
+      },
+      "case": "test_nonisolated_and_aliased_paths_refused",
+      "mutation": "CSRF_COOKIE_NAME",
+      "environment_keys_changed": []
+    }
+  },
+  {
+    "probe": "double_slash_source_root_alias",
+    "result": {
+      "status": "accepted",
+      "aliases_actual_source": true
+    }
+  }
+]

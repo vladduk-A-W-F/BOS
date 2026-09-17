@@ -1,0 +1,101 @@
+{
+  "tests_run": 2,
+  "failures": 0,
+  "errors": 0,
+  "successful": true,
+  "evidence": [
+    {
+      "case": "test_invalid_configuration_refuses_before_bind_or_database",
+      "returncode": 2,
+      "records": [
+        {
+          "event": "bos.server.refused",
+          "reason": "Сервер BoS не запущено: перевірте BOS_SECRET_KEY."
+        },
+        {
+          "event": "a09.audit",
+          "attempts": []
+        }
+      ]
+    },
+    {
+      "case": "test_real_http_keeps_actual_peer_and_checks_forwarded_headers",
+      "returncode": 0,
+      "records": [
+        {
+          "event": "bos.server.bound",
+          "host": "127.0.0.1",
+          "port": 33083,
+          "version": "0.2.8-dev",
+          "runtime": "waitress",
+          "runtime_version": "3.0.2"
+        },
+        {
+          "event": "a09.audit",
+          "attempts": [
+            {
+              "event": "socket.bind",
+              "address": [
+                "127.0.0.1",
+                0
+              ]
+            }
+          ]
+        }
+      ],
+      "responses": [
+        {
+          "case": "valid",
+          "source_address": "127.0.0.1",
+          "status": 200,
+          "expected": 200,
+          "secure_cookie": true
+        },
+        {
+          "case": "forged-actual-peer",
+          "source_address": "127.0.0.2",
+          "status": 403,
+          "expected": 403,
+          "secure_cookie": false
+        },
+        {
+          "case": "no-proxy-headers",
+          "source_address": "127.0.0.1",
+          "status": 400,
+          "expected": 400,
+          "secure_cookie": false
+        },
+        {
+          "case": "ambiguous-proto",
+          "source_address": "127.0.0.1",
+          "status": 400,
+          "expected": 400,
+          "secure_cookie": false
+        },
+        {
+          "case": "wrong-host",
+          "source_address": "127.0.0.1",
+          "status": 400,
+          "expected": 400,
+          "secure_cookie": false
+        },
+        {
+          "case": "ignored-forwarded-host",
+          "source_address": "127.0.0.1",
+          "status": 200,
+          "expected": 200,
+          "secure_cookie": true
+        },
+        {
+          "case": "http-redirect",
+          "source_address": "127.0.0.1",
+          "status": 301,
+          "expected": 301,
+          "secure_cookie": false
+        }
+      ],
+      "stderr": "{\"event\":\"request\",\"status\":200,\"version\":\"0.2.8-dev\",\"correlation_id\":\"4c3ac7e6c6374d6e96a663624705ff23\"}\n{\"event\":\"request\",\"status\":403,\"version\":\"0.2.8-dev\",\"correlation_id\":\"f16cd9cef5a34e5989747630455a58fe\"}\n{\"event\":\"security_rejection\",\"status\":403,\"version\":\"0.2.8-dev\",\"correlation_id\":\"66cfc2c6d3a6450eb69d4a9a5d402305\"}\n{\"event\":\"request\",\"status\":400,\"version\":\"0.2.8-dev\",\"correlation_id\":\"e08428a8e2194d05b469a206443e7e90\"}\n{\"event\":\"security_rejection\",\"status\":400,\"version\":\"0.2.8-dev\",\"correlation_id\":\"2d6ff30a4bed4f10b8904397a2995a2e\"}\n{\"event\":\"request\",\"status\":400,\"version\":\"0.2.8-dev\",\"correlation_id\":\"57fe8ad9d15247f79fe806712cdbb0bc\"}\n{\"event\":\"security_rejection\",\"status\":400,\"version\":\"0.2.8-dev\",\"correlation_id\":\"44cdfb1837fb481286fe67d6468f7029\"}\n{\"event\":\"application_error\",\"status\":400,\"version\":\"0.2.8-dev\",\"correlation_id\":\"682e1b43d46941f7a5c3b724bcd87515\"}\n{\"event\":\"request\",\"status\":400,\"version\":\"0.2.8-dev\",\"correlation_id\":\"682e1b43d46941f7a5c3b724bcd87515\"}\n{\"event\":\"request\",\"status\":200,\"version\":\"0.2.8-dev\",\"correlation_id\":\"8ed0237566ec4e7f828cf6af052cb4ab\"}\n{\"event\":\"request\",\"status\":301,\"version\":\"0.2.8-dev\",\"correlation_id\":\"838d06dacb13438492dc60419ca01ce7\"}\n"
+    }
+  ],
+  "scope": "Real Waitress 3.0.2 loopback HTTP only; no TLS/production data/Windows/install acceptance"
+}

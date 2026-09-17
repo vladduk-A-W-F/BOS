@@ -1,0 +1,10 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h1>Архівувати запис{% if bulk_archive %}и{% endif %}?</h1>
+<p>Записи залишаться в історії зі своїми ID та зв’язками. Фінансові підсумки не зміняться.</p>
+{% if bulk_archive %}<ul>{% for row in objects %}<li>{{ row }}</li>{% endfor %}</ul>{% else %}<p>{{ object }}</p>{% endif %}
+<form method="post">{% csrf_token %}<input type="hidden" name="post" value="yes">
+{% if bulk_archive %}<input type="hidden" name="action" value="delete_selected">{% for row in objects %}<input type="hidden" name="_selected_action" value="{{ row.pk }}">{% endfor %}{% endif %}
+<input type="submit" value="Архівувати зі збереженням історії">
+<a href="../">Скасувати</a></form>
+{% endblock %}

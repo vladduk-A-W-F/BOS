@@ -1,0 +1,152 @@
+{
+  "report_sha256": "35a92130093e711b81ec307f26090d251c2f05dbdd87eeda3afaeff376b9a608",
+  "source_sha256_after": "1ece101acc1b7e51b60ddda3201e687c061292add49dfbfefb07f68063ceef7d",
+  "source_unchanged": true,
+  "complete": false,
+  "exit_code": 1,
+  "source_databases": {
+    "db.sqlite3": "ec6b89ac86011906881ab686581a0b96f63f17741873c355d2cb459896db02d5",
+    "BoS_Demo.sqlite3": "58fcd32532c6abebfa95ad06ae18d76ddccac2242fb25dc64350ad3203bd0dc8"
+  },
+  "gates": [
+    {
+      "id": 1,
+      "status": "НЕ ЗАПУЩЕНО",
+      "reason": "Усі підперевірки обов’язкові."
+    },
+    {
+      "id": 2,
+      "status": "ПОМИЛКА",
+      "reason": "Усі підперевірки обов’язкові."
+    },
+    {
+      "id": 3,
+      "status": "НЕ ЗАПУЩЕНО",
+      "reason": "Усі підперевірки обов’язкові."
+    },
+    {
+      "id": 4,
+      "status": "ПРОЙДЕНО",
+      "reason": ""
+    },
+    {
+      "id": 5,
+      "status": "НЕ ЗАПУЩЕНО",
+      "reason": "Усі підперевірки обов’язкові."
+    },
+    {
+      "id": 6,
+      "status": "НЕ РЕАЛІЗОВАНО",
+      "reason": "Усі підперевірки обов’язкові."
+    },
+    {
+      "id": 7,
+      "status": "ПРОЙДЕНО",
+      "reason": ""
+    },
+    {
+      "id": 8,
+      "status": "ПОМИЛКА",
+      "reason": "Усі підперевірки обов’язкові."
+    },
+    {
+      "id": 9,
+      "status": "НЕ РЕАЛІЗОВАНО",
+      "reason": "Усі підперевірки обов’язкові."
+    },
+    {
+      "id": 10,
+      "status": "НЕ РЕАЛІЗОВАНО",
+      "reason": "Усі підперевірки обов’язкові."
+    },
+    {
+      "id": 11,
+      "status": "НЕ ЗАПУЩЕНО",
+      "reason": "Немає результату реального Windows runner."
+    }
+  ],
+  "gate-03-sqlite.log": {
+    "gate": 3,
+    "date": "2026-09-12T14:52:04.530748+00:00",
+    "backend": "sqlite",
+    "seed": 20260911,
+    "minimum_runs": 1000,
+    "role_failed_sequences": 0,
+    "complete": true,
+    "scope": "Синтетичні випадкові складські/зарплатні/HTTP-послідовності. Повний обхід маршрутів — окремий критерій 4. A03/A04 перевіряються реальними обліковими записами й поточними правами.",
+    "arrays": {
+      "results": 5,
+      "counts": 7,
+      "operation_outcomes": 11,
+      "role_samples": 0,
+      "role_coverage": 12
+    }
+  },
+  "gate-04-sqlite.log": {
+    "gate": 4,
+    "date": "2026-09-12T14:52:04.804394+00:00",
+    "complete": true,
+    "backend": "sqlite",
+    "arrays": {
+      "catalogue": 180,
+      "cases": 8928,
+      "failures": 0,
+      "field_tests": 8,
+      "counts": 10,
+      "route_coverage": 194,
+      "c01_controls": 12
+    }
+  },
+  "gate-05-sqlite.log": {
+    "schema": 1,
+    "gate": 5,
+    "date": "2026-09-12T14:57:41.542565+00:00",
+    "complete": true,
+    "scope": "Synthetic concurrency on the actual selected backend only; no browser/Windows/LLM acceptance.",
+    "manifest_sha256": "73cf474223acb546206614e4317f7d5890f6373590320c514f08ae3cabea0243",
+    "runner_failures": 0,
+    "arrays": {
+      "failures": 0,
+      "tests": 16,
+      "database": 7,
+      "erp_schema": 2,
+      "source_sha256_before": 11,
+      "erp_stdout": 8,
+      "source_sha256_after": 11
+    }
+  },
+  "gate-07-sqlite.log": {
+    "gate": 7,
+    "complete": true,
+    "version": "0.2.14-dev",
+    "synthetic_work": "/tmp/bos-restore-check-41eulkof",
+    "scope": "actual same-N TLS, capture, clean restore and restored HTTPS; no upgrade/rollback or Windows/PG",
+    "arrays": {
+      "checks": 16,
+      "management_code_sha256": 5,
+      "package": 5,
+      "seed": 10
+    }
+  },
+  "gate-08-sqlite.log": {
+    "gate": 8,
+    "date": "2026-09-12T15:01:07.591702+00:00",
+    "complete": false,
+    "platform": "linux",
+    "synthetic_work": "/tmp/bos-install-check-je9mimiq",
+    "status": "ПОМИЛКА",
+    "reason": "Є непройдений обов’язковий HTTP сценарій; див. checks.",
+    "private_canaries_absent": true,
+    "log_files_checked": 29,
+    "arrays": {
+      "checks": 31,
+      "commands": 4,
+      "package": 5,
+      "installation": 10,
+      "startup": 9,
+      "first_stop": 3,
+      "second_stop": 3,
+      "structured_logs": 2
+    }
+  }
+}

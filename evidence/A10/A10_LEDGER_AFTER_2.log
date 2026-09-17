@@ -1,0 +1,17 @@
+test_changed_receipt_and_torn_pointer_are_not_repaired (__main__.GenerationLedgerTests.test_changed_receipt_and_torn_pointer_are_not_repaired) ... BOS_A10_LEDGER_CASE {"case": "changed_torn_receipt", "registry_unchanged": true, "validation_scope": "filesystem", "refusal_without_repair": true}
+ok
+test_forged_candidate_hardlink_alias_and_foreign_root_refuse (__main__.GenerationLedgerTests.test_forged_candidate_hardlink_alias_and_foreign_root_refuse) ... BOS_A10_LEDGER_CASE {"case": "ownership_boundaries", "registry_unchanged": true, "validation_scope": "filesystem", "forged_cap_refused": true, "foreign_bytes_unchanged": true}
+ok
+test_original_anchor_preserves_registry_code_config_and_state (__main__.GenerationLedgerTests.test_original_anchor_preserves_registry_code_config_and_state) ... BOS_A10_LEDGER_CASE {"case": "original_anchor", "registry_unchanged": true, "validation_scope": "filesystem", "active_pointer_created": false}
+ok
+test_same_operation_replay_payload_parent_conflict (__main__.GenerationLedgerTests.test_same_operation_replay_payload_parent_conflict) ... BOS_A10_LEDGER_CASE {"case": "operation_replay_conflict", "registry_unchanged": true, "validation_scope": "filesystem", "one_candidate": true, "conflict_unchanged": true}
+ok
+test_seal_exact_manifest_replay_and_changed_candidate_refusal (__main__.GenerationLedgerTests.test_seal_exact_manifest_replay_and_changed_candidate_refusal) ... BOS_A10_LEDGER_CASE {"case": "seal_replay_changed_state", "registry_unchanged": true, "validation_scope": "filesystem", "one_descriptor": true, "changed_bytes_refused": true}
+ok
+test_wrong_config_and_code_refuse_without_descriptor (__main__.GenerationLedgerTests.test_wrong_config_and_code_refuse_without_descriptor) ... BOS_A10_LEDGER_CASE {"case": "config_code_boundaries", "registry_unchanged": true, "validation_scope": "filesystem", "wrong_state_path_refused": true, "changed_code_refused": true}
+ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.457s
+
+OK

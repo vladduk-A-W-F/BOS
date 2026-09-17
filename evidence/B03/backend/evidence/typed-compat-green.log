@@ -1,0 +1,77 @@
+Creating test database for alias 'default' ('/workspace/scratch/c7b51e996a9f/tmp/b03_candidate/check_typed_compat_green.sqlite3_django_test')...
+Destroying old test database for alias 'default' ('/workspace/scratch/c7b51e996a9f/tmp/b03_candidate/check_typed_compat_green.sqlite3_django_test')...
+Found 2 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: django_filters, messages, rest_framework, staticfiles
+  Apply all migrations: admin, ai_assistant, auth, branches, contenttypes, employees, erp, finance, operations, sessions, tasks
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying ai_assistant.0001_initial... OK
+  Applying ai_assistant.0002_taskchangelog... OK
+  Applying ai_assistant.0003_claudeusagelog... OK
+  Applying ai_assistant.0004_employeechangelog... OK
+  Applying ai_assistant.0005_chatfile... OK
+  Applying ai_assistant.0006_alter_chatmessage_created_at_and_more... OK
+  Applying ai_assistant.0007_employeechangelog_undone_at... OK
+  Applying ai_assistant.0008_chatmessage_archived_at_chatmessage_user_and_more... OK
+  Applying ai_assistant.0009_private_documents... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying branches.0001_initial... OK
+  Applying branches.0002_branch_short_name... OK
+  Applying branches.0003_fill_short_names... OK
+  Applying employees.0001_initial... OK
+  Applying employees.0002_alter_employee_department... OK
+  Applying employees.0003_employee_branch... OK
+  Applying employees.0004_employee_archived_at... OK
+  Applying employees.0005_employee_user... OK
+  Applying tasks.0001_initial... OK
+  Applying tasks.0002_alter_task_priority... OK
+  Applying tasks.0003_alter_task_deadline_alter_task_priority_and_more... OK
+  Applying tasks.0004_task_branch... OK
+  Applying finance.0001_initial... OK
+  Applying finance.0002_alter_salary_unique_together_alter_contract_status_and_more... OK
+  Applying finance.0003_transaction_branch... OK
+  Applying operations.0001_initial... OK
+  Applying operations.0002_actionproposal_user... OK
+  Applying operations.0003_loginattempt... OK
+  Applying operations.0004_alter_document_options_document_access_level... OK
+  Applying operations.0005_invoice_boundaries... OK
+  Applying operations.0006_private_documents... OK
+  Applying finance.0004_salary_archived_at_transaction_archived_at_and_more... OK
+  Applying finance.0005_alter_transaction_branch_alter_transaction_contract_and_more... OK
+  Applying finance.0006_financialintent... OK
+  Applying finance.0007_money_boundaries... OK
+  Applying erp.0001_initial... OK
+  Applying erp.0002_row_boundaries... OK
+  Applying erp.0003_purchase_source... OK
+  Applying erp.0004_initial_import_ledger... OK
+  Applying erp.0005_source_corrections... OK
+  Applying sessions.0001_initial...test_populated_ledger_full_typed_transfer_preserves_source_receipts_and_ids (erp.test_import_preservation.ImportPreservationTests.test_populated_ledger_full_typed_transfer_preserves_source_receipts_and_ids) ... ok
+test_full_model_transfer_preserves_money_stock_files_ids_and_replays (erp.test_full_data_transfer.FullDataTransferTests.test_full_model_transfer_preserves_money_stock_files_ids_and_replays) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 12.044s
+
+OK
+Destroying test database for alias 'default' ('/workspace/scratch/c7b51e996a9f/tmp/b03_candidate/check_typed_compat_green.sqlite3_django_test')...
+ OK
+System check identified no issues (0 silenced).
+BOS_A07_TRANSFER {"backend": "sqlite", "complete": true, "table_count": 53, "source_sha256": "f59e18827a30c00f29ad3d52eae994fc645bcec72c3db9591b438a42981e8c75", "source_unchanged": true, "accounting_totals": {"stock": {"lot_count": 12, "movement_count": 18, "recorded_cost_basis_by_currency": {"EUR": "39", "USD": "39", "UAH": "39"}, "quantity_by_item": {"1": {"stock": "13", "movements": "13"}, "2": {"stock": "2", "movements": "2"}, "3": {"stock": "13", "movements": "13"}, "4": {"stock": "2", "movements": "2"}, "5": {"stock": "13", "movements": "13"}, "6": {"stock": "2", "movements": "2"}}}, "finance": {"salary_rows": 3, "transaction_rows": 6, "salary_amounts": [{"currency": "EUR", "status": "paid", "amount": "100"}, {"currency": "UAH", "status": "paid", "amount": "100"}, {"currency": "USD", "status": "paid", "amount": "100"}], "transaction_amounts": [{"currency": "EUR", "direction": "in", "amount": "200"}, {"currency": "EUR", "direction": "out", "amount": "100"}, {"currency": "UAH", "direction": "in", "amount": "200"}, {"currency": "UAH", "direction": "out", "amount": "100"}, {"currency": "USD", "direction": "in", "amount": "200"}, {"currency": "USD", "direction": "out", "amount": "100"}]}}, "next_ids": [90002, 90003], "http_receipt_equal": true, "not_checked": ["real_customer_data", "postgresql", "production_cutover", "A09_A10_installation_upgrade"]}

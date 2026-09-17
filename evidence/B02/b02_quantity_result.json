@@ -1,0 +1,54 @@
+{
+  "scope": "Actual extracted JavaScript source execution in Node; not browser or server acceptance",
+  "before": {
+    "expression": "String(Number(r.quantity)-Number(r.received))",
+    "quantity": "0.300",
+    "received": "0.200",
+    "expected": "0.100",
+    "actual": "0.09999999999999998",
+    "passed": false
+  },
+  "after": {
+    "source_sha256": "95cd53cfdea137bcc8635b9da0f7c3aaf502c91bbd4726889f4a9d7dad967abb",
+    "cases": [
+      {
+        "quantity": "0.300",
+        "received": "0.200",
+        "expected": "0.100",
+        "actual": "0.100"
+      },
+      {
+        "quantity": "5.000",
+        "received": "2.000",
+        "expected": "3.000",
+        "actual": "3.000"
+      },
+      {
+        "quantity": "0.001",
+        "received": "0.000",
+        "expected": "0.001",
+        "actual": "0.001"
+      },
+      {
+        "quantity": "2.125",
+        "received": "1.875",
+        "expected": "0.250",
+        "actual": "0.250"
+      },
+      {
+        "quantity": "999999999.999",
+        "received": "0.001",
+        "expected": "999999999.998",
+        "actual": "999999999.998"
+      },
+      {
+        "quantity": "1",
+        "received": "1",
+        "expected": "0.000",
+        "actual": "0.000"
+      }
+    ],
+    "impossibleRejected": true,
+    "passed": true
+  }
+}

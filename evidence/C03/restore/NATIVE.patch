@@ -1,0 +1,54 @@
+--- a/scripts/check_restore.py
++++ b/scripts/check_restore.py
+@@ -12,9 +12,10 @@
+ ROOT=Path(__file__).resolve().parents[1]
+ sys.path.insert(0,str(ROOT))
+ from boss_project.version import VERSION
+-from fixtures.synthetic.table_inventory import B03_TABLES
++from fixtures.synthetic.table_inventory import B03_TABLES, C03_TABLES
+ from scripts.restore_corrections_fixture import populate as populate_corrections, verify_restored as verify_restored_corrections
+ from scripts.restore_tasks_fixture import populate as populate_tasks, verify_restored as verify_restored_tasks
++from scripts.restore_statements_fixture import populate as populate_statements, verify_restored as verify_restored_statements
+ from scripts import install_server as installer
+ from scripts.package_server import package
+ from scripts.provision_runtime import provision_install
+@@ -78,7 +79,7 @@
+ # This intentionally creates session history using the actual backend.
+ from django.contrib.sessions.backends.db import SessionStore
+ session=SessionStore();session['synthetic']='retained';session.save()
+-print(json.dumps({'user_id':u.pk,'employee_id':employee.pk,'second_employee_id':second_employee.pk,'legacy_task_ids':[t.pk for t in legacy_tasks],'document_id':document.pk,'import_document':{'document_id':import_document.pk,'code':import_document.code,'revision':import_document.revision,'checksum':import_document.checksum},'transaction_ids':ids,'currencies':3,'amounts':['17.39','123.45','9801.07'],'stored_session_rows':Session.objects.count()}))
++print(json.dumps({'user_id':u.pk,'counterparty_id':party.pk,'employee_id':employee.pk,'second_employee_id':second_employee.pk,'legacy_task_ids':[t.pk for t in legacy_tasks],'document_id':document.pk,'import_document':{'document_id':import_document.pk,'code':import_document.code,'revision':import_document.revision,'checksum':import_document.checksum},'transaction_ids':ids,'currencies':3,'amounts':['17.39','123.45','9801.07'],'stored_session_rows':Session.objects.count()}))
+ 
+ '''
+ 
+@@ -177,6 +178,9 @@
+       # Tasks are part of snapshot.home: populate before freezing the existing B03 whole-snapshot oracle.
+       task_proof=populate_tasks(client,import_receipt,report['seed'])
+       check('actual_TLS_tasks_FK_result_archive_and_history',tasks=len(task_proof['ids']),receipts=len(task_proof['records']),state_sha256=task_proof['state_sha256'])
++      # C03 financial effects precede the unchanged B03 full snapshot oracle.
++      statement_proof=populate_statements(client,import_receipt,report['seed'])
++      check('actual_TLS_statements_three_currencies_create_link_and_allocate',lines=len(statement_proof['line_ids']),state_sha256=statement_proof['state_sha256'],source_sha256=statement_proof['source_sha256'])
+       correction_proof=populate_corrections(client,import_receipt,report['seed'])
+       check('actual_TLS_six_populated_correction_ledgers',counts=correction_proof['counts'],snapshot_sha256=correction_proof['snapshot_sha256'])
+       lease=owner.quiesce(str(uuid.uuid4()))
+@@ -185,8 +189,9 @@
+       backup=work/'backup'
+       result=capture_backup(ledger=ledger,lease=lease,destination=backup)
+       manifest=inspect_backup(installer=installer,source=backup)
+-      assert set(manifest['proof']['logical']['tables'])==B03_TABLES
+-      assert len(manifest['proof']['logical']['tables'])==53
++      assert B03_TABLES.issubset(set(manifest['proof']['logical']['tables'])) and len(B03_TABLES)==53
++      assert set(manifest['proof']['logical']['tables'])==C03_TABLES
++      assert len(manifest['proof']['logical']['tables'])==56
+       assert hashlib.sha256((target/'state/data/bos.sqlite3').read_bytes()).hexdigest()==original_db
+       assert inventory(installer,target/'state/private')==original_media
+       check('actual_quiescence_native_capture',**{k:v for k,v in result.items() if k!='complete'})
+@@ -234,6 +239,8 @@
+       check('restored_import_receipt_identity_replay_and_private_source',export_sha256=hashlib.sha256(restored_import_export).hexdigest(),no_new_business_effects=True)
+       restored_corrections=verify_restored_corrections(client,correction_proof)
+       check('restored_six_correction_ledgers_source_history_and_intent_replay',**restored_corrections)
++      restored_statements=verify_restored_statements(client,statement_proof)
++      check('restored_statements_exact_source_ledgers_three_currencies_and_receipts',**restored_statements)
+       restored_tasks=verify_restored_tasks(client,task_proof)
+       check('restored_Task_legacy_NULL_FK_result_archive_history_and_owner_receipts',**restored_tasks)
+       owner.quiesce(str(uuid.uuid4()))

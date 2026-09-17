@@ -1,0 +1,41 @@
+{
+  "reviewed_at": "2026-09-12T08:37:44.178974+00:00",
+  "scope": "A08 upload / original bytes admission / quota / export private parent permissions / recovery fixture legitimacy",
+  "result": "scoped_consensus",
+  "tests": {
+    "methods": 12,
+    "failures": 0,
+    "errors": 0,
+    "elapsed_seconds": 0.667,
+    "log": "a08_upload_independent_after.log",
+    "exit_code": 0
+  },
+  "red": {
+    "target_methods": 12,
+    "failed_methods": 7,
+    "failed_assertions": 10,
+    "errors": 0,
+    "extra_imported_A07_methods": 14,
+    "extra_A07_failures": 0,
+    "log": "a08_upload_recovered_before.log"
+  },
+  "source_sha256": {
+    "operations/views.py": "58a5a599c1aca3110746a4750a272acdb7e256d62c2a91e856aa20861e6262de",
+    "operations/private_storage.py": "9a363b2a4120343fe853836eb6d41538b72a8b36f26bfb1c21ff315a734f4799",
+    "scripts/data_transfer.py": "32064ad51e1c0a071eed8cf5ba010f9ecf781a107814d5b62ffd174b1122a8cf",
+    "scripts/schema_preflight.py": "e51ff10beb567d20238acc866b92eb55028ab73cb66daca4934e6df35829dd6c",
+    "operations/test_document_upload.py": "ea96d56a3ae4ab82c19edc3fb9545081e33ed83a3d1faed88ed9c502bd07fb85",
+    "erp/test_private_transfer_mode.py": "c683b0ff2966e756919f37814339057dcc52619136db7e20f327fdd7a3296ef1",
+    "operations/test_private_storage.py": "f736962116fac7b346e02ec6115840826c5f629acc8bb3779aeb7eeec0691a1e",
+    "operations/test_storage_ownership.py": "d1128a04f2c296e71b20fef96839a0e4a349b2db060357b0587bcee8f0e388b8",
+    "docs/DOCUMENT_STORAGE_UA.md": "40da21ac9fdc0ee1fc2da3844ace2090632d03cb7cee50c9f7c158500290e693",
+    "evidence/A08/RECOVERY_UA.md": "fb6167e458c7616e0aaef019ae59ff981607bf932f1f3605f48ff030d9f33974"
+  },
+  "not_accepted": [
+    "document migration wrapper and whole-model rehearsal still assigned separately",
+    "full 11-gate verify",
+    "PostgreSQL runtime",
+    "Windows ACL / POSIX-specific fixture adaptation",
+    "release"
+  ]
+}

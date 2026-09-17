@@ -1,0 +1,81 @@
+{
+  "scope": "C01 UI candidate source/build/extracted JS only; no browser/API/DB/fullverify acceptance",
+  "frozen_at": "2026-09-12T14:31:55.126773+00:00",
+  "base": {
+    "source": "/workspace/sites/bos-original-refined",
+    "copied_at": "2026-09-12T13:56:57.918770+00:00",
+    "files": {
+      "frontend/boss_app_source.html": "f00fe5165592b9e8a8a71fda7d16c2f70ba61620a94a864c7ef3eb4dc1635c60",
+      "frontend/boss_app_html.html": "cc950098253dacfda9d6344555ebe1e78682d72b6614d7d8fcf1a5d94dcd3f6b",
+      "assets/app.js": "b41a8ffc3db25bc7892673edae0800d6f265e420649c370c40d777be0cfce14a",
+      "assets/babel.js": "7bcd2533d8908a1545817804bcb78aeaf9bd6771694bc0f62cc44bfce4f135b2",
+      "scripts/build_frontend.cjs": "558d994ccfc32a778318c2efb9ee764593d2d0437534a4b6f843fd5336e8af8d"
+    },
+    "contract_sha256": "cd52d99ea0f9bb8ae8172deace69c6f32da29513ce02d358593dea22d61d2a04"
+  },
+  "release_files": {
+    "frontend/boss_app_source.html": {
+      "base_sha256": "f00fe5165592b9e8a8a71fda7d16c2f70ba61620a94a864c7ef3eb4dc1635c60",
+      "sha256": "fd283ac01fd50fd2478a5902e492fbed5f16da943ac3731a01b4903a96dec801"
+    },
+    "frontend/boss_app_html.html": {
+      "base_sha256": "cc950098253dacfda9d6344555ebe1e78682d72b6614d7d8fcf1a5d94dcd3f6b",
+      "sha256": "fe1464507082b3fb11421462adfc3ee1564ee237b39a0ee5d021bd815f7f8848"
+    },
+    "assets/app.js": {
+      "base_sha256": "b41a8ffc3db25bc7892673edae0800d6f265e420649c370c40d777be0cfce14a",
+      "sha256": "b8f3f00701e52d4be433a17a9cd27bee934d15ae980afff977ebb4566a3825f0"
+    }
+  },
+  "unchanged_runtime_assets": {
+    "assets/babel.js": true,
+    "scripts/build_frontend.cjs": true
+  },
+  "protected_sections_sha256": {
+    "ERP_ACTIONS_and_ERPActionDialog": "4777a3818f67ac8190da767cf431ed7ebf8badfaf68257c21f22e286f1dcd873",
+    "B02_import": "8d6b54137090a87aa520c4fdde0c203d49ac250543933cc09e74b5ffd299d2f7",
+    "B03_helpers_dialog_records": "687fb6ae1693e78a0404ac9f12e9754f1e35fbbdbf997f6df6f4068b0fe33186"
+  },
+  "accepted_task_read_only_exceptions": [
+    "NavBar active badge and server is_overdue",
+    "BoSInspector task-only columns and active/overdue task filter",
+    "BoSHome task-only server projection/assignee aliases",
+    "App refetchTasks preserves persisted status and observer reads shared task screen"
+  ],
+  "proof_counts": {
+    "base_passed": 24,
+    "base_failed": 0,
+    "review_passed": 8,
+    "review_failed": 0,
+    "denial_passed": 6,
+    "denial_failed": 0,
+    "reopen_passed": 2,
+    "reopen_failed": 0
+  },
+  "supporting_files": {
+    "check_denials.cjs": "47d5c2b0cccc36987b25958745785572ac01587ded4507e9543d6a01f2f4eb03",
+    "check_baseline.cjs": "47d09543eaee12ab8fd7d50b43054982544d3890878734f70abf8a1a766a5f28",
+    "c01_topbar.jsx": "3c04209507e45eef629b70bb8b37a509aefd896e1bfaa51942467808cbaaca7e",
+    "compose_ui.py": "e81abb9ef4e2a26319ca9e14c10dfb2d2fd5cf70cfd8632407f63b1c0da13763",
+    "DENIAL_GREEN.json": "b89c80801678f8f9c8cd9aecb70bd4c3b572ef93cc7541589164dba625eee60e",
+    "UI_MAP_UA.md": "809e412ace702f3885f1a101c259de5487d16067e496fd26d595a82f3bc91362",
+    "REVIEW_RED.json": "79e63341dda69ca6c4786a1c86e2135e8b8d0c5f1f3e8f72f5e746a2dccb23cf",
+    "UI_PROOF.json": "ab8c82e4f2be7f79511f69a194b9d412f281cea89079ed690e7fef080b95e724",
+    "REVIEW_GREEN.json": "fee73f4c879dbc96ca4cfb7aee17232c3e7a12256889059864d64e9a9de75ec5",
+    "C01_UI_BASE.json": "f46e517b492dd151a6a662f1226c40de649de22ce726e9aac3640c423419bbe6",
+    "check_c01_ui.cjs": "d2c9041cc00d68602c1319f7093ac3a01bec5b5d7dbea86d054d2980f336164c",
+    "freeze_ui.py": "27624d2dad0249c8de59ba6ef36df6d6285a5523db4760ed501a1327b9ca7690",
+    "check_review_fixes.cjs": "cb78cf6abc01e8a5fe27795c216ffca3cd4270a04ea3c4a910d891e872172bd9",
+    "REOPEN_GREEN.json": "22845d19125b5ee6743ecf1eb982bdaec5292496bcf68952c206a4c0fb9549ce",
+    "REOPEN_RED.json": "1681580d1701caec51e739c159c01bc12e21ac33380896674e9c3176139ce616",
+    "c01_dialog.jsx": "c9047b784143f6194c33f781fe482698c500f881891e1b4667b9f116676ef692",
+    "c01_tasks.jsx": "309f000f55ad154a3ce7ac35670e447d507f22806b4e06d2439df3398e56c373",
+    "C01_UI.patch": "86d7807655efa42218001514ca75cbaadbf06443c36b7500ae50b24c93074f97",
+    "apply_review_fixes.py": "35b12ba476a7a414827d787f3495714255a77559904d3ab8d434390bd2aa03c7",
+    "BASELINE_RED.json": "aaa1cf8a3d920d8ef1b672d0fe79189f2453495bb7fb4d31c8abe832ed1e6ca7",
+    "DENIAL_RED.json": "d750d860ce01ca3dca062cef3b6cab26e2215b13ce24289aeb7d8f65e2a9b6f4",
+    "c01_helpers.jsx": "9dc2307d4e97012a40244bf94b1a5f436526f3e0fdc459e80d7cb76164fc3934",
+    "check_reopen.cjs": "ccd85f5c38fde6188e8fa45e4abe103e99e7ceae2ada2d145692987dacf7177b",
+    "UI_PROOF_INITIAL_HARNESS_ERROR.json": "c4a6f04aa21eb7b80019d34cf256684e6f1066644f05620c23a07fd2a46df09c"
+  }
+}

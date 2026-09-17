@@ -1,0 +1,34 @@
+Creating test database for alias 'default'...
+Destroying old test database for alias 'default'...
+FFF
+======================================================================
+FAIL: test_http_missing_intent_does_not_create_ambiguous_money (finance.test_intent_adapters.FinancialIntentAdapterTests.test_http_missing_intent_does_not_create_ambiguous_money)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/finance/test_intent_adapters.py", line 41, in test_http_missing_intent_does_not_create_ambiguous_money
+    self.assertEqual(response.status_code, 400, response.content)
+AssertionError: 201 != 400 : b'{"id":1,"direction":"in","amount":"100.25","currency":"EUR","date":"2026-09-11","description":"\xd0\xa1\xd0\xb8\xd0\xbd\xd1\x82\xd0\xb5\xd1\x82\xd0\xb8\xd1\x87\xd0\xbd\xd0\xb8\xd0\xb9 \xd0\xb4\xd0\xbe\xd1\x85\xd1\x96\xd0\xb4 A06","category":"customer","counterparty":null,"counterparty_name":null,"contract":null,"contract_number":null,"branch":null,"branch_name":null,"created_at":"2026-09-11T22:36:48.115309+02:00","archived_at":null}'
+
+======================================================================
+FAIL: test_http_same_intent_returns_one_transaction (finance.test_intent_adapters.FinancialIntentAdapterTests.test_http_same_intent_returns_one_transaction)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/finance/test_intent_adapters.py", line 35, in test_http_same_intent_returns_one_transaction
+    self.assertEqual(first.json()['id'], second.json()['id'])
+AssertionError: 1 != 2
+
+======================================================================
+FAIL: test_native_admin_supplies_stable_intent_and_resubmission_replays (finance.test_intent_adapters.FinancialIntentAdapterTests.test_native_admin_supplies_stable_intent_and_resubmission_replays)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/finance/test_intent_adapters.py", line 56, in test_native_admin_supplies_stable_intent_and_resubmission_replays
+    self.assertIn('bos_operation_id', fields)
+AssertionError: 'bos_operation_id' not found in {'csrfmiddlewaretoken': 'yO8te32ViomjrNqYmb9kj2crKnmLPv1LaWsHdHTJyYdq6fjbn2d0Qn6bi8YjcRh8', 'amount': '', 'currency': 'UAH', 'date': '', 'description': '', '_save': 'Зберегти', '_addanother': 'Зберегти і додати інше', '_continue': 'Зберегти і продовжити редагування'}
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.461s
+
+FAILED (failures=3)
+Destroying test database for alias 'default'...
+Found 3 test(s).
+System check identified no issues (0 silenced).

@@ -1,0 +1,210 @@
+--- a/scripts/access_fixtures.py
++++ b/scripts/access_fixtures.py
+@@ -168,6 +168,56 @@
+         receipt=client.post('/api/operations/confirm/',{'proposal_id':preview.json()['proposal']['id'],'confirmed':True},content_type='application/json',HTTP_X_CSRFTOKEN=csrf)
+         if receipt.status_code!=200:raise ValueError('import_fixture_confirm_failed:'+str(receipt.status_code))
+         self.import_batch_id=batch['batch_id']
++        self.build_correction_outcome()
++
++
++    def build_correction_outcome(self):
++        """One real supplier return; no domain rows or receipts are fabricated."""
++        from decimal import Decimal
++        from uuid import uuid4
++        from erp.models import Movement, Purchase, Lot, GoodsReturn
++        from operations.service import as_of
++        self.correction_cost_canary = '73429.17'
++        self.correction_reason_canary = 'A04_B03_RETURN_REASON_CANARY'
++        client = self.client('ceo')
++        csrf = client.cookies[settings.CSRF_COOKIE_NAME].value
++        self.correction_fixture_http = []
++
++        def command(payload):
++            response = client.post('/api/erp/preview/', payload, content_type='application/json', HTTP_X_CSRFTOKEN=csrf)
++            self.correction_fixture_http.append({'action': payload['action'], 'phase': 'preview', 'status': response.status_code})
++            if response.status_code != 200:
++                raise ValueError('correction_fixture_preview_failed:' + payload['action'] + ':' + str(response.status_code))
++            result = client.post('/api/operations/confirm/', {'proposal_id': response.json()['id'], 'confirmed': True},
++                                 content_type='application/json', HTTP_X_CSRFTOKEN=csrf)
++            self.correction_fixture_http.append({'action': payload['action'], 'phase': 'confirm', 'status': result.status_code})
++            if result.status_code != 200:
++                raise ValueError('correction_fixture_confirm_failed:' + payload['action'] + ':' + str(result.status_code))
++            return result.json()
++
++        item = self.seed.item
++        po = command({'action': 'erp_purchase', 'code': 'A04-B03-PO', 'item_id': item.pk,
++            'supplier_id': self.seed.supplier.pk, 'quantity': '2.000', 'price': self.correction_cost_canary,
++            'extras': '0.00', 'currency': item.currency, 'revision': item.revision,
++            'due_date': str(as_of() + timedelta(days=1)), 'direct_reason': 'Синтетичне пряме замовлення для перевірки доступу'})
++        receipt = command({'action': 'erp_receive', 'purchase_id': po['purchase_id'], 'code': 'A04-B03-RECEIPT',
++            'location_id': self.seed.location.pk, 'quantity': '2.000', 'documents': {'certificate': self.seed.public_doc.pk}})
++        movement = Movement.objects.get(lot_id=receipt['lot_id'], purchase_id=po['purchase_id'], kind='receipt')
++        self.correction_action = 'erp_return_supplier'
++        self.correction_operation_id = str(uuid4())
++        self.correction_receipt = command({'action': self.correction_action, 'operation_id': self.correction_operation_id,
++            'code': 'A04-B03-RETURN', 'receipt_id': movement.pk, 'quantity': '1.000',
++            'business_date': str(as_of()), 'reason': self.correction_reason_canary})
++        returned = GoodsReturn.objects.get(pk=self.correction_receipt['goods_return_id'])
++        if returned.source_id != movement.pk or returned.result_id != self.correction_receipt['movement_id']:
++            raise ValueError('correction_fixture_source_mismatch')
++        if Purchase.objects.get(pk=po['purchase_id']).received != Decimal('2.000') or Lot.objects.get(pk=receipt['lot_id']).quantity != Decimal('1.000'):
++            raise ValueError('correction_fixture_gross_or_stock_mismatch')
++        if returned.allocated_cost != Decimal(self.correction_cost_canary) or self.correction_receipt.get('allocated_cost') != self.correction_cost_canary:
++            raise ValueError('correction_fixture_private_cost_control_missing')
++        self.correction_source_ids = {'purchase_id': po['purchase_id'], 'receipt_id': movement.pk,
++            'lot_id': receipt['lot_id'], 'goods_return_id': returned.pk, 'movement_id': returned.result_id,
++            'claim_id': self.correction_receipt['claim_id'], 'erp_event_id': self.correction_receipt['erp_event_id']}
+ 
+     def client(self, role):
+         client = Client(enforce_csrf_checks=True, raise_request_exception=False)
+@@ -211,6 +261,9 @@
+     def query(self, row, path):
+         if row['name'] == 'admin:autocomplete':
+             return '?app_label=finance&model_name=salary&field_name=employee&term=A04'
++        if path == '/api/erp/corrections/outcome/':
++            from urllib.parse import urlencode
++            return '?' + urlencode({'action': self.correction_action, 'operation_id': self.correction_operation_id})
+         if path == '/api/erp/import/template/':
+             return '?owner_id='+str(self.seed.employee.pk)+'&format=json'
+         if path == '/api/operations/compare/':
+@@ -428,6 +481,10 @@
+             markers += [marker for owner, marker in self.chat_markers.items() if owner != role]
+         if variant == 'no_documents' and role != 'ceo':
+             markers += ['A04-OPEN', s.HIDDEN, s.HIDDEN_VERSION, s.MANAGEMENT, 'A04-ROUTE-CONTRACT-DOC']
++        if path == '/api/erp/corrections/outcome/' and role != 'ceo':
++            markers += [self.correction_cost_canary, self.correction_reason_canary]
++            if role != 'manager' or variant == 'no_documents':
++                markers += ['A04-B03-PO', 'A04-B03-RECEIPT', 'A04-B03-RETURN']
+         return list(set(markers))
+ 
+     def positive_anchors(self, row, path, role, variant):
+@@ -450,6 +507,8 @@
+             return []
+         if role not in ('ceo', 'manager', 'observer'):
+             return []
++        if route == '/api/erp/corrections/outcome/' and role in ('ceo', 'manager') and variant == 'full':
++            return [self.correction_action, self.correction_operation_id, '"goods_return_id": ' + str(self.correction_source_ids['goods_return_id']), '"receipt_id": ' + str(self.correction_source_ids['receipt_id'])]
+         if route.startswith('/api/erp/import/') and role=='ceo':
+             return ['bos.initial-import.v1'] if route.endswith('/template/') else ['a04-import-fixture','A04-IMPORT-BOUND'] if '/batches/' in route else ['\"valid\": true']
+         if route.startswith('/api/auth/') or route == '/api/runtime/status/':
+--- a/scripts/check_access.py
++++ b/scripts/check_access.py
+@@ -31,6 +31,7 @@
+                 '/api/dashboard/activity/', '/api/chat/', '/api/meeting/protocol/', '/api/dictate/process/'}
+ IMPORT_ROUTES={'/api/erp/import/preview/','/api/erp/import/template/','/api/erp/import/batches/{batch_id}/','/api/erp/import/batches/{batch_id}/export/'}
+ RAW_GET = {
++    '/api/erp/corrections/outcome/',
+     '/api/erp/import/template/', '/api/erp/import/batches/{batch_id}/', '/api/erp/import/batches/{batch_id}/export/',
+     '/api/erp/orders/{pk}/next/', '/api/erp/snapshot/', '/api/erp/export/',
+     '/api/erp/changes/{pk}/impact/', '/api/erp/orders/{pk}/draft/',
+@@ -168,6 +169,16 @@
+         return {401}, 'anonymous_business_denied'
+     if role == 'technical_admin':
+         return {403}, 'staff_is_not_business_role'
++    if route == '/api/erp/corrections/outcome/':
++        # Read-only B03 lookup. Explicit method/role oracle, not handler discovery.
++        if method != 'GET':
++            denied = role == 'observer' and method not in ('HEAD', 'OPTIONS')
++            return ({403} if denied else {405}), 'correction_outcome_unsupported_read_only'
++        if role == 'observer':
++            return {403}, 'correction_outcome_observer_denied'
++        if variant == 'no_documents' and role == 'manager':
++            return {404}, 'correction_outcome_source_unavailable'
++        return {200}, 'correction_outcome_committed_read_only'
+     if method == 'OPTIONS' and route in DRF_METADATA:
+         return {200}, 'declared_drf_metadata'
+     if route in EXTERNAL:
+@@ -343,6 +354,8 @@
+         # Keep the complete body in the byte/canary oracle and all nested actions.
+         scan_data = {key: value for key, value in data.items() if key != 'description'}
+     leaks += ['field:' + key for key in sorted(set(nested_keys(scan_data)) & forbidden)]
++    if route == '/api/erp/corrections/outcome/':
++        leaks += correction_outcome_oracle(data, response.status_code, method, role, fixtures, variant)
+     allow = {v.strip().upper() for v in response.get('Allow', '').split(',') if v.strip()}
+     leaks += ['unknown_allow_method:' + v for v in sorted(allow - set(METHODS))]
+     if response.status_code == 200 and method == 'GET':
+@@ -352,6 +365,51 @@
+             if anchor not in decoded_text:
+                 leaks.append('missing_positive_anchor:' + anchor)
+     return leaks, len(raw)
++
++
++def correction_outcome_oracle(data, status, method, role, fixtures, variant):
++    """Actual persisted source and exact receipt; never accept an empty 200."""
++    errors = []
++    private = {'amount', 'paid', 'price', 'extras', 'cost', 'unit_cost', 'allocated_cost', 'source_cost',
++               'return_allocated_cost', 'agreed_amount', 'total', 'source_snapshot', 'basis_snapshot',
++               'basis_hash', 'payload', 'reason', 'actor_id', 'settlement', 'effective_credit',
++               'net_amount', 'receivable', 'customer_credit'}
++    if role != 'ceo':
++        errors += ['correction_private_field:' + key for key in sorted(set(nested_keys(data)) & private)]
++    if method != 'GET':
++        return errors
++    if status == 404:
++        if data != {'state': 'unknown', 'receipt': None}:
++            errors.append('correction_unknown_must_not_disclose_source')
++        return errors
++    if status != 200:
++        return errors
++    if not isinstance(data, dict) or set(data) != {'state', 'action', 'operation_id', 'receipt'}:
++        return errors + ['correction_outcome_envelope_mismatch']
++    if data.get('state') != 'succeeded' or data.get('action') != fixtures.correction_action or data.get('operation_id') != fixtures.correction_operation_id:
++        errors.append('correction_outcome_identity_mismatch')
++    receipt = data.get('receipt')
++    if not isinstance(receipt, dict):
++        return errors + ['correction_receipt_missing']
++    for key in ('state', 'action', 'operation_id', 'quantity', 'currency'):
++        if receipt.get(key) != fixtures.correction_receipt.get(key):
++            errors.append('correction_receipt_value:' + key)
++    for key in ('receipt_id', 'lot_id', 'goods_return_id', 'movement_id', 'claim_id', 'erp_event_id'):
++        if receipt.get(key) != fixtures.correction_source_ids[key]:
++            errors.append('correction_actual_source_mismatch:' + key)
++    if role == 'ceo':
++        if receipt != fixtures.correction_receipt:
++            errors.append('correction_first_receipt_changed')
++    else:
++        allowed = {'state', 'action', 'operation_id', 'erp_event_id', 'actor_role', 'impact',
++                   'goods_return_id', 'receipt_id', 'movement_id', 'lot_id', 'claim_id', 'quantity', 'currency'}
++        errors += ['correction_unknown_receipt_field:' + key for key in sorted(set(receipt) - allowed)]
++        permitted_impacts = {('lots', 'quantity'), ('purchases', 'returned_quantity'),
++                             ('goods_returns', 'quantity'), ('supplier_claims', 'record_kind')}
++        for impact in receipt.get('impact', []):
++            if not isinstance(impact, dict) or (impact.get('kind'), impact.get('field')) not in permitted_impacts:
++                errors.append('correction_private_or_unknown_impact')
++    return errors
+ 
+ 
+ def emit(report, output):
+@@ -457,6 +515,8 @@
+                 report['route_coverage'].append({'route': path, 'definition_indices': [i for i, _ in defs],
+                     'resolved_definition': index, 'shadowed_definitions': shadowed})
+                 contexts = [(r, 'full') for r in ROLES]
++                if canonical(path) == '/api/erp/corrections/outcome/':
++                    contexts += [('manager', 'no_documents')]
+                 if canonical(path) in EXPORTS:
+                     contexts += [(r, 'no_export') for r in ('ceo', 'manager')]
+                 if '/documents/' in canonical(path) and 'upload' not in path:
+--- a/scripts/access_routes.json
++++ b/scripts/access_routes.json
+@@ -1,5 +1,5 @@
+ {
+-  "source": "Accepted ACCESS_AUDIT_UA + A03 auth additions; live resolver 2026-09-11; permissions are in check_access.py, not inferred from handlers; A09 server health additions 2026-09-12 (original patterns unchanged); B02 four explicit CEO-only initial-import routes (all previous patterns retained)",
++  "source": "Accepted ACCESS_AUDIT_UA + A03 auth additions; live resolver 2026-09-11; permissions are in check_access.py, not inferred from handlers; A09 server health additions 2026-09-12 (original patterns unchanged); B02 four explicit CEO-only initial-import routes (all previous patterns retained); B03 explicit read-only committed correction outcome route (all176 entries retained)",
+   "patterns": [
+     {
+       "actions": null,
+@@ -1651,6 +1651,14 @@
+       "converters": {
+         "batch_id": "UUIDConverter"
+       }
++    },
++    {
++      "pattern": "api/erp/corrections/outcome/",
++      "name": "bos-correction-outcome",
++      "callback": "erp.correction_views.outcome",
++      "actions": null,
++      "model": null,
++      "converters": {}
+     }
+   ],
+   "required_field_tests": [

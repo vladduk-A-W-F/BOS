@@ -1,0 +1,254 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-11T21:44:23.798121+00:00",
+  "complete": true,
+  "complete_means": "Усі заявлені перевірки виконано; це не ознака узгодженості даних.",
+  "reconciled": true,
+  "stop_required": false,
+  "stop_basis": "Стоп 8.1 лише за підтвердженою розбіжністю облікових грошей. Кандидати та несв’язані витрати не є підтвердженими дублями.",
+  "findings": [],
+  "checks": {
+    "sqlite_integrity": {
+      "status": "checked",
+      "ok": true,
+      "diagnostic_count": 0
+    },
+    "foreign_keys": {
+      "status": "checked",
+      "violations": 0
+    },
+    "stock_movements": {
+      "status": "checked",
+      "lots": 12,
+      "movements": 18
+    },
+    "reservations": {
+      "status": "checked",
+      "rows": 9
+    },
+    "salary_expenses": {
+      "status": "checked",
+      "salaries": 3,
+      "transactions": 6
+    },
+    "invoice_bounds": {
+      "status": "checked",
+      "rows": 3
+    },
+    "purchase_bounds": {
+      "status": "checked",
+      "rows": 3
+    },
+    "production_bounds": {
+      "status": "checked",
+      "rows": 3
+    }
+  },
+  "totals": {
+    "stock": {
+      "lot_count": 12,
+      "movement_count": 18,
+      "recorded_cost_basis_by_currency": {
+        "EUR": "39",
+        "USD": "39",
+        "UAH": "39"
+      },
+      "quantity_by_item": {
+        "1": {
+          "stock": "13",
+          "movements": "13"
+        },
+        "2": {
+          "stock": "2",
+          "movements": "2"
+        },
+        "3": {
+          "stock": "13",
+          "movements": "13"
+        },
+        "4": {
+          "stock": "2",
+          "movements": "2"
+        },
+        "5": {
+          "stock": "13",
+          "movements": "13"
+        },
+        "6": {
+          "stock": "2",
+          "movements": "2"
+        }
+      }
+    },
+    "finance": {
+      "salary_rows": 3,
+      "transaction_rows": 6,
+      "salary_amounts": [
+        {
+          "currency": "EUR",
+          "status": "paid",
+          "amount": "100"
+        },
+        {
+          "currency": "UAH",
+          "status": "paid",
+          "amount": "100"
+        },
+        {
+          "currency": "USD",
+          "status": "paid",
+          "amount": "100"
+        }
+      ],
+      "transaction_amounts": [
+        {
+          "currency": "EUR",
+          "direction": "in",
+          "amount": "200"
+        },
+        {
+          "currency": "EUR",
+          "direction": "out",
+          "amount": "100"
+        },
+        {
+          "currency": "UAH",
+          "direction": "in",
+          "amount": "200"
+        },
+        {
+          "currency": "UAH",
+          "direction": "out",
+          "amount": "100"
+        },
+        {
+          "currency": "USD",
+          "direction": "in",
+          "amount": "200"
+        },
+        {
+          "currency": "USD",
+          "direction": "out",
+          "amount": "100"
+        }
+      ]
+    }
+  },
+  "schema": {
+    "table_count": 46,
+    "checked_table_columns": {
+      "erp_reservation": [
+        "id",
+        "quantity",
+        "lot_id",
+        "production_id",
+        "line_id"
+      ],
+      "erp_movement": [
+        "id",
+        "quantity",
+        "kind",
+        "reference",
+        "reason",
+        "cost",
+        "created_at",
+        "lot_id",
+        "production_id",
+        "purchase_id",
+        "line_id"
+      ],
+      "erp_lot": [
+        "id",
+        "code",
+        "revision",
+        "quantity",
+        "quality",
+        "unit_cost",
+        "currency",
+        "documents",
+        "item_id",
+        "location_id"
+      ],
+      "erp_production": [
+        "id",
+        "code",
+        "quantity",
+        "produced",
+        "revision",
+        "bom",
+        "routing",
+        "due_date",
+        "status",
+        "needs_review",
+        "planned_cost",
+        "actual_cost",
+        "currency",
+        "item_id",
+        "location_id",
+        "owner_id",
+        "line_id"
+      ],
+      "erp_purchase": [
+        "id",
+        "code",
+        "quantity",
+        "received",
+        "price",
+        "extras",
+        "currency",
+        "due_date",
+        "original_due",
+        "revision",
+        "status",
+        "item_id",
+        "production_id",
+        "request_id",
+        "supplier_id"
+      ],
+      "finance_transaction": [
+        "id",
+        "direction",
+        "amount",
+        "currency",
+        "date",
+        "description",
+        "category",
+        "created_at",
+        "contract_id",
+        "counterparty_id",
+        "branch_id",
+        "archived_at"
+      ],
+      "finance_salary": [
+        "id",
+        "amount",
+        "currency",
+        "period_year",
+        "period_month",
+        "payment_date",
+        "status",
+        "notes",
+        "created_at",
+        "employee_id",
+        "transaction_id",
+        "archived_at"
+      ],
+      "operations_invoice": [
+        "id",
+        "code",
+        "amount",
+        "paid",
+        "currency",
+        "due_date",
+        "customer_id"
+      ]
+    }
+  },
+  "limits": [
+    "Лише облікові факти SQLite; банківські перекази не перевірено.",
+    "Відсутність розбіжностей не доводить повноти первинних документів.",
+    "ПІБ, контакти, описи операцій, документи та сесії не читаються.",
+    "Жодних автоматичних виправлень, міграцій чи видалень."
+  ],
+  "source_sha256": "d99be5acad24a532585415bfcac34e67305cafc10802b6246700a1079e8fd91b"
+}

@@ -1,0 +1,2543 @@
+{
+  "schema": 1,
+  "gate": 5,
+  "date": "2026-09-12T15:36:10.736195+00:00",
+  "complete": true,
+  "failures": [],
+  "tests": {
+    "required_ids": [
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_adjust",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_apply_change",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_attach",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_change",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_confirm_order",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_finish",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_invoice",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_location",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_opening",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_operator",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_order",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_payment",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_purchase",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_quality",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_receive",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_release",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_reserve",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_resolve_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_return",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_ship",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_start",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_transfer",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_adjust",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_finish",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_invoice",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment_dup",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_receive",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_release",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_reserve",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_return",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_ship",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_transfer",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_archive_and_restore_each_duplicate_command_has_one_audit_and_same_ids",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_different_keys_cannot_duplicate_one_salary_period",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_different_keys_identical_transaction_facts_remain_two_legitimate_rows",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_duplicate_money_update_has_one_audit_per_record_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_http_key_ascii_boundary_and_model_namespace",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_invalid_http_keys_are_400_without_writes",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_legacy_salary_helper_propagates_one_operation_key",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_legacy_transaction_helper_propagates_one_operation_key",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_mismatch_raises_explicit_intent_conflict_without_mutation",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_salary_equivalent_numbers_fk_and_explicit_defaults_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_transaction_equivalent_decimal_date_and_fk_forms_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_required_http_header_missing_is_400_without_writes",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_role_revocation_is_checked_before_financial_intent_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_audit_failure_rolls_back_intent_accrual_and_retries",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_create_racing_employee_archive_never_rewrites_history",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_create_replay_after_payment_does_not_reopen_or_add_expense",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_format_aliases_replay_one_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_replay_after_archive_preserves_marker_and_id",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_changed_full_payload_is_409",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_concurrent_mismatch_has_one_winner",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_orm_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_assignment_concurrent_salary_edit_has_one_update_audit",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_key_second_actor_creates_separate_legitimate_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_salary_pay_racing_archive_preserves_one_serial_history",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_salary_pay_racing_edit_keeps_matching_expense_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_audit_failure_rolls_back_intent_money_and_retries",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_edit_racing_archive_keeps_one_historical_id",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_format_aliases_replay_one_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_replay_after_archive_returns_fresh_historical_row",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_changed_full_payload_is_409",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_concurrent_mismatch_has_one_winner",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_orm_same_key_concurrent_all_currencies",
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_http_missing_intent_does_not_create_ambiguous_money",
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_http_same_intent_returns_one_transaction",
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_native_admin_supplies_stable_intent_and_resubmission_replays",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_each_currency_is_preserved",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_error_after_expense_insert_rolls_back_and_retry_succeeds",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_http_replay_returns_same_receipt_without_second_expense",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_inconsistent_paid_history_is_not_rewritten",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_two_concurrent_http_requests_return_identical_receipts",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_two_concurrent_stale_instances_produce_one_expense",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_review_cannot_commit_inside_quality_critical_section",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_review_locks_before_document_admission_reads_and_update",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_upload_cannot_commit_inside_shipment_critical_section",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_upload_locks_before_document_admission_reads_and_insert",
+      "erp.test_import_concurrency.ERPImportConcurrencyTests.test_http_pair_import_batch",
+      "erp.test_import_concurrency.ERPImportConcurrencyTests.test_distinct_batches_same_source_ids_have_one_effect_and_stale_loser",
+      "erp.test_import_concurrency.ERPImportConcurrencyTests.test_counterparty_update_serializes_behind_import_reference_lock",
+      "erp.test_import_concurrency.ERPImportConcurrencyTests.test_employee_archive_serializes_behind_import_reference_lock",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_cancel_remaining",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_return_supplier",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_return_from_shipment",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_credit_invoice",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_reverse_credit",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_confirm_supplier_claim",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_distinct_proposals_same_operation_preserve_first_actor_event_and_receipt",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_distinct_operations_compete_for_all_six_source_budgets",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_cancellation_and_old_receiving_serialize_the_same_remaining_quantity",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_credit_and_old_payment_serialize_without_negative_receivable_or_cash_rewrite",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_corrections_serialize_with_legacy_reserve_ship_and_transfer",
+      "tasks.test_concurrency.TaskConcurrencyTests.test_same_create_proposal_two_actual_requests_commit_one_task_and_audit",
+      "tasks.test_concurrency.TaskConcurrencyTests.test_competing_title_and_archive_have_one_winner_and_authoritative_stale",
+      "tasks.test_concurrency.TaskConcurrencyTests.test_same_archive_and_restore_retries_preserve_timestamp_and_history",
+      "tasks.test_concurrency.TaskConcurrencyTests.test_employee_archive_and_reassignment_revalidate_after_real_row_writer",
+      "tasks.test_concurrency.TaskConcurrencyTests.test_uncommitted_confirm_recovery_is_not_false_authority_and_same_id_retries",
+      "finance.test_statement_concurrency.StatementConcurrencyTests.test_http_pair_statement_import",
+      "finance.test_statement_concurrency.StatementConcurrencyTests.test_http_pair_statement_reconcile",
+      "finance.test_statement_concurrency.StatementConcurrencyTests.test_distinct_import_proposals_same_source_have_one_immutable_effect",
+      "finance.test_statement_concurrency.StatementConcurrencyTests.test_distinct_reconcile_proposals_same_allocation_key_have_one_cash_payment",
+      "finance.test_statement_concurrency.StatementConcurrencyTests.test_held_transaction_writes_serialize_before_reconcile_fingerprint_and_binding"
+    ],
+    "labels": [
+      "erp.test_concurrency",
+      "operations.test_document_mutex",
+      "finance.test_intent_adapters",
+      "finance.test_payment_integrity",
+      "finance.test_concurrency",
+      "erp.test_import_concurrency",
+      "erp.test_correction_concurrency",
+      "tasks.test_concurrency",
+      "finance.test_statement_concurrency"
+    ],
+    "discovered_ids": [
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_http_missing_intent_does_not_create_ambiguous_money",
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_http_same_intent_returns_one_transaction",
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_native_admin_supplies_stable_intent_and_resubmission_replays",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_adjust",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_apply_change",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_attach",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_change",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_confirm_order",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_finish",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_invoice",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_location",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_opening",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_operator",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_order",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_payment",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_purchase",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_quality",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_receive",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_release",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_reserve",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_resolve_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_return",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_ship",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_start",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_transfer",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_adjust",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_finish",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_invoice",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment_dup",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_receive",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_release",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_reserve",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_return",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_ship",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_transfer",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_review_cannot_commit_inside_quality_critical_section",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_review_locks_before_document_admission_reads_and_update",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_upload_cannot_commit_inside_shipment_critical_section",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_upload_locks_before_document_admission_reads_and_insert",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_each_currency_is_preserved",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_error_after_expense_insert_rolls_back_and_retry_succeeds",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_http_replay_returns_same_receipt_without_second_expense",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_inconsistent_paid_history_is_not_rewritten",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_two_concurrent_http_requests_return_identical_receipts",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_two_concurrent_stale_instances_produce_one_expense",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_archive_and_restore_each_duplicate_command_has_one_audit_and_same_ids",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_different_keys_cannot_duplicate_one_salary_period",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_different_keys_identical_transaction_facts_remain_two_legitimate_rows",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_duplicate_money_update_has_one_audit_per_record_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_http_key_ascii_boundary_and_model_namespace",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_invalid_http_keys_are_400_without_writes",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_legacy_salary_helper_propagates_one_operation_key",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_legacy_transaction_helper_propagates_one_operation_key",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_mismatch_raises_explicit_intent_conflict_without_mutation",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_salary_equivalent_numbers_fk_and_explicit_defaults_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_transaction_equivalent_decimal_date_and_fk_forms_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_required_http_header_missing_is_400_without_writes",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_role_revocation_is_checked_before_financial_intent_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_audit_failure_rolls_back_intent_accrual_and_retries",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_create_racing_employee_archive_never_rewrites_history",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_create_replay_after_payment_does_not_reopen_or_add_expense",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_format_aliases_replay_one_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_replay_after_archive_preserves_marker_and_id",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_changed_full_payload_is_409",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_concurrent_mismatch_has_one_winner",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_orm_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_assignment_concurrent_salary_edit_has_one_update_audit",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_key_second_actor_creates_separate_legitimate_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_salary_pay_racing_archive_preserves_one_serial_history",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_salary_pay_racing_edit_keeps_matching_expense_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_audit_failure_rolls_back_intent_money_and_retries",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_edit_racing_archive_keeps_one_historical_id",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_format_aliases_replay_one_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_replay_after_archive_returns_fresh_historical_row",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_changed_full_payload_is_409",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_concurrent_mismatch_has_one_winner",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_orm_same_key_concurrent_all_currencies",
+      "erp.test_import_concurrency.ERPImportConcurrencyTests.test_counterparty_update_serializes_behind_import_reference_lock",
+      "erp.test_import_concurrency.ERPImportConcurrencyTests.test_distinct_batches_same_source_ids_have_one_effect_and_stale_loser",
+      "erp.test_import_concurrency.ERPImportConcurrencyTests.test_employee_archive_serializes_behind_import_reference_lock",
+      "erp.test_import_concurrency.ERPImportConcurrencyTests.test_http_pair_import_batch",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_cancellation_and_old_receiving_serialize_the_same_remaining_quantity",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_corrections_serialize_with_legacy_reserve_ship_and_transfer",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_credit_and_old_payment_serialize_without_negative_receivable_or_cash_rewrite",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_distinct_operations_compete_for_all_six_source_budgets",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_distinct_proposals_same_operation_preserve_first_actor_event_and_receipt",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_cancel_remaining",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_confirm_supplier_claim",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_credit_invoice",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_return_from_shipment",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_return_supplier",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_reverse_credit",
+      "tasks.test_concurrency.TaskConcurrencyTests.test_competing_title_and_archive_have_one_winner_and_authoritative_stale",
+      "tasks.test_concurrency.TaskConcurrencyTests.test_employee_archive_and_reassignment_revalidate_after_real_row_writer",
+      "tasks.test_concurrency.TaskConcurrencyTests.test_same_archive_and_restore_retries_preserve_timestamp_and_history",
+      "tasks.test_concurrency.TaskConcurrencyTests.test_same_create_proposal_two_actual_requests_commit_one_task_and_audit",
+      "tasks.test_concurrency.TaskConcurrencyTests.test_uncommitted_confirm_recovery_is_not_false_authority_and_same_id_retries",
+      "finance.test_statement_concurrency.StatementConcurrencyTests.test_distinct_import_proposals_same_source_have_one_immutable_effect",
+      "finance.test_statement_concurrency.StatementConcurrencyTests.test_distinct_reconcile_proposals_same_allocation_key_have_one_cash_payment",
+      "finance.test_statement_concurrency.StatementConcurrencyTests.test_held_transaction_writes_serialize_before_reconcile_fingerprint_and_binding",
+      "finance.test_statement_concurrency.StatementConcurrencyTests.test_http_pair_statement_import",
+      "finance.test_statement_concurrency.StatementConcurrencyTests.test_http_pair_statement_reconcile"
+    ],
+    "discovered": 109,
+    "started_ids": [
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_http_missing_intent_does_not_create_ambiguous_money",
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_http_same_intent_returns_one_transaction",
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_native_admin_supplies_stable_intent_and_resubmission_replays",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_adjust",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_apply_change",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_attach",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_change",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_confirm_order",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_finish",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_invoice",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_location",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_opening",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_operator",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_order",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_payment",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_purchase",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_quality",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_receive",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_release",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_reserve",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_resolve_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_return",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_ship",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_start",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_transfer",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_adjust",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_finish",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_invoice",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment_dup",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_receive",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_release",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_reserve",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_return",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_ship",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_transfer",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_review_cannot_commit_inside_quality_critical_section",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_review_locks_before_document_admission_reads_and_update",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_upload_cannot_commit_inside_shipment_critical_section",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_upload_locks_before_document_admission_reads_and_insert",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_each_currency_is_preserved",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_error_after_expense_insert_rolls_back_and_retry_succeeds",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_http_replay_returns_same_receipt_without_second_expense",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_inconsistent_paid_history_is_not_rewritten",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_two_concurrent_http_requests_return_identical_receipts",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_two_concurrent_stale_instances_produce_one_expense",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_archive_and_restore_each_duplicate_command_has_one_audit_and_same_ids",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_different_keys_cannot_duplicate_one_salary_period",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_different_keys_identical_transaction_facts_remain_two_legitimate_rows",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_duplicate_money_update_has_one_audit_per_record_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_http_key_ascii_boundary_and_model_namespace",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_invalid_http_keys_are_400_without_writes",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_legacy_salary_helper_propagates_one_operation_key",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_legacy_transaction_helper_propagates_one_operation_key",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_mismatch_raises_explicit_intent_conflict_without_mutation",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_salary_equivalent_numbers_fk_and_explicit_defaults_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_transaction_equivalent_decimal_date_and_fk_forms_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_required_http_header_missing_is_400_without_writes",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_role_revocation_is_checked_before_financial_intent_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_audit_failure_rolls_back_intent_accrual_and_retries",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_create_racing_employee_archive_never_rewrites_history",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_create_replay_after_payment_does_not_reopen_or_add_expense",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_format_aliases_replay_one_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_replay_after_archive_preserves_marker_and_id",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_changed_full_payload_is_409",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_concurrent_mismatch_has_one_winner",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_orm_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_assignment_concurrent_salary_edit_has_one_update_audit",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_key_second_actor_creates_separate_legitimate_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_salary_pay_racing_archive_preserves_one_serial_history",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_salary_pay_racing_edit_keeps_matching_expense_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_audit_failure_rolls_back_intent_money_and_retries",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_edit_racing_archive_keeps_one_historical_id",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_format_aliases_replay_one_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_replay_after_archive_returns_fresh_historical_row",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_changed_full_payload_is_409",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_concurrent_mismatch_has_one_winner",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_orm_same_key_concurrent_all_currencies",
+      "erp.test_import_concurrency.ERPImportConcurrencyTests.test_counterparty_update_serializes_behind_import_reference_lock",
+      "erp.test_import_concurrency.ERPImportConcurrencyTests.test_distinct_batches_same_source_ids_have_one_effect_and_stale_loser",
+      "erp.test_import_concurrency.ERPImportConcurrencyTests.test_employee_archive_serializes_behind_import_reference_lock",
+      "erp.test_import_concurrency.ERPImportConcurrencyTests.test_http_pair_import_batch",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_cancellation_and_old_receiving_serialize_the_same_remaining_quantity",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_corrections_serialize_with_legacy_reserve_ship_and_transfer",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_credit_and_old_payment_serialize_without_negative_receivable_or_cash_rewrite",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_distinct_operations_compete_for_all_six_source_budgets",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_distinct_proposals_same_operation_preserve_first_actor_event_and_receipt",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_cancel_remaining",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_confirm_supplier_claim",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_credit_invoice",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_return_from_shipment",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_return_supplier",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_reverse_credit",
+      "tasks.test_concurrency.TaskConcurrencyTests.test_competing_title_and_archive_have_one_winner_and_authoritative_stale",
+      "tasks.test_concurrency.TaskConcurrencyTests.test_employee_archive_and_reassignment_revalidate_after_real_row_writer",
+      "tasks.test_concurrency.TaskConcurrencyTests.test_same_archive_and_restore_retries_preserve_timestamp_and_history",
+      "tasks.test_concurrency.TaskConcurrencyTests.test_same_create_proposal_two_actual_requests_commit_one_task_and_audit",
+      "tasks.test_concurrency.TaskConcurrencyTests.test_uncommitted_confirm_recovery_is_not_false_authority_and_same_id_retries",
+      "finance.test_statement_concurrency.StatementConcurrencyTests.test_distinct_import_proposals_same_source_have_one_immutable_effect",
+      "finance.test_statement_concurrency.StatementConcurrencyTests.test_distinct_reconcile_proposals_same_allocation_key_have_one_cash_payment",
+      "finance.test_statement_concurrency.StatementConcurrencyTests.test_held_transaction_writes_serialize_before_reconcile_fingerprint_and_binding",
+      "finance.test_statement_concurrency.StatementConcurrencyTests.test_http_pair_statement_import",
+      "finance.test_statement_concurrency.StatementConcurrencyTests.test_http_pair_statement_reconcile"
+    ],
+    "started": 109,
+    "finished_ids": [
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_http_missing_intent_does_not_create_ambiguous_money",
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_http_same_intent_returns_one_transaction",
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_native_admin_supplies_stable_intent_and_resubmission_replays",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_adjust",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_apply_change",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_attach",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_change",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_confirm_order",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_finish",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_invoice",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_location",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_opening",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_operator",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_order",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_payment",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_purchase",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_quality",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_receive",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_release",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_reserve",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_resolve_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_return",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_ship",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_start",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_transfer",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_adjust",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_finish",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_invoice",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment_dup",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_receive",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_release",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_reserve",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_return",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_ship",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_transfer",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_review_cannot_commit_inside_quality_critical_section",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_review_locks_before_document_admission_reads_and_update",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_upload_cannot_commit_inside_shipment_critical_section",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_upload_locks_before_document_admission_reads_and_insert",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_each_currency_is_preserved",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_error_after_expense_insert_rolls_back_and_retry_succeeds",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_http_replay_returns_same_receipt_without_second_expense",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_inconsistent_paid_history_is_not_rewritten",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_two_concurrent_http_requests_return_identical_receipts",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_two_concurrent_stale_instances_produce_one_expense",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_archive_and_restore_each_duplicate_command_has_one_audit_and_same_ids",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_different_keys_cannot_duplicate_one_salary_period",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_different_keys_identical_transaction_facts_remain_two_legitimate_rows",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_duplicate_money_update_has_one_audit_per_record_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_http_key_ascii_boundary_and_model_namespace",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_invalid_http_keys_are_400_without_writes",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_legacy_salary_helper_propagates_one_operation_key",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_legacy_transaction_helper_propagates_one_operation_key",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_mismatch_raises_explicit_intent_conflict_without_mutation",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_salary_equivalent_numbers_fk_and_explicit_defaults_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_transaction_equivalent_decimal_date_and_fk_forms_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_required_http_header_missing_is_400_without_writes",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_role_revocation_is_checked_before_financial_intent_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_audit_failure_rolls_back_intent_accrual_and_retries",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_create_racing_employee_archive_never_rewrites_history",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_create_replay_after_payment_does_not_reopen_or_add_expense",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_format_aliases_replay_one_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_replay_after_archive_preserves_marker_and_id",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_changed_full_payload_is_409",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_concurrent_mismatch_has_one_winner",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_orm_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_assignment_concurrent_salary_edit_has_one_update_audit",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_key_second_actor_creates_separate_legitimate_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_salary_pay_racing_archive_preserves_one_serial_history",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_salary_pay_racing_edit_keeps_matching_expense_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_audit_failure_rolls_back_intent_money_and_retries",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_edit_racing_archive_keeps_one_historical_id",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_format_aliases_replay_one_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_replay_after_archive_returns_fresh_historical_row",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_changed_full_payload_is_409",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_concurrent_mismatch_has_one_winner",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_orm_same_key_concurrent_all_currencies",
+      "erp.test_import_concurrency.ERPImportConcurrencyTests.test_counterparty_update_serializes_behind_import_reference_lock",
+      "erp.test_import_concurrency.ERPImportConcurrencyTests.test_distinct_batches_same_source_ids_have_one_effect_and_stale_loser",
+      "erp.test_import_concurrency.ERPImportConcurrencyTests.test_employee_archive_serializes_behind_import_reference_lock",
+      "erp.test_import_concurrency.ERPImportConcurrencyTests.test_http_pair_import_batch",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_cancellation_and_old_receiving_serialize_the_same_remaining_quantity",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_corrections_serialize_with_legacy_reserve_ship_and_transfer",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_credit_and_old_payment_serialize_without_negative_receivable_or_cash_rewrite",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_distinct_operations_compete_for_all_six_source_budgets",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_distinct_proposals_same_operation_preserve_first_actor_event_and_receipt",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_cancel_remaining",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_confirm_supplier_claim",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_credit_invoice",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_return_from_shipment",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_return_supplier",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_reverse_credit",
+      "tasks.test_concurrency.TaskConcurrencyTests.test_competing_title_and_archive_have_one_winner_and_authoritative_stale",
+      "tasks.test_concurrency.TaskConcurrencyTests.test_employee_archive_and_reassignment_revalidate_after_real_row_writer",
+      "tasks.test_concurrency.TaskConcurrencyTests.test_same_archive_and_restore_retries_preserve_timestamp_and_history",
+      "tasks.test_concurrency.TaskConcurrencyTests.test_same_create_proposal_two_actual_requests_commit_one_task_and_audit",
+      "tasks.test_concurrency.TaskConcurrencyTests.test_uncommitted_confirm_recovery_is_not_false_authority_and_same_id_retries",
+      "finance.test_statement_concurrency.StatementConcurrencyTests.test_distinct_import_proposals_same_source_have_one_immutable_effect",
+      "finance.test_statement_concurrency.StatementConcurrencyTests.test_distinct_reconcile_proposals_same_allocation_key_have_one_cash_payment",
+      "finance.test_statement_concurrency.StatementConcurrencyTests.test_held_transaction_writes_serialize_before_reconcile_fingerprint_and_binding",
+      "finance.test_statement_concurrency.StatementConcurrencyTests.test_http_pair_statement_import",
+      "finance.test_statement_concurrency.StatementConcurrencyTests.test_http_pair_statement_reconcile"
+    ],
+    "finished": 109,
+    "succeeded_ids": [
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_http_missing_intent_does_not_create_ambiguous_money",
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_http_same_intent_returns_one_transaction",
+      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_native_admin_supplies_stable_intent_and_resubmission_replays",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_adjust",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_apply_change",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_attach",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_change",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_confirm_order",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_finish",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_invoice",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_location",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_opening",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_operator",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_order",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_payment",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_purchase",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_quality",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_receive",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_release",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_reserve",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_resolve_job",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_return",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_ship",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_start",
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_transfer",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_adjust",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_finish",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_invoice",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment_dup",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_receive",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_release",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_reserve",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_return",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_ship",
+      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_transfer",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_review_cannot_commit_inside_quality_critical_section",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_review_locks_before_document_admission_reads_and_update",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_upload_cannot_commit_inside_shipment_critical_section",
+      "operations.test_document_mutex.A06DocumentMutexTests.test_upload_locks_before_document_admission_reads_and_insert",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_each_currency_is_preserved",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_error_after_expense_insert_rolls_back_and_retry_succeeds",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_http_replay_returns_same_receipt_without_second_expense",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_inconsistent_paid_history_is_not_rewritten",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_two_concurrent_http_requests_return_identical_receipts",
+      "finance.test_payment_integrity.PaymentIntegrityTests.test_two_concurrent_stale_instances_produce_one_expense",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_archive_and_restore_each_duplicate_command_has_one_audit_and_same_ids",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_different_keys_cannot_duplicate_one_salary_period",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_different_keys_identical_transaction_facts_remain_two_legitimate_rows",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_duplicate_money_update_has_one_audit_per_record_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_http_key_ascii_boundary_and_model_namespace",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_invalid_http_keys_are_400_without_writes",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_legacy_salary_helper_propagates_one_operation_key",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_legacy_transaction_helper_propagates_one_operation_key",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_mismatch_raises_explicit_intent_conflict_without_mutation",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_salary_equivalent_numbers_fk_and_explicit_defaults_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_transaction_equivalent_decimal_date_and_fk_forms_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_required_http_header_missing_is_400_without_writes",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_role_revocation_is_checked_before_financial_intent_replay",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_audit_failure_rolls_back_intent_accrual_and_retries",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_create_racing_employee_archive_never_rewrites_history",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_create_replay_after_payment_does_not_reopen_or_add_expense",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_format_aliases_replay_one_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_replay_after_archive_preserves_marker_and_id",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_changed_full_payload_is_409",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_concurrent_mismatch_has_one_winner",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_orm_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_assignment_concurrent_salary_edit_has_one_update_audit",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_key_second_actor_creates_separate_legitimate_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_salary_pay_racing_archive_preserves_one_serial_history",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_salary_pay_racing_edit_keeps_matching_expense_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_audit_failure_rolls_back_intent_money_and_retries",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_edit_racing_archive_keeps_one_historical_id",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_format_aliases_replay_one_intent",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_replay_after_archive_returns_fresh_historical_row",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_changed_full_payload_is_409",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_concurrent_all_currencies",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_concurrent_mismatch_has_one_winner",
+      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_orm_same_key_concurrent_all_currencies",
+      "erp.test_import_concurrency.ERPImportConcurrencyTests.test_counterparty_update_serializes_behind_import_reference_lock",
+      "erp.test_import_concurrency.ERPImportConcurrencyTests.test_distinct_batches_same_source_ids_have_one_effect_and_stale_loser",
+      "erp.test_import_concurrency.ERPImportConcurrencyTests.test_employee_archive_serializes_behind_import_reference_lock",
+      "erp.test_import_concurrency.ERPImportConcurrencyTests.test_http_pair_import_batch",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_cancellation_and_old_receiving_serialize_the_same_remaining_quantity",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_corrections_serialize_with_legacy_reserve_ship_and_transfer",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_credit_and_old_payment_serialize_without_negative_receivable_or_cash_rewrite",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_distinct_operations_compete_for_all_six_source_budgets",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_distinct_proposals_same_operation_preserve_first_actor_event_and_receipt",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_cancel_remaining",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_confirm_supplier_claim",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_credit_invoice",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_return_from_shipment",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_return_supplier",
+      "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_reverse_credit",
+      "tasks.test_concurrency.TaskConcurrencyTests.test_competing_title_and_archive_have_one_winner_and_authoritative_stale",
+      "tasks.test_concurrency.TaskConcurrencyTests.test_employee_archive_and_reassignment_revalidate_after_real_row_writer",
+      "tasks.test_concurrency.TaskConcurrencyTests.test_same_archive_and_restore_retries_preserve_timestamp_and_history",
+      "tasks.test_concurrency.TaskConcurrencyTests.test_same_create_proposal_two_actual_requests_commit_one_task_and_audit",
+      "tasks.test_concurrency.TaskConcurrencyTests.test_uncommitted_confirm_recovery_is_not_false_authority_and_same_id_retries",
+      "finance.test_statement_concurrency.StatementConcurrencyTests.test_distinct_import_proposals_same_source_have_one_immutable_effect",
+      "finance.test_statement_concurrency.StatementConcurrencyTests.test_distinct_reconcile_proposals_same_allocation_key_have_one_cash_payment",
+      "finance.test_statement_concurrency.StatementConcurrencyTests.test_held_transaction_writes_serialize_before_reconcile_fingerprint_and_binding",
+      "finance.test_statement_concurrency.StatementConcurrencyTests.test_http_pair_statement_import",
+      "finance.test_statement_concurrency.StatementConcurrencyTests.test_http_pair_statement_reconcile"
+    ],
+    "succeeded": 109,
+    "tests_run": 109,
+    "failures": [],
+    "errors": [],
+    "skipped": [],
+    "expected_failures": [],
+    "unexpected_successes": []
+  },
+  "database": {
+    "requested_backend": "sqlite",
+    "base_name": "/workspace/scratch/c7b51e996a9f/tmp/c03_concurrency_candidate/check_0aab4ac1e53042c486f01a205481cf61.sqlite3",
+    "expected_test_name": "/workspace/scratch/c7b51e996a9f/tmp/c03_concurrency_candidate/check_0aab4ac1e53042c486f01a205481cf61.sqlite3_django_test",
+    "actual_vendor": "sqlite",
+    "actual_test_name": "/workspace/scratch/c7b51e996a9f/tmp/c03_concurrency_candidate/check_0aab4ac1e53042c486f01a205481cf61.sqlite3_django_test",
+    "version": "3.53.1",
+    "engine_verified": true
+  },
+  "scope": "Synthetic concurrency on the actual selected backend only; no browser/Windows/LLM acceptance.",
+  "manifest_sha256": "c69d36fadbdeb5c30430ba3faf4d96792853ecdecff64ef3e99bb14cae971bb7",
+  "erp_schema": {
+    "required": [
+      "adjust",
+      "apply_change",
+      "attach",
+      "cancel_remaining",
+      "change",
+      "confirm_order",
+      "confirm_supplier_claim",
+      "credit_invoice",
+      "finish",
+      "import_batch",
+      "invoice",
+      "item",
+      "job",
+      "location",
+      "opening",
+      "operator",
+      "order",
+      "payment",
+      "postpone",
+      "postpone_job",
+      "purchase",
+      "quality",
+      "receive",
+      "release",
+      "reserve",
+      "resolve_job",
+      "return",
+      "return_from_shipment",
+      "return_supplier",
+      "reverse_credit",
+      "ship",
+      "start",
+      "statement_import",
+      "statement_reconcile",
+      "transfer"
+    ],
+    "actual": [
+      "adjust",
+      "apply_change",
+      "attach",
+      "cancel_remaining",
+      "change",
+      "confirm_order",
+      "confirm_supplier_claim",
+      "credit_invoice",
+      "finish",
+      "import_batch",
+      "invoice",
+      "item",
+      "job",
+      "location",
+      "opening",
+      "operator",
+      "order",
+      "payment",
+      "postpone",
+      "postpone_job",
+      "purchase",
+      "quality",
+      "receive",
+      "release",
+      "reserve",
+      "resolve_job",
+      "return",
+      "return_from_shipment",
+      "return_supplier",
+      "reverse_credit",
+      "ship",
+      "start",
+      "statement_import",
+      "statement_reconcile",
+      "transfer"
+    ]
+  },
+  "source_sha256_before": {
+    "erp.test_concurrency": "b0730a1ad57327bc1cb84f55f2040e022cd2365b1a6cddd7ba3c4e405a0e3897",
+    "operations.test_document_mutex": "8422fa81be652d961305986ac2c3f9c6151b07290951d0e8be4adb3d6a03a70e",
+    "finance.test_intent_adapters": "2d82e8dabd312cf89382d957571ec8e39443411c50c703ec57895336241b19d0",
+    "finance.test_payment_integrity": "aa7646ba7e7063621f42ca43efa334eb832e22c534ec587d81722c51775c8a8a",
+    "finance.test_concurrency": "df81f24abbae83155f799434fd7d00adf33f3cb8e9cff68a7a7037762be64ba0",
+    "erp.test_import_concurrency": "4bf6455d298fbd2f86bd097b423d4776eb4e794629028d2b9889ff82e0fd1e5d",
+    "erp.test_correction_concurrency": "84380fcf176e3c6d2f7cfc25f124ce7b90a7f4015a87df588f5f796b36973fa3",
+    "tasks.test_concurrency": "bf0f69bdacff1a43bf3d199ac1258edd11ce6251dbf3e6ba3bd24dc312e599e8",
+    "finance.test_statement_concurrency": "d216e553b1dba7e2044e0035f8ba2960c22f2b74c756e9599d6067705e7dcd04",
+    "verifier": "a633790452d52d74abb720b8d616f981b7197e9fc2f3fd817699c2ea47581f3d",
+    "manifest": "c69d36fadbdeb5c30430ba3faf4d96792853ecdecff64ef3e99bb14cae971bb7",
+    "erp_service": "708ce8d0ef4d5d4d0b2eb7a8f7ea602d3224418a98936e8f88e21e78fcc35a63"
+  },
+  "runner_failures": 0,
+  "erp_stdout": {
+    "required": 116,
+    "observed": 116,
+    "unique": 116,
+    "missing": [],
+    "duplicates": [],
+    "records": [
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_adjust",
+        "record": {
+          "mode": "http",
+          "action": "adjust",
+          "currency": "EUR",
+          "inventory_id": "ERP-adjust",
+          "erp_event_id": 1,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_adjust",
+        "record": {
+          "mode": "http",
+          "action": "adjust",
+          "currency": "USD",
+          "inventory_id": "ERP-adjust",
+          "erp_event_id": 2,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_adjust",
+        "record": {
+          "mode": "http",
+          "action": "adjust",
+          "currency": "UAH",
+          "inventory_id": "ERP-adjust",
+          "erp_event_id": 3,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_apply_change",
+        "record": {
+          "mode": "http",
+          "action": "apply_change",
+          "currency": "EUR",
+          "inventory_id": "ERP-apply_change",
+          "erp_event_id": 4,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_attach",
+        "record": {
+          "mode": "http",
+          "action": "attach",
+          "currency": "EUR",
+          "inventory_id": "ERP-attach",
+          "erp_event_id": 5,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_change",
+        "record": {
+          "mode": "http",
+          "action": "change",
+          "currency": "EUR",
+          "inventory_id": "ERP-change",
+          "erp_event_id": 6,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_confirm_order",
+        "record": {
+          "mode": "http",
+          "action": "confirm_order",
+          "currency": "EUR",
+          "inventory_id": "ERP-confirm_order",
+          "erp_event_id": 7,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_finish",
+        "record": {
+          "mode": "http",
+          "action": "finish",
+          "currency": "EUR",
+          "inventory_id": "ERP-finish",
+          "erp_event_id": 8,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_finish",
+        "record": {
+          "mode": "http",
+          "action": "finish",
+          "currency": "USD",
+          "inventory_id": "ERP-finish",
+          "erp_event_id": 9,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_finish",
+        "record": {
+          "mode": "http",
+          "action": "finish",
+          "currency": "UAH",
+          "inventory_id": "ERP-finish",
+          "erp_event_id": 10,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_invoice",
+        "record": {
+          "mode": "http",
+          "action": "invoice",
+          "currency": "EUR",
+          "inventory_id": "ERP-invoice",
+          "erp_event_id": 11,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_invoice",
+        "record": {
+          "mode": "http",
+          "action": "invoice",
+          "currency": "USD",
+          "inventory_id": "ERP-invoice",
+          "erp_event_id": 12,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_invoice",
+        "record": {
+          "mode": "http",
+          "action": "invoice",
+          "currency": "UAH",
+          "inventory_id": "ERP-invoice",
+          "erp_event_id": 13,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item",
+        "record": {
+          "mode": "http",
+          "action": "item",
+          "currency": "EUR",
+          "inventory_id": "ERP-item",
+          "erp_event_id": 14,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item",
+        "record": {
+          "mode": "http",
+          "action": "item",
+          "currency": "USD",
+          "inventory_id": "ERP-item",
+          "erp_event_id": 15,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item",
+        "record": {
+          "mode": "http",
+          "action": "item",
+          "currency": "UAH",
+          "inventory_id": "ERP-item",
+          "erp_event_id": 16,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_job",
+        "record": {
+          "mode": "http",
+          "action": "job",
+          "currency": "EUR",
+          "inventory_id": "ERP-job",
+          "erp_event_id": 17,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_job",
+        "record": {
+          "mode": "http",
+          "action": "job",
+          "currency": "USD",
+          "inventory_id": "ERP-job",
+          "erp_event_id": 18,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_job",
+        "record": {
+          "mode": "http",
+          "action": "job",
+          "currency": "UAH",
+          "inventory_id": "ERP-job",
+          "erp_event_id": 19,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_location",
+        "record": {
+          "mode": "http",
+          "action": "location",
+          "currency": "EUR",
+          "inventory_id": "ERP-location",
+          "erp_event_id": 20,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_opening",
+        "record": {
+          "mode": "http",
+          "action": "opening",
+          "currency": "EUR",
+          "inventory_id": "ERP-opening",
+          "erp_event_id": 21,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_opening",
+        "record": {
+          "mode": "http",
+          "action": "opening",
+          "currency": "USD",
+          "inventory_id": "ERP-opening",
+          "erp_event_id": 22,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_opening",
+        "record": {
+          "mode": "http",
+          "action": "opening",
+          "currency": "UAH",
+          "inventory_id": "ERP-opening",
+          "erp_event_id": 23,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_operator",
+        "record": {
+          "mode": "http",
+          "action": "operator",
+          "currency": "EUR",
+          "inventory_id": "ERP-operator",
+          "erp_event_id": 24,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_order",
+        "record": {
+          "mode": "http",
+          "action": "order",
+          "currency": "EUR",
+          "inventory_id": "ERP-order",
+          "erp_event_id": 25,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_order",
+        "record": {
+          "mode": "http",
+          "action": "order",
+          "currency": "USD",
+          "inventory_id": "ERP-order",
+          "erp_event_id": 26,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_order",
+        "record": {
+          "mode": "http",
+          "action": "order",
+          "currency": "UAH",
+          "inventory_id": "ERP-order",
+          "erp_event_id": 27,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_payment",
+        "record": {
+          "mode": "http",
+          "action": "payment",
+          "currency": "EUR",
+          "inventory_id": "ERP-payment",
+          "erp_event_id": 28,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_payment",
+        "record": {
+          "mode": "http",
+          "action": "payment",
+          "currency": "USD",
+          "inventory_id": "ERP-payment",
+          "erp_event_id": 29,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_payment",
+        "record": {
+          "mode": "http",
+          "action": "payment",
+          "currency": "UAH",
+          "inventory_id": "ERP-payment",
+          "erp_event_id": 30,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone",
+        "record": {
+          "mode": "http",
+          "action": "postpone",
+          "currency": "EUR",
+          "inventory_id": "ERP-postpone",
+          "erp_event_id": 31,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone_job",
+        "record": {
+          "mode": "http",
+          "action": "postpone_job",
+          "currency": "EUR",
+          "inventory_id": "ERP-postpone_job",
+          "erp_event_id": 32,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_purchase",
+        "record": {
+          "mode": "http",
+          "action": "purchase",
+          "currency": "EUR",
+          "inventory_id": "ERP-purchase",
+          "erp_event_id": 33,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_purchase",
+        "record": {
+          "mode": "http",
+          "action": "purchase",
+          "currency": "USD",
+          "inventory_id": "ERP-purchase",
+          "erp_event_id": 34,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_purchase",
+        "record": {
+          "mode": "http",
+          "action": "purchase",
+          "currency": "UAH",
+          "inventory_id": "ERP-purchase",
+          "erp_event_id": 35,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_quality",
+        "record": {
+          "mode": "http",
+          "action": "quality",
+          "currency": "EUR",
+          "inventory_id": "ERP-quality",
+          "erp_event_id": 36,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_receive",
+        "record": {
+          "mode": "http",
+          "action": "receive",
+          "currency": "EUR",
+          "inventory_id": "ERP-receive",
+          "erp_event_id": 37,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_receive",
+        "record": {
+          "mode": "http",
+          "action": "receive",
+          "currency": "USD",
+          "inventory_id": "ERP-receive",
+          "erp_event_id": 38,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_receive",
+        "record": {
+          "mode": "http",
+          "action": "receive",
+          "currency": "UAH",
+          "inventory_id": "ERP-receive",
+          "erp_event_id": 39,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_release",
+        "record": {
+          "mode": "http",
+          "action": "release",
+          "currency": "EUR",
+          "inventory_id": "ERP-release",
+          "erp_event_id": 40,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_release",
+        "record": {
+          "mode": "http",
+          "action": "release",
+          "currency": "USD",
+          "inventory_id": "ERP-release",
+          "erp_event_id": 41,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_release",
+        "record": {
+          "mode": "http",
+          "action": "release",
+          "currency": "UAH",
+          "inventory_id": "ERP-release",
+          "erp_event_id": 42,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_reserve",
+        "record": {
+          "mode": "http",
+          "action": "reserve",
+          "currency": "EUR",
+          "inventory_id": "ERP-reserve",
+          "erp_event_id": 43,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_reserve",
+        "record": {
+          "mode": "http",
+          "action": "reserve",
+          "currency": "USD",
+          "inventory_id": "ERP-reserve",
+          "erp_event_id": 44,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_reserve",
+        "record": {
+          "mode": "http",
+          "action": "reserve",
+          "currency": "UAH",
+          "inventory_id": "ERP-reserve",
+          "erp_event_id": 45,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_resolve_job",
+        "record": {
+          "mode": "http",
+          "action": "resolve_job",
+          "currency": "EUR",
+          "inventory_id": "ERP-resolve_job",
+          "erp_event_id": 46,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_return",
+        "record": {
+          "mode": "http",
+          "action": "return",
+          "currency": "EUR",
+          "inventory_id": "ERP-return",
+          "erp_event_id": 47,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_return",
+        "record": {
+          "mode": "http",
+          "action": "return",
+          "currency": "USD",
+          "inventory_id": "ERP-return",
+          "erp_event_id": 48,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_return",
+        "record": {
+          "mode": "http",
+          "action": "return",
+          "currency": "UAH",
+          "inventory_id": "ERP-return",
+          "erp_event_id": 49,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_ship",
+        "record": {
+          "mode": "http",
+          "action": "ship",
+          "currency": "EUR",
+          "inventory_id": "ERP-ship",
+          "erp_event_id": 50,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_ship",
+        "record": {
+          "mode": "http",
+          "action": "ship",
+          "currency": "USD",
+          "inventory_id": "ERP-ship",
+          "erp_event_id": 51,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_ship",
+        "record": {
+          "mode": "http",
+          "action": "ship",
+          "currency": "UAH",
+          "inventory_id": "ERP-ship",
+          "erp_event_id": 52,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_start",
+        "record": {
+          "mode": "http",
+          "action": "start",
+          "currency": "EUR",
+          "inventory_id": "ERP-start",
+          "erp_event_id": 53,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_transfer",
+        "record": {
+          "mode": "http",
+          "action": "transfer",
+          "currency": "EUR",
+          "inventory_id": "ERP-transfer",
+          "erp_event_id": 54,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_transfer",
+        "record": {
+          "mode": "http",
+          "action": "transfer",
+          "currency": "USD",
+          "inventory_id": "ERP-transfer",
+          "erp_event_id": 55,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_transfer",
+        "record": {
+          "mode": "http",
+          "action": "transfer",
+          "currency": "UAH",
+          "inventory_id": "ERP-transfer",
+          "erp_event_id": 56,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_adjust",
+        "record": {
+          "mode": "orm",
+          "case": "adjust",
+          "currency": "EUR",
+          "inventory_id": "ERP-adjust",
+          "erp_event_id": 57,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_adjust",
+        "record": {
+          "mode": "orm",
+          "case": "adjust",
+          "currency": "USD",
+          "inventory_id": "ERP-adjust",
+          "erp_event_id": 58,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_adjust",
+        "record": {
+          "mode": "orm",
+          "case": "adjust",
+          "currency": "UAH",
+          "inventory_id": "ERP-adjust",
+          "erp_event_id": 59,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_finish",
+        "record": {
+          "mode": "orm",
+          "case": "finish",
+          "currency": "EUR",
+          "inventory_id": "ERP-finish",
+          "erp_event_id": 60,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_finish",
+        "record": {
+          "mode": "orm",
+          "case": "finish",
+          "currency": "USD",
+          "inventory_id": "ERP-finish",
+          "erp_event_id": 61,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_finish",
+        "record": {
+          "mode": "orm",
+          "case": "finish",
+          "currency": "UAH",
+          "inventory_id": "ERP-finish",
+          "erp_event_id": 62,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_invoice",
+        "record": {
+          "mode": "orm",
+          "case": "invoice",
+          "currency": "EUR",
+          "inventory_id": "ERP-invoice",
+          "erp_event_id": 63,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_invoice",
+        "record": {
+          "mode": "orm",
+          "case": "invoice",
+          "currency": "USD",
+          "inventory_id": "ERP-invoice",
+          "erp_event_id": 64,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_invoice",
+        "record": {
+          "mode": "orm",
+          "case": "invoice",
+          "currency": "UAH",
+          "inventory_id": "ERP-invoice",
+          "erp_event_id": 65,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment",
+        "record": {
+          "mode": "orm",
+          "case": "payment",
+          "currency": "EUR",
+          "inventory_id": "ERP-payment",
+          "erp_event_id": 66,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment",
+        "record": {
+          "mode": "orm",
+          "case": "payment",
+          "currency": "USD",
+          "inventory_id": "ERP-payment",
+          "erp_event_id": 67,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment",
+        "record": {
+          "mode": "orm",
+          "case": "payment",
+          "currency": "UAH",
+          "inventory_id": "ERP-payment",
+          "erp_event_id": 68,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment_dup",
+        "record": {
+          "mode": "orm",
+          "case": "payment_dup",
+          "currency": "EUR",
+          "inventory_id": "ERP-payment",
+          "erp_event_id": 69,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment_dup",
+        "record": {
+          "mode": "orm",
+          "case": "payment_dup",
+          "currency": "USD",
+          "inventory_id": "ERP-payment",
+          "erp_event_id": 70,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment_dup",
+        "record": {
+          "mode": "orm",
+          "case": "payment_dup",
+          "currency": "UAH",
+          "inventory_id": "ERP-payment",
+          "erp_event_id": 71,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_receive",
+        "record": {
+          "mode": "orm",
+          "case": "receive",
+          "currency": "EUR",
+          "inventory_id": "ERP-receive",
+          "erp_event_id": 72,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_receive",
+        "record": {
+          "mode": "orm",
+          "case": "receive",
+          "currency": "USD",
+          "inventory_id": "ERP-receive",
+          "erp_event_id": 73,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_receive",
+        "record": {
+          "mode": "orm",
+          "case": "receive",
+          "currency": "UAH",
+          "inventory_id": "ERP-receive",
+          "erp_event_id": 74,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_release",
+        "record": {
+          "mode": "orm",
+          "case": "release",
+          "currency": "EUR",
+          "inventory_id": "ERP-release",
+          "erp_event_id": 75,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_release",
+        "record": {
+          "mode": "orm",
+          "case": "release",
+          "currency": "USD",
+          "inventory_id": "ERP-release",
+          "erp_event_id": 76,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_release",
+        "record": {
+          "mode": "orm",
+          "case": "release",
+          "currency": "UAH",
+          "inventory_id": "ERP-release",
+          "erp_event_id": 77,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_reserve",
+        "record": {
+          "mode": "orm",
+          "case": "reserve",
+          "currency": "EUR",
+          "inventory_id": "ERP-reserve",
+          "erp_event_id": 78,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_reserve",
+        "record": {
+          "mode": "orm",
+          "case": "reserve",
+          "currency": "USD",
+          "inventory_id": "ERP-reserve",
+          "erp_event_id": 79,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_reserve",
+        "record": {
+          "mode": "orm",
+          "case": "reserve",
+          "currency": "UAH",
+          "inventory_id": "ERP-reserve",
+          "erp_event_id": 80,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_return",
+        "record": {
+          "mode": "orm",
+          "case": "return",
+          "currency": "EUR",
+          "inventory_id": "ERP-return",
+          "erp_event_id": 81,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_return",
+        "record": {
+          "mode": "orm",
+          "case": "return",
+          "currency": "USD",
+          "inventory_id": "ERP-return",
+          "erp_event_id": 82,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_return",
+        "record": {
+          "mode": "orm",
+          "case": "return",
+          "currency": "UAH",
+          "inventory_id": "ERP-return",
+          "erp_event_id": 83,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_ship",
+        "record": {
+          "mode": "orm",
+          "case": "ship",
+          "currency": "EUR",
+          "inventory_id": "ERP-ship",
+          "erp_event_id": 84,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_ship",
+        "record": {
+          "mode": "orm",
+          "case": "ship",
+          "currency": "USD",
+          "inventory_id": "ERP-ship",
+          "erp_event_id": 85,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_ship",
+        "record": {
+          "mode": "orm",
+          "case": "ship",
+          "currency": "UAH",
+          "inventory_id": "ERP-ship",
+          "erp_event_id": 86,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_transfer",
+        "record": {
+          "mode": "orm",
+          "case": "transfer",
+          "currency": "EUR",
+          "inventory_id": "ERP-transfer",
+          "erp_event_id": 87,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_transfer",
+        "record": {
+          "mode": "orm",
+          "case": "transfer",
+          "currency": "USD",
+          "inventory_id": "ERP-transfer",
+          "erp_event_id": 88,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_transfer",
+        "record": {
+          "mode": "orm",
+          "case": "transfer",
+          "currency": "UAH",
+          "inventory_id": "ERP-transfer",
+          "erp_event_id": 89,
+          "one_effect": true,
+          "loser_retry_rejected": true
+        }
+      },
+      {
+        "test_id": "erp.test_import_concurrency.ERPImportConcurrencyTests.test_http_pair_import_batch",
+        "record": {
+          "mode": "http",
+          "action": "import_batch",
+          "currency": "EUR",
+          "inventory_id": "ERP-import_batch",
+          "erp_event_id": 95,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_import_concurrency.ERPImportConcurrencyTests.test_http_pair_import_batch",
+        "record": {
+          "mode": "http",
+          "action": "import_batch",
+          "currency": "USD",
+          "inventory_id": "ERP-import_batch",
+          "erp_event_id": 96,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_import_concurrency.ERPImportConcurrencyTests.test_http_pair_import_batch",
+        "record": {
+          "mode": "http",
+          "action": "import_batch",
+          "currency": "UAH",
+          "inventory_id": "ERP-import_batch",
+          "erp_event_id": 97,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_cancel_remaining",
+        "record": {
+          "mode": "http",
+          "action": "cancel_remaining",
+          "currency": "EUR",
+          "inventory_id": "ERP-cancel_remaining",
+          "erp_event_id": 177,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_cancel_remaining",
+        "record": {
+          "mode": "http",
+          "action": "cancel_remaining",
+          "currency": "USD",
+          "inventory_id": "ERP-cancel_remaining",
+          "erp_event_id": 180,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_cancel_remaining",
+        "record": {
+          "mode": "http",
+          "action": "cancel_remaining",
+          "currency": "UAH",
+          "inventory_id": "ERP-cancel_remaining",
+          "erp_event_id": 183,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_confirm_supplier_claim",
+        "record": {
+          "mode": "http",
+          "action": "confirm_supplier_claim",
+          "currency": "EUR",
+          "inventory_id": "ERP-confirm_supplier_claim",
+          "erp_event_id": 187,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_confirm_supplier_claim",
+        "record": {
+          "mode": "http",
+          "action": "confirm_supplier_claim",
+          "currency": "USD",
+          "inventory_id": "ERP-confirm_supplier_claim",
+          "erp_event_id": 191,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_confirm_supplier_claim",
+        "record": {
+          "mode": "http",
+          "action": "confirm_supplier_claim",
+          "currency": "UAH",
+          "inventory_id": "ERP-confirm_supplier_claim",
+          "erp_event_id": 195,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_credit_invoice",
+        "record": {
+          "mode": "http",
+          "action": "credit_invoice",
+          "currency": "EUR",
+          "inventory_id": "ERP-credit_invoice",
+          "erp_event_id": 203,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_credit_invoice",
+        "record": {
+          "mode": "http",
+          "action": "credit_invoice",
+          "currency": "USD",
+          "inventory_id": "ERP-credit_invoice",
+          "erp_event_id": 211,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_credit_invoice",
+        "record": {
+          "mode": "http",
+          "action": "credit_invoice",
+          "currency": "UAH",
+          "inventory_id": "ERP-credit_invoice",
+          "erp_event_id": 219,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_return_from_shipment",
+        "record": {
+          "mode": "http",
+          "action": "return_from_shipment",
+          "currency": "EUR",
+          "inventory_id": "ERP-return_from_shipment",
+          "erp_event_id": 226,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_return_from_shipment",
+        "record": {
+          "mode": "http",
+          "action": "return_from_shipment",
+          "currency": "USD",
+          "inventory_id": "ERP-return_from_shipment",
+          "erp_event_id": 233,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_return_from_shipment",
+        "record": {
+          "mode": "http",
+          "action": "return_from_shipment",
+          "currency": "UAH",
+          "inventory_id": "ERP-return_from_shipment",
+          "erp_event_id": 240,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_return_supplier",
+        "record": {
+          "mode": "http",
+          "action": "return_supplier",
+          "currency": "EUR",
+          "inventory_id": "ERP-return_supplier",
+          "erp_event_id": 243,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_return_supplier",
+        "record": {
+          "mode": "http",
+          "action": "return_supplier",
+          "currency": "USD",
+          "inventory_id": "ERP-return_supplier",
+          "erp_event_id": 246,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_return_supplier",
+        "record": {
+          "mode": "http",
+          "action": "return_supplier",
+          "currency": "UAH",
+          "inventory_id": "ERP-return_supplier",
+          "erp_event_id": 249,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_reverse_credit",
+        "record": {
+          "mode": "http",
+          "action": "reverse_credit",
+          "currency": "EUR",
+          "inventory_id": "ERP-reverse_credit",
+          "erp_event_id": 258,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_reverse_credit",
+        "record": {
+          "mode": "http",
+          "action": "reverse_credit",
+          "currency": "USD",
+          "inventory_id": "ERP-reverse_credit",
+          "erp_event_id": 267,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "erp.test_correction_concurrency.ERPCorrectionConcurrencyTests.test_http_pair_reverse_credit",
+        "record": {
+          "mode": "http",
+          "action": "reverse_credit",
+          "currency": "UAH",
+          "inventory_id": "ERP-reverse_credit",
+          "erp_event_id": 276,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "finance.test_statement_concurrency.StatementConcurrencyTests.test_http_pair_statement_import",
+        "record": {
+          "mode": "http",
+          "action": "statement_import",
+          "currency": "EUR",
+          "inventory_id": "ERP-statement_import",
+          "erp_event_id": 298,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "finance.test_statement_concurrency.StatementConcurrencyTests.test_http_pair_statement_import",
+        "record": {
+          "mode": "http",
+          "action": "statement_import",
+          "currency": "USD",
+          "inventory_id": "ERP-statement_import",
+          "erp_event_id": 299,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "finance.test_statement_concurrency.StatementConcurrencyTests.test_http_pair_statement_import",
+        "record": {
+          "mode": "http",
+          "action": "statement_import",
+          "currency": "UAH",
+          "inventory_id": "ERP-statement_import",
+          "erp_event_id": 300,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "finance.test_statement_concurrency.StatementConcurrencyTests.test_http_pair_statement_reconcile",
+        "record": {
+          "mode": "http",
+          "action": "statement_reconcile",
+          "currency": "EUR",
+          "inventory_id": "ERP-statement_reconcile",
+          "erp_event_id": 303,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "finance.test_statement_concurrency.StatementConcurrencyTests.test_http_pair_statement_reconcile",
+        "record": {
+          "mode": "http",
+          "action": "statement_reconcile",
+          "currency": "USD",
+          "inventory_id": "ERP-statement_reconcile",
+          "erp_event_id": 306,
+          "statuses": [
+            409,
+            200
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      },
+      {
+        "test_id": "finance.test_statement_concurrency.StatementConcurrencyTests.test_http_pair_statement_reconcile",
+        "record": {
+          "mode": "http",
+          "action": "statement_reconcile",
+          "currency": "UAH",
+          "inventory_id": "ERP-statement_reconcile",
+          "erp_event_id": 309,
+          "statuses": [
+            200,
+            409
+          ],
+          "one_effect": true,
+          "replay_unchanged": true
+        }
+      }
+    ],
+    "stdout_sha256": "bec1b0502c054ab80e7e6699d46ceff7660fef2577c4df2cf129e005c7d8f696",
+    "stdout_bytes": 178000
+  },
+  "c03_held_transaction": {
+    "required": 3,
+    "records": [
+      {
+        "test_id": "finance.test_statement_concurrency.StatementConcurrencyTests.test_held_transaction_writes_serialize_before_reconcile_fingerprint_and_binding",
+        "record": {
+          "currency": "EUR",
+          "actual_vendor": "sqlite",
+          "patch_then_reconcile_statuses": [
+            200,
+            409
+          ],
+          "reconcile_then_patch_statuses": [
+            200,
+            400
+          ],
+          "bound_edit_retry_status": 400,
+          "first_trace": [
+            "erp_mutex"
+          ],
+          "reverse_trace": [
+            "transaction"
+          ],
+          "first_lock": {
+            "waited": false,
+            "controlled_conflict_while_held": true,
+            "uncommitted_business_not_visible": true
+          },
+          "reverse_lock": {
+            "waited": true,
+            "controlled_conflict_while_held": false,
+            "uncommitted_business_not_visible": true
+          },
+          "stale_reconcile_refused": true,
+          "bound_source_edit_refused": true
+        }
+      },
+      {
+        "test_id": "finance.test_statement_concurrency.StatementConcurrencyTests.test_held_transaction_writes_serialize_before_reconcile_fingerprint_and_binding",
+        "record": {
+          "currency": "USD",
+          "actual_vendor": "sqlite",
+          "patch_then_reconcile_statuses": [
+            200,
+            409
+          ],
+          "reconcile_then_patch_statuses": [
+            200,
+            400
+          ],
+          "bound_edit_retry_status": 400,
+          "first_trace": [
+            "erp_mutex"
+          ],
+          "reverse_trace": [
+            "transaction"
+          ],
+          "first_lock": {
+            "waited": false,
+            "controlled_conflict_while_held": true,
+            "uncommitted_business_not_visible": true
+          },
+          "reverse_lock": {
+            "waited": true,
+            "controlled_conflict_while_held": false,
+            "uncommitted_business_not_visible": true
+          },
+          "stale_reconcile_refused": true,
+          "bound_source_edit_refused": true
+        }
+      },
+      {
+        "test_id": "finance.test_statement_concurrency.StatementConcurrencyTests.test_held_transaction_writes_serialize_before_reconcile_fingerprint_and_binding",
+        "record": {
+          "currency": "UAH",
+          "actual_vendor": "sqlite",
+          "patch_then_reconcile_statuses": [
+            200,
+            409
+          ],
+          "reconcile_then_patch_statuses": [
+            200,
+            400
+          ],
+          "bound_edit_retry_status": 400,
+          "first_trace": [
+            "erp_mutex"
+          ],
+          "reverse_trace": [
+            "transaction"
+          ],
+          "first_lock": {
+            "waited": false,
+            "controlled_conflict_while_held": true,
+            "uncommitted_business_not_visible": true
+          },
+          "reverse_lock": {
+            "waited": true,
+            "controlled_conflict_while_held": false,
+            "uncommitted_business_not_visible": true
+          },
+          "stale_reconcile_refused": true,
+          "bound_source_edit_refused": true
+        }
+      }
+    ]
+  },
+  "source_sha256_after": {
+    "erp.test_concurrency": "b0730a1ad57327bc1cb84f55f2040e022cd2365b1a6cddd7ba3c4e405a0e3897",
+    "operations.test_document_mutex": "8422fa81be652d961305986ac2c3f9c6151b07290951d0e8be4adb3d6a03a70e",
+    "finance.test_intent_adapters": "2d82e8dabd312cf89382d957571ec8e39443411c50c703ec57895336241b19d0",
+    "finance.test_payment_integrity": "aa7646ba7e7063621f42ca43efa334eb832e22c534ec587d81722c51775c8a8a",
+    "finance.test_concurrency": "df81f24abbae83155f799434fd7d00adf33f3cb8e9cff68a7a7037762be64ba0",
+    "erp.test_import_concurrency": "4bf6455d298fbd2f86bd097b423d4776eb4e794629028d2b9889ff82e0fd1e5d",
+    "erp.test_correction_concurrency": "84380fcf176e3c6d2f7cfc25f124ce7b90a7f4015a87df588f5f796b36973fa3",
+    "tasks.test_concurrency": "bf0f69bdacff1a43bf3d199ac1258edd11ce6251dbf3e6ba3bd24dc312e599e8",
+    "finance.test_statement_concurrency": "d216e553b1dba7e2044e0035f8ba2960c22f2b74c756e9599d6067705e7dcd04",
+    "verifier": "a633790452d52d74abb720b8d616f981b7197e9fc2f3fd817699c2ea47581f3d",
+    "manifest": "c69d36fadbdeb5c30430ba3faf4d96792853ecdecff64ef3e99bb14cae971bb7",
+    "erp_service": "708ce8d0ef4d5d4d0b2eb7a8f7ea602d3224418a98936e8f88e21e78fcc35a63"
+  }
+}

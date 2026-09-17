@@ -1,0 +1,41 @@
+{
+  "scope": "Actual extracted source closures and actual App route, controlled responses; no browser/API",
+  "source_sha256": "f5fa7b5528a6f64da0644433c642a4a4790d50ba3485408af7b8c0957fef2cde",
+  "checks": [
+    {
+      "name": "manager actual App bank route preserves legacy read-only component without Bank",
+      "passed": true
+    },
+    {
+      "name": "non-JSON 403 invokes source clearing before parser error",
+      "passed": false,
+      "actual": {
+        "denials": 0
+      }
+    },
+    {
+      "name": "non-JSON 404 invokes source clearing before parser error",
+      "passed": false,
+      "actual": {
+        "denials": 0
+      }
+    },
+    {
+      "name": "preview refuses another line intent before exposing confirm",
+      "passed": false,
+      "actual": {
+        "proposalAccepted": true
+      }
+    },
+    {
+      "name": "upload201 refuses mismatched source SHA and metadata",
+      "passed": false,
+      "actual": {
+        "sourceAccepted": true,
+        "unknown": false
+      }
+    }
+  ],
+  "passed": 1,
+  "failed": 4
+}

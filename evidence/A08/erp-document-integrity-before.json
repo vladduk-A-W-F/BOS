@@ -1,0 +1,122 @@
+[
+  {
+    "action": "quality",
+    "preview_status": 200,
+    "confirmation_status": 200,
+    "response": {
+      "state": "succeeded",
+      "inspection_id": 1,
+      "lot_id": 1,
+      "quality": "approved",
+      "erp_event_id": 1,
+      "impact": [
+        {
+          "kind": "lots",
+          "id": 1,
+          "code": "A08-QUALITY",
+          "field": "available",
+          "label": "Придатно й вільно",
+          "before": "0",
+          "after": "10.000",
+          "currency": "EUR"
+        },
+        {
+          "kind": "lots",
+          "id": 1,
+          "code": "A08-QUALITY",
+          "field": "quality",
+          "label": "Якість",
+          "before": "pending",
+          "after": "approved",
+          "currency": "EUR"
+        }
+      ]
+    },
+    "changed_models": [
+      "erp.Lot",
+      "erp.Inspection",
+      "erp.Event",
+      "operations.Configuration",
+      "operations.ActionProposal"
+    ],
+    "document_id": 1,
+    "stored_checksum": "82ad25685076940668068822fe648ca9041f4524f1e3254fb4e7e3e35f7a8e02",
+    "actual_checksum": "98f931b5789978bc0bde6886261c647c2e31576f1db9c7ea2a83ada21f1d2739"
+  },
+  {
+    "action": "change",
+    "preview_status": 200,
+    "confirmation_status": 200,
+    "response": {
+      "state": "succeeded",
+      "change_id": 1,
+      "code": "A08-CHANGE",
+      "erp_event_id": 2,
+      "impact": [
+        {
+          "kind": "changes",
+          "id": 1,
+          "code": "A08-CHANGE",
+          "field": "status",
+          "label": "Стан зміни",
+          "before": null,
+          "after": "draft",
+          "currency": ""
+        }
+      ]
+    },
+    "changed_models": [
+      "erp.ChangeOrder",
+      "erp.Event",
+      "operations.Configuration",
+      "operations.ActionProposal"
+    ],
+    "document_id": 2,
+    "stored_checksum": "8d74bfb775a570e4d2e4193eb06da1b0256706a6fcbef271a75359a9c3230ea6",
+    "actual_checksum": "98f931b5789978bc0bde6886261c647c2e31576f1db9c7ea2a83ada21f1d2739"
+  },
+  {
+    "action": "apply_change",
+    "preview_status": 200,
+    "confirmation_status": 200,
+    "response": {
+      "state": "succeeded",
+      "change_id": 2,
+      "affected_jobs": [],
+      "note": "Відкриті роботи призупинено до окремого погодження; версію прийнятих продажів автоматично не змінено.",
+      "erp_event_id": 4,
+      "impact": [
+        {
+          "kind": "items",
+          "id": 3,
+          "code": "A08-APPLY_CHANGE",
+          "field": "revision",
+          "label": "Версія виробу",
+          "before": "A",
+          "after": "B",
+          "currency": "EUR"
+        },
+        {
+          "kind": "changes",
+          "id": 2,
+          "code": "A08-APPLY_CHANGE",
+          "field": "status",
+          "label": "Стан зміни",
+          "before": "draft",
+          "after": "approved",
+          "currency": ""
+        }
+      ]
+    },
+    "changed_models": [
+      "erp.Item",
+      "erp.ChangeOrder",
+      "erp.Event",
+      "operations.Configuration",
+      "operations.ActionProposal"
+    ],
+    "document_id": 3,
+    "stored_checksum": "cd432a4aa6ee47f241cbb62aef88e7db42fd025cbe73900c29d8551a6272eebb",
+    "actual_checksum": "98f931b5789978bc0bde6886261c647c2e31576f1db9c7ea2a83ada21f1d2739"
+  }
+]

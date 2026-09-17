@@ -1,0 +1,623 @@
+--- a/frontend/boss_app_source.html
++++ b/frontend/boss_app_source.html
+@@ -177,6 +177,9 @@
+ @media(max-width:1100px){.bos-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.bos-work-columns{grid-template-columns:1fr}}@media(max-width:650px){.bos-home{padding:16px;gap:16px}.bos-guide-grid{grid-template-columns:1fr}.bos-next{flex-direction:column;align-items:stretch}.bos-kpi-grid{grid-template-columns:1fr}.bos-inspector{padding:16px}.bos-home>.erp-row{align-items:flex-start}.bos-kpi>strong{font-size:27px}}
+ 
+ .b03-fieldset{border:0;padding:0;margin:0;min-width:0}.b03-fieldset textarea{width:100%;padding:12px;color:#F4F6F8;background:#12141A;border:1px solid #596577;border-radius:8px;font:inherit;resize:vertical}.b03-allocation{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;border:1px solid #414b5c;border-radius:10px;padding:14px;margin:14px 0}.b03-allocation label{min-width:0}.b03-pending{margin:16px 0;overflow-wrap:anywhere}.b03-pending summary{cursor:pointer}.b03-fieldset:disabled{opacity:.75}@media(max-width:700px){.b03-allocation{grid-template-columns:1fr}.bos-dialog .actions{flex-wrap:wrap}}
++
++/* C01 scoped task styles */
++.c01-dialog{width:min(980px,96vw)}.c01-text{white-space:pre-wrap;overflow-wrap:anywhere}.c01-textarea{width:100%;min-height:100px;background:var(--surface2,#202228);color:inherit;border:1px solid #637083;border-radius:8px;padding:10px;font:inherit}.c01-wide{grid-column:1/-1}.c01-current,.c01-history{border-top:1px solid #3b414c;margin-top:20px;padding-top:16px}.c01-current h4,.c01-history h4{margin:12px 0 8px}.c01-pending{padding:8px 24px;border-bottom:1px solid #3b414c;font-size:13px}.c01-pending .erp-row{padding:8px 0;overflow-wrap:anywhere}.c01-task-table{margin-top:16px}.c01-task-table td{vertical-align:top}.c01-task-table td:first-child{min-width:220px}.c01-task-table .erp-actions{max-width:240px}.c01-dialog .erp-form>label{min-width:0}.c01-dialog select{max-width:100%}@media(max-width:600px){.c01-dialog .erp-form{grid-template-columns:1fr}.c01-pending{padding:8px 12px}}
+ </style>
+ </head>
+ <body>
+@@ -716,7 +719,7 @@
+           const isActive = nav.section === n.id;
+           const hasSubs = n.subs.length > 0;
+           // HR имеет badge с кол-вом активных доручень (фиксированная цифра-заглушка, как в старом Sidebar)
+-          const badge = n.id === 'hr' ? tasks.filter(t=>t.status!=='done').length : null;
++          const badge = n.id === 'hr' ? tasks.filter(t=>!t.archived&&t.status!=='done').length : null;
+           // AI имеет онлайн-индикатор (зелёная точка)
+           const onlineDot = n.id === 'ai' && aiConfigured;
+           return (
+@@ -762,7 +765,7 @@
+         {/* Уведомления — заглушка */}
+         <button title="Відкрити доручення" onClick={()=>setNav({section:'hr',sub:'tasks'})} style={{position:'relative', width:38, height:38, background:T.surface, border:'1px solid '+T.border, borderRadius:T.radMd, color:T.textMuted, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center'}}>
+           {bellIcon}
+-          {tasks.some(t=>t.status==='overdue')&&<span aria-label="Є прострочені доручення" style={{position:'absolute',top:7,right:7,width:8,height:8,borderRadius:'50%',background:T.red}}/>}
++          {tasks.some(t=>!t.archived&&t.is_overdue===true)&&<span aria-label="Є прострочені доручення" style={{position:'absolute',top:7,right:7,width:8,height:8,borderRadius:'50%',background:T.red}}/>}
+         </button>
+         {/* Toggle AI-панели справа — индиго (AI-элемент) */}
+         <button onClick={() => setAiPanelOpen(p => !p)}
+@@ -2375,368 +2378,24 @@
+   );
+ }
+ 
+-function Tasks({tasks, setTasks, loading, error, refetchTasks}) {
+-  // === STATE ===
+-  const [filter, setFilter] = useState('all');           // активный фильтр статуса
+-  const [search, setSearch] = useState('');              // поиск по title/assignee
+-  const [sortBy, setSortBy] = useState('priority');      // 'priority' | 'deadline'
+-  const [showAdd, setShowAdd] = useState(false);
+-  const [form, setForm] = useState({title:'', priority:'medium', assignee:'', deadline:'', cat:'Загальне', status:'active'});
+-  const [editingId, setEditingId] = useState(null);                            // id дорученьи в режиме редактирования
+-  const [editForm, setEditForm] = useState({title:'', assignee:'', deadline:'', category:''});
+-
+-  // Начать редактирование дорученьи — копируем её поля в editForm
+-  const startEdit = (t) => {
+-    setEditingId(t.id);
+-    setEditForm({
+-      title:    t.title || '',
+-      assignee: t.assignee || '',
+-      deadline: t.deadline || '',
+-      category: t.category || '',
+-    });
+-  };
+-
+-  // Сохранить изменения — PATCH на бекенд
+-  const saveEdit = () => {
+-    if (!editForm.title.trim()) {
+-      alert('Назва не може бути порожньою');
+-      return;
+-    }
+-    fetch(`${API_BASE}/tasks/${editingId}/`, {
+-      method:'PATCH',
+-      headers:{'Content-Type':'application/json'},
+-      body: JSON.stringify({
+-        title: editForm.title,
+-        assignee: editForm.assignee,
+-        deadline: editForm.deadline || null,
+-        category: editForm.category,
+-      }),
+-    })
+-    .then(async r => {
+-      if (!r.ok) {
+-        const data = await r.json().catch(()=>null);
+-        if (data && typeof data === 'object') {
+-          const msg = Object.entries(data).map(([f,e]) => `${f}: ${Array.isArray(e)?e.join(' '):e}`).join('\n');
+-          throw new Error(msg);
+-        }
+-        throw new Error(`Сервер повернув ${r.status}`);
+-      }
+-      return r.json();
+-    })
+-    .then(updated => {
+-      setTasks(p => p.map(x => x.id === editingId ? updated : x));
+-      setEditingId(null);
+-    })
+-    .catch(err => {
+-      console.error('Не вдалося оновити:', err);
+-      alert('Не вдалося оновити: ' + err.message);
+-    });
+-  };
+-
+-  useEffect(() => { refetchTasks(); }, []);
+-
+-  // === API: создать доручення (логика прежняя) ===
+-  const addTask = () => {
+-    if (!form.title.trim()) return;
+-    fetch(`${API_BASE}/tasks/`, {
+-      method:'POST',
+-      headers:{'Content-Type':'application/json'},
+-      body: JSON.stringify({title:form.title, priority:form.priority||null, status:form.status, assignee:form.assignee, deadline:form.deadline||null, category:form.cat}),
+-    })
+-    .then(async r => {
+-      if (!r.ok) {
+-        const data = await r.json().catch(()=>null);
+-        if (data && typeof data === 'object') {
+-          const msg = Object.entries(data).map(([f,e]) => `${f}: ${Array.isArray(e)?e.join(' '):e}`).join('\n');
+-          throw new Error(msg);
+-        }
+-        throw new Error(`Сервер повернув ${r.status}`);
+-      }
+-      return r.json();
+-    })
+-    .then(newTask => setTasks(p => [...p, newTask]))
+-    .catch(err => {
+-      console.error('Не вдалося створити доручення:', err);
+-      alert('Не вдалося створити доручення: ' + err.message);
+-    });
+-    setForm({title:'', priority:'medium', assignee:'', deadline:'', cat:'Загальне', status:'active'});
+-    setShowAdd(false);
+-  };
+-
+-  // === API: изменить статус ===
+-  // При переводе в 'done' заодно очищаем приоритет (priority:null) — авто-очистка.
+-  // Пользователь потом может вернуть приоритет вручную через dropdown приоритета.
+-  const updateStatus = (id, newStatus) => {
+-    const payload = newStatus === 'done' ? {status:newStatus, priority:null} : {status:newStatus};
+-    fetch(`${API_BASE}/tasks/${id}/`, {
+-      method:'PATCH',
+-      headers:{'Content-Type':'application/json'},
+-      body: JSON.stringify(payload),
+-    })
+-    .then(async r => {
+-      if (!r.ok) {
+-        const data = await r.json().catch(()=>null);
+-        if (data && typeof data === 'object') {
+-          const msg = Object.entries(data).map(([f,e]) => `${f}: ${Array.isArray(e)?e.join(' '):e}`).join('\n');
+-          throw new Error(msg);
+-        }
+-        throw new Error(`Сервер повернув ${r.status}`);
+-      }
+-      return r.json();
+-    })
+-    .then(updated => setTasks(p => p.map(x => x.id===id ? updated : x)))
+-    .catch(err => {
+-      console.error('Не вдалося оновити статус:', err);
+-      alert('Не вдалося оновити статус: ' + err.message);
+-    });
+-  };
+-
+-  // === API: изменить приоритет ===
+-  // newPriority: 'high'|'medium'|'low'|null. Из dropdown пустое значение ('') → null.
+-  const updatePriority = (id, newPriority) => {
+-    fetch(`${API_BASE}/tasks/${id}/`, {
+-      method:'PATCH',
+-      headers:{'Content-Type':'application/json'},
+-      body: JSON.stringify({priority: newPriority || null}),
+-    })
+-    .then(async r => {
+-      if (!r.ok) {
+-        const data = await r.json().catch(()=>null);
+-        if (data && typeof data === 'object') {
+-          const msg = Object.entries(data).map(([f,e]) => `${f}: ${Array.isArray(e)?e.join(' '):e}`).join('\n');
+-          throw new Error(msg);
+-        }
+-        throw new Error(`Сервер повернув ${r.status}`);
+-      }
+-      return r.json();
+-    })
+-    .then(updated => setTasks(p => p.map(x => x.id===id ? updated : x)))
+-    .catch(err => {
+-      console.error('Не вдалося оновити пріоритет:', err);
+-      alert('Не вдалося оновити пріоритет: ' + err.message);
+-    });
+-  };
+-
+-  // === API: удалить (логика прежняя) ===
+-  const deleteTask = (id) => {
+-    if (!confirm('Видалити доручення?')) return;
+-    fetch(`${API_BASE}/tasks/${id}/`, {method:'DELETE'})
+-    .then(async r => {
+-      if (!r.ok) {
+-        const data = await r.json().catch(()=>null);
+-        if (data && typeof data === 'object') {
+-          const msg = Object.entries(data).map(([f,e]) => `${f}: ${Array.isArray(e)?e.join(' '):e}`).join('\n');
+-          throw new Error(msg);
+-        }
+-        throw new Error(`Сервер повернув ${r.status}`);
+-      }
+-      setTasks(p => p.filter(x => x.id !== id));
+-    })
+-    .catch(err => {
+-      console.error('Не вдалося видалити:', err);
+-      alert('Не вдалося видалити: ' + err.message);
+-    });
+-  };
+-
+-  // === ПОДГОТОВКА ДАННЫХ ===
+-  // 1. Фильтр по статусу
+-  const byStatus = filter === 'all' ? tasks : tasks.filter(t => t.status === filter);
+-  // 2. Поиск по title и assignee (case-insensitive)
+-  const bySearch = search.trim()
+-    ? byStatus.filter(t =>
+-        (t.title || '').toLowerCase().includes(search.toLowerCase()) ||
+-        (t.assignee || '').toLowerCase().includes(search.toLowerCase())
+-      )
+-    : byStatus;
+-  // 3. Сортировка
+-  const priorityOrder = {high:0, medium:1, low:2};
+-  const filtered = [...bySearch].sort((a, b) => {
+-    if (sortBy === 'priority') {
+-      return (priorityOrder[a.priority] ?? 3) - (priorityOrder[b.priority] ?? 3);
+-    }
+-    // sortBy === 'deadline' — пустые в конец
+-    if (!a.deadline) return 1;
+-    if (!b.deadline) return -1;
+-    return a.deadline.localeCompare(b.deadline);
+-  });
+-
+-  // Счётчики для фильтр-кнопок
+-  const counts = {
+-    all:     tasks.length,
+-    active:  tasks.filter(t => t.status==='active').length,
+-    process: tasks.filter(t => t.status==='process').length,
+-    done:    tasks.filter(t => t.status==='done').length,
+-    overdue: tasks.filter(t => t.status==='overdue').length,
+-  };
+-
+-  return (
+-    <div style={{padding: 24}}>
+-      {/* === Заголовок страницы === */}
+-      <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom: 18}}>
+-        <div>
+-          <h2 style={{color: T.text, margin: 0, fontSize: 22, fontWeight: 700}}>Доручення команді</h2>
+-          <div style={{color: T.textMuted, fontSize: 12, marginTop: 4}}>{tasks.length} доручень · {counts.overdue} прострочено</div>
+-        </div>
+-        <Button variant="primary" onClick={() => setShowAdd(p => !p)}>
+-          {showAdd ? 'Закрити' : '+ Нове доручення'}
+-        </Button>
+-      </div>
+-
+-      {/* === Network error banner === */}
+-      {error && (
+-        <div style={{padding: 14, background: T.red+'22', border:'1px solid '+T.red, borderRadius: T.radSm, color: T.red, marginBottom: 14}}>
+-          Помилка завантаження доручень: {error}
+-          <button onClick={refetchTasks} style={{marginLeft: 10, padding:'4px 10px', background: T.red, color: T.text, border:'none', borderRadius: 6, cursor:'pointer'}}>
+-            Спробувати знову
+-          </button>
+-        </div>
+-      )}
+-
+-      {/* === Loading indicator === */}
+-      {loading && !error && (
+-        <div style={{padding: 20, textAlign:'center', color: T.textMuted}}>Завантажую доручення...</div>
+-      )}
+-
+-      {/* === Форма создания (раскрывается по кнопке) === */}
+-      {showAdd && (
+-        <Card pad={18} style={{marginBottom: 16}}>
+-          <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap: 10, marginBottom: 12}}>
+-            <Input placeholder="Назва доручення *" value={form.title} onChange={e=>setForm(p=>({...p, title:e.target.value}))} style={{gridColumn:'span 2'}}/>
+-            <Select value={form.priority} onChange={e=>setForm(p=>({...p, priority:e.target.value}))}>
+-              <option value="high">Високий пріоритет</option>
+-              <option value="medium">Середній</option>
+-              <option value="low">Низький</option>
+-              <option value="">Нульовий</option>
+-            </Select>
+-            <Input placeholder="Виконавець" value={form.assignee} onChange={e=>setForm(p=>({...p, assignee:e.target.value}))}/>
+-            <Input type="date" value={form.deadline} onChange={e=>setForm(p=>({...p, deadline:e.target.value}))}/>
+-            <Input placeholder="Категорія" value={form.cat} onChange={e=>setForm(p=>({...p, cat:e.target.value}))}/>
+-          </div>
+-          <div style={{display:'flex', gap: 8}}>
+-            <Button variant="primary" onClick={addTask}>Зберегти</Button>
+-            <Button variant="subtle" onClick={()=>setShowAdd(false)}>Скасувати</Button>
+-          </div>
+-        </Card>
+-      )}
+-
+-      {/* === Фильтры + Поиск + Сортировка === */}
+-      <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom: 14, flexWrap:'wrap', gap: 12}}>
+-        {/* Фильтры по статусу */}
+-        <SegmentedControl value={filter} onChange={setFilter}
+-          options={[
+-            {k:'all',     l:'Усі'},
+-            {k:'active',  l:'Відкриті'},
+-            {k:'process', l:'У роботі'},
+-            {k:'done',    l:'Виконані'},
+-            {k:'overdue', l:'Прострочені'},
+-          ].map(t => ({key:t.k, label:`${t.l} · ${counts[t.k]}`}))}/>
+-        {/* Поиск + сортировка */}
+-        <div style={{display:'flex', gap: 8}}>
+-          <Input placeholder="Пошук..." value={search} onChange={e=>setSearch(e.target.value)} style={{width: 200, fontSize: 12, padding:'7px 10px'}}/>
+-          <Select value={sortBy} onChange={e=>setSortBy(e.target.value)} style={{width:'auto', fontSize: 12, padding:'7px 10px'}}>
+-            <option value="priority">За пріоритетом</option>
+-            <option value="deadline">За терміном</option>
+-          </Select>
+-        </div>
+-      </div>
+-
+-      {/* === Таблица доручень === */}
+-      <div style={cardS({padding: 4})}>
+-        {/* Заголовки колонок */}
+-        <div style={{display:'grid', gridTemplateColumns:'2.5fr 1.5fr 1fr 1fr 1.2fr 80px', gap: 12, padding:'12px 16px', borderBottom:'1px solid '+T.border}}>
+-          {['Доручення','Відповідальний','Термін','Пріоритет','Статус',''].map((h,i) => (
+-            <span key={i} style={{color: T.textMuted, fontSize: 10, fontWeight: 600, textTransform:'uppercase', letterSpacing:'0.05em'}}>{h}</span>
+-          ))}
+-        </div>
+-
+-        {/* Строки */}
+-        {filtered.map(t => {
+-          const {color: prColor} = priorityMeta(t.priority);  // цвет pill/select приоритета (null → серый)
+-          const stColor = t.status==='overdue' ? T.red : t.status==='process' ? T.green : t.status==='done' ? T.primary : T.yellow;
+-          return (
+-            <React.Fragment key={t.id}>
+-              <div style={{display:'grid', gridTemplateColumns:'2.5fr 1.5fr 1fr 1fr 1.2fr 80px', gap: 12, padding:'14px 16px', borderBottom: editingId===t.id ? 'none' : '1px solid '+T.border, alignItems:'center'}}>
+-                {/* Задача */}
+-                <div>
+-                  <div style={{color: t.status==='done' ? T.textDim : T.text, fontSize: 13, fontWeight: 500, textDecoration: t.status==='done' ? 'line-through' : 'none'}}>{t.title}</div>
+-                  <div style={{color: T.textDim, fontSize: 10, marginTop: 2}}>#{t.id} · {t.category || 'без категорії'}</div>
+-                </div>
+-                {/* Виконавець */}
+-                <div style={{display:'flex', alignItems:'center', gap: 8}}>
+-                  <div style={{width: 28, height: 28, borderRadius:'50%', background: T.primaryGlow, color: T.primary, display:'flex', alignItems:'center', justifyContent:'center', fontSize: 10, fontWeight: 700, flexShrink: 0}}>
+-                    {genAvatar(t.assignee)}
+-                  </div>
+-                  <span style={{color: T.text, fontSize: 13}}>{t.assignee || '—'}</span>
+-                </div>
+-                {/* Термін */}
+-                <span style={{color: t.status==='overdue' ? T.red : T.text, fontSize: 13}}>
+-                  {t.status==='overdue' ? 'Прострочено' : (t.deadline || 'Без терміну')}
+-                </span>
+-                {/* Пріоритет — кастомный PillSelect со стрелкой */}
+-                <PillSelect value={t.priority || ''} color={prColor}
+-                            onChange={e => updatePriority(t.id, e.target.value)}
+-                            options={[
+-                              {value:'high',   label:'Високий'},
+-                              {value:'medium', label:'Середній'},
+-                              {value:'low',    label:'Низький'},
+-                              {value:'',       label:'Нульовий'},
+-                            ]}/>
+-                {/* Статус — кастомный PillSelect со стрелкой */}
+-                <PillSelect value={t.status} color={stColor}
+-                            onChange={e => updateStatus(t.id, e.target.value)}
+-                            options={[
+-                              {value:'active',  label:'Відкрите'},
+-                              {value:'process', label:'У роботі'},
+-                              {value:'done',    label:'Виконане'},
+-                              {value:'overdue', label:'Прострочене'},
+-                            ]}/>
+-                {/* Кнопки редактирования и удаления */}
+-                <div style={{display:'flex', gap: 4, justifyContent:'flex-end'}}>
+-                  <Button variant="ghost" onClick={() => startEdit(t)} title="Редагувати"
+-                          style={{color: T.textMuted, fontSize: 13, padding:'4px 8px', borderRadius: 6}}>
+-                    ✎
+-                  </Button>
+-                  <Button variant="ghost" onClick={() => deleteTask(t.id)} title="Видалити"
+-                          style={{color: T.red, fontSize: 14, padding:'4px 8px', borderRadius: 6}}>
+-                    ×
+-                  </Button>
+-                </div>
+-              </div>
+-
+-              {/* Inline edit row — раскрывается под строкой когда editingId совпадает */}
+-              {editingId === t.id && (
+-                <div style={{padding:'14px 16px', borderBottom:'1px solid '+T.border, background: T.surfaceHover}}>
+-                  <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap: 10, marginBottom: 12}}>
+-                    <Input placeholder="Назва доручення *" value={editForm.title}
+-                           onChange={e => setEditForm(p => ({...p, title:e.target.value}))}
+-                           style={{gridColumn:'span 2'}}/>
+-                    <Input placeholder="Виконавець" value={editForm.assignee}
+-                           onChange={e => setEditForm(p => ({...p, assignee:e.target.value}))}/>
+-                    <Input type="date" value={editForm.deadline}
+-                           onChange={e => setEditForm(p => ({...p, deadline:e.target.value}))}/>
+-                    <Input placeholder="Категорія" value={editForm.category}
+-                           onChange={e => setEditForm(p => ({...p, category:e.target.value}))}
+-                           style={{gridColumn:'span 2'}}/>
+-                  </div>
+-                  <div style={{display:'flex', gap: 8}}>
+-                    <Button variant="primary" onClick={saveEdit} style={{fontSize: 12, padding:'7px 14px'}}>Зберегти</Button>
+-                    <Button variant="subtle" onClick={() => setEditingId(null)} style={{fontSize: 12, padding:'7px 14px'}}>Скасувати</Button>
+-                  </div>
+-                </div>
+-              )}
+-            </React.Fragment>
+-          );
+-        })}
+-
+-        {/* Пустое состояние */}
+-        {filtered.length === 0 && !loading && (
+-          <div style={{padding: 40, textAlign:'center', color: T.textMuted, fontSize: 13}}>
+-            {search ? 'Нічого не знайдено за «' + search + '»' : 'Немає доручень'}
+-          </div>
+-        )}
+-      </div>
+-    </div>
+-  );
++function Tasks({tasks,setTasks,loading,error,refetchTasks}){
++ const [filter,setFilter]=useState('all'),[search,setSearch]=useState(''),[sortBy,setSortBy]=useState('priority'),[tab,setTab]=useState('active'),[dialog,setDialog]=useState(null),[archive,setArchive]=useState([]),[archiveError,setArchiveError]=useState(''),[archiveLoading,setArchiveLoading]=useState(false);const sequence=useRef(0),archiveAbort=useRef(null),live=useRef(true);
++ useEffect(()=>()=>{live.current=false;archiveAbort.current?.abort();},[]);
++ useEffect(()=>{if(tab==='archive')loadArchive();return()=>{archiveAbort.current?.abort();sequence.current++;};},[tab]);
++ async function loadArchive(){const n=++sequence.current;archiveAbort.current?.abort();const controller=new AbortController();archiveAbort.current=controller;setArchiveLoading(true);setArchiveError('');try{const r=await fetch('/api/tasks/?archived=true',{signal:controller.signal}),body=await r.json();if(!live.current||n!==sequence.current)return;if(!r.ok||!Array.isArray(body))throw Error(body.error||'Архів недоступний.');setArchive(body);}catch(e){if(live.current&&n===sequence.current){setArchive([]);setArchiveError(e.name==='AbortError'?'Читання архіву не завершилося.':e.message);}}finally{if(live.current&&n===sequence.current)setArchiveLoading(false);}}
++ function open(task,mode='edit',preset={}){setDialog({taskId:task?.id||null,mode,preset,key:(task?.id||'new')+':'+mode+':'+Date.now()});}
++ function refresh(){refetchTasks();if(tab==='archive')loadArchive();}
++ const rows=tab==='archive'?archive:tasks.filter(t=>!t.archived),counts={all:rows.length,active:0,process:0,done:0,overdue:0};rows.forEach(t=>{const k=c01TaskSegment(t);if(k in counts)counts[k]++;});
++ const term=search.trim().toLowerCase(),priorityOrder={high:0,medium:1,low:2};const filtered=rows.filter(t=>tab==='archive'||filter==='all'||c01TaskSegment(t)===filter).filter(t=>!term||[t.title,c01Assignee(t),t.category,t.order_code].some(s=>(s||'').toLowerCase().includes(term))).sort((a,b)=>sortBy==='priority'?(priorityOrder[a.priority]??3)-(priorityOrder[b.priority]??3):(a.deadline||'9999').localeCompare(b.deadline||'9999'));
++ const pageError=tab==='archive'?archiveError:error,pageLoading=tab==='archive'?archiveLoading:loading;
++ return <div style={{padding:24}}><div className="erp-row"><div><h2>Доручення команді</h2><p className="op-muted">{tab==='archive'?rows.length+' в архіві':rows.length+' у робочому списку · '+counts.overdue+' прострочено'}</p></div><div className="erp-actions"><Button onClick={refresh}>Оновити</Button>{bosCan('write')&&<Button variant="primary" onClick={()=>open(null,'create')}>+ Нове доручення</Button>}</div></div>
++  <div className="erp-row"><SegmentedControl value={tab} onChange={value=>{setTab(value);setFilter('all');}} options={[{key:'active',label:'Робочі доручення'},{key:'archive',label:'Архів'}]}/><div className="erp-actions"><Input aria-label="Пошук доручень" placeholder="Назва, відповідальний, замовлення…" value={search} onChange={e=>setSearch(e.target.value)}/><Select aria-label="Сортування доручень" value={sortBy} onChange={e=>setSortBy(e.target.value)}><option value="priority">За пріоритетом</option><option value="deadline">За терміном</option></Select></div></div>
++  {tab==='active'&&<SegmentedControl value={filter} onChange={setFilter} options={[['all','Усі'],['active','Відкриті'],['process','У роботі'],['done','Виконані'],['overdue','Прострочені']].map(([key,label])=>({key,label:label+' · '+counts[key]}))}/>}
++  {pageError&&<p className="erp-error" role="alert">{pageError} <Button onClick={refresh}>Спробувати знову</Button></p>}{pageLoading&&<p role="status">Завантажуємо доручення…</p>}
++  {tab==='archive'&&<p className="op-muted">Архівні доручення зберігають джерела, статус, результат та історію. Відновлення окремо погоджується.</p>}
++  <div className="op-table c01-task-table"><table><thead><tr>{['Доручення','Відповідальний','Термін','Пріоритет','Статус','Дії'].map(h=><th key={h}>{h}</th>)}</tr></thead><tbody>{filtered.map(t=><tr key={t.id}><td><BoSLink onClick={()=>open(t,'view')}>{t.title}</BoSLink><p className="op-muted">№{t.id} · {t.category||'Без категорії'}{t.order_code?' · '+t.order_code:''}</p></td><td>{c01Assignee(t)||'Історично не призначено'}{t.assignee_id&&<p className="op-muted">ID {t.assignee_id}</p>}</td><td>{t.deadline||'Без терміну'}{t.is_overdue&&<p className="erp-error">Прострочено</p>}</td><td>{bosCan('write')&&!t.archived?<PillSelect value={t.priority||''} color={priorityMeta(t.priority).color} onChange={e=>open(t,'edit',{priority:e.target.value||null})} options={[{value:'high',label:'Високий'},{value:'medium',label:'Середній'},{value:'low',label:'Низький'},{value:'',label:'Без пріоритету'}]}/>:({high:'Високий',medium:'Середній',low:'Низький'}[t.priority]||'Без пріоритету')}</td><td>{bosCan('write')&&!t.archived?<PillSelect value={t.status} color={t.is_overdue?T.red:t.status==='done'?T.primary:T.text} onChange={e=>open(t,'edit',{status:e.target.value})} options={[...(!['active','process','done'].includes(t.status)?[{value:t.status,label:C01_STATUS[t.status]||t.status}]:[]),...['active','process','done'].map(s=>({value:s,label:C01_STATUS[s]}))]}/>:C01_STATUS[t.status]||t.status}</td><td><div className="erp-actions"><Button onClick={()=>open(t,'view')}>Історія</Button>{bosCan('write')&&(t.archived?<Button onClick={()=>open(t,'restore')}>Відновити</Button>:<><Button onClick={()=>open(t)}>Редагувати</Button><Button onClick={()=>open(t,'archive')}>Архівувати</Button></>)}</div></td></tr>)}</tbody></table>{!filtered.length&&!pageLoading&&<p className="op-muted">{search?'Нічого не знайдено за цим пошуком.':tab==='archive'?'Архівних доручень немає.':'Доручень у цьому списку немає.'}</p>}</div>
++  {dialog&&<ControlledTask key={dialog.key} taskId={dialog.taskId} mode={dialog.mode} preset={dialog.preset} onClose={()=>setDialog(null)} onDone={refresh}/>}
++ </div>;
+ }
+ 
+ function Employees({employees, setEmployees, depts, loading, error, refetchEmployees}) {
+@@ -3849,19 +3508,16 @@
+ // глобальный поиск (заглушка) и кнопка создания дорученьи.
+ // Колокольчик, AI-toggle и аватар переехали в NavBar (Ряд 1).
+ function Topbar({nav,setNav,tasks,employees,contracts,counterparties,onCreated}){
+- const [query,setQuery]=useState('');const [busy,setBusy]=useState(false);const [error,setError]=useState('');
+- const dialog=useRef(null),search=useRef(null),lock=useRef(false);
+- const [form,setForm]=useState({title:'',assignee:'',deadline:'',priority:'medium'});
++ const [query,setQuery]=useState(''),[taskDialog,setTaskDialog]=useState(null);const search=useRef(null);
+  useEffect(()=>{const key=e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();search.current?.focus();}if(e.key==='Escape')setQuery('');};document.addEventListener('keydown',key);return()=>document.removeEventListener('keydown',key);},[]);
+  const section=bosNavigation().find(n=>n.id===nav.section),title=section?.subs.find(x=>x.id===nav.sub)?.label||section?.label;
+- const entries=[...tasks.map(x=>({label:x.title,detail:x.assignee,target:{section:'hr',sub:'tasks'}})),...employees.map(x=>({label:x.name,detail:x.role,target:{section:'hr',sub:'employees'}})),...contracts.map(x=>({label:x.name,detail:x.number,target:{section:'finance',sub:'contracts'}})),...counterparties.map(x=>({label:x.name,detail:'Контрагент',target:{section:'finance',sub:'contractors'}}))];
++ const entries=[...tasks.filter(x=>!x.archived).map(x=>({label:x.title,detail:c01Assignee(x),target:{section:'hr',sub:'tasks'}})),...employees.map(x=>({label:x.name,detail:x.role,target:{section:'hr',sub:'employees'}})),...contracts.map(x=>({label:x.name,detail:x.number,target:{section:'finance',sub:'contracts'}})),...counterparties.map(x=>({label:x.name,detail:'Контрагент',target:{section:'finance',sub:'contractors'}}))];
+  const results=query.trim()?entries.filter(x=>bosCanView(x.target.section,x.target.sub)).filter(x=>(x.label+' '+x.detail).toLowerCase().includes(query.trim().toLowerCase())).slice(0,8):[];
+- const save=async e=>{e.preventDefault();if(lock.current)return;lock.current=true;setBusy(true);setError('');try{const r=await fetch(API_BASE+'/tasks/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...form,deadline:form.deadline||null,status:'active',category:'Загальне'})});const d=await r.json();if(!r.ok)throw Error(Object.values(d).flat().join(' '));dialog.current.close();setForm({title:'',assignee:'',deadline:'',priority:'medium'});setNav({section:'hr',sub:'tasks'});onCreated();}catch(e){setError(e.message);}finally{lock.current=false;setBusy(false);}};
+  return <><div className="bos-topbar" style={{height:72,padding:'0 24px',borderBottom:'1px solid '+T.border,display:'flex',alignItems:'center',gap:16,flexShrink:0}}>
+  <div><div style={{fontSize:20,fontWeight:650}}>{title}</div><div style={{fontSize:12,color:T.textMuted}}>{new Date().toLocaleDateString('uk-UA',{day:'numeric',month:'long',year:'numeric'})}</div></div>
+  <div className="bos-search"><label className="bos-sr" htmlFor="bos-search">Пошук доручень, людей і договорів</label><input id="bos-search" ref={search} value={query} onChange={e=>setQuery(e.target.value)} placeholder="Доручення, люди, договори…" aria-describedby="bos-search-hint"/><span id="bos-search-hint" className="bos-sr">Ctrl або Command K. Результат відкриває відповідний розділ.</span>{query.trim()&&<div className="bos-results">{results.length?results.map((x,i)=><button key={i} onClick={()=>{setNav(x.target);setQuery('');}}><strong>{x.label}</strong><div style={{fontSize:12,color:T.textMuted}}>{x.detail} · відкрити розділ</div></button>):<div style={{padding:12,color:T.textMuted}}>Нічого не знайдено</div>}</div>}</div>
+- {bosCan('write')&&<button className="ui-btn" onClick={()=>{setError('');dialog.current.showModal();}} style={{padding:'10px 16px',background:T.primary,color:T.bg,border:0,borderRadius:10,fontWeight:650,marginLeft:'auto',whiteSpace:'nowrap'}}>+ Нове доручення</button>}
+- </div><dialog ref={dialog} className="bos-dialog" aria-labelledby="quick-task-title" onCancel={e=>{if(busy)e.preventDefault();}}><form onSubmit={save}><h2 id="quick-task-title">Нове доручення</h2><label htmlFor="qt-title">Що потрібно зробити</label><input id="qt-title" autoFocus required maxLength={200} value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/><label htmlFor="qt-assignee">Відповідальний</label><select id="qt-assignee" value={form.assignee} onChange={e=>setForm({...form,assignee:e.target.value})}><option value="">Не призначено</option>{employees.map(e=><option key={e.id} value={e.name}>{e.name}</option>)}</select><label htmlFor="qt-deadline">Термін</label><input id="qt-deadline" type="date" value={form.deadline} onChange={e=>setForm({...form,deadline:e.target.value})}/><label htmlFor="qt-priority">Пріоритет</label><select id="qt-priority" value={form.priority} onChange={e=>setForm({...form,priority:e.target.value})}><option value="low">Низький</option><option value="medium">Середній</option><option value="high">Високий</option></select>{error&&<p role="alert" style={{color:T.red,marginTop:12}}>{error}</p>}<div className="actions"><button type="button" disabled={busy} onClick={()=>dialog.current.close()}>Скасувати</button><button disabled={busy} style={{background:T.primary,color:T.bg,border:0}}>{busy?'Збереження…':'Зберегти доручення'}</button></div></form></dialog></>;
++ {bosCan('write')&&<button className="ui-btn" onClick={()=>setTaskDialog({key:'new-'+Date.now()})} style={{padding:'10px 16px',background:T.primary,color:T.bg,border:0,borderRadius:10,fontWeight:650,marginLeft:'auto',whiteSpace:'nowrap'}}>+ Нове доручення</button>}
++ </div><C01PendingLauncher onRecover={entry=>setTaskDialog({key:entry.proposal_id,recovery:entry})}/>{taskDialog&&<ControlledTask key={taskDialog.key} recovery={taskDialog.recovery} onClose={()=>setTaskDialog(null)} onDone={()=>{onCreated?.();}}/>}</>;
+ }
+ 
+ // AI-панель справа — содержит полноценный AIChat в compact-режиме.
+@@ -3909,13 +3565,115 @@
+ async function opFetch(path,data){const options=data===undefined?{}:{method:'POST',headers:data instanceof FormData?{}:{'Content-Type':'application/json'},body:data instanceof FormData?data:JSON.stringify(data)};const r=await fetch(OP+path,options);let d;try{d=await r.json();}catch{throw Error('Сервіс недоступний. Перевірте локальний запуск.');}if(!r.ok)throw Error(d.error||'Не вдалося виконати запит.');return d;}
+ const OP_STATUS={approved:'Перевірено',supplier_quote:'Пропозиція постачальника',needs_review:'Потребує перевірки',ocr_required:'Потрібне розпізнавання'};
+ function DocViewer({id,onClose}){const [doc,setDoc]=useState(null),[error,setError]=useState('');const ref=useRef(null);useEffect(()=>{ref.current.showModal();let live=true;opFetch('documents/'+id+'/').then(d=>live&&setDoc(d)).catch(e=>setError(e.message));return()=>{live=false;};},[id]);return <dialog ref={ref} className="bos-dialog" onClose={onClose} style={{width:'min(800px,95vw)'}}><h2>{doc?.title||'Документ'}</h2>{error&&<p role="alert">{error}</p>}{doc&&<><p style={{color:T.textMuted,margin:'12px 0'}}>{doc.code} · версія {doc.revision} · {OP_STATUS[doc.status]}{!doc.current?' · Є новіша версія':''}</p><div style={{display:'flex',gap:8,flexWrap:'wrap'}}>{doc.versions.map(v=><Button key={v.id} onClick={()=>opFetch('documents/'+v.id+'/').then(setDoc).catch(e=>setError(e.message))}>Версія {v.revision}</Button>)}</div>{bosCan('download_documents')&&<p><a style={{color:T.primary}} href={OP+'documents/'+doc.id+'/download/'}>Завантажити джерело</a></p>}{doc.sections.map((p,i)=><section key={i} style={{marginTop:16}}><h3 style={{fontSize:14}}>{p.source}</h3><p style={{whiteSpace:'pre-wrap',overflowWrap:'anywhere',fontSize:14,lineHeight:1.6,color:T.textMuted}}>{p.text}</p></section>)}{!doc.text&&<p>Текст не розпізнано. Потрібен OCR або ручна перевірка.</p>}</>}<div className="actions">{bosCan('write')&&doc?.current&&doc.status==='needs_review'&&<Button onClick={async()=>{try{await opFetch('documents/'+doc.id+'/review/',{checksum:doc.checksum});setDoc(await opFetch('documents/'+doc.id+'/'));}catch(e){setError(e.message);}}}>Підтвердити ручну перевірку</Button>}<Button onClick={()=>ref.current.close()}>Закрити</Button></div></dialog>}
+-function ControlledTask({requestCode,defaultEmployee,onDone,onClose,importPayload}){
+- const [employees,setEmployees]=useState([]),[form,setForm]=useState({title:'',assignee_id:defaultEmployee||'',deadline:window.BOS_RUNTIME?.mode==='demo'?'2026-09-11':''}),[proposal,setProposal]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(false);const ref=useRef(null),lock=useRef(false);
+- useEffect(()=>{ref.current.showModal();fetch('/api/employees/').then(r=>r.json()).then(setEmployees).catch(()=>setError('Не вдалося завантажити співробітників.'));if(importPayload)prepare(importPayload);},[]);
+- async function prepare(payload){if(lock.current)return;lock.current=true;setBusy(true);setError('');try{setProposal(await opFetch('preview/',payload));}catch(e){setError(e.message);}finally{lock.current=false;setBusy(false);}}
+- async function commit(){if(lock.current)return;lock.current=true;setBusy(true);try{const r=await opFetch('confirm/',{proposal_id:proposal.id,confirmed:true});onDone(r);ref.current.close();}catch(e){setError(e.message);setProposal(null);}finally{lock.current=false;setBusy(false);}}
+- return <dialog ref={ref} className="bos-dialog" onClose={onClose} onCancel={e=>{if(busy)e.preventDefault();}}><h2>{proposal?'Погодження доручення':'Підготувати доручення'}</h2>{proposal?<><p style={{marginTop:16}}>{proposal.payload.title||'Змінити статус доручення №'+proposal.payload.task_id}</p><p style={{color:T.textMuted}}>{employees.find(e=>e.id===Number(proposal.payload.assignee_id))?.full_name||''} · {proposal.payload.deadline||({done:'Виконане',active:'Відкрите',process:'У роботі'}[proposal.payload.status])}</p><p style={{fontSize:14,marginTop:12}}>Запис буде виконано після підтвердження. Погодження чинне 10 хвилин.</p></>:<form id="controlled-task" onSubmit={e=>{e.preventDefault();prepare({action:'create_task',...form,assignee_id:Number(form.assignee_id),...(requestCode?{request_code:requestCode}:{})});}}><label htmlFor="op-task-title">Зміст доручення</label><input id="op-task-title" value={form.title} required maxLength={200} onChange={e=>setForm({...form,title:e.target.value})}/><label htmlFor="op-task-employee">Відповідальний</label><select id="op-task-employee" required value={form.assignee_id} onChange={e=>setForm({...form,assignee_id:e.target.value})}><option value="">Оберіть співробітника</option>{employees.map(e=><option key={e.id} value={e.id}>{e.full_name}</option>)}</select><label htmlFor="op-task-deadline">Термін виконання</label><input id="op-task-deadline" type="date" required value={form.deadline} onChange={e=>setForm({...form,deadline:e.target.value})}/></form>}{error&&<p role="alert" style={{color:T.red,marginTop:12}}>{error}</p>}<div className="actions"><Button disabled={busy} onClick={()=>ref.current.close()}>Скасувати</Button>{proposal?<Button disabled={busy} onClick={commit}>Погодити й виконати</Button>:<Button disabled={busy} type="submit" form="controlled-task">Переглянути</Button>}</div></dialog>
+-}
++// C01_HELPERS_BEGIN
++const C01_STATUS={active:'Відкрите',process:'У роботі',done:'Виконане',overdue:'Історичний статус: прострочене'};
++const C01_TRANSITIONS={create:'Створено',update:'Змінено',archive:'Архівовано',restore:'Відновлено',reopen:'Повернуто до роботи',complete:'Виконано',result_correction:'Уточнено результат'};
++const C01_FIELDS=['title','category','priority','assignee_id','deadline','order_id','status','result','archived'];
++const c01Own=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
++const c01UUID=s=>typeof s==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(s);
++const c01Id=n=>Number.isSafeInteger(n)&&n>0;
++function c01InputId(value,nullable=false){if(nullable&&(value===''||value===null))return null;const s=String(value);if(!/^[1-9]\d*$/.test(s)||!c01Id(Number(s)))throw Error('Оберіть наявний запис зі списку.');return Number(s);}
++function c01Date(s){if(typeof s!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(s)||Number(s.slice(0,4))<1)return false;const d=new Date(s+'T00:00:00Z');return !Number.isNaN(d.getTime())&&d.toISOString().slice(0,10)===s;}
++function c01Text(value,label,min,max,trim=false){if(typeof value!=='string'||/[\u0000\uD800-\uDFFF]/u.test(value))throw Error(label+': потрібен коректний текст.');const text=trim?value.trim():value;if([...text].length<min||[...text].length>max)throw Error(label+': від '+min+' до '+max+' символів.');return text;}
++function c01TaskPayload(value){
++ if(!value||Array.isArray(value)||typeof value!=='object'||!['create_task','update_task'].includes(value.action))throw Error('Підтримуються create_task та update_task.');
++ const create=value.action==='create_task',keys=create?['action','title','assignee_id','deadline','category','priority','order_id','request_code']:['action','task_id','reason',...C01_FIELDS];
++ if(Object.keys(value).some(k=>!keys.includes(k)))throw Error('Доручення містить невідомі поля.');
++ const p={...value};
++ if(create&&!['title','assignee_id','deadline'].every(k=>c01Own(p,k)))throw Error('Для нового доручення потрібні назва, відповідальний і строк.');
++ if(!create){if(!c01Id(p.task_id))throw Error('Потрібен фактичний ID доручення.');p.reason=c01Text(p.reason,'Причина',3,1000,true);if(!C01_FIELDS.some(k=>c01Own(p,k)))throw Error('Оберіть хоча б одну зміну.');}
++ if(c01Own(p,'archived')){if(typeof p.archived!=='boolean'||C01_FIELDS.filter(k=>c01Own(p,k)).length!==1)throw Error('Архівування або відновлення погоджується окремо від інших змін.');}
++ if(c01Own(p,'title'))p.title=c01Text(p.title,'Назва',3,200,true);
++ if(c01Own(p,'category'))p.category=c01Text(p.category,'Категорія',0,50);
++ if(c01Own(p,'assignee_id')&&!c01Id(p.assignee_id))throw Error('Потрібен ID обраного співробітника.');
++ if(c01Own(p,'order_id')&&p.order_id!==null&&!c01Id(p.order_id))throw Error('Потрібен ID замовлення або null для відв’язування.');
++ if(c01Own(p,'deadline')&&!c01Date(p.deadline))throw Error('Вкажіть календарну дату у форматі РРРР-ММ-ДД.');
++ if(c01Own(p,'status')&&!['active','process','done'].includes(p.status))throw Error('Простроченість визначає сервер за строком; оберіть робочий статус.');
++ if(c01Own(p,'priority')){if(p.priority===''||p.priority==='none')p.priority=null;if(![null,'high','medium','low'].includes(p.priority))throw Error('Оберіть пріоритет або «Без пріоритету».');}
++ if(c01Own(p,'result'))p.result=c01Text(p.result,'Результат',0,2000);
++ if(c01Own(p,'request_code'))p.request_code=c01Text(p.request_code,'Код заявки',1,200,true);
++ return p;
++}
++function c01TaskJSON(raw){
++ if(new TextEncoder().encode(raw).length>30000)throw Error('JSON доручення перевищує 30 000 байтів.');
++ const value=JSON.parse(raw),tokens=raw.match(/"(?:\\.|[^"\\])*"|[{}\[\],:]/g)||[],seen=new Set();
++ for(let i=0;i<tokens.length-1;i++)if(tokens[i][0]==='"'&&tokens[i+1]===':'){const key=JSON.parse(tokens[i]);if(seen.has(key))throw Error('JSON містить повторний ключ: '+key);seen.add(key);}
++ return c01TaskPayload(value);
++}
++function c01BuildPayload({task,values,changed=[],mode='create',requestCode,asOf}){
++ if(mode==='archive'||mode==='restore')return c01TaskPayload({action:'update_task',task_id:task.id,reason:values.reason,archived:mode==='archive'});
++ if(!task){const p={action:'create_task',title:values.title,assignee_id:c01InputId(values.assignee_id),deadline:values.deadline,category:values.category,priority:values.priority,order_id:c01InputId(values.order_id,true),...(requestCode?{request_code:requestCode}:{})};if(asOf&&p.deadline<asOf)throw Error('Строк нового доручення не може бути раніше дати зрізу '+asOf+'.');return c01TaskPayload(p);}
++ const p={action:'update_task',task_id:task.id,reason:values.reason};for(const key of changed){if(!C01_FIELDS.includes(key)||key==='archived')continue;p[key]=['assignee_id','order_id'].includes(key)?c01InputId(values[key],key==='order_id'):values[key];}
++ const resultingStatus=p.status??task.status;if(task.status==='done'&&['active','process'].includes(resultingStatus)&&c01Own(p,'result')&&p.result!==task.result)throw Error('Повернення до роботи зберігає попередній результат. Новий текст погодьте окремо після відкриття доручення.');
++ if((p.status==='done'&&task.status!=='done')||(resultingStatus==='done'&&c01Own(p,'result'))){if(!c01Own(p,'result')||typeof p.result!=='string'||p.result.trim().length<3)throw Error('Для нового завершення явно запишіть результат: щонайменше 3 символи.');if(!c01Id(p.assignee_id??task.assignee_id))throw Error('Для завершення оберіть відповідального співробітника.');}
++ return c01TaskPayload(p);
++}
++function c01Form(task,preset={},asOf='',defaultEmployee=''){
++ const base={title:task?.title??'',assignee_id:task?.assignee_id??defaultEmployee,deadline:task?.deadline??'',category:task?.category??'Загальне',priority:task?.priority??'',order_id:task?.order_id??'',status:task?.status??'active',result:task?.result??'',reason:''};
++ if(!task){base.priority='medium';base.deadline=asOf;}
++ for(const k of [...C01_FIELDS,'reason'])if(c01Own(preset,k))base[k]=preset[k]??'';
++ if(task&&preset.status==='done'&&task.status!=='done'&&!c01Own(preset,'result'))base.result='';
++ return base;
++}
++function c01TaskSegment(task){return task.archived?'archive':task.status==='done'?'done':task.is_overdue===true?'overdue':task.status==='process'?'process':'active';}
++function c01Assignee(task){return task.assignee_name??task.assignee??'';}
++function c01EmployeeLabel(e){return [e.full_name,e.role,e.branch_name,'ID '+e.id].filter(Boolean).join(' · ');}
++function c01ImpactValue(value,field){if(value===null)return 'Не задано';if(typeof value==='boolean')return value?'Так':'Ні';if(value&&typeof value==='object')return (value.name??value.code??'Не задано')+(value.id!=null?' · ID '+value.id:'');return field==='status'?(C01_STATUS[value]||String(value)):String(value);}
++function c01PendingKey(){return bosStorageKey('task-proposals-pending');}
++function c01PendingRead(){const raw=sessionStorage.getItem(c01PendingKey());if(!raw)return [];let rows;try{rows=JSON.parse(raw);}catch{throw Error('Не вдалося прочитати ідентифікатори погоджень. Їх не видалено.');}const user=window.BOS_RUNTIME?.user_id;if(!Array.isArray(rows)||rows.some(e=>!e||!c01UUID(e.proposal_id)||!['create_task','update_task'].includes(e.action)||e.user_id!==user||!c01Id(e.user_id)||(e.task_id!==null&&!c01Id(e.task_id))))throw Error('Збережені ідентифікатори мають невідомий формат. Дані не видалено.');return rows.map(({proposal_id,action,task_id,user_id})=>({proposal_id,action,task_id,user_id}));}
++function c01PendingSave(entry){if(!c01Id(window.BOS_RUNTIME?.user_id)||entry.user_id!==window.BOS_RUNTIME.user_id||!c01UUID(entry.proposal_id))throw Error('Не підтверджено обліковий запис або ідентифікатор погодження.');const rows=c01PendingRead();if(!rows.some(r=>r.proposal_id===entry.proposal_id))rows.push({proposal_id:entry.proposal_id,action:entry.action,task_id:entry.task_id,user_id:entry.user_id});sessionStorage.setItem(c01PendingKey(),JSON.stringify(rows));window.dispatchEvent(new window.Event('bos:task-pending'));}
++function c01PendingRemove(id){sessionStorage.setItem(c01PendingKey(),JSON.stringify(c01PendingRead().filter(r=>r.proposal_id!==id)));window.dispatchEvent(new window.Event('bos:task-pending'));}
++function c01Terminal(status,body){return status===409&&['proposal_stale','proposal_expired'].includes(body?.code);}
++// C01_HELPERS_END
++function C01Impact({changes=[]}){return <ERPTable rows={changes} empty="Фактичних змін немає." columns={[["Доручення",r=>r.code||(r.id?'№'+r.id:'Нове доручення')],["Поле",'label'],["Було",r=><span className="c01-text">{c01ImpactValue(r.before,r.field)}</span>],["Стане / стало",r=><span className="c01-text">{c01ImpactValue(r.after,r.field)}</span>]]}/>;}
++function C01PendingLauncher({onRecover}){const [rows,setRows]=useState([]),[error,setError]=useState('');useEffect(()=>{const read=()=>{try{setRows(c01PendingRead());setError('');}catch(e){setError(e.message);}};read();window.addEventListener('bos:task-pending',read);return()=>window.removeEventListener('bos:task-pending',read);},[]);if(error)return <p className="erp-error" role="alert">{error}</p>;return rows.length?<details className="c01-pending"><summary>Незавершена перевірка доручень · {rows.length}</summary><p className="op-muted">Лише ідентифікатори в поточній вкладці. Текст доручень і результатів тут не збережено.</p>{rows.map(r=><div className="erp-row" key={r.proposal_id}><span>{r.action==='create_task'?'Створення доручення':'Зміна доручення №'+r.task_id} · {r.proposal_id}</span><Button onClick={()=>onRecover(r)}>Перевірити результат</Button></div>)}</details>:null;}
++
++function ControlledTask({taskId=null,mode='create',preset={},requestCode,defaultEmployee,onDone,onClose,importPayload,recovery=null}){
++ const imported=importPayload||{},seed={...preset,...imported},targetId=taskId||imported.task_id||recovery?.task_id||null;
++ const initialMode=c01Own(imported,'archived')?(imported.archived?'archive':'restore'):mode==='view'?'view':['archive','restore'].includes(mode)?mode:targetId?'edit':'create';
++ const sourceRequest=imported.request_code||requestCode;
++ const ref=useRef(null),heading=useRef(null),alive=useRef(true),lock=useRef(false),controllers=useRef(new Set()),draftReady=useRef(false);
++ const [task,setTask]=useState(null),[employees,setEmployees]=useState([]),[orders,setOrders]=useState([]),[asOf,setAsOf]=useState(''),[ready,setReady]=useState(false),[values,setValues]=useState(c01Form(null,seed)),[changed,setChanged]=useState(C01_FIELDS.filter(k=>c01Own(seed,k)));
++ const [proposal,setProposal]=useState(null),[pending,setPending]=useState(recovery),[outcome,setOutcome]=useState(null),[receipt,setReceipt]=useState(null),[terminal,setTerminal]=useState(null),[noChange,setNoChange]=useState(null),[busy,setBusy]=useState(''),[error,setError]=useState(''),[readError,setReadError]=useState('');
++ const [history,setHistory]=useState([]),[historyCursor,setHistoryCursor]=useState(null),[historyLoaded,setHistoryLoaded]=useState(false),[orderOpen,setOrderOpen]=useState(false),[scopeDenied,setScopeDenied]=useState(false);
++ const writable=bosCan('write'),archiveMode=['archive','restore'].includes(initialMode),canEdit=writable&&initialMode!=='view'&&(!task?.archived||initialMode==='restore');
++ useEffect(()=>{alive.current=true;ref.current.showModal();load();return()=>{alive.current=false;controllers.current.forEach(c=>c.abort());};},[]);
++ async function request(url,options={}){const controller=new AbortController();controllers.current.add(controller);const timer=setTimeout(()=>controller.abort(),30000);try{const response=await fetch(url,{...options,signal:controller.signal});let body;try{body=await response.json();}catch{throw Error('Сервер не повернув читабельну відповідь.');}return {ok:response.ok,status:response.status,body};}finally{clearTimeout(timer);controllers.current.delete(controller);}}
++ function close(){if(busy==='confirm')return;alive.current=false;controllers.current.forEach(c=>c.abort());ref.current.close();}
++ function denyScope(){setTask(null);setHistory([]);setHistoryCursor(null);setHistoryLoaded(false);setOrders([]);setOrderOpen(false);setReady(false);setScopeDenied(true);}
++ async function load(){if(lock.current)return;lock.current=true;setBusy('load');setReadError('');try{
++  const recordId=receipt?.task_id||targetId;const responses=await Promise.all([recordId?request('/api/tasks/'+recordId+'/'):Promise.resolve(null),request('/api/employees/'),request('/api/erp/snapshot/')]);if(!alive.current)return;
++  for(const r of responses.filter(Boolean))if(!r.ok){if([403,404].includes(r.status))denyScope();throw Error(r.body.error||'Не вдалося прочитати доручення або доступні джерела.');}
++  const row=responses[0]?.body??null,directory=responses[1].body,snapshot=responses[2].body;
++  if((recordId&&row?.id!==recordId)||!Array.isArray(directory)||!Array.isArray(snapshot.orders)||!c01Date(snapshot.as_of))throw Error('Сервер повернув неповні дані доручення.');
++  setTask(row);setEmployees(directory);setOrders(snapshot.orders);setAsOf(snapshot.as_of);setReady(true);setScopeDenied(false);
++  if(!draftReady.current){const form=c01Form(row,seed,snapshot.as_of,defaultEmployee||'');if(!row&&!c01Own(seed,'category'))form.category=sourceRequest?'Закупівлі':'Загальне';setValues(form);draftReady.current=true;}
++ }catch(e){if(alive.current){setReadError(e.name==='AbortError'?'Читання не завершилося. Спробуйте ще раз.':e.message);setReady(false);}}finally{lock.current=false;if(alive.current)setBusy('');}}
++ function change(key,value){if(lock.current||pending||receipt)return;setValues(v=>({...v,[key]:value,...(key==='status'&&value==='done'&&task?.status!=='done'?{result:''}:{})}));setChanged(keys=>Array.from(new Set([...keys,key,...(key==='status'&&value==='done'&&task?.status!=='done'?['result']:[])])));setProposal(null);setNoChange(null);setTerminal(null);setError('');}
++ async function prepare(event){event?.preventDefault();if(lock.current||pending||receipt||!canEdit||!ready)return;setError('');setNoChange(null);try{const payload=c01BuildPayload({task,values,changed,mode:initialMode,requestCode:sourceRequest,asOf});lock.current=true;setBusy('preview');const r=await request('/api/operations/preview/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});if(!alive.current)return;if(!r.ok){if([403,404].includes(r.status))denyScope();throw Error(r.body.error||'Не вдалося перевірити доручення.');}if(r.body.state==='no_change'){if(r.body.id!==null)throw Error('Некоректна відповідь перевірки.');setNoChange(r.body);setProposal(null);return;}if(!c01UUID(r.body.id)||r.body.payload?.action!==payload.action||r.body.effect?.entity!=='task'||(task&&r.body.effect.task_id!==task.id))throw Error('Не отримано погодження саме цього доручення.');setProposal(r.body);setTerminal(null);heading.current?.focus();}catch(e){if(alive.current)setError(e.name==='AbortError'?'Перевірка не завершилася. Чернетка збережена у формі.':e.message);}finally{lock.current=false;if(alive.current)setBusy('');}}
++ function accept(result,entry){if(result?.state!=='succeeded'||!c01Id(result.task_id)||!c01UUID(result.audit_id)||(entry.task_id!==null&&result.task_id!==entry.task_id)||!Array.isArray(result.impact))throw Error('Немає підтвердженого результату саме цього погодження.');setReceipt(result);setTask(null);setScopeDenied(false);setPending(null);setProposal(null);setOutcome(null);setError('');setHistory([]);setHistoryLoaded(false);setHistoryCursor(null);try{c01PendingRemove(entry.proposal_id);}catch{setReadError('Зміни збережено. Не вдалося прибрати локальний ідентифікатор; повторна перевірка безпечна.');}try{Promise.resolve(onDone?.(result)).catch(()=>{if(alive.current)setReadError('Зміни збережено, але оновлення списку не завершилося.');});}catch{setReadError('Зміни збережено, але оновлення списку не завершилося.');}heading.current?.focus();}
++ async function commit(){if(lock.current||receipt||!writable)return;const entry=pending||(proposal?{proposal_id:proposal.id,action:proposal.payload.action,task_id:proposal.payload.task_id??null,user_id:window.BOS_RUNTIME?.user_id}:null);if(!entry)return;if(pending&&outcome?.same_session!==true){setError('Спочатку перевірте результат і доступність початкової сесії.');return;}setError('');try{c01PendingSave(entry);}catch(e){setError('Погодження не надіслано: '+e.message);return;}setPending(entry);setOutcome({same_session:true});lock.current=true;setBusy('confirm');try{const r=await request('/api/operations/confirm/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({proposal_id:entry.proposal_id,confirmed:true})});if(!alive.current)return;if(!r.ok){if([403,404].includes(r.status))denyScope();if(c01Terminal(r.status,r.body)){try{c01PendingRemove(entry.proposal_id);}catch{setReadError('Сервер підтвердив відмову без змін, але локальний ідентифікатор лишився.');}setTerminal({code:r.body.code,message:r.body.error});setPending(null);setProposal(null);setOutcome(null);return;}setError((r.body.error||'Результат не отримано.')+' Ідентифікатор збережено; перевірте результат або повторіть це погодження.');return;}accept(r.body,entry);}catch(e){if(alive.current)setError('Результат запиту невідомий. Ідентифікатор збережено. Перевірте результат або повторіть те саме погодження.');}finally{lock.current=false;if(alive.current)setBusy('');}}
++ async function recover(){if(lock.current||!pending)return;const entry=pending;lock.current=true;setBusy('outcome');setError('');try{const r=await request('/api/operations/task-proposals/'+encodeURIComponent(entry.proposal_id)+'/');if(!alive.current)return;if(!r.ok){if([403,404].includes(r.status)){denyScope();setOutcome(null);}throw Error(r.body.error||'Результат не знайдений або недоступний. Ідентифікатор збережено.');}if(r.body.proposal_id!==entry.proposal_id||r.body.action!==entry.action||typeof r.body.same_session!=='boolean')throw Error('Отримано відповідь для іншого погодження.');setOutcome(r.body);if(r.body.state==='succeeded')accept(r.body.receipt,entry);else setError(r.body.same_session?'Підтвердженого результату поки немає. Остаточна перевірка — повтор того самого погодження.':'Початкова сесія недоступна. Можна перевіряти збережений результат, але виконання цього погодження з нової сесії не дозволене.');}catch(e){if(alive.current)setError(e.name==='AbortError'?'Читання не завершилося. Ідентифікатор збережено.':e.message);}finally{lock.current=false;if(alive.current)setBusy('');}}
++ async function refreshRecord(){const id=receipt?.task_id||task?.id||targetId;if(lock.current||!id)return;lock.current=true;setBusy('record');setReadError('');try{const [r,related]=await Promise.all([request('/api/tasks/'+id+'/'),request('/api/erp/snapshot/')]);if(!alive.current)return;for(const response of [r,related])if(!response.ok){if([403,404].includes(response.status))denyScope();throw Error(response.body.error||'Поточне доручення або джерела недоступні.');}if(r.body.id!==id||!Array.isArray(related.body.orders))throw Error('Не отримано актуального доручення з джерелами.');setTask(r.body);setOrders(related.body.orders);setOrderOpen(false);setScopeDenied(false);setReady(true);}catch(e){if(alive.current)setReadError(e.name==='AbortError'?'Оновлення не завершилося. Квитанція збережена.':e.message);}finally{lock.current=false;if(alive.current)setBusy('');}}
++ async function loadHistory(more=false){const id=receipt?.task_id||task?.id||targetId;if(lock.current||!id)return;lock.current=true;setBusy('history');setReadError('');try{const r=await request('/api/tasks/'+id+'/history/?limit=20'+(more&&historyCursor?'&cursor='+encodeURIComponent(historyCursor):''));if(!alive.current)return;if(!r.ok){if([403,404].includes(r.status))denyScope();throw Error(r.body.error||'Історія доручення недоступна.');}if(r.body.task_id!==id||!Array.isArray(r.body.items))throw Error('Некоректна відповідь історії доручення.');setScopeDenied(false);setHistory(items=>more?[...items,...r.body.items]:r.body.items);setHistoryCursor(r.body.next_cursor);setHistoryLoaded(true);}catch(e){if(alive.current){setHistory([]);setHistoryCursor(null);setHistoryLoaded(false);setReadError(e.name==='AbortError'?'Читання історії не завершилося.':e.message);}}finally{lock.current=false;if(alive.current)setBusy('');}}
++ const order=orders.find(o=>o.id===task?.order_id),selectedEmployee=employees.find(e=>e.id===Number(values.assignee_id)),activeEmployees=employees.filter(e=>!e.archived_at),currentResultLabel=task?.status==='done'?'Зафіксований результат':'Попередній результат';
++ const currentCard=task&&<section className="c01-current"><h3>Доручення №{task.id} · останній прочитаний стан</h3><p className="c01-text"><strong>{task.title}</strong></p><div className="bos-facts"><div><span>Відповідальний</span><strong>{c01Assignee(task)||'Історично не призначено'}{task.assignee_id?' · ID '+task.assignee_id:''}</strong></div><div><span>Строк</span><strong>{task.deadline||'Історично не задано'}{task.is_overdue?' · прострочено':''}</strong></div><div><span>Стан</span><strong>{C01_STATUS[task.status]||task.status}{task.archived?' · в архіві':''}</strong></div></div>{task.archived_at&&<p className="op-muted">В архіві з {new Date(task.archived_at).toLocaleString('uk-UA')}. Статус і результат збережені.</p>}{task.order_id&&<><Button disabled={!!busy} onClick={()=>setOrderOpen(v=>!v)}>Замовлення {task.order_code||'№'+task.order_id} · деталі</Button>{orderOpen&&(order?<div className="bos-next"><div><strong>{order.code} · ID {order.id}</strong><p>Строк: {order.due_date||'—'} · {ERP_LABELS[order.status]||order.status}</p><p className="op-muted">Джерело: поточний доступний запис замовлення продажу. Виконання доручення не проводить відвантаження або оплату.</p></div></div>:<p className="erp-error">Замовлення зараз недоступне. Оновіть доступні джерела.</p>)}</>}<h4>{currentResultLabel}</h4><p className="c01-text">{task.result===null?'Історичний результат не був записаний.':task.result||'Результат ще не записаний.'}</p>{task.status!=='done'&&task.result_recorded&&<p className="op-muted">Це текст попереднього виконання; нове завершення потребує явно введеного результату.</p>}</section>;
++ return <dialog ref={ref} className="bos-dialog c01-dialog" aria-labelledby="c01-task-title" onClose={()=>{alive.current=false;controllers.current.forEach(c=>c.abort());onClose();}} onCancel={e=>{if(busy==='confirm')e.preventDefault();else{alive.current=false;controllers.current.forEach(c=>c.abort());}}}>
++  <div className="erp-row"><h2 id="c01-task-title" ref={heading} tabIndex={-1}>{receipt?'Результат погодження':pending?'Перевірка погодження':initialMode==='view'?'Доручення та історія':initialMode==='archive'?'Архівувати доручення':initialMode==='restore'?'Відновити доручення':targetId?'Змінити доручення':'Нове доручення'}</h2><Button disabled={busy==='confirm'} onClick={close}>Закрити</Button></div>
++  <p className="op-muted">Відповідальний, строк і результат мають історію. Доручення не створює складських рухів або платежів.</p>
++  {busy==='load'&&<p role="status">Читаємо поточні дані…</p>}{readError&&<p className="erp-error" role="alert">{readError}</p>}{!ready&&!busy&&<Button onClick={load}>Повторити читання джерел</Button>}
++  {receipt?<section><p role="status" className="erp-notice">Зміни збережено. Доручення №{receipt.task_id} · подія {receipt.audit_id}.</p><h3>Незмінний результат цього погодження</h3>{scopeDenied?<p className="erp-error">Результат виконання збережено, але текст змін зараз недоступний. Перевірте поточний доступ до доручення.</p>:<C01Impact changes={receipt.impact}/>}<p className="op-muted">Пізніші зміни не додаються до цієї квитанції.</p><Button disabled={!!busy} onClick={refreshRecord}>Прочитати поточне доручення</Button></section>:pending?<section className="erp-confirm"><h3>Ідентифікатор погодження збережено</h3><p className="c01-text">{pending.proposal_id}</p><p className="op-muted">Стани «очікує», «строк минув» або відсутня відповідь ще не доводять, що паралельне виконання не відбулося. Новий намір автоматично не створюється.</p>{outcome&&<p>Початкова сесія: {outcome.same_session?'доступна':'недоступна'}. {outcome.expires_at?'Строк погодження: '+new Date(outcome.expires_at).toLocaleString('uk-UA'):''}</p>}<div className="actions"><Button disabled={!!busy} onClick={recover}>Перевірити результат</Button>{outcome?.same_session===true&&writable&&<Button disabled={!!busy} onClick={commit}>Повторити те саме погодження</Button>}</div></section>:proposal&&!scopeDenied?<section><h3>Перевірте зміни перед погодженням</h3><C01Impact changes={proposal.impact}/>{proposal.payload.reason&&<p className="c01-text">Причина: {proposal.payload.reason}</p>}<p className="op-muted">{proposal.effect.task_id?'Доручення №'+proposal.effect.task_id:'Нове доручення ще не збережено.'} Погодження чинне до {new Date(proposal.expires_at).toLocaleString('uk-UA')}.</p><div className="actions"><Button disabled={!!busy} onClick={()=>setProposal(null)}>До форми</Button><Button variant="primary" disabled={!!busy||!writable} onClick={commit}>Погодити й виконати</Button></div></section>:ready&&canEdit?<form id="c01-task-form" onSubmit={prepare}>
++   {terminal&&<p role="status" className="erp-notice">{terminal.message||'Погодження втратило чинність.'} Сервер підтвердив відмову без застосування. Перевірте чернетку й явно створіть новий попередній перегляд.</p>}{noChange&&<p role="status">{noChange.effect?.note||'Зміни не потрібні.'} Нове погодження та подію не створено.</p>}
++   <fieldset disabled={!!busy} className="b03-fieldset"><div className="erp-form">
++    {!archiveMode&&<><label>Зміст доручення<Input required minLength={3} maxLength={200} value={values.title} onChange={e=>change('title',e.target.value)}/></label><label>Відповідальний<Select value={values.assignee_id} required={!targetId} onChange={e=>change('assignee_id',e.target.value)}><option value="">{targetId?'Історичне призначення — без зміни':'Оберіть співробітника'}</option>{selectedEmployee?.archived_at&&<option value={selectedEmployee.id} disabled>{c01EmployeeLabel(selectedEmployee)} · архівне призначення</option>}{targetId&&values.assignee_id&&!selectedEmployee&&<option value={values.assignee_id} disabled>{task?.assignee_name||'Історичний виконавець'} · ID {values.assignee_id}</option>}{activeEmployees.map(e=><option key={e.id} value={e.id}>{c01EmployeeLabel(e)}</option>)}</Select></label><label>Строк виконання<Input type="date" required={!targetId||changed.includes('deadline')} min={!targetId?asOf:undefined} value={values.deadline} onChange={e=>change('deadline',e.target.value)}/></label><label>Пріоритет<Select value={values.priority} onChange={e=>change('priority',e.target.value)}><option value="high">Високий</option><option value="medium">Середній</option><option value="low">Низький</option><option value="">Без пріоритету</option></Select></label><label>Категорія<Input maxLength={50} value={values.category} onChange={e=>change('category',e.target.value)}/></label><label>Замовлення продажу<Select value={values.order_id} onChange={e=>change('order_id',e.target.value)}><option value="">Без прив’язки</option>{orders.map(o=><option key={o.id} value={o.id}>{o.code} · ID {o.id}</option>)}</Select></label>{targetId&&<><label>Робочий статус<Select value={values.status} onChange={e=>change('status',e.target.value)}>{!['active','process','done'].includes(values.status)&&<option value={values.status} disabled>{C01_STATUS[values.status]||values.status}</option>}{['active','process','done'].map(s=><option key={s} value={s}>{C01_STATUS[s]}</option>)}</Select></label><label className="c01-wide">{task?.status==='done'?'Уточнення результату':'Результат виконання'}<textarea maxLength={2000} required={values.status==='done'&&task?.status!=='done'} value={values.result} onChange={e=>change('result',e.target.value)} className="c01-textarea"/></label></>}</>}
++    {targetId&&<label className="c01-wide">Причина {archiveMode?'архівування / відновлення':'зміни'}<textarea required minLength={3} maxLength={1000} value={values.reason} onChange={e=>change('reason',e.target.value)} className="c01-textarea"/></label>}
++   </div>{sourceRequest&&<p>Джерело: заявка {sourceRequest}. Прив’язка буде зафіксована в історії.</p>}{task?.status==='done'&&['active','process'].includes(values.status)&&<p className="op-muted">Повернення до роботи зберігає попередній результат без змін. Новий текст результату погоджується окремо після відкриття доручення.</p>}{archiveMode?<p className="op-muted">{initialMode==='archive'?'Доручення зникне з робочого списку; його статус, результат, джерела й історія збережуться.':'Доручення повернеться з тим самим статусом, строком і результатом. Старий минулий строк знову враховуватиметься як прострочення.'}</p>:targetId&&<p className="op-muted">Змінюються лише явно відредаговані поля. При новому завершенні сервер прибере пріоритет, якщо ви не зазначили його явно; це видно перед погодженням.</p>}<div className="actions"><Button type="submit" variant="primary">{busy==='preview'?'Перевіряємо…':terminal?'Новий попередній перегляд':'Переглянути зміни'}</Button></div></fieldset>
++  </form>:ready&&!pending&&!receipt&&!writable&&initialMode!=='view'?<p className="erp-error">Доступ лише для перегляду.</p>:null}
++  {error&&<p className="erp-error" role="alert">{error}</p>}{currentCard}
++  {(task?.id||receipt?.task_id||targetId)&&<section><div className="erp-row"><h3>Історія доручення</h3><Button disabled={!!busy} onClick={()=>loadHistory(false)}>{historyLoaded?'Оновити історію':'Прочитати історію'}</Button></div>{historyLoaded&&!history.length&&<p>Збережених подій для цього доручення немає.</p>}{history.map(item=><article className="c01-history" key={item.id}><h4>{C01_TRANSITIONS[item.transition]||'Історична подія'} · {new Date(item.created_at).toLocaleString('uk-UA')}</h4><p className="op-muted">{item.actor?.display||'Автор історично не записаний'}{item.actor?.id?' · ID '+item.actor.id:''}{item.actor?.role?' · '+({ceo:'Керівник',manager:'Менеджер',observer:'Спостерігач'}[item.actor.role]||item.actor.role):''}</p>{item.reason&&<p className="c01-text">{item.reason}</p>}{item.legacy?<p className="op-muted">{item.note||'Структурований diff раніше не збережено.'}</p>:<C01Impact changes={item.changes}/>}</article>)}{historyCursor&&<Button disabled={!!busy} onClick={()=>loadHistory(true)}>Попередні події</Button>}</section>}
++ </dialog>;
++}
++
+ function ProcurementEntry({kind,requestCode,onClose,onDone}){
+  const quote=kind==='quote', ref=useRef(null);
+  const [employees,setEmployees]=useState([]),[suppliers,setSuppliers]=useState([]),[docs,setDocs]=useState([]),[error,setError]=useState(''),[busy,setBusy]=useState(false);
+@@ -3963,7 +3721,7 @@
+ function OperationsAssistant({refetchTasks,compact=false}){
+  const [messages,setMessages]=useLocalState('bos.original.scenario-chat.v1',[]),[input,setInput]=useState(''),[busy,setBusy]=useState(false),[task,setTask]=useState(false),[doc,setDoc]=useState(null),[payload,setPayload]=useState(null),[raw,setRaw]=useState(''),[error,setError]=useState(''),[erpAction,setErpAction]=useState(null);
+  useEffect(()=>{const clear=()=>setMessages([]);window.addEventListener('boss:clear-chat',clear);return()=>window.removeEventListener('boss:clear-chat',clear);},[]);
+- async function importAction(){if(!bosCan('write')){setError('Ваш обліковий запис має доступ лише для перегляду.');return;}try{const value=JSON.parse(raw);if(!value||Array.isArray(value)||typeof value.action!=='string')throw Error('Потрібен об’єкт дії.');if(value.action.startsWith('erp_')){const type=value.action.slice(4),def=ERP_ACTIONS[type],correction=b03IsAction(type);if(!def&&!correction)throw Error('Невідома ERP-дія.');if(!bosCanAction(type)||(correction&&b03Financial(type)&&bosRole()!=='ceo'))throw Error('Ця дія недоступна вашому обліковому запису.');let preset=value;if(correction){preset=b03ImportedAction(value);}else{const keys=['action',...def[1].map(x=>x[0])];if(Object.keys(value).some(k=>!keys.includes(k)))throw Error('Дія містить зайві поля.');}setErpAction({type,preset,data:await erpFetch('snapshot/')});}else{setPayload(value);setTask(true);}setError('');}catch(e){setError(e.message||'Некоректний JSON.');}}
++ async function importAction(){if(!bosCan('write')){setError('Ваш обліковий запис має доступ лише для перегляду.');return;}try{const value=JSON.parse(raw);if(!value||Array.isArray(value)||typeof value.action!=='string')throw Error('Потрібен об’єкт дії.');if(value.action.startsWith('erp_')){const type=value.action.slice(4),def=ERP_ACTIONS[type],correction=b03IsAction(type);if(!def&&!correction)throw Error('Невідома ERP-дія.');if(!bosCanAction(type)||(correction&&b03Financial(type)&&bosRole()!=='ceo'))throw Error('Ця дія недоступна вашому обліковому запису.');let preset=value;if(correction){preset=b03ImportedAction(value);}else{const keys=['action',...def[1].map(x=>x[0])];if(Object.keys(value).some(k=>!keys.includes(k)))throw Error('Дія містить зайві поля.');}setErpAction({type,preset,data:await erpFetch('snapshot/')});}else{setPayload(c01TaskJSON(raw));setTask(true);}setError('');}catch(e){setError(e.message||'Некоректний JSON.');}}
+  async function ask(text){if(busy||!text.trim())return;setBusy(true);setInput('');setMessages(m=>[...m,{text,role:'user'}]);try{const d=await opFetch('chat/',{message:text});setMessages(m=>[...m,{...d,role:'assistant'}]);if(d.open_task&&bosCan('write'))setTask(true);}catch(e){setError(e.message);setInput(text);}finally{setBusy(false);}}
+  return <div style={{display:'flex',flexDirection:'column',minHeight:0,height:compact?'100%':'70vh',padding:compact?12:24}}><p className="op-muted">Локальні сценарії без мовної моделі. Відповіді спираються на поточну базу.</p><div className="op-toolbar"><Button onClick={()=>ask('Що потребує уваги?')}>Огляд</Button><Button onClick={()=>ask('Порівняй R01')}>Закупівлі</Button><Button onClick={()=>ask('Поясни SO-101')}>Виконання SO-101</Button><Button onClick={()=>ask('Де матеріали на складі?')}>Склад</Button>{bosCan('write')&&<Button onClick={()=>setTask(true)}>Доручення</Button>}</div><div role="log" aria-live="polite" style={{flex:1,overflowY:'auto',minHeight:140}}>{messages.map((m,i)=><div key={i} style={{padding:12,margin:'10px 0',background:m.role==='user'?T.primaryGlow:T.surface2,borderRadius:10,whiteSpace:'pre-wrap',fontSize:14,lineHeight:1.55}}><strong>{m.role==='user'?'Ви':'BoS'}</strong><p>{m.text}</p>{m.sources?.map(x=><Button key={x.id} onClick={()=>setDoc(x.id)}>{x.label}</Button>)}</div>)}</div>{error&&<p role="alert" style={{color:T.red}}>{error}</p>}<form className="op-toolbar" onSubmit={e=>{e.preventDefault();ask(input);}}><Input aria-label="Повідомлення BoS" value={input} onChange={e=>setInput(e.target.value)} placeholder="Що потребує уваги?" maxLength={2000} style={{flex:1,minWidth:100}}/><Button disabled={busy}>Запитати</Button></form>{bosCan('export_workspace')&&<details style={{fontSize:14}}><summary>Вільний аналіз через ChatGPT</summary><p><a style={{color:T.primary}} href={OP+'export/'}>Завантажити контекст</a></p><p className="op-muted">Передайте файл у чат, отримайте JSON дії та вставте його нижче. Автоматичного зв’язку з цим чатом немає.</p><textarea aria-label="Дія з ChatGPT" value={raw} onChange={e=>setRaw(e.target.value)} style={{width:'100%',minHeight:80,background:T.surface2,color:T.text,padding:10}}/>{bosCan('write')&&<Button onClick={importAction}>Перевірити дію</Button>}</details>}{erpAction&&<BoSActionDialog action={erpAction.type} preset={erpAction.preset} data={erpAction.data} onClose={()=>setErpAction(null)} onDone={r=>{refetchTasks?.();setMessages(m=>[...m,{role:'assistant',text:'ERP-операцію виконано. Запис журналу №'+r.erp_event_id+(r.note?' · '+r.note:'')}]);}}/>}{task&&<ControlledTask importPayload={payload} onClose={()=>{setTask(false);setPayload(null);}} onDone={r=>{refetchTasks();setMessages(m=>[...m,{role:'assistant',text:'Збережено доручення №'+r.task_id+'. Результат додано до журналу.'}]);}}/>}{doc&&<DocViewer id={doc} onClose={()=>setDoc(null)}/>}</div>
+ }
+@@ -4400,7 +4158,7 @@
+  const link=(type,id,text)=><BoSLink onClick={()=>onSelect({kind:type,id})}>{text||label(type,id)}</BoSLink>;
+  const acts=defs=>readOnly?null:<div className="erp-actions">{defs.filter(([a])=>bosCanAction(a)).map(([a,p,l])=><Button key={a} onClick={()=>onAction(a,p)}>{l||B03_ACTIONS[a]?.[0]||ERP_ACTIONS[a]?.[0]}</Button>)}</div>;
+  const baseTable=(type,rows)=>{
+-  const cols=type==='orders'?[["Замовлення",'code'],["Клієнт",r=>label('partners',r.customer_id)],["Строк",r=>erpDate(r.due_date)],["Стан",r=>ERP_LABELS[r.status]]]:type==='invoices'?[["Рахунок",'code'],["Замовлення",r=>label('orders',r.order_id)],["Термін",r=>erpDate(r.due_date)],...(bosCan('finance')?[["Сума",r=>r.amount+' '+r.currency],["Оплачено",'paid'],["До оплати",'open']]:[])]:type==='purchases'?[["Закупівля",'code'],["Матеріал",r=>label('items',r.item_id)],["Замовлено / прийнято",r=><>{r.quantity+' / '+r.received}{r.approval_snapshot?.source==='imported_open_balance'&&<p className="op-muted">Перенесено / прийнято після зрізу</p>}</>],["Строк",r=>erpDate(r.due_date)]]:type==='jobs'?[["Робота",'code'],["План / випуск",r=>r.quantity+' / '+r.produced],["Стан",r=>ERP_LABELS[r.status]],["Строк",r=>erpDate(r.due_date)]]:type==='tasks'?[["Доручення",'title'],["Відповідальний",'assignee'],["Термін",r=>erpDate(r.deadline)],["Стан",r=>({done:'Виконано',active:'Відкрите',process:'У роботі'})[r.status]]]:[["Партія",'code'],["Матеріал / виріб",r=>label('items',r.item_id)],["Фізично",'quantity'],["У резерві",'reserved'],["Придатно й вільно",'available'],["Якість",r=>ERP_LABELS[r.quality]]];
++  const cols=type==='orders'?[["Замовлення",'code'],["Клієнт",r=>label('partners',r.customer_id)],["Строк",r=>erpDate(r.due_date)],["Стан",r=>ERP_LABELS[r.status]]]:type==='invoices'?[["Рахунок",'code'],["Замовлення",r=>label('orders',r.order_id)],["Термін",r=>erpDate(r.due_date)],...(bosCan('finance')?[["Сума",r=>r.amount+' '+r.currency],["Оплачено",'paid'],["До оплати",'open']]:[])]:type==='purchases'?[["Закупівля",'code'],["Матеріал",r=>label('items',r.item_id)],["Замовлено / прийнято",r=><>{r.quantity+' / '+r.received}{r.approval_snapshot?.source==='imported_open_balance'&&<p className="op-muted">Перенесено / прийнято після зрізу</p>}</>],["Строк",r=>erpDate(r.due_date)]]:type==='jobs'?[["Робота",'code'],["План / випуск",r=>r.quantity+' / '+r.produced],["Стан",r=>ERP_LABELS[r.status]],["Строк",r=>erpDate(r.due_date)]]:type==='tasks'?[["Доручення",'title'],["Відповідальний",r=>c01Assignee(r)],["Термін",r=>erpDate(r.deadline)],["Стан",r=>(C01_STATUS[r.status]||r.status)+(r.is_overdue?' · прострочено':'')]]:[["Партія",'code'],["Матеріал / виріб",r=>label('items',r.item_id)],["Фізично",'quantity'],["У резерві",'reserved'],["Придатно й вільно",'available'],["Якість",r=>ERP_LABELS[r.quality]]];
+   return <ERPTable rows={rows} columns={cols} onRow={r=>type==='tasks'?onNavigate('hr','tasks'):onSelect({kind:type,id:r.id??r.invoice_id})}/>;
+  };
+  let title='',body=null;const r=find(kind,id);
+@@ -4410,7 +4168,7 @@
+   let rows=data[m[3]].filter(x=>x.currency===currency);if(m[3]==='lots')rows=rows.filter(x=>Number(x.quantity)>0);
+   body=<><p className="bos-detail-total">{erpNum(total)} {currency}</p><p>{m[2]}</p>{m[3]==='orders'?<ERPTable rows={data.costs.filter(x=>x.currency===currency)} columns={[["Замовлення",'code'],["Портфель",r=>erpNum(r.order_value)],["Відвантажено",r=>erpNum(r.shipped_value)],["Собівартість",r=>erpNum(r.shipped_cost)],["Різниця",r=>erpNum(r.gross_margin)]]} onRow={x=>onSelect({kind:'orders',id:x.order_id})}/>:baseTable(m[3],rows)}<p className="op-muted">Натисніть рядок, щоб перейти від підсумку до конкретного запису.</p></>;
+  }else if(kind==='list'){
+-  title=selection.title;const rows=key==='orders'?data.orders.filter(o=>o.status==='confirmed'):key==='tasks'?(data.home?.tasks||[]).filter(t=>selection.overdue?(t.overdue??(t.status!=='done'&&!!t.deadline&&t.deadline<data.as_of)):t.status!=='done'):key==='lots'?data.lots.filter(l=>Number(l.quantity)>0&&(l.quality!=='approved'||l.missing_documents.length)):data.jobs.filter(j=>j.status!=='done'&&(!selection.review||j.needs_review));body=baseTable(key,rows);
++  title=selection.title;const rows=key==='orders'?data.orders.filter(o=>o.status==='confirmed'):key==='tasks'?(data.home?.tasks||[]).filter(t=>!t.archived&&(selection.overdue?t.is_overdue===true:t.status!=='done')):key==='lots'?data.lots.filter(l=>Number(l.quantity)>0&&(l.quality!=='approved'||l.missing_documents.length)):data.jobs.filter(j=>j.status!=='done'&&(!selection.review||j.needs_review));body=baseTable(key,rows);
+  }else if(!r){title='Запис недоступний';body=<p>Оновіть дані та відкрийте запис повторно.</p>;
+  }else{
+   title=(B03_KINDS[kind]||({orders:'Замовлення',items:'Паспорт',lots:'Партія',jobs:'Виробництво',purchases:'Закупівля',invoices:'Рахунок',changes:'Зміна',events:'Подія',locations:'Місце зберігання',partners:'Контрагент'})[kind])+' · '+(r.code||r.name||id);
+@@ -4445,12 +4203,12 @@
+  function begin(type,preset){if(!bosCanAction(type)){setError('Ця дія недоступна вашому обліковому запису.');return;}setSelection(null);setAction({type,preset});}
+  if(!data)return <div style={{padding:24}}><p>{error||'Завантаження робочого простору…'}</p><Button onClick={refresh}>Повторити</Button></div>;
+  const financials=bosCan('finance')?(data.home?.financial||[]):[],financial=financials.find(x=>x.currency===currency)||financials[0],cur=financial?.currency;
+- const homeTasks=(data.home?.tasks||[]).map(t=>({...t,overdue:t.overdue??(t.status!=='done'&&!!t.deadline&&t.deadline<data.as_of)})),openTasks=homeTasks.filter(x=>x.status!=='done'),overdue=homeTasks.filter(x=>x.overdue),issues=data.lots.filter(x=>Number(x.quantity)>0&&(x.quality!=='approved'||x.missing_documents.length));
++ const homeTasks=(data.home?.tasks||[]).filter(t=>!t.archived).map(t=>({...t,overdue:t.is_overdue===true})),openTasks=homeTasks.filter(x=>x.status!=='done'),overdue=homeTasks.filter(x=>x.overdue),issues=data.lots.filter(x=>Number(x.quantity)>0&&(x.quality!=='approved'||x.missing_documents.length));
+  const open=selection=>setSelection(selection),orders=data.orders.filter(o=>data.lines.some(l=>l.order_id===o.id&&b03Positive(b03OpenLine(l)))),inspect=(kind,id)=>open({kind,id});
+  return <div className="bos-home"><div className="erp-row"><div><h1>{focus?'Сьогодні у BoS':bosCan('finance')?'Показники та їхні джерела':'Операційний огляд'}</h1><p className="op-muted">{focus?'Рішення й наступні кроки за поточними замовленнями.':'Натисніть показник: відкриються записи, розрахунок і дії.'}</p></div><div className="erp-actions"><>{financial&&<Select aria-label="Валюта показників" value={cur} onChange={e=>setCurrency(e.target.value)}>{financials.map(x=><option key={x.currency}>{x.currency}</option>)}</Select>}</><Button onClick={refresh}>Оновити</Button><Button onClick={()=>onNavigate('info')}>Як працює BoS</Button></div></div>{error&&<p role="alert" className="erp-error">{error}</p>}{receipt&&<Card><div className="erp-row"><h3>Операцію виконано · вплив на записи</h3><Button onClick={()=>setReceipt(null)}>Приховати</Button></div><ImpactTable changes={receipt.impact}/></Card>}
+  {!focus&&financial&&<div className="bos-kpi-grid">{BOS_METRICS.map(([key,label,formula])=><button type="button" className="bos-kpi" key={key} onClick={()=>open({kind:'metric',key,currency:cur})}><span>{label}</span><strong>{erpNum(financial[key])} <small>{cur}</small></strong><p>{formula}</p><em>Відкрити розрахунок ↗</em></button>)}</div>}
+  <div className="bos-kpi-grid bos-counts">{[['Відкриті роботи',data.jobs.filter(x=>x.status!=='done').length,'jobs',false],['Партії без допуску',issues.length,'lots',false],['Відкриті доручення',openTasks.length,'tasks',false],['Прострочені доручення',overdue.length,'tasks',true]].map(([title,n,key,late])=><button className="bos-kpi" type="button" key={title} onClick={()=>open({kind:'list',key,title,overdue:late})}><span>{title}</span><strong>{n}</strong><em>Переглянути записи ↗</em></button>)}</div>
+- <div className="bos-work-columns"><Card><div className="erp-row"><h2>Замовлення у виконанні</h2><Button onClick={()=>onNavigate('erp','sales')}>Усі продажі</Button></div>{orders.map(o=>{const lines=data.lines.filter(l=>l.order_id===o.id),qty=lines.reduce((s,l)=>s+Number(l.quantity),0),shipped=lines.reduce((s,l)=>s+Number(l.shipped),0),completion=lines.length?100*lines.reduce((s,l)=>s+Number(l.shipped)/Number(l.quantity),0)/lines.length:0;return <div className="bos-order" key={o.id}><BoSLink onClick={()=>inspect('orders',o.id)}>{o.code} · {data.partners.find(x=>x.id===o.customer_id)?.name}</BoSLink><p className="op-muted">До {erpDate(o.due_date)} · {data.employees.find(x=>x.id===o.owner_id)?.full_name}</p><label className="bos-progress">Відвантажено від первісного плану {erpNum(completion)}%<progress value={completion} max={100}/></label><NextAction orderId={o.id} version={data.events[0]?.id} onAction={begin} onOpen={()=>inspect('orders',o.id)}/></div>})}{!orders.length&&<p>Невиконаних замовлень серед доступних записів немає.</p>}</Card><div><Card><h2>Де потрібна увага</h2>{issues.map(l=><button className="bos-attention" key={l.id} onClick={()=>inspect('lots',l.id)}><strong>{l.code} · {erpNum(l.quantity)}</strong><span>{ERP_LABELS[l.quality]}{l.missing_documents.length?' · бракує '+l.missing_documents.join(', '):''}</span></button>)}{overdue.map(t=><button className="bos-attention" key={'task'+t.id} onClick={()=>onNavigate('hr','tasks')}><strong>{t.title}</strong><span>{t.assignee} · до {erpDate(t.deadline)}</span></button>)}{!issues.length&&!overdue.length&&<p>За цими перевірками відхилень немає.</p>}</Card>{financial?<Card><h2>Рахунки та оплати</h2>{data.invoices.filter(x=>x.currency===cur).map(i=><div className="bos-order" key={i.invoice_id}><BoSLink onClick={()=>inspect('invoices',i.invoice_id)}>{i.code}</BoSLink><label className="bos-progress">Оплачено {erpNum(i.paid)} / {erpNum(i.amount)} {cur}<progress value={Number(i.paid)} max={Number(i.amount)||1}/></label><p className="op-muted">До оплати {b03Amount(i.open,cur)} · до {erpDate(i.due_date)}</p>{i.effective_credit!=null&&<p>Чинне коригування: {b03Amount(i.effective_credit,cur)}. Кредит клієнта: {b03Amount(i.customer_credit,cur)}.</p>}</div>)}{!data.invoices.length&&<p>Рахунок з’явиться після відвантаження. Перейдіть до наступного кроку замовлення.</p>}</Card>:<Card><h2>Рахунки до замовлень</h2>{data.invoices.map(i=><div className="bos-order" key={i.invoice_id}><BoSLink onClick={()=>inspect('invoices',i.invoice_id)}>{i.code}</BoSLink><p className="op-muted">Термін {erpDate(i.due_date)}</p></div>)}{!data.invoices.length&&<p>Доступних рахунків поки немає.</p>}</Card>}</div></div>
++ <div className="bos-work-columns"><Card><div className="erp-row"><h2>Замовлення у виконанні</h2><Button onClick={()=>onNavigate('erp','sales')}>Усі продажі</Button></div>{orders.map(o=>{const lines=data.lines.filter(l=>l.order_id===o.id),qty=lines.reduce((s,l)=>s+Number(l.quantity),0),shipped=lines.reduce((s,l)=>s+Number(l.shipped),0),completion=lines.length?100*lines.reduce((s,l)=>s+Number(l.shipped)/Number(l.quantity),0)/lines.length:0;return <div className="bos-order" key={o.id}><BoSLink onClick={()=>inspect('orders',o.id)}>{o.code} · {data.partners.find(x=>x.id===o.customer_id)?.name}</BoSLink><p className="op-muted">До {erpDate(o.due_date)} · {data.employees.find(x=>x.id===o.owner_id)?.full_name}</p><label className="bos-progress">Відвантажено від первісного плану {erpNum(completion)}%<progress value={completion} max={100}/></label><NextAction orderId={o.id} version={data.events[0]?.id} onAction={begin} onOpen={()=>inspect('orders',o.id)}/></div>})}{!orders.length&&<p>Невиконаних замовлень серед доступних записів немає.</p>}</Card><div><Card><h2>Де потрібна увага</h2>{issues.map(l=><button className="bos-attention" key={l.id} onClick={()=>inspect('lots',l.id)}><strong>{l.code} · {erpNum(l.quantity)}</strong><span>{ERP_LABELS[l.quality]}{l.missing_documents.length?' · бракує '+l.missing_documents.join(', '):''}</span></button>)}{overdue.map(t=><button className="bos-attention" key={'task'+t.id} onClick={()=>onNavigate('hr','tasks')}><strong>{t.title}</strong><span>{c01Assignee(t)} · до {erpDate(t.deadline)}</span></button>)}{!issues.length&&!overdue.length&&<p>За цими перевірками відхилень немає.</p>}</Card>{financial?<Card><h2>Рахунки та оплати</h2>{data.invoices.filter(x=>x.currency===cur).map(i=><div className="bos-order" key={i.invoice_id}><BoSLink onClick={()=>inspect('invoices',i.invoice_id)}>{i.code}</BoSLink><label className="bos-progress">Оплачено {erpNum(i.paid)} / {erpNum(i.amount)} {cur}<progress value={Number(i.paid)} max={Number(i.amount)||1}/></label><p className="op-muted">До оплати {b03Amount(i.open,cur)} · до {erpDate(i.due_date)}</p>{i.effective_credit!=null&&<p>Чинне коригування: {b03Amount(i.effective_credit,cur)}. Кредит клієнта: {b03Amount(i.customer_credit,cur)}.</p>}</div>)}{!data.invoices.length&&<p>Рахунок з’явиться після відвантаження. Перейдіть до наступного кроку замовлення.</p>}</Card>:<Card><h2>Рахунки до замовлень</h2>{data.invoices.map(i=><div className="bos-order" key={i.invoice_id}><BoSLink onClick={()=>inspect('invoices',i.invoice_id)}>{i.code}</BoSLink><p className="op-muted">Термін {erpDate(i.due_date)}</p></div>)}{!data.invoices.length&&<p>Доступних рахунків поки немає.</p>}</Card>}</div></div>
+  <B03PendingLauncher onRecover={entry=>{setSelection(null);setAction({type:entry.action,preset:{},recovery:entry});}}/><Card><h2>Останні операції</h2><ERPTable rows={data.events.slice(0,8)} columns={[["Операція",r=>(r.action==='erp_import_batch'?'Початковий імпорт':B03_ACTIONS[r.action.replace('erp_','')]?.[0]||ERP_ACTIONS[r.action.replace('erp_','')]?.[0]||r.action)],["Запис",r=>r.result?.code||r.result?.reference||'Запис журналу №'+r.id],["Дата",r=>erpDate(r.created_at)]]} onRow={r=>inspect('events',r.id)}/></Card>
+  {selection&&<BoSInspector selection={selection} data={data} onClose={()=>setSelection(null)} onSelect={setSelection} onAction={begin} onNavigate={onNavigate}/>} {action&&<BoSActionDialog action={action.type} preset={action.preset} recovery={action.recovery} data={data} onClose={()=>setAction(null)} onDone={r=>{setReceipt(r);refresh();refetchTasks?.();}}/>}</div>;
+ }
+@@ -4556,7 +4314,7 @@
+         if(!r.ok) throw new Error(`Сервер повернув ${r.status}`);
+         return r.json();
+       })
+-      .then(data=>{const date=window.BOS_RUNTIME?.as_of||new Date().toISOString().slice(0,10);setTasks(data.map(t=>({...t,status:t.status!=='done'&&t.deadline&&t.deadline<date?'overdue':t.status})));setTasksLoading(false);})
++      .then(data=>{if(!Array.isArray(data))throw new Error('Некоректний список доручень');setTasks(data);setTasksLoading(false);})
+       .catch(err=>{
+         console.error('Не вдалося завантажити доручення:',err);
+         setTasksError(err.message||'Помилка зʼєднання');
+@@ -4639,7 +4397,6 @@
+       if(sub==='salaries') return <Salaries salaries={salaries} employees={employees} refetch={refetchSalaries} refetchTransactions={refetchTransactions}/>;
+     }
+     if(section==='hr'){
+-      if((sub==='tasks'||!sub)&&!bosCan('write'))return <BoSReadOnlyRecords title="Доручення команді" rows={tasks} columns={[["Доручення",'title'],["Відповідальний",'assignee'],["Термін",'deadline'],["Стан",r=>({done:'Виконано',active:'Відкрите',process:'У роботі',overdue:'Прострочено'})[r.status]||r.status],["Категорія",'category']]} onRefresh={refetchTasks} loading={tasksLoading} error={tasksError}/>;
+       if(sub==='tasks'||!sub) return <Tasks tasks={tasks} setTasks={setTasks} loading={tasksLoading} error={tasksError} refetchTasks={refetchTasks}/>;
+       if(sub==='employees'&&!bosCan('hr_private'))return <BoSReadOnlyRecords title="Довідник співробітників" rows={employees} columns={[["Ім’я",'name'],["Посада",'role'],["Відділ",'dept'],["Стан",r=>r.archived_at?'В архіві':'Активний']]} onRefresh={refetchEmployees} loading={employeesLoading} error={employeesError}/>;
+       if(sub==='employees') return <Employees employees={employees} setEmployees={setEmployees} depts={settings.departments} loading={employeesLoading} error={employeesError} refetchEmployees={refetchEmployees}/>;

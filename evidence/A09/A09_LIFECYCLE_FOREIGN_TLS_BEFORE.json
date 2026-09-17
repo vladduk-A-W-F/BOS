@@ -1,0 +1,47 @@
+{
+  "scope": "own controlled foreign validTLS service, no original databases",
+  "attempts": [
+    {
+      "returncode": 3,
+      "events": [
+        {
+          "event": "bos.bundle.ready",
+          "installation_id": "6ae68f74-c09a-4176-9fc7-cacd6f93c93a",
+          "origin": "https://localhost:38745",
+          "scope": "loopback",
+          "health": {
+            "live": 200,
+            "ready": 200
+          },
+          "source_sha256": "9e0c71d5a28b2699d566c5a620279388b9aae88276480bb38dcb8284c08268af",
+          "runtime": "waitress 3.0.2",
+          "proxy": "caddy 2.11.1",
+          "upstream_port": 45065
+        },
+        {
+          "event": "bos.bundle.stopped",
+          "installation_id": "6ae68f74-c09a-4176-9fc7-cacd6f93c93a",
+          "children": [
+            {
+              "runtime": "caddy",
+              "exit_code": 1,
+              "forced": false
+            },
+            {
+              "runtime": "waitress",
+              "exit_code": 0,
+              "forced": false
+            }
+          ]
+        },
+        {
+          "event": "bos.bundle.refused",
+          "complete": false,
+          "reason": "Запуск не підтверджено. Перевірте власність інсталяції, приватний runtime та TLS."
+        }
+      ]
+    }
+  ],
+  "false_ready_observed": true,
+  "foreign_stopped_only_by_its_owner": true
+}

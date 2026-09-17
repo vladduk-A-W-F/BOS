@@ -1,0 +1,480 @@
+Creating test database for alias 'default' ('/workspace/scratch/c7b51e996a9f/tmp/a07_db_before.sqlite3_django_test')...
+Destroying old test database for alias 'default' ('/workspace/scratch/c7b51e996a9f/tmp/a07_db_before.sqlite3_django_test')...
+Found 12 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: django_filters, messages, rest_framework, staticfiles
+  Apply all migrations: admin, ai_assistant, auth, branches, contenttypes, employees, erp, finance, operations, sessions, tasks
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying ai_assistant.0001_initial... OK
+  Applying ai_assistant.0002_taskchangelog... OK
+  Applying ai_assistant.0003_claudeusagelog... OK
+  Applying ai_assistant.0004_employeechangelog... OK
+  Applying ai_assistant.0005_chatfile... OK
+  Applying ai_assistant.0006_alter_chatmessage_created_at_and_more... OK
+  Applying ai_assistant.0007_employeechangelog_undone_at... OK
+  Applying ai_assistant.0008_chatmessage_archived_at_chatmessage_user_and_more... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying branches.0001_initial... OK
+  Applying branches.0002_branch_short_name... OK
+  Applying branches.0003_fill_short_names... OK
+  Applying employees.0001_initial... OK
+  Applying employees.0002_alter_employee_department... OK
+  Applying employees.0003_employee_branch... OK
+  Applying employees.0004_employee_archived_at... OK
+  Applying employees.0005_employee_user... OK
+  Applying tasks.0001_initial... OK
+  Applying tasks.0002_alter_task_priority... OK
+  Applying tasks.0003_alter_task_deadline_alter_task_priority_and_more... OK
+  Applying tasks.0004_task_branch... OK
+  Applying finance.0001_initial... OK
+  Applying finance.0002_alter_salary_unique_together_alter_contract_status_and_more... OK
+  Applying finance.0003_transaction_branch... OK
+  Applying operations.0001_initial... OK
+  Applying erp.0001_initial... OK
+  Applying finance.0004_salary_archived_at_transaction_archived_at_and_more... OK
+  Applying finance.0005_alter_transaction_branch_alter_transaction_contract_and_more... OK
+  Applying finance.0006_financialintent... OK
+  Applying operations.0002_actionproposal_user... OK
+  Applying operations.0003_loginattempt... OK
+  Applying operations.0004_alter_document_options_document_access_level... OK
+  Applying sessions.0001_initial...test_existing_three_currency_domain_is_enforced_below_writers (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_existing_three_currency_domain_is_enforced_below_writers) ... 
+  test_existing_three_currency_domain_is_enforced_below_writers (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_existing_three_currency_domain_is_enforced_below_writers) (model='erp.Item') ... FAIL
+  test_existing_three_currency_domain_is_enforced_below_writers (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_existing_three_currency_domain_is_enforced_below_writers) (model='erp.Lot') ... FAIL
+  test_existing_three_currency_domain_is_enforced_below_writers (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_existing_three_currency_domain_is_enforced_below_writers) (model='erp.SalesOrder') ... FAIL
+  test_existing_three_currency_domain_is_enforced_below_writers (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_existing_three_currency_domain_is_enforced_below_writers) (model='erp.Production') ... FAIL
+  test_existing_three_currency_domain_is_enforced_below_writers (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_existing_three_currency_domain_is_enforced_below_writers) (model='erp.Purchase') ... FAIL
+  test_existing_three_currency_domain_is_enforced_below_writers (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_existing_three_currency_domain_is_enforced_below_writers) (model='operations.Invoice') ... FAIL
+  test_existing_three_currency_domain_is_enforced_below_writers (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_existing_three_currency_domain_is_enforced_below_writers) (model='finance.Transaction') ... FAIL
+  test_existing_three_currency_domain_is_enforced_below_writers (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_existing_three_currency_domain_is_enforced_below_writers) (model='finance.Salary') ... FAIL
+test_finance_positive_amount_and_field_capacity_also_hold_below_commands (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_finance_positive_amount_and_field_capacity_also_hold_below_commands) ... 
+  test_finance_positive_amount_and_field_capacity_also_hold_below_commands (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_finance_positive_amount_and_field_capacity_also_hold_below_commands) (model='finance.Transaction', amount=Decimal('0')) ... FAIL
+  test_finance_positive_amount_and_field_capacity_also_hold_below_commands (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_finance_positive_amount_and_field_capacity_also_hold_below_commands) (model='finance.Transaction', amount=Decimal('-0.01')) ... FAIL
+  test_finance_positive_amount_and_field_capacity_also_hold_below_commands (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_finance_positive_amount_and_field_capacity_also_hold_below_commands) (model='finance.Transaction', amount=Decimal('1000000000000.00')) ... FAIL
+  test_finance_positive_amount_and_field_capacity_also_hold_below_commands (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_finance_positive_amount_and_field_capacity_also_hold_below_commands) (model='finance.Salary', amount=Decimal('0')) ... FAIL
+  test_finance_positive_amount_and_field_capacity_also_hold_below_commands (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_finance_positive_amount_and_field_capacity_also_hold_below_commands) (model='finance.Salary', amount=Decimal('-0.01')) ... FAIL
+  test_finance_positive_amount_and_field_capacity_also_hold_below_commands (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_finance_positive_amount_and_field_capacity_also_hold_below_commands) (model='finance.Salary', amount=Decimal('10000000000.00')) ... FAIL
+test_invoice_amount_capacity_and_paid_range_are_enforced_by_sql (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_invoice_amount_capacity_and_paid_range_are_enforced_by_sql) ... 
+  test_invoice_amount_capacity_and_paid_range_are_enforced_by_sql (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_invoice_amount_capacity_and_paid_range_are_enforced_by_sql) (changes={'amount': Decimal('-0.01')}) ... FAIL
+  test_invoice_amount_capacity_and_paid_range_are_enforced_by_sql (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_invoice_amount_capacity_and_paid_range_are_enforced_by_sql) (changes={'amount': Decimal('1000000000000.00')}) ... FAIL
+  test_invoice_amount_capacity_and_paid_range_are_enforced_by_sql (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_invoice_amount_capacity_and_paid_range_are_enforced_by_sql) (changes={'paid': Decimal('-0.01')}) ... FAIL
+  test_invoice_amount_capacity_and_paid_range_are_enforced_by_sql (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_invoice_amount_capacity_and_paid_range_are_enforced_by_sql) (changes={'paid': Decimal('100.01')}) ... FAIL
+test_invoice_constraint_failure_rolls_back_prior_stock_line_and_audit_writes (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_invoice_constraint_failure_rolls_back_prior_stock_line_and_audit_writes) ... FAIL
+test_lot_unit_cost_cannot_be_negative_via_raw_sql (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_lot_unit_cost_cannot_be_negative_via_raw_sql) ... FAIL
+test_movement_cost_cannot_be_negative_but_quantity_stays_signed (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_movement_cost_cannot_be_negative_but_quantity_stays_signed) ... FAIL
+test_production_planned_and_actual_cost_cannot_be_negative_via_sql (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_production_planned_and_actual_cost_cannot_be_negative_via_sql) ... 
+  test_production_planned_and_actual_cost_cannot_be_negative_via_sql (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_production_planned_and_actual_cost_cannot_be_negative_via_sql) (field='planned_cost') ... FAIL
+  test_production_planned_and_actual_cost_cannot_be_negative_via_sql (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_production_planned_and_actual_cost_cannot_be_negative_via_sql) (field='actual_cost') ... FAIL
+test_production_quantity_and_produced_are_bounded_in_database (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_production_quantity_and_produced_are_bounded_in_database) ... 
+  test_production_quantity_and_produced_are_bounded_in_database (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_production_quantity_and_produced_are_bounded_in_database) (changes={'quantity': Decimal('0')}) ... FAIL
+  test_production_quantity_and_produced_are_bounded_in_database (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_production_quantity_and_produced_are_bounded_in_database) (changes={'quantity': Decimal('-0.001')}) ... FAIL
+  test_production_quantity_and_produced_are_bounded_in_database (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_production_quantity_and_produced_are_bounded_in_database) (changes={'produced': Decimal('-0.001')}) ... FAIL
+  test_production_quantity_and_produced_are_bounded_in_database (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_production_quantity_and_produced_are_bounded_in_database) (changes={'produced': Decimal('10.001')}) ... FAIL
+test_purchase_price_and_extras_cannot_be_negative_via_raw_sql (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_purchase_price_and_extras_cannot_be_negative_via_raw_sql) ... 
+  test_purchase_price_and_extras_cannot_be_negative_via_raw_sql (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_purchase_price_and_extras_cannot_be_negative_via_raw_sql) (field='price') ... FAIL
+  test_purchase_price_and_extras_cannot_be_negative_via_raw_sql (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_purchase_price_and_extras_cannot_be_negative_via_raw_sql) (field='extras') ... FAIL
+test_purchase_quantity_and_received_are_bounded_in_database (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_purchase_quantity_and_received_are_bounded_in_database) ... 
+  test_purchase_quantity_and_received_are_bounded_in_database (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_purchase_quantity_and_received_are_bounded_in_database) (changes={'quantity': Decimal('0')}) ... FAIL
+  test_purchase_quantity_and_received_are_bounded_in_database (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_purchase_quantity_and_received_are_bounded_in_database) (changes={'quantity': Decimal('-0.001')}) ... FAIL
+  test_purchase_quantity_and_received_are_bounded_in_database (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_purchase_quantity_and_received_are_bounded_in_database) (changes={'received': Decimal('-0.001')}) ... FAIL
+  test_purchase_quantity_and_received_are_bounded_in_database (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_purchase_quantity_and_received_are_bounded_in_database) (changes={'received': Decimal('10.001')}) ... FAIL
+test_sales_line_invoiced_shipped_quantity_chain_and_price (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_sales_line_invoiced_shipped_quantity_chain_and_price) ... 
+  test_sales_line_invoiced_shipped_quantity_chain_and_price (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_sales_line_invoiced_shipped_quantity_chain_and_price) (changes={'invoiced': Decimal('-0.001')}) ... FAIL
+  test_sales_line_invoiced_shipped_quantity_chain_and_price (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_sales_line_invoiced_shipped_quantity_chain_and_price) (changes={'invoiced': Decimal('5.001')}) ... FAIL
+  test_sales_line_invoiced_shipped_quantity_chain_and_price (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_sales_line_invoiced_shipped_quantity_chain_and_price) (changes={'shipped': Decimal('1.999')}) ... FAIL
+  test_sales_line_invoiced_shipped_quantity_chain_and_price (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_sales_line_invoiced_shipped_quantity_chain_and_price) (changes={'price': Decimal('-0.01')}) ... FAIL
+test_valid_zero_equal_maximum_and_temporary_boundaries_remain_legal (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_valid_zero_equal_maximum_and_temporary_boundaries_remain_legal) ... ok
+
+======================================================================
+FAIL: test_existing_three_currency_domain_is_enforced_below_writers (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_existing_three_currency_domain_is_enforced_below_writers) (model='erp.Item')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 145, in test_existing_three_currency_domain_is_enforced_below_writers
+    self.assert_database_rejects(row, {'currency': 'XYZ'}, raw=True)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden erp.Item values: {'currency': 'XYZ'}
+
+======================================================================
+FAIL: test_existing_three_currency_domain_is_enforced_below_writers (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_existing_three_currency_domain_is_enforced_below_writers) (model='erp.Lot')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 145, in test_existing_three_currency_domain_is_enforced_below_writers
+    self.assert_database_rejects(row, {'currency': 'XYZ'}, raw=True)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden erp.Lot values: {'currency': 'XYZ'}
+
+======================================================================
+FAIL: test_existing_three_currency_domain_is_enforced_below_writers (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_existing_three_currency_domain_is_enforced_below_writers) (model='erp.SalesOrder')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 145, in test_existing_three_currency_domain_is_enforced_below_writers
+    self.assert_database_rejects(row, {'currency': 'XYZ'}, raw=True)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden erp.SalesOrder values: {'currency': 'XYZ'}
+
+======================================================================
+FAIL: test_existing_three_currency_domain_is_enforced_below_writers (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_existing_three_currency_domain_is_enforced_below_writers) (model='erp.Production')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 145, in test_existing_three_currency_domain_is_enforced_below_writers
+    self.assert_database_rejects(row, {'currency': 'XYZ'}, raw=True)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden erp.Production values: {'currency': 'XYZ'}
+
+======================================================================
+FAIL: test_existing_three_currency_domain_is_enforced_below_writers (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_existing_three_currency_domain_is_enforced_below_writers) (model='erp.Purchase')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 145, in test_existing_three_currency_domain_is_enforced_below_writers
+    self.assert_database_rejects(row, {'currency': 'XYZ'}, raw=True)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden erp.Purchase values: {'currency': 'XYZ'}
+
+======================================================================
+FAIL: test_existing_three_currency_domain_is_enforced_below_writers (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_existing_three_currency_domain_is_enforced_below_writers) (model='operations.Invoice')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 145, in test_existing_three_currency_domain_is_enforced_below_writers
+    self.assert_database_rejects(row, {'currency': 'XYZ'}, raw=True)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden operations.Invoice values: {'currency': 'XYZ'}
+
+======================================================================
+FAIL: test_existing_three_currency_domain_is_enforced_below_writers (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_existing_three_currency_domain_is_enforced_below_writers) (model='finance.Transaction')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 145, in test_existing_three_currency_domain_is_enforced_below_writers
+    self.assert_database_rejects(row, {'currency': 'XYZ'}, raw=True)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden finance.Transaction values: {'currency': 'XYZ'}
+
+======================================================================
+FAIL: test_existing_three_currency_domain_is_enforced_below_writers (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_existing_three_currency_domain_is_enforced_below_writers) (model='finance.Salary')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 145, in test_existing_three_currency_domain_is_enforced_below_writers
+    self.assert_database_rejects(row, {'currency': 'XYZ'}, raw=True)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden finance.Salary values: {'currency': 'XYZ'}
+
+======================================================================
+FAIL: test_finance_positive_amount_and_field_capacity_also_hold_below_commands (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_finance_positive_amount_and_field_capacity_also_hold_below_commands) (model='finance.Transaction', amount=Decimal('0'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 139, in test_finance_positive_amount_and_field_capacity_also_hold_below_commands
+    self.assert_database_rejects(row, {'amount': amount}, raw=True)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden finance.Transaction values: {'amount': Decimal('0')}
+
+======================================================================
+FAIL: test_finance_positive_amount_and_field_capacity_also_hold_below_commands (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_finance_positive_amount_and_field_capacity_also_hold_below_commands) (model='finance.Transaction', amount=Decimal('-0.01'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 139, in test_finance_positive_amount_and_field_capacity_also_hold_below_commands
+    self.assert_database_rejects(row, {'amount': amount}, raw=True)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden finance.Transaction values: {'amount': Decimal('-0.01')}
+
+======================================================================
+FAIL: test_finance_positive_amount_and_field_capacity_also_hold_below_commands (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_finance_positive_amount_and_field_capacity_also_hold_below_commands) (model='finance.Transaction', amount=Decimal('1000000000000.00'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 139, in test_finance_positive_amount_and_field_capacity_also_hold_below_commands
+    self.assert_database_rejects(row, {'amount': amount}, raw=True)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden finance.Transaction values: {'amount': Decimal('1000000000000.00')}
+
+======================================================================
+FAIL: test_finance_positive_amount_and_field_capacity_also_hold_below_commands (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_finance_positive_amount_and_field_capacity_also_hold_below_commands) (model='finance.Salary', amount=Decimal('0'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 139, in test_finance_positive_amount_and_field_capacity_also_hold_below_commands
+    self.assert_database_rejects(row, {'amount': amount}, raw=True)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden finance.Salary values: {'amount': Decimal('0')}
+
+======================================================================
+FAIL: test_finance_positive_amount_and_field_capacity_also_hold_below_commands (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_finance_positive_amount_and_field_capacity_also_hold_below_commands) (model='finance.Salary', amount=Decimal('-0.01'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 139, in test_finance_positive_amount_and_field_capacity_also_hold_below_commands
+    self.assert_database_rejects(row, {'amount': amount}, raw=True)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden finance.Salary values: {'amount': Decimal('-0.01')}
+
+======================================================================
+FAIL: test_finance_positive_amount_and_field_capacity_also_hold_below_commands (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_finance_positive_amount_and_field_capacity_also_hold_below_commands) (model='finance.Salary', amount=Decimal('10000000000.00'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 139, in test_finance_positive_amount_and_field_capacity_also_hold_below_commands
+    self.assert_database_rejects(row, {'amount': amount}, raw=True)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden finance.Salary values: {'amount': Decimal('10000000000.00')}
+
+======================================================================
+FAIL: test_invoice_amount_capacity_and_paid_range_are_enforced_by_sql (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_invoice_amount_capacity_and_paid_range_are_enforced_by_sql) (changes={'amount': Decimal('-0.01')})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 94, in test_invoice_amount_capacity_and_paid_range_are_enforced_by_sql
+    self.assert_database_rejects(self.invoice, changes, raw=True)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden operations.Invoice values: {'amount': Decimal('-0.01')}
+
+======================================================================
+FAIL: test_invoice_amount_capacity_and_paid_range_are_enforced_by_sql (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_invoice_amount_capacity_and_paid_range_are_enforced_by_sql) (changes={'amount': Decimal('1000000000000.00')})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 94, in test_invoice_amount_capacity_and_paid_range_are_enforced_by_sql
+    self.assert_database_rejects(self.invoice, changes, raw=True)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden operations.Invoice values: {'amount': Decimal('1000000000000.00')}
+
+======================================================================
+FAIL: test_invoice_amount_capacity_and_paid_range_are_enforced_by_sql (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_invoice_amount_capacity_and_paid_range_are_enforced_by_sql) (changes={'paid': Decimal('-0.01')})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 94, in test_invoice_amount_capacity_and_paid_range_are_enforced_by_sql
+    self.assert_database_rejects(self.invoice, changes, raw=True)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden operations.Invoice values: {'paid': Decimal('-0.01')}
+
+======================================================================
+FAIL: test_invoice_amount_capacity_and_paid_range_are_enforced_by_sql (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_invoice_amount_capacity_and_paid_range_are_enforced_by_sql) (changes={'paid': Decimal('100.01')})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 94, in test_invoice_amount_capacity_and_paid_range_are_enforced_by_sql
+    self.assert_database_rejects(self.invoice, changes, raw=True)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden operations.Invoice values: {'paid': Decimal('100.01')}
+
+======================================================================
+FAIL: test_invoice_constraint_failure_rolls_back_prior_stock_line_and_audit_writes (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_invoice_constraint_failure_rolls_back_prior_stock_line_and_audit_writes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 203, in test_invoice_constraint_failure_rolls_back_prior_stock_line_and_audit_writes
+    self.assertTrue(denied, 'The invoice constraint must reject the final statement')
+AssertionError: False is not true : The invoice constraint must reject the final statement
+
+======================================================================
+FAIL: test_lot_unit_cost_cannot_be_negative_via_raw_sql (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_lot_unit_cost_cannot_be_negative_via_raw_sql)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 126, in test_lot_unit_cost_cannot_be_negative_via_raw_sql
+    self.assert_database_rejects(self.lot, {'unit_cost': D('-0.01')}, raw=True)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden erp.Lot values: {'unit_cost': Decimal('-0.01')}
+
+======================================================================
+FAIL: test_movement_cost_cannot_be_negative_but_quantity_stays_signed (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_movement_cost_cannot_be_negative_but_quantity_stays_signed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 130, in test_movement_cost_cannot_be_negative_but_quantity_stays_signed
+    self.assert_database_rejects(self.movement, {'cost': D('-0.01')}, raw=True)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden erp.Movement values: {'cost': Decimal('-0.01')}
+
+======================================================================
+FAIL: test_production_planned_and_actual_cost_cannot_be_negative_via_sql (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_production_planned_and_actual_cost_cannot_be_negative_via_sql) (field='planned_cost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 116, in test_production_planned_and_actual_cost_cannot_be_negative_via_sql
+    self.assert_database_rejects(self.job, {field: D('-0.01')}, raw=True)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden erp.Production values: {'planned_cost': Decimal('-0.01')}
+
+======================================================================
+FAIL: test_production_planned_and_actual_cost_cannot_be_negative_via_sql (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_production_planned_and_actual_cost_cannot_be_negative_via_sql) (field='actual_cost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 116, in test_production_planned_and_actual_cost_cannot_be_negative_via_sql
+    self.assert_database_rejects(self.job, {field: D('-0.01')}, raw=True)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden erp.Production values: {'actual_cost': Decimal('-0.01')}
+
+======================================================================
+FAIL: test_production_quantity_and_produced_are_bounded_in_database (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_production_quantity_and_produced_are_bounded_in_database) (changes={'quantity': Decimal('0')})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 111, in test_production_quantity_and_produced_are_bounded_in_database
+    self.assert_database_rejects(self.job, changes)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden erp.Production values: {'quantity': Decimal('0')}
+
+======================================================================
+FAIL: test_production_quantity_and_produced_are_bounded_in_database (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_production_quantity_and_produced_are_bounded_in_database) (changes={'quantity': Decimal('-0.001')})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 111, in test_production_quantity_and_produced_are_bounded_in_database
+    self.assert_database_rejects(self.job, changes)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden erp.Production values: {'quantity': Decimal('-0.001')}
+
+======================================================================
+FAIL: test_production_quantity_and_produced_are_bounded_in_database (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_production_quantity_and_produced_are_bounded_in_database) (changes={'produced': Decimal('-0.001')})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 111, in test_production_quantity_and_produced_are_bounded_in_database
+    self.assert_database_rejects(self.job, changes)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden erp.Production values: {'produced': Decimal('-0.001')}
+
+======================================================================
+FAIL: test_production_quantity_and_produced_are_bounded_in_database (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_production_quantity_and_produced_are_bounded_in_database) (changes={'produced': Decimal('10.001')})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 111, in test_production_quantity_and_produced_are_bounded_in_database
+    self.assert_database_rejects(self.job, changes)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden erp.Production values: {'produced': Decimal('10.001')}
+
+======================================================================
+FAIL: test_purchase_price_and_extras_cannot_be_negative_via_raw_sql (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_purchase_price_and_extras_cannot_be_negative_via_raw_sql) (field='price')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 105, in test_purchase_price_and_extras_cannot_be_negative_via_raw_sql
+    self.assert_database_rejects(self.purchase, {field: D('-0.01')}, raw=True)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden erp.Purchase values: {'price': Decimal('-0.01')}
+
+======================================================================
+FAIL: test_purchase_price_and_extras_cannot_be_negative_via_raw_sql (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_purchase_price_and_extras_cannot_be_negative_via_raw_sql) (field='extras')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 105, in test_purchase_price_and_extras_cannot_be_negative_via_raw_sql
+    self.assert_database_rejects(self.purchase, {field: D('-0.01')}, raw=True)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden erp.Purchase values: {'extras': Decimal('-0.01')}
+
+======================================================================
+FAIL: test_purchase_quantity_and_received_are_bounded_in_database (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_purchase_quantity_and_received_are_bounded_in_database) (changes={'quantity': Decimal('0')})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 100, in test_purchase_quantity_and_received_are_bounded_in_database
+    self.assert_database_rejects(self.purchase, changes)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden erp.Purchase values: {'quantity': Decimal('0')}
+
+======================================================================
+FAIL: test_purchase_quantity_and_received_are_bounded_in_database (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_purchase_quantity_and_received_are_bounded_in_database) (changes={'quantity': Decimal('-0.001')})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 100, in test_purchase_quantity_and_received_are_bounded_in_database
+    self.assert_database_rejects(self.purchase, changes)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden erp.Purchase values: {'quantity': Decimal('-0.001')}
+
+======================================================================
+FAIL: test_purchase_quantity_and_received_are_bounded_in_database (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_purchase_quantity_and_received_are_bounded_in_database) (changes={'received': Decimal('-0.001')})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 100, in test_purchase_quantity_and_received_are_bounded_in_database
+    self.assert_database_rejects(self.purchase, changes)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden erp.Purchase values: {'received': Decimal('-0.001')}
+
+======================================================================
+FAIL: test_purchase_quantity_and_received_are_bounded_in_database (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_purchase_quantity_and_received_are_bounded_in_database) (changes={'received': Decimal('10.001')})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 100, in test_purchase_quantity_and_received_are_bounded_in_database
+    self.assert_database_rejects(self.purchase, changes)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden erp.Purchase values: {'received': Decimal('10.001')}
+
+======================================================================
+FAIL: test_sales_line_invoiced_shipped_quantity_chain_and_price (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_sales_line_invoiced_shipped_quantity_chain_and_price) (changes={'invoiced': Decimal('-0.001')})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 123, in test_sales_line_invoiced_shipped_quantity_chain_and_price
+    self.assert_database_rejects(self.line, changes)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden erp.SalesLine values: {'invoiced': Decimal('-0.001')}
+
+======================================================================
+FAIL: test_sales_line_invoiced_shipped_quantity_chain_and_price (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_sales_line_invoiced_shipped_quantity_chain_and_price) (changes={'invoiced': Decimal('5.001')})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 123, in test_sales_line_invoiced_shipped_quantity_chain_and_price
+    self.assert_database_rejects(self.line, changes)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden erp.SalesLine values: {'invoiced': Decimal('5.001')}
+
+======================================================================
+FAIL: test_sales_line_invoiced_shipped_quantity_chain_and_price (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_sales_line_invoiced_shipped_quantity_chain_and_price) (changes={'shipped': Decimal('1.999')})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 123, in test_sales_line_invoiced_shipped_quantity_chain_and_price
+    self.assert_database_rejects(self.line, changes)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden erp.SalesLine values: {'shipped': Decimal('1.999')}
+
+======================================================================
+FAIL: test_sales_line_invoiced_shipped_quantity_chain_and_price (a07_db_boundary_tests.DatabaseMoneyStockBoundaryTests.test_sales_line_invoiced_shipped_quantity_chain_and_price) (changes={'price': Decimal('-0.01')})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 123, in test_sales_line_invoiced_shipped_quantity_chain_and_price
+    self.assert_database_rejects(self.line, changes)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a07_db_boundary_tests.py", line 86, in assert_database_rejects
+    self.assertTrue(denied, f'DB accepted forbidden {model._meta.label} values: {changes}')
+AssertionError: False is not true : DB accepted forbidden erp.SalesLine values: {'price': Decimal('-0.01')}
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.066s
+
+FAILED (failures=37)
+Destroying test database for alias 'default' ('/workspace/scratch/c7b51e996a9f/tmp/a07_db_before.sqlite3_django_test')...
+ OK
+System check identified no issues (0 silenced).

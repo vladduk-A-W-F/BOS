@@ -1,0 +1,91 @@
+{
+  "scope": "Real in-process Django HTTP requests on a newly owned synthetic SQLite/media; no socket server/browser/fullgate/fullverify/A09",
+  "project_root": "/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/source",
+  "db": "/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/evidence/check_fd039b868c7e4f53bc215d6cd1b1959a.sqlite3",
+  "source_files": {
+    "scripts/access_fixtures.py": "ffaf01886f3e42d1e6616036edcf03f671c26cf75d22d04e1b29c730e0efac26",
+    "scripts/check_access.py": "b6c8ac6c9747d8f256e046bd2bbc1a71bfec1308d73a86983d4bf289a5a0821b",
+    "scripts/access_routes.json": "0e360a8d2d45a20c09c628be56debc7d0d5962ccf53a4038f6132397cb4ead7c",
+    "tasks/models.py": "d8a980ee820d72634fb51d0e5cf3a75ebefc134d44c9bf68a1e059a1fcb280b1",
+    "tasks/views.py": "1d9a655be85730c3bccc59e00b78f794077d260268729fccb2c5c2bc1b489260"
+  },
+  "checks": [
+    {
+      "name": "raw Task writes + aliases denied without mutation: ceo",
+      "passed": false,
+      "error": "(201, b'{\"id\":4,\"title\":\"A04 NEW TASK\",\"priority\":\"medium\",\"status\":\"active\",\"assignee\":\"\\xd0\\xa1\\xd0\\xb8\\xd0\\xbd\\xd1\\x82\\xd0\\xb5\\xd1\\x82\\xd0\\xb8\\xd1\\x87\\xd0\\xbd\\xd0\\xb8\\xd0\\xb9 \\xd0\\x9f\\xd1\\x80\\xd0\\xb0\\xd1\\x86\\xd1\\x96\\xd0\\xb2\\xd0\\xbd\\xd0\\xb8\\xd0\\xba A04\",\"deadline\":\"2026-12-11\",\"category\":\"\\xd0\\x9e\\xd0\\xbf\\xd0\\xb5\\xd1\\x80\\xd0\\xb0\\xd1\\x86\\xd1\\x96\\xd1\\x97\",\"branch\":null,\"branch_name\":null,\"created_at\":\"2026-09-12T16:02:03.767730+02:00\"}')",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/check_focused.py\", line 38, in check\n    fn();transaction.set_rollback(True)\n    ^^^^\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/check_focused.py\", line 50, in <lambda>\n    for role in ('ceo','manager'):check('raw Task writes + aliases denied without mutation: '+role,lambda role=role:raw_denial(role))\n                                                                                                                    ^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/check_focused.py\", line 47, in raw_denial\n    before=f.state_digest();r=require(http(c,method,path,f.api_values('tasks')),403)\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/check_focused.py\", line 28, in require\n    assert response.status_code==status,(response.status_code,response.content[:500])\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: (201, b'{\"id\":4,\"title\":\"A04 NEW TASK\",\"priority\":\"medium\",\"status\":\"active\",\"assignee\":\"\\xd0\\xa1\\xd0\\xb8\\xd0\\xbd\\xd1\\x82\\xd0\\xb5\\xd1\\x82\\xd0\\xb8\\xd1\\x87\\xd0\\xbd\\xd0\\xb8\\xd0\\xb9 \\xd0\\x9f\\xd1\\x80\\xd0\\xb0\\xd1\\x86\\xd1\\x96\\xd0\\xb2\\xd0\\xbd\\xd0\\xb8\\xd0\\xba A04\",\"deadline\":\"2026-12-11\",\"category\":\"\\xd0\\x9e\\xd0\\xbf\\xd0\\xb5\\xd1\\x80\\xd0\\xb0\\xd1\\x86\\xd1\\x96\\xd1\\x97\",\"branch\":null,\"branch_name\":null,\"created_at\":\"2026-09-12T16:02:03.767730+02:00\"}')\n"
+    },
+    {
+      "name": "raw Task writes + aliases denied without mutation: manager",
+      "passed": false,
+      "error": "(201, b'{\"id\":4,\"title\":\"A04 NEW TASK\",\"priority\":\"medium\",\"status\":\"active\",\"assignee\":\"\\xd0\\xa1\\xd0\\xb8\\xd0\\xbd\\xd1\\x82\\xd0\\xb5\\xd1\\x82\\xd0\\xb8\\xd1\\x87\\xd0\\xbd\\xd0\\xb8\\xd0\\xb9 \\xd0\\x9f\\xd1\\x80\\xd0\\xb0\\xd1\\x86\\xd1\\x96\\xd0\\xb2\\xd0\\xbd\\xd0\\xb8\\xd0\\xba A04\",\"deadline\":\"2026-12-11\",\"category\":\"\\xd0\\x9e\\xd0\\xbf\\xd0\\xb5\\xd1\\x80\\xd0\\xb0\\xd1\\x86\\xd1\\x96\\xd1\\x97\",\"branch\":null,\"branch_name\":null,\"created_at\":\"2026-09-12T16:02:03.785783+02:00\"}')",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/check_focused.py\", line 38, in check\n    fn();transaction.set_rollback(True)\n    ^^^^\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/check_focused.py\", line 50, in <lambda>\n    for role in ('ceo','manager'):check('raw Task writes + aliases denied without mutation: '+role,lambda role=role:raw_denial(role))\n                                                                                                                    ^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/check_focused.py\", line 47, in raw_denial\n    before=f.state_digest();r=require(http(c,method,path,f.api_values('tasks')),403)\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/check_focused.py\", line 28, in require\n    assert response.status_code==status,(response.status_code,response.content[:500])\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: (201, b'{\"id\":4,\"title\":\"A04 NEW TASK\",\"priority\":\"medium\",\"status\":\"active\",\"assignee\":\"\\xd0\\xa1\\xd0\\xb8\\xd0\\xbd\\xd1\\x82\\xd0\\xb5\\xd1\\x82\\xd0\\xb8\\xd1\\x87\\xd0\\xbd\\xd0\\xb8\\xd0\\xb9 \\xd0\\x9f\\xd1\\x80\\xd0\\xb0\\xd1\\x86\\xd1\\x96\\xd0\\xb2\\xd0\\xbd\\xd0\\xb8\\xd0\\xba A04\",\"deadline\":\"2026-12-11\",\"category\":\"\\xd0\\x9e\\xd0\\xbf\\xd0\\xb5\\xd1\\x80\\xd0\\xb0\\xd1\\x86\\xd1\\x96\\xd1\\x97\",\"branch\":null,\"branch_name\":null,\"created_at\":\"2026-09-12T16:02:03.785783+02:00\"}')\n"
+    },
+    {
+      "name": "legacy read retains row and adds explicit nullable C01 projections",
+      "passed": false,
+      "error": "assignee_id",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/check_focused.py\", line 38, in check\n    fn();transaction.set_rollback(True)\n    ^^^^\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/check_focused.py\", line 53, in read_fields\n    for field in ['assignee_id','assignee_name','order_id','order_code','result','result_recorded','archived_at','archived','is_overdue']:assert field in row,field\n                                                                                                                                                 ^^^^^^^^^^^^\nAssertionError: assignee_id\n"
+    },
+    {
+      "name": "real task history and format suffix routes read existing task",
+      "passed": false,
+      "error": "(404, b'\\n<!doctype html>\\n<html lang=\"en\">\\n<head>\\n  <title>Not Found</title>\\n</head>\\n<body>\\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\\n</body>\\n</html>\\n')",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/check_focused.py\", line 38, in check\n    fn();transaction.set_rollback(True)\n    ^^^^\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/check_focused.py\", line 58, in history\n    result=require(http(f.client('manager'),'GET',f'/api/tasks/{f.api[\"tasks\"].pk}/history'+suffix),200)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/check_focused.py\", line 28, in require\n    assert response.status_code==status,(response.status_code,response.content[:500])\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: (404, b'\\n<!doctype html>\\n<html lang=\"en\">\\n<head>\\n  <title>Not Found</title>\\n</head>\\n<body>\\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\\n</body>\\n</html>\\n')\n"
+    },
+    {
+      "name": "actual pending proposal outcome owner200 foreign404 read only",
+      "passed": false,
+      "error": "(404, b'\\n<!doctype html>\\n<html lang=\"en\">\\n<head>\\n  <title>Not Found</title>\\n</head>\\n<body>\\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\\n</body>\\n</html>\\n')",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/check_focused.py\", line 38, in check\n    fn();transaction.set_rollback(True)\n    ^^^^\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/check_focused.py\", line 63, in outcome\n    data=require(http(f.client('ceo'),'GET',f'/api/operations/task-proposals/{p}/'),200)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/check_focused.py\", line 28, in require\n    assert response.status_code==status,(response.status_code,response.content[:500])\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: (404, b'\\n<!doctype html>\\n<html lang=\"en\">\\n<head>\\n  <title>Not Found</title>\\n</head>\\n<body>\\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\\n</body>\\n</html>\\n')\n"
+    },
+    {
+      "name": "positive controlled create/done/archive/history/restore preserves row/result and replay",
+      "passed": false,
+      "error": "(422, b'{\"error\": \"\\\\u041d\\\\u0435\\\\u0432\\\\u0456\\\\u0434\\\\u043e\\\\u043c\\\\u0456 \\\\u043f\\\\u043e\\\\u043b\\\\u044f \\\\u0434\\\\u0456\\\\u0457.\"}')",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/check_focused.py\", line 38, in check\n    fn();transaction.set_rollback(True)\n    ^^^^\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/check_focused.py\", line 69, in lifecycle\n    c=f.client('manager');p,r=command(c,{**f.task_payload(),'title':'C01_FOCUSED_VISIBLE','order_id':f.seed.order.pk,'request_code':'R01'})\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/check_focused.py\", line 31, in command\n    p=require(http(client,'POST','/api/operations/preview/',payload),200)\n      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/check_focused.py\", line 28, in require\n    assert response.status_code==status,(response.status_code,response.content[:500])\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: (422, b'{\"error\": \"\\\\u041d\\\\u0435\\\\u0432\\\\u0456\\\\u0434\\\\u043e\\\\u043c\\\\u0456 \\\\u043f\\\\u043e\\\\u043b\\\\u044f \\\\u0434\\\\u0456\\\\u0457.\"}')\n"
+    },
+    {
+      "name": "explicit180 resolver records include history aliases and proposal status",
+      "passed": false,
+      "error": "177",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/check_focused.py\", line 38, in check\n    fn();transaction.set_rollback(True)\n    ^^^^\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/check_focused.py\", line 83, in exact_routes\n    rows=[public_row(r) for r in catalogue()];assert len(rows)==180,len(rows)\n                                                     ^^^^^^^^^^^^^^\nAssertionError: 177\n"
+    }
+  ],
+  "actual_http": [
+    {
+      "method": "POST",
+      "path": "/api/tasks/",
+      "status": 201
+    },
+    {
+      "method": "POST",
+      "path": "/api/tasks/",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/api/tasks/2/",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/tasks/2/history/",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/operations/task-proposals/35bc5547-c397-4a31-9011-dfac91dac828/",
+      "status": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/operations/preview/",
+      "status": 422
+    }
+  ],
+  "passed": 0,
+  "failed": 7,
+  "full_gate_run": false
+}

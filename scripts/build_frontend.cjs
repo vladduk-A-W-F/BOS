@@ -1,0 +1,21 @@
+const fs=require('fs'),path=require('path');
+const root=path.resolve(__dirname,'..');
+const babel=require(path.join(root,'assets/babel.js'));
+let html=fs.readFileSync(path.join(root,'frontend/boss_app_source.html'),'utf8');
+const match=html.match(/<script type="text\/babel">([\s\S]*?)<\/script>/);
+if(!match)throw new Error('JSX entrypoint missing');
+const jsx=match[1].replace('{% verbatim %}','').replace('{% endverbatim %}','');
+const compiled=babel.transform(jsx,{presets:['react'],filename:'bos-app.jsx'}).code;
+fs.writeFileSync(path.join(root,'assets/app.js'),compiled);
+html=html.replace(match[0],'<script src="/assets/app.js"></script>');
+const map={'react.production.min.js':'react.js','react-dom.production.min.js':'react-dom.js','marked.min.js':'marked.js','purify.min.js':'purify.js'};
+html=html.replace(/<script src="([^"]+)"[\s\S]*?<\/script>/g,(tag,url)=>{
+ if(url.includes('babel.min.js'))return '';
+ if(url==='/assets/app.js')return tag;
+ const key=Object.keys(map).find(k=>url.endsWith('/'+k));
+ if(!key)throw new Error('Unexpected script URL');
+ return `<script src="/assets/${map[key]}"></script>`;
+});
+html=html.replace(/<link[^>]*href="https:\/\/fonts\.[^>]+>/g,'');
+fs.writeFileSync(path.join(root,'frontend/boss_app_html.html'),html);
+console.log('JSX compiled; local script assets wired.');
