@@ -1,49 +1,55 @@
-# BoS · перевірки та CI
+# BoS · GitHub CI
 
-Master v2.1. Повний критерій незмінний: 11 пунктів. `verify` повертає 0 лише коли всі обов’язкові перевірки вибраного набору пройдено; лише набір `full` є повним прийманням. Компонентні набори `sqlite`, `postgres`, `e2e`, `ui`, `windows` не є релізним прийманням.
+P04, 17.09.2026. Конфігурацію підготовлено для приватного `vladduk-A-W-F/BOS`. Вона ще не виконувалася. Поточна кодова база перенесена в `setup/bos-transfer-p02`; старий `.gitlab-ci.yml` збережений як історичний файл. Активна конфігурація — `.github/workflows/verify.yml`.
 
-## Поточний стан
+Повне приймання має ті самі 11 критеріїв `scripts/verify.py`. Компонентний зелений job не означає готовності MVP. Не виконана або не реалізована перевірка не є PASS. У P04 не змінено застосунок, verifier, його suites, оракули, залежності або історичні результати.
 
-Каркас створено й запущено локально. Зовнішній конвеєр **НЕ ЗАПУЩЕНО: у BoS немає remote, доступ до репозиторію GitLab не встановлений**. Доступний GitHub показує тільки інший проєкт `vladduk-A-W-F/FOS`; BoS туди не завантажувався. `.gitlab-ci.yml` підготовлено для заявленої користувачем платформи GitLab. Непідтвердженої URL прогону немає. Після надання доступу до фактичного репозиторію файл конвеєра треба запустити й додати справжні URL та вивід у `evidence/0.0/`.
+## Як запускати після дозволу на відповідний пункт
 
-Відсутні `scripts/check_invariants.py`, `check_access.py`, `check_concurrency.py`, `e2e_scenario.py`, `check_restore.py`, `check_install.py`, `check_upgrade.py`, `check_ui.py` позначаються **НЕ РЕАЛІЗОВАНО**, а не успіхом. Відсутній PostgreSQL чи Windows-артефакт — **НЕ ЗАПУЩЕНО**. Виняток перетворюється лише на червоний результат; він не поглинається як успіх.
+Workflow має тільки `workflow_dispatch` з вибором одного набору. Значення за замовчуванням — `sqlite`; `full` явно запускає всі п’ять компонентів та фінальний job. Push і PR не запускають CI. Ручний запуск має бути на точній погодженій гілці/commit.
 
-## Запуск
+| Вибір | Середовище | Незмінна команда verifier | Картка |
+|---|---|---|---|
+| sqlite | Ubuntu 24.04 / Python 3.12 / нові SQLite | `--suite sqlite` | P05 |
+| postgres | Ubuntu / Python 3.12 / власний PostgreSQL 16 | `--suite postgres` | P06 |
+| e2e | Ubuntu / Python 3.12 / SQLite та PG16 | `--suite e2e` | P06 / узгоджений наскрізний прогін |
+| windows | Windows 2025 / Python 3.12 / SQLite та native PG16 | `--suite windows` | P07 |
+| ui | Ubuntu / Python 3.12 / дозволений Chromium | `--suite ui` | P09 |
+| full | Усі п’ять jobs плюс справжній `--suite full` | усі 11 критеріїв | P19 після передумов |
 
-Потрібні Python 3.12 та залежності `requirements-ci.txt`. Для повного локального прогону з ізольованим PostgreSQL:
+**Перша реєстрація:** GitHub обробляє `workflow_dispatch`, коли workflow є в default branch. Зараз `main` має лише README. У P04 `main` не змінюється; перед P05 потрібно окремо довести до завершення реєстрацію перевіреного workflow у default branch у межах дозволеного перенесення. Не видавати наявність YAML у setup-гілці за вже доступну кнопку запуску. [GitHub: workflow_dispatch](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_dispatch).
 
-```bash
-python3 -m pip install -r requirements-ci.txt
-docker compose up -d --wait postgres
-BOS_PG_DISPOSABLE=1 BOS_PGHOST=127.0.0.1 BOS_PGPORT=55432 BOS_PGUSER=bos_ci BOS_PGPASSWORD=bos_synthetic_ci_only bash scripts/verify.sh --suite full
-```
+Не купувати runner, хвилини, сервер або інші ресурси автоматично. Відмова квоти/Actions/прав або відсутній runner фіксується як НЕ ЗАПУЩЕНО. P04 не розпочинає P05–P09 і не є серверним розгортанням.
 
-Пароль у цьому прикладі стосується виключно одноразового синтетичного контейнера. У ньому немає робочих даних; його стан зберігається в tmpfs. Це не конфігурація сервера BoS. Windows-обгортка: `scripts/verify.ps1`; вона повертає код дочірнього Python-процесу. Запуск із Python `-O` або `PYTHONOPTIMIZE` відхиляється.
+## Дані та середовища
 
-Перелік критеріїв: `python scripts/verify.py --list`. Результати й повний stdout/stderr кожної перевірки зберігаються поряд із JSON-звітом. Звіт містить ОС, Python, SHA джерел, обов’язкові підперевірки та фактичні коди завершення. Кожен функціональний сценарій перевіряє справжній `connection.vendor` і версію сервера; автоматичного переходу PostgreSQL → SQLite немає.
+Тести отримують лише нові синтетичні бази та media. Чинний verifier створює окрему копію джерел без робочих БД, `.env`, media, evidence та віртуальних середовищ. Для кожного сценарію він створює власну БД; видаляє тільки випадкову PostgreSQL-базу, яку створив сам. Вихідні SQLite-файли перевіряються на незмінність.
 
-## Набори конвеєра
+Linux PostgreSQL jobs мають окремі `postgres:16` service containers, тимчасове сховище та динамічний порт. Перед verifier helper запитує фактичні `server_version_num` і `version()`. Інша major version дає помилку; заміни PostgreSQL на SQLite немає. `bos_synthetic_ci_only` — значення лише для одноразового тестового сервера без робочих даних.
 
-| Job | Реальне призначення |
-|---|---|
-| `tests-sqlite` | Міграції, наявні та нові тести, інваріанти, конкурентність на SQLite. |
-| `tests-postgres` | Те саме на сервіс-контейнері `postgres:16`. |
-| `e2e` | Повний процес і еталон на обох СУБД після реалізації сценарію. |
-| `ui-playwright` | Встановлює headless Chromium; відсутній сценарій UI дає червоний статус. |
-| `tests-windows` | Справжня Windows/Python 3.12, пункти 1–3 і 6 на обох СУБД. Зараз manual. |
-| `verify-full` | Усі 11 критеріїв на `release/*` або тегу; Windows-звіт обов’язковий і має збігатися за SHA/поточним pipeline. |
+Windows не використовує Linux service container: GitHub підтримує service containers на Linux runner. [GitHub: PostgreSQL service containers](https://docs.github.com/en/actions/tutorials/use-containerized-services/create-postgresql-service-containers).
 
-`tests-windows` має `allow_failure: false`; залежність `verify-full` не є optional. Невиконаний Windows job не дозволяє назвати конвеєр зеленим. `artifacts: when: always` зберігає вивід червоних запусків. Синтаксис YAML перевірено локальним парсером; це не перевірка GitLab CI Lint і не запуск GitLab.
+`.github/ci/windows-pg16.ps1` шукає native binaries через repository variable `BOS_PG16_BIN` або `C:\Program Files\PostgreSQL\16\bin`. Він перевіряє справжню `postgres --version`, створює власний каталог у `RUNNER_TEMP`, запускає `initdb` / `pg_ctl` на loopback 55432 та зупиняє лише свій кластер з відповідним run/attempt. Системний сервіс не змінюється. Парольний файл видаляється після initdb.
 
-## Незмінність перевірок і даних
+**Передумова Windows відкрита:** поточний образ Windows 2025 описує PostgreSQL 17.11, тому наявність PG16 не припускається. Відсутність native PG16 створює `pg-start-failure.json`, exit 1 і NOT_RUN-квитанцію. У P07 потрібен справді дозволений runner із PG16 або окремо перевірене його встановлення. P04 не встановлював PostgreSQL і не виконував PowerShell. [Офіційний склад Windows 2025](https://github.com/actions/runner-images/blob/main/images/windows/Windows2025-Readme.md).
 
-У чотирьох старих сценаріях змінено тільки початкове налаштування тестової БД і запис її фактичного типу. Усі тіла перевірок після `django.setup()` збережено без змін, що зафіксовано SHA у `evidence/0.0/ORIGINAL_CHECKS.json`. Усі п’ять перевірок launcher залишено повністю незмінними. Їхні наявні mocks не є доказом чистої Windows-установки.
+## Звіти й невдалі запуски
 
-`verify` створює тимчасову копію джерел без робочих баз, media, секретів, evidence та віртуальних середовищ. У ній створюється нова синтетична `db.sqlite3` як контрольний файл для старих SHA-перевірок. Кожен сценарій отримує власну нову SQLite або PostgreSQL-базу й тимчасовий media-каталог. DROP виконується тільки для випадкової PostgreSQL-бази, яку створив цей конкретний запуск. Реальна `db.sqlite3` не використовується як fixture; її звірка 0.5 залишається локальною.
+Кожен job працює поза checkout у `RUNNER_TEMP/bos-ci/<suite>`. Артефакт має назву `bos-<run_id>-<run_attempt>-<suite>`; строк зберігання 30 днів. Після помилки використовується `always()` та `if-no-files-found: error`. Якщо runner взагалі не стартував або примусово перерваний до upload, артефакту може не бути — це не успіх.
 
-## Джерела конфігурації
+`.github/ci/evidence.py` викликає незмінний verifier, зберігає його справжній exit code, stdout/stderr і JSON. Окрема `ci-receipt.json` містить commit, runtime SHA, SHA всього `.github` (workflow, helpers і тести), repository, run ID, attempt, job key, справжній job URL з GitHub API, ОС/Python та фактичні версії БД. Вона містить SHA кожного файла доказів. Помилка встановлення залежностей/PG/браузера дає квитанцію `not_run`, а не вигаданий verifier report. Логи кроків встановлення також зберігає сам GitHub job; у квитанції є їхні outcomes.
 
-- [GitLab: PostgreSQL service](https://docs.gitlab.com/ci/services/postgres/).
-- [GitLab: manual jobs та allow_failure](https://docs.gitlab.com/ci/jobs/job_control/).
-- [GitLab: YAML, needs та artifacts](https://docs.gitlab.com/ci/yaml/).
-- [Playwright: запуск у CI](https://playwright.dev/python/docs/ci).
+GitHub metadata передається verifier через `CI_PIPELINE_ID=repository/run_id/attempt`, `CI_COMMIT_SHA`, `CI_JOB_URL`. Ідентифікатор job отримується API поточної спроби; `GITHUB_JOB` не підставляється замість числового ID у вигадану URL. Права: тільки `contents: read`, `actions: read`; checkout не зберігає credentials. Actions зафіксовані повними commit SHA.
+
+Фінальний job перевіряє всі п’ять `needs` і завантажує артефакти тільки поточного run/attempt. Немає fallback до історичного `evidence/ci/windows/report.json`. Відсутній, змінений, застарілий, неповний артефакт; інший commit/source/config/run/attempt; неправильні ОС/Python/PG; ненульовий exit або skipped job блокують успіх. Далі потрібен реальний `--suite full`, а не підсумовування зелених підписів. Після зміни коду докази не переносяться на нову версію.
+
+## Відкриті умови
+
+1. `scripts/check_upgrade.py` відсутній. Gate 9 — НЕ РЕАЛІЗОВАНО. Історична відмова автоматичної перевірки щодо A10 чинна: helper додатково зупинить full, якщо з’явиться цей executable; P04 не дозволяє його виконання, повтор або делегування.
+2. `scripts/check_ui.py` відсутній. Gate 10 — НЕ РЕАЛІЗОВАНО. Chromium встановлюватиметься тільки за наявності реального сценарію на дозволеному CI runner. Заблоковані локальні CDN/loopback маршрути не повторюються.
+3. A09: ліміт цільових спроб вичерпано. У CI немає окремого 13 MiB job. Незмінний oracle залишається тільки в потрібному full; історичний full27 мав gate8 30/31.
+4. **P04-F01:** старий `source_digest` сортує `Path` по-різному на Windows і Linux. Це підтверджено моделлю однакових 336 файлів, не запуском Windows. Непримінена мінімальна правка — `evidence/P04/PROPOSED_PATH_ORDER.patch`. Виправлення потребує окремої картки P10, red→green і нового приймання; до цього Windows/Linux SHA не збігаються й full залишається червоним. Helper не підміняє SHA.
+
+## Що перевірено в P04
+
+Локальні синтетичні тести перевіряють лише CI-квитанції, відмови та збереження exit code. YAML розібраний PyYAML; структура зіставлена з усіма 11 критеріями; Python helpers перевірені синтаксично. Окремий рецензент перевіряє точний diff. Це не GitHub server lint, PowerShell execution, Windows/PG/browser тест чи виконаний CI. Реальні запуски та їхні URL з’являться тільки у відповідних наступних картках.
