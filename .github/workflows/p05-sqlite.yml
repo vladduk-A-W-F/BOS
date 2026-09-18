@@ -3,7 +3,7 @@ name: BoS — P05 SQLite
 'on':
   push:
     branches:
-    - ci/p05-sqlite-20260918
+    - ci/p05-sqlite-r2-20260918
     paths:
     - .github/workflows/p05-sqlite.yml
 permissions:
@@ -19,7 +19,7 @@ env:
 jobs:
   sqlite:
     name: sqlite
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/ci/p05-sqlite-20260918' }}
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/ci/p05-sqlite-r2-20260918' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
