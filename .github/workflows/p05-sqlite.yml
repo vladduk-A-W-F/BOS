@@ -1,0 +1,60 @@
+# P05: один погоджений SQLite job у виділеній гілці; runtime і verify незмінні.
+name: BoS — P05 SQLite
+'on':
+  push:
+    branches:
+    - ci/p05-sqlite-20260918
+    paths:
+    - .github/workflows/p05-sqlite.yml
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: bos-p05-sqlite-${{ github.ref }}
+  cancel-in-progress: false
+env:
+  PYTHONUTF8: '1'
+  PYTHONDONTWRITEBYTECODE: '1'
+  BOS_DATA_MODE: demo
+jobs:
+  sqlite:
+    name: sqlite
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/ci/p05-sqlite-20260918' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+    - name: Джерела точного commit
+      id: checkout
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      with:
+        persist-credentials: false
+        fetch-depth: 1
+    - name: Python 3.12
+      id: python
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+      with:
+        python-version: '3.12'
+    - name: Залежності
+      id: dependencies
+      run: python -m pip install -r requirements-ci.txt
+    - name: Незмінний verify та перевірка походження
+      id: verify
+      run: python .github/ci/evidence.py run --suite sqlite --output "${{ runner.temp }}/bos-ci/sqlite"
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+    - name: Квитанція, включно з невиконаним запуском
+      id: receipt
+      if: ${{ always() }}
+      run: python .github/ci/evidence.py finish --suite sqlite --output "${{ runner.temp }}/bos-ci/sqlite"
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        BOS_STEPS_JSON: ${{ toJSON(steps) }}
+    - name: Зберегти докази після успіху або помилки
+      if: ${{ always() }}
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: bos-${{ github.run_id }}-${{ github.run_attempt }}-sqlite
+        path: ${{ runner.temp }}/bos-ci/sqlite
+        if-no-files-found: error
+        retention-days: 30
+        include-hidden-files: false
