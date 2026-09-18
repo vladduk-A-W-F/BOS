@@ -119,13 +119,22 @@ def database(backend, work):
         connection.close()
 
 
-def execute(command, cwd, env, log):
+def execute(command, cwd, env, log, *, timeout=600):
     log.parent.mkdir(parents=True, exist_ok=True)
-    # An exception becomes a failed gate in the caller, never a successful skip.
-    result = subprocess.run(command, cwd=cwd, env=env, capture_output=True,
-                            text=True, encoding='utf-8', errors='replace', timeout=600)
+    receipt = {'command': command, 'log': str(log)}
+    try:
+        result = subprocess.run(command, cwd=cwd, env=env, capture_output=True,
+                                text=True, encoding='utf-8', errors='replace', timeout=timeout)
+    except subprocess.TimeoutExpired as exc:
+        # TimeoutExpired can contain bytes even with text=True, or None for silence.
+        def decoded(value):
+            return value.decode('utf-8', errors='replace') if isinstance(value, bytes) else (value or '')
+        result = subprocess.CompletedProcess(command, None, decoded(exc.stdout), decoded(exc.stderr))
+        receipt.update(timed_out=True, timeout_seconds=timeout,
+                       reason=f'TimeoutExpired: перевищено {timeout} с; збережено доступний частковий вивід.')
+    # Other exceptions still become failed gates; a timeout has no normal exit code.
     log.write_text(result.stdout + '\n--- STDERR ---\n' + result.stderr, encoding='utf-8')
-    return result, {'command': command, 'returncode': result.returncode, 'log': str(log)}
+    return result, {**receipt, 'returncode': result.returncode}
 
 
 def json_objects(text):
@@ -150,13 +159,18 @@ def migration(backend, work, output):
     return outcome(PASS if result.returncode == 0 else FAIL, backend=backend, **receipt)
 
 
-def functional(backend, work, output):
+def functional(backend, work, output, *, timeout=600):
     parts = []
     for filename, expected in LEGACY.items():
         print(f'  {backend}: {filename}', flush=True)
         with database(backend, work) as env:
             result, receipt = execute([sys.executable, '-B', 'scripts/' + filename],
-                                      work / 'source', env, output / f'{backend}-{filename}.log')
+                                      work / 'source', env, output / f'{backend}-{filename}.log', timeout=timeout)
+        if receipt.get('timed_out'):
+            # Partial output may end inside JSON; retain evidence before parsing it.
+            parts.append(outcome(FAIL, filename=filename, checks=None, expected=expected,
+                                 engine_verified=False, **receipt))
+            return {**combine(parts), 'backend': backend}
         if filename == 'check_launcher.py':
             count = 5 if '5 launcher checks passed;' in result.stdout else 0
             engine_verified = True  # Launcher is DB-independent; never gate 11 evidence.
@@ -172,9 +186,9 @@ def functional(backend, work, output):
     with database(backend, work) as env:
         result, receipt = execute([sys.executable, '-B', 'manage.py', 'test', '--noinput',
                                    '--settings=verification_settings', '--verbosity=1'],
-                                  work / 'source', env, output / f'{backend}-django-tests.log')
-    parts.append(outcome(PASS if result.returncode == 0 else FAIL,
-                         'Решта Django-тестів; не заміняють 151+5.', **receipt))
+                                  work / 'source', env, output / f'{backend}-django-tests.log', timeout=timeout)
+    receipt.setdefault('reason', 'Решта Django-тестів; не заміняють 151+5.')
+    parts.append(outcome(PASS if result.returncode == 0 else FAIL, **receipt))
     return {**combine(parts), 'backend': backend}
 
 
