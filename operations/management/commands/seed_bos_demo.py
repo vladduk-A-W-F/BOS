@@ -2,7 +2,8 @@ import json,hashlib
 from pathlib import Path
 from django.core.management.base import BaseCommand,CommandError
 from django.conf import settings
-from django.db import transaction
+from django.db import connection,transaction
+from django.core.management.color import no_style
 from operations.models import *
 from employees.models import Employee
 from tasks.models import Task
@@ -39,6 +40,10 @@ class Command(BaseCommand):
             SupplierQuote.objects.create(code=q['id'],request=requests[q['request_id']],supplier=suppliers[q['supplier_id']],document=d,terms=terms)
         titles=['Перевірити покриття пропозиції Q12','Підтвердити версію B з постачальником C','Оновити прострочену пропозицію Q31','Підготувати порівняння R01','Підтвердити вхідний контроль R02','Звірити оплату I01','Передати специфікацію R01','Підготувати зустріч із клієнтом']
         for i,t in enumerate(read('tasks')):Task.objects.create(id=i+1,title=titles[i],assignee=employees[t['assignee_id']].full_name,deadline=t['deadline'],status=t['status'],category='Закупівлі' if t['request_id'] else 'Загальне',branch=branch)
+        # Keep stable demo IDs and advance the backend's automatic Task sequence.
+        with connection.cursor() as cursor:
+            for sql in connection.ops.sequence_reset_sql(no_style(),[Task]):
+                cursor.execute(sql)
         for i in read('invoices'):Invoice.objects.create(code=i['id'],customer=customers[i['customer_id']],amount=i['amount'],paid=i['paid'],currency=i['currency'],due_date=i['due_date'])
         doc('D-CASH','1','Навчальна виписка','На 09.09.2026 залишок становить 24 000 EUR. Навчальні дані; банківське підключення відсутнє.',access_level='ceo')
         Configuration.objects.create(key='dataset',value={'synthetic':True,'as_of':'2026-09-09','source':'Підготовлений BoS dataset; українська локалізація','id_mapping':'E01..E06 → Employee 1..6; T01..T08 → Task 1..8'})
