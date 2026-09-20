@@ -7,6 +7,7 @@ import io
 import json
 import os
 from pathlib import Path
+import re
 from uuid import uuid4
 
 from django.conf import settings
@@ -16,14 +17,58 @@ from django.test import Client, TestCase, override_settings
 from employees.models import Employee
 from finance.models import Counterparty
 from operations.models import ActionProposal, Configuration
-from scripts.check_support import login_test_client
+from scripts.check_support import database_config, login_test_client
 from erp.models import Item, Location, Lot, Movement, Purchase, SalesOrder, SalesLine, Event
+
+
+def assert_import_test_database():
+    """Refuse source/working databases before any synthetic fixture writes."""
+    # override_settings() masks SETTINGS_MODULE with None; inspect its defaults.
+    profile = settings._wrapped
+    while getattr(profile, 'SETTINGS_MODULE', None) is None and hasattr(profile, 'default_settings'):
+        profile = profile.default_settings
+    if (os.environ.get('DJANGO_SETTINGS_MODULE') != 'verification_settings'
+            or getattr(profile, 'SETTINGS_MODULE', None) != 'verification_settings'):
+        raise RuntimeError('Initial import fixtures require verification_settings.')
+    config = database_config()
+    source = str(config['NAME'])
+    vendor = 'postgresql' if config['ENGINE'].endswith('.postgresql') else 'sqlite'
+    if (connection.vendor != vendor
+            or connection.settings_dict['ENGINE'] != config['ENGINE']):
+        raise RuntimeError('Initial import fixture backend differs from verification profile.')
+    if vendor == 'postgresql':
+        expected = 'test_' + source
+    elif source == ':memory:':
+        expected = f'file:memorydb_{connection.alias}?mode=memory&cache=shared'
+    else:
+        path = Path(source)
+        if not path.is_absolute() or not re.fullmatch(r'check_[a-f0-9]{32}\.sqlite3', path.name):
+            raise RuntimeError('Initial import fixtures require an issued SQLite check path.')
+        expected = config['TEST']['NAME']
+        test_path = Path(expected)
+        if (test_path.resolve() == path.resolve()
+                or (test_path.exists() and path.exists() and test_path.samefile(path))):
+            raise RuntimeError('Initial import test database aliases its source.')
+    if str(connection.settings_dict['NAME']) != expected:
+        raise RuntimeError('Initial import fixtures require the exact Django test database.')
+    # Settings alone cannot prove the identity of an already-open connection.
+    with connection.cursor() as cursor:
+        if vendor == 'postgresql':
+            cursor.execute('SELECT current_database()')
+            actual = cursor.fetchone()[0]
+            matches = actual == expected
+        else:
+            cursor.execute('PRAGMA database_list')
+            actual = next((row[2] for row in cursor.fetchall() if row[1] == 'main'), None)
+            matches = actual == '' if source == ':memory:' else (
+                bool(actual) and Path(actual).resolve() == Path(expected).resolve())
+    if not matches:
+        raise RuntimeError('Initial import connection is not the expected Django test database.')
 
 
 class InitialImportFixture:
     def setUp(self):
-        self.assertEqual(os.environ.get('DJANGO_SETTINGS_MODULE'), 'verification_settings')
-        self.assertTrue(Path(str(connection.settings_dict['NAME'])).name.startswith('check_'))
+        assert_import_test_database()
         self.http = Client(enforce_csrf_checks=True, raise_request_exception=False)
         self.user = login_test_client(self.http, 'ceo', capabilities=('view_document','export_workspace'))
         self.owner = Employee.objects.create(full_name='B02 синтетичний відповідальний')

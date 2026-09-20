@@ -1,0 +1,29 @@
+Creating test database for alias 'default' ('/tmp/bos-p10-003-green-vghu8grr/check_f9443780b02c48ed8134f92d54513c7d.sqlite3_django_test')...
+Destroying old test database for alias 'default' ('/tmp/bos-p10-003-green-vghu8grr/check_f9443780b02c48ed8134f92d54513c7d.sqlite3_django_test')...
+test_actual_three_currency_import_preserves_overdue_origin_and_pending_stock (erp.test_initial_import.InitialImportTests.test_actual_three_currency_import_preserves_overdue_origin_and_pending_stock) ... ERROR
+test_accepts_django_memory_sqlite_database (erp.test_initial_import_isolation.InitialImportIsolationTests.test_accepts_django_memory_sqlite_database) ... ok
+test_accepts_exact_file_sqlite_test_database (erp.test_initial_import_isolation.InitialImportIsolationTests.test_accepts_exact_file_sqlite_test_database) ... ok
+test_accepts_exact_postgres_test_database (erp.test_initial_import_isolation.InitialImportIsolationTests.test_accepts_exact_postgres_test_database) ... ok
+test_postgres_requires_disposable_marker_and_exact_source_name (erp.test_initial_import_isolation.InitialImportIsolationTests.test_postgres_requires_disposable_marker_and_exact_source_name) ... ok
+test_rejects_environment_or_loaded_working_profile (erp.test_initial_import_isolation.InitialImportIsolationTests.test_rejects_environment_or_loaded_working_profile) ... ok
+test_rejects_live_connection_to_source_despite_test_settings (erp.test_initial_import_isolation.InitialImportIsolationTests.test_rejects_live_connection_to_source_despite_test_settings) ... ok
+test_rejects_source_and_unrelated_databases (erp.test_initial_import_isolation.InitialImportIsolationTests.test_rejects_source_and_unrelated_databases) ... ok
+test_rejects_sqlite_source_aliases_without_changing_source_bytes (erp.test_initial_import_isolation.InitialImportIsolationTests.test_rejects_sqlite_source_aliases_without_changing_source_bytes) ... ok
+test_rejects_unissued_sqlite_source_name (erp.test_initial_import_isolation.InitialImportIsolationTests.test_rejects_unissued_sqlite_source_name) ... ok
+test_rejects_unknown_or_mismatched_backend (erp.test_initial_import_isolation.InitialImportIsolationTests.test_rejects_unknown_or_mismatched_backend) ... ok
+
+======================================================================
+ERROR: test_actual_three_currency_import_preserves_overdue_origin_and_pending_stock (erp.test_initial_import.InitialImportTests.test_actual_three_currency_import_preserves_overdue_origin_and_pending_stock)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/pg_guard/source/erp/test_initial_import.py", line 67, in setUp
+    assert_import_test_database()
+  File "/workspace/scratch/4dbe5b4c73ee/execution/pg_guard/source/erp/test_initial_import.py", line 28, in assert_import_test_database
+    raise RuntimeError('Initial import fixtures require verification_settings.')
+RuntimeError: Initial import fixtures require verification_settings.
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.056s
+
+FAILED (errors=1)
+Destroying test database for alias 'default' ('/tmp/bos-p10-003-green-vghu8grr/check_f9443780b02c48ed8134f92d54513c7d.sqlite3_django_test')...
