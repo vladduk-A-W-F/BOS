@@ -1,3 +1,9 @@
+# Уточнення браузерної перевірки · 20.09.2026
+
+Чинний URL: [BoS](https://business-operating-system.vladduk134.chatgpt.site); Sites зараз показує public. Доступ і публікація цією задачею не змінювалися. Браузер підтвердив лендинг, 4 вкладки, клавіатуру, вхід у demo й read-only зв’язки SO-101 → MO-101 → PO-FAST. Мобільна перевірка та зворотний перехід залишились без спостереження через CUA timeout; повна браузерна приймання не оголошена. Деталі: [LANDING_BROWSER_UA.md](LANDING_BROWSER_UA.md). Нижче збережено первинний звіт/чекпоінт із тодішнім URL та приватним доступом.
+
+---
+
 # BATCH-04 · лендинг та демонстрація
 
 **PUBLISHED_OWNER_PRIVATE**, version2, 20.09.2026. [Відкрити BoS](https://bos-industrial-workspace.vladduk134.chatgpt.site).

@@ -221,7 +221,7 @@
     "codex_security": "NOT_INSTALLED_REQUIRES_USER_UI"
   },
   "setup_head_note": "Verified PR head before this documentation-only evidence update; product runtime remains CI8060075/sourcece495b29. Exact resulting commit is recorded by Git, not self-embedded.",
-  "next_action": "Owner review of landing/modules; next product stages GPT assistant and customer-specific connectors, production readiness remains blocked",
+  "next_action": "Finish pending mobile/return-link/legacy-route landing checks after browser reconnection; later product stages remain GPT assistant and customer-specific connectors. Production readiness remains blocked.",
   "batch_result": "THROUGH_LANDING_COMPLETE_WITH_DOCUMENTED_RELEASE_BLOCKERS",
   "baseline_product_commit": "7d46dced3bcf06d44755cf53366c9e16bd465582",
   "next_after_owner_review_note": "Історичне поле початкового setup для compatibility validator; P10-003 вже scoped accepted. Чинна черга — next_action та QUEUE.",
@@ -424,6 +424,19 @@
       "whole_git_tree_verified": false
     },
     "browser_followup": {
+      "status": "PARTIAL_BROWSER_VERIFIED_MOBILE_PENDING",
+      "landing_observed": true,
+      "demo_observed": true,
+      "desktop_tabs_and_keyboard": "PASS",
+      "linked_records": "PASS_READ_ONLY_SO101_MO101_POFAST",
+      "mobile_acceptance": "PENDING_CUA_TIMEOUT",
+      "return_link_acceptance": "PENDING_NO_OBSERVATION",
+      "browser_acceptance": false,
+      "site_defect_established": false,
+      "evidence": "docs/orchestration/evidence/batch04/browser-followup-20260920.json",
+      "report": "docs/orchestration/LANDING_BROWSER_UA.md"
+    },
+    "browser_followup_previous": {
       "status": "PENDING_NO_OBSERVATION",
       "reason": "CUA_TOOL_TIMEOUT",
       "source": "Main orchestrator report on 2026-09-20; browser creation did not return page state",
@@ -462,11 +475,15 @@
     "version_id": "appgprj_6aa9057b8e5c8191abe7685fb7c9f145~appgver_4294cd6490a08191857c1350f21cf7e8",
     "deployment_id": "appgdep_6aafc4d8b73c8191b5d7a0e08611f9ab",
     "status": "succeeded",
-    "url": "https://bos-industrial-workspace.vladduk134.chatgpt.site",
-    "audience": "owner_private_preserved",
+    "url": "https://business-operating-system.vladduk134.chatgpt.site",
+    "audience": "public_observed_not_changed_by_this_task",
     "updated_at": "2026-09-20T11:35:02.027155+00:00",
     "django_deployed": false,
-    "browser_acceptance": false
+    "browser_acceptance": false,
+    "historical_publication_receipt": "docs/orchestration/evidence/batch04/DEPLOYMENT.json",
+    "current_access_observed_at_utc": "2026-09-20 12:31:12 UTC",
+    "access_revision": 2,
+    "browser_followup_status": "PARTIAL_BROWSER_VERIFIED_MOBILE_PENDING"
   },
   "saas_package": {
     "status": "PACKAGED_NOT_PRODUCTION_READY",

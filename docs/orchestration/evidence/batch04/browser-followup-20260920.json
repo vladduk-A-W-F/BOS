@@ -1,0 +1,186 @@
+{
+  "schema": 1,
+  "card": "PLAN-LANDING-BROWSER",
+  "observed_at_utc": "2026-09-20 12:31:12 UTC",
+  "scope": "Existing published Sites landing and read-only navigation through synthetic demo records",
+  "status": "PARTIAL_BROWSER_VERIFIED_MOBILE_PENDING",
+  "repository_head_read": "a8257712fb49d18de71da1345f3fe55130152953",
+  "project_id": "appgprj_6aa9057b8e5c8191abe7685fb7c9f145",
+  "url": "https://business-operating-system.vladduk134.chatgpt.site",
+  "version_number": 2,
+  "site_source_commit": "79b29aaddeccbd2399763495e4c35a4974aa8cfa",
+  "site_metadata": {
+    "access_mode": "public",
+    "access_revision": 2,
+    "access_updated_at": "2026-09-20T11:50:53.890750+00:00",
+    "publication_or_access_changed_by_this_task": false,
+    "original_deployment_receipt": "docs/orchestration/evidence/batch04/DEPLOYMENT.json",
+    "note": "Current Sites metadata differs from the historical private URL receipt; actor and authorization for that intervening change not established."
+  },
+  "method": "CUA browser accessibility state, DOM read-only observations, screenshot and native Sites metadata. These are recorded observations from the task, not an automated test-run log.",
+  "observations": [
+    {
+      "id": "landing",
+      "result": "PASS",
+      "title": "BoS — пов’язане керування бізнесом",
+      "h1": "Бачити зв’язки. Керувати цілим.",
+      "development_notice_visible": true,
+      "synthetic_data_notice_visible": true
+    },
+    {
+      "id": "desktop_layout",
+      "result": "PASS_SCOPED",
+      "viewport": {
+        "width": 1280,
+        "height": 559,
+        "document_scroll_width": 1265
+      },
+      "screenshot": "First viewport inspected in task output; no horizontal overflow observed at this width. Full-page layout not exhaustively inspected."
+    },
+    {
+      "id": "module_tabs",
+      "result": "PASS",
+      "items": [
+        {
+          "tab": "02 Закупівлі та склад ↗",
+          "selected": "true",
+          "heading": "Матеріали з відомим походженням.",
+          "href": "/demo/#procurement"
+        },
+        {
+          "tab": "03 Виробництво ↗",
+          "selected": "true",
+          "heading": "Робота, пов’язана з потребою клієнта.",
+          "href": "/demo/#production"
+        },
+        {
+          "tab": "04 Фінанси ↗",
+          "selected": "true",
+          "heading": "Фінансовий результат поруч з операцією.",
+          "href": "/demo/#finance"
+        },
+        {
+          "tab": "01 Замовлення ↗",
+          "selected": "true",
+          "heading": "Що потрібно, що готове і що затримує поставку.",
+          "href": "/demo/#orders"
+        }
+      ]
+    },
+    {
+      "id": "keyboard",
+      "result": "PASS",
+      "sequence": [
+        {
+          "key": "ArrowRight",
+          "selected_and_focused": "02 Закупівлі та склад ↗"
+        },
+        {
+          "key": "End",
+          "selected_and_focused": "04 Фінанси ↗"
+        },
+        {
+          "key": "Home",
+          "selected_and_focused": "01 Замовлення ↗"
+        },
+        {
+          "key": "ArrowLeft",
+          "selected_and_focused": "04 Фінанси ↗"
+        }
+      ]
+    },
+    {
+      "id": "demo_entry",
+      "result": "PASS",
+      "action": "Відкрити демо ↗",
+      "observed_url": "https://business-operating-system.vladduk134.chatgpt.site/demo/",
+      "observed_title": "Огляд бізнесу · BoS",
+      "h1": "Огляд бізнесу",
+      "local_changes_notice": true
+    },
+    {
+      "id": "orders_route",
+      "result": "PASS",
+      "observed_url": "https://business-operating-system.vladduk134.chatgpt.site/demo/#orders",
+      "observed_title": "Замовлення · BoS"
+    },
+    {
+      "id": "linked_records",
+      "result": "PASS_READ_ONLY",
+      "path": [
+        "SO-101",
+        "MO-101",
+        "PO-FAST"
+      ],
+      "observed": {
+        "order_quantity": 50,
+        "reserved_quantity": 10,
+        "manufacturing_quantity": 40,
+        "material_available_required": "24 / 32 кг",
+        "fasteners_available_required": "60 / 80 шт.",
+        "manufacturing_start": "disabled: Не вистачає придатних матеріалів. Прийміть PO та погодьте якість партій.",
+        "purchase_order_quantity": 20,
+        "purchase_order_received": 0
+      },
+      "writes_confirmed": false
+    }
+  ],
+  "pending": [
+    "Mobile viewport and mobile interactions",
+    "Return to landing link (present, but attempted navigation did not return observable state)",
+    "Live legacy root-hash redirects",
+    "Full end-to-end demo business scenario"
+  ],
+  "browser_failure": {
+    "first_timeout": "Combined close inspector / return to landing / set 390x844 / observation call timed out. It is not established which operations completed.",
+    "recovery": [
+      "Existing tab reacquisition timed out after 30 seconds",
+      "CUA surface inventory timed out after 45 seconds"
+    ],
+    "last_verified_url": "https://business-operating-system.vladduk134.chatgpt.site/demo/#orders",
+    "viewport_override_after_timeout": "UNKNOWN; reset required if a temporary override was applied",
+    "user_reconnection_requested": true,
+    "site_defect_established": false,
+    "user_response": "Браузер подключён, продолжай",
+    "after_user_reconnection": [
+      "Existing tab reacquisition still timed out after 30 seconds",
+      "CUA surface inventory still timed out after 30 seconds"
+    ],
+    "user_action_alone_did_not_restore_tool": true,
+    "next_step": "Resume pending checks when CUA can return page state; do not repeat completed checks or infer a site defect from tool timeouts."
+  },
+  "boundaries": {
+    "source_code_changed": false,
+    "site_republished": false,
+    "access_changed": false,
+    "backend_tests_run": false,
+    "business_writes_confirmed": false,
+    "full_browser_acceptance": false,
+    "technical_ready": false,
+    "pilot_allowed": false
+  },
+  "raw_browser_observations": {
+    "path": "docs/orchestration/evidence/batch04/browser-observations-20260920.json",
+    "sha256": "f8701a74b17643332d9cdc3eb98a9ca26cf8c7bbdcde6a8a22a6b8be417f05d5",
+    "entries": 12,
+    "extraction": "Exact text content blocks from CUA tool responses in this task; bootstrap documentation and image bytes excluded."
+  },
+  "current_site_metadata": {
+    "id": "appgprj_6aa9057b8e5c8191abe7685fb7c9f145",
+    "current_live_url": "https://business-operating-system.vladduk134.chatgpt.site",
+    "access_mode": "public",
+    "access_revision": 2,
+    "access_updated_at": "2026-09-20T11:50:53.890750+00:00",
+    "latest_version_number": 2,
+    "status": "active"
+  },
+  "independent_review": {
+    "verdict": "ACCEPT_SCOPED",
+    "reviewer": "/root/review_landing_evidence",
+    "raw_text_outputs_verified_against_session": 12,
+    "json_files_parsed": 4,
+    "scope": "Documentation accuracy only; not full website or backend acceptance",
+    "blocking_findings": [],
+    "editorial_correction": "Allowlist now states two new evidence JSON files."
+  }
+}
