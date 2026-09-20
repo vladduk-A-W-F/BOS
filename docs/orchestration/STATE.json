@@ -22,8 +22,9 @@
     "ci_scope": "Targeted new-card verification only; no exhausted full/PG suite/E2E retry",
     "through": "BATCH-02 → BATCH-03 SaaS packaging → BATCH-04 landing",
     "landing_publication_allowed": true,
-    "landing_audience": "preserve existing owner-private Sites audience",
-    "latest_instruction": "И ТЕПЕРЬ ОБНОВ И ВЫПОЛНЯЙ ПАКЕТЫ ОДИН А ДРУГИМ ДО ЛЕНДИНГА"
+    "landing_audience": "Preserve current audience; public revision 2 observed before and after v3 publication; access not changed by this task.",
+    "latest_instruction": "И ТЕПЕРЬ ОБНОВ И ВЫПОЛНЯЙ ПАКЕТЫ ОДИН А ДРУГИМ ДО ЛЕНДИНГА",
+    "historical_landing_audience": "Original authorization preserved existing owner-private audience at initial publication."
   },
   "historical_limits": {
     "P05_timeout_cycle_used": 3,
@@ -211,7 +212,7 @@
   "main_reconciliation_before_merge_required": true,
   "master_v2_1_sha256": "4ab578d4ab1a6c959ed7aa791f09a7c8284c04df1d48b6a575671f53df7c4caf",
   "master_v2_1_sha_verified": true,
-  "setup_head": "82beca6c14e097a31200068d72b15334c5bed319",
+  "setup_head": "d9e00f43efe41f44a82e166f33708f7c6dab84aa",
   "current_batch": "BATCH-04",
   "plugins": {
     "github": "CONFIRMED",
@@ -220,9 +221,9 @@
     "openai_developers": "NOT_INSTALLED_REQUIRES_USER_UI",
     "codex_security": "NOT_INSTALLED_REQUIRES_USER_UI"
   },
-  "setup_head_note": "Verified PR head before this documentation-only evidence update; product runtime remains CI8060075/sourcece495b29. Exact resulting commit is recorded by Git, not self-embedded.",
-  "next_action": "Finish pending mobile/return-link/legacy-route landing checks after browser reconnection; later product stages remain GPT assistant and customer-specific connectors. Production readiness remains blocked.",
-  "batch_result": "THROUGH_LANDING_COMPLETE_WITH_DOCUMENTED_RELEASE_BLOCKERS",
+  "setup_head_note": "Verified GitHub PR head before this evidence update. Sites source v3 is separate and published; Django runtime stays at accepted BATCH02 identity. Resulting documentation commit is recorded by Git, not self-embedded.",
+  "next_action": "PLAN-LANDING complete in scoped live QA. Next product stages: GPT assistant and customer-specific connectors. Full transactional demo E2E and backend/production acceptance remain open; historical retry limits unchanged.",
+  "batch_result": "THROUGH_LANDING_COMPLETE_SCOPED_BROWSER_ACCEPTED_WITH_RELEASE_BLOCKERS",
   "baseline_product_commit": "7d46dced3bcf06d44755cf53366c9e16bd465582",
   "next_after_owner_review_note": "Історичне поле початкового setup для compatibility validator; P10-003 вже scoped accepted. Чинна черга — next_action та QUEUE.",
   "verification": {
@@ -424,6 +425,35 @@
       "whole_git_tree_verified": false
     },
     "browser_followup": {
+      "status": "ACCEPT_SCOPED_LANDING_NAVIGATION",
+      "landing_observed": true,
+      "demo_observed": true,
+      "desktop_tabs_and_keyboard": "PASS_V2_UNCHANGED_CODE",
+      "linked_records": "PASS_READ_ONLY_SO101_MO101_POFAST_AND_SO090_INVOICE_SHIPMENT_PAYMENT",
+      "preview_cancel": "PASS_NO_BROWSER_WRITE_COMMITTED",
+      "mobile_acceptance": "PASS_390x844_AND_320x740",
+      "return_link_acceptance": "PASS_V3",
+      "legacy_route_acceptance": "PASS_LIVE_4_HASHCHANGES_AND_INITIAL_SUFFIX_PLUS_UNIT_ALL_14",
+      "browser_acceptance": true,
+      "browser_acceptance_scope": "landing_and_navigation_only",
+      "full_transactional_demo_e2e": false,
+      "site_defect_established": true,
+      "identified_defects_resolved": true,
+      "console_clean": false,
+      "console_note": "Asynchronous listener/message-channel errors retained in raw evidence; origin unconfirmed, postpublication UI checks passed.",
+      "evidence": "docs/orchestration/evidence/batch04/landing-v3-20260920.json"
+    },
+    "browser_followup_previous": {
+      "status": "PENDING_NO_OBSERVATION",
+      "reason": "CUA_TOOL_TIMEOUT",
+      "source": "Main orchestrator report on 2026-09-20; browser creation did not return page state",
+      "landing_observed": false,
+      "demo_observed": false,
+      "access_denial_established": false,
+      "site_defect_established": false,
+      "browser_acceptance": false
+    },
+    "browser_followup_v2_historical": {
       "status": "PARTIAL_BROWSER_VERIFIED_MOBILE_PENDING",
       "landing_observed": true,
       "demo_observed": true,
@@ -435,16 +465,6 @@
       "site_defect_established": false,
       "evidence": "docs/orchestration/evidence/batch04/browser-followup-20260920.json",
       "report": "docs/orchestration/LANDING_BROWSER_UA.md"
-    },
-    "browser_followup_previous": {
-      "status": "PENDING_NO_OBSERVATION",
-      "reason": "CUA_TOOL_TIMEOUT",
-      "source": "Main orchestrator report on 2026-09-20; browser creation did not return page state",
-      "landing_observed": false,
-      "demo_observed": false,
-      "access_denial_established": false,
-      "site_defect_established": false,
-      "browser_acceptance": false
     }
   },
   "implementation_authorization": {
@@ -466,24 +486,27 @@
     "hosting_boundary": "Managed isolated company installation remains initial implementation; shared database multi-tenancy not inferred",
     "app_block": "NOT_EXPOSED_IN_CURRENT_TOOLS",
     "visualize": "AVAILABLE_INLINE",
-    "through_landing_authorization": "Executed; controlled synthetic demo published privately"
+    "through_landing_authorization": "Executed through v3 landing/navigation acceptance. Initial v2 publication was owner-private; current public audience was observed and preserved."
   },
   "landing": {
     "project_id": "appgprj_6aa9057b8e5c8191abe7685fb7c9f145",
-    "source_commit": "79b29aaddeccbd2399763495e4c35a4974aa8cfa",
-    "version_number": 2,
-    "version_id": "appgprj_6aa9057b8e5c8191abe7685fb7c9f145~appgver_4294cd6490a08191857c1350f21cf7e8",
-    "deployment_id": "appgdep_6aafc4d8b73c8191b5d7a0e08611f9ab",
+    "source_commit": "ce0322034971a1ddc5cd66470e3792bb26f56493",
+    "version_number": 3,
+    "version_id": "appgprj_6aa9057b8e5c8191abe7685fb7c9f145~appgver_0c7af09216588191a7e3a35d030c8efc",
+    "deployment_id": "appgdep_6aafd80d7dc48191bd0e9f2d4b5711b3",
     "status": "succeeded",
     "url": "https://business-operating-system.vladduk134.chatgpt.site",
     "audience": "public_observed_not_changed_by_this_task",
-    "updated_at": "2026-09-20T11:35:02.027155+00:00",
+    "updated_at": "2026-09-20T12:56:59.878586+00:00",
     "django_deployed": false,
-    "browser_acceptance": false,
+    "browser_acceptance": true,
     "historical_publication_receipt": "docs/orchestration/evidence/batch04/DEPLOYMENT.json",
-    "current_access_observed_at_utc": "2026-09-20 12:31:12 UTC",
     "access_revision": 2,
-    "browser_followup_status": "PARTIAL_BROWSER_VERIFIED_MOBILE_PENDING"
+    "browser_followup_status": "ACCEPT_SCOPED_LANDING_NAVIGATION",
+    "browser_acceptance_scope": "landing_and_navigation_only",
+    "full_transactional_demo_e2e": false,
+    "current_publication_receipt": "docs/orchestration/evidence/batch04/landing-v3-20260920.json",
+    "current_access_observation": "Native get_site after successful v3 publication: public, revision 2; unchanged policy timestamp 2026-09-20T11:50:53.890750+00:00."
   },
   "saas_package": {
     "status": "PACKAGED_NOT_PRODUCTION_READY",

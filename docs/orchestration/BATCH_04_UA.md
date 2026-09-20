@@ -1,10 +1,12 @@
-# Уточнення браузерної перевірки · 20.09.2026
+# Лендинг завершено · 20.09.2026
 
-Чинний URL: [BoS](https://business-operating-system.vladduk134.chatgpt.site); Sites зараз показує public. Доступ і публікація цією задачею не змінювалися. Браузер підтвердив лендинг, 4 вкладки, клавіатуру, вхід у demo й read-only зв’язки SO-101 → MO-101 → PO-FAST. Мобільна перевірка та зворотний перехід залишились без спостереження через CUA timeout; повна браузерна приймання не оголошена. Деталі: [LANDING_BROWSER_UA.md](LANDING_BROWSER_UA.md). Нижче збережено первинний звіт/чекпоінт із тодішнім URL та приватним доступом.
+[BoS](https://business-operating-system.vladduk134.chatgpt.site) опубліковано як **version 3**, source `ce0322034971a1ddc5cd66470e3792bb26f56493`. Поточний public доступ збережено без зміни налаштувань. **ACCEPT_SCOPED_LANDING_NAVIGATION**: мобільні екрани, вкладки, вхід/повернення з демо та legacy redirects перевірені. Виправлено hashchange старих посилань, пробіл у мобільному заголовку, доступне ім’я пошуку та неточну обіцянку приватного доступу. Звіт: [LANDING_BROWSER_UA.md](LANDING_BROWSER_UA.md); receipt: `evidence/batch04/landing-v3-20260920.json`.
+
+Це приймання лендингу й навігації Sites. Повний transactional browser E2E, серверне приймання Django та production/pilot не зараховані: TECHNICAL_READY=false, PILOT_ALLOWED=false. Нижче збережено історію попередніх публікацій.
 
 ---
 
-# BATCH-04 · лендинг та демонстрація
+# Історична публікація v2 · BATCH-04
 
 **PUBLISHED_OWNER_PRIVATE**, version2, 20.09.2026. [Відкрити BoS](https://bos-industrial-workspace.vladduk134.chatgpt.site).
 
@@ -16,3 +18,4 @@
 Початковий існуючий Site збережено. Source commit `79b29aaddeccbd2399763495e4c35a4974aa8cfa` успішно pushed у його canonical source repository. Офіційний package helper сформував архів95084bytes SHA `db17c7417b458777e93bf866da3376705002c813f7d3b2d0a54b1ae75618f8c5`; landing/demo/hosting manifest звірено. Збережена version2 опублікована штатною owner-private операцією, native status=succeeded. Ідентифікатори й literal URL — evidence/batch04/DEPLOYMENT.json.
 
 Це публікація Sites-демонстрації. Django не розгорнуто; вона не змінює TECHNICAL_READY=false/PILOT_ALLOWED=false. GPT-помічник і клієнтські інтеграції залишаються наступним етапом.
+

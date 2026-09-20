@@ -1,30 +1,57 @@
-# PLAN-LANDING-BROWSER · браузерна перевірка лендингу
+# Приймання лендингу BoS · version 3
 
-20.09.2026. **PARTIAL_BROWSER_VERIFIED_MOBILE_PENDING**.
+20.09.2026. **ACCEPT_SCOPED_LANDING_NAVIGATION**.
 
-[Чинний лендинг BoS](https://business-operating-system.vladduk134.chatgpt.site) · [демонстрація](https://business-operating-system.vladduk134.chatgpt.site/demo/).
+[Лендинг](https://business-operating-system.vladduk134.chatgpt.site) · [демонстрація](https://business-operating-system.vladduk134.chatgpt.site/demo/).
 
-## Картка й межі
+## Результат і межі
 
-Мета — перевірити вже опублікований BATCH-04 після попереднього CUA timeout. Повторне створення Site або зміна runtime не потрібні. Allowlist: цей звіт, два нові evidence JSON, актуальні STATE/QUEUE/PLAN і доповнення BATCH_04. Історичні DEPLOYMENT.json та LANDING_CHECKS.json збережені. Код Site, Django, дані й main не змінюються.
+План до лендингу виконаний: сторінка українською представляє поточний продукт, перевірений приклад SO-101 і шлях у демонстрацію. Впровадження, серверна готовність та майбутні GPT/інтеграції описані окремо. Усі необхідні перевірки лендингу й переходів завершені. Це не повне приймання transactional demo або Django: browser E2E з підтвердженням усіх операцій не проходили, TECHNICAL_READY=false, PILOT_ALLOWED=false.
 
-## Факти
+## Виправлення та публікація
 
-- Sites підтвердив той самий project_id, version 2 і source commit `79b29aaddeccbd2399763495e4c35a4974aa8cfa`.
-- Чинний URL — https://business-operating-system.vladduk134.chatgpt.site; access_mode=public, revision=2, access updated 11:50:53 UTC. Старий звіт описує первинну приватну публікацію за іншим URL. Ця задача лише прочитала поточний доступ; хто й на якій підставі змінив його між перевірками, не встановлено.
-- У Chrome відкрито український лендинг; видно позначки навчальних даних і розробки. Перший екран переглянуто візуально. На ширині 1280 px document.scrollWidth=1265: горизонтального переповнення в цій перевірці немає.
-- Усі 4 вкладки змінили selected, текст і посилання модуля. ArrowRight, End, Home, ArrowLeft перемістили вибір і фокус правильно.
-- Кнопка «Відкрити демо» відкрила /demo/ з оглядом бізнесу; «Замовлення» відкрила /demo/#orders.
-- Пройдено read-only ланцюг SO-101 → MO-101 → PO-FAST. Видно потребу 50, резерв 10, план виробництва 40; нестачу кріплення 60/80 і замовлену, але не прийняту закупівлю 20. Запуск виробництва заблокований через нестачу придатних матеріалів. Операції запису не підтверджувалися.
+Той самий Site: `appgprj_6aa9057b8e5c8191abe7685fb7c9f145`. Version 3: `appgprj_6aa9057b8e5c8191abe7685fb7c9f145~appgver_0c7af09216588191a7e3a35d030c8efc`; source `ce0322034971a1ddc5cd66470e3792bb26f56493`; deployment `appgdep_6aafd80d7dc48191bd0e9f2d4b5711b3`, native status=succeeded, 2026-09-20T12:56:59.878586+00:00.
 
-## Невиконана частина
+- Старі root-hash посилання працювали після повного завантаження, але ігнорували зміну hash уже відкритого лендингу. Додано обробник hashchange; суфікс запису зберігається.
+- На 320 px прихований br склеював «Починаємоз». Пробіл між словами збережено.
+- Мобільній кнопці пошуку додано доступне ім’я «Знайти в BoS».
+- Текст демо більше не гарантує приватність: доступ визначають налаштування Site. Native get_site до й після публікації підтвердив public revision 2; політику доступу не змінювали.
 
-Комбінована команда закриття inspector, повернення на лендинг і встановлення 390×844 завершилась timeout без стану сторінки. Невідомо, які підкроки виконались; мобільну адаптацію та зворотний перехід не зараховано. Повернення до наявної вкладки й читання інвентарю CUA також завершились timeout. Потрібно відновити підключення браузера, перевірити стан і скинути тимчасовий viewport, якщо він застосувався. Власник повідомив «Браузер подключён, продолжай». Після цього повторне отримання тієї самої вкладки та інвентарю CUA знову завершилось двома timeout по 30 секунд. Відповідь власника отримана; залишковий блокер — відсутність відповіді інструмента, а не відсутність погодження. Продовжити з неперевірених пунктів, коли CUA поверне стан сторінки.
+Змінені лише landing.js/index.html, підписи/aria JSX із відповідним compiled app.js, description demo, README та regression test. Доменна модель, seed, ключ і поведінка localStorage не змінені. Django та GitHub main не змінювалися. Виправлення Site живуть у його canonical source repository; GitHub PR містить звіт і докази.
 
-Живі legacy hash redirects та повний бізнес-сценарій зі змінами також не перевірені. Попередні контрольовані static checks не видані за браузерний результат. Встановленого дефекту Site немає. Повна браузерна приймання лишається false.
+## Перевірки за вимогами
 
-## Доказ і наступний крок
+| Вимога | Доказ | Результат |
+|---|---|---|
+| Український лендинг і чесні межі | Live AX і візуальний перегляд; статус навчальних даних, local-only, майбутніх GPT/інтеграцій | PASS |
+| Чотири вкладки й клавіатура | Попередній desktop evidence: 4 tabs, ArrowRight/End/Home/ArrowLeft; mobile 390 px — усі 4 selected/text/href | PASS, відповідний код незмінений |
+| Робочий приклад продукту | SO-101 → MO-101 → PO-FAST: 50 потрібно, 10 зарезервовано, 40 заплановано; 60/80 кріплення і закупівля 20; запуск заблокований нестачею | PASS read-only |
+| Доступ до демо і повернення | CTA → /demo/ та модуль; мобільне меню → фінанси/налаштування; back link → лендинг | PASS, повернення повторено на v3 |
+| Мобільна версія | 390×844 scrollWidth=375; 320×740 scrollWidth=305; візуальний перегляд і навігація, v3 heading виправлено | PASS без горизонтального переповнення сторінки |
+| Старі URL | На v3 live hashchange orders/procurement/production/finance; початкова /#orders/SO-101 → /demo/#orders/SO-101 | PASS; збереження suffix, не автоматичне відкриття запису |
+| Нові section anchors | #product лишається на лендингу; контрольований test перевіряє також #main/#approach та unknown | PASS |
+| Збережена модель демо | domain test: 20 committed operations в ізольованій пам’яті; незмінені model.js/seed.js | PASS, не browser/backend E2E |
 
-Спостереження: `docs/orchestration/evidence/batch04/browser-followup-20260920.json`. Первинні text output CUA (12 записів) збережені в `docs/orchestration/evidence/batch04/browser-observations-20260920.json`, SHA-256 `f8701a74b17643332d9cdc3eb98a9ca26cf8c7bbdcde6a8a22a6b8be417f05d5`; bootstrap документація та image bytes виключені. Це результати інструментів цієї задачі, не лог автоматичного test runner. Exit code не застосовується до CUA/MCP; тайм-аути збережені як відсутній доказ.
+Додатково простежено завершені SO-090 → INV-SO-090 → SHP-SO-090 та посилання оплати: 12 одиниць, 1440 EUR сплачено, залишок 0. Для INV-SO-091 відкрито preview оплати 100 EUR: дебіторка 1600→1500, оплати 2040→2140. Натиснуто «Скасувати»; після reload суми не змінились. У браузері не підтверджували запис операцій і не скидали навчальні дані.
 
-Незалежний reviewer `/root/review_landing_evidence` дав **ACCEPT_SCOPED**: 7 файлів, 4 валідні JSON; усі 12 CUA text output звірені посимвольно з первинним session log, SHA збігається; claims та відкриті межі підтверджені. Зауваження про allowlist двох evidence JSON виправлене. Після відновлення браузера завершити перелічені вузькі перевірки; full backend/PG/E2E не запускались. TECHNICAL_READY=false і PILOT_ALLOWED=false. Ця перевірка не змінює приймання Django, ролей чи production.
+Мобільний пошук на v3 відкриває форму; налаштування показують нейтральний опис доступу. Тимчасовий viewport скинуто; вкладку залишено на лендингу.
+
+## Збірка та контроль регресії
+
+Тест hashchange спочатку дав очікуваний RED, після виправлення — GREEN: initial hash, same-document hash, suffix, усі 14 модулів і anchors. `node build.cjs`, domain test, syntax checks і diff whitespace пройшли. Build script створив dist з поточного source до успішного push.
+
+Стандартна обгортка package-site.mjs не змогла запустити відсутній Bash. Для Windows застосовано її офіційний prepare-site-build.cjs та системний tar. Перевірено дві HTML точки входу, assets і manifest, жодного source tree в архіві. Локальний gzip SHA-256 `9d44db6827f3ddcd4366f5a6ee46a403399afcc794661d33d5eae56e49921edc`; Sites нормалізував tar і підтвердив 12 файлів, власний content_hash наведено в receipt. Version збережено з повним SHA, прочитаним після успішного push, та опубліковано штатним Sites deploy.
+
+## Відкриті межі
+
+Повний transactional browser E2E не виконаний; модель перевірена окремим domain test, а live перевірка включала читання й preview/cancel. Backend/PG/full-suite/E2E повтори не запускалися; історичні обмеження A09/A10/A11 залишені.
+
+У журналі браузера є шість повідомлень asynchronous listener/message-channel (два після v3). Їх походження однозначно не встановлено; помилок пройдених UI-дій не спостерігали. «Чиста консоль» не заявляється. Це відкрите діагностичне спостереження, не доказ серверної готовності.
+
+## Відтворювані докази й review
+
+Receipt: `evidence/batch04/landing-v3-20260920.json`. 24 точних CUA text output із кодом дій: `evidence/batch04/browser-v3-observations-20260920.json`, SHA-256 `57768c11c3f82e5ab8a60531aaaa3f084c593a3195799551f4ce93217191e9d5`. Image bytes не архівовані; screenshots переглянуті під час QA. Первинні командні outputs: `evidence/batch04/site-v3-checks-20260920.json`. Інвентар інших вкладок, credentials і bootstrap виключені.
+
+Раніше мобільна перевірка зупинилася через CUA timeout; після відновлення браузера блокер усунуто. Попередні partial receipt/12 observations залишені без зміни як історія v2. Старі DEPLOYMENT.json і LANDING_CHECKS.json також збережені; їх private URL не описує поточний доступ.
+
+Незалежний reviewer прийняв вузькі source fixes (hash routing, підписи/aria, generated bundle, heading spacing) як ACCEPT_SCOPED. Фінальна звірка цього evidence: ACCEPT_SCOPED.
