@@ -22,19 +22,25 @@ def rows(model):return list(model.objects.order_by('pk').values())
 def plan_line(line,policy=None):
     visible=lambda rows:policy.filter_queryset(rows) if policy else rows
     today=as_of();remaining=sales_open(line)
-    own=sum((r.quantity for r in visible(line.reservations.select_related('lot__item')) if usable(r.lot,line.revision)),D(0))
-    available=sum((free(lot) for lot in visible(Lot.objects.filter(item=line.item,revision=line.revision).select_related('item')) if usable(lot)),D(0))
+    location_id=line.order.fulfillment_location_id
+    reserved_rows=line.reservations.filter(lot__currency=line.order.currency).select_related('lot__item')
+    stock_rows=Lot.objects.filter(item=line.item,revision=line.revision,currency=line.order.currency).select_related('item')
+    if location_id is not None:
+        reserved_rows=reserved_rows.filter(lot__location_id=location_id)
+        stock_rows=stock_rows.filter(location_id=location_id)
+    own=sum((r.quantity for r in visible(reserved_rows) if usable(r.lot,line.revision)),D(0))
+    available=sum((free(lot) for lot in visible(stock_rows) if usable(lot)),D(0))
     shortage=max(D(0),remaining-own-available)
     incoming=[];dates=[];covered=D(0);reasons=[]
-    for job in visible(Production.objects.filter(line=line).exclude(status='done')):
+    for job in visible(Production.objects.filter(line=line,currency=line.order.currency).exclude(status='done')):
         qty=job.quantity-job.produced;covered+=qty;dates.append(job.due_date);incoming.append({'code':job.code,'quantity':str(qty),'due_date':str(job.due_date),'needs_review':job.needs_review})
         if job.needs_review:reasons.append(job.code+': потрібне рішення щодо версії')
     material=[]
     for b in line.item.bom:
         item=Item.objects.get(pk=b['item_id']);need=shortage*D(b['quantity'])
-        stock=sum((free(x) for x in visible(Lot.objects.filter(item=item).select_related('item')) if usable(x)),D(0))
-        own_material=sum((r.quantity for r in visible(Reservation.objects.filter(production__line=line,lot__item=item).select_related('lot__item')) if usable(r.lot)),D(0));stock+=own_material
-        purchases=[p for p in visible(Purchase.objects.filter(item=item).exclude(status='received').order_by('due_date')) if purchase_open(p)>0]
+        stock=sum((free(x) for x in visible(Lot.objects.filter(item=item,currency=line.order.currency).select_related('item')) if usable(x)),D(0))
+        own_material=sum((r.quantity for r in visible(Reservation.objects.filter(production__line=line,lot__item=item,lot__currency=line.order.currency).select_related('lot__item')) if usable(r.lot)),D(0));stock+=own_material
+        purchases=[p for p in visible(Purchase.objects.filter(item=item,currency=line.order.currency).exclude(status='received').order_by('due_date')) if purchase_open(p)>0]
         pending=sum((purchase_open(p) for p in purchases),D(0));before_due=sum((purchase_open(p) for p in purchases if p.due_date<=line.order.due_date),D(0))
         deficit=max(D(0),need-stock-before_due)
         if need>stock:
@@ -45,7 +51,9 @@ def plan_line(line,policy=None):
             if balance>0:dates.append(today+timedelta(days=item.lead_days));reasons.append(item.code+': непокритий дефіцит')
         material.append({'item_id':item.id,'code':item.code,'name':item.name,'unit':item.unit,'need':str(need),'available':str(stock),'expected':str(pending),'before_due':str(before_due),'deficit':str(deficit)})
     if shortage and not line.item.bom:
-        pending=list(visible(Purchase.objects.filter(item=line.item,revision=line.revision).exclude(status='received').order_by('due_date')))
+        pending_rows=Purchase.objects.filter(item=line.item,revision=line.revision,currency=line.order.currency).exclude(status='received').order_by('due_date')
+        if location_id is not None:pending_rows=pending_rows.filter(destination_id=location_id)
+        pending=list(visible(pending_rows))
         for p in pending:
             if purchase_open(p)>0:dates.append(p.due_date)
         if sum((purchase_open(p) for p in pending),D(0))<shortage:dates.append(today+timedelta(days=line.item.lead_days));reasons.append('Потрібна закупівля готової продукції')
@@ -58,6 +66,10 @@ def plan_line(line,policy=None):
 def snapshot(policy=None):
     visible=lambda rows:policy.filter_queryset(rows) if policy else rows
     result={name:list(visible(model.objects.order_by('pk')).values()) for name,model in [('items',Item),('locations',Location),('lots',Lot),('orders',SalesOrder),('lines',SalesLine),('jobs',Production),('reservations',Reservation),('purchases',Purchase),('inspections',Inspection),('changes',ChangeOrder),('operator_entries',OperatorEntry)]}
+    from branches.models import Branch
+    result['branches']=list(visible(Branch.objects.order_by('name')).values('id','code','name','short_name','lat','lng'))
+    result['transfers']=list(visible(StockTransfer.objects.order_by('-id')).values())
+    result['retentions']=list(visible(PaymentRetention.objects.order_by('-id')).values())
     from .corrections import snapshot_rows,effective_row,invoice_basis
     result.update(snapshot_rows(policy))
     for row in result['lines']:row.update(effective_row(SalesLine.objects.get(pk=row['id']),policy))
