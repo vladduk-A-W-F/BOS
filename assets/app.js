@@ -15376,7 +15376,12 @@ function ERPWorkspace({
     onClose: () => setSelection(null),
     onSelect: setSelection,
     onAction: begin,
-    onNavigate: onNavigate
+    onNavigate: onNavigate,
+    onTraceSelect: (next, fresh) => {
+      loadSeq.current++;
+      setData(fresh);
+      setSelection(next);
+    }
   }), " ", action && /*#__PURE__*/React.createElement(BoSActionDialog, {
     action: action.type,
     preset: action.preset,
@@ -15532,6 +15537,275 @@ function PurchaseSource({
     className: "op-muted"
   }, "\u0426\u0456 \u0443\u043C\u043E\u0432\u0438 \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u0456 \u043F\u0456\u0434 \u0447\u0430\u0441 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F. \u0410\u043A\u0442\u0443\u0430\u043B\u044C\u043D\u0430 \u043E\u0447\u0456\u043A\u0443\u0432\u0430\u043D\u0430 \u0434\u0430\u0442\u0430 \u043F\u043E\u0441\u0442\u0430\u0432\u043A\u0438 \u043F\u043E\u043A\u0430\u0437\u0430\u043D\u0430 \u0432\u0438\u0449\u0435."));
 }
+
+// Read-only order trace. Quantities stay server Decimal strings; no client aggregation.
+const TRACE_METRICS = [['ordered', 'Замовлено'], ['shipped', 'Відвантажено'], ['cancelled', 'Скасовано'], ['open', 'Залишилось виконати'], ['usable_reserved', 'Придатний резерв']];
+const TRACE_RESTRICTED = 'Повне пояснення цього показника недоступне для поточного доступу';
+function traceDecimal(value) {
+  return typeof value === 'string' && /^-?\d+(?:\.\d+)?$/.test(value);
+}
+function traceVerify(value, orderId, accessRevision) {
+  const record = r => r && typeof r === 'object' && !Array.isArray(r),
+    person = r => r === null || record(r) && typeof r.name === 'string';
+  if (value?.schema !== 'bos.order-trace.v1' || value.order?.id !== orderId || value.scope?.order_id !== orderId || value.access_revision !== accessRevision) throw Error('trace_context');
+  if (!['complete', 'partial', 'restricted'].includes(value.completeness) || !Array.isArray(value.lines) || !['linked_jobs', 'linked_tasks', 'linked_invoice_refs'].every(k => Array.isArray(value[k]))) throw Error('trace_shape');
+  if (!person(value.order.owner) || typeof value.as_of !== 'string' || typeof value.generated_at !== 'string') throw Error('trace_shape');
+  for (const [key, idKey, fields] of [['linked_jobs', 'id', ['code', 'status', 'due_date']], ['linked_tasks', 'id', ['title', 'status', 'deadline']], ['linked_invoice_refs', 'invoice_id', ['code', 'currency', 'due_date']]]) for (const row of value[key]) if (!record(row) || !Number.isSafeInteger(row[idKey]) || fields.some(k => !(k === 'deadline' && row[k] === null) && typeof row[k] !== 'string') || key === 'linked_jobs' && !person(row.owner) || key === 'linked_tasks' && !person(row.assignee)) throw Error('trace_shape');
+  for (const line of value.lines) {
+    if (!record(line) || !Number.isSafeInteger(line.line_id) || !record(line.item) || ['code', 'name', 'unit'].some(k => typeof line.item[k] !== 'string') || typeof line.revision !== 'string' || !['complete', 'partial', 'restricted'].includes(line.completeness) || TRACE_METRICS.some(([key]) => line[key] !== null && !traceDecimal(line[key]))) throw Error('trace_shape');
+    const refs = line.source_refs;
+    if (refs?.line?.type !== 'sales_line' || refs.line.id !== line.line_id || !['cancellations', 'reservations', 'shipments', 'lot_origins'].every(k => Array.isArray(refs[k]))) throw Error('trace_shape');
+    for (const key of ['cancellations', 'reservations', 'shipments']) if (refs[key].some(r => !record(r) || !Number.isSafeInteger(r.id) || !traceDecimal(r.quantity))) throw Error('trace_shape');
+    if (refs.lot_origins.some(r => !record(r) || r.relation !== 'lot_origin' || ['lot_id', 'receipt_id', 'purchase_id'].some(k => !Number.isSafeInteger(r[k])))) throw Error('trace_shape');
+  }
+  return value;
+}
+function OrderTrace({
+  orderId,
+  onTraceSelect,
+  onNavigate
+}) {
+  const scope = c03Scope(),
+    context = orderId + ':' + scope;
+  const [state, setState] = useState({
+      context,
+      status: 'loading',
+      data: null
+    }),
+    [opening, setOpening] = useState(false),
+    [sourceError, setSourceError] = useState('');
+  const current = useRef(context),
+    sequence = useRef(0),
+    controllers = useRef(new Set()),
+    sourceLock = useRef(false);
+  current.current = context;
+  const isCurrent = (ticket, origin) => sequence.current === ticket && current.current === origin && orderId + ':' + c03Scope() === origin;
+  function stop() {
+    sequence.current++;
+    controllers.current.forEach(c => c.abort());
+    controllers.current.clear();
+    sourceLock.current = false;
+  }
+  function invalidate(status) {
+    stop();
+    setState({
+      context,
+      status,
+      data: null
+    });
+    setOpening(false);
+    setSourceError('');
+  }
+  async function read(path, ticket, origin) {
+    const controller = new AbortController();
+    controllers.current.add(controller);
+    const timer = setTimeout(() => controller.abort(), 30000);
+    try {
+      const response = await fetch('/api/erp/' + path, {
+        method: 'GET',
+        cache: 'no-store',
+        signal: controller.signal
+      });
+      if (!isCurrent(ticket, origin)) throw Error('trace_obsolete');
+      if ([401, 403, 404].includes(response.status)) {
+        const e = Error('trace_denied');
+        e.traceStatus = 'denied';
+        throw e;
+      }
+      if (response.status === 409) {
+        const e = Error('trace_changed');
+        e.traceStatus = 'changed';
+        throw e;
+      }
+      if (!response.ok) throw Error('trace_network');
+      const payload = await response.json();
+      if (!isCurrent(ticket, origin)) throw Error('trace_obsolete');
+      const revision = response.headers.get('X-BoS-Access');
+      if (revision && revision !== window.BOS_RUNTIME?.access_revision) {
+        const e = Error('trace_denied');
+        e.traceStatus = 'denied';
+        throw e;
+      }
+      return payload;
+    } finally {
+      clearTimeout(timer);
+      controllers.current.delete(controller);
+    }
+  }
+  async function load() {
+    stop();
+    const ticket = sequence.current,
+      origin = context,
+      accessRevision = window.BOS_RUNTIME?.access_revision;
+    setState({
+      context,
+      status: 'loading',
+      data: null
+    });
+    setOpening(false);
+    setSourceError('');
+    try {
+      const payload = await read('orders/' + orderId + '/trace/', ticket, origin);
+      const accepted = traceVerify(payload, orderId, accessRevision);
+      if (isCurrent(ticket, origin)) setState({
+        context,
+        status: 'ready',
+        data: accepted
+      });
+    } catch (e) {
+      if (isCurrent(ticket, origin)) setState({
+        context,
+        status: e.traceStatus || 'error',
+        data: null
+      });
+    }
+  }
+  useEffect(() => {
+    if (Number.isSafeInteger(window.BOS_RUNTIME?.user_id) && window.BOS_RUNTIME?.access_revision) load();else invalidate('denied');
+    const denied = () => invalidate('denied'),
+      changed = () => invalidate('changed');
+    window.addEventListener('bos:session-ended', denied);
+    window.addEventListener('bos:data-changed', changed);
+    return () => {
+      stop();
+      window.removeEventListener('bos:session-ended', denied);
+      window.removeEventListener('bos:data-changed', changed);
+    };
+  }, [context]);
+  const active = state.context === context ? state : {
+      context,
+      status: 'loading',
+      data: null
+    },
+    trace = active.data;
+  async function openSource(kind, id) {
+    if (sourceLock.current || !trace || !onTraceSelect) return;
+    sourceLock.current = true;
+    setOpening(true);
+    setSourceError('');
+    const ticket = sequence.current,
+      origin = context;
+    try {
+      const fresh = await read('snapshot/', ticket, origin);
+      if (!isCurrent(ticket, origin)) return;
+      if (!b03FindRecord(fresh, 'orders', orderId)) {
+        invalidate('denied');
+        return;
+      }
+      const source = kind === 'tasks' ? (fresh.home?.tasks || []).find(x => x.id === id) : b03FindRecord(fresh, kind, id);
+      if (!source) {
+        setSourceError('Джерело відсутнє серед доступних поточних записів. Оновіть джерела замовлення.');
+        return;
+      }
+      if (kind === 'tasks') {
+        onNavigate?.('hr', 'tasks');
+        return;
+      }
+      onTraceSelect({
+        kind,
+        id
+      }, fresh);
+    } catch (e) {
+      if (isCurrent(ticket, origin)) {
+        if (e.traceStatus) invalidate(e.traceStatus);else setSourceError('Не вдалося перевірити доступ до джерела. Повторіть відкриття.');
+      }
+    } finally {
+      if (isCurrent(ticket, origin)) {
+        sourceLock.current = false;
+        setOpening(false);
+      }
+    }
+  }
+  const sourceButton = (kind, id, label) => Number.isSafeInteger(id) ? /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    disabled: opening || !onTraceSelect || kind === 'tasks' && !onNavigate,
+    onClick: () => openSource(kind, id)
+  }, label) : null;
+  const empty = text => trace.completeness === 'complete' ? /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, text) : /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u043B\u0438\u0448\u0435 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0456 \u0437\u0430\u043F\u0438\u0441\u0438.");
+  return /*#__PURE__*/React.createElement("section", {
+    className: "bos-order-trace",
+    "aria-labelledby": 'trace-title-' + orderId
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "erp-row"
+  }, /*#__PURE__*/React.createElement("h3", {
+    id: 'trace-title-' + orderId
+  }, "\u0414\u0436\u0435\u0440\u0435\u043B\u0430 \u0432\u0438\u043A\u043E\u043D\u0430\u043D\u043D\u044F"), /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    disabled: active.status === 'loading' || opening || !window.BOS_RUNTIME?.access_revision,
+    onClick: load
+  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438 \u0434\u0436\u0435\u0440\u0435\u043B\u0430")), active.status === 'loading' && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u044F\u0454\u043C\u043E \u0434\u0436\u0435\u0440\u0435\u043B\u0430 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F\u2026"), active.status === 'changed' && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0414\u0430\u043D\u0456 \u0437\u043C\u0456\u043D\u0438\u043B\u0438\u0441\u044F \u043F\u0456\u0434 \u0447\u0430\u0441 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0438. \u041E\u043D\u043E\u0432\u0456\u0442\u044C \u0434\u0436\u0435\u0440\u0435\u043B\u0430."), active.status === 'denied' && /*#__PURE__*/React.createElement("p", {
+    role: "alert"
+  }, "\u0417\u0430\u043F\u0438\u0441 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0439 \u0434\u043B\u044F \u043F\u043E\u0442\u043E\u0447\u043D\u043E\u0433\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u0443."), active.status === 'error' && /*#__PURE__*/React.createElement("p", {
+    role: "alert"
+  }, "\u041D\u0435 \u0432\u0434\u0430\u043B\u043E\u0441\u044F \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u0438\u0442\u0438 \u0434\u0436\u0435\u0440\u0435\u043B\u0430. \u041F\u043E\u0432\u0442\u043E\u0440\u0456\u0442\u044C \u043E\u043D\u043E\u0432\u043B\u0435\u043D\u043D\u044F."), opening && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u044F\u0454\u043C\u043E \u0434\u043E\u0441\u0442\u0443\u043F \u0434\u043E \u0434\u0436\u0435\u0440\u0435\u043B\u0430\u2026"), sourceError && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, sourceError), trace && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0411\u0456\u0437\u043D\u0435\u0441-\u0434\u0430\u0442\u0430: ", erpDate(trace.as_of), ". \u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0435\u043D\u043E: ", /*#__PURE__*/React.createElement("time", {
+    dateTime: trace.generated_at
+  }, trace.generated_at), ". \u041F\u0456\u0441\u043B\u044F \u043D\u043E\u0432\u0438\u0445 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0439 \u043E\u043D\u043E\u0432\u0456\u0442\u044C \u0434\u0436\u0435\u0440\u0435\u043B\u0430."), trace.order.owner && /*#__PURE__*/React.createElement("p", null, "\u0412\u043B\u0430\u0441\u043D\u0438\u043A \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F: ", trace.order.owner.name), trace.completeness === 'restricted' && /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, TRACE_RESTRICTED, "."), (trace.completeness === 'partial' || Object.values(trace.limits?.has_more || {}).some(Boolean)) && /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0447\u0430\u0441\u0442\u0438\u043D\u0443 \u0434\u043E\u0437\u0432\u043E\u043B\u0435\u043D\u0438\u0445 \u0434\u0436\u0435\u0440\u0435\u043B. \u0426\u0435 \u043D\u0435 \u043F\u043E\u0432\u043D\u0430 \u0456\u0441\u0442\u043E\u0440\u0456\u044F."), trace.lines.map(line => /*#__PURE__*/React.createElement("article", {
+    className: "bos-trace-line",
+    key: line.line_id
+  }, /*#__PURE__*/React.createElement("h4", null, "\u041F\u043E\u0437\u0438\u0446\u0456\u044F \u2116", line.line_id, " \xB7 ", line.item.code, " \xB7 ", line.item.name), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0412\u0435\u0440\u0441\u0456\u044F ", line.revision, " \xB7 ", line.item.unit), /*#__PURE__*/React.createElement("dl", {
+    className: "bos-trace-metrics"
+  }, TRACE_METRICS.map(([key, label]) => /*#__PURE__*/React.createElement("div", {
+    key: key
+  }, /*#__PURE__*/React.createElement("dt", null, label), /*#__PURE__*/React.createElement("dd", null, line[key] === null ? '—' : line[key], line[key] !== null && /*#__PURE__*/React.createElement("small", null, " ", line.item.unit)), line[key] === null && /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, TRACE_RESTRICTED, ".")))), line.completeness === 'restricted' && /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, TRACE_RESTRICTED, "."), (line.completeness === 'partial' || Object.values(line.has_more || {}).some(Boolean)) && /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0447\u0430\u0441\u0442\u0438\u043D\u0443 \u0434\u043E\u0437\u0432\u043E\u043B\u0435\u043D\u0438\u0445 \u0434\u0436\u0435\u0440\u0435\u043B \u0446\u0456\u0454\u0457 \u043F\u043E\u0437\u0438\u0446\u0456\u0457; \u043A\u0456\u043B\u044C\u043A\u043E\u0441\u0442\u0456 \u043D\u0430\u0434\u0430\u043D\u043E \u0441\u0435\u0440\u0432\u0435\u0440\u043E\u043C \u0437\u0430 \u0457\u0445\u043D\u0456\u043C \u043E\u043A\u0440\u0435\u043C\u0438\u043C \u043E\u0431\u0441\u044F\u0433\u043E\u043C \u0434\u043E\u0441\u0442\u0443\u043F\u0443."), /*#__PURE__*/React.createElement("details", null, /*#__PURE__*/React.createElement("summary", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u0442\u0438 \u0434\u0436\u0435\u0440\u0435\u043B\u0430 \u043F\u043E\u0437\u0438\u0446\u0456\u0457 \u2116", line.line_id), /*#__PURE__*/React.createElement("p", null, "\u041F\u0435\u0440\u0432\u0456\u0441\u043D\u0430 \u043F\u043E\u0437\u0438\u0446\u0456\u044F \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u2116", line.source_refs.line.id, ": ", line.ordered === null ? '—' : line.ordered, " ", line.item.unit, "."), typeof line.basis === 'string' && /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, line.basis), line.source_refs.cancellations.map(r => /*#__PURE__*/React.createElement("div", {
+    className: "bos-trace-source",
+    key: 'cancel-' + r.id
+  }, sourceButton('cancellations', r.id, 'Скасування №' + r.id), /*#__PURE__*/React.createElement("span", null, r.quantity, " ", line.item.unit, " \xB7 ", erpDate(r.created_at)))), line.source_refs.reservations.map(r => /*#__PURE__*/React.createElement("div", {
+    className: "bos-trace-source",
+    key: 'reserve-' + r.id
+  }, /*#__PURE__*/React.createElement("span", null, "\u0420\u0435\u0437\u0435\u0440\u0432 \u2116", r.id, ": ", r.quantity, " ", line.item.unit, " \xB7 ", r.usable === true ? 'придатний' : r.usable === false ? 'непридатний' : 'придатність недоступна'), sourceButton('lots', r.lot_id, 'Партія №' + r.lot_id))), line.source_refs.shipments.map(r => /*#__PURE__*/React.createElement("div", {
+    className: "bos-trace-source",
+    key: 'ship-' + r.id
+  }, sourceButton('source_movements', r.id, 'Відвантаження №' + r.id), /*#__PURE__*/React.createElement("span", null, "\u041A\u0456\u043B\u044C\u043A\u0456\u0441\u0442\u044C \u0440\u0443\u0445\u0443: ", r.quantity, " ", line.item.unit, " \xB7 ", erpDate(r.created_at)), sourceButton('lots', r.lot_id, 'Партія №' + r.lot_id))), line.source_refs.lot_origins.filter(r => r.relation === 'lot_origin').map(r => /*#__PURE__*/React.createElement("div", {
+    className: "bos-trace-source",
+    key: 'origin-' + r.lot_id + '-' + r.receipt_id
+  }, /*#__PURE__*/React.createElement("span", null, "\u041F\u043E\u0445\u043E\u0434\u0436\u0435\u043D\u043D\u044F \u043F\u0430\u0440\u0442\u0456\u0457 \u2116", r.lot_id), sourceButton('source_movements', r.receipt_id, 'Приймання №' + r.receipt_id), sourceButton('purchases', r.purchase_id, 'Закупівля №' + r.purchase_id), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0426\u0435 \u0434\u0436\u0435\u0440\u0435\u043B\u043E \u043F\u0440\u0438\u0439\u043D\u044F\u0442\u043E\u0457 \u043F\u0430\u0440\u0442\u0456\u0457, \u0430 \u043D\u0435 \u043F\u0440\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u043D\u044F \u0432\u0441\u0456\u0454\u0457 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456 \u0446\u044C\u043E\u043C\u0443 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044E."))), line.completeness === 'complete' && ['cancellations', 'reservations', 'shipments', 'lot_origins'].every(k => !line.source_refs[k].length) && /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041A\u0440\u0456\u043C \u043F\u0435\u0440\u0432\u0456\u0441\u043D\u043E\u0457 \u043F\u043E\u0437\u0438\u0446\u0456\u0457, \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0438\u0445 \u0434\u0436\u0435\u0440\u0435\u043B \u0441\u0435\u0440\u0435\u0434 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u043D\u0435\u043C\u0430\u0454.")))), !trace.lines.length && empty('Позицій серед доступних записів немає.'), /*#__PURE__*/React.createElement("h4", null, "\u041F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0456 \u0440\u043E\u0431\u043E\u0442\u0438"), trace.linked_jobs.map(r => /*#__PURE__*/React.createElement("div", {
+    className: "bos-trace-source",
+    key: r.id
+  }, sourceButton('jobs', r.id, r.code), /*#__PURE__*/React.createElement("span", null, ERP_LABELS[r.status] || r.status, " \xB7 \u0434\u043E ", erpDate(r.due_date)), r.owner && /*#__PURE__*/React.createElement("span", null, "\u0412\u043B\u0430\u0441\u043D\u0438\u043A \u0440\u043E\u0431\u043E\u0442\u0438: ", r.owner.name))), !trace.linked_jobs.length && empty('Пов’язаних робіт серед доступних записів немає.'), /*#__PURE__*/React.createElement("h4", null, "\u0414\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F"), trace.linked_tasks.map(r => /*#__PURE__*/React.createElement("div", {
+    className: "bos-trace-source",
+    key: r.id
+  }, /*#__PURE__*/React.createElement("span", null, "\u2116", r.id, " \xB7 ", r.title, " \xB7 ", C01_STATUS[r.status] || r.status, " \xB7 \u0434\u043E ", erpDate(r.deadline)), /*#__PURE__*/React.createElement("span", null, "\u0412\u0438\u043A\u043E\u043D\u0430\u0432\u0435\u0446\u044C \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F: ", r.assignee?.name || 'Не призначено'), sourceButton('tasks', r.id, 'Відкрити список доручень · №' + r.id))), !trace.linked_tasks.length && empty('Пов’язаних доручень серед доступних записів немає.'), /*#__PURE__*/React.createElement("h4", null, "\u0420\u0430\u0445\u0443\u043D\u043A\u0438"), trace.linked_invoice_refs.map(r => /*#__PURE__*/React.createElement("div", {
+    className: "bos-trace-source",
+    key: r.invoice_id
+  }, sourceButton('invoices', r.invoice_id, r.code), /*#__PURE__*/React.createElement("span", null, r.currency, " \xB7 \u0434\u043E ", erpDate(r.due_date)))), !trace.linked_invoice_refs.length && empty('Пов’язаних рахунків серед доступних записів немає.'), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041F\u0440\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u043D\u044F \u043E\u0447\u0456\u043A\u0443\u0432\u0430\u043D\u0438\u0445 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u0435\u043B\u044C \u0446\u044C\u043E\u043C\u0443 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044E \u043D\u0435 \u0437\u0430\u0444\u0456\u043A\u0441\u043E\u0432\u0430\u043D\u043E."), !onTraceSelect && /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0442\u044F \u0434\u0436\u0435\u0440\u0435\u043B \u0443 \u0446\u044C\u043E\u043C\u0443 \u043F\u0435\u0440\u0435\u0433\u043B\u044F\u0434\u0456 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0435. \u0412\u0456\u0434\u043A\u0440\u0438\u0439\u0442\u0435 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u0447\u0435\u0440\u0435\u0437 \xAB\u041F\u0440\u043E\u0434\u0430\u0436\u0456\xBB \u0430\u0431\u043E \xAB\u0421\u044C\u043E\u0433\u043E\u0434\u043D\u0456\xBB.")));
+}
 function BoSInspector({
   selection,
   data,
@@ -15539,6 +15813,7 @@ function BoSInspector({
   onSelect,
   onAction,
   onNavigate,
+  onTraceSelect,
   readOnly = false
 }) {
   const ref = useRef(null),
@@ -15663,6 +15938,11 @@ function BoSInspector({
           cancel_source: 'sales',
           quantity: b03OpenLine(x)
         }, 'Скасувати залишок']])]]
+      }), /*#__PURE__*/React.createElement(OrderTrace, {
+        key: id + ':' + c03Scope(),
+        orderId: id,
+        onTraceSelect: onTraceSelect,
+        onNavigate: onNavigate
       }), bosCan('finance') && cost && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h3", null, "\u0424\u0456\u043D\u0430\u043D\u0441\u043E\u0432\u0438\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442"), /*#__PURE__*/React.createElement("p", null, "\u0412\u0456\u0434\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043E \u043D\u0430 ", erpNum(cost?.shipped_value), " ", r.currency, "; \u0441\u043E\u0431\u0456\u0432\u0430\u0440\u0442\u0456\u0441\u0442\u044C ", erpNum(cost?.shipped_cost), "; \u0440\u0456\u0437\u043D\u0438\u0446\u044F ", erpNum(cost?.gross_margin), ".")), baseTable('invoices', data.invoices.filter(x => x.order_id === id)), acts([['invoice', {
         order_id: id,
         due_date: r.due_date
@@ -16019,7 +16299,12 @@ function BoSHome({
     onClose: () => setSelection(null),
     onSelect: setSelection,
     onAction: begin,
-    onNavigate: onNavigate
+    onNavigate: onNavigate,
+    onTraceSelect: (next, fresh) => {
+      loadSeq.current++;
+      setData(fresh);
+      setSelection(next);
+    }
   }), " ", action && /*#__PURE__*/React.createElement(BoSActionDialog, {
     action: action.type,
     preset: action.preset,
