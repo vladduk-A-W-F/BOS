@@ -11,7 +11,7 @@ html=html.replace(match[0],'<script src="/assets/app.js"></script>');
 const map={'react.production.min.js':'react.js','react-dom.production.min.js':'react-dom.js','marked.min.js':'marked.js','purify.min.js':'purify.js'};
 html=html.replace(/<script src="([^"]+)"[\s\S]*?<\/script>/g,(tag,url)=>{
  if(url.includes('babel.min.js'))return '';
- if(url==='/assets/app.js')return tag;
+ if(['/assets/app.js','/assets/network-map.js'].includes(url))return tag;
  const key=Object.keys(map).find(k=>url.endsWith('/'+k));
  if(!key)throw new Error('Unexpected script URL');
  return `<script src="/assets/${map[key]}"></script>`;

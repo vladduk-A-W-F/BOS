@@ -6,7 +6,7 @@ from .version import VERSION
 
 @require_GET
 def asset(request,name):
-    if name not in ('app.js','react.js','react-dom.js','marked.js','purify.js'): raise Http404
+    if name not in ('app.js','react.js','react-dom.js','marked.js','purify.js','network-map.js'): raise Http404
     p=Path(settings.BASE_DIR)/'assets'/name
     if not p.is_file():raise Http404
     return FileResponse(p.open('rb'),content_type='text/javascript')
