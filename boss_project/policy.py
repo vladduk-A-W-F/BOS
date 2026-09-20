@@ -4,7 +4,7 @@ from django.db.models import Q
 from .identity import actor
 
 
-CEO_ACTIONS = {'erp_statement_import','erp_statement_reconcile','erp_credit_invoice','erp_reverse_credit','erp_confirm_supplier_claim','erp_import_batch', 'erp_opening', 'erp_payment', 'erp_apply_change', 'erp_resolve_job', 'erp_adjust'}
+CEO_ACTIONS = {'erp_location_update','erp_order_network','erp_purchase_network','erp_hold_payment','erp_release_payment','erp_statement_import','erp_statement_reconcile','erp_credit_invoice','erp_reverse_credit','erp_confirm_supplier_claim','erp_import_batch', 'erp_opening', 'erp_payment', 'erp_apply_change', 'erp_resolve_job', 'erp_adjust'}
 DIRECTORY = {'id', 'full_name', 'role', 'department', 'branch', 'branch_name', 'archived_at'}
 TRANSACTION_FIELDS = {'id', 'date', 'direction', 'category', 'currency', 'contract', 'counterparty', 'branch', 'archived_at'}
 
@@ -110,7 +110,13 @@ class Policy:
             return special[model._meta.label_lower]()
         if model._meta.app_label=='erp':
             from erp.models import OrderCancellation,CancellationRelease,GoodsReturn,SupplierClaim,InvoiceAdjustment,InvoiceAdjustmentLine,Movement,Reservation
-            if model in (InvoiceAdjustment,InvoiceAdjustmentLine):return model.objects.none()
+            from erp.models import StockTransfer,PaymentRetention,Lot
+            if model in (InvoiceAdjustment,InvoiceAdjustmentLine,PaymentRetention):return model.objects.none()
+            if model is StockTransfer:
+                visible=self.queryset(Lot);docs=set(self.documents().values_list('pk',flat=True))
+                allowed=[r.pk for r in model.objects.filter(source_lot__in=visible).filter(Q(received_lot__isnull=True)|Q(received_lot__in=visible))
+                    if isinstance(r.documents,dict) and all(type(pk) is int and pk in docs for pk in r.documents.values())]
+                return model.objects.filter(pk__in=allowed)
             if model is OrderCancellation:
                 ids=self.erp_ids();return model.objects.filter(Q(line_id__in=ids['line_id'])|Q(purchase_id__in=ids['purchase_id']))
             if model is CancellationRelease:return model.objects.filter(cancellation__in=self.queryset(OrderCancellation),reservation__in=self.queryset(Reservation))
@@ -172,7 +178,10 @@ class Policy:
         from django.core.exceptions import ObjectDoesNotExist
         if value is None:
             return
-        if name in ('receipt_id','shipment_id','movement_id','source_movement_id'):
+        if name in ('transfer_id','retention_id'):
+            from erp.models import StockTransfer,PaymentRetention
+            self.queryset(StockTransfer if name=='transfer_id' else PaymentRetention).get(pk=value)
+        elif name in ('receipt_id','shipment_id','movement_id','source_movement_id'):
             from erp.models import Movement
             obj=self.queryset(Movement).get(pk=value)
             expected={'receipt_id':'receipt','shipment_id':'shipment'}.get(name)

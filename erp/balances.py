@@ -3,7 +3,7 @@ from decimal import Decimal as D,localcontext,ROUND_HALF_EVEN
 from fractions import Fraction
 from functools import wraps
 from django.db.models import Sum
-from .models import OrderCancellation,SalesLine,Purchase,InvoiceAdjustment
+from .models import OrderCancellation,SalesLine,Purchase,InvoiceAdjustment,PaymentRetention
 
 
 def exact(fn):
@@ -59,7 +59,10 @@ def active_credits(invoice=None):
 def invoice_settlement(invoice):
     credit=sum((row.total for row in active_credits(invoice)),D(0));net=invoice.amount-credit
     if net<0:raise ValueError('Погоджені кредити перевищують первісний рахунок.')
-    return {'effective_credit':credit,'net_amount':net,'receivable':max(net-invoice.paid,D(0)),'customer_credit':max(invoice.paid-net,D(0))}
+    receivable=max(net-invoice.paid,D(0))
+    retained=sum(PaymentRetention.objects.filter(invoice=invoice,status='held').values_list('amount',flat=True),D(0))
+    if retained>receivable:raise ValueError('Утримання перевищує відкритий залишок рахунку; спершу погодьте зняття утримання.')
+    return {'effective_credit':credit,'net_amount':net,'receivable':receivable,'customer_credit':max(invoice.paid-net,D(0)),'retained':retained,'collectible':receivable-retained}
 
 
 def settlement_strings(invoice):return {key:money_text(value) for key,value in invoice_settlement(invoice).items()}

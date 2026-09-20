@@ -30,7 +30,7 @@ class ProcurementRequest(models.Model):
     revision=models.CharField(max_length=40)
     quantity=models.PositiveIntegerField()
     unit=models.CharField(max_length=20,default='шт.')
-    currency=models.CharField(max_length=3,default='EUR')
+    currency=models.CharField(max_length=3,default='UAH')
     required_by=models.DateField()
     owner=models.ForeignKey('employees.Employee',on_delete=models.PROTECT)
     document=models.ForeignKey(Document,on_delete=models.PROTECT)

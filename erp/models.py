@@ -17,7 +17,7 @@ class Item(models.Model):
     minimum=models.DecimalField(max_digits=15,decimal_places=3,default=0)
     lead_days=models.PositiveIntegerField(default=7)
     planned_cost=models.DecimalField(max_digits=15,decimal_places=2,default=0)
-    currency=models.CharField(max_length=3,default='EUR')
+    currency=models.CharField(max_length=3,default='UAH')
 
     class Meta:
         constraints = [
@@ -25,6 +25,10 @@ class Item(models.Model):
         ]
 
 class Location(models.Model):
+    branch=models.ForeignKey('branches.Branch',null=True,blank=True,on_delete=models.PROTECT)
+    address=models.CharField(max_length=300,blank=True,default='')
+    lat=models.DecimalField(max_digits=9,decimal_places=6,null=True,blank=True)
+    lng=models.DecimalField(max_digits=9,decimal_places=6,null=True,blank=True)
     code=models.CharField(max_length=60,unique=True)
     name=models.CharField(max_length=200)
     kind=models.CharField(max_length=20,default='warehouse')
@@ -38,7 +42,7 @@ class Lot(models.Model):
     quantity=models.DecimalField(max_digits=15,decimal_places=3,default=0)
     quality=models.CharField(max_length=20,default='pending')
     unit_cost=models.DecimalField(max_digits=15,decimal_places=2,default=0)
-    currency=models.CharField(max_length=3,default='EUR')
+    currency=models.CharField(max_length=3,default='UAH')
     documents=models.JSONField(default=dict)
     class Meta:
         constraints=[models.CheckConstraint(condition=Q(quantity__gte=0),name='erp_nonnegative_lot')]
@@ -48,11 +52,13 @@ class Lot(models.Model):
         ]
 
 class SalesOrder(models.Model):
+    fulfillment_location=models.ForeignKey(Location,null=True,blank=True,on_delete=models.PROTECT)
+    destination_country=models.CharField(max_length=2,blank=True,default='')
     code=models.CharField(max_length=60,unique=True)
     customer=models.ForeignKey('finance.Counterparty',on_delete=models.PROTECT)
     owner=models.ForeignKey('employees.Employee',on_delete=models.PROTECT)
     due_date=models.DateField()
-    currency=models.CharField(max_length=3,default='EUR')
+    currency=models.CharField(max_length=3,default='UAH')
     status=models.CharField(max_length=20,default='quote')
     notes=models.TextField(blank=True)
 
@@ -92,7 +98,7 @@ class Production(models.Model):
     needs_review=models.BooleanField(default=False)
     planned_cost=models.DecimalField(max_digits=15,decimal_places=2,default=0)
     actual_cost=models.DecimalField(max_digits=15,decimal_places=2,default=0)
-    currency=models.CharField(max_length=3,default='EUR')
+    currency=models.CharField(max_length=3,default='UAH')
 
     class Meta:
         constraints = [
@@ -110,6 +116,8 @@ class Reservation(models.Model):
         constraints=[models.CheckConstraint(condition=Q(quantity__gte=0),name='erp_nonnegative_reserve'),models.CheckConstraint(condition=(Q(line__isnull=False)&Q(production__isnull=True))|(Q(line__isnull=True)&Q(production__isnull=False)),name='erp_reservation_target')]
 
 class Purchase(models.Model):
+    destination=models.ForeignKey(Location,null=True,blank=True,on_delete=models.PROTECT)
+    origin_country=models.CharField(max_length=2,blank=True,default='')
     code=models.CharField(max_length=60,unique=True)
     item=models.ForeignKey(Item,on_delete=models.PROTECT)
     supplier=models.ForeignKey('finance.Counterparty',on_delete=models.PROTECT)
@@ -117,7 +125,7 @@ class Purchase(models.Model):
     received=models.DecimalField(max_digits=15,decimal_places=3,default=0)
     price=models.DecimalField(max_digits=15,decimal_places=2)
     extras=models.DecimalField(max_digits=15,decimal_places=2,default=0)
-    currency=models.CharField(max_length=3,default='EUR')
+    currency=models.CharField(max_length=3,default='UAH')
     due_date=models.DateField()
     original_due=models.DateField()
     revision=models.CharField(max_length=40)
@@ -334,3 +342,52 @@ class InvoiceAdjustmentLine(models.Model):
             models.CheckConstraint(condition=Q(returned_goods__isnull=False,quantity__gt=0)|Q(returned_goods__isnull=True,quantity=0),name='bos_credit_line_source'),
             models.UniqueConstraint(fields=['document','invoice_line_index','returned_goods'],condition=Q(returned_goods__isnull=False),name='bos_credit_return_line_once'),
             models.UniqueConstraint(fields=['document','invoice_line_index'],condition=Q(returned_goods__isnull=True),name='bos_credit_commercial_line_once')]
+
+
+class StockTransfer(models.Model):
+    """A dispatched quantity is in transit, never available at either point."""
+    code=models.CharField(max_length=60,unique=True)
+    source_lot=models.ForeignKey(Lot,on_delete=models.PROTECT,related_name='dispatched_transfers')
+    source_location=models.ForeignKey(Location,on_delete=models.PROTECT,related_name='outgoing_transfers')
+    destination=models.ForeignKey(Location,on_delete=models.PROTECT,related_name='incoming_transfers')
+    item=models.ForeignKey(Item,on_delete=models.PROTECT)
+    quantity=models.DecimalField(max_digits=15,decimal_places=3)
+    revision=models.CharField(max_length=40)
+    documents=models.JSONField(default=dict)
+    unit_cost=models.DecimalField(max_digits=15,decimal_places=2)
+    total_cost=models.DecimalField(max_digits=15,decimal_places=2)
+    currency=models.CharField(max_length=3)
+    status=models.CharField(max_length=20,default='in_transit')
+    dispatch_movement=models.OneToOneField(Movement,on_delete=models.PROTECT,related_name='outbound_transfer')
+    receipt_movement=models.OneToOneField(Movement,null=True,blank=True,on_delete=models.PROTECT,related_name='inbound_transfer')
+    received_lot=models.OneToOneField(Lot,null=True,blank=True,on_delete=models.PROTECT,related_name='received_transfer')
+    reason=models.TextField()
+    due_date=models.DateField(null=True,blank=True)
+    dispatched_at=models.DateTimeField(auto_now_add=True)
+    received_at=models.DateTimeField(null=True,blank=True)
+
+    class Meta:
+        constraints=[
+            models.CheckConstraint(condition=Q(quantity__gt=0,unit_cost__gte=0,total_cost__gte=0,currency__in=['EUR','USD','UAH']),name='bos_transfer_amounts'),
+            models.CheckConstraint(condition=~Q(source_location=models.F('destination')),name='bos_transfer_points_distinct'),
+            models.CheckConstraint(condition=Q(status='in_transit',received_at__isnull=True,received_lot__isnull=True,receipt_movement__isnull=True)|Q(status='received',received_at__isnull=False,received_lot__isnull=False,receipt_movement__isnull=False),name='bos_transfer_state'),
+        ]
+
+
+class PaymentRetention(models.Model):
+    """Contractual hold on AR; releasing a hold never records payment."""
+    code=models.CharField(max_length=60,unique=True)
+    invoice=models.ForeignKey('operations.Invoice',on_delete=models.PROTECT,related_name='payment_retentions')
+    amount=models.DecimalField(max_digits=14,decimal_places=2)
+    currency=models.CharField(max_length=3)
+    status=models.CharField(max_length=20,default='held')
+    reason=models.TextField()
+    release_reason=models.TextField(blank=True,default='')
+    created_at=models.DateTimeField(auto_now_add=True)
+    released_at=models.DateTimeField(null=True,blank=True)
+
+    class Meta:
+        constraints=[
+            models.CheckConstraint(condition=Q(amount__gt=0,currency__in=['EUR','USD','UAH']),name='bos_retention_amount'),
+            models.CheckConstraint(condition=Q(status='held',released_at__isnull=True)|Q(status='released',released_at__isnull=False),name='bos_retention_state'),
+        ]

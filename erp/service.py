@@ -18,11 +18,11 @@ MODELS=[Item,Location,Lot,SalesOrder,SalesLine,Production,Reservation,Purchase,M
 SCHEMAS={
 'import_batch':('batch','source_part_sha256'),
 'item':('code name unit kind method revision currency','material external_codes required_documents bom routing minimum lead_days planned_cost document_id'),
-'location':('code name kind','supplier_id'),
-'order':('code customer_id owner_id due_date currency lines','notes'),
+'location':('code name kind','supplier_id branch_id address lat lng'),
+'order':('code customer_id owner_id due_date currency lines','notes fulfillment_location_id destination_country'),
 'confirm_order':('order_id',''),
 'opening':('code item_id location_id quantity unit_cost currency revision','documents reason'),
-'purchase':('code item_id supplier_id quantity price currency due_date revision','extras production_id request_id quote_id supplier_confirmation direct_reason'),
+'purchase':('code item_id supplier_id quantity price currency due_date revision','extras production_id request_id quote_id supplier_confirmation direct_reason destination_id origin_country'),
 'receive':('purchase_id code location_id quantity','documents'),
 'job':('code item_id quantity location_id owner_id due_date','line_id'),
 'reserve':('lot_id quantity','line_id production_id'),
@@ -48,6 +48,11 @@ SCHEMAS={
 from .corrections import SCHEMAS as CORRECTION_SCHEMAS, MODELS as CORRECTION_MODELS
 SCHEMAS.update(CORRECTION_SCHEMAS)
 MODELS += list(CORRECTION_MODELS)
+from .network_commands import SCHEMAS as NETWORK_SCHEMAS, MODELS as NETWORK_MODELS
+SCHEMAS.update(NETWORK_SCHEMAS)
+MODELS += list(NETWORK_MODELS)
+from branches.models import Branch
+MODELS += [Branch]
 SCHEMAS.update({'statement_import':('document_id source_sha256 source_system account_ref format parser_version',''),'statement_reconcile':('line_id transaction matching reason allocations','')})
 from .balances import sales_open,purchase_open,invoice_settlement
 
@@ -82,6 +87,8 @@ def clean(payload):
         if isinstance(v,str) and len(v)>4000:raise ValueError('Текст завеликий.')
     for k in ['quantity','price','unit_cost','extras','labor_cost','amount','minimum','planned_cost','defects']:
         if k in d:d[k]=str(number(d[k],positive=k in ['quantity','amount'],places=2 if k in ['price','unit_cost','extras','labor_cost','amount','planned_cost'] else 3))
+    from .network_commands import clean_metadata
+    d=clean_metadata(a,d)
     for k in ['due_date']:
         if k in d:date.fromisoformat(d[k])
     if 'currency' in d and d['currency'] not in ('EUR','UAH','USD'):raise ValueError('Доступні EUR, UAH, USD.')
@@ -197,7 +204,10 @@ def dispatch(payload,role='manager',log=True,*,import_context=None,import_phase=
     if a in CORRECTION_SCHEMAS:
         from .corrections import apply
         return apply({'action':'erp_'+a,**d},correction_actor,role)
-    if a=='import_batch':
+    if a in NETWORK_SCHEMAS:
+        from .network_commands import apply
+        out=apply(a,d,role)
+    elif a=='import_batch':
         from .importing import apply_batch
         out=apply_batch(d['batch'],import_context,import_phase)
     elif a=='item':
@@ -210,6 +220,8 @@ def dispatch(payload,role='manager',log=True,*,import_context=None,import_phase=
     elif a=='location':
         if d['kind'] not in ('warehouse','production','supplier'):raise ValueError('Невідомий тип місця.')
         if d['kind']=='supplier':Counterparty.objects.get(pk=d.get('supplier_id'),type='supplier')
+        from .network_commands import check_location_metadata
+        check_location_metadata(d)
         obj=Location.objects.create(**d);out={'location_id':obj.id,'code':obj.code}
     elif a=='order':
         lines=d.pop('lines');customer=Counterparty.objects.get(pk=d['customer_id'],type='customer');Employee.objects.get(pk=d['owner_id'])
@@ -242,6 +254,7 @@ def dispatch(payload,role='manager',log=True,*,import_context=None,import_phase=
         obj=Purchase.objects.create(original_due=original_due,**d);out={'purchase_id':obj.id,'code':obj.code}
     elif a=='receive':
         po=Purchase.objects.get(pk=d['purchase_id']);qty=D(d['quantity'])
+        if po.destination_id is not None and po.destination_id!=d['location_id']:raise ValueError('Приймання має відбутися в погодженій точці призначення закупівлі.')
         if qty>purchase_open(po):raise ValueError('Надходження перевищує залишок замовлення.')
         unit=(po.price+po.extras/po.quantity).quantize(D('.01'))
         obj=newlot(d['code'],po.item,Location.objects.get(pk=d['location_id']),qty,unit,po.currency,po.revision,d.get('documents',{}),'receipt',po.code,purchase=po)
@@ -335,6 +348,7 @@ def dispatch(payload,role='manager',log=True,*,import_context=None,import_phase=
         job.produced+=qty;job.actual_cost=money_total(job.actual_cost+cost);job.status='done' if job.produced==job.quantity else 'running';job.save();out={'lot_id':obj.id,'production_id':job.id,'cost':str(cost.quantize(D('.01'))),'quality':'pending'}
     elif a=='ship':
         line=SalesLine.objects.get(pk=d['line_id']);lot=Lot.objects.get(pk=d['lot_id']);qty=D(d['quantity'])
+        if line.order.fulfillment_location_id is not None and lot.location_id!=line.order.fulfillment_location_id:raise ValueError('Відвантаження має бути з погодженої точки виконання замовлення.')
         if line.order.status!='confirmed' or line.item_id!=lot.item_id or not usable(lot,line.revision):raise ValueError('Позиція або якість/версія партії не дозволяє відвантаження.')
         if lot.currency!=line.order.currency:raise ValueError('Для обліку собівартості потрібна одна валюта або погоджений курс.')
         if qty>sales_open(line):raise ValueError('Перевищено залишок замовлення.')
