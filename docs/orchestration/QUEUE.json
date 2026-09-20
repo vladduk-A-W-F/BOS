@@ -1,0 +1,150 @@
+{
+  "schema": 1,
+  "launch_gate": "PAUSED_FOR_OWNER_PLAN_REVIEW",
+  "all_tasks_require_owner_plan_review": true,
+  "rules": "PLAN-* є запропонованими ключами; не перейменовувати історичні P-ID. Залежності необхідні, але не замінюють external_prerequisites.",
+  "tasks": [
+    {
+      "id": "P10-003",
+      "title": "P06-F02: backend-aware isolation guard",
+      "owner": "bos_test_ci",
+      "depends_on": [],
+      "checkpoint": "C1",
+      "status": "PREPARED_NOT_STARTED",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/cards/P10-003.md"
+    },
+    {
+      "id": "PLAN-N1",
+      "title": "Звірити max_length та валідацію фактичних входів",
+      "owner": "bos_diagnostician",
+      "depends_on": [],
+      "checkpoint": "C1",
+      "status": "PREPARED_NOT_STARTED",
+      "external_prerequisites": [],
+      "card": null
+    },
+    {
+      "id": "PLAN-F03",
+      "title": "Валідні invoice-коди у concurrency fixtures",
+      "owner": "bos_test_ci",
+      "depends_on": [
+        "PLAN-N1"
+      ],
+      "checkpoint": "C1",
+      "status": "PREPARED_NOT_STARTED",
+      "external_prerequisites": [],
+      "card": null
+    },
+    {
+      "id": "PLAN-F06",
+      "title": "Повнота E2E evidence та SHA-індекс",
+      "owner": "bos_test_ci",
+      "depends_on": [],
+      "checkpoint": "C1",
+      "status": "PREPARED_NOT_STARTED",
+      "external_prerequisites": [],
+      "card": null
+    },
+    {
+      "id": "PLAN-TIME",
+      "title": "Причини тайм-аутів P06-F04/F05",
+      "owner": "bos_diagnostician",
+      "depends_on": [
+        "P10-003",
+        "PLAN-N1",
+        "PLAN-F03"
+      ],
+      "checkpoint": "C1",
+      "status": "PREPARED_NOT_STARTED",
+      "external_prerequisites": [],
+      "card": null
+    },
+    {
+      "id": "PLAN-N2",
+      "title": "Замір fingerprint та ADR конкурентності",
+      "owner": "bos_diagnostician",
+      "depends_on": [
+        "PLAN-TIME"
+      ],
+      "checkpoint": "C1",
+      "status": "PREPARED_NOT_STARTED",
+      "external_prerequisites": [],
+      "card": null
+    },
+    {
+      "id": "PLAN-SOURCE",
+      "title": "P04-F01: міжплатформний source SHA",
+      "owner": "bos_test_ci",
+      "depends_on": [],
+      "checkpoint": "C1",
+      "status": "PREPARED_NOT_STARTED",
+      "external_prerequisites": [],
+      "card": null
+    },
+    {
+      "id": "PLAN-LINKS",
+      "title": "Gap-map моделі пов’язаних процесів",
+      "owner": "bos_architect",
+      "depends_on": [],
+      "checkpoint": "C2",
+      "status": "PREPARED_NOT_STARTED",
+      "external_prerequisites": [],
+      "card": null
+    },
+    {
+      "id": "PLAN-UX",
+      "title": "Сценарії, комунікація та джерела показників",
+      "owner": "bos_ux",
+      "depends_on": [
+        "PLAN-LINKS"
+      ],
+      "checkpoint": "C3",
+      "status": "PREPARED_NOT_STARTED",
+      "external_prerequisites": [],
+      "card": null
+    },
+    {
+      "id": "PLAN-GPT",
+      "title": "Специфікація GPT adapter та рольових evals",
+      "owner": "bos_architect",
+      "depends_on": [
+        "PLAN-LINKS"
+      ],
+      "checkpoint": "C4",
+      "status": "PREPARED_NOT_STARTED",
+      "external_prerequisites": [],
+      "card": null
+    },
+    {
+      "id": "PLAN-ACCEPT",
+      "title": "Повне технічне приймання P19/P20",
+      "owner": "bos_readiness_auditor",
+      "depends_on": [
+        "PLAN-TIME",
+        "PLAN-F06",
+        "PLAN-SOURCE",
+        "PLAN-UX",
+        "PLAN-GPT"
+      ],
+      "checkpoint": "C5",
+      "status": "PREPARED_NOT_STARTED",
+      "external_prerequisites": [
+        "Historical suite restrictions resolved without bypass; same candidate; all original P19 prerequisites; C2-C4 product changes accepted"
+      ],
+      "card": null
+    },
+    {
+      "id": "PLAN-PILOT",
+      "title": "Паспорт пілота та умови P22–P24",
+      "owner": "bos_pilot_pack",
+      "depends_on": [
+        "PLAN-LINKS"
+      ],
+      "checkpoint": "C6",
+      "status": "PREPARED_NOT_STARTED",
+      "external_prerequisites": [],
+      "card": null
+    }
+  ]
+}

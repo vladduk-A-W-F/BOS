@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "updated_at": "2026-09-20",
+  "canonical_repository": "vladduk-A-W-F/BOS",
+  "setup_branch": "setup/bos-gpt-orchestration-20260920",
+  "product_candidate_commit": "7d46dced3bcf06d44755cf53366c9e16bd465582",
+  "runtime_source_sha256": "10d86748d682926a898d2d2dfecd43fd7f6962f6ed38602da7ae704e52aca154",
+  "runtime_reconstructed_and_digest_matched": true,
+  "whole_local_git_tree_verified": false,
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "execution": {
+    "status": "PAUSED_FOR_OWNER_PLAN_REVIEW",
+    "product_execution_allowed": false,
+    "ci_allowed": false,
+    "deploy_allowed": false,
+    "paid_api_allowed": false,
+    "background_service_running": false,
+    "reason": "Власник попросив повне налаштування та план до запуску. Наступне явне погодження плану потрібне перед реалізацією.",
+    "mode_after_resume": "ONE_CARD_REPORT_STOP",
+    "batch_mode_authorized": false
+  },
+  "historical_limits": {
+    "P05_timeout_cycle_used": 3,
+    "P05_timeout_cycle_limit": 3,
+    "automatic_full_pg_e2e_retry_allowed": false,
+    "A09_targeted_retry_allowed": false,
+    "A10_activation_upgrade_rollback_allowed": false,
+    "A11_blocked_route_retry_allowed": false
+  },
+  "P10_002": {
+    "review": "ACCEPT_SCOPED",
+    "scope": "VERIFIED_FRESH_SEED",
+    "full_acceptance": "BLOCKED_FULL_ACCEPTANCE",
+    "ci_run": 35470413616,
+    "historical_pg_tests": 6,
+    "historical_sqlite_tests": 6
+  },
+  "P06": "BLOCKED",
+  "next_after_owner_review": "P10-003",
+  "master_v2_1_full_text_available": true,
+  "runtime_environment": {
+    "python": "3.12.14",
+    "django_installed": false,
+    "postgres16_available": false,
+    "codex_cli_available": false,
+    "application_started_this_setup": false
+  },
+  "config_validation": "PASS_STATIC",
+  "independent_setup_review": "ACCEPT_SCOPED_STATIC",
+  "model_policy": {
+    "orchestrator": "gpt-6-astra",
+    "implementation": "gpt-5.6-terra",
+    "roles_count": 9,
+    "max_concurrent_subagents": 4,
+    "account_default_modified": false,
+    "cli_runtime_validation": "NOT_RUN"
+  },
+  "product_target": "linked_operations_information_resource_flows_metrics_communication_and_gpt_assistant",
+  "github_main_observed": "ecb8cf7f62a4b333b61481481d2eea97b3400b54",
+  "github_main_diverged": true,
+  "main_reconciliation_before_merge_required": true,
+  "master_v2_1_sha256": "4ab578d4ab1a6c959ed7aa791f09a7c8284c04df1d48b6a575671f53df7c4caf",
+  "master_v2_1_sha_verified": true
+}
