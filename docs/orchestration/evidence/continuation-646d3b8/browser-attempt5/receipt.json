@@ -1,0 +1,32 @@
+{
+  "commit": "646d3b80597e087a1ada14221024ec40588996f0",
+  "source_sha256": "98b011a583c7803d88c888070a3412789559919ecb5692ef34f5e8ad59b5072a",
+  "gate10": {
+    "report": "D:\\3\\Codex\\2026-09-20\\bos-execution\\work\\continuation-evidence-20260920\\browser-attempt5\\artifacts\\ui-report.json",
+    "report_sha256": "be0ab0e51ce4d03093bbbadf4168dbd626298817f426cc485199f56fc46592e4",
+    "complete": true,
+    "errors": []
+  },
+  "gate10_passed": 7,
+  "flows": {
+    "schema": "bos.flow-browser.v1",
+    "complete": true,
+    "passed": [
+      "supply_transfer_confirm_replay",
+      "settlement_payment_confirm_replay",
+      "document_match_explicit_exception"
+    ],
+    "scope": "Separate bounded actual browser checks; not Gate6"
+  },
+  "cleanup": {
+    "browser_closed": true,
+    "server_stopped": true,
+    "runtime_removed": true
+  },
+  "source_unchanged": true,
+  "source_databases_unchanged": true,
+  "raw_sha256": "4acaac1736918eebf9b9b6ff8e564f5eae61efc2434c564ef5141fbc4d40f3e8",
+  "report_sha256": "be0ab0e51ce4d03093bbbadf4168dbd626298817f426cc485199f56fc46592e4",
+  "artifacts_verified": 26,
+  "limits": "SQLite synthetic browser scope only; readiness/pilot false; earlier failed attempt preserved"
+}

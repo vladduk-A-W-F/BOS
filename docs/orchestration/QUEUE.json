@@ -323,10 +323,11 @@
         "VERTICAL-UA-UI"
       ],
       "checkpoint": "C3",
-      "status": "IN_PROGRESS",
+      "status": "ACCEPT_SCOPED_GATE10_EXACT_646D3B8",
       "external_prerequisites": [],
-      "card": null,
-      "evidence": "docs/orchestration/VERTICAL_UA_UA.md"
+      "card": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "acceptance_scope": "runner code/12mock/Windowsstdlib; actual attempt4 FAIL retained at530043a; root accepted attempt5 exit0/Gate10 7of7 at646d3b8/98b011, separate flows3of3 and persistent demo; not full Gate6 or readiness"
     },
     {
       "id": "LOCAL-GATE1-4",
@@ -337,10 +338,163 @@
         "BOOTSTRAP-OWNER"
       ],
       "checkpoint": "C5",
-      "status": "IN_PROGRESS",
+      "status": "INCOMPLETE_NO_CURRENT_ACCEPTANCE",
       "external_prerequisites": [],
-      "card": null,
-      "evidence": "docs/orchestration/VERTICAL_UA_UA.md"
+      "card": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "acceptance_scope": "Historical PG migration only; SQLite original exit unknown; access-current-1 interrupted without final receipt"
+    },
+    {
+      "id": "S1-CONFIRM-RECOVERY",
+      "title": "Збереження ID погодження та квитанції",
+      "owner": "bos_ux",
+      "depends_on": [
+        "VERTICAL-UA-UI"
+      ],
+      "checkpoint": "C5",
+      "status": "ACCEPT_SCOPED_RECORDED_BY_COORDINATOR",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/cards/S1-CONFIRM-RECOVERY.md",
+      "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "local_commit": "811a61399f4616a3b3d9d5d5305e593eb6e6e9fe",
+      "full_scenario_acceptance": false
+    },
+    {
+      "id": "PLAN-DOC-MATCH-CONTRACT",
+      "title": "Pure mock-контракт документа",
+      "owner": "bos_implementer",
+      "depends_on": [],
+      "checkpoint": "C5",
+      "status": "ACCEPT_SCOPED_MOCK_CONTRACT_RECORDED",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "local_commit": "90e2cf833ab601fe543d1dbdb64e087b432cfd32",
+      "full_scenario_acceptance": false
+    },
+    {
+      "id": "SUPPLY-OPTIONS-READ",
+      "title": "Дозволені джерела забезпечення",
+      "owner": "bos_implementer",
+      "depends_on": [
+        "VERTICAL-UA-DATA"
+      ],
+      "checkpoint": "C5",
+      "status": "ACCEPT_SCOPED_SQLITE12",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "local_commit": "92d0713c7cc46c683ae72192661924a3a14083f7",
+      "full_scenario_acceptance": false
+    },
+    {
+      "id": "FLOW-ORDER-SETTLEMENT",
+      "title": "Фінансові джерела конкретного замовлення",
+      "owner": "bos_implementer",
+      "depends_on": [
+        "VERTICAL-UA-DATA"
+      ],
+      "checkpoint": "C5",
+      "status": "ACCEPT_SCOPED_REFERENCE_FIX",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "local_commit": "ae10e3f2498a8292bcfe065d593a95cc3c0272b9",
+      "full_scenario_acceptance": false
+    },
+    {
+      "id": "DOC-MATCH-SERVER",
+      "title": "Перевірені байти й Policy для mock-сверки",
+      "owner": "bos_implementer",
+      "depends_on": [
+        "PLAN-DOC-MATCH-CONTRACT"
+      ],
+      "checkpoint": "C5",
+      "status": "ACCEPT_SCOPED_RECORDED_BY_COORDINATOR",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "local_commit": "67cc588f9f1171442d1822bae127bc6369ecddf3",
+      "full_scenario_acceptance": false
+    },
+    {
+      "id": "FLOW-READ-UI",
+      "title": "Маршрути й UI забезпечення та розрахунків",
+      "owner": "bos_ux",
+      "depends_on": [
+        "S1-CONFIRM-RECOVERY",
+        "SUPPLY-OPTIONS-READ",
+        "FLOW-ORDER-SETTLEMENT"
+      ],
+      "checkpoint": "C5",
+      "status": "ACCEPT_SCOPED_RECORDED_BY_COORDINATOR",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/cards/FLOW-READ-UI.md",
+      "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "local_commit": "bfbc588a2445eeb04e7ef13c2ecca5c72f4eb47d",
+      "full_scenario_acceptance": false
+    },
+    {
+      "id": "LOCAL-REVIEW-SUPPORT",
+      "title": "Керовані процеси локального synthetic-стенда",
+      "owner": "bos_test_ci",
+      "depends_on": [
+        "BOOTSTRAP-OWNER"
+      ],
+      "checkpoint": "C5",
+      "status": "ACCEPT_SCOPED_SUPPORT_ONLY",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "local_commit": "bc6cc57503fdd042415e1c4ff93c7867e20ae91a",
+      "full_scenario_acceptance": false
+    },
+    {
+      "id": "DOC-MATCH-READ-UI",
+      "title": "Явне зіставлення та оригінальні докази",
+      "owner": "bos_ux",
+      "depends_on": [
+        "DOC-MATCH-SERVER",
+        "FLOW-READ-UI"
+      ],
+      "checkpoint": "C5",
+      "status": "ACCEPT_SCOPED_DOC_READ_UI",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/cards/DOC-MATCH-READ-UI.md",
+      "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "local_commit": "accbedc8582bb05a4e784a46b2c23422dbeaf931",
+      "full_scenario_acceptance": false
+    },
+    {
+      "id": "FLOW-BROWSER-HELPER",
+      "title": "Оракул трьох обмежених browser-кроків",
+      "owner": "bos_test_ci",
+      "depends_on": [
+        "FLOW-READ-UI",
+        "DOC-MATCH-READ-UI"
+      ],
+      "checkpoint": "C5",
+      "status": "ACCEPT_SCOPED_HELPER_ONLY",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "local_commit": "23f7145be0e67724719a4dc015c32f2d684b33ad",
+      "full_scenario_acceptance": false
+    },
+    {
+      "id": "WORKPOINT-DIALOG-FOCUS",
+      "title": "Повернення фокуса до чинного opener",
+      "owner": "bos_ux",
+      "depends_on": [
+        "FLOW-READ-UI"
+      ],
+      "checkpoint": "C5",
+      "status": "ACCEPT_SCOPED_FOCUS_AND_ACTUAL_BROWSER",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/cards/WORKPOINT-DIALOG-FOCUS.md",
+      "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "local_commit": "646d3b80597e087a1ada14221024ec40588996f0",
+      "full_scenario_acceptance": false
     }
   ]
 }
