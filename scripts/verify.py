@@ -1,6 +1,6 @@
 """Strict eleven-gate verifier. Missing implementation/evidence never passes."""
 import argparse
-from contextlib import contextmanager
+from contextlib import closing, contextmanager
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -229,6 +229,70 @@ def e2e_evidence(stdout, path, backend, returncode):
     return evidence
 
 
+def ui_evidence(stdout, path, source_sha, returncode):
+    """Require the assigned gate 10 report and every retained artifact byte."""
+    evidence = {'report': str(path), 'report_sha256': None, 'complete': False, 'errors': []}
+    errors = evidence['errors']
+    summaries = [value for value in json_objects(stdout) if value.get('gate') == 10 and 'report' in value]
+    try:
+        raw = path.read_bytes()
+        evidence['report_sha256'] = hashlib.sha256(raw).hexdigest()
+        detail = json.loads(raw)
+        if not isinstance(detail, dict) or detail.get('schema') != 'bos.gate10.local.v1' or detail.get('gate') != 10:
+            raise ValueError('Invalid local UI schema/gate.')
+        if len(summaries) != 1:
+            raise ValueError('Expected exactly one local UI summary.')
+        summary = summaries[0]
+        if Path(summary['report']).resolve() != path.resolve():
+            errors.append('UI summary points outside its assigned report path.')
+        if summary.get('report_sha256') != evidence['report_sha256']:
+            errors.append('Detailed UI report SHA256 differs from its summary.')
+        if returncode != 0 or detail.get('complete') is not True or summary.get('complete') is not True:
+            errors.append('UI process or detailed report is incomplete.')
+        if detail.get('source_sha256') != source_sha or summary.get('source_sha256') != source_sha:
+            errors.append('UI evidence belongs to a different source snapshot.')
+        if detail.get('source_unchanged') is not True or detail.get('source_databases_unchanged') is not True:
+            errors.append('UI source or source databases changed.')
+        if not all(detail.get('cleanup', {}).get(key) is True for key in
+                   ('browser_closed', 'server_stopped', 'runtime_removed')):
+            errors.append('UI runtime cleanup was not proved.')
+        process = detail.get('isolation', {}).get('server_process', {})
+        if not all(process.get(key) is True for key in ('actual_server_exit_verified', 'launcher_exit_verified')):
+            errors.append('UI actual server child and launcher exits were not both proved.')
+        if process.get('ownership_verified_before_application') is not True:
+            errors.append('UI child self-identity was not verified before application startup.')
+        required = {'viewport_390', 'viewport_768', 'viewport_1440', 'native_zoom_200',
+                    'keyboard_escape', 'network_failure_recovery', 'uah_preview_confirm'}
+        checks = detail.get('checks', [])
+        if (len(checks) != len(required) or {c.get('id') for c in checks} != required or
+                not all(c.get('passed') is True for c in checks)):
+            errors.append('UI matrix has missing, duplicate or failed checks.')
+        artifacts = detail.get('artifacts', [])
+        seen = set()
+        for artifact in artifacts:
+            relative = Path(artifact['path'])
+            resolved = (path.parent / relative).resolve()
+            if (relative.is_absolute() or '..' in relative.parts or resolved == path.resolve() or
+                    not resolved.is_relative_to(path.parent.resolve()) or str(relative) in seen):
+                raise ValueError('UI artifact escapes its directory, repeats or points at its report.')
+            seen.add(str(relative))
+            content = resolved.read_bytes()
+            if len(content) != artifact['bytes'] or hashlib.sha256(content).hexdigest() != artifact['sha256']:
+                errors.append('UI artifact bytes differ: ' + str(relative))
+            if relative.suffix == '.png' and not content.startswith(b'\x89PNG\r\n\x1a\n'):
+                errors.append('Invalid UI screenshot: ' + str(relative))
+        screenshots = detail.get('screenshots', [])
+        expected = {f'viewport-{width}{suffix}.png' for width in (390, 768, 1440) for suffix in ('', '-dialog')}
+        expected |= {'native-zoom-200.png', 'native-zoom-200-dialog.png', 'network-failure.png',
+                     'network-recovered.png', 'uah-preview.png', 'uah-confirmed.png'}
+        if set(screenshots) != expected or len(screenshots) != len(expected) or not expected.issubset(seen):
+            errors.append('Required UI screenshots are missing or unindexed.')
+    except (OSError, ValueError, TypeError, AttributeError, KeyError) as exc:
+        errors.append(f'Unreadable detailed UI evidence: {type(exc).__name__}: {exc}')
+    evidence['complete'] = not errors
+    return evidence
+
+
 def extension(gate, backend, work, output):
     path = EXTENSIONS[gate]
     if not (work / 'source' / path).is_file():
@@ -237,11 +301,18 @@ def extension(gate, backend, work, output):
     if gate == 6:
         report_path = output.resolve() / f'e2e-{backend}' / 'e2e-report.json'
         command += ['--output', str(report_path)]
+    elif gate == 10:
+        report_path = output.resolve() / 'ui' / 'ui-report.json'
+        command += ['--output', str(report_path)]
     with database(backend, work) as env:
         result, receipt = execute(command, work / 'source', env,
                                   output / f'gate-{gate:02d}-{backend}.log')
     if gate == 6:
         receipt['evidence'] = e2e_evidence(result.stdout, report_path, backend, result.returncode)
+    elif gate == 10:
+        receipt['evidence'] = ui_evidence(result.stdout, report_path, source_digest(), result.returncode)
+        return outcome(PASS if result.returncode == 0 and receipt['evidence']['complete'] else FAIL,
+                       backend=backend, **receipt)
     return outcome(PASS if result.returncode == 0 else FAIL, backend=backend, **receipt)
 
 
@@ -290,7 +361,7 @@ def main():
             '.git', '.venv', '.venv-ci', 'venv', '__pycache__', '*.pyc', '*.sqlite*', '*.db', '.env', '.env.*',
             'evidence', 'output', 'upload', 'media', 'rehearsal-media', 'node_modules',
             'DATA_RECONCILIATION_UA.md'))
-        with sqlite3.connect(work / 'source' / 'db.sqlite3') as sentinel:
+        with closing(sqlite3.connect(work / 'source' / 'db.sqlite3')) as sentinel, sentinel:
             sentinel.execute('CREATE TABLE synthetic_control (notice TEXT NOT NULL)')
             sentinel.execute('INSERT INTO synthetic_control VALUES (?)', ('BoS: виключно синтетична контрольна база',))
         for gate in SUITES[args.suite]:
