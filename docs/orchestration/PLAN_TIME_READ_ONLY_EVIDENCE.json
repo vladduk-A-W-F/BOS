@@ -1,0 +1,127 @@
+{
+  "card": "PLAN-TIME",
+  "historical": {
+    "commit": "b11aa8ce8f5855c34fa197e35b8fe77a850e9df0",
+    "source_sha256": "c324a157493fb9681ba0d55bfcfdbf70e402d07cae5c48338481fb975ab2e0d8",
+    "ci_sha256": "ebcd607c1fffa5468b178f5871d6a9762a52e961ba38fd88b036fe8c4ec38b93",
+    "run_id": "35361765561",
+    "run_attempt": "1",
+    "databases": {
+      "sqlite": "3.45.1",
+      "postgresql": "PostgreSQL 16.15 (Debian 16.15-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+      "postgresql_version_num": 160015
+    }
+  },
+  "django_timeout": {
+    "status": "ПОМИЛКА",
+    "reason": "TimeoutExpired: перевищено 600 с; збережено доступний частковий вивід.",
+    "command": [
+      "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+      "-B",
+      "manage.py",
+      "test",
+      "--noinput",
+      "--settings=verification_settings",
+      "--verbosity=1"
+    ],
+    "log": "/home/runner/work/_temp/bos-ci/postgres/postgres-django-tests.log",
+    "timed_out": true,
+    "timeout_seconds": 600,
+    "returncode": null
+  },
+  "invariant_timeout": {
+    "status": "ПОМИЛКА",
+    "reason": "TimeoutExpired: перевищено 600 с; збережено доступний частковий вивід.",
+    "backend": "postgres",
+    "command": [
+      "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+      "-B",
+      "scripts/check_invariants.py"
+    ],
+    "log": "/home/runner/work/_temp/bos-ci/postgres/gate-03-postgres.log",
+    "timed_out": true,
+    "timeout_seconds": 600,
+    "returncode": null
+  },
+  "invariant_log": "BOS_DATABASE {\"vendor\": \"postgresql\", \"version\": \"16.15 (Debian 16.15-1.pgdg13+2)\"}\nСклад: 250/1000\nСклад: 500/1000\nСклад: 750/1000\nСклад: 1000/1000\nВиплати: 1000/1000\n\n--- STDERR ---\n",
+  "django_log_lines": 493,
+  "django_log_first_lines": [
+    "Found 578 test(s).",
+    "System check identified no issues (0 silenced)."
+  ],
+  "django_log_stderr_tail": [
+    "--- STDERR ---",
+    "Creating test database for alias 'default'...",
+    "..................................................E......................FFFFFFFFFFFFFFFFFF......................................................................................................................Not Found: /media/a04-private.txt",
+    "Not Found: /media/a04-private.txt",
+    "............................F...................................................................EFE......F..FFFFFF.................................................................................EEEEEEEEEEEEEEE..F.............................s............EE.........................."
+  ],
+  "job_log_excerpts": [
+    {
+      "line": 454,
+      "text": "2026-09-18T15:20:39.9883545Z 01. Міграції на порожніх SQLite і PostgreSQL"
+    },
+    {
+      "line": 455,
+      "text": "2026-09-18T15:20:43.9595622Z   ПРОЙДЕНО"
+    },
+    {
+      "line": 456,
+      "text": "2026-09-18T15:20:43.9597538Z 02. 151 функціональна + 5 launcher + решта тестів на обох СУБД"
+    },
+    {
+      "line": 457,
+      "text": "2026-09-18T15:20:43.9598611Z   postgres: check_workspace.py"
+    },
+    {
+      "line": 458,
+      "text": "2026-09-18T15:21:42.8483372Z   postgres: check_erp.py"
+    },
+    {
+      "line": 459,
+      "text": "2026-09-18T15:22:21.9149695Z   postgres: check_operations.py"
+    },
+    {
+      "line": 460,
+      "text": "2026-09-18T15:22:27.5245727Z   postgres: check_original.py"
+    },
+    {
+      "line": 461,
+      "text": "2026-09-18T15:22:33.4299351Z   postgres: check_launcher.py"
+    },
+    {
+      "line": 462,
+      "text": "2026-09-18T15:32:34.2829814Z   ПОМИЛКА"
+    },
+    {
+      "line": 463,
+      "text": "2026-09-18T15:32:34.2831233Z 03. П’ять інваріантів, мінімум 1000 випадкових прогонів кожний"
+    },
+    {
+      "line": 464,
+      "text": "2026-09-18T15:42:34.3284183Z   ПОМИЛКА"
+    },
+    {
+      "line": 465,
+      "text": "2026-09-18T15:42:34.3285999Z 05. Два одночасні виклики кожної грошової та складської дії"
+    },
+    {
+      "line": 466,
+      "text": "2026-09-18T15:46:13.5786297Z   ПОМИЛКА"
+    },
+    {
+      "line": 467,
+      "text": "2026-09-18T15:46:13.5944042Z НЕ ПРИЙНЯТО: /home/runner/work/_temp/bos-ci/postgres/report.json"
+    },
+    {
+      "line": 854,
+      "text": "2026-09-18T15:46:15.3690169Z  2026-09-18 15:32:27.488 UTC [1814] ERROR:  relation \"sqlite_master\" does not exist at character 22"
+    },
+    {
+      "line": 855,
+      "text": "2026-09-18T15:46:15.3690884Z  2026-09-18 15:32:27.488 UTC [1814] STATEMENT:  SELECT name,sql FROM sqlite_master WHERE sql IS NOT NULL ORDER BY name"
+    }
+  ],
+  "all_receipt_files_match": true,
+  "scope": "Existing source/log parsing and hashes only. No actual app, DB, test, CI, E2E, or build execution."
+}
