@@ -1,0 +1,46 @@
+{
+  "card": "NETWORK-ACCEPT-REPORT",
+  "reviewer": "integration_diagnosis",
+  "reviewed_at": "2026-09-20T14:49:43.911380+00:00",
+  "verdict": "ACCEPT_SCOPED_FROZEN_REPORT_AND_EVIDENCE",
+  "reviewed_files": {
+    "docs/orchestration/NETWORK_ACCEPTANCE_UA.md": "a515aa68c38043d73b415f385e616cef32dda9bb5ae8e59ca23815dcfb33988b",
+    "docs/orchestration/cards/NETWORK-ACCEPT-REPORT.md": "70b2500aa77d7e4c5873697b836972d3bc91b4ed0c4761a62bd033128ca4039a",
+    "docs/orchestration/evidence/network-acceptance/final/index.json": "4111dd3539deed4b969017aa0711c91d0084154c3e7ad582776df09576e009cf"
+  },
+  "frozen_runtime_commit": "f00a2faf10ebcc4bc120b34f7d15d9bf889fa491",
+  "frozen_runtime_source_sha256": "c15dfe0e3aeefde2fd4fa7af0e9dd2c7c04072a59b185554b821576b4c2111ca",
+  "ci_candidate_commit": "929a395547fa1ed496171120a14b19bc8d5b6f87",
+  "run_id": 35516896359,
+  "verified_final_index_entries": 7,
+  "verified_pg_inner_index_entries": 6,
+  "verified_browser_inner_index_entries": 14,
+  "independent_original_reviews_byte_match": true,
+  "pg_result": "ACCEPT_SCOPED_POSTGRES16_TWO_NETWORK_MUTEX_CASES",
+  "browser_result": "PARTIAL_EVIDENCE_ACCEPTED_FULL_BROWSER_SCOPE_FAILED",
+  "browser_passed_assertions": 57,
+  "browser_receipts": 4,
+  "browser_timeout_cause": "UNRESOLVED",
+  "preserved_failures": [
+    "35516152992 workflow validation no jobs",
+    "35516516284 PG worker TypeError before tests",
+    "35516516284 browser onboarding harness failure",
+    "35516896359 browser payment preview timeout after57 assertions"
+  ],
+  "resolved_wording": [
+    "Frozen runtime label avoids carrying acceptance into upcoming CORE runtime",
+    "Direct Git blob proof is explicitly0975280, same c15d runtime as CI929a395; no direct full-tree929 proof claimed"
+  ],
+  "findings": [],
+  "reviewer_tests_run": 0,
+  "canonical_files_edited_by_reviewer": false,
+  "full_acceptance": false,
+  "browser_full_acceptance": false,
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "remaining": [
+    "STATE/QUEUE/PLAN/CONTEXT/Codex task not part of this frozen report review; update separately during CORE continuation",
+    "Workflow3/3 exhausted; no automatic repeat",
+    "CORE changes must have separate scoped evidence and cannot inherit frozen network PASS"
+  ]
+}

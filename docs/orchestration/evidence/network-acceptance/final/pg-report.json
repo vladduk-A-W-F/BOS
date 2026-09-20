@@ -1,0 +1,157 @@
+{
+  "card": "NETWORK-PG",
+  "scope": "two new held network confirmations with actual PG lock observation",
+  "accepted_scoped": true,
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "full_run": false,
+  "business_e2e_run": false,
+  "historical_p05_used": 3,
+  "historical_p05_limit": 3,
+  "A09_retried": false,
+  "A10_retried": false,
+  "A11_retried": false,
+  "errors": [],
+  "started_at": "2026-09-20T14:35:12.995002+00:00",
+  "run_id": "35516896359",
+  "run_attempt": "1",
+  "python": "3.12.14",
+  "harness_sha256": "fcfb7f41fecf803f824a28625bca9497067d868f7615db247bd0d63d11f4552f",
+  "helper_sha256": "30046f9c933b7a0fefc8e1813e07ca2fbea782bb6ebba9974d74a8dd59a13cfb",
+  "runner_timeout_seconds": 180,
+  "checks": [
+    {
+      "label": "network-pg-two-locks",
+      "mode": "postgres16",
+      "expected_tests": 2,
+      "expected_red": null,
+      "tests": [
+        "test_transfer_receive_same_proposal_waits_and_has_one_effect",
+        "test_retention_release_same_proposal_waits_and_has_one_effect"
+      ],
+      "exit_code": 0,
+      "status": "PASS_SCOPED",
+      "accepted": true,
+      "source_database": "bos_verify_00a9dc6b726349d6",
+      "source_canary_before": {
+        "database": "bos_verify_00a9dc6b726349d6",
+        "version_num": 160015,
+        "tables": [
+          [
+            "public",
+            "bos_batch_source_canary",
+            "BASE TABLE"
+          ]
+        ],
+        "rows": [
+          [
+            1,
+            "Synthetic BATCH-01 source must remain unchanged"
+          ]
+        ]
+      },
+      "started_at": "2026-09-20T14:35:13.645696+00:00",
+      "command": [
+        "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+        "-B",
+        "/home/runner/work/BOS/BOS/candidate/.github/ci/network_pg.py",
+        "--worker"
+      ],
+      "source_canary_after": {
+        "database": "bos_verify_00a9dc6b726349d6",
+        "version_num": 160015,
+        "tables": [
+          [
+            "public",
+            "bos_batch_source_canary",
+            "BASE TABLE"
+          ]
+        ],
+        "rows": [
+          [
+            1,
+            "Synthetic BATCH-01 source must remain unchanged"
+          ]
+        ]
+      },
+      "source_database_unchanged": true,
+      "test_database_cleanup_verified": true,
+      "lock_proofs": [
+        {
+          "action": "erp_transfer_receive",
+          "proposal_id": "a08803df-8b8e-4c23-a771-4d2d52665815",
+          "holder_pid": 113,
+          "waiter_pid": 114,
+          "observer_pid": 115,
+          "blocking_pids": [
+            113
+          ],
+          "wait_event_type": "Lock",
+          "wait_event": "transactionid",
+          "query": "UPDATE \"operations_configuration\" SET \"value\" = '{\"revision\": 7}'::jsonb WHERE \"operations_configuration\".\"id\" = 2",
+          "actual_vendor": "postgresql",
+          "statuses": [
+            200,
+            200
+          ],
+          "equal_receipts": true,
+          "uncommitted_effect_hidden": true,
+          "one_effect": true,
+          "replay_unchanged": true,
+          "currency": "UAH"
+        },
+        {
+          "action": "erp_release_payment",
+          "proposal_id": "91cfb186-c4de-4c93-9f37-308be42ec21d",
+          "holder_pid": 117,
+          "waiter_pid": 118,
+          "observer_pid": 119,
+          "blocking_pids": [
+            117
+          ],
+          "wait_event_type": "Lock",
+          "wait_event": "transactionid",
+          "query": "UPDATE \"operations_configuration\" SET \"value\" = '{\"revision\": 17}'::jsonb WHERE \"operations_configuration\".\"id\" = 4",
+          "actual_vendor": "postgresql",
+          "statuses": [
+            200,
+            200
+          ],
+          "equal_receipts": true,
+          "uncommitted_effect_hidden": true,
+          "one_effect": true,
+          "replay_unchanged": true,
+          "currency": "UAH"
+        }
+      ],
+      "observed_test_counts": [
+        2
+      ],
+      "test_summaries": [
+        "OK"
+      ],
+      "disallowed_test_outcomes": [],
+      "test_database_proofs": [
+        {
+          "vendor": "postgresql",
+          "database": "test_bos_verify_00a9dc6b726349d6",
+          "version_num": 160015
+        }
+      ]
+    }
+  ],
+  "candidate_commit": "929a395547fa1ed496171120a14b19bc8d5b6f87",
+  "source_sha256": "c15dfe0e3aeefde2fd4fa7af0e9dd2c7c04072a59b185554b821576b4c2111ca",
+  "changed_ci_paths": [
+    ".github/ci/network_browser_acceptance.py"
+  ],
+  "source_before": {
+    "source_sha256": "c15dfe0e3aeefde2fd4fa7af0e9dd2c7c04072a59b185554b821576b4c2111ca",
+    "source_databases": {}
+  },
+  "postgres_version_num": 160015,
+  "postgres_version": "PostgreSQL 16.15 (Debian 16.15-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+  "source_unchanged": true,
+  "status": "PASS_SCOPED",
+  "completed_at": "2026-09-20T14:35:22.208839+00:00"
+}
