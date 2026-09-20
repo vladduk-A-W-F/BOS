@@ -51,6 +51,7 @@ class ActionProposal(models.Model):
     role=models.CharField(max_length=20)
     payload=models.JSONField()
     fingerprint=models.CharField(max_length=64)
+    dependency_context=models.JSONField(null=True,blank=True)
     expires_at=models.DateTimeField()
     receipt=models.JSONField(null=True)
     created_at=models.DateTimeField(auto_now_add=True)

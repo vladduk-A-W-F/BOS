@@ -85,7 +85,7 @@ def fingerprint(payload):
     return hashlib.sha256(json.dumps(state,sort_keys=True,default=str).encode()).hexdigest()
 
 @transaction.atomic
-def preview(request,payload,snapshot_fingerprint=None):
+def preview(request,payload,snapshot_fingerprint=None,*,dependency_context=None):
     from finance.statements import ACTIONS as STATEMENT_ACTIONS,preview as statement_preview
     if isinstance(payload,dict) and payload.get('action') in STATEMENT_ACTIONS:return statement_preview(request,payload)
     if isinstance(payload,dict) and payload.get('action') in ('create_task','update_task'):
@@ -101,7 +101,7 @@ def preview(request,payload,snapshot_fingerprint=None):
     if payload['action'].startswith('erp_') and snapshot_fingerprint is None:
         from erp.service import write_lock
         write_lock()
-    proposal=ActionProposal.objects.create(session_key=request.session.session_key,user_id=principal.user_id,role=role,payload=payload,fingerprint=snapshot_fingerprint or fingerprint(payload),expires_at=timezone.now()+timedelta(minutes=10))
+    proposal=ActionProposal.objects.create(session_key=request.session.session_key,user_id=principal.user_id,role=role,payload=payload,fingerprint=snapshot_fingerprint or fingerprint(payload),dependency_context=dependency_context,expires_at=timezone.now()+timedelta(minutes=10))
     return {'id':str(proposal.id),'payload':payload,'expires_at':proposal.expires_at.isoformat()}
 
 @transaction.atomic
@@ -144,11 +144,13 @@ def execute(request,proposal_id):
         receipt=correction_replay(validate(p.payload),principal)
         if receipt is not None:
             p.receipt=receipt;p.save(update_fields=['receipt']);return projections.receipt(policy,receipt)
+    from erp import adjustment_proposals
+    scoped_adjustment=adjustment_proposals.pending(p,policy) if p.dependency_context is not None else False
     if p.payload['action'] in ('create_task','update_task'):
         from tasks.commands import ConfirmConflict
         if p.expires_at<timezone.now():raise ConfirmConflict('proposal_expired','Строк погодження минув. Дію не виконано; підготуйте новий перегляд.')
         if p.fingerprint!=fingerprint(p.payload):raise ConfirmConflict('proposal_stale','Дані погодження змінилися. Дію не виконано; підготуйте новий перегляд.')
-    elif p.expires_at<timezone.now() or p.fingerprint!=fingerprint(p.payload):raise Conflict('Дані або строк погодження змінилися. Підготуйте новий перегляд.')
+    elif p.expires_at<timezone.now() or (not scoped_adjustment and p.fingerprint!=fingerprint(p.payload)):raise Conflict('Дані або строк погодження змінилися. Підготуйте новий перегляд.')
     # Compare-and-set claim; task, audit and receipt roll back together on failure.
     if not ActionProposal.objects.filter(pk=p.pk,receipt__isnull=True).update(receipt={'state':'running'}):raise Conflict('Дія вже виконується. Повторіть запит.')
     d=validate(p.payload)
@@ -169,7 +171,9 @@ def execute(request,proposal_id):
         from erp.queries import snapshot
         from erp.experience import impact
         from erp.models import Event
-        before=snapshot(Policy(request));result=dispatch(d,p.role);delta=impact(before,snapshot(Policy(request)))
+        current_snapshot=lambda:adjustment_proposals.snapshot(d,Policy(request)) if scoped_adjustment else snapshot(Policy(request))
+        before=current_snapshot();result=dispatch(d,p.role);delta=impact(before,current_snapshot())
+        if scoped_adjustment:adjustment_proposals.verify_outcome(p,request,result,delta)
         Event.objects.filter(pk=result['erp_event_id']).update(result={**result,'impact':delta,'actor_id':principal.user_id,'actor_role':principal.role})
         receipt={'state':'succeeded',**result,'impact':delta};p.receipt=receipt;p.save(update_fields=['receipt']);return projections.receipt(Policy(request),receipt)
     from tasks.commands import apply as apply_task

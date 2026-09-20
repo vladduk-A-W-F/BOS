@@ -4,7 +4,7 @@ from django.http import JsonResponse,HttpResponse
 from django.views.decorators.http import require_GET,require_POST
 from operations.views import errors,body
 from operations import service as approvals
-from . import service,queries,experience
+from . import service,queries,experience,adjustment_proposals
 from django.db import transaction
 from .models import SalesOrder,ChangeOrder,Production
 from boss_project.identity import actor
@@ -27,13 +27,20 @@ def preview(request):
     p=Policy(request);p.action(payload);role=p.role
     with transaction.atomic():
         service.write_lock()
-        token=service.fingerprint();p=Policy(request);p.action(payload);before=queries.snapshot(p);effect=service.dispatch(payload,role,log=False,correction_actor=p.actor);after=queries.snapshot(Policy(request))
+        token=service.fingerprint();p=Policy(request);p.action(payload)
+        context=adjustment_proposals.capture(payload,p)
+        current_snapshot=lambda:adjustment_proposals.snapshot(payload,Policy(request)) if context is not None else queries.snapshot(Policy(request))
+        before=current_snapshot();effect=service.dispatch(payload,role,log=False,correction_actor=p.actor);after=current_snapshot()
         delta=experience.impact(before,after)
         if payload['action'].removeprefix('erp_') in service.CORRECTION_SCHEMAS:
             from .corrections import prospective
             effect,delta=prospective(effect,delta,before)
-        effect=projections.receipt(Policy(request),effect);transaction.set_rollback(True)
-    proposal=approvals.preview(request,payload,snapshot_fingerprint=token);proposal['effect']=effect;proposal['impact']=delta
+        effect=projections.receipt(Policy(request),effect)
+        if context is not None:
+            if Policy(request).access_revision()!=context['access_revision']:raise approvals.Conflict('Права змінилися під час перегляду.')
+            context=adjustment_proposals.finish(context,effect,delta)
+        transaction.set_rollback(True)
+    proposal=approvals.preview(request,payload,snapshot_fingerprint=token,dependency_context=context);proposal['effect']=effect;proposal['impact']=delta
     return JsonResponse(proposal)
 
 @require_GET
