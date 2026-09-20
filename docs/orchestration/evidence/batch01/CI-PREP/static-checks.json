@@ -1,0 +1,44 @@
+{
+  "status": "PASS_STATIC_AND_ARTIFACT_ONLY_EVALUATE",
+  "executed_app_tests": false,
+  "remote_writes": false,
+  "workflow_launched": false,
+  "python_ast_files": 3,
+  "workflow_embedded_python": 2,
+  "yaml_parse": "PASS",
+  "frozen_candidate_source_sha256": "31c692c5f3113446452e8d15faf95c29b019f433550bf4d0658c4f0428e54d20",
+  "planned_counts": {
+    "postgres_red": 3,
+    "postgres_green": 26,
+    "f06_artifact_unit": 5,
+    "source_unit": 2
+  },
+  "artifact_only_evaluate": {
+    "red_exit_code": 1,
+    "red_methods": 5,
+    "red_failure_records": 11,
+    "green_exit_code": 0,
+    "green_methods": 5,
+    "command": [
+      "python",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "execution/ci_draft",
+      "-p",
+      "test_evaluate.py",
+      "-v"
+    ]
+  },
+  "files": {
+    ".github/ci/batch_01_targeted.py": "30046f9c933b7a0fefc8e1813e07ca2fbea782bb6ebba9974d74a8dd59a13cfb",
+    ".github/workflows/bos-batch01-targeted.yml": "bb4b8e3f95132c96fe01e526c4c20e90f4793a258cfdea67710663407f88cd81",
+    "test_evaluate.py": "ecf1bca06611cc460be69b228b562bb7cc9ea14fddb8744c37316095f970f2ce",
+    "evaluate-green.stderr.log": "073c8aaaae98123431ea1b85d7a7c6ed272cd2443854f81172287bc826c5a3c7",
+    "evaluate-green.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evaluate-red.stderr.log": "d5c5fbfd595c3f3ea0610adbe3acb656796317744b1aa3d397d3616d2f227af9",
+    "evaluate-red.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

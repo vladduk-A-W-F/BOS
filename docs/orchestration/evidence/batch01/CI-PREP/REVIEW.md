@@ -1,0 +1,15 @@
+# BATCH-01 focused CI draft
+
+Frozen for independent review. Only the two `.github` files are integration candidates.
+
+Scope: three original/new-test baseline red methods; 26 PostgreSQL green methods (import business 1, fixture guards 10, import concurrency 4, finance concurrency 5, request lengths 2, existing invoice boundaries 2, shipping references 2); five F06 artifact fixture unit methods; two SOURCE digest unit methods. Unit stages run no real business E2E. Full suites and historical retries remain prohibited; readiness flags remain false.
+
+Admission: same-repository pull request from setup/bos-gpt-orchestration-20260920 to fix/p10-002-task-sequence-20260919, run_attempt 1. A separate scope job examines HEAD^..HEAD for the two CI paths. Later commits without a CI-path change skip the regression job before PostgreSQL service/dependencies/tests. The harness repeats this admission check. Candidate identity uses PR head SHA, never the PR merge SHA. Root must not deliberately reopen/reissue the CI-changing HEAD as another execution without resolving the attempt boundary.
+
+The candidate runtime must equal frozen digest 31c692c5f3113446452e8d15faf95c29b019f433550bf4d0658c4f0428e54d20. The baseline checkout must be commit 7d46dced3bcf06d44755cf53366c9e16bd465582 and runtime digest 10d86748d682926a898d2d2dfecd43fd7f6962f6ed38602da7ae704e52aca154. N1 receives only operations/test_request_lengths.py in an additional temporary historical copy. Both checked-out trees and existing SQLite database files are fingerprinted before/after.
+
+Each PostgreSQL stage uses scripts.verify.database() to CREATE/DROP its own new synthetic source database. A synthetic source canary is compared before/after. Django creates the distinct test database; an embedded runner records current_database() and actual PostgreSQL version16 after database setup and before cases. Tests retain original assertions. The expected N1 red logs raw Django request exceptions to establish the SQL-overflow cause behind HTTP500.
+
+Each stage has independent stdout/stderr logs, exact observed test count, source/commit identity, timing, timeout/exit/outcome and SHA256. Any infrastructure error or timeout stops remaining stages without retry. Runner budget900 seconds and workflow timeout20 minutes are bounded. A finalizer and always-upload step preserve report and SHA index even on ordinary failures. Overall PASS_SCOPED requires all listed evidence; it never promotes technical_ready or pilot_allowed.
+
+Validation: AST parsing of harness, embedded Django runner, artifact-only evaluate fixture and both workflow Python blocks; YAML parsing and structural assertions. After independent review, common summary parsing now requires one unambiguous summary and refuses skips, expected failures and unexpected successes for both red and green. Five artifact-only evaluate methods reproduced 11 baseline failure records (exit1), then passed 5/5 (exit0). These fixtures use synthetic log strings only; no Django, application test, PostgreSQL access, remote write, or workflow launch ran. See static-checks.json and evaluate-red/evaluate-green raw logs for exact evidence and hashes.
