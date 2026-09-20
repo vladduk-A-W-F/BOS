@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "launch_gate": "PAUSED_FOR_OWNER_PLAN_REVIEW",
-  "all_tasks_require_owner_plan_review": true,
+  "launch_gate": "BATCH_EXECUTION",
+  "all_tasks_require_owner_plan_review": false,
   "rules": "PLAN-* є запропонованими ключами; не перейменовувати історичні P-ID. Залежності необхідні, але не замінюють external_prerequisites.",
   "tasks": [
     {
@@ -10,7 +10,7 @@
       "owner": "bos_test_ci",
       "depends_on": [],
       "checkpoint": "C1",
-      "status": "PREPARED_NOT_STARTED",
+      "status": "IN_PROGRESS",
       "external_prerequisites": [],
       "card": "docs/orchestration/cards/P10-003.md"
     },
@@ -20,7 +20,7 @@
       "owner": "bos_diagnostician",
       "depends_on": [],
       "checkpoint": "C1",
-      "status": "PREPARED_NOT_STARTED",
+      "status": "IN_PROGRESS",
       "external_prerequisites": [],
       "card": null
     },
@@ -88,7 +88,7 @@
       "owner": "bos_architect",
       "depends_on": [],
       "checkpoint": "C2",
-      "status": "PREPARED_NOT_STARTED",
+      "status": "IN_PROGRESS",
       "external_prerequisites": [],
       "card": null
     },

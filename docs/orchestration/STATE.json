@@ -10,15 +10,16 @@
   "technical_ready": false,
   "pilot_allowed": false,
   "execution": {
-    "status": "PAUSED_FOR_OWNER_PLAN_REVIEW",
-    "product_execution_allowed": false,
-    "ci_allowed": false,
+    "status": "BATCH_EXECUTION",
+    "product_execution_allowed": true,
+    "ci_allowed": true,
     "deploy_allowed": false,
     "paid_api_allowed": false,
     "background_service_running": false,
-    "reason": "Власник попросив повне налаштування та план до запуску. Наступне явне погодження плану потрібне перед реалізацією.",
-    "mode_after_resume": "ONE_CARD_REPORT_STOP",
-    "batch_mode_authorized": false
+    "reason": "20.09.2026 власник перевірив план і прямо доручив: «план верный реализуй ... делай несколько задач паралельно ... отчеты по модулям ... остановок без нужды не требуется». Це замінює попередню паузу й правило однієї картки за хід. Дозволено виконувати погоджений план пакетно, інтегрувати перевірені зміни послідовно й зупинятися тільки на реальному питанні/рішенні/доступі. Історичні заборони й межі конкретних операцій зберігаються.",
+    "mode_after_resume": "BATCH_WITH_REVIEW",
+    "batch_mode_authorized": true,
+    "ci_scope": "Targeted new-card verification only; no exhausted full/PG suite/E2E retry"
   },
   "historical_limits": {
     "P05_timeout_cycle_used": 3,
@@ -41,10 +42,12 @@
   "master_v2_1_full_text_available": true,
   "runtime_environment": {
     "python": "3.12.14",
-    "django_installed": false,
+    "django_installed": true,
     "postgres16_available": false,
     "codex_cli_available": false,
-    "application_started_this_setup": false
+    "application_started_this_setup": false,
+    "postgres16_local_blocker": "apt-get update: setgroups/setegid/seteuid not permitted; no bypass attempted",
+    "venv": "execution/venv outside repository"
   },
   "config_validation": "PASS_STATIC",
   "independent_setup_review": "ACCEPT_SCOPED_STATIC",
@@ -61,5 +64,14 @@
   "github_main_diverged": true,
   "main_reconciliation_before_merge_required": true,
   "master_v2_1_sha256": "4ab578d4ab1a6c959ed7aa791f09a7c8284c04df1d48b6a575671f53df7c4caf",
-  "master_v2_1_sha_verified": true
+  "master_v2_1_sha_verified": true,
+  "setup_head": "b6074de6c6a91e58eac886666fc5bf3371e13e39",
+  "current_batch": "BATCH-01",
+  "plugins": {
+    "github": "CONFIRMED",
+    "figma": "CONFIRMED",
+    "sites": "CONFIRMED",
+    "openai_developers": "NOT_INSTALLED_REQUIRES_USER_UI",
+    "codex_security": "NOT_INSTALLED_REQUIRES_USER_UI"
+  }
 }
