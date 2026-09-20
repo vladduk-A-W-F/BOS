@@ -1,0 +1,64 @@
+name: BoS source bundle — full Git for isolated development
+'on':
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [fix/p10-002-task-sequence-20260919]
+    paths: [.github/workflows/bos-source-bundle.yml]
+permissions:
+  contents: read
+jobs:
+  source-bundle:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.base_ref == 'fix/p10-002-task-sequence-20260919' && github.head_ref == 'setup/bos-gpt-orchestration-20260920' && github.run_attempt == '1'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Fetch the actual repository and complete reachable history
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Produce source-only Git bundle if this commit requests it
+        id: bundle
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+          BUNDLE_OUTPUT: ${{ runner.temp }}/bos-source-bundle
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, subprocess
+          def git(*args):
+              return subprocess.check_output(['git', *args], text=True).strip()
+          changed=set(git('diff-tree','--no-commit-id','--name-only','-r','HEAD^','HEAD').splitlines())
+          if '.github/workflows/bos-source-bundle.yml' not in changed:
+              print('BOS_SOURCE_BUNDLE_SKIPPED current commit does not change the source exporter')
+              raise SystemExit(0)
+          assert git('rev-parse','HEAD') == os.environ['EXPECTED_HEAD']
+          assert git('rev-parse','--is-shallow-repository') == 'false'
+          assert not git('status','--porcelain','--untracked-files=all')
+          output=pathlib.Path(os.environ['BUNDLE_OUTPUT'])
+          output.mkdir()
+          bundle=output/'BOS.bundle'
+          subprocess.run(['git','fsck','--full'],check=True)
+          subprocess.run(['git','bundle','create',str(bundle),'--all','HEAD'],check=True)
+          subprocess.run(['git','bundle','verify',str(bundle)],check=True)
+          receipt={'schema':'bos.full-git-bundle.v1','repository':os.environ['GITHUB_REPOSITORY'],
+              'head':git('rev-parse','HEAD'),'tree':git('rev-parse','HEAD^{tree}'),
+              'shallow':False,'reachable_commits':int(git('rev-list','--all','--count')),
+              'tracked_files':len(git('ls-files').splitlines()),
+              'refs':git('show-ref').splitlines(),
+              'bundle_sha256':hashlib.file_digest(bundle.open('rb'),'sha256').hexdigest(),
+              'bundle_bytes':bundle.stat().st_size,'run_id':os.environ['GITHUB_RUN_ID'],
+              'run_attempt':os.environ['GITHUB_RUN_ATTEMPT'],
+              'application_executed':False,'database_started':False,'tests_executed':False}
+          (output/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf-8')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as handle:handle.write('created=true\n')
+          print('BOS_SOURCE_BUNDLE '+json.dumps(receipt,sort_keys=True))
+          PY
+      - name: Preserve the private source bundle
+        if: steps.bundle.outputs.created == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: bos-full-git-${{ github.event.pull_request.head.sha }}
+          path: ${{ runner.temp }}/bos-source-bundle
+          if-no-files-found: error
+          retention-days: 7
