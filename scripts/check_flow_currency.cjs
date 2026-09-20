@@ -5,7 +5,7 @@ const flow=load('check_flow_projections.cjs','const results=[]','this.make=harne
 const form=load('check_confirmation_recovery.cjs','function receipt(','this.make=harness;');
 (async()=>{
  const source=flow.make();await source.choose(0,'3');source.reply(0,flow.supplyFixture());await source.flush();source.button('Підготувати закупівлю').props.onClick();
- const [action,preset]=source.actions[0];assert.equal(action,'purchase');assert(!Object.hasOwn(preset,'currency'));assert.equal(preset.supplier_id,'');assert.equal(preset.price,'');source.unmount();
+ const [action,preset]=source.actions[0];assert.equal(action,'purchase');assert.equal(preset.currency,'UAH');assert.equal(preset.supplier_id,'');assert.equal(preset.price,'');source.unmount();
  for(const currency of [undefined,'EUR','USD']){
   const h=form.make({action,preset:{...preset,code:'CURRENCY-SYNTHETIC',quantity:'3.000',price:'10.00',supplier_id:11,due_date:'2026-10-01',direct_reason:'Synthetic explicit source',...(currency?{currency}:{})}});
   const selector=h.all().find(node=>node.type===h.context.Select&&node.children.flat().some(child=>child?.type==='option'&&child.props.value==='UAH'));

@@ -6,19 +6,23 @@ from django.core.exceptions import ObjectDoesNotExist
 ERP_FIELDS = {
     'tasks':'title category priority assignee_id deadline order_id status result archived is_overdue',
     'items': 'id code name unit kind method revision document_id material external_codes required_documents bom routing minimum lead_days currency',
-    'locations': 'id code name kind supplier_id branch_id',
+    'locations': 'id code name kind supplier_id branch_id address lat lng',
     'lots': 'id code item_id location_id revision quantity quality currency documents reserved available missing_documents',
-    'orders': 'id code customer_id owner_id due_date currency status branch_id',
+    'orders': 'id code customer_id owner_id due_date currency status branch_id fulfillment_location_id destination_country',
     'lines': 'id order_id item_id revision quantity shipped invoiced',
     'jobs': 'id code line_id item_id quantity produced revision bom routing location_id owner_id due_date status needs_review currency',
     'reservations': 'id lot_id line_id production_id quantity',
-    'purchases': 'id code item_id supplier_id quantity received currency due_date original_due revision production_id request_id quote_id approval_snapshot status',
+    'purchases': 'id code item_id supplier_id quantity received currency due_date original_due revision production_id request_id quote_id approval_snapshot status destination_id origin_country',
     'inspections': 'id lot_id result inspector_id created_at',
     'changes': 'id code item_id document_id target_revision status created_at',
     'operator_entries': 'id production_id operation operator_id result minutes defects created_at',
     'movements': 'id lot_id quantity kind reference line_id production_id purchase_id created_at',
     'invoices': 'invoice_id order_id code due_date currency',
 }
+
+ERP_FIELDS.update({'branches':'id code name short_name type parent_id lat lng status',
+ 'transfers':'id code source_lot_id source_location_id destination_id item_id quantity revision currency status dispatch_movement_id receipt_movement_id received_lot_id due_date dispatched_at received_at',
+ 'retentions':''})
 
 ERP_FIELDS['lines'] += ' cancelled_quantity open_quantity returned_quantity return_visibility'
 ERP_FIELDS['purchases'] += ' cancelled_quantity open_quantity returned_quantity effective_status return_visibility'
@@ -140,10 +144,11 @@ def receipt(policy, value):
     out.pop('cost', None)
     out.pop('amount', None)
     out.pop('paid', None)
+    for field in ('unit_cost','total_cost','settlement','retained','collectible'):out.pop(field,None)
     references = {'tasks':'task_id','items': 'item_id', 'lots': 'lot_id', 'orders': 'order_id',
                   'lines': 'line_id', 'jobs': 'production_id', 'purchases': 'purchase_id',
                   'changes': 'change_id', 'reservations': 'reservation_id', 'invoices': 'invoice_id',
-                  'cancellations':'cancellation_id','goods_returns':'goods_return_id','supplier_claims':'claim_id','source_movements':'movement_id'}
+                  'transfers':'transfer_id','retentions':'retention_id','cancellations':'cancellation_id','goods_returns':'goods_return_id','supplier_claims':'claim_id','source_movements':'movement_id'}
     impact = []
     for row in out.get('impact', []):
         if row.get('field') not in ERP_FIELDS.get(row.get('kind'), '').split():

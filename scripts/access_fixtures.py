@@ -408,6 +408,8 @@ class SweepFixtures:
         return values
 
     def query(self, row, path):
+        if row['name'] == 'bos-network-export':
+            return '?format=json'
         if row['name'] == 'bos-document-match':
             return '?document_id=' + str(self.seed.public_doc.pk)
         if row['name'] == 'admin:autocomplete':
@@ -680,6 +682,10 @@ class SweepFixtures:
             return []
         if role not in ('ceo', 'manager', 'observer'):
             return []
+        if route in ('/api/erp/network/', '/api/erp/network/export/'):
+            return ['bos.network.v1', '"rows":', '"filters":']
+        if route == '/api/erp/modules/':
+            return ['bos.modules.v1', '/api/erp/network/']
         if route == '/api/erp/orders/{pk}/trace/':
             return ['bos.order-trace.v1', '"order_id": ' + str(self.seed.order.pk), 'A04-SO-OPEN']
         if route == '/api/erp/orders/{pk}/settlement/':

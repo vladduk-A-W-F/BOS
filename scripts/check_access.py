@@ -24,7 +24,7 @@ LOG_MODELS = {'ai_assistant.chatmessage', 'ai_assistant.chatfile',
               'ai_assistant.taskchangelog', 'ai_assistant.employeechangelog',
               'ai_assistant.claudeusagelog'}
 EXTERNAL = {'/api/chat/', '/api/chat/file/', '/api/meeting/protocol/', '/api/dictate/process/'}
-EXPORTS = {'/api/erp/export/', '/api/operations/export/'}
+EXPORTS = {'/api/erp/network/export/', '/api/erp/export/', '/api/operations/export/'}
 DISABLED = {'/api/auth/demo/', '/api/operations/role/'}
 PUBLIC_AUTH = {'/api/auth/csrf/', '/api/auth/login/', '/api/auth/logout/', '/api/auth/me/'}
 DRF_METADATA = {'/api/branches/', '/api/dashboard/summary/', '/api/dashboard/helicopter/',
@@ -38,6 +38,7 @@ C03_READS={'/api/statements/imports/','/api/statements/imports/{pk}/',
     '/api/statements/imports/{pk}/export/','/api/statements/lines/',
     '/api/statements/lines/{pk}/','/api/statements/lines/{pk}/candidates/','/api/statements/summary/'}
 RAW_GET = {
+    '/api/erp/network/', '/api/erp/network/export/', '/api/erp/modules/',
     '/api/erp/purchases/{pk}/document-match/',
     '/api/erp/orders/{pk}/settlement/', '/api/erp/lines/{pk}/supply-options/',
     '/api/erp/workpoints/',

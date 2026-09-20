@@ -1,6 +1,7 @@
 from decimal import Decimal
 import uuid
 from django.db import models
+from django.utils import timezone
 from django.conf import settings
 from .private_storage import private_document_storage
 
@@ -25,12 +26,13 @@ class Document(models.Model):
         permissions=[('download_document','Завантажувати доступні документи'),('export_workspace','Експортувати доступний робочий контекст')]
 
 class ProcurementRequest(models.Model):
+    created_at=models.DateTimeField(null=True,default=timezone.now,editable=False)
     code=models.CharField(max_length=30,unique=True)
     part=models.CharField(max_length=120)
     revision=models.CharField(max_length=40)
     quantity=models.PositiveIntegerField()
     unit=models.CharField(max_length=20,default='шт.')
-    currency=models.CharField(max_length=3,default='EUR')
+    currency=models.CharField(max_length=3,default='UAH')
     required_by=models.DateField()
     owner=models.ForeignKey('employees.Employee',on_delete=models.PROTECT)
     document=models.ForeignKey(Document,on_delete=models.PROTECT)
@@ -38,6 +40,7 @@ class ProcurementRequest(models.Model):
     status=models.CharField(max_length=30,default='review')
 
 class SupplierQuote(models.Model):
+    created_at=models.DateTimeField(null=True,default=timezone.now,editable=False)
     code=models.CharField(max_length=30,unique=True)
     request=models.ForeignKey(ProcurementRequest,on_delete=models.CASCADE,related_name='quotes')
     supplier=models.ForeignKey('finance.Counterparty',on_delete=models.PROTECT)

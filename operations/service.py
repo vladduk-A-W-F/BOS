@@ -150,7 +150,12 @@ def execute(request,proposal_id):
         from tasks.commands import ConfirmConflict
         if p.expires_at<timezone.now():raise ConfirmConflict('proposal_expired','Строк погодження минув. Дію не виконано; підготуйте новий перегляд.')
         if p.fingerprint!=fingerprint(p.payload):raise ConfirmConflict('proposal_stale','Дані погодження змінилися. Дію не виконано; підготуйте новий перегляд.')
-    elif p.expires_at<timezone.now() or (not scoped_adjustment and p.fingerprint!=fingerprint(p.payload)):raise Conflict('Дані або строк погодження змінилися. Підготуйте новий перегляд.')
+    elif p.expires_at<timezone.now():
+        from tasks.commands import ConfirmConflict
+        raise ConfirmConflict('proposal_expired','Строк погодження минув. Підготуйте новий перегляд.')
+    elif not scoped_adjustment and p.fingerprint!=fingerprint(p.payload):
+        from tasks.commands import ConfirmConflict
+        raise ConfirmConflict('proposal_stale','Дані змінилися. Дію не виконано; підготуйте новий перегляд.')
     # Compare-and-set claim; task, audit and receipt roll back together on failure.
     if not ActionProposal.objects.filter(pk=p.pk,receipt__isnull=True).update(receipt={'state':'running'}):raise Conflict('Дія вже виконується. Повторіть запит.')
     d=validate(p.payload)

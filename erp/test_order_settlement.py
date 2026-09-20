@@ -72,7 +72,7 @@ class OrderSettlementTests(TestCase):
         data = self.read()
         self.assertEqual(data['schema'], 'bos.order-settlement.v1')
         self.assertEqual(data['totals'], [{'currency': 'UAH', 'gross_invoiced': '100.00', 'credited': '0.00',
-                                         'invoiced': '100.00', 'paid': '50.00', 'open': '50.00', 'customer_credit': '0.00'}])
+                                         'invoiced': '100.00', 'paid': '50.00', 'open': '50.00', 'customer_credit': '0.00', 'retained': '0.00', 'collectible': '50.00'}])
         history = data['invoices'][0]['payment_history']
         self.assertEqual((history['status'], history['recorded_total'], history['difference']), ('complete', '50.00', '0.00'))
         self.assertEqual([row['event_id'] for row in history['entries']], [manual['erp_event_id'], statement['erp_event_id']])

@@ -210,8 +210,8 @@ def prepare_reconcile(d,p):
         if invoice.pk not in invoice_states:invoice_states[invoice.pk]={'invoice_id':invoice.pk,'code':invoice.code,'before':settlement(invoice),'after':settlement(invoice)}
         state=invoice_states[invoice.pk];event=None
         if a['mode']=='new_payment':
-            if amount>D(state['after']['receivable']):raise StatementError('Оплата перевищує чинну відкриту суму рахунку.')
-            after=state['after'];after['paid']=format(D(after['paid'])+amount,'.2f');after['receivable']=format(max(D(0),D(after['net_amount'])-D(after['paid'])),'.2f');after['customer_credit']=format(max(D(0),D(after['paid'])-D(after['net_amount'])),'.2f')
+            if amount>D(state['after']['collectible']):raise StatementError('Оплата перевищує доступну суму рахунку з урахуванням утримань.')
+            after=state['after'];after['paid']=format(D(after['paid'])+amount,'.2f');after['receivable']=format(max(D(0),D(after['net_amount'])-D(after['paid'])),'.2f');after['customer_credit']=format(max(D(0),D(after['paid'])-D(after['net_amount'])),'.2f');after['collectible']=format(D(after['receivable'])-D(after['retained']),'.2f')
             if Event.objects.filter(action='erp_payment',payload__reference='STMT-'+UUID(a['allocation_key']).hex).exists():raise StatementError('Посилання оплати вже зареєстроване.',status=409)
         else:
             event=Event.objects.get(pk=a['payment_event_id']);ed=event.payload

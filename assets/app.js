@@ -112,7 +112,7 @@ function bosStorageKey(key) {
 }
 function bosCanAction(action) {
   if (!bosCan('write')) return false;
-  if (['opening', 'payment', 'apply_change', 'resolve_job', 'adjust', 'import_batch', 'credit_invoice', 'reverse_credit', 'confirm_supplier_claim'].includes(action)) return bosRole() === 'ceo';
+  if (['opening', 'payment', 'apply_change', 'resolve_job', 'adjust', 'import_batch', 'credit_invoice', 'reverse_credit', 'confirm_supplier_claim', 'hold_payment', 'release_payment', 'location_update', 'order_network', 'purchase_network'].includes(action)) return bosRole() === 'ceo';
   if (['attach', 'change'].includes(action) && !bosCan('view_documents')) return false;
   if (['quality', 'operator'].includes(action) && bosRole() !== 'ceo' && !window.BOS_RUNTIME?.employee_id) return false;
   return true;
@@ -273,6 +273,10 @@ const NAV = [{
   label: 'ERP',
   iconKey: 'contracts',
   subs: [{
+    id: 'network',
+    label: 'Мережа та операції',
+    iconKey: 'dashboard'
+  }, {
     id: 'overview',
     label: 'Огляд виконання',
     iconKey: 'dashboard'
@@ -11746,7 +11750,7 @@ function ControlledTask({
       const [r, related] = await Promise.all([request('/api/tasks/' + id + '/'), request('/api/erp/snapshot/')]);
       if (!alive.current) return;
       for (const response of [r, related]) if (!response.ok) {
-        if ([403, 404].includes(response.status)) denyScope();
+        if ([401, 403, 404].includes(response.status)) denyScope();
         throw Error(response.body.error || 'Поточне доручення або джерела недоступні.');
       }
       if (r.body.id !== id || !Array.isArray(related.body.orders)) throw Error('Не отримано актуального доручення з джерелами.');
@@ -12041,7 +12045,7 @@ function ProcurementEntry({
     revision: 'A',
     quantity: 1,
     unit: 'шт.',
-    currency: 'EUR',
+    currency: 'UAH',
     required_by: '',
     owner_id: '',
     document_id: '',
@@ -12978,16 +12982,23 @@ async function erpFetch(path, data) {
 }
 const ERP_ACTIONS = {
   item: ['Нова номенклатура', [['code', 'Код'], ['name', 'Назва'], ['unit', 'Одиниця'], ['kind', 'Тип', 'enum:product,material,component'], ['method', 'Спосіб виконання', 'enum:buy,make,subcontract'], ['revision', 'Версія'], ['currency', 'Валюта', 'enum:UAH,EUR,USD'], ['material', 'Матеріал'], ['document_id', 'Креслення', 'documents?'], ['external_codes', 'Зовнішні коди', 'codes'], ['required_documents', 'Обов’язкові документи', 'tags'], ['minimum', 'Мінімальний запас', 'number'], ['lead_days', 'Строк закупівлі, днів', 'integer'], ['planned_cost', 'Планова собівартість одиниці', 'money'], ['bom', 'Склад виробу', 'bom'], ['routing', 'Маршрут операцій', 'routing']]],
-  location: ['Нове місце зберігання', [['branch_id', 'Філія / робоча точка', 'branches?'], ['code', 'Код'], ['name', 'Назва / комірка'], ['kind', 'Тип', 'enum:warehouse,production,supplier'], ['supplier_id', 'Підрядник', 'suppliers?']]],
-  order: ['Нова пропозиція клієнту', [['branch_id', 'Філія / робоча точка', 'branches?'], ['code', 'Номер'], ['customer_id', 'Клієнт', 'customers'], ['owner_id', 'Відповідальний', 'employees'], ['due_date', 'Бажана дата поставки', 'date'], ['currency', 'Валюта', 'enum:UAH,EUR,USD'], ['lines', 'Позиції', 'lines'], ['notes', 'Примітка']]],
+  location: ['Нове місце зберігання', [['code', 'Код'], ['name', 'Назва / комірка'], ['kind', 'Тип', 'enum:warehouse,production,supplier'], ['supplier_id', 'Підрядник', 'suppliers?'], ['branch_id', 'Філія', 'branches?'], ['address', 'Адреса', 'text?'], ['lat', 'Широта WGS84', 'coordinate?'], ['lng', 'Довгота WGS84', 'coordinate?']]],
+  location_update: ['Реквізити точки', [['location_id', 'Точка мережі', 'locations'], ['branch_id', 'Філія', 'branches?'], ['address', 'Адреса', 'text?'], ['lat', 'Широта WGS84', 'coordinate?'], ['lng', 'Довгота WGS84', 'coordinate?'], ['reason', 'Причина зміни']]],
+  order_network: ['Реквізити виконання продажу', [['order_id', 'Замовлення', 'orders'], ['fulfillment_location_id', 'Точка виконання', 'locations?'], ['destination_country', 'Країна призначення (ISO 2)', 'text?'], ['reason', 'Причина зміни']]],
+  purchase_network: ['Реквізити постачання', [['purchase_id', 'Закупівля', 'purchases'], ['destination_id', 'Точка приймання', 'locations?'], ['origin_country', 'Країна походження (ISO 2)', 'text?'], ['reason', 'Причина зміни']]],
+  transfer_dispatch: ['Відправити між точками', [['lot_id', 'Партія', 'lots'], ['quantity', 'Кількість', 'number'], ['location_id', 'Точка призначення', 'locations'], ['code', 'Номер переміщення'], ['due_date', 'Очікуємо до', 'date?'], ['reason', 'Підстава']]],
+  transfer_receive: ['Прийняти переміщення', [['transfer_id', 'Переміщення в дорозі', 'transfers'], ['code', 'Код прийнятої партії'], ['reason', 'Підстава приймання']]],
+  hold_payment: ['Утримати суму рахунку', [['invoice_id', 'Рахунок', 'invoices'], ['amount', 'Сума утримання у валюті рахунку', 'money'], ['code', 'Номер утримання'], ['reason', 'Умови / підстава утримання']]],
+  release_payment: ['Зняти утримання', [['retention_id', 'Чинне утримання', 'retentions'], ['reason', 'Підстава зняття']]],
+  order: ['Нова пропозиція клієнту', [['branch_id', 'Організаційна філія', 'branches?'], ['code', 'Номер'], ['customer_id', 'Клієнт', 'customers'], ['owner_id', 'Відповідальний', 'employees'], ['due_date', 'Бажана дата поставки', 'date'], ['currency', 'Валюта', 'enum:UAH,EUR,USD'], ['fulfillment_location_id', 'Точка виконання', 'locations?'], ['destination_country', 'Країна призначення (ISO 2)', 'text?'], ['lines', 'Позиції', 'lines'], ['notes', 'Примітка']]],
   confirm_order: ['Підтвердити замовлення', [['order_id', 'Замовлення', 'orders']]],
   opening: ['Ввести початкову партію', [['code', 'Код партії'], ['item_id', 'Номенклатура', 'items'], ['location_id', 'Місце', 'locations'], ['quantity', 'Кількість', 'number'], ['unit_cost', 'Собівартість одиниці', 'money'], ['currency', 'Валюта', 'enum:UAH,EUR,USD'], ['revision', 'Версія'], ['documents', 'Документи партії', 'documents_map'], ['reason', 'Підстава']]],
-  purchase: ['Замовлення постачальнику', [['code', 'Номер'], ['item_id', 'Номенклатура', 'items'], ['supplier_id', 'Постачальник', 'suppliers'], ['quantity', 'Кількість', 'number'], ['price', 'Ціна одиниці', 'money'], ['extras', 'Разові витрати й доставка', 'money'], ['currency', 'Валюта', 'enum:UAH,EUR,USD'], ['due_date', 'Очікувана дата', 'date'], ['revision', 'Версія'], ['production_id', 'Пов’язана виробнича робота', 'jobs?'], ['request_id', 'Вихідна закупівельна заявка', 'requests?'], ['quote_id', 'Пропозиція постачальника', 'integer?'], ['supplier_confirmation', 'Джерело підтвердження кількості, ціни та дати', 'text?'], ['direct_reason', 'Підстава прямої закупівлі', 'text?']]],
+  purchase: ['Замовлення постачальнику', [['code', 'Номер'], ['item_id', 'Номенклатура', 'items'], ['supplier_id', 'Постачальник', 'suppliers'], ['quantity', 'Кількість', 'number'], ['price', 'Ціна одиниці', 'money'], ['extras', 'Разові витрати й доставка', 'money'], ['currency', 'Валюта', 'enum:UAH,EUR,USD'], ['due_date', 'Очікувана дата', 'date'], ['destination_id', 'Точка приймання', 'locations?'], ['origin_country', 'Країна походження (ISO 2)', 'text?'], ['revision', 'Версія'], ['production_id', 'Пов’язана виробнича робота', 'jobs?'], ['request_id', 'Вихідна закупівельна заявка', 'requests?'], ['quote_id', 'Пропозиція постачальника', 'integer?'], ['supplier_confirmation', 'Джерело підтвердження кількості, ціни та дати', 'text?'], ['direct_reason', 'Підстава прямої закупівлі', 'text?']]],
   receive: ['Прийняти поставку', [['purchase_id', 'Замовлення', 'purchases'], ['code', 'Нова партія'], ['location_id', 'Місце приймання', 'locations'], ['quantity', 'Отримана кількість', 'number'], ['documents', 'Документи партії', 'documents_map']]],
   job: ['Виробнича робота', [['code', 'Номер'], ['item_id', 'Виріб', 'items'], ['quantity', 'Кількість', 'number'], ['location_id', 'Дільниця або підрядник', 'locations'], ['owner_id', 'Відповідальний', 'employees'], ['due_date', 'План завершення', 'date'], ['line_id', 'Позиція продажу', 'sales_lines?']]],
   reserve: ['Зарезервувати партію', [['lot_id', 'Партія', 'lots'], ['quantity', 'Кількість', 'number'], ['line_id', 'Для продажу', 'sales_lines?'], ['production_id', 'Або для виробництва', 'jobs?']]],
   release: ['Звільнити резерв', [['reservation_id', 'Резерв', 'reservations'], ['quantity', 'Кількість', 'number']]],
-  transfer: ['Перемістити матеріал', [['lot_id', 'Вихідна партія', 'lots'], ['quantity', 'Кількість', 'number'], ['location_id', 'Куди', 'locations'], ['code', 'Код партії у новому місці'], ['reason', 'Підстава'], ['production_id', 'Пов’язана робота', 'jobs?']]],
+  transfer: ['Миттєво перемістити матеріал', [['lot_id', 'Вихідна партія', 'lots'], ['quantity', 'Кількість', 'number'], ['location_id', 'Куди', 'locations'], ['code', 'Код партії у новому місці'], ['reason', 'Підстава'], ['production_id', 'Пов’язана робота', 'jobs?']]],
   attach: ['Додати документ партії', [['lot_id', 'Партія', 'lots'], ['kind', 'Тип документа'], ['document_id', 'Документ', 'documents']]],
   quality: ['Зафіксувати перевірку якості', [['lot_id', 'Партія', 'lots'], ['result', 'Рішення', 'enum:approved,blocked,rework'], ['inspector_id', 'Перевірив', 'employees'], ['note', 'Підстава / результати вимірювань']]],
   start: ['Розпочати виробництво', [['production_id', 'Виробнича робота', 'jobs']]],
@@ -13085,6 +13096,13 @@ function erpPendingRemove(binding, id) {
 }
 function erpConfirmationReceipt(action, value, payload) {
   const fields = {
+      location_update: 'location_id',
+      order_network: 'order_id',
+      purchase_network: 'purchase_id',
+      transfer_dispatch: 'transfer_id',
+      transfer_receive: 'transfer_id',
+      hold_payment: 'retention_id',
+      release_payment: 'retention_id',
       item: 'item_id',
       location: 'location_id',
       order: 'order_id',
@@ -13115,6 +13133,12 @@ function erpConfirmationReceipt(action, value, payload) {
     field = fields[action];
   if (!field || value?.state !== 'succeeded' || !Number.isSafeInteger(value.erp_event_id) || value.erp_event_id <= 0 || !Number.isSafeInteger(value[field]) || value[field] <= 0 || !Array.isArray(value.impact)) return false;
   const same = {
+    location_update: 'location_id',
+    order_network: 'order_id',
+    purchase_network: 'purchase_id',
+    transfer_receive: 'transfer_id',
+    release_payment: 'retention_id',
+    hold_payment: 'invoice_id',
     confirm_order: 'order_id',
     release: 'reservation_id',
     attach: 'lot_id',
@@ -13326,6 +13350,14 @@ function ERPActionDialog({
     onConfirmPending?.(true);
   }
   function options(type) {
+    if (type === 'transfers') return (data.transfers || []).filter(x => x.status === 'in_transit').map(x => ({
+      value: x.id,
+      label: x.code + ' · ' + x.quantity
+    }));
+    if (type === 'retentions') return (data.retentions || []).filter(x => x.status === 'held').map(x => ({
+      value: x.id,
+      label: x.code
+    }));
     if (action === 'purchase' && type === 'items' && purchaseContext) {
       const r = purchaseContext.request;
       return data.items.filter(x => x.unit === r.unit && x.revision === r.revision && (x.document_id === r.document_id || x.code === r.part)).map(x => ({
@@ -13575,7 +13607,7 @@ function ERPActionDialog({
       key: x,
       value: x
     }, ERP_LABELS[x] || x))));
-    if (['branches', 'items', 'locations', 'suppliers', 'customers', 'employees', 'documents', 'orders', 'sales_lines', 'jobs', 'lots', 'purchases', 'reservations', 'invoices', 'changes', 'requests'].includes(base)) return /*#__PURE__*/React.createElement("label", {
+    if (['branches', 'items', 'locations', 'suppliers', 'customers', 'employees', 'documents', 'orders', 'sales_lines', 'jobs', 'lots', 'purchases', 'reservations', 'invoices', 'changes', 'requests', 'transfers', 'retentions'].includes(base)) return /*#__PURE__*/React.createElement("label", {
       key: key
     }, label, optional ? ' · необов’язково' : '', /*#__PURE__*/React.createElement(Select, {
       required: !optional,
@@ -13587,14 +13619,14 @@ function ERPActionDialog({
       key: x.value,
       value: x.value
     }, x.label))));
-    const numeric = ['number', 'integer', 'money', 'signed'].includes(type);
+    const numeric = ['number', 'integer', 'money', 'signed', 'coordinate'].includes(base);
     return /*#__PURE__*/React.createElement("label", {
       key: key
-    }, label, /*#__PURE__*/React.createElement(Input, {
-      type: numeric ? 'number' : type === 'date' ? 'date' : 'text',
-      step: type === 'integer' ? '1' : type === 'money' ? '0.01' : '0.001',
-      min: numeric && type !== 'signed' ? '0' : undefined,
-      required: !['material', 'notes', 'note', 'reason'].includes(key),
+    }, label, optional ? ' · необов’язково' : '', /*#__PURE__*/React.createElement(Input, {
+      type: numeric ? 'number' : base === 'date' ? 'date' : 'text',
+      step: base === 'integer' ? '1' : base === 'money' ? '0.01' : base === 'coordinate' ? '0.000001' : '0.001',
+      min: numeric && !['signed', 'coordinate'].includes(base) ? '0' : undefined,
+      required: !optional && !['material', 'notes', 'note'].includes(key) && (key !== 'reason' || ['location_update', 'order_network', 'purchase_network', 'transfer_dispatch', 'transfer_receive', 'hold_payment', 'release_payment'].includes(action)),
       value: value ?? '',
       maxLength: ['code', 'reference', 'revision', 'target_revision'].includes(key) ? 60 : 1000,
       onChange: e => change(key, e.target.value)
@@ -13628,6 +13660,18 @@ function ERPActionDialog({
       };
       for (const [k,, type = 'text'] of definition[1]) {
         const v = values[k];
+        if ((action === 'location_update' && ['branch_id', 'lat', 'lng'].includes(k) || action === 'order_network' && k === 'fulfillment_location_id' || action === 'purchase_network' && k === 'destination_id') && (v === '' || v == null)) {
+          payload[k] = null;
+          continue;
+        }
+        if (action === 'location_update' && k === 'address') {
+          payload[k] = String(v || '');
+          continue;
+        }
+        if (['order_network', 'purchase_network'].includes(action) && ['destination_country', 'origin_country'].includes(k)) {
+          payload[k] = String(v || '').trim().toUpperCase();
+          continue;
+        }
         if (type.endsWith('?') && (v === '' || v == null)) continue;
         payload[k] = type === 'tags' ? Array.isArray(v) ? v : String(v).split(',').map(x => x.trim()).filter(Boolean) : k.endsWith('_id') || type === 'integer' ? Number(v) : v;
       }
@@ -14683,7 +14727,7 @@ function CorrectionActionDialog({
       credit_id: '',
       claim_id: '',
       amount: '',
-      currency: 'EUR',
+      currency: 'UAH',
       ...preset
     }));
   const [proposal, setProposal] = useState(recovery ? {
@@ -15390,6 +15434,964 @@ function B03Ledger({
     columns: [["Документ", 'code'], ["Тип", r => r.kind === 'credit' ? 'Кредит' : 'Сторно'], ["Рахунок", r => data.invoices.find(i => i.invoice_id === r.invoice_id)?.code || '№' + r.invoice_id], ["Сума", r => b03Amount(r.total, r.currency)], ["Дата", r => erpDate(r.business_date)]]
   })));
 }
+
+// NETWORK_WORKSPACE_BEGIN
+const NETWORK_TABLES = [['points', 'Точки'], ['lots', 'Склад'], ['purchases', 'Постачання / імпорт'], ['orders', 'Продажі / експорт'], ['transfers', 'У дорозі'], ['jobs', 'Виробництво'], ['invoices', 'Рахунки'], ['retentions', 'Утримання']];
+const networkMoney = (value, currency) => value == null ? 'Недоступно' : new Intl.NumberFormat('uk-UA', {
+  style: 'currency',
+  currency: currency || 'UAH',
+  maximumFractionDigits: 2
+}).format(Number(value));
+function networkEquivalent(value, rate) {
+  if (typeof rate !== 'string' || !/^\d{1,6}(?:\.\d{1,6})?$/.test(rate) || !Number.isFinite(Number(rate)) || Number(rate) <= 0 || value == null || !Number.isFinite(Number(value))) return null;
+  return Number(value) / Number(rate);
+}
+function networkQuery(branch, point, currency, table) {
+  const q = new URLSearchParams({
+    currency
+  });
+  if (branch) q.set('branch_id', branch);
+  if (point) q.set('location_id', point);
+  if (table) q.set('table', table);
+  return q.toString();
+}
+function networkProject(lat, lng) {
+  const m = window.BOS_NETWORK_MAP;
+  if (!m || lat == null || lng == null || !Number.isFinite(Number(lat)) || !Number.isFinite(Number(lng)) || Math.abs(Number(lat)) >= 90 || Math.abs(Number(lng)) > 180) return null;
+  const rad = Math.PI / 180;
+  return [m.translate[0] + m.scale * Number(lng) * rad, m.translate[1] - m.scale * Math.log(Math.tan(Math.PI / 4 + Number(lat) * rad / 2))];
+}
+function networkClusters(points) {
+  const buckets = new Map();
+  for (const p of points) {
+    const xy = networkProject(p.map_lat, p.map_lng);
+    if (!xy || xy[0] < 0 || xy[0] > 960 || xy[1] < 0 || xy[1] > 570) continue;
+    const key = Number(p.map_lat).toFixed(4) + ':' + Number(p.map_lng).toFixed(4);
+    if (!buckets.has(key)) buckets.set(key, {
+      key,
+      xy,
+      points: []
+    });
+    buckets.get(key).points.push(p);
+  }
+  return [...buckets.values()];
+}
+function NetworkMap({
+  points,
+  locations,
+  transfers,
+  selected,
+  onPoint
+}) {
+  const [cluster, setCluster] = useState(null),
+    map = window.BOS_NETWORK_MAP,
+    clusters = networkClusters(points),
+    current = clusters.find(x => x.key === cluster);
+  useEffect(() => setCluster(null), [selected, points]);
+  const outside = points.filter(p => {
+    const xy = networkProject(p.map_lat, p.map_lng);
+    return !xy || xy[0] < 0 || xy[0] > 960 || xy[1] < 0 || xy[1] > 570;
+  }).length;
+  if (!map) return /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, "\u0413\u0435\u043E\u0433\u0440\u0430\u0444\u0456\u0447\u043D\u0443 \u043E\u0441\u043D\u043E\u0432\u0443 \u043D\u0435 \u0437\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043E. \u0414\u0430\u043D\u0456 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0432 \u0442\u0430\u0431\u043B\u0438\u0446\u044F\u0445.");
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "network-map",
+    "aria-label": "\u0422\u043E\u0447\u043A\u0438 \u043C\u0435\u0440\u0435\u0436\u0456 \u043D\u0430 \u043A\u0430\u0440\u0442\u0456 \u0423\u043A\u0440\u0430\u0457\u043D\u0438"
+  }, /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 960 570",
+    role: "img",
+    "aria-label": "\u0413\u0435\u043E\u0433\u0440\u0430\u0444\u0456\u0447\u043D\u0456 \u043C\u0435\u0436\u0456 \u0423\u043A\u0440\u0430\u0457\u043D\u0438 \u0442\u0430 \u043D\u0430\u043F\u0440\u044F\u043C\u043A\u0438 \u0432\u0456\u0434\u043A\u0440\u0438\u0442\u0438\u0445 \u043F\u0435\u0440\u0435\u043C\u0456\u0449\u0435\u043D\u044C"
+  }, /*#__PURE__*/React.createElement("g", {
+    className: "network-regions"
+  }, map.paths.map(r => /*#__PURE__*/React.createElement("path", {
+    key: r.code,
+    d: r.d
+  }, /*#__PURE__*/React.createElement("title", null, r.name)))), /*#__PURE__*/React.createElement("g", {
+    className: "network-routes"
+  }, transfers.filter(t => t.status === 'in_transit').map(t => {
+    const a = locations.find(p => p.id === t.source_location_id),
+      b = locations.find(p => p.id === t.destination_id),
+      p = networkProject(a?.map_lat, a?.map_lng),
+      q = networkProject(b?.map_lat, b?.map_lng);
+    if (!p || !q) return null;
+    return /*#__PURE__*/React.createElement("path", {
+      key: t.id,
+      d: 'M' + p[0] + ',' + p[1] + ' Q' + (p[0] + q[0]) / 2 + ',' + ((p[1] + q[1]) / 2 - 25) + ' ' + q[0] + ',' + q[1]
+    }, /*#__PURE__*/React.createElement("title", null, t.code, ": ", t.source_location_name, " \u2192 ", t.destination_name));
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "network-map-points"
+  }, clusters.map(c => /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: 'network-pin' + (c.points.some(p => String(p.id) === String(selected)) ? ' selected' : ''),
+    key: c.key,
+    style: {
+      left: c.xy[0] / 960 * 100 + '%',
+      top: c.xy[1] / 570 * 100 + '%'
+    },
+    "aria-label": c.points.map(p => p.name).join(', '),
+    "aria-pressed": c.points.some(p => String(p.id) === String(selected)),
+    onClick: () => {
+      if (c.points.length === 1) onPoint(String(c.points[0].id));else setCluster(c.key);
+    }
+  }, /*#__PURE__*/React.createElement("span", null, c.points.length > 1 ? c.points.length : '•'), /*#__PURE__*/React.createElement("small", null, c.points[0].branch_name || c.points[0].name)))), /*#__PURE__*/React.createElement("span", {
+    className: "network-map-label"
+  }, "\u0423\u041A\u0420\u0410\u0407\u041D\u0410")), current && /*#__PURE__*/React.createElement("div", {
+    className: "network-cluster",
+    "aria-live": "polite"
+  }, /*#__PURE__*/React.createElement("strong", null, "\u041E\u0431\u0435\u0440\u0456\u0442\u044C \u0442\u043E\u0447\u043A\u0443 \u0432 \u0446\u044C\u043E\u043C\u0443 \u043C\u0456\u0441\u0446\u0456"), /*#__PURE__*/React.createElement("div", {
+    className: "erp-actions"
+  }, current.points.map(p => /*#__PURE__*/React.createElement(Button, {
+    key: p.id,
+    onClick: () => onPoint(String(p.id))
+  }, p.code, " \xB7 ", p.name)), /*#__PURE__*/React.createElement(Button, {
+    onClick: () => setCluster(null)
+  }, "\u0417\u0433\u043E\u0440\u043D\u0443\u0442\u0438"))), /*#__PURE__*/React.createElement("p", {
+    className: "network-map-note"
+  }, "\u041D\u0430\u043F\u0440\u044F\u043C\u043A\u0438 \u043F\u0435\u0440\u0435\u043C\u0456\u0449\u0435\u043D\u044C \u0441\u0445\u0435\u043C\u0430\u0442\u0438\u0447\u043D\u0456. ", points.some(p => p.coordinate_basis === 'branch') ? 'Для точок без власних координат використано центр філії. ' : '', outside ? outside + ' точок без координат у межах карти; вони залишаються в таблиці. ' : '', /*#__PURE__*/React.createElement("a", {
+    href: map.sourceUrl,
+    target: "_blank",
+    rel: "noreferrer"
+  }, "\u041C\u0435\u0436\u0456: ", map.source), ", ", map.license, "."));
+}
+function NetworkDocuments({
+  network,
+  onNavigate,
+  onDocument
+}) {
+  const docs = network.documents || [],
+    canDocs = bosCan('view_documents');
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "network-overview"
+  }, /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u041F\u0430\u043A\u0435\u0442\u0438 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0456\u0432"), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0414\u0436\u0435\u0440\u0435\u043B\u0430 \u0434\u043B\u044F \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u0435\u043B\u044C, \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F \u0442\u0430 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0438 \u044F\u043A\u043E\u0441\u0442\u0456. \u0414\u043E\u0441\u0442\u0443\u043F \u0432\u0438\u0437\u043D\u0430\u0447\u0430\u0454\u0442\u044C\u0441\u044F \u0432\u0430\u0448\u0438\u043C \u043E\u0431\u043B\u0456\u043A\u043E\u0432\u0438\u043C \u0437\u0430\u043F\u0438\u0441\u043E\u043C."), canDocs ? /*#__PURE__*/React.createElement(ERPTable, {
+    rows: docs,
+    empty: "\u0423 \u0446\u044C\u043E\u043C\u0443 \u0432\u0456\u0434\u0431\u043E\u0440\u0456 \u043D\u0435\u043C\u0430\u0454 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0456\u0432.",
+    columns: [["Документ", r => /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("strong", null, r.code), /*#__PURE__*/React.createElement("div", null, r.title))], ["Версія", 'revision'], ["Тип", r => r.document_type || 'Документ'], ["Доступ", r => ({
+      operational: 'Операційний',
+      management: 'Управлінський',
+      ceo: 'Лише керівник'
+    })[r.access_level] || r.access_level || 'За правами облікового запису'], ["Перевірка", r => OP_STATUS[r.status] || r.status], ["Пакет / зв’язки", r => /*#__PURE__*/React.createElement(React.Fragment, null, (r.groups || []).map(g => /*#__PURE__*/React.createElement("div", {
+      key: g.kind + ':' + g.id
+    }, g.code)), /*#__PURE__*/React.createElement("small", null, Object.values(r.linked_counts || {}).reduce((n, x) => n + Number(x || 0), 0), " \u0437\u0432\u2019\u044F\u0437\u043A\u0456\u0432"))], ["Дія", r => /*#__PURE__*/React.createElement(Button, {
+      onClick: () => onDocument(r.id)
+    }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442")]]
+  }) : /*#__PURE__*/React.createElement("p", null, "\u041F\u0435\u0440\u0435\u0433\u043B\u044F\u0434 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0456\u0432 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0439 \u0432\u0430\u0448\u043E\u043C\u0443 \u043E\u0431\u043B\u0456\u043A\u043E\u0432\u043E\u043C\u0443 \u0437\u0430\u043F\u0438\u0441\u0443.")), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u0417\u0456\u0441\u0442\u0430\u0432\u0438\u0442\u0438 \u0439 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u0438\u0442\u0438"), /*#__PURE__*/React.createElement("div", {
+    className: "network-links"
+  }, (network.workflow?.reconciliations || []).filter(r => r.next_action && bosCanView(r.next_action.section, r.next_action.sub)).map(r => /*#__PURE__*/React.createElement(Button, {
+    key: r.id,
+    onClick: () => onNavigate(r.next_action.section, r.next_action.sub)
+  }, r.title, r.count == null ? '' : ' · ' + r.count)), /*#__PURE__*/React.createElement(Button, {
+    onClick: () => onNavigate('finance', 'procurement')
+  }, "\u041F\u043E\u0440\u0456\u0432\u043D\u044F\u0442\u0438 \u0432\u0438\u043C\u043E\u0433\u0438 \u0442\u0430 \u043F\u0440\u043E\u043F\u043E\u0437\u0438\u0446\u0456\u0457"), /*#__PURE__*/React.createElement(Button, {
+    onClick: () => onNavigate('erp', 'quality')
+  }, "\u041A\u043E\u043C\u043F\u043B\u0435\u043A\u0442\u043D\u0456\u0441\u0442\u044C \u0456 \u044F\u043A\u0456\u0441\u0442\u044C \u043F\u0430\u0440\u0442\u0456\u0439"), bosRole() === 'ceo' && /*#__PURE__*/React.createElement(Button, {
+    onClick: () => onNavigate('finance', 'bank')
+  }, "\u0417\u0432\u0456\u0440\u043A\u0430 \u0431\u0430\u043D\u043A\u0456\u0432\u0441\u044C\u043A\u0438\u0445 \u0432\u0438\u043F\u0438\u0441\u043E\u043A"), canDocs && /*#__PURE__*/React.createElement(Button, {
+    onClick: () => onNavigate('organizer', 'documents')
+  }, "\u0420\u0435\u0454\u0441\u0442\u0440 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0456\u0432")), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u0437\u0432\u0456\u0440\u043A\u0438 \u0439 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0438 \u0437\u0430\u043B\u0438\u0448\u0430\u044E\u0442\u044C\u0441\u044F \u0443 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u0438\u0445 \u043A\u0430\u0440\u0442\u043A\u0430\u0445. \u0421\u0430\u043C \u043F\u0435\u0440\u0435\u0445\u0456\u0434 \u043D\u0435 \u043F\u043E\u0433\u043E\u0434\u0436\u0443\u0454 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0439."))));
+}
+function NetworkWorkflow({
+  network,
+  onNavigate,
+  onDocument,
+  onSelect
+}) {
+  const requests = network.workflow?.requests || [],
+    stageLabel = {
+      review: 'Перевірка вимог',
+      sourcing: 'Пошук пропозицій',
+      quoted: 'Порівняння',
+      ordered: 'Замовлено',
+      receiving: 'Приймання',
+      received: 'Прийнято'
+    };
+  const late = kind => (network.rows[kind] || []).filter(r => r.due_date && String(r.due_date).slice(0, 10) < String(network.as_of).slice(0, 10) && !['done', 'received', 'closed_cancelled'].includes(r.effective_status || r.status));
+  const overdue = [...late('purchases').filter(r => b03Positive(b03OpenPurchase(r))).map(r => ({
+    ...r,
+    kind: 'purchases',
+    typeLabel: 'Постачання'
+  })), ...late('orders').filter(r => Number(r.open_line_count) > 0).map(r => ({
+    ...r,
+    kind: 'orders',
+    typeLabel: 'Продаж'
+  })), ...late('jobs').map(r => ({
+    ...r,
+    kind: 'jobs',
+    typeLabel: 'Виробництво'
+  }))];
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "network-workflow-metrics"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "\u0417\u0430\u044F\u0432\u043E\u043A \u0443 \u0432\u0456\u0434\u0431\u043E\u0440\u0456"), /*#__PURE__*/React.createElement("strong", null, network.workflow?.metrics?.request_count ?? requests.length)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "\u0421\u0442\u0440\u043E\u043A \u0437\u0430\u044F\u0432\u043A\u0438 \u043C\u0438\u043D\u0443\u0432"), /*#__PURE__*/React.createElement("strong", null, network.workflow?.metrics?.overdue_count ?? '—')), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "\u0412\u0438\u043C\u0456\u0440\u044F\u043D\u0438\u0445 \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u0438\u0445 \u0437\u0430\u044F\u0432\u043E\u043A"), /*#__PURE__*/React.createElement("strong", null, network.workflow?.metrics?.timed_request_count ?? '—')), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "\u041C\u0435\u0434\u0456\u0430\u043D\u043D\u0438\u0439 \u0446\u0438\u043A\u043B"), /*#__PURE__*/React.createElement("strong", null, network.workflow?.metrics?.median_processing_hours == null ? 'Недостатньо даних' : erpNum(network.workflow.metrics.median_processing_hours) + ' год.'))), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u0412\u0456\u0434 \u0437\u0430\u044F\u0432\u043A\u0438 \u0434\u043E \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0415\u0442\u0430\u043F\u0438 \u0432\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u0456 \u0437\u0430 \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0438\u043C\u0438 \u0437\u0430\u044F\u0432\u043A\u0430\u043C\u0438, \u043F\u0440\u043E\u043F\u043E\u0437\u0438\u0446\u0456\u044F\u043C\u0438 \u0442\u0430 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044F\u043C\u0438. \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0439 \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u0438\u0439 \u043A\u0440\u043E\u043A \u0432\u0456\u0434\u043A\u0440\u0438\u0432\u0430\u0454 \u0440\u043E\u0431\u043E\u0447\u0438\u0439 \u0440\u043E\u0437\u0434\u0456\u043B."), /*#__PURE__*/React.createElement(ERPTable, {
+    rows: requests,
+    empty: "\u0417\u0430\u044F\u0432\u043E\u043A \u0443 \u043F\u043E\u0442\u043E\u0447\u043D\u043E\u043C\u0443 \u0432\u0456\u0434\u0431\u043E\u0440\u0456 \u043D\u0435\u043C\u0430\u0454.",
+    columns: [["Заявка", r => /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("strong", null, r.code), /*#__PURE__*/React.createElement("div", null, r.part))], ["Відповідальний", 'owner_name'], ["Потрібно до", r => erpDate(r.required_by)], ["Етап", r => /*#__PURE__*/React.createElement("details", {
+      className: "network-step-details"
+    }, /*#__PURE__*/React.createElement("summary", null, r.stage_label || stageLabel[r.stage] || 'Потребує перевірки'), /*#__PURE__*/React.createElement("ol", null, (r.steps || []).map(step => /*#__PURE__*/React.createElement("li", {
+      key: step.stage
+    }, /*#__PURE__*/React.createElement("strong", null, step.label, ": ", step.count ?? '—'), step.at && /*#__PURE__*/React.createElement("div", null, erpDate(step.at)), step.refs?.map(ref => /*#__PURE__*/React.createElement("div", {
+      key: ref.id
+    }, ref.code))))))], ["Пропозиції / закупівлі", r => (r.quote_count ?? 0) + ' / ' + (r.purchase_count ?? 0)], ["Вік заявки", r => r.age_days == null ? 'Недостатньо часових даних' : r.age_days + ' дн.'], ["Наступний крок", r => /*#__PURE__*/React.createElement("div", {
+      className: "erp-actions"
+    }, /*#__PURE__*/React.createElement(Button, {
+      onClick: () => onNavigate(r.next_action?.section || 'finance', r.next_action?.sub || 'procurement')
+    }, r.next_action?.label || 'Відкрити закупівлі'), r.document_id && bosCan('view_documents') && /*#__PURE__*/React.createElement(Button, {
+      onClick: () => onDocument(r.document_id)
+    }, "\u0414\u0436\u0435\u0440\u0435\u043B\u043E"))]]
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "network-comparison"
+  }, /*#__PURE__*/React.createElement("h4", null, "\u0417\u043C\u0456\u043D\u0430 \u0444\u0430\u043A\u0442\u0438\u0447\u043D\u043E\u0433\u043E \u0447\u0430\u0441\u0443 \u043E\u0431\u0440\u043E\u0431\u043A\u0438"), network.workflow?.comparison?.available ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043F\u0435\u0440\u0435\u0434\u043D\u0456\u0439 \u043F\u0435\u0440\u0456\u043E\u0434: ", erpDate(network.workflow.comparison.baseline?.start), " \u2014 ", erpDate(network.workflow.comparison.baseline?.end), " \xB7 ", network.workflow.comparison.baseline?.sample_size, " \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u044C \xB7 \u043C\u0435\u0434\u0456\u0430\u043D\u0430 ", erpNum(network.workflow.comparison.baseline?.median_hours), " \u0433\u043E\u0434."), /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0442\u043E\u0447\u043D\u0438\u0439 \u043F\u0435\u0440\u0456\u043E\u0434: ", erpDate(network.workflow.comparison.recent?.start), " \u2014 ", erpDate(network.workflow.comparison.recent?.end), " \xB7 ", network.workflow.comparison.recent?.sample_size, " \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u044C \xB7 \u043C\u0435\u0434\u0456\u0430\u043D\u0430 ", erpNum(network.workflow.comparison.recent?.median_hours), " \u0433\u043E\u0434."), /*#__PURE__*/React.createElement("p", null, Number(network.workflow.comparison.change_percent) >= 0 ? 'Спостережуване скорочення' : 'Спостережуване збільшення', ": ", erpNum(Math.abs(Number(network.workflow.comparison.change_percent))), "%. \u0421\u0430\u043C\u0435 \u043F\u043E\u0440\u0456\u0432\u043D\u044F\u043D\u043D\u044F \u043D\u0435 \u0434\u043E\u0432\u043E\u0434\u0438\u0442\u044C \u0432\u043F\u043B\u0438\u0432 \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0437\u0430\u0446\u0456\u0457.")) : /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, network.workflow?.comparison?.reason || 'Недостатньо порівнюваних часових даних.'), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0412\u0438\u043A\u043E\u0440\u0438\u0441\u0442\u0430\u043D\u0456 \u043B\u0438\u0448\u0435 \u0444\u0430\u043A\u0442\u0438\u0447\u043D\u0456 \u0434\u0430\u0442\u0438. \u0412\u0456\u0434\u0441\u0443\u0442\u043D\u0456 \u0434\u0430\u043D\u0456 \u043D\u0435 \u043F\u0440\u0438\u0440\u0456\u0432\u043D\u044E\u044E\u0442\u044C\u0441\u044F \u0434\u043E \u043D\u0443\u043B\u044F."))), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u0421\u0442\u0440\u043E\u043A \u043C\u0438\u043D\u0443\u0432 \xB7 \u043F\u043E\u0442\u0440\u0456\u0431\u043D\u0430 \u0434\u0456\u044F"), /*#__PURE__*/React.createElement(ERPTable, {
+    rows: overdue,
+    empty: "\u0417\u0430 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u043C\u0438 \u0434\u0430\u043D\u0438\u043C\u0438 \u043F\u0440\u043E\u0441\u0442\u0440\u043E\u0447\u0435\u043D\u0438\u0445 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0439 \u0443 \u0446\u044C\u043E\u043C\u0443 \u0432\u0456\u0434\u0431\u043E\u0440\u0456 \u043D\u0435\u043C\u0430\u0454.",
+    onRow: r => onSelect({
+      kind: r.kind,
+      id: r.id
+    }),
+    columns: [["Операція", 'typeLabel'], ["Документ", 'code'], ["Строк", r => erpDate(r.due_date)], ["Стан", r => ERP_LABELS[r.effective_status || r.status] || r.status]]
+  })));
+}
+// CORE_MODULE_VIEWS_BEGIN
+const MODULE_ROW_PATHS = new Set(['rows.points', 'rows.lots', 'rows.purchases', 'rows.orders', 'rows.jobs', 'rows.transfers', 'rows.invoices', 'rows.retentions']);
+function moduleCatalogValid(value) {
+  if (value?.schema !== 'bos.modules.v1' || value.data?.endpoint !== '/api/erp/network/' || !Array.isArray(value.models) || !Array.isArray(value.views) || !Array.isArray(value.actions) || !Array.isArray(value.modules) || !value.permissions) return false;
+  if (!['control', 'flow', 'network', 'focus'].every(id => value.views.some(v => v.id === id))) return false;
+  return value.models.every(m => typeof m.id === 'string' && MODULE_ROW_PATHS.has(m.source?.rows) && m.source.rows === 'rows.' + m.id && Array.isArray(m.columns) && m.columns.every(c => typeof c.key === 'string' && typeof c.label === 'string') && ['id', 'invoice_id'].includes(m.key));
+}
+async function moduleFetchCatalog(signal) {
+  const response = await fetch('/api/erp/modules/', {
+    signal
+  });
+  const body = await response.json();
+  if (!response.ok) throw Error(body.error || 'Реєстр модулів недоступний.');
+  if (!moduleCatalogValid(body)) throw Error('Сервер повернув невідому структуру модулів.');
+  return body;
+}
+function modulePositive(value) {
+  return typeof value === 'string' && /^\d+(?:\.\d+)?$/.test(value) && /[1-9]/.test(value);
+}
+function moduleMoney(value, currency) {
+  if (typeof value !== 'string' || !/^\d+(?:\.\d{1,2})?$/.test(value)) return 'Недоступно';
+  const [whole, fraction = ''] = value.split('.');
+  return whole.replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0') + ',' + fraction.padEnd(2, '0') + '\u00a0' + (currency === 'UAH' ? 'грн' : currency || 'UAH');
+}
+function moduleRows(network, model, query = '') {
+  if (!model || !MODULE_ROW_PATHS.has(model.source?.rows)) return [];
+  const rows = network?.rows?.[model.id];
+  if (!Array.isArray(rows)) return [];
+  const needle = query.trim().toLocaleLowerCase('uk-UA');
+  return needle ? rows.filter(row => model.columns.some(c => {
+    const v = row[c.key];
+    return ['string', 'number'].includes(typeof v) && String(v).toLocaleLowerCase('uk-UA').includes(needle);
+  })) : rows;
+}
+function moduleLanes(model, rows) {
+  const lanes = new Map();
+  for (const row of rows) {
+    const value = model.status_field && row[model.status_field] != null ? String(row[model.status_field]) : '__unset';
+    if (!lanes.has(value)) lanes.set(value, []);
+    lanes.get(value).push(row);
+  }
+  return [...lanes].sort(([a], [b]) => a.localeCompare(b, 'uk')).map(([id, items]) => ({
+    id,
+    label: id === '__unset' ? 'Без окремого стану' : ERP_LABELS[id] || {
+      in_transit: 'У дорозі',
+      held: 'Утримано',
+      released: 'Знято'
+    }[id] || id,
+    rows: items
+  }));
+}
+function moduleReasons(model, row, asOf) {
+  const reasons = [];
+  let priority = 9;
+  const moneyVisible = key => model.columns.some(c => c.key === key && (c.finance || c.type === 'money'));
+  const add = (text, rank) => {
+    reasons.push(text);
+    priority = Math.min(priority, rank);
+  };
+  const late = typeof row.due_date === 'string' && /^\d{4}-\d{2}-\d{2}/.test(row.due_date) && row.due_date.slice(0, 10) < String(asOf).slice(0, 10);
+  const open = model.id === 'purchases' ? modulePositive(row.open_quantity) : model.id === 'orders' ? Number.isInteger(row.open_line_count) && row.open_line_count > 0 : model.id === 'jobs' ? !['done', 'closed_cancelled'].includes(row.status) : model.id === 'transfers' ? row.status === 'in_transit' : model.id === 'invoices' && (moneyVisible('receivable') || moneyVisible('open')) ? modulePositive(row.receivable ?? row.open) : false;
+  if (late && open) add('Строк минув: ' + erpDate(row.due_date), 1);
+  if (model.id === 'lots' && ['blocked', 'rework', 'pending'].includes(row.quality)) add('Якість: ' + (ERP_LABELS[row.quality] || row.quality), 2);
+  if (model.id === 'lots' && Array.isArray(row.missing_documents) && row.missing_documents.length) add('Бракує документів: ' + row.missing_documents.join(', '), 2);
+  if (model.id === 'jobs' && row.needs_review === true) add('Потрібен перегляд змін перед продовженням виробництва', 2);
+  if (model.id === 'transfers' && row.status === 'in_transit') add('Відправлено; очікує фактичного приймання', 3);
+  if (model.id === 'retentions' && row.status === 'held') add('Діє утримання ' + moduleMoney(row.amount, row.currency), 3);
+  if (model.id === 'invoices' && moneyVisible('retained') && modulePositive(row.retained)) add('У складі боргу утримано ' + moduleMoney(row.retained, row.currency), 3);
+  if (model.id === 'invoices' && moneyVisible('collectible') && modulePositive(row.collectible)) add('Доступно до оплати ' + moduleMoney(row.collectible, row.currency), 4);
+  return {
+    row,
+    reasons,
+    priority
+  };
+}
+function moduleInbox(model, rows, asOf) {
+  return rows.map(row => moduleReasons(model, row, asOf)).filter(x => x.reasons.length).sort((a, b) => a.priority - b.priority || String(a.row.due_date || '9999').localeCompare(String(b.row.due_date || '9999')) || String(a.row[model.key]).localeCompare(String(b.row[model.key]), 'uk', {
+    numeric: true
+  }));
+}
+function moduleMapRows(network, model, rows) {
+  const ids = new Set();
+  const add = value => {
+    if (value != null) ids.add(String(value));
+  };
+  for (const row of rows) {
+    if (model.id === 'points') add(row.id);else if (model.id === 'transfers') {
+      add(row.source_location_id);
+      add(row.destination_id);
+    } else if (model.id === 'retentions') {
+      const invoice = (network.rows.invoices || []).find(i => i.invoice_id === row.invoice_id);
+      add(invoice?.location_id);
+    } else add(row.location_id);
+  }
+  return {
+    points: (network.locations || []).filter(p => ids.has(String(p.id))),
+    transfers: model.id === 'transfers' ? rows : []
+  };
+}
+function modulePointSelection(locations, currentBranch, value) {
+  if (!value) return {
+    branch: currentBranch,
+    point: ''
+  };
+  const selected = locations.find(point => String(point.id) === String(value));
+  if (!selected) return {
+    branch: currentBranch,
+    point: ''
+  };
+  const owner = selected.branch_id == null ? 'unassigned' : String(selected.branch_id);
+  return {
+    branch: currentBranch && currentBranch !== owner ? owner : currentBranch,
+    point: String(selected.id)
+  };
+}
+function moduleFinanceAllowed(catalog, network) {
+  return catalog.permissions.finance === true && network.capabilities?.finance === true && bosCan('finance');
+}
+function moduleActionVisible(action, catalog, network) {
+  return !['opening', 'invoice', 'payment', 'hold_payment', 'release_payment'].includes(action) || moduleFinanceAllowed(catalog, network);
+}
+function moduleActionEligible(action, row) {
+  if (action === 'transfer_dispatch') return modulePositive(row.available);
+  if (action === 'transfer_receive') return row.status === 'in_transit';
+  if (action === 'payment' || action === 'hold_payment') return modulePositive(row.collectible);
+  if (action === 'release_payment') return row.status === 'held';
+  if (action === 'receive' || action === 'postpone') return modulePositive(row.open_quantity);
+  if (action === 'start') return row.status === 'planned' && !row.needs_review;
+  if (action === 'finish') return row.status === 'running' && !row.needs_review;
+  if (action === 'operator') return row.status === 'running' && !row.needs_review;
+  if (action === 'postpone_job') return !['done', 'closed_cancelled'].includes(row.status);
+  if (action === 'confirm_order') return row.status === 'quote';
+  if (action === 'invoice') return row.status === 'confirmed';
+  return ['location_update', 'purchase_network', 'order_network', 'quality', 'attach'].includes(action);
+}
+function moduleActionPreset(action, row, descriptor) {
+  const preset = {};
+  for (const [name, field] of Object.entries(descriptor.presets || {})) {
+    if (typeof field === 'string' && Object.prototype.hasOwnProperty.call(row, field)) preset[name] = row[field];
+  }
+  if (action === 'transfer_dispatch') preset.quantity = row.available;
+  if (action === 'receive') {
+    preset.quantity = row.open_quantity;
+    preset.location_id = row.destination_id || '';
+  }
+  if (action === 'payment') preset.amount = row.collectible;
+  if (action === 'postpone' || action === 'postpone_job') preset.due_date = row.due_date;
+  if (action === 'location_update') Object.assign(preset, {
+    branch_id: row.branch_id ?? '',
+    lat: row.lat ?? '',
+    lng: row.lng ?? '',
+    address: row.address || ''
+  });
+  return preset;
+}
+function moduleCell(column, row, currency) {
+  const value = row[column.key];
+  if (value == null) return '—';
+  if (column.type === 'money') return moduleMoney(value, row.currency || currency);
+  if (['date', 'datetime'].includes(column.type)) return erpDate(value);
+  if (['process', 'kind', 'status', 'quality', 'effective_status', 'coordinate_basis'].includes(column.key)) return ERP_LABELS[value] || {
+    import: 'Імпорт',
+    purchase: 'Закупівля',
+    sale: 'Продаж',
+    export: 'Експорт',
+    point: 'Координати точки',
+    branch: 'Центр філії',
+    missing: 'Не задано',
+    in_transit: 'У дорозі',
+    held: 'Утримано',
+    released: 'Знято'
+  }[value] || String(value);
+  return ['string', 'number', 'boolean'].includes(typeof value) ? String(value) : 'Див. картку запису';
+}
+function ModuleRecordActions({
+  catalog,
+  network,
+  model,
+  row,
+  onAction
+}) {
+  if (!catalog.permissions.write || !network.capabilities?.write || !bosCan('write')) return null;
+  const ids = new Set(model.actions || []);
+  const actions = catalog.actions.filter(a => ids.has(a.id) && a.model === model.id && ERP_ACTIONS[a.ui_action] && bosCanAction(a.ui_action) && moduleActionVisible(a.ui_action, catalog, network) && moduleActionEligible(a.ui_action, row));
+  return /*#__PURE__*/React.createElement("div", {
+    className: "erp-actions"
+  }, actions.map(a => /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    key: a.id,
+    onClick: () => onAction(a.ui_action, moduleActionPreset(a.ui_action, row, a))
+  }, a.name)));
+}
+function ModuleRecordFacts({
+  model,
+  row,
+  currency
+}) {
+  return /*#__PURE__*/React.createElement("dl", {
+    className: "module-facts"
+  }, model.columns.filter(c => row[c.key] != null).map(c => /*#__PURE__*/React.createElement("div", {
+    key: c.key
+  }, /*#__PURE__*/React.createElement("dt", null, c.label), /*#__PURE__*/React.createElement("dd", null, moduleCell(c, row, currency)))));
+}
+function ModuleCreateActions({
+  catalog,
+  network,
+  model,
+  branch,
+  point,
+  currency,
+  onAction
+}) {
+  if (!catalog.permissions.write || !network.capabilities?.write || !bosCan('write')) return null;
+  const ids = new Set(model.actions || []),
+    actions = catalog.actions.filter(a => ids.has(a.id) && a.model === model.id && ['location', 'opening', 'purchase', 'order', 'job'].includes(a.ui_action) && ERP_ACTIONS[a.ui_action] && bosCanAction(a.ui_action) && moduleActionVisible(a.ui_action, catalog, network));
+  const preset = action => action === 'location' ? {
+    branch_id: branch === 'unassigned' ? '' : branch
+  } : action === 'purchase' ? {
+    currency,
+    destination_id: point || ''
+  } : action === 'order' ? {
+    currency,
+    fulfillment_location_id: point || ''
+  } : {
+    currency,
+    location_id: point || ''
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: "erp-actions"
+  }, actions.map(a => /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    key: a.id,
+    onClick: () => onAction(a.ui_action, preset(a.ui_action))
+  }, a.name)));
+}
+function CoreModuleSurface({
+  catalog,
+  network,
+  table,
+  onTable,
+  view,
+  onView,
+  search,
+  onSearch,
+  branch,
+  point,
+  currency,
+  onPoint,
+  onSelect,
+  onAction
+}) {
+  const [page, setPage] = useState(0),
+    [inline, setInline] = useState(null);
+  const inlineRef = useRef(null),
+    triggerRef = useRef(null);
+  const financial = moduleFinanceAllowed(catalog, network);
+  const moneyFields = new Set(['inventory_value', 'unit_cost', 'value', 'total_cost', 'amount', 'paid', 'open', 'price', 'extras', 'planned_cost', 'actual_cost', 'effective_credit', 'net_amount', 'receivable', 'customer_credit', 'retained', 'collectible']);
+  catalog = {
+    ...catalog,
+    models: catalog.models.filter(m => financial || m.id !== 'retentions').map(m => ({
+      ...m,
+      columns: m.columns.filter(c => financial || !(c.finance || c.type === 'money' || moneyFields.has(c.key)))
+    }))
+  };
+  const model = catalog.models.find(m => m.id === table),
+    rows = moduleRows(network, model, search),
+    pageCount = Math.max(1, Math.ceil(rows.length / 20)),
+    currentPage = Math.min(page, pageCount - 1);
+  useEffect(() => {
+    setPage(0);
+    setInline(null);
+  }, [table, search, branch, point, currency, network]);
+  useEffect(() => {
+    if (inline) inlineRef.current?.focus();
+  }, [inline]);
+  if (!model) return /*#__PURE__*/React.createElement("section", {
+    className: "module-views"
+  }, /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u041E\u0431\u0435\u0440\u0456\u0442\u044C \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0439 \u0440\u0435\u0454\u0441\u0442\u0440. \u041F\u043E\u043F\u0435\u0440\u0435\u0434\u043D\u0456\u0439 \u0440\u0435\u0454\u0441\u0442\u0440 \u043C\u043E\u0436\u0435 \u0431\u0443\u0442\u0438 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0439 \u0434\u043B\u044F \u043F\u043E\u0442\u043E\u0447\u043D\u043E\u0457 \u0440\u043E\u043B\u0456."), /*#__PURE__*/React.createElement("div", {
+    className: "network-tabs"
+  }, catalog.models.map(m => /*#__PURE__*/React.createElement(Button, {
+    key: m.id,
+    onClick: () => onTable(m.id)
+  }, m.name))));
+  const allowedViews = catalog.views.filter(v => ['control', 'flow', 'network', 'focus'].includes(v.id) && (model.views || []).includes(v.id)),
+    active = allowedViews.find(v => v.id === view)?.id || model.default_view || 'control';
+  const label = row => String(row[model.label_field] || row.code || row.name || '№' + row[model.key]);
+  const detail = row => {
+    if (['transfers', 'retentions'].includes(model.id)) {
+      triggerRef.current = typeof document === 'undefined' ? null : document.activeElement;
+      setInline(row[model.key]);
+    } else onSelect({
+      kind: model.id === 'points' ? 'locations' : model.id,
+      id: row[model.key]
+    });
+  };
+  const closeInline = () => {
+    setInline(null);
+    triggerRef.current?.focus?.();
+  };
+  const actionProps = row => ({
+    catalog,
+    network,
+    model,
+    row,
+    onAction
+  });
+  const card = row => /*#__PURE__*/React.createElement("article", {
+    key: row[model.key],
+    className: "module-record"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "module-record-title",
+    onClick: () => detail(row)
+  }, label(row), " ", /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\u2197")), row.item_name && /*#__PURE__*/React.createElement("p", null, row.item_name), row.customer_name && /*#__PURE__*/React.createElement("p", null, row.customer_name), row.location_name && /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, row.location_name), row.due_date && /*#__PURE__*/React.createElement("small", null, "\u0421\u0442\u0440\u043E\u043A: ", erpDate(row.due_date)), /*#__PURE__*/React.createElement(ModuleRecordActions, actionProps(row)));
+  const selected = rows.find(row => row[model.key] === inline),
+    mapped = moduleMapRows(network, model, rows),
+    inbox = moduleInbox(model, rows, network.as_of);
+  const columns = model.columns.map(c => [c.label, row => moduleCell(c, row, currency)]);
+  columns.push(['Дії', row => /*#__PURE__*/React.createElement(ModuleRecordActions, actionProps(row))]);
+  return /*#__PURE__*/React.createElement("section", {
+    className: "module-views",
+    "aria-label": "\u0412\u0438\u0434\u0438 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0439\u043D\u043E\u0433\u043E \u0440\u0435\u0454\u0441\u0442\u0440\u0443"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "module-toolbar"
+  }, /*#__PURE__*/React.createElement("label", null, "\u0420\u0435\u0454\u0441\u0442\u0440", /*#__PURE__*/React.createElement(Select, {
+    value: table,
+    onChange: e => onTable(e.target.value)
+  }, catalog.models.map(m => /*#__PURE__*/React.createElement("option", {
+    key: m.id,
+    value: m.id
+  }, m.name)))), /*#__PURE__*/React.createElement("label", null, "\u041F\u043E\u0448\u0443\u043A \u0443 \u0440\u0435\u0454\u0441\u0442\u0440\u0456", /*#__PURE__*/React.createElement(Input, {
+    type: "search",
+    value: search,
+    placeholder: "\u041A\u043E\u0434, \u043D\u0430\u0437\u0432\u0430, \u0442\u043E\u0447\u043A\u0430, \u0441\u0442\u0430\u043D\u2026",
+    onChange: e => onSearch(e.target.value)
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "erp-status",
+    "aria-live": "polite"
+  }, rows.length, " \u0437\u0430\u043F\u0438\u0441\u0456\u0432")), /*#__PURE__*/React.createElement("nav", {
+    className: "module-view-switch",
+    "aria-label": "\u0412\u0438\u0433\u043B\u044F\u0434 \u0442\u0438\u0445 \u0441\u0430\u043C\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432"
+  }, allowedViews.map(v => /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    key: v.id,
+    "aria-pressed": active === v.id,
+    onClick: () => onView(v.id)
+  }, v.name))), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted module-context"
+  }, model.name, " \xB7 ", currency, " \xB7 \u043F\u043E\u0442\u043E\u0447\u043D\u0456 \u0444\u0456\u043B\u0456\u044F \u0439 \u0442\u043E\u0447\u043A\u0430. \u0412\u0438\u0433\u043B\u044F\u0434 \u0437\u043C\u0456\u043D\u044E\u0454 \u0441\u043F\u043E\u0441\u0456\u0431 \u043F\u0435\u0440\u0435\u0433\u043B\u044F\u0434\u0443 \u0442\u0438\u0445 \u0441\u0430\u043C\u0438\u0445 \u0434\u0430\u043D\u0438\u0445."), /*#__PURE__*/React.createElement(ModuleCreateActions, {
+    catalog: catalog,
+    network: network,
+    model: model,
+    branch: branch,
+    point: point,
+    currency: currency,
+    onAction: onAction
+  }), catalog.permissions.export && network.capabilities?.export && bosCan('export_workspace') && (search.trim() ? /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041E\u0447\u0438\u0441\u0442\u0456\u0442\u044C \u043F\u043E\u0448\u0443\u043A \u0434\u043B\u044F CSV-\u0435\u043A\u0441\u043F\u043E\u0440\u0442\u0443 \u0432\u0441\u044C\u043E\u0433\u043E \u0441\u0435\u0440\u0432\u0435\u0440\u043D\u043E\u0433\u043E \u0432\u0456\u0434\u0431\u043E\u0440\u0443 \u0437\u0430 \u0444\u0456\u043B\u0456\u0454\u044E, \u0442\u043E\u0447\u043A\u043E\u044E \u0439 \u0432\u0430\u043B\u044E\u0442\u043E\u044E.") : /*#__PURE__*/React.createElement("a", {
+    className: "network-export",
+    href: '/api/erp/network/export/?' + networkQuery(branch, point, currency, model.id)
+  }, "\u0415\u043A\u0441\u043F\u043E\u0440\u0442 \u0446\u044C\u043E\u0433\u043E \u0432\u0456\u0434\u0431\u043E\u0440\u0443 \xB7 CSV")), active === 'control' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(ERPTable, {
+    columns: columns,
+    rows: rows.slice(currentPage * 20, currentPage * 20 + 20),
+    onRow: detail,
+    empty: "\u0423 \u0446\u044C\u043E\u043C\u0443 \u0432\u0456\u0434\u0431\u043E\u0440\u0456 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u043D\u0435\u043C\u0430\u0454."
+  }), /*#__PURE__*/React.createElement("nav", {
+    className: "module-pagination",
+    "aria-label": "\u0421\u0442\u043E\u0440\u0456\u043D\u043A\u0438 \u0440\u0435\u0454\u0441\u0442\u0440\u0443"
+  }, /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    disabled: currentPage === 0,
+    onClick: () => setPage(p => Math.max(0, p - 1))
+  }, "\u041D\u0430\u0437\u0430\u0434"), /*#__PURE__*/React.createElement("span", {
+    "aria-live": "polite"
+  }, "\u0421\u0442\u043E\u0440\u0456\u043D\u043A\u0430 ", currentPage + 1, " \u0437 ", pageCount), /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    disabled: currentPage + 1 >= pageCount,
+    onClick: () => setPage(p => p + 1)
+  }, "\u0414\u0430\u043B\u0456"))), active === 'flow' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041A\u043E\u043B\u043E\u043D\u043A\u0438 \u0432\u0456\u0434\u043E\u0431\u0440\u0430\u0436\u0430\u044E\u0442\u044C \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u0438\u0439 ", model.status_field === 'quality' ? 'стан якості' : 'стан запису', ". \u0417\u043C\u0456\u043D\u0438 \u0432\u0438\u043A\u043E\u043D\u0443\u044E\u0442\u044C\u0441\u044F \u0447\u0435\u0440\u0435\u0437 \u0434\u0456\u0457 \u0442\u0430 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F."), /*#__PURE__*/React.createElement("div", {
+    className: "module-kanban"
+  }, moduleLanes(model, rows).map(lane => /*#__PURE__*/React.createElement("section", {
+    key: lane.id,
+    className: "module-lane",
+    "aria-label": lane.label
+  }, /*#__PURE__*/React.createElement("h4", null, lane.label, " ", /*#__PURE__*/React.createElement("span", null, lane.rows.length)), lane.rows.map(card)))), !rows.length && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0423 \u0446\u044C\u043E\u043C\u0443 \u0432\u0456\u0434\u0431\u043E\u0440\u0456 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u043D\u0435\u043C\u0430\u0454.")), active === 'network' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041A\u0430\u0440\u0442\u0430 \u043F\u043E\u043A\u0430\u0437\u0443\u0454 \u0440\u0435\u0430\u043B\u044C\u043D\u0456 \u0442\u043E\u0447\u043A\u0438, \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0456 \u0437 \u0432\u0456\u0434\u0456\u0431\u0440\u0430\u043D\u0438\u043C\u0438 \u0437\u0430\u043F\u0438\u0441\u0430\u043C\u0438; \u043A\u043E\u0436\u0435\u043D \u0437\u0430\u043F\u0438\u0441 \u043D\u0435 \u0454 \u043E\u043A\u0440\u0435\u043C\u043E\u044E \u043A\u043E\u043E\u0440\u0434\u0438\u043D\u0430\u0442\u043E\u044E. ", model.id === 'transfers' ? 'Показані точки відправлення та призначення цих переміщень.' : ''), /*#__PURE__*/React.createElement(NetworkMap, {
+    points: mapped.points,
+    locations: network.locations || [],
+    transfers: mapped.transfers,
+    selected: point,
+    onPoint: onPoint
+  }), !mapped.points.length && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0423 \u0446\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u043D\u0435\u043C\u0430\u0454 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E\u0457 \u043F\u0440\u0438\u0432\u2019\u044F\u0437\u043A\u0438 \u0434\u043E \u0442\u043E\u0447\u043A\u0438. \u0412\u043E\u043D\u0438 \u0437\u0430\u043B\u0438\u0448\u0430\u044E\u0442\u044C\u0441\u044F \u0443 \u0440\u0435\u0454\u0441\u0442\u0440\u0456."), /*#__PURE__*/React.createElement("div", {
+    className: "module-map-records"
+  }, rows.map(card))), active === 'focus' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0427\u0435\u0440\u0433\u0430 \u0437\u0430 \u0444\u0430\u043A\u0442\u0438\u0447\u043D\u0438\u043C\u0438 \u0441\u0442\u0440\u043E\u043A\u0430\u043C\u0438, \u044F\u043A\u0456\u0441\u0442\u044E, \u0440\u0443\u0445\u043E\u043C \u0456 \u0440\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043A\u0430\u043C\u0438. \u041F\u0435\u0440\u0448\u0438\u043C\u0438 \u043F\u043E\u043A\u0430\u0437\u0430\u043D\u0456 \u043F\u0440\u043E\u0441\u0442\u0440\u043E\u0447\u0435\u043D\u0456 \u0437\u0430\u043F\u0438\u0441\u0438. \u0426\u0435 \u043F\u0440\u0430\u0432\u0438\u043B\u0430 \u0432\u0456\u0434\u0431\u043E\u0440\u0443, \u043D\u0435 \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u043D\u0435 \u0440\u0456\u0448\u0435\u043D\u043D\u044F AI."), /*#__PURE__*/React.createElement("div", {
+    className: "module-inbox"
+  }, inbox.map(({
+    row,
+    reasons
+  }) => /*#__PURE__*/React.createElement("details", {
+    key: row[model.key],
+    className: "module-inbox-item"
+  }, /*#__PURE__*/React.createElement("summary", null, /*#__PURE__*/React.createElement("strong", null, label(row)), /*#__PURE__*/React.createElement("span", null, reasons.join(' · '))), /*#__PURE__*/React.createElement(ModuleRecordFacts, {
+    model: model,
+    row: row,
+    currency: currency
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "erp-actions"
+  }, /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    onClick: () => detail(row)
+  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u043A\u0430\u0440\u0442\u043A\u0443"), /*#__PURE__*/React.createElement(ModuleRecordActions, actionProps(row)))))), !inbox.length && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0417\u0430 \u043F\u043E\u0442\u043E\u0447\u043D\u0438\u043C \u0432\u0456\u0434\u0431\u043E\u0440\u043E\u043C \u043D\u0435\u043C\u0430\u0454 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u0456\u0437 \u0446\u0438\u043C\u0438 \u043E\u0437\u043D\u0430\u043A\u0430\u043C\u0438 \u0443\u0432\u0430\u0433\u0438. \u0423\u0441\u0456 \u0437\u0430\u043F\u0438\u0441\u0438 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0443 \xAB\u041A\u043E\u043D\u0442\u0440\u043E\u043B\u0456\xBB.")), selected && /*#__PURE__*/React.createElement("section", {
+    className: "module-inline",
+    ref: inlineRef,
+    tabIndex: -1,
+    "aria-label": 'Деталі ' + label(selected),
+    onKeyDown: e => {
+      if (e.key === 'Escape') {
+        closeInline();
+      }
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "erp-row"
+  }, /*#__PURE__*/React.createElement("h4", null, label(selected)), /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    onClick: closeInline
+  }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438 \u0434\u0435\u0442\u0430\u043B\u0456")), /*#__PURE__*/React.createElement(ModuleRecordFacts, {
+    model: model,
+    row: selected,
+    currency: currency
+  }), /*#__PURE__*/React.createElement(ModuleRecordActions, actionProps(selected)), model.id === 'transfers' && selected.received_lot_id && /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    onClick: () => onSelect({
+      kind: 'lots',
+      id: selected.received_lot_id
+    })
+  }, "\u041F\u0440\u0438\u0439\u043D\u044F\u0442\u0430 \u043F\u0430\u0440\u0442\u0456\u044F"), model.id === 'retentions' && /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    onClick: () => onSelect({
+      kind: 'invoices',
+      id: selected.invoice_id
+    })
+  }, "\u041F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0438\u0439 \u0440\u0430\u0445\u0443\u043D\u043E\u043A")));
+}
+function CoreModuleWorkspace(props) {
+  const [catalog, setCatalog] = useState(null),
+    [error, setError] = useState(''),
+    [retry, setRetry] = useState(0);
+  const role = bosRole();
+  useEffect(() => {
+    let live = true;
+    const abort = new AbortController();
+    setCatalog(null);
+    setError('');
+    moduleFetchCatalog(abort.signal).then(value => {
+      if (live) setCatalog(value);
+    }).catch(e => {
+      if (live && e.name !== 'AbortError') setError(e.message);
+    });
+    return () => {
+      live = false;
+      abort.abort();
+    };
+  }, [role, retry]);
+  if (error) return /*#__PURE__*/React.createElement("section", {
+    "aria-label": "\u0420\u0435\u0454\u0441\u0442\u0440 \u043C\u043E\u0434\u0443\u043B\u0456\u0432"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "erp-error",
+    role: "alert"
+  }, error), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041E\u043F\u0435\u0440\u0430\u0446\u0456\u0439\u043D\u0456 \u0432\u0438\u0434\u0438 \u0432\u0456\u0434\u043A\u0440\u0438\u044E\u0442\u044C\u0441\u044F \u043F\u0456\u0441\u043B\u044F \u043E\u0442\u0440\u0438\u043C\u0430\u043D\u043D\u044F \u0447\u0438\u043D\u043D\u043E\u0433\u043E \u0441\u0435\u0440\u0432\u0435\u0440\u043D\u043E\u0433\u043E \u0440\u0435\u0454\u0441\u0442\u0440\u0443."), /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    onClick: () => setRetry(v => v + 1)
+  }, "\u0421\u043F\u0440\u043E\u0431\u0443\u0432\u0430\u0442\u0438 \u0449\u0435 \u0440\u0430\u0437"));
+  if (!catalog) return /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u043C\u043E\u0434\u0443\u043B\u0456\u0432\u2026");
+  return /*#__PURE__*/React.createElement(CoreModuleSurface, _extends({}, props, {
+    catalog: catalog
+  }));
+}
+// CORE_MODULE_VIEWS_END
+
+function ERPNetwork({
+  data,
+  onSelect,
+  onAction,
+  onNavigate,
+  onDocument
+}) {
+  const [branch, setBranch] = useState(''),
+    [point, setPoint] = useState(''),
+    [currency, setCurrency] = useState('UAH'),
+    [table, setTable] = useState('points'),
+    [network, setNetwork] = useState(null),
+    [error, setError] = useState(''),
+    [version, setVersion] = useState(0),
+    [loading, setLoading] = useState(true),
+    [converter, setConverter] = useState(false),
+    [referenceCurrency, setReferenceCurrency] = useState('EUR'),
+    [referenceRate, setReferenceRate] = useState(''),
+    [group, setGroup] = useState('overview'),
+    [moduleView, setModuleView] = useState('control'),
+    [moduleSearch, setModuleSearch] = useState('');
+  const request = useRef(0);
+  useEffect(() => {
+    const n = ++request.current;
+    let live = true;
+    const abort = new AbortController();
+    setLoading(true);
+    setNetwork(null);
+    setError('');
+    fetch('/api/erp/network/?' + networkQuery(branch, point, currency), {
+      signal: abort.signal
+    }).then(async r => {
+      const body = await r.json();
+      if (!r.ok) throw Error(body.error || 'Не вдалося завантажити мережу.');
+      if (body.schema !== 'bos.network.v1' || !Array.isArray(body.locations) || !Array.isArray(body.branches) || !body.rows) throw Error('Невідома відповідь мережі.');
+      return body;
+    }).then(body => {
+      if (live && n === request.current) setNetwork(body);
+    }).catch(e => {
+      if (live && e.name !== 'AbortError' && n === request.current) setError(e.message);
+    }).finally(() => {
+      if (live && n === request.current) setLoading(false);
+    });
+    return () => {
+      live = false;
+      abort.abort();
+    };
+  }, [branch, point, currency, data, version]);
+  const financial = bosCan('finance') && network?.capabilities?.finance === true,
+    write = bosCan('write') && network?.capabilities?.write === true,
+    rows = network?.rows || {},
+    metrics = network?.metrics || {},
+    branches = network?.branches || data.branches || [],
+    locations = network?.locations || data.locations || [];
+  const availablePoints = locations.filter(p => !branch || (branch === 'unassigned' ? p.branch_id == null : String(p.branch_id) === branch));
+  function chooseBranch(value) {
+    setBranch(value);
+    setPoint('');
+  }
+  function choosePoint(value) {
+    setPoint(value);
+    setTable('points');
+  }
+  function openRegister(value) {
+    setTable(value);
+    setGroup('operations');
+  }
+  function chooseWorkspacePoint(value) {
+    const next = modulePointSelection(locations, branch, value);
+    setBranch(next.branch);
+    setPoint(next.point);
+  }
+  const can = a => write && bosCanAction(a),
+    action = (a, p, label) => can(a) ? /*#__PURE__*/React.createElement(Button, {
+      onClick: () => onAction(a, p)
+    }, label || ERP_ACTIONS[a]?.[0]) : null;
+  const money = value => networkMoney(value, network?.currency || currency);
+  return /*#__PURE__*/React.createElement("section", {
+    className: "network-workspace",
+    "aria-label": "\u0423\u043F\u0440\u0430\u0432\u043B\u0456\u043D\u043D\u044F \u043C\u0435\u0440\u0435\u0436\u0435\u044E"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "network-heading"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
+    className: "network-eyebrow"
+  }, "\u0420\u041E\u0411\u041E\u0427\u0406 \u0414\u0410\u041D\u0406 BoS"), /*#__PURE__*/React.createElement("h3", null, "\u0412\u0456\u0434 \u0444\u0456\u043B\u0456\u0457 \u0434\u043E \u043A\u043E\u0436\u043D\u043E\u0457 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0457"), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0421\u043A\u043B\u0430\u0434, \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043D\u043D\u044F, \u043F\u0440\u043E\u0434\u0430\u0436\u0456 \u0439 \u0440\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043A\u0438 \u0437 \u043F\u043E\u0442\u043E\u0447\u043D\u043E\u0457 \u0431\u0430\u0437\u0438. \u0414\u0456\u044F \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442\u044C \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0443 \u0442\u0430 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F.")), /*#__PURE__*/React.createElement("span", {
+    className: "erp-status"
+  }, network?.data_mode === 'demo' ? 'Демонстраційна база' : 'Поточна база', " \xB7 ", network?.as_of ? erpDate(network.as_of) : '…')), /*#__PURE__*/React.createElement("nav", {
+    className: "network-groups",
+    "aria-label": "\u0420\u043E\u0431\u043E\u0447\u0456 \u0431\u043B\u043E\u043A\u0438 \u043C\u0435\u0440\u0435\u0436\u0456"
+  }, [['overview', 'Огляд'], ['operations', 'Операції'], ['documents', 'Документи й звірки'], ['control', 'Контроль строків']].map(([id, label]) => /*#__PURE__*/React.createElement(Button, {
+    key: id,
+    "aria-pressed": group === id,
+    onClick: () => setGroup(id)
+  }, label))), /*#__PURE__*/React.createElement("div", {
+    className: "network-filters"
+  }, /*#__PURE__*/React.createElement("label", null, "\u0424\u0456\u043B\u0456\u044F", /*#__PURE__*/React.createElement(Select, {
+    value: branch,
+    onChange: e => chooseBranch(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "\u0423\u0441\u044F \u043C\u0435\u0440\u0435\u0436\u0430"), branches.map(b => /*#__PURE__*/React.createElement("option", {
+    key: b.id,
+    value: b.id
+  }, b.name)), /*#__PURE__*/React.createElement("option", {
+    value: "unassigned"
+  }, "\u0411\u0435\u0437 \u043F\u0440\u0438\u0432\u2019\u044F\u0437\u043A\u0438 \u0434\u043E \u0444\u0456\u043B\u0456\u0457"))), /*#__PURE__*/React.createElement("label", null, "\u0420\u043E\u0431\u043E\u0447\u0430 \u0442\u043E\u0447\u043A\u0430", /*#__PURE__*/React.createElement(Select, {
+    value: point,
+    onChange: e => choosePoint(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "\u0423\u0441\u0456 \u0442\u043E\u0447\u043A\u0438 \u0444\u0456\u043B\u0456\u0457"), availablePoints.map(p => /*#__PURE__*/React.createElement("option", {
+    key: p.id,
+    value: p.id
+  }, p.code, " \xB7 ", p.name)))), /*#__PURE__*/React.createElement("span", {
+    className: "erp-status"
+  }, currency === 'UAH' ? 'Облік у гривні · UAH' : currency), /*#__PURE__*/React.createElement(Button, {
+    onClick: () => setVersion(v => v + 1)
+  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438 \u043C\u0435\u0440\u0435\u0436\u0443")), /*#__PURE__*/React.createElement("details", {
+    className: "network-options"
+  }, /*#__PURE__*/React.createElement("summary", null, "\u0414\u043E\u0434\u0430\u0442\u043A\u043E\u0432\u0456 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u0438 \xB7 \u0432\u0430\u043B\u044E\u0442\u0430 \u0442\u0430 \u0434\u043E\u0432\u0456\u0434\u043A\u043E\u0432\u0438\u0439 \u0435\u043A\u0432\u0456\u0432\u0430\u043B\u0435\u043D\u0442"), /*#__PURE__*/React.createElement("div", {
+    className: "network-options-grid"
+  }, /*#__PURE__*/React.createElement("label", null, "\u0412\u0430\u043B\u044E\u0442\u0430 \u043D\u0430\u044F\u0432\u043D\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432", /*#__PURE__*/React.createElement(Select, {
+    value: currency,
+    onChange: e => setCurrency(e.target.value)
+  }, ['UAH', 'EUR', 'USD'].map(c => /*#__PURE__*/React.createElement("option", {
+    key: c,
+    value: c
+  }, c === 'UAH' ? 'Гривня · UAH' : c)))), financial && currency === 'UAH' && /*#__PURE__*/React.createElement("label", {
+    className: "network-checkbox"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: converter,
+    onChange: e => setConverter(e.target.checked)
+  }), "\u041F\u043E\u043A\u0430\u0437\u0430\u0442\u0438 \u0434\u043E\u0432\u0456\u0434\u043A\u043E\u0432\u0438\u0439 \u0435\u043A\u0432\u0456\u0432\u0430\u043B\u0435\u043D\u0442")), financial && currency === 'UAH' && converter && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "network-options-grid"
+  }, /*#__PURE__*/React.createElement("label", null, "\u0412\u0430\u043B\u044E\u0442\u0430 \u0435\u043A\u0432\u0456\u0432\u0430\u043B\u0435\u043D\u0442\u0430", /*#__PURE__*/React.createElement(Select, {
+    value: referenceCurrency,
+    onChange: e => setReferenceCurrency(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", null, "EUR"), /*#__PURE__*/React.createElement("option", null, "USD"))), /*#__PURE__*/React.createElement("label", null, "\u0413\u0440\u0438\u0432\u0435\u043D\u044C \u0437\u0430 1 ", referenceCurrency, /*#__PURE__*/React.createElement(Input, {
+    inputMode: "decimal",
+    value: referenceRate,
+    placeholder: "\u0412\u0432\u0435\u0434\u0456\u0442\u044C \u043A\u0443\u0440\u0441",
+    onChange: e => setReferenceRate(e.target.value.replace(',', '.'))
+  }))), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0414\u043E\u0432\u0456\u0434\u043A\u043E\u0432\u0438\u0439 \u0435\u043A\u0432\u0456\u0432\u0430\u043B\u0435\u043D\u0442; \u043E\u0431\u043B\u0456\u043A \u0443 \u0433\u0440\u0438\u0432\u043D\u0456. \u041A\u0443\u0440\u0441 \u0432\u0432\u043E\u0434\u0438\u0442\u044C\u0441\u044F \u0432\u0440\u0443\u0447\u043D\u0443, \u043D\u0435 \u0454 \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u043D\u043E \u043E\u0442\u0440\u0438\u043C\u0430\u043D\u0438\u043C \u0447\u0438 \u043E\u0431\u043B\u0456\u043A\u043E\u0432\u0438\u043C. \u0417\u0430\u043F\u0438\u0441\u0438 \u0442\u0430 \u043F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u043D\u044F \u043D\u0435 \u0437\u043C\u0456\u043D\u044E\u044E\u0442\u044C\u0441\u044F."), networkEquivalent(metrics.inventory_value, referenceRate) == null ? /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0412\u043A\u0430\u0436\u0456\u0442\u044C \u0434\u043E\u0434\u0430\u0442\u043D\u0438\u0439 \u043A\u0443\u0440\u0441, \u0434\u043E 6 \u0437\u043D\u0430\u043A\u0456\u0432 \u043F\u0456\u0441\u043B\u044F \u043A\u0440\u0430\u043F\u043A\u0438.") : /*#__PURE__*/React.createElement("div", {
+    className: "network-converted"
+  }, [['Запас у точках', metrics.inventory_value], ['У дорозі', metrics.in_transit_value], ['Залишилось сплатити', metrics.receivable], ['Зокрема утримано', metrics.retained]].map(([label, value]) => /*#__PURE__*/React.createElement("div", {
+    key: label
+  }, /*#__PURE__*/React.createElement("span", null, label), /*#__PURE__*/React.createElement("strong", null, networkMoney(networkEquivalent(value, referenceRate), referenceCurrency))))))), error && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, error), loading && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F \u043C\u0435\u0440\u0435\u0436\u0456 \u0442\u0430 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0439\u2026"), network && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "network-kpis"
+  }, (financial ? [['Запас у точках', money(metrics.inventory_value), 'Усі фізичні партії обраної валюти', 'lots'], ['У дорозі', money(metrics.in_transit_value), metrics.in_transit_count + ' відкритих переміщень', 'transfers'], ['Залишилось сплатити', money(metrics.receivable), 'За рахунками обраної валюти', 'invoices'], ['Зокрема утримано', money(metrics.retained), 'Входить у борг; зняття не є оплатою', 'retentions']] : [['Точки мережі', metrics.point_count, 'У поточному відборі', 'points'], ['Складські партії', metrics.lot_count, 'Залишки та стан якості', 'lots'], ['Постачання', metrics.open_purchases, 'Відкриті замовлення', 'purchases'], ['У дорозі', metrics.in_transit_count, 'Ще не прийнято у точці', 'transfers']]).map(([label, value, note, target]) => /*#__PURE__*/React.createElement("button", {
+    className: "bos-kpi",
+    type: "button",
+    key: target,
+    onClick: () => openRegister(target)
+  }, /*#__PURE__*/React.createElement("span", null, label), /*#__PURE__*/React.createElement("strong", null, value ?? '—'), /*#__PURE__*/React.createElement("p", null, note), /*#__PURE__*/React.createElement("em", null, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u0437\u0430\u043F\u0438\u0441\u0438 \u2197")))), group === 'overview' && /*#__PURE__*/React.createElement("div", {
+    className: "network-overview"
+  }, /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("div", {
+    className: "erp-row"
+  }, /*#__PURE__*/React.createElement("h3", null, "\u0413\u0435\u043E\u0433\u0440\u0430\u0444\u0456\u044F \u043C\u0435\u0440\u0435\u0436\u0456"), /*#__PURE__*/React.createElement("span", {
+    className: "erp-status"
+  }, metrics.point_count, " \u0442\u043E\u0447\u043E\u043A \u0443 \u0432\u0456\u0434\u0431\u043E\u0440\u0456")), /*#__PURE__*/React.createElement(NetworkMap, {
+    points: rows.points || [],
+    locations: locations,
+    transfers: rows.transfers || [],
+    selected: point,
+    onPoint: choosePoint
+  })), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u041F\u043E\u0442\u043E\u0447\u043D\u0438\u0439 \u0432\u0456\u0434\u0431\u0456\u0440"), /*#__PURE__*/React.createElement("p", {
+    className: "network-scope"
+  }, branch === 'unassigned' ? 'Без філії' : branches.find(b => String(b.id) === branch)?.name || 'Уся мережа'), /*#__PURE__*/React.createElement("p", null, point ? locations.find(p => String(p.id) === point)?.name : 'Усі робочі точки'), /*#__PURE__*/React.createElement("div", {
+    className: "network-processes"
+  }, [['purchases', 'Постачання / імпорт'], ['orders', 'Продажі / експорт'], ['jobs', 'Виробництво'], ['transfers', 'Переміщення']].map(([id, label]) => /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    key: id,
+    onClick: () => openRegister(id)
+  }, /*#__PURE__*/React.createElement("span", null, label), /*#__PURE__*/React.createElement("strong", null, (rows[id] || []).length)))), write && /*#__PURE__*/React.createElement("div", {
+    className: "erp-actions"
+  }, action('purchase', {
+    currency,
+    destination_id: point || ''
+  }, 'Нова закупівля'), action('order', {
+    currency,
+    fulfillment_location_id: point || ''
+  }, 'Новий продаж'), action('location', {
+    branch_id: branch === 'unassigned' ? '' : branch
+  }, 'Нова точка')), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0421\u0443\u043C\u0438 \u0432\u0456\u0434\u0431\u0438\u0440\u0430\u044E\u0442\u044C\u0441\u044F \u0437\u0430 \u0432\u0430\u043B\u044E\u0442\u043E\u044E \u0431\u0435\u0437 \u043A\u043E\u043D\u0432\u0435\u0440\u0442\u0430\u0446\u0456\u0457. \u041F\u0440\u0438\u0432\u2019\u044F\u0437\u043A\u0438 \u0444\u0456\u043B\u0456\u0439 \u0442\u0430 \u0442\u043E\u0447\u043E\u043A \u0431\u0435\u0440\u0443\u0442\u044C\u0441\u044F \u0437 \u043A\u0430\u0440\u0442\u043E\u043A BoS."))), network.warnings?.map((w, i) => /*#__PURE__*/React.createElement("p", {
+    className: "op-muted",
+    key: i
+  }, w)), group === 'operations' && /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("div", {
+    className: "erp-row"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", null, "\u041E\u043F\u0435\u0440\u0430\u0446\u0456\u0439\u043D\u0456 \u0440\u0435\u0454\u0441\u0442\u0440\u0438"), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0421\u043F\u0456\u043B\u044C\u043D\u0456 \u0437\u0430\u043F\u0438\u0441\u0438, \u0447\u043E\u0442\u0438\u0440\u0438 \u0441\u043F\u043E\u0441\u043E\u0431\u0438 \u0440\u043E\u0431\u043E\u0442\u0438."))), /*#__PURE__*/React.createElement(CoreModuleWorkspace, {
+    network: network,
+    table: table,
+    onTable: setTable,
+    view: moduleView,
+    onView: setModuleView,
+    search: moduleSearch,
+    onSearch: setModuleSearch,
+    branch: branch,
+    point: point,
+    currency: currency,
+    onPoint: chooseWorkspacePoint,
+    onSelect: onSelect,
+    onAction: onAction
+  })), group === 'documents' && /*#__PURE__*/React.createElement(NetworkDocuments, {
+    network: network,
+    onNavigate: onNavigate,
+    onDocument: onDocument
+  }), " ", group === 'control' && /*#__PURE__*/React.createElement(NetworkWorkflow, {
+    network: network,
+    onNavigate: onNavigate,
+    onDocument: onDocument,
+    onSelect: onSelect
+  })));
+}
+// NETWORK_WORKSPACE_END
+
 function ERPWorkspace({
   view = 'overview',
   refetchTasks,
@@ -15461,9 +16463,12 @@ function ERPWorkspace({
     }, ERP_LABELS[x] || x);
   const buttons = defs => /*#__PURE__*/React.createElement("div", {
     className: "erp-actions"
-  }, defs.filter(([, a]) => bosCanAction(a)).map(([label, a, p = {}]) => /*#__PURE__*/React.createElement(Button, {
+  }, defs.filter(([, a]) => bosCanAction(a)).map(([label, a, p = {}, disabled = false]) => /*#__PURE__*/React.createElement(Button, {
     key: a,
-    onClick: () => begin(a, p)
+    disabled: disabled,
+    onClick: () => {
+      if (!disabled) begin(a, p);
+    }
   }, label)));
   const filter = rows => rows.filter(x => !search || JSON.stringify(x).toLowerCase().includes(search.toLowerCase()) || itemLabel(x.item_id).toLowerCase().includes(search.toLowerCase()));
   let content;
@@ -15526,6 +16531,13 @@ function ERPWorkspace({
     rows: data.locations,
     columns: [["Код", 'code'], ["Місце", 'name'], ["Тип", r => status(r.kind)], ["Підрядник", r => partner(r.supplier_id)]]
   })));
+  if (view === 'network') content = /*#__PURE__*/React.createElement(ERPNetwork, {
+    data: data,
+    onSelect: setSelection,
+    onAction: begin,
+    onNavigate: onNavigate,
+    onDocument: setDoc
+  });
   if (view === 'sales') content = /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u041F\u0440\u043E\u0434\u0430\u0436\u0456 \u0442\u0430 \u0432\u0438\u043A\u043E\u043D\u0430\u043D\u043D\u044F \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u044C"), buttons([['Нова пропозиція', 'order']]), filter(data.orders).map(o => /*#__PURE__*/React.createElement("div", {
     className: "erp-plan",
     key: o.id
@@ -15731,8 +16743,9 @@ function ERPWorkspace({
     }),
     rows: data.invoices,
     columns: [["Рахунок", 'code'], ["Замовлення", r => order(r.order_id)?.code], ["Сума", r => erpNum(r.amount) + ' ' + r.currency], ["Сплачено", r => erpNum(r.paid)], ["Чинний кредит", r => b03Amount(r.effective_credit, r.currency)], ["До оплати", r => b03Amount(r.open, r.currency)], ["Кредит клієнта", r => b03Amount(r.customer_credit, r.currency)], ["Термін", r => erpDate(r.due_date)], ["Дія", r => buttons([['Оплата', 'payment', {
-      invoice_id: r.invoice_id
-    }]])]]
+      invoice_id: r.invoice_id,
+      amount: r.collectible
+    }, !flowPositive(r.collectible)]])]]
   })), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u0416\u0443\u0440\u043D\u0430\u043B \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u0438\u0445 ERP-\u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0439"), /*#__PURE__*/React.createElement(ERPTable, {
     onRow: r => setSelection({
       kind: 'events',
@@ -15746,6 +16759,7 @@ function ERPWorkspace({
   }, /*#__PURE__*/React.createElement("div", {
     className: "erp-row"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", null, "ERP \xB7 ", {
+    network: 'Мережа та операції',
     overview: 'Огляд виконання',
     catalog: 'Номенклатура',
     sales: 'Продажі',
@@ -15758,12 +16772,12 @@ function ERPWorkspace({
     className: "op-muted"
   }, "\u0404\u0434\u0438\u043D\u0456 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F, \u043C\u0430\u0442\u0435\u0440\u0456\u0430\u043B\u0438 \u0442\u0430 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u0430\u043B\u044C\u043D\u0456")), /*#__PURE__*/React.createElement("div", {
     className: "erp-actions"
-  }, /*#__PURE__*/React.createElement(Input, {
+  }, view !== 'network' && /*#__PURE__*/React.createElement(Input, {
     "aria-label": "\u041F\u043E\u0448\u0443\u043A ERP",
     placeholder: "\u041A\u043E\u0434, \u043D\u0430\u0437\u0432\u0430, \u0448\u0442\u0440\u0438\u0445\u043A\u043E\u0434\u2026",
     value: search,
     onChange: e => setSearch(e.target.value)
-  }), /*#__PURE__*/React.createElement(Button, {
+  }), " ", /*#__PURE__*/React.createElement(Button, {
     onClick: refresh
   }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438"), bosRole() === 'ceo' && /*#__PURE__*/React.createElement(Button, {
     onClick: () => setInitialImport(true)
@@ -16234,7 +17248,7 @@ function OrderTrace({
 }
 
 // Scoped order facts; displayed amounts remain server Decimal strings.
-const FLOW_MONEY = [['gross_invoiced', 'Первісна сума'], ['credited', 'Чинний кредит'], ['invoiced', 'До оплати за рахунками'], ['paid', 'Облікова оплата'], ['open', 'Залишок до оплати'], ['customer_credit', 'Переплата клієнта']];
+const FLOW_MONEY = [['gross_invoiced', 'Первісна сума'], ['credited', 'Чинний кредит'], ['invoiced', 'До оплати за рахунками'], ['paid', 'Облікова оплата'], ['open', 'Залишок до оплати'], ['customer_credit', 'Переплата клієнта'], ['retained', 'Договірне утримання'], ['collectible', 'Доступно до оплати']];
 const FLOW_QUANTITIES = [['remaining', 'Залишилось виконати'], ['reserved_usable', 'Придатний резерв'], ['quantity_to_cover', 'Потреба без резерву'], ['available_all_locations', 'Вільно в усіх місцях'], ['available_target', 'Вільно в обраному місці'], ['uncovered_after_stock', 'Не покрито запасом'], ['unallocated_expected', 'Очікується без розподілу']];
 function flowDecimal(value) {
   return typeof value === 'string' && /^\d+(?:\.\d+)?$/.test(value);
@@ -16250,11 +17264,12 @@ function flowVerify(value, schema, id, revision, target = null) {
     if (value.order?.id !== id || value.scope !== 'linked_invoices' || !Array.isArray(value.totals) || !Array.isArray(value.invoices)) throw Error('settlement_shape');
     for (const row of [...value.totals, ...value.invoices]) if (typeof row.currency !== 'string' || FLOW_MONEY.some(([key]) => !flowDecimal(row[key]))) throw Error('settlement_money');
     for (const row of value.invoices) {
-      if (!pk(row.invoice_id) || typeof row.code !== 'string' || !Array.isArray(row.payment_history?.entries) || !Array.isArray(row.adjustments)) throw Error('settlement_sources');
+      if (!pk(row.invoice_id) || typeof row.code !== 'string' || !Array.isArray(row.payment_history?.entries) || !Array.isArray(row.adjustments) || !Array.isArray(row.retentions)) throw Error('settlement_sources');
+      for (const entry of row.retentions) if (!pk(entry.retention_id) || entry.invoice_id !== row.invoice_id || entry.currency !== row.currency || !flowDecimal(entry.amount) || !['held', 'released'].includes(entry.status) || typeof entry.code !== 'string' || typeof entry.reason !== 'string' || typeof entry.release_reason !== 'string') throw Error('retention_source');
       for (const entry of row.payment_history.entries) if (!pk(entry.event_id) || entry.amount !== null && !flowDecimal(entry.amount) || !Array.isArray(entry.issues)) throw Error('payment_source');
     }
   } else {
-    if (value.line?.id !== id || !pk(value.line.item_id) || typeof value.line.unit !== 'string' || value.scope !== 'visible_sources' || (value.target_location?.id ?? null) !== target || !value.quantities || typeof value.supported !== 'boolean') throw Error('supply_shape');
+    if (!['UAH', 'EUR', 'USD'].includes(value.line?.currency) || value.line?.id !== id || !pk(value.line.item_id) || typeof value.line.unit !== 'string' || value.scope !== 'visible_sources' || (value.target_location?.id ?? null) !== target || !value.quantities || typeof value.supported !== 'boolean') throw Error('supply_shape');
     for (const amount of Object.values(value.quantities)) if (amount !== null && !flowDecimal(amount)) throw Error('supply_quantity');
     if (bosRole() !== 'ceo' && (['reserved_usable', 'quantity_to_cover', 'available_all_locations', 'available_target', 'target_gap', 'uncovered_after_stock', 'unallocated_expected', 'indicative_after_expected'].some(key => value.quantities[key] !== null) || value.completeness !== 'restricted')) throw Error('restricted_supply');
     for (const key of ['stock', 'waiting', 'purchases']) if (!Array.isArray(value[key])) throw Error('supply_sources');
@@ -16420,18 +17435,23 @@ function OrderSettlement({
   }, /*#__PURE__*/React.createElement("dt", null, label), /*#__PURE__*/React.createElement("dd", null, row[key], " ", /*#__PURE__*/React.createElement("small", null, row.currency))))))), facts.invoices.length === 0 && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0438\u0445 \u0440\u0430\u0445\u0443\u043D\u043A\u0456\u0432 \u0449\u0435 \u043D\u0435\u043C\u0430\u0454."), facts.invoices.map(row => /*#__PURE__*/React.createElement("article", {
     key: row.invoice_id,
     className: "bos-trace-line"
-  }, /*#__PURE__*/React.createElement("h4", null, row.code, " \xB7 \u0434\u043E ", erpDate(row.due_date)), /*#__PURE__*/React.createElement("p", null, "\u0414\u043E \u043E\u043F\u043B\u0430\u0442\u0438: ", row.open, " ", row.currency, ". \u041E\u0431\u043B\u0456\u043A\u043E\u0432\u0430 \u043E\u043F\u043B\u0430\u0442\u0430: ", row.paid, " ", row.currency, "."), !readOnly && bosCanAction('payment') && flowPositive(row.open) && /*#__PURE__*/React.createElement(Button, {
-    onClick: () => onAction('payment', {
-      invoice_id: row.invoice_id,
-      amount: row.open
-    })
+  }, /*#__PURE__*/React.createElement("h4", null, row.code, " \xB7 \u0434\u043E ", erpDate(row.due_date)), /*#__PURE__*/React.createElement("p", null, "\u0411\u043E\u0440\u0433 \u0437\u0430 \u0440\u0430\u0445\u0443\u043D\u043A\u043E\u043C: ", row.open, " ", row.currency, ". \u0423\u0442\u0440\u0438\u043C\u0430\u043D\u043E: ", row.retained, " ", row.currency, ". \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u043E \u0434\u043E \u043E\u043F\u043B\u0430\u0442\u0438: ", row.collectible, " ", row.currency, ". \u041E\u0431\u043B\u0456\u043A\u043E\u0432\u0430 \u043E\u043F\u043B\u0430\u0442\u0430: ", row.paid, " ", row.currency, "."), !readOnly && bosCanAction('payment') && /*#__PURE__*/React.createElement(Button, {
+    disabled: !flowPositive(row.collectible),
+    onClick: () => {
+      if (flowPositive(row.collectible)) onAction('payment', {
+        invoice_id: row.invoice_id,
+        amount: row.collectible
+      });
+    }
   }, "\u0417\u0430\u0440\u0435\u0454\u0441\u0442\u0440\u0443\u0432\u0430\u0442\u0438 \u043E\u043F\u043B\u0430\u0442\u0443 \xB7 ", row.code), /*#__PURE__*/React.createElement("details", null, /*#__PURE__*/React.createElement("summary", null, "\u0414\u0436\u0435\u0440\u0435\u043B\u0430 \u0440\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043A\u0443 \xB7 ", row.code), /*#__PURE__*/React.createElement("p", null, "\u041F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043E \u043A\u043E\u0440\u0435\u043A\u0442\u043D\u0438\u043C\u0438 \u0437\u0430\u043F\u0438\u0441\u0430\u043C\u0438: ", row.payment_history.recorded_total, " ", row.currency, ". \u0420\u0456\u0437\u043D\u0438\u0446\u044F \u0437 \u043E\u0431\u043B\u0456\u043A\u043E\u043C: ", row.payment_history.difference, " ", row.currency, "."), row.payment_history.status !== 'complete' && /*#__PURE__*/React.createElement("p", {
     role: "status"
   }, "\u041F\u043E\u0442\u0440\u0456\u0431\u043D\u0430 \u0437\u0432\u0456\u0440\u043A\u0430 \u0456\u0441\u0442\u043E\u0440\u0456\u0457 \u043E\u043F\u043B\u0430\u0442 \u0446\u044C\u043E\u0433\u043E \u0440\u0430\u0445\u0443\u043D\u043A\u0443."), row.payment_history.entries.map(entry => /*#__PURE__*/React.createElement("p", {
     key: entry.event_id
   }, "\u041F\u043E\u0434\u0456\u044F \u2116", entry.event_id, " \xB7 ", entry.reference || 'Немає коректного підтвердження', " \xB7 ", entry.amount ?? 'Суму не визначено', " ", entry.currency, " \xB7 ", erpDate(entry.created_at), entry.issues.length > 0 ? ' · Потребує перевірки' : '')), row.adjustments.map(entry => /*#__PURE__*/React.createElement("p", {
     key: entry.adjustment_id
-  }, entry.code, " \xB7 ", entry.kind === 'credit' ? 'Кредит' : 'Сторно', " \xB7 ", entry.amount, " ", entry.currency, entry.active ? ' · чинний' : '')), (row.has_more?.payments || row.has_more?.adjustments) && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0447\u0430\u0441\u0442\u0438\u043D\u0443 \u0434\u0436\u0435\u0440\u0435\u043B; \u0437\u0432\u0456\u0440\u043A\u0430 \u0432\u0440\u0430\u0445\u043E\u0432\u0443\u0454 \u0432\u0441\u0456 \u0437\u0430\u043F\u0438\u0441\u0438 \u0446\u044C\u043E\u0433\u043E \u0440\u0430\u0445\u0443\u043D\u043A\u0443."))))));
+  }, entry.code, " \xB7 ", entry.kind === 'credit' ? 'Кредит' : 'Сторно', " \xB7 ", entry.amount, " ", entry.currency, entry.active ? ' · чинний' : '')), row.retentions.map(entry => /*#__PURE__*/React.createElement("p", {
+    key: entry.retention_id
+  }, "\u0423\u0442\u0440\u0438\u043C\u0430\u043D\u043D\u044F \u2116", entry.retention_id, " \xB7 ", entry.code, " \xB7 ", entry.amount, " ", entry.currency, " \xB7 ", entry.status === 'held' ? 'чинне' : 'зняте', " \xB7 ", entry.reason, entry.release_reason ? ' · ' + entry.release_reason : '')), (row.has_more?.payments || row.has_more?.adjustments || row.has_more?.retentions) && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0447\u0430\u0441\u0442\u0438\u043D\u0443 \u0434\u0436\u0435\u0440\u0435\u043B; \u0437\u0432\u0456\u0440\u043A\u0430 \u0432\u0440\u0430\u0445\u043E\u0432\u0443\u0454 \u0432\u0441\u0456 \u0437\u0430\u043F\u0438\u0441\u0438 \u0446\u044C\u043E\u0433\u043E \u0440\u0430\u0445\u0443\u043D\u043A\u0443."))))));
 }
 function OrderSupplyOptions({
   orderId,
@@ -16449,6 +17469,10 @@ function OrderSupplyOptions({
     } = useERPProjection(path, (value, revision) => flowVerify(value, 'bos.supply-options.v1', Number(lineId), revision, targetId ? Number(targetId) : null)),
     facts = state.data;
   const reasons = {
+    currency_mismatch: 'Інша валюта, конвертацію не виконано',
+    destination_not_selected_target: 'Інше або невизначене призначення',
+    allocated_to_production: 'Призначено виробничій роботі',
+    unallocated_expected_receipt: 'Не розподілено цьому замовленню',
     revision_mismatch: 'Інша версія',
     quality_pending: 'Очікує перевірки якості',
     quality_blocked: 'Якість заблоковано',
@@ -16489,11 +17513,13 @@ function OrderSupplyOptions({
     state: state
   }), facts && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
-  }, facts.basis), !facts.supported && /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u043E \u0434\u043B\u044F \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043E\u0433\u043E \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u0442\u0430 \u0437\u0430\u043A\u0443\u043F\u043E\u0432\u0443\u0432\u0430\u043D\u043E\u0457 \u043D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0438."), facts.completeness === 'restricted' && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u043B\u0438\u0448\u0435 \u0434\u043E\u0437\u0432\u043E\u043B\u0435\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430. \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0456\u0441\u0442\u044C \u0456 \u0437\u0430\u0433\u0430\u043B\u044C\u043D\u0438\u0439 \u0434\u0435\u0444\u0456\u0446\u0438\u0442 \u043D\u0435 \u0432\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u0456."), /*#__PURE__*/React.createElement("dl", {
+  }, facts.basis), facts.fulfillment_location && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u0430 \u0442\u043E\u0447\u043A\u0430 \u0432\u0438\u043A\u043E\u043D\u0430\u043D\u043D\u044F: ", facts.fulfillment_location.code, ". \u041C\u0456\u0441\u0446\u0435 \u0434\u043B\u044F \u043D\u043E\u0432\u043E\u0457 \u0434\u0456\u0457 \u043E\u0431\u0435\u0440\u0456\u0442\u044C \u044F\u0432\u043D\u043E."), !facts.supported && /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u043E \u0434\u043B\u044F \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043E\u0433\u043E \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u0442\u0430 \u0437\u0430\u043A\u0443\u043F\u043E\u0432\u0443\u0432\u0430\u043D\u043E\u0457 \u043D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0438."), facts.completeness === 'restricted' && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u043B\u0438\u0448\u0435 \u0434\u043E\u0437\u0432\u043E\u043B\u0435\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430. \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0456\u0441\u0442\u044C \u0456 \u0437\u0430\u0433\u0430\u043B\u044C\u043D\u0438\u0439 \u0434\u0435\u0444\u0456\u0446\u0438\u0442 \u043D\u0435 \u0432\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u0456."), /*#__PURE__*/React.createElement("dl", {
     className: "bos-trace-metrics"
   }, FLOW_QUANTITIES.map(([key, label]) => /*#__PURE__*/React.createElement("div", {
     key: key
-  }, /*#__PURE__*/React.createElement("dt", null, label), /*#__PURE__*/React.createElement("dd", null, facts.quantities[key] === null ? 'Не визначено' : facts.quantities[key] + ' ' + facts.line.unit)))), /*#__PURE__*/React.createElement("h4", null, "\u041F\u0430\u0440\u0442\u0456\u0457 \u0442\u0430 \u043C\u0456\u0441\u0446\u044F \u0437\u0431\u0435\u0440\u0456\u0433\u0430\u043D\u043D\u044F"), [...facts.stock, ...facts.waiting].map(row => /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("dt", null, label), /*#__PURE__*/React.createElement("dd", null, facts.quantities[key] === null ? 'Не визначено' : facts.quantities[key] + ' ' + facts.line.unit)))), /*#__PURE__*/React.createElement("h4", null, "\u0420\u0435\u0437\u0435\u0440\u0432\u0438 \u0446\u0456\u0454\u0457 \u043F\u043E\u0437\u0438\u0446\u0456\u0457"), (facts.reservations || []).map(row => /*#__PURE__*/React.createElement("p", {
+    key: row.reservation_id
+  }, "\u0420\u0435\u0437\u0435\u0440\u0432 \u2116", row.reservation_id, " \xB7 ", row.code, " \xB7 ", row.location.code, " \xB7 ", row.quantity, " ", row.unit, ". ", row.reason === 'release_transfer_required' ? 'Потрібно окремо звільнити резерв, перемістити та зарезервувати у точці виконання.' : 'Резерв у місці виконання; придатність врахована в підсумку.')), /*#__PURE__*/React.createElement("h4", null, "\u041F\u0430\u0440\u0442\u0456\u0457 \u0442\u0430 \u043C\u0456\u0441\u0446\u044F \u0437\u0431\u0435\u0440\u0456\u0433\u0430\u043D\u043D\u044F"), [...facts.stock, ...facts.waiting].map(row => /*#__PURE__*/React.createElement("div", {
     key: row.lot_id,
     className: "bos-trace-line"
   }, /*#__PURE__*/React.createElement("p", null, row.code, " \xB7 ", row.location.code, " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", row.revision, " \xB7 ", reasons[row.reason] || 'Перевірте стан партії'), /*#__PURE__*/React.createElement("p", null, "\u0424\u0456\u0437\u0438\u0447\u043D\u043E: ", row.quantity, " ", row.unit, ". \u0412\u0456\u043B\u044C\u043D\u043E: ", row.available === null ? 'Не визначено' : row.available + ' ' + row.unit, "."), row.document_ids.length > 0 && /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0438: ", row.document_ids.map(id => '№' + id).join(', ')), row.eligible && /*#__PURE__*/React.createElement("div", {
@@ -16506,11 +17532,15 @@ function OrderSupplyOptions({
     lot_id: row.lot_id,
     location_id: Number(targetId),
     quantity: ''
-  }, 'Перемістити · ' + row.code)))), !targetId && /*#__PURE__*/React.createElement("p", null, "\u0414\u043B\u044F \u043F\u0435\u0440\u0435\u043C\u0456\u0449\u0435\u043D\u043D\u044F \u044F\u0432\u043D\u043E \u043E\u0431\u0435\u0440\u0456\u0442\u044C \u043C\u0456\u0441\u0446\u0435 \u043F\u0440\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u043D\u044F."), /*#__PURE__*/React.createElement("h4", null, "\u041E\u0447\u0456\u043A\u0443\u0432\u0430\u043D\u0456 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456"), facts.purchases.map(row => /*#__PURE__*/React.createElement("p", {
+  }, 'Миттєво перемістити · ' + row.code)))), !targetId && /*#__PURE__*/React.createElement("p", null, "\u0414\u043B\u044F \u043F\u0435\u0440\u0435\u043C\u0456\u0449\u0435\u043D\u043D\u044F \u044F\u0432\u043D\u043E \u043E\u0431\u0435\u0440\u0456\u0442\u044C \u043C\u0456\u0441\u0446\u0435 \u043F\u0440\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u043D\u044F."), /*#__PURE__*/React.createElement("h4", null, "\u041E\u0447\u0456\u043A\u0443\u0432\u0430\u043D\u0456 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456"), facts.purchases.map(row => /*#__PURE__*/React.createElement("p", {
     key: row.purchase_id
-  }, row.code, " \xB7 ", row.open_quantity, " ", row.unit, " \xB7 \u043E\u0447\u0456\u043A\u0443\u0454\u0442\u044C\u0441\u044F ", erpDate(row.due_date), " \xB7 ", row.eligible_as_unallocated_expectation ? 'Не розподілено цьому замовленню' : row.allocation === 'production' ? 'Призначено виробничій роботі' : 'Інша версія')), Object.values(facts.limits?.has_more || {}).some(Boolean) && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0447\u0430\u0441\u0442\u0438\u043D\u0443 \u0434\u0436\u0435\u0440\u0435\u043B; \u043F\u0456\u0434\u0441\u0443\u043C\u043A\u0438 \u043C\u0430\u044E\u0442\u044C \u043E\u043A\u0440\u0435\u043C\u0438\u0439 \u043E\u0431\u0441\u044F\u0433 \u0434\u043E\u0441\u0442\u0443\u043F\u0443."), action('purchase', {
+  }, row.code, " \xB7 ", row.open_quantity, " ", row.unit, " \xB7 \u043E\u0447\u0456\u043A\u0443\u0454\u0442\u044C\u0441\u044F ", erpDate(row.due_date), " \xB7 ", reasons[row.reason] || 'Потребує перевірки', " \xB7 \u043F\u0440\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u043D\u044F: ", row.destination?.code || 'Не визначено у поточному доступі')), Object.values(facts.limits?.has_more || {}).some(Boolean) && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0447\u0430\u0441\u0442\u0438\u043D\u0443 \u0434\u0436\u0435\u0440\u0435\u043B; \u043F\u0456\u0434\u0441\u0443\u043C\u043A\u0438 \u043C\u0430\u044E\u0442\u044C \u043E\u043A\u0440\u0435\u043C\u0438\u0439 \u043E\u0431\u0441\u044F\u0433 \u0434\u043E\u0441\u0442\u0443\u043F\u0443."), action('purchase', {
     item_id: facts.line.item_id,
     revision: facts.line.revision,
+    currency: facts.line.currency,
+    ...(targetId ? {
+      destination_id: Number(targetId)
+    } : {}),
     quantity: flowPositive(facts.quantities.uncovered_after_stock) ? facts.quantities.uncovered_after_stock : '',
     price: '',
     supplier_id: '',
@@ -16683,9 +17713,12 @@ function BoSInspector({
   }, text || label(type, id));
   const acts = defs => readOnly ? null : /*#__PURE__*/React.createElement("div", {
     className: "erp-actions"
-  }, defs.filter(([a]) => bosCanAction(a)).map(([a, p, l]) => /*#__PURE__*/React.createElement(Button, {
+  }, defs.filter(([a]) => bosCanAction(a)).map(([a, p, l, disabled = false]) => /*#__PURE__*/React.createElement(Button, {
     key: a,
-    onClick: () => onAction(a, p)
+    disabled: disabled,
+    onClick: () => {
+      if (!disabled) onAction(a, p);
+    }
   }, l || B03_ACTIONS[a]?.[0] || ERP_ACTIONS[a]?.[0])));
   const baseTable = (type, rows) => {
     const cols = type === 'orders' ? [["Замовлення", 'code'], ["Клієнт", r => label('partners', r.customer_id)], ["Строк", r => erpDate(r.due_date)], ["Стан", r => ERP_LABELS[r.status]]] : type === 'invoices' ? [["Рахунок", 'code'], ["Замовлення", r => label('orders', r.order_id)], ["Термін", r => erpDate(r.due_date)], ...(bosCan('finance') ? [["Сума", r => r.amount + ' ' + r.currency], ["Оплачено", 'paid'], ["До оплати", 'open']] : [])] : type === 'purchases' ? [["Закупівля", 'code'], ["Матеріал", r => label('items', r.item_id)], ["Замовлено / прийнято", r => /*#__PURE__*/React.createElement(React.Fragment, null, r.quantity + ' / ' + r.received, r.approval_snapshot?.source === 'imported_open_balance' && /*#__PURE__*/React.createElement("p", {
@@ -16759,7 +17792,11 @@ function BoSInspector({
         cost = data.costs?.find(x => x.order_id === id);
       body = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, link('partners', r.customer_id), " \xB7 ", label('employees', r.owner_id), " \xB7 \u0434\u043E ", erpDate(r.due_date), " \xB7 ", ERP_LABELS[r.status]), r.notes && /*#__PURE__*/React.createElement("p", {
         className: "op-muted"
-      }, r.notes), !readOnly && /*#__PURE__*/React.createElement(NextAction, {
+      }, r.notes), r.fulfillment_location_id && /*#__PURE__*/React.createElement("p", null, "\u0422\u043E\u0447\u043A\u0430 \u0432\u0438\u043A\u043E\u043D\u0430\u043D\u043D\u044F: ", link('locations', r.fulfillment_location_id), " \xB7 \u043A\u0440\u0430\u0457\u043D\u0430 ", r.destination_country || 'Не задано'), acts([['order_network', {
+        order_id: id,
+        fulfillment_location_id: r.fulfillment_location_id ?? '',
+        destination_country: r.destination_country || ''
+      }, 'Реквізити виконання']]), !readOnly && /*#__PURE__*/React.createElement(NextAction, {
         orderId: id,
         version: data.events[0]?.id,
         onAction: onAction
@@ -16819,7 +17856,10 @@ function BoSInspector({
       }, /*#__PURE__*/React.createElement("span", null, l), /*#__PURE__*/React.createElement("strong", null, v)))), bosCan('finance') && /*#__PURE__*/React.createElement("p", null, "\u0421\u043E\u0431\u0456\u0432\u0430\u0440\u0442\u0456\u0441\u0442\u044C \u043E\u0434\u0438\u043D\u0438\u0446\u0456 ", r.unit_cost, " ", r.currency, "."), /*#__PURE__*/React.createElement("p", null, r.missing_documents.length ? 'Бракує перевірених документів: ' + r.missing_documents.join(', ') : 'Комплектність документів відповідає заданим вимогам.'), acts([['transfer', {
         lot_id: id,
         quantity: r.available
-      }, 'Перемістити'], ['reserve', {
+      }, 'Миттєве переміщення'], ['transfer_dispatch', {
+        lot_id: id,
+        quantity: r.available
+      }, 'Відправити між точками'], ['reserve', {
         lot_id: id,
         quantity: r.available
       }, 'Резерв'], ['quality', {
@@ -16895,7 +17935,11 @@ function BoSInspector({
         rows: [["Скасовано", r.cancelled_quantity], ["Повернуто фізично постачальнику", r.returned_quantity], ["Поточний стан", ERP_LABELS[r.effective_status] || r.effective_status]]
       }), /*#__PURE__*/React.createElement("p", {
         className: "op-muted"
-      }, "\u041F\u043E\u0432\u0435\u0440\u043D\u0435\u043D\u043D\u044F \u043D\u0435 \u0437\u043C\u0435\u043D\u0448\u0443\u0454 \u0444\u0430\u043A\u0442 \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F \u0456 \u043D\u0435 \u0441\u0442\u0432\u043E\u0440\u044E\u0454 \u0437\u0430\u043C\u0456\u043D\u043D\u0443 \u043F\u043E\u0441\u0442\u0430\u0432\u043A\u0443."), bosRole() !== 'observer' && /*#__PURE__*/React.createElement("p", null, "\u0426\u0456\u043D\u0430 ", r.price, " ", r.currency, "; \u0434\u043E\u0434\u0430\u0442\u043A\u043E\u0432\u0456 \u0432\u0438\u0442\u0440\u0430\u0442\u0438 ", r.extras, "."), /*#__PURE__*/React.createElement("p", null, "\u041E\u0447\u0456\u043A\u0443\u0454\u043C\u043E ", erpDate(r.due_date), "; \u043F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0438\u0439 \u0441\u0442\u0440\u043E\u043A ", erpDate(r.original_due), "."), r.production_id && /*#__PURE__*/React.createElement("p", null, "\u0414\u043B\u044F ", link('jobs', r.production_id)), r.request_id && /*#__PURE__*/React.createElement("p", null, "\u0417\u0430\u044F\u0432\u043A\u0430 ", label('requests', r.request_id)), /*#__PURE__*/React.createElement(PurchaseSource, {
+      }, "\u041F\u043E\u0432\u0435\u0440\u043D\u0435\u043D\u043D\u044F \u043D\u0435 \u0437\u043C\u0435\u043D\u0448\u0443\u0454 \u0444\u0430\u043A\u0442 \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F \u0456 \u043D\u0435 \u0441\u0442\u0432\u043E\u0440\u044E\u0454 \u0437\u0430\u043C\u0456\u043D\u043D\u0443 \u043F\u043E\u0441\u0442\u0430\u0432\u043A\u0443."), bosRole() !== 'observer' && /*#__PURE__*/React.createElement("p", null, "\u0426\u0456\u043D\u0430 ", r.price, " ", r.currency, "; \u0434\u043E\u0434\u0430\u0442\u043A\u043E\u0432\u0456 \u0432\u0438\u0442\u0440\u0430\u0442\u0438 ", r.extras, "."), /*#__PURE__*/React.createElement("p", null, "\u041E\u0447\u0456\u043A\u0443\u0454\u043C\u043E ", erpDate(r.due_date), "; \u043F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0438\u0439 \u0441\u0442\u0440\u043E\u043A ", erpDate(r.original_due), "."), r.production_id && /*#__PURE__*/React.createElement("p", null, "\u0414\u043B\u044F ", link('jobs', r.production_id)), r.request_id && /*#__PURE__*/React.createElement("p", null, "\u0417\u0430\u044F\u0432\u043A\u0430 ", label('requests', r.request_id)), /*#__PURE__*/React.createElement("p", null, "\u0422\u043E\u0447\u043A\u0430 \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F: ", r.destination_id ? link('locations', r.destination_id) : 'Не задано', " \xB7 \u043A\u0440\u0430\u0457\u043D\u0430 \u043F\u043E\u0445\u043E\u0434\u0436\u0435\u043D\u043D\u044F ", r.origin_country || 'Не задано'), acts([['purchase_network', {
+        purchase_id: id,
+        destination_id: r.destination_id ?? '',
+        origin_country: r.origin_country || ''
+      }, 'Реквізити постачання']]), /*#__PURE__*/React.createElement(PurchaseSource, {
         snapshot: r.approval_snapshot,
         purchase: r,
         onDocument: setDoc
@@ -16906,7 +17950,8 @@ function BoSInspector({
         onDocument: setDoc
       }), acts([['receive', {
         purchase_id: id,
-        quantity: b03OpenPurchase(r)
+        quantity: b03OpenPurchase(r),
+        location_id: r.destination_id || ''
       }, 'Прийняти поставку'], ['postpone', {
         purchase_id: id,
         due_date: r.due_date
@@ -16926,10 +17971,15 @@ function BoSInspector({
     } else if (kind === 'invoices') {
       body = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, "\u0414\u043E \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F ", link('orders', r.order_id), " \xB7 \u0442\u0435\u0440\u043C\u0456\u043D ", erpDate(r.due_date)), /*#__PURE__*/React.createElement(B03Settlement, {
         invoice: r
-      }), /*#__PURE__*/React.createElement("p", null, "\u0420\u0430\u0445\u0443\u043D\u043E\u043A \u0441\u0444\u043E\u0440\u043C\u043E\u0432\u0430\u043D\u043E \u0437\u0430 \u0444\u0430\u043A\u0442\u0438\u0447\u043D\u0438\u043C\u0438 \u0432\u0456\u0434\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F\u043C\u0438. \u0420\u0435\u0454\u0441\u0442\u0440\u0430\u0446\u0456\u044F \u043E\u043F\u043B\u0430\u0442\u0438 \u0437\u043C\u0456\u043D\u0438\u0442\u044C \u0432\u0456\u0434\u043A\u0440\u0438\u0442\u0443 \u0441\u0443\u043C\u0443 \u0431\u0435\u0437 \u0431\u0430\u043D\u043A\u0456\u0432\u0441\u044C\u043A\u043E\u0433\u043E \u043F\u0435\u0440\u0435\u043A\u0430\u0437\u0443."), Number(r.open) > 0 && acts([['payment', {
+      }), /*#__PURE__*/React.createElement("p", null, "\u0420\u0430\u0445\u0443\u043D\u043E\u043A \u0441\u0444\u043E\u0440\u043C\u043E\u0432\u0430\u043D\u043E \u0437\u0430 \u0444\u0430\u043A\u0442\u0438\u0447\u043D\u0438\u043C\u0438 \u0432\u0456\u0434\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F\u043C\u0438. \u0420\u0435\u0454\u0441\u0442\u0440\u0430\u0446\u0456\u044F \u043E\u043F\u043B\u0430\u0442\u0438 \u0437\u043C\u0456\u043D\u0438\u0442\u044C \u0432\u0456\u0434\u043A\u0440\u0438\u0442\u0443 \u0441\u0443\u043C\u0443 \u0431\u0435\u0437 \u0431\u0430\u043D\u043A\u0456\u0432\u0441\u044C\u043A\u043E\u0433\u043E \u043F\u0435\u0440\u0435\u043A\u0430\u0437\u0443."), /*#__PURE__*/React.createElement(B03Facts, {
+        currency: r.currency,
+        rows: [["Зокрема утримано", r.retained], ["Доступно до оплати", r.collectible]]
+      }), acts([['payment', {
         invoice_id: r.invoice_id,
-        amount: r.open
-      }, 'Зареєструвати оплату']]), acts([['credit_invoice', {
+        amount: r.collectible
+      }, 'Зареєструвати оплату', !flowPositive(r.collectible)], ['hold_payment', {
+        invoice_id: r.invoice_id
+      }, 'Утримати суму', !flowPositive(r.collectible)]]), acts([['credit_invoice', {
         invoice_id: r.invoice_id
       }, 'Кредитове коригування']]), /*#__PURE__*/React.createElement("h3", null, "\u041A\u043E\u0440\u0438\u0433\u0443\u0432\u0430\u043D\u043D\u044F \u0446\u044C\u043E\u0433\u043E \u0440\u0430\u0445\u0443\u043D\u043A\u0443"), /*#__PURE__*/React.createElement(ERPTable, {
         rows: (data.invoice_adjustments || []).filter(x => x.invoice_id === r.invoice_id),
@@ -16955,7 +18005,13 @@ function BoSInspector({
       changes: r.result.impact || []
     }) : /*#__PURE__*/React.createElement("p", {
       className: "op-muted"
-    }, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0440\u0435\u043A\u0432\u0456\u0437\u0438\u0442\u0438 \u043F\u043E\u0434\u0456\u0457. \u0414\u0435\u0442\u0430\u043B\u044C\u043D\u0438\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u043F\u043E\u0442\u0440\u0435\u0431\u0443\u0454 \u0444\u0456\u043D\u0430\u043D\u0441\u043E\u0432\u0438\u0445 \u043F\u0440\u0430\u0432."));else if (kind === 'locations') body = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, ERP_LABELS[r.kind], " \xB7 ", r.supplier_id && link('partners', r.supplier_id)), baseTable('lots', data.lots.filter(x => x.location_id === id && Number(x.quantity) > 0)));else if (kind === 'partners') body = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, r.type === 'supplier' ? 'Постачальник' : 'Клієнт'), baseTable('orders', data.orders.filter(x => x.customer_id === id)), baseTable('purchases', data.purchases.filter(x => x.supplier_id === id)));
+    }, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0440\u0435\u043A\u0432\u0456\u0437\u0438\u0442\u0438 \u043F\u043E\u0434\u0456\u0457. \u0414\u0435\u0442\u0430\u043B\u044C\u043D\u0438\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u043F\u043E\u0442\u0440\u0435\u0431\u0443\u0454 \u0444\u0456\u043D\u0430\u043D\u0441\u043E\u0432\u0438\u0445 \u043F\u0440\u0430\u0432."));else if (kind === 'locations') body = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, ERP_LABELS[r.kind], " \xB7 ", r.supplier_id && link('partners', r.supplier_id)), /*#__PURE__*/React.createElement("p", null, "\u0424\u0456\u043B\u0456\u044F: ", (data.branches || []).find(b => b.id === r.branch_id)?.name || 'Не прив’язано', " \xB7 ", r.address || 'Адресу не задано'), /*#__PURE__*/React.createElement("p", null, "\u041A\u043E\u043E\u0440\u0434\u0438\u043D\u0430\u0442\u0438: ", r.lat != null && r.lng != null ? r.lat + ', ' + r.lng : 'Не задано'), acts([['location_update', {
+      location_id: id,
+      branch_id: r.branch_id ?? '',
+      lat: r.lat ?? '',
+      lng: r.lng ?? '',
+      address: r.address || ''
+    }, 'Редагувати реквізити']]), baseTable('lots', data.lots.filter(x => x.location_id === id && Number(x.quantity) > 0)));else if (kind === 'partners') body = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, r.type === 'supplier' ? 'Постачальник' : 'Клієнт'), baseTable('orders', data.orders.filter(x => x.customer_id === id)), baseTable('purchases', data.purchases.filter(x => x.supplier_id === id)));
   }
   return /*#__PURE__*/React.createElement("dialog", {
     ref: ref,
