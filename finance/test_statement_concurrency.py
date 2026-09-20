@@ -83,7 +83,8 @@ class StatementConcurrencyTests(TransactionTestCase):
         return result
 
     def source(self,currency,tag):
-        code='C03-RACE-'+tag+'-'+currency+'-'+uuid4().hex[:8]
+        # Invoice codes are data, not test names; keep them within the 30-character field.
+        code='C03-'+currency+'-'+uuid4().hex[:12]
         invoice=Invoice.objects.create(code=code,customer=self.customer,amount=AMOUNTS[currency],
             paid='0.00',currency=currency,due_date=date(2026,9,30))
         raw=('external_id,booking_date,direction,amount,currency,counterparty_external_id,invoice_reference,purpose\n'

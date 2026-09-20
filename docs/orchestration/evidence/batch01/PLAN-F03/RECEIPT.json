@@ -1,0 +1,31 @@
+{
+  "card": "PLAN-F03",
+  "date": "2026-09-20",
+  "review": "ACCEPT_SCOPED",
+  "reviewer": "bos_batch_review",
+  "runtime_source_sha256": "224b273f5ae1dea72c2a5d9fb6c2401f988ea0a6488f73cbdbc4b5b9b6f88b92",
+  "product_files": [
+    "finance/test_statement_concurrency.py"
+  ],
+  "evidence": [
+    {
+      "file": "DIAGNOSIS_UA.md",
+      "sha256": "8c1d182d08c14a0195fa2b45fb7416fdf3fdf1c813c8417d18ceb673c965cfc1",
+      "bytes": 1232
+    },
+    {
+      "file": "raw.log",
+      "sha256": "bbb84752cb697e695389422b1d2e8b779668a2d1dde20224131057a8848b6e7f",
+      "bytes": 7812
+    },
+    {
+      "file": "report.json",
+      "sha256": "b792c39bcba1505c694e50ad4e9723512a46d7aaa0d64756abf71964559b93a7",
+      "bytes": 630
+    }
+  ],
+  "postgres16": "PENDING",
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "result_uk": "Invoice.code синтетичної fixture скорочено генерацією валідного 20-символьного коду. Бізнес-asserts незмінні. SQLite: 5/5 HTTP/SQL concurrency, exit 0. PG16 ще не перевірено. Незалежний reviewer ACCEPT_SCOPED."
+}
