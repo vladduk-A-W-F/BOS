@@ -1,0 +1,55 @@
+{
+  "status": "PASS_SCOPED",
+  "commit": "8060075455206257d6283c70906facca98f0bc1a",
+  "runtime": "ce495b29214f21a80b8efd5bf41f6f219b5cb182b0453a7c43dac8899bc06ed5",
+  "postgres": 160015,
+  "checks": [
+    {
+      "label": "postgres-order-trace",
+      "observed_test_counts": [
+        18
+      ],
+      "accepted": true,
+      "source_database_unchanged": true,
+      "duration_seconds": 9.28
+    },
+    {
+      "label": "postgres-adjust-dependencies",
+      "observed_test_counts": [
+        24
+      ],
+      "accepted": true,
+      "source_database_unchanged": true,
+      "duration_seconds": 48.662
+    }
+  ],
+  "concurrency": [
+    {
+      "kind": "independent",
+      "statuses": [
+        200,
+        200
+      ],
+      "monitor_pid": 191
+    },
+    {
+      "kind": "same",
+      "statuses": [
+        200,
+        409
+      ],
+      "monitor_pid": 194
+    },
+    {
+      "kind": "replay",
+      "statuses": [
+        200,
+        200
+      ],
+      "monitor_pid": 204
+    }
+  ],
+  "indexed_files": 8,
+  "zip_sha256": "4908b2ad522fde391d254061a41560fd8e3336c692d3ad5f6819eff7fe97b6ec",
+  "zip_bytes": 11719
+}
