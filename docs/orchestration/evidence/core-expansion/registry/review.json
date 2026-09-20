@@ -1,0 +1,60 @@
+{
+  "card": "CORE-MODULE-REGISTRY",
+  "reviewer": "business_scenarios",
+  "verdict": "ACCEPT_SCOPED_STATIC_AND_AUTHOR_HTTP_EVIDENCE",
+  "acceptable_patch_sha256": "989cd826eb7f33f290ae7dfafeeb7efd04d9f124648bdd0320b21fcd75059775",
+  "candidate_source_sha256": "242e272786b2d09dc79ee22c83c4f2b69d2792b602be00a1350a34d60d0cef54",
+  "source_digest_independently_recomputed": true,
+  "all_five_author_file_hashes_independently_matched": true,
+  "allowlist": [
+    "erp/module_registry.py",
+    "erp/module_views.py",
+    "erp/urls.py",
+    "erp/test_module_registry.py",
+    "docs/MODULE_DEVELOPER_CONTRACT_UA.md"
+  ],
+  "patch_allowlist_matches": true,
+  "review_method": "Read full submitted diff, code, tests, card, raw logs, final developer contract and role catalogs; statically cross-reference existing Django models, network projection, effective status, Policy, command schemas, routes and React form IDs; independently hash source and files. No application tests or historical suites rerun.",
+  "blocking_findings": [],
+  "verified": {
+    "authenticated_get_and_role_revocation": "Author isolated HTTP tests cover anonymous 401, authenticated catalog, POST 405 and removed role 403; static endpoint reads Policy and checks access revision again.",
+    "private_response": "Wrapper sets private,no-store and Vary:Cookie on returned 200,405,409,503 and caught identity responses; no operational data included in metadata.",
+    "shared_writers": "All 23 action names resolve to existing erp.service.SCHEMAS and existing React ERP_ACTIONS forms; presets use accepted writer parameters and actual row fields; no generic write endpoint added.",
+    "role_projection": "CEO8models/23actions/8moneycolumns; manager7models/15actions/0moneycolumns; observer7models/0actions/0moneycolumns. Invoices preserve public code/customer/date/currency; retentions and all finance metadata/actions absent for nonCEO. Observer export endpoint null.",
+    "actual_fields": "Registry columns verified against erp/network.py, queries.py, corrections.effective_row and ORM models. Purchase status is effective_status; invoice key is invoice_id and status_field null; monetary values remain existing exact decimal strings.",
+    "composition": "Known immutable dataclasses, exactly one module owner per network model, valid dependencies, selected dependency closure/cycle detection, known writer action mapping and accepted presets. Unknown or malformed BOS_ENABLED_MODULES returns503 without catalog.",
+    "read_only": "Endpoint builds metadata and performs authentication/permission reads only; no business model, migration, Policy, Decimal or writer changes. Author query capture rejects SQL writes and patches writer/network build to fail if called.",
+    "configuration_scope": "Server composition is documented as navigation only; it does not uninstall endpoints or alter authorization. No AI automation is represented as implemented."
+  },
+  "tests_evidence": {
+    "author_invocations_used": 2,
+    "author_invocation_limit": 3,
+    "final_suite": "erp.test_module_registry",
+    "final_test_count": 8,
+    "final_raw_log": "test2/raw.log",
+    "final_raw_result": "Ran8tests;OK;isolated in-memory SQLite database destroyed",
+    "author_reported_exit_code": 0,
+    "final_duration_seconds": 0.321,
+    "first_raw_log": "test1/raw.log",
+    "first_raw_result": "Ran8tests;OK",
+    "contract_change": "Second invocation follows root instruction to retain policy-visible invoice metadata for nonCEO; assertions explicitly preserve those four fields and continue denying amounts/actions/retentions. Not a weakening to hide a failed implementation test."
+  },
+  "integration_documentation_followup": {
+    "severity": "NONBLOCKING_FOR_CODE_PATCH_REQUIRED_FOR_FINAL_HANDOFF",
+    "file": "docs/orchestration/MODULAR_PLATFORM_UA.md",
+    "finding": "Architectural proposal still describes the initial draft signature (top-level data_schema/data_endpoint/read_only_registry, one operations module, id_field/columns.field and view IDslist/kanban/map/inbox). Accepted final metadata is nested data, six existing functional modules, key/columns.key/status_field and IDscontrol/flow/network/focus with type list/kanban/map/inbox.",
+    "resolution": "Root must align that proposed section with docs/MODULE_DEVELOPER_CONTRACT_UA.md or explicitly designate the final developer contract as authoritative and the earlier JSON vocabulary as superseded. Do not claim this registry completes all Phase1 or seven phases."
+  },
+  "not_verified_in_this_review": [
+    "Merged backend plus new workspace frontend behavior",
+    "Real browser interactions, accessibility and responsive layout",
+    "PostgreSQL execution of the new endpoint tests",
+    "Production/pilot readiness or whole-repository Git identity",
+    "Generic future descriptor extensions beyond this actual fixed catalog"
+  ],
+  "reviewer_application_test_runs": 0,
+  "reviewer_remote_ci_runs": 0,
+  "reviewer_canonical_writes": false,
+  "technical_ready": false,
+  "pilot_allowed": false
+}
