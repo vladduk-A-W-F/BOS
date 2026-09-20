@@ -1,0 +1,100 @@
+{
+  "card": "NETWORK-PG",
+  "scope": "two new held network confirmations with actual PG lock observation",
+  "accepted_scoped": false,
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "full_run": false,
+  "business_e2e_run": false,
+  "historical_p05_used": 3,
+  "historical_p05_limit": 3,
+  "A09_retried": false,
+  "A10_retried": false,
+  "A11_retried": false,
+  "errors": [],
+  "started_at": "2026-09-20T14:27:54.810208+00:00",
+  "run_id": "35516516284",
+  "run_attempt": "1",
+  "python": "3.12.14",
+  "harness_sha256": "a62da45ce2de76c3ab37d88de8770b5eb4659181bc945b9a191ac341f026fa1f",
+  "helper_sha256": "30046f9c933b7a0fefc8e1813e07ca2fbea782bb6ebba9974d74a8dd59a13cfb",
+  "runner_timeout_seconds": 180,
+  "checks": [
+    {
+      "label": "network-pg-two-locks",
+      "mode": "postgres16",
+      "expected_tests": 2,
+      "expected_red": null,
+      "tests": [
+        "test_transfer_receive_same_proposal_waits_and_has_one_effect",
+        "test_retention_release_same_proposal_waits_and_has_one_effect"
+      ],
+      "exit_code": 1,
+      "status": "FAIL",
+      "accepted": false,
+      "source_database": "bos_verify_b9033a9e98c74560",
+      "source_canary_before": {
+        "database": "bos_verify_b9033a9e98c74560",
+        "version_num": 160015,
+        "tables": [
+          [
+            "public",
+            "bos_batch_source_canary",
+            "BASE TABLE"
+          ]
+        ],
+        "rows": [
+          [
+            1,
+            "Synthetic BATCH-01 source must remain unchanged"
+          ]
+        ]
+      },
+      "started_at": "2026-09-20T14:27:55.478171+00:00",
+      "command": [
+        "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+        "-B",
+        "/home/runner/work/BOS/BOS/candidate/.github/ci/network_pg.py",
+        "--worker"
+      ],
+      "source_canary_after": {
+        "database": "bos_verify_b9033a9e98c74560",
+        "version_num": 160015,
+        "tables": [
+          [
+            "public",
+            "bos_batch_source_canary",
+            "BASE TABLE"
+          ]
+        ],
+        "rows": [
+          [
+            1,
+            "Synthetic BATCH-01 source must remain unchanged"
+          ]
+        ]
+      },
+      "source_database_unchanged": true,
+      "test_database_cleanup_verified": true,
+      "lock_proofs": [],
+      "observed_test_counts": [],
+      "test_summaries": [],
+      "disallowed_test_outcomes": [],
+      "test_database_proofs": []
+    }
+  ],
+  "candidate_commit": "b54b621bfa7b81a63546edc8936b8a84df619da5",
+  "source_sha256": "c15dfe0e3aeefde2fd4fa7af0e9dd2c7c04072a59b185554b821576b4c2111ca",
+  "changed_ci_paths": [
+    ".github/workflows/bos-network-targeted.yml"
+  ],
+  "source_before": {
+    "source_sha256": "c15dfe0e3aeefde2fd4fa7af0e9dd2c7c04072a59b185554b821576b4c2111ca",
+    "source_databases": {}
+  },
+  "postgres_version_num": 160015,
+  "postgres_version": "PostgreSQL 16.15 (Debian 16.15-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+  "source_unchanged": true,
+  "status": "FAIL_OR_BLOCKED",
+  "completed_at": "2026-09-20T14:27:56.520860+00:00"
+}

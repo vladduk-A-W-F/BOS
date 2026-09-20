@@ -289,7 +289,7 @@ def worker():
                 raise RuntimeError('Unexpected database or PostgreSQL version')
             return config
 
-    return int(bool(ExactRunner(verbosity=2, interactive=False).run_tests()))
+    return int(bool(ExactRunner(verbosity=2, interactive=False).run_tests([])))
 
 
 def run(output):
