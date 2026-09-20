@@ -65,7 +65,6 @@ jobs:
       BOS_PGUSER: bos_ci
       BOS_PGPASSWORD: bos_synthetic_ci_only
       BOS_BATCH_CANDIDATE_SHA: ${{ github.event.pull_request.head.sha }}
-      BOS_BATCH_OUTPUT: ${{ runner.temp }}/bos-batch01-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - name: Кандидат
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
@@ -87,15 +86,22 @@ jobs:
           python-version: '3.12'
       - name: Каталог доказів
         if: always()
+        env:
+          BOS_BATCH_OUTPUT: ${{ runner.temp }}/bos-batch01-${{ github.run_id }}-${{ github.run_attempt }}
         run: mkdir -p "$BOS_BATCH_OUTPUT"
       - name: Залежності з окремими журналами
+        env:
+          BOS_BATCH_OUTPUT: ${{ runner.temp }}/bos-batch01-${{ github.run_id }}-${{ github.run_attempt }}
         run: python -m pip install -r candidate/requirements-ci.txt > "$BOS_BATCH_OUTPUT/dependencies.stdout.log" 2> "$BOS_BATCH_OUTPUT/dependencies.stderr.log"
       - name: Один адресний прогін без повторів
         run: python candidate/.github/ci/batch_01_targeted.py --baseline baseline --output "$BOS_BATCH_OUTPUT" --include-ship
         env:
           BOS_PGPORT: ${{ job.services.postgres.ports[5432] }}
+          BOS_BATCH_OUTPUT: ${{ runner.temp }}/bos-batch01-${{ github.run_id }}-${{ github.run_attempt }}
       - name: SHA-індекс навіть після відмови
         if: always()
+        env:
+          BOS_BATCH_OUTPUT: ${{ runner.temp }}/bos-batch01-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
           python3 - <<'PY'
           import hashlib, json, os, subprocess, sys
@@ -119,6 +125,6 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: bos-batch01-targeted-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ env.BOS_BATCH_OUTPUT }}
+          path: ${{ runner.temp }}/bos-batch01-${{ github.run_id }}-${{ github.run_attempt }}
           if-no-files-found: error
           retention-days: 30
