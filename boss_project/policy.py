@@ -4,7 +4,7 @@ from django.db.models import Q
 from .identity import actor
 
 
-CEO_ACTIONS = {'erp_location_update','erp_order_network','erp_purchase_network','erp_hold_payment','erp_release_payment','erp_statement_import','erp_statement_reconcile','erp_credit_invoice','erp_reverse_credit','erp_confirm_supplier_claim','erp_import_batch', 'erp_opening', 'erp_payment', 'erp_apply_change', 'erp_resolve_job', 'erp_adjust'}
+CEO_ACTIONS = {'erp_location_update','erp_order_network','erp_purchase_network','erp_hold_payment','erp_release_payment','erp_statement_import','erp_statement_reconcile','erp_credit_invoice','erp_reverse_credit','erp_confirm_supplier_claim','erp_import_batch','erp_register_supplier_invoice', 'erp_opening', 'erp_payment', 'erp_apply_change', 'erp_resolve_job', 'erp_adjust'}
 DIRECTORY = {'id', 'full_name', 'role', 'department', 'branch', 'branch_name', 'archived_at'}
 TRANSACTION_FIELDS = {'id', 'date', 'direction', 'category', 'currency', 'contract', 'counterparty', 'branch', 'archived_at'}
 

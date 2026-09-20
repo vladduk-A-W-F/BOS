@@ -62,6 +62,9 @@ def compare(code,quantity=None):
 
 def validate(data):
     if not isinstance(data,dict):raise ValueError('Потрібен об’єкт дії.')
+    if data.get('action')=='erp_register_supplier_invoice':
+        from .document_matching.commands import clean
+        return clean(data)
     action=data.get('action')
     if isinstance(action,str) and action.startswith('erp_'):
         from erp.service import clean
@@ -98,7 +101,14 @@ def preview(request,payload,snapshot_fingerprint=None,*,dependency_context=None)
     if not request.session.session_key:request.session.create()
     payload=validate(payload)
     Policy(request).action(payload)
-    if payload['action'].startswith('erp_') and snapshot_fingerprint is None:
+    if payload['action']=='erp_register_supplier_invoice':
+        from .document_matching.registration import preview_fingerprint
+        from erp.service import write_lock
+        from erp.order_trace import ReadStateChanged
+        write_lock()
+        try:snapshot_fingerprint=preview_fingerprint(request,payload)
+        except ReadStateChanged as exc:raise Conflict('Дані або права змінилися. Підготуйте новий перегляд.') from exc
+    elif payload['action'].startswith('erp_') and snapshot_fingerprint is None:
         from erp.service import write_lock
         write_lock()
     proposal=ActionProposal.objects.create(session_key=request.session.session_key,user_id=principal.user_id,role=role,payload=payload,fingerprint=snapshot_fingerprint or fingerprint(payload),dependency_context=dependency_context,expires_at=timezone.now()+timedelta(minutes=10))
@@ -126,6 +136,9 @@ def execute(request,proposal_id):
         from tasks.commands import locked_references
         locked_references(p.payload)
     policy=Policy(request);policy.action(p.payload)
+    if p.payload.get('action')=='erp_register_supplier_invoice':
+        from .document_matching.registration import confirm
+        return projections.receipt(policy,confirm(request,p))
     from finance import statements
     if p.payload['action'] in statements.ACTIONS:
         d=statements.clean(p.payload);statements.lock_selected(d)
