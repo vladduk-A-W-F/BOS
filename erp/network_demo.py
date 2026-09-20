@@ -15,7 +15,7 @@ from django.db import connection, transaction
 from branches.models import Branch
 from employees.models import Employee
 from finance.models import Counterparty
-from operations.models import Configuration, Document, Invoice
+from operations.models import Configuration, Document, Invoice, ProcurementRequest, SupplierQuote
 from operations.private_storage import private_document_storage, legacy_blob_usage
 from tasks.models import Task
 from .models import (
@@ -228,12 +228,48 @@ def _populate(dataset, pending_files):
         act('confirm_order', order_id=result['order_id'])
         return SalesLine.objects.get(order_id=result['order_id'])
 
+    def procurement_source(code, branch, key, qty, price, supplier, with_quote=True):
+        """Synthetic approved RFQ/quote sources exist before the ordinary PO writer."""
+        item = Item.objects.get(pk=items[key])
+        requirement = document(code + '-REQ-DOC', 'Навчальна вимога ' + code,
+            f'СИНТЕТИЧНІ ДАНІ. Вимога {code}: {qty} {item.unit} {item.code}, версія A. '
+            'Потрібно до 30.09.2026. Валюта UAH. Сертифікат матеріалу і комплектність обов’язкові. Без ПДВ.')
+        request = ProcurementRequest.objects.create(code=code, part=item.code, revision='A',
+            quantity=qty, unit=item.unit, currency='UAH', required_by='2026-09-30',
+            owner=managers[branch], document=requirement,
+            details={'project': 'Синтетична мережа BoS', 'material': 'Навчальна номенклатура',
+                     'quality': 'Сертифікат матеріалу та комплектність', 'tax_basis': 'Без ПДВ'})
+        if not with_quote:
+            return request, None
+        quote_doc = document(code + '-QUOTE-DOC', 'Навчальна пропозиція ' + code,
+            f'СИНТЕТИЧНІ ДАНІ. Пропозиція для {code}: {qty} {item.unit}, ціна {price} грн за одиницю. '
+            'Валюта UAH; версія A; MOQ 1; строк 0 тижнів; чинна до 30.10.2026; '
+            'сертифікат і покриття включені. Підготовка, доставка, інструмент і спеціальні процеси: 0,00 грн. Без ПДВ.')
+        quote = SupplierQuote.objects.create(code=code + '-Q', request=request, supplier=supplier, document=quote_doc,
+            terms={'unit_price': price, 'setup': '0.00', 'shipping': '0.00', 'tooling': '0.00',
+                   'special_processes': '0.00', 'currency': 'UAH', 'revision': 'A', 'lead_weeks': 0,
+                   'valid_until': '2026-10-30', 'moq': 1, 'coating_included': True, 'material_certificate': True,
+                   'tax_basis': 'excluding_VAT'})
+        return request, quote
+
+    # Unallocated requests remain explicitly without a logistics point until a
+    # real purchase is agreed. The owner's branch is not a guessed destination.
+    procurement_source('NET-RFQ-SEARCH', 'KYI', 'VALVE', 12, '1750.00', suppliers['KYI'], with_quote=False)
+    procurement_source('NET-RFQ-COMPARE', 'LVI', 'BLANK', 15, '2400.00', suppliers['LVI'])
+
     for index, (code, city, *_rest) in enumerate(BRANCHES):
-        act('purchase', code='NET-PO-' + code, item_id=items['BEARING'], supplier_id=suppliers[code].pk,
+        request, quote = procurement_source('NET-RFQ-' + code, code, 'BEARING', 20 + index * 2, '480.00', suppliers[code])
+        purchase = act('purchase', code='NET-PO-' + code, item_id=items['BEARING'], supplier_id=suppliers[code].pk,
             quantity=str(20 + index * 2), price='480.00', currency='UAH', revision='A',
             due_date='2026-09-19' if dataset == 'disruption' else '2026-09-23',
             destination_id=locations[code + '-WH'], origin_country='UA',
-            direct_reason='Синтетичне пряме поповнення підшипників для навчальної мережі')
+            request_id=request.pk, quote_id=quote.pk,
+            supplier_confirmation='Синтетичне підтвердження навчального постачальника: кількість і дата погоджені')
+        if code in ('KYI', 'LVI'):
+            received = act('receive', purchase_id=purchase['purchase_id'], code='NET-RCV-' + code,
+                location_id=locations[code + '-WH'], quantity='8' if code == 'KYI' else str(20 + index * 2), documents=docs)
+            act('quality', lot_id=received['lot_id'], result='approved', inspector_id=inspectors[code].pk,
+                note='Синтетична перевірка фактичної навчальної прийомки за NET-CERT A')
         current = sale('NET-SO-' + code, code, 'VALVE', 5 + index, '2450.00', '2026-09-22')
         if index % 2 == 0:
             act('reserve', lot_id=lots[(code, 'WH', 'VALVE')], quantity=str(5 + index), line_id=current.pk)
@@ -256,11 +292,13 @@ def _populate(dataset, pending_files):
     for index, (branch, country, country_code) in enumerate([('ODE', 'Польща', 'PL'), ('LVI', 'Чехія', 'CZ'), ('KYI', 'Німеччина', 'DE'), ('DNI', 'Словаччина', 'SK')]):
         supplier = Counterparty.objects.create(name='Навчальний постачальник · ' + country,
             type='supplier', notes='Вигаданий іноземний контрагент. Навчальна ціна UAH, без конвертації та мита.')
+        request, quote = procurement_source('NET-RFQ-IMP-' + branch, branch, 'SEAL', 30 + index * 10, '260.00', supplier)
         act('purchase', code='NET-IMP-' + branch, item_id=items['SEAL'], supplier_id=supplier.pk,
             quantity=str(30 + index * 10), price='260.00', currency='UAH', revision='A',
             due_date='2026-09-19' if dataset == 'disruption' else '2026-09-24',
             destination_id=locations[branch + '-WH'], origin_country=country_code,
-            direct_reason='Синтетичний міжнародний імпорт комплектів ущільнень; не митна декларація')
+            request_id=request.pk, quote_id=quote.pk,
+            supplier_confirmation='Синтетичне підтвердження іноземного постачальника: кількість і дата погоджені')
     for index, (branch, country, country_code) in enumerate([('KHA', 'Польща', 'PL'), ('VIN', 'Чехія', 'CZ'), ('KHM', 'Словаччина', 'SK')]):
         customer = Counterparty.objects.create(name='Навчальний замовник · ' + country,
             type='customer', notes='Вигаданий іноземний контрагент. Вартість UAH, без податкового розрахунку.')
@@ -298,7 +336,7 @@ def _populate(dataset, pending_files):
     counts = {model._meta.model_name: model.objects.count() for model in (
         Branch, Location, Employee, Counterparty, Document, Item, Lot, SalesOrder, SalesLine,
         Purchase, Production, Reservation, Invoice, InvoiceLink, Movement, Inspection,
-        OperatorEntry, StockTransfer, PaymentRetention, Task, Event,
+        OperatorEntry, StockTransfer, PaymentRetention, Task, Event, ProcurementRequest, SupplierQuote,
     )}
     result = {'version': VERSION, 'synthetic': True, 'dataset': dataset, 'title': DATASETS[dataset],
         'as_of': AS_OF, 'currency': 'UAH', 'counts': counts,

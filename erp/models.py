@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from django.db.models import Q
 
 class Item(models.Model):
@@ -116,6 +117,7 @@ class Reservation(models.Model):
         constraints=[models.CheckConstraint(condition=Q(quantity__gte=0),name='erp_nonnegative_reserve'),models.CheckConstraint(condition=(Q(line__isnull=False)&Q(production__isnull=True))|(Q(line__isnull=True)&Q(production__isnull=False)),name='erp_reservation_target')]
 
 class Purchase(models.Model):
+    created_at=models.DateTimeField(null=True,default=timezone.now,editable=False)
     destination=models.ForeignKey(Location,null=True,blank=True,on_delete=models.PROTECT)
     origin_country=models.CharField(max_length=2,blank=True,default='')
     code=models.CharField(max_length=60,unique=True)

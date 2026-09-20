@@ -4,10 +4,12 @@ from io import StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
+from types import SimpleNamespace
 import json
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.db.models import Sum
@@ -16,9 +18,10 @@ from django.test import TransactionTestCase, override_settings
 from branches.models import Branch
 from employees.models import Employee
 from finance.models import Counterparty
-from operations.models import Configuration, Document, Invoice
+from operations.models import Configuration, Document, Invoice, ProcurementRequest, SupplierQuote
 from operations.private_storage import verified_document_bytes, private_document_storage
 from operations.service import as_of
+from boss_project.policy import Policy
 from .balances import invoice_settlement
 from .models import (
     Item, Location, Lot, SalesOrder, SalesLine, Purchase, Production,
@@ -53,9 +56,10 @@ class NetworkDemoTests(TransactionTestCase):
             self.assertLessEqual(lot.reservations.aggregate(n=Sum('quantity'))['n'] or D(0), lot.quantity)
         opening = Movement.objects.filter(kind='opening').aggregate(n=Sum('cost'))['n']
         shipped = Movement.objects.filter(kind='shipment').aggregate(n=Sum('cost'))['n']
+        received = Movement.objects.filter(kind='receipt').aggregate(n=Sum('cost'))['n'] or D(0)
         physical = sum((lot.quantity * lot.unit_cost for lot in Lot.objects.all()), D(0))
         transit = sum((row.total_cost for row in StockTransfer.objects.filter(status='in_transit')), D(0))
-        self.assertEqual(opening - shipped, physical + transit)
+        self.assertEqual(opening + received - shipped, physical + transit)
 
     def test_workday_is_linked_erp_ua_hryvnia_and_reversible_collection_is_real(self):
         user = get_user_model().objects.create(username='existing-technical-account', is_active=False)
@@ -64,14 +68,23 @@ class NetworkDemoTests(TransactionTestCase):
         user_before = list(get_user_model().objects.values())
         receipt = self.command()
         self.assertTrue(receipt['created'])
-        expected = {'branch': 7, 'location': 14, 'employee': 14, 'item': 5, 'lot': 82,
+        expected = {'branch': 7, 'location': 14, 'employee': 14, 'item': 5, 'lot': 84,
             'salesorder': 33, 'salesline': 33, 'purchase': 11, 'production': 2,
-            'invoice': 21, 'invoicelink': 21, 'stocktransfer': 7, 'paymentretention': 7, 'document': 3}
+            'invoice': 21, 'invoicelink': 21, 'stocktransfer': 7, 'paymentretention': 7, 'document': 28, 'procurementrequest': 13, 'supplierquote': 12}
         for name, count in expected.items():
             self.assertEqual(receipt['counts'][name], count, name)
         self.assertEqual(list(get_user_model().objects.values()), user_before)
         self.assertFalse(Employee.objects.filter(user__isnull=False).exists())
         self.assertEqual(Location.objects.filter(branch__isnull=True).count(), 0)
+        self.assertEqual(Purchase.objects.filter(request__isnull=False, quote__isnull=False).count(), 11)
+        self.assertEqual(set(ProcurementRequest.objects.values_list('currency', flat=True)), {'UAH'})
+        self.assertEqual({q.terms['currency'] for q in SupplierQuote.objects.all()}, {'UAH'})
+        self.assertEqual(Purchase.objects.get(code='NET-PO-KYI').received, D(8))
+        self.assertEqual(Purchase.objects.get(code='NET-PO-LVI').received, D(22))
+        for purchase in Purchase.objects.all():
+            self.assertEqual(purchase.approval_snapshot['source'], 'quote')
+            self.assertEqual(purchase.approval_snapshot['request_id'], purchase.request_id)
+            self.assertEqual(purchase.approval_snapshot['quote_id'], purchase.quote_id)
         self.assertEqual(Location.objects.filter(kind='production').count(), 7)
         self.assertEqual(StockTransfer.objects.filter(status='in_transit').count(), 2)
         self.assertEqual(Purchase.objects.exclude(origin_country='UA').count(), 4)
@@ -84,6 +97,16 @@ class NetworkDemoTests(TransactionTestCase):
             self.assertEqual(bytes(doc.content), b'')
             self.assertEqual(verified_document_bytes(doc), doc.text.encode())
         self.assert_stock_trace()
+        reader = get_user_model().objects.create_user(username='synthetic-workflow-reader')
+        reader.groups.add(Group.objects.get_or_create(name='ceo')[0])
+        from .network_workflow import build
+        flow = build(Policy(SimpleNamespace(user=reader, session={})), {'currency': 'UAH'})['workflow']
+        self.assertEqual(flow['metrics']['request_count'], 13)
+        self.assertEqual({r['stage'] for r in flow['requests']}, {'sourcing', 'quoted', 'ordered', 'receiving', 'received'})
+        self.assertTrue(flow['synthetic'])
+        self.assertFalse(flow['comparison']['available'])
+        self.assertIsNone(flow['comparison']['change_percent'])
+        self.assertIn('Синтетичний', flow['comparison']['reason'])
         retained = PaymentRetention.objects.order_by('pk').first()
         invoice = retained.invoice
         settlement = invoice_settlement(invoice)
@@ -107,7 +130,7 @@ class NetworkDemoTests(TransactionTestCase):
 
     def test_disruption_contains_overdue_supply_and_blocked_production(self):
         receipt = self.command('disruption')
-        self.assertEqual(receipt['counts']['lot'], 81)
+        self.assertEqual(receipt['counts']['lot'], 83)
         self.assertEqual(Purchase.objects.filter(due_date__lt=as_of()).count(), 11)
         self.assertEqual(StockTransfer.objects.filter(status='in_transit').count(), 3)
         self.assertEqual(Lot.objects.filter(quality='blocked').count(), 8)
