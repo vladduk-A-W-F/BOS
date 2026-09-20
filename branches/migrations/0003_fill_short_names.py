@@ -45,12 +45,12 @@ def fill_short_names(apps, schema_editor):
     # update() по коду: идемпотентно (повторный прогон не меняет данные)
     # и молча пропускает коды, которых в базе нет.
     for code, short in SHORT.items():
-        Branch.objects.filter(code=code).update(short_name=short)
+        Branch.objects.using(schema_editor.connection.alias).filter(code=code).update(short_name=short)
 
 
 def clear_short_names(apps, schema_editor):
     Branch = apps.get_model('branches', 'Branch')
-    Branch.objects.all().update(short_name='')
+    Branch.objects.using(schema_editor.connection.alias).all().update(short_name='')
 
 
 class Migration(migrations.Migration):
