@@ -13036,13 +13036,182 @@ function ERPTable({
     }
   }, empty));
 }
+// Ordinary ERP confirmations retain only IDs in this tab; the server owns identity and replay.
+const ERP_PENDING_PREFIX = 'bos:erp-confirm:';
+function erpPendingToken() {
+  return document.cookie.split('; ').find(c => c.startsWith('csrftoken='))?.slice(10) || '';
+}
+async function erpPendingBinding() {
+  const scope = bosHttpScope(),
+    token = erpPendingToken();
+  if (!Number.isSafeInteger(window.BOS_RUNTIME?.user_id) || !window.BOS_RUNTIME?.access_revision || !token || !window.crypto?.subtle) throw Error('Не вдалося підготувати відновлення. Оновіть сторінку та перевірте вхід і доступ до даних цієї вкладки.');
+  const digest = Array.from(new Uint8Array(await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(token))), x => x.toString(16).padStart(2, '0')).join('');
+  if (scope !== bosHttpScope() || token !== erpPendingToken()) throw Error('Сесію або доступ змінено.');
+  return ERP_PENDING_PREFIX + scope + ':' + digest;
+}
+function erpPendingRead(binding) {
+  const raw = sessionStorage.getItem(binding);
+  if (!raw) return [];
+  let rows;
+  try {
+    rows = JSON.parse(raw);
+  } catch {
+    throw Error('Список незавершених погоджень не читається. Його не видалено.');
+  }
+  if (!Array.isArray(rows) || rows.some(r => !r || Object.keys(r).sort().join(',') !== 'action,proposal_id' || typeof r.proposal_id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(r.proposal_id) || !Object.prototype.hasOwnProperty.call(ERP_ACTIONS, r.action))) throw Error('Невідомий формат незавершених погоджень. Нове підтвердження не надіслано.');
+  return rows.map(({
+    proposal_id,
+    action
+  }) => ({
+    proposal_id,
+    action
+  }));
+}
+function erpPendingWrite(binding, rows) {
+  sessionStorage.setItem(binding, JSON.stringify(rows));
+  window.dispatchEvent(new window.Event('bos:erp-pending'));
+}
+function erpPendingSave(binding, entry) {
+  const rows = erpPendingRead(binding);
+  const found = rows.find(r => r.proposal_id === entry.proposal_id);
+  if (found && found.action !== entry.action) throw Error('Ідентифікатор погодження вже належить іншій дії.');
+  if (!found) erpPendingWrite(binding, [...rows, {
+    proposal_id: entry.proposal_id,
+    action: entry.action
+  }]);
+}
+function erpPendingRemove(binding, id) {
+  erpPendingWrite(binding, erpPendingRead(binding).filter(r => r.proposal_id !== id));
+}
+function erpConfirmationReceipt(action, value, payload) {
+  const fields = {
+      item: 'item_id',
+      location: 'location_id',
+      order: 'order_id',
+      confirm_order: 'order_id',
+      opening: 'lot_id',
+      purchase: 'purchase_id',
+      receive: 'lot_id',
+      job: 'production_id',
+      reserve: 'reservation_id',
+      release: 'reservation_id',
+      transfer: 'lot_id',
+      attach: 'lot_id',
+      quality: 'lot_id',
+      start: 'production_id',
+      operator: 'production_id',
+      finish: 'production_id',
+      ship: 'line_id',
+      return: 'lot_id',
+      invoice: 'invoice_id',
+      payment: 'invoice_id',
+      change: 'change_id',
+      apply_change: 'change_id',
+      resolve_job: 'production_id',
+      postpone: 'id',
+      postpone_job: 'id',
+      adjust: 'lot_id'
+    },
+    field = fields[action];
+  if (!field || value?.state !== 'succeeded' || !Number.isSafeInteger(value.erp_event_id) || value.erp_event_id <= 0 || !Number.isSafeInteger(value[field]) || value[field] <= 0 || !Array.isArray(value.impact)) return false;
+  const same = {
+    confirm_order: 'order_id',
+    release: 'reservation_id',
+    attach: 'lot_id',
+    quality: 'lot_id',
+    start: 'production_id',
+    operator: 'production_id',
+    finish: 'production_id',
+    ship: 'line_id',
+    payment: 'invoice_id',
+    apply_change: 'change_id',
+    resolve_job: 'production_id',
+    adjust: 'lot_id'
+  }[action];
+  return !payload || !same || payload[same] === value[same];
+}
+window.addEventListener('bos:session-ended', () => {
+  try {
+    for (let n = sessionStorage.length - 1; n >= 0; n--) {
+      const key = sessionStorage.key(n);
+      if (key?.startsWith(ERP_PENDING_PREFIX)) sessionStorage.removeItem(key);
+    }
+  } catch {/* Access remains denied even if browser storage is unavailable. */}
+});
+function ERPConfirmRecovery() {
+  const [rows, setRows] = useState([]),
+    [error, setError] = useState(''),
+    [entry, setEntry] = useState(null),
+    [ready, setReady] = useState(false);
+  const generation = useRef(0),
+    origin = useRef(bosHttpScope());
+  useEffect(() => {
+    let alive = true;
+    async function read() {
+      const ticket = ++generation.current;
+      try {
+        const binding = await erpPendingBinding();
+        const next = erpPendingRead(binding);
+        if (alive && ticket === generation.current && origin.current === bosHttpScope()) {
+          setRows(next.filter(r => bosCanAction(r.action)));
+          setReady(true);
+          setError('');
+        }
+      } catch (e) {
+        if (alive && ticket === generation.current) {
+          setRows([]);
+          setReady(false);
+          setError(e.message);
+        }
+      }
+    }
+    const denied = () => {
+      generation.current++;
+      origin.current = '';
+      setRows([]);
+      setEntry(null);
+      setReady(false);
+      setError('');
+    };
+    read();
+    window.addEventListener('bos:erp-pending', read);
+    window.addEventListener('bos:session-ended', denied);
+    return () => {
+      alive = false;
+      generation.current++;
+      window.removeEventListener('bos:erp-pending', read);
+      window.removeEventListener('bos:session-ended', denied);
+    };
+  }, []);
+  if (origin.current !== bosHttpScope()) return null;
+  return /*#__PURE__*/React.createElement(React.Fragment, null, error && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, "\u0412\u0456\u0434\u043D\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u044C: ", error), ready && rows.length > 0 && /*#__PURE__*/React.createElement("details", {
+    className: "erp-confirm"
+  }, /*#__PURE__*/React.createElement("summary", null, "ERP \xB7 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F \u0431\u0435\u0437 \u043E\u0442\u0440\u0438\u043C\u0430\u043D\u043E\u0457 \u043A\u0432\u0438\u0442\u0430\u043D\u0446\u0456\u0457 \xB7 ", rows.length), /*#__PURE__*/React.createElement("p", null, "\u0423 \u0446\u0456\u0439 \u0432\u043A\u043B\u0430\u0434\u0446\u0456 \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043E \u043B\u0438\u0448\u0435 \u0456\u0434\u0435\u043D\u0442\u0438\u0444\u0456\u043A\u0430\u0442\u043E\u0440\u0438. \u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0442\u044F \u0441\u043F\u0438\u0441\u043A\u0443 \u043D\u0456\u0447\u043E\u0433\u043E \u043D\u0435 \u0432\u0438\u043A\u043E\u043D\u0443\u0454. \u041F\u043E\u0432\u0442\u043E\u0440 \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043D\u044F \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u0438\u0442\u044C \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u0442\u043E\u0433\u043E \u0441\u0430\u043C\u043E\u0433\u043E \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F."), rows.map(r => /*#__PURE__*/React.createElement("div", {
+    className: "erp-row",
+    key: r.proposal_id
+  }, /*#__PURE__*/React.createElement("span", null, ERP_ACTIONS[r.action][0], " \xB7 ", r.proposal_id), /*#__PURE__*/React.createElement(Button, {
+    onClick: () => setEntry(r)
+  }, "\u0412\u0456\u0434\u043D\u043E\u0432\u0438\u0442\u0438 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F")))), entry && /*#__PURE__*/React.createElement(ERPActionDialog, {
+    key: entry.proposal_id,
+    action: entry.action,
+    recovery: entry,
+    data: {},
+    onClose: () => setEntry(null),
+    onDone: () => {}
+  }));
+}
 function ERPActionDialog({
   action,
   preset = {},
   purchaseContext = null,
   data,
   onClose,
-  onDone
+  onDone,
+  recovery = null,
+  onConfirmPending
 }) {
   const definition = ERP_ACTIONS[action],
     ref = useRef(null),
@@ -13067,17 +13236,95 @@ function ERPActionDialog({
   });
   const [proposal, setProposal] = useState(null),
     [busy, setBusy] = useState(false),
-    [error, setError] = useState('');
+    [error, setError] = useState(''),
+    [pending, setPending] = useState(recovery),
+    [receipt, setReceipt] = useState(null),
+    [denied, setDenied] = useState(false);
+  const alive = useRef(true),
+    origin = useRef(bosHttpScope()),
+    token = useRef(erpPendingToken()),
+    controller = useRef(null),
+    sent = useRef(!!recovery),
+    received = useRef(false),
+    invalid = useRef(false),
+    binding = useRef(null);
+  function current() {
+    return alive.current && !invalid.current && origin.current === bosHttpScope() && token.current === erpPendingToken() && bosCanAction(action);
+  }
+  function deny() {
+    invalid.current = true;
+    controller.current?.abort();
+    if (alive.current) {
+      setDenied(true);
+      setProposal(null);
+      setPending(null);
+      setReceipt(null);
+      setValues({});
+      setError('Сесію або дозвіл змінено. Закрийте діалог і перевірте поточний доступ.');
+    }
+  }
   useEffect(() => {
+    alive.current = true;
     ref.current.showModal();
+    window.addEventListener('bos:session-ended', deny);
+    return () => {
+      alive.current = false;
+      controller.current?.abort();
+      window.removeEventListener('bos:session-ended', deny);
+    };
   }, []);
+  async function request(path, payload) {
+    const abort = new AbortController();
+    controller.current = abort;
+    const timer = setTimeout(() => abort.abort(), 30000);
+    try {
+      const response = await fetch(path, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload),
+        signal: abort.signal
+      });
+      if (!alive.current) return null;
+      if (!current() || [401, 403].includes(response.status) || response.headers.get('X-BoS-Identity') === 'denied' || response.headers.get('X-BoS-Access') && response.headers.get('X-BoS-Access') !== window.BOS_RUNTIME?.access_revision) {
+        deny();
+        return null;
+      }
+      let body;
+      try {
+        body = await response.json();
+      } catch {
+        throw Error('Сервер не повернув читабельну відповідь.');
+      }
+      if (!alive.current) return null;
+      if (!current()) {
+        deny();
+        return null;
+      }
+      return {
+        ok: response.ok,
+        status: response.status,
+        body
+      };
+    } finally {
+      clearTimeout(timer);
+      if (controller.current === abort) controller.current = null;
+    }
+  }
   const change = (key, value) => {
+    if (sent.current || received.current || !current()) return;
     setValues(p => ({
       ...p,
       [key]: value
     }));
     setProposal(null);
   };
+  function markPending(entry) {
+    sent.current = true;
+    setPending(entry);
+    onConfirmPending?.(true);
+  }
   function options(type) {
     if (action === 'purchase' && type === 'items' && purchaseContext) {
       const r = purchaseContext.request;
@@ -13355,15 +13602,27 @@ function ERPActionDialog({
   }
   async function preview(e) {
     e.preventDefault();
-    if (!bosCanAction(action)) {
-      setError('Ця дія недоступна вашому обліковому запису.');
+    if (lock.current || sent.current || received.current) return;
+    if (!current()) {
+      deny();
       return;
     }
-    if (lock.current) return;
     lock.current = true;
     setBusy(true);
     setError('');
     try {
+      const key = await erpPendingBinding();
+      if (!current()) {
+        deny();
+        return;
+      }
+      binding.current = key;
+      const unfinished = erpPendingRead(key).find(r => r.action === action);
+      if (unfinished) {
+        markPending(unfinished);
+        setError('Спершу перевірте незавершене погодження цієї дії. Новий перегляд не створено.');
+        return;
+      }
       const payload = {
         action: 'erp_' + action
       };
@@ -13372,38 +13631,145 @@ function ERPActionDialog({
         if (type.endsWith('?') && (v === '' || v == null)) continue;
         payload[k] = type === 'tags' ? Array.isArray(v) ? v : String(v).split(',').map(x => x.trim()).filter(Boolean) : k.endsWith('_id') || type === 'integer' ? Number(v) : v;
       }
-      setProposal(await erpFetch('preview/', payload));
+      const r = await request('/api/erp/preview/', payload);
+      if (!r) return;
+      if (!r.ok) throw Error(r.body?.error || 'Перевірка не пройдена.');
+      if (typeof r.body?.id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(r.body.id) || r.body.payload?.action !== payload.action || !r.body.effect || !Array.isArray(r.body.impact)) throw Error('Не отримано узгодженого перегляду операції.');
+      setProposal(r.body);
     } catch (e) {
-      setError(e.message);
+      if (alive.current) {
+        if (!current()) deny();else setError(e.message);
+      }
     } finally {
       lock.current = false;
-      setBusy(false);
+      if (alive.current) setBusy(false);
     }
   }
   async function confirmAction() {
-    if (!bosCanAction(action)) {
-      setError('Ця дія недоступна вашому обліковому запису.');
+    if (lock.current || received.current || !pending && !proposal?.id) return;
+    if (!current()) {
+      deny();
       return;
     }
-    if (lock.current) return;
     lock.current = true;
     setBusy(true);
     setError('');
+    let dispatched = false;
+    const wasPending = !!pending;
     try {
-      const result = await opFetch('confirm/', {
+      const key = await erpPendingBinding();
+      if (!current()) {
+        deny();
+        return;
+      }
+      binding.current = key;
+      const entry = pending || {
         proposal_id: proposal.id,
+        action
+      };
+      const rows = erpPendingRead(key);
+      if (pending && !rows.some(r => r.proposal_id === entry.proposal_id && r.action === action)) throw Error('Це погодження не належить поточному відновленню вкладки. Перевірте сесію.');
+      const other = rows.find(r => r.action === action && r.proposal_id !== entry.proposal_id);
+      if (other && !pending) {
+        markPending(other);
+        setError('Є попереднє незавершене погодження. Повторіть саме його.');
+        return;
+      }
+      erpPendingSave(key, entry);
+      markPending(entry);
+      dispatched = true;
+      const r = await request('/api/operations/confirm/', {
+        proposal_id: entry.proposal_id,
         confirmed: true
       });
-      onDone(result);
-      ref.current.close();
-    } catch (e) {
-      setError(e.message);
+      if (!r) return;
+      if (!r.ok) {
+        // Generic 409 also covers a concurrent writer; it never proves absence of a commit.
+        if (!wasPending && [404, 422].includes(r.status) && typeof r.body?.error === 'string') {
+          erpPendingRemove(key, entry.proposal_id);
+          sent.current = false;
+          setPending(null);
+          setProposal(null);
+          onConfirmPending?.(false);
+          setError('Сервер відхилив погодження. ' + r.body.error + ' Перевірте дані перед новим переглядом.');
+          return;
+        }
+        throw Error(r.body?.error || 'Відповідь сервера не підтверджує результат.');
+      }
+      if (!erpConfirmationReceipt(action, r.body, proposal?.payload)) throw Error('Відповідь не містить перевіреної квитанції цієї дії.');
+      received.current = true;
+      setReceipt(r.body);
+      setPending(null);
       setProposal(null);
+      try {
+        erpPendingRemove(key, entry.proposal_id);
+      } catch {
+        setError('Операцію виконано. Не вдалося прибрати ідентифікатор зі списку вкладки; його повтор не створить новий запис.');
+      }
+      try {
+        await onDone?.(r.body);
+      } catch {
+        if (current()) setError('Операцію виконано, але пов’язаний екран не оновився. Оновіть дані; повторювати дію не потрібно.');
+      }
+    } catch (e) {
+      if (alive.current) {
+        if (!current()) deny();else setError(dispatched ? 'Результат погодження невідомий. ' + e.message + ' Повторіть це саме погодження або перевірте записи. Новий намір не створюється.' : e.message);
+      }
     } finally {
       lock.current = false;
-      setBusy(false);
+      if (alive.current) setBusy(false);
     }
   }
+  function close() {
+    alive.current = false;
+    controller.current?.abort();
+    ref.current.close();
+  }
+  if (denied || origin.current !== bosHttpScope() || token.current !== erpPendingToken() || !bosCanAction(action)) return /*#__PURE__*/React.createElement("dialog", {
+    ref: ref,
+    className: "bos-dialog erp-dialog",
+    onClose: onClose
+  }, /*#__PURE__*/React.createElement("h2", null, "\u041F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0435"), /*#__PURE__*/React.createElement("p", {
+    role: "alert"
+  }, "\u0421\u0435\u0441\u0456\u044E \u0430\u0431\u043E \u0434\u043E\u0437\u0432\u0456\u043B \u0437\u043C\u0456\u043D\u0435\u043D\u043E. \u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0442\u0435 \u043F\u043E\u0442\u043E\u0447\u043D\u0438\u0439 \u0434\u043E\u0441\u0442\u0443\u043F."), /*#__PURE__*/React.createElement(Button, {
+    onClick: close
+  }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438"));
+  if (receipt) return /*#__PURE__*/React.createElement("dialog", {
+    ref: ref,
+    className: "bos-dialog erp-dialog",
+    onClose: onClose
+  }, /*#__PURE__*/React.createElement("h2", null, "\u041E\u043F\u0435\u0440\u0430\u0446\u0456\u044E \u0432\u0438\u043A\u043E\u043D\u0430\u043D\u043E"), /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0417\u0430\u043F\u0438\u0441 \u0436\u0443\u0440\u043D\u0430\u043B\u0443 \u2116", receipt.erp_event_id, ". \u0417\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u0443 \u043A\u0432\u0438\u0442\u0430\u043D\u0446\u0456\u044E \u043E\u0442\u0440\u0438\u043C\u0430\u043D\u043E."), /*#__PURE__*/React.createElement(ImpactTable, {
+    changes: receipt.impact
+  }), error && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, error), /*#__PURE__*/React.createElement(Button, {
+    onClick: close
+  }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438"));
+  if (pending) return /*#__PURE__*/React.createElement("dialog", {
+    ref: ref,
+    className: "bos-dialog erp-dialog",
+    onClose: onClose,
+    onCancel: e => {
+      if (busy) e.preventDefault();
+    }
+  }, /*#__PURE__*/React.createElement("h2", null, definition[0], " \xB7 \u0432\u0456\u0434\u043D\u043E\u0432\u043B\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F ", pending.proposal_id), /*#__PURE__*/React.createElement("p", null, "\u041A\u0432\u0438\u0442\u0430\u043D\u0446\u0456\u044E \u0449\u0435 \u043D\u0435 \u043E\u0442\u0440\u0438\u043C\u0430\u043D\u043E. \u041E\u043F\u0435\u0440\u0430\u0446\u0456\u044F \u043C\u043E\u0433\u043B\u0430 \u0432\u0436\u0435 \u0432\u0438\u043A\u043E\u043D\u0430\u0442\u0438\u0441\u044F. \u041F\u043E\u0432\u0442\u043E\u0440 \u043D\u0430\u0434\u0441\u0438\u043B\u0430\u0454 \u0442\u043E\u0439 \u0441\u0430\u043C\u0438\u0439 \u0456\u0434\u0435\u043D\u0442\u0438\u0444\u0456\u043A\u0430\u0442\u043E\u0440; \u043D\u043E\u0432\u0438\u0439 \u043F\u0435\u0440\u0435\u0433\u043B\u044F\u0434 \u0456 \u0440\u0435\u0434\u0430\u0433\u0443\u0432\u0430\u043D\u043D\u044F \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0434\u043E \u0432\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u043E\u0433\u043E \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u0443."), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041C\u043E\u0436\u043D\u0430 \u0437\u0430\u043A\u0440\u0438\u0442\u0438 \u0434\u0456\u0430\u043B\u043E\u0433 \u0456 \u043F\u043E\u0432\u0435\u0440\u043D\u0443\u0442\u0438\u0441\u044F \u0447\u0435\u0440\u0435\u0437 \u0441\u043F\u0438\u0441\u043E\u043A ERP-\u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u044C \u0443 \u0446\u0456\u0439 \u0432\u043A\u043B\u0430\u0434\u0446\u0456. \u041F\u0456\u0441\u043B\u044F \u0437\u043C\u0456\u043D\u0438 \u0441\u0435\u0441\u0456\u0457 \u0430\u0431\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u0443 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u0442\u0435 \u0437\u0430\u043F\u0438\u0441\u0438 \u0437 \u043F\u043E\u0442\u043E\u0447\u043D\u0438\u043C\u0438 \u043F\u0440\u0430\u0432\u0430\u043C\u0438."), error && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, error), /*#__PURE__*/React.createElement("div", {
+    className: "actions"
+  }, /*#__PURE__*/React.createElement(Button, {
+    disabled: busy,
+    onClick: close
+  }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438, \u0437\u0431\u0435\u0440\u0456\u0433\u0448\u0438 \u0432\u0456\u0434\u043D\u043E\u0432\u043B\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    disabled: busy,
+    onClick: confirmAction
+  }, busy ? 'Чекаємо квитанцію…' : 'Повторити це саме погодження')));
   return /*#__PURE__*/React.createElement("dialog", {
     ref: ref,
     className: "bos-dialog erp-dialog",
@@ -16238,20 +16604,20 @@ function WorkpointsPanel({
     lock = useRef(false),
     chosen = useRef(''),
     origin = useRef(bosHttpScope());
-  function clearDetails() {
+  function clearDetails(keepPending = false) {
     setSelection(null);
-    setAction(null);
+    setAction(value => keepPending && value?.submitted ? value : null);
     setDoc(null);
     setReceipt(null);
   }
-  function clearFacts() {
+  function clearFacts(keepPending = false) {
     generation.current++;
     abort.current?.abort();
     abort.current = null;
     lock.current = false;
     setBusy(false);
     setBundle(null);
-    clearDetails();
+    clearDetails(keepPending);
   }
   function current(ticket, scope) {
     return alive.current && generation.current === ticket && scope === bosHttpScope() && origin.current === scope;
@@ -16337,7 +16703,7 @@ function WorkpointsPanel({
     alive.current = true;
     refresh();
     const invalidated = () => {
-        clearFacts();
+        clearFacts(true);
         setError('Дані змінилися. Оновіть робочі точки перед наступною дією.');
       },
       ended = () => {
@@ -16423,6 +16789,8 @@ function WorkpointsPanel({
       setBundle(next);
       setAction({
         type,
+        scope,
+        data: next.snapshot,
         preset: {
           ...(['order', 'location'].includes(type) && point.branch ? {
             branch_id: point.branch.id
@@ -16575,10 +16943,14 @@ function WorkpointsPanel({
   }), doc && /*#__PURE__*/React.createElement(DocViewer, {
     id: doc,
     onClose: () => setDoc(null)
-  }), action && /*#__PURE__*/React.createElement(BoSActionDialog, {
+  })), action && action.scope === bosHttpScope() && /*#__PURE__*/React.createElement(BoSActionDialog, {
     action: action.type,
     preset: action.preset,
-    data: data,
+    data: action.data,
+    onConfirmPending: submitted => setAction(value => value ? {
+      ...value,
+      submitted
+    } : value),
     onClose: () => setAction(null),
     onDone: async r => {
       const scope = bosHttpScope();
@@ -16592,7 +16964,7 @@ function WorkpointsPanel({
         refetchTasks?.();
       }
     }
-  })), receipt && receipt.scope === bosHttpScope() && /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043E\u0457 \u0434\u0456\u0457"), /*#__PURE__*/React.createElement("p", {
+  }), receipt && receipt.scope === bosHttpScope() && /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043E\u0457 \u0434\u0456\u0457"), /*#__PURE__*/React.createElement("p", {
     role: "status"
   }, "\u041E\u043F\u0435\u0440\u0430\u0446\u0456\u044E \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043E. \u0414\u0430\u043D\u0456 \u0442\u043E\u0447\u043A\u0438 \u0432\u0438\u0449\u0435 \u043F\u043E\u043A\u0430\u0437\u0443\u044E\u0442\u044C\u0441\u044F \u043B\u0438\u0448\u0435 \u043F\u0456\u0441\u043B\u044F \u0443\u0441\u043F\u0456\u0448\u043D\u043E\u0433\u043E \u043F\u043E\u0432\u0442\u043E\u0440\u043D\u043E\u0433\u043E \u0447\u0438\u0442\u0430\u043D\u043D\u044F."), /*#__PURE__*/React.createElement(ImpactTable, {
     changes: receipt.value.impact
@@ -17340,7 +17712,7 @@ function App() {
       overflowY: 'auto',
       overflowX: 'hidden'
     }
-  }, renderContent())), aiPanelOpen && /*#__PURE__*/React.createElement(AIPanel, {
+  }, /*#__PURE__*/React.createElement(ERPConfirmRecovery, null), renderContent())), aiPanelOpen && /*#__PURE__*/React.createElement(AIPanel, {
     onClose: () => setAiPanelOpen(false),
     refetchTasks: refetchTasks,
     refetchEmployees: refetchEmployees,
