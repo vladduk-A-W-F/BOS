@@ -1,0 +1,781 @@
+--- /dev/null
++++ b/erp/order_trace.py
+@@ -0,0 +1,262 @@
++"""Read-only order sources. Optimistic double-read, never an atomic snapshot.
++
++Policy itself traverses global ERP sets. The projection is order-scoped; its
++cost is not guaranteed to be local. Private dependency digests never leave here.
++"""
++import hashlib
++import json
++from collections import defaultdict
++from decimal import Decimal
++
++from django.core.exceptions import ObjectDoesNotExist
++from django.core.serializers.json import DjangoJSONEncoder
++from django.utils import timezone
++
++from boss_project.policy import Policy
++from operations.models import Configuration, Document
++from operations.service import as_of
++from tasks.models import Task
++from tasks.queries import source_refs as task_source_refs
++from . import service
++from .balances import exact, quantity_text
++from .models import (InvoiceLink, Lot, Movement, OrderCancellation, Production,
++                     Reservation, SalesLine, SalesOrder)
++
++LIMIT = 100
++SCHEMA = 'bos.order-trace.v1'
++BASIS = 'Відвантажено — історична кількість позиції; фізичне повернення її не зменшує. Відкрито = замовлено − відвантажено − скасовано.'
++RESTRICTED = 'Повне пояснення недоступне в поточному доступі.'
++
++
++class ReadStateChanged(Exception):
++    pass
++
++
++def serial(value):
++    return json.loads(json.dumps(value, cls=DjangoJSONEncoder, ensure_ascii=False, sort_keys=True))
++
++
++def digest(value):
++    return hashlib.sha256(json.dumps(serial(value), ensure_ascii=False, sort_keys=True,
++                                    separators=(',', ':')).encode()).hexdigest()
++
++
++def write_revision():
++    # Empty list is the missing sentinel; a GET must never create the mutex.
++    return list(Configuration.objects.filter(key='erp_write').values('id', 'value'))
++
++
++def rows(queryset, *fields):
++    return list(queryset.order_by('pk').values(*fields))
++
++
++def person(pk, name, role):
++    return {'id': pk, 'name': name, 'role': role} if pk is not None else None
++
++
++def cap(values):
++    return values[:LIMIT], len(values) > LIMIT
++
++
++def grouped(values, key):
++    result = defaultdict(list)
++    for value in values:
++        result[value[key]].append(value)
++    return result
++
++
++def admitted(policy, model, source):
++    ids = [row['id'] for row in source]
++    return set(policy.queryset(model).filter(pk__in=ids).values_list('pk', flat=True)) if ids else set()
++
++
++def lot_admission(policy, lot, revision):
++    """Materialize document admission, without revealing a hidden latest version.
++
++    usable() remains the business rule including verified stored bytes. Its
++    result and document metadata are part of both private read revisions.
++    """
++    needed = lot.item.required_documents
++    metadata = []
++    permitted = True
++    for kind in needed:
++        pk = lot.documents.get(kind)
++        doc = Document.objects.filter(pk=pk).first()
++        latest = Document.objects.filter(code=doc.code).order_by('-pk').first() if doc else None
++        pair = []
++        for value in (doc, latest):
++            pair.append(None if value is None else {
++                'id': value.pk, 'code': value.code, 'revision': value.revision,
++                'status': value.status, 'checksum': value.checksum,
++                'file': value.original_file.name, 'size': value.size,
++                'access_level': value.access_level,
++            })
++            if value is not None and not policy.documents().filter(pk=value.pk).exists():
++                permitted = False
++        metadata.append({'kind': kind, 'documents': pair})
++    value = service.usable(lot, revision) if permitted else None
++    return value, {'lot_id': lot.pk, 'revision': revision, 'quality': lot.quality,
++                   'lot_revision': lot.revision, 'documents': lot.documents,
++                   'required_documents': needed, 'metadata': metadata, 'usable': value}
++
++
++@exact
++def collect(policy, pk):
++    """Two independent invocations materialize all consumed values and sets.
++
++    Unfiltered scoped rows serve only completeness/digest checks. Every returned
++    row is admitted separately; no private IDs/counts/types appear in the DTO.
++    """
++    order = policy.queryset(SalesOrder).get(pk=pk)
++    order_values = rows(SalesOrder.objects.filter(pk=order.pk),
++        'id', 'code', 'status', 'due_date', 'owner_id', 'owner__full_name')[0]
++    lines = rows(SalesLine.objects.filter(order=order),
++        'id', 'item_id', 'item__code', 'item__name', 'item__unit', 'revision', 'quantity', 'shipped')
++    line_ids = [row['id'] for row in lines]
++    cancellations = rows(OrderCancellation.objects.filter(line_id__in=line_ids),
++        'id', 'line_id', 'quantity', 'created_at')
++    reservations = rows(Reservation.objects.filter(line_id__in=line_ids),
++        'id', 'line_id', 'lot_id', 'quantity')
++    shipments = rows(Movement.objects.filter(line_id__in=line_ids, kind='shipment'),
++        'id', 'line_id', 'lot_id', 'purchase_id', 'production_id', 'quantity', 'created_at')
++    lots = sorted({row['lot_id'] for row in reservations + shipments})
++    receipts = rows(Movement.objects.filter(lot_id__in=lots, kind='receipt'),
++        'id', 'lot_id', 'purchase_id', 'production_id', 'line_id', 'quantity', 'created_at')
++    jobs = rows(Production.objects.filter(line_id__in=line_ids),
++        'id', 'code', 'line_id', 'status', 'due_date', 'owner_id', 'owner__full_name')
++    tasks = rows(Task.objects.filter(sales_order=order),
++        'id', 'title', 'status', 'deadline', 'assignee_employee_id', 'assignee_employee__full_name')
++    invoices = rows(InvoiceLink.objects.filter(order=order),
++        'id', 'invoice_id', 'invoice__code', 'invoice__currency', 'invoice__due_date')
++    source = {'order': order_values, 'lines': lines, 'cancellations': cancellations,
++              'reservations': reservations, 'shipments': shipments, 'receipts': receipts,
++              'jobs': jobs, 'tasks': tasks, 'invoices': invoices, 'admission': [],
++              'task_sources': [(obj.pk, task_source_refs(obj)) for obj in
++                               Task.objects.filter(pk__in=[row['id'] for row in tasks]).order_by('pk')]}
++    visible = {name: admitted(policy, model, values) for name, model, values in (
++        ('lines', SalesLine, lines), ('cancellations', OrderCancellation, cancellations),
++        ('reservations', Reservation, reservations), ('shipments', Movement, shipments),
++        ('receipts', Movement, receipts), ('jobs', Production, jobs), ('invoices', InvoiceLink, invoices))}
++    # Policy.tasks() includes historical source refs; a direct Task scope is not sufficient.
++    visible['tasks'] = set(policy.tasks().filter(sales_order=order).values_list('pk', flat=True))
++    source['visible'] = {key: sorted(value) for key, value in visible.items()}
++    restricted = any(len(source[key]) != len(visible[key]) for key in visible)
++    partial = False
++    by_cancel = grouped(cancellations, 'line_id')
++    by_reserve = grouped(reservations, 'line_id')
++    by_ship = grouped(shipments, 'line_id')
++    by_receipt = grouped(receipts, 'lot_id')
++    lot_models = {obj.pk: obj for obj in policy.queryset(Lot).filter(pk__in=lots).select_related('item')}
++    line_dtos = []
++    for line in lines:
++        if line['id'] not in visible['lines']:
++            continue
++        cs, rs, ss = by_cancel[line['id']], by_reserve[line['id']], by_ship[line['id']]
++        allowed_c = [value for value in cs if value['id'] in visible['cancellations']]
++        allowed_r = [value for value in rs if value['id'] in visible['reservations']]
++        allowed_s = [value for value in ss if value['id'] in visible['shipments']]
++        line_restricted = len(cs) != len(allowed_c) or len(rs) != len(allowed_r) or len(ss) != len(allowed_s)
++        cancelled = sum((value['quantity'] for value in allowed_c), Decimal(0)) if len(cs) == len(allowed_c) else None
++        opened = line['quantity'] - line['shipped'] - cancelled if cancelled is not None else None
++        if opened is not None and opened < 0:
++            raise ValueError('Історія скасувань перевищує потребу продажу.')
++        reserve_refs = []
++        usable_reserved = Decimal(0) if len(rs) == len(allowed_r) else None
++        for reservation in allowed_r:
++            lot = lot_models.get(reservation['lot_id'])
++            if lot is None:
++                # Fail closed even if an inconsistent Policy admits the edge only.
++                line_restricted = True; usable_reserved = None
++                continue
++            usable, dependency = lot_admission(policy, lot, line['revision'])
++            source['admission'].append(dependency)
++            if usable is None:
++                line_restricted = True; usable_reserved = None
++            elif usable_reserved is not None and usable:
++                usable_reserved += reservation['quantity']
++            reserve_refs.append({'id': reservation['id'], 'lot_id': lot.pk,
++                                 'quantity': quantity_text(reservation['quantity']), 'usable': usable})
++        origins = []
++        visible_lots = {row['lot_id'] for row in allowed_r + allowed_s}
++        for lot_id in sorted(visible_lots):
++            for receipt in by_receipt[lot_id]:
++                if receipt['id'] not in visible['receipts']:
++                    line_restricted = True
++                    continue
++                if receipt['purchase_id'] is not None:
++                    # Movement Policy checks its direct purchase FK, never item similarity.
++                    origins.append({'relation': 'lot_origin', 'lot_id': lot_id,
++                                    'receipt_id': receipt['id'], 'purchase_id': receipt['purchase_id']})
++        refs = {
++            'cancellations': [{'id': row['id'], 'quantity': quantity_text(row['quantity']),
++                              'created_at': row['created_at']} for row in allowed_c],
++            'reservations': reserve_refs,
++            'shipments': [{'id': row['id'], 'lot_id': row['lot_id'],
++                           'quantity': quantity_text(row['quantity']), 'created_at': row['created_at']} for row in allowed_s],
++            'lot_origins': origins,
++        }
++        has_more = {}
++        for key in refs:
++            refs[key], has_more[key] = cap(refs[key])
++        line_partial = any(has_more.values())
++        refs['line'] = {'type': 'sales_line', 'id': line['id']}
++        line_dtos.append({'line_id': line['id'], 'item': {'id': line['item_id'], 'code': line['item__code'],
++            'name': line['item__name'], 'unit': line['item__unit']}, 'revision': line['revision'],
++            'ordered': quantity_text(line['quantity']), 'shipped': quantity_text(line['shipped']),
++            'cancelled': quantity_text(cancelled) if cancelled is not None else None,
++            'open': quantity_text(opened) if opened is not None else None,
++            'usable_reserved': quantity_text(usable_reserved) if usable_reserved is not None else None,
++            'source_refs': refs, 'basis': BASIS, 'has_more': has_more,
++            'completeness': 'restricted' if line_restricted else 'partial' if line_partial else 'complete'})
++        restricted |= line_restricted
++        partial |= line_partial
++    job_dtos = [{'id': row['id'], 'code': row['code'], 'line_id': row['line_id'], 'status': row['status'],
++                 'due_date': row['due_date'], 'owner': person(row['owner_id'], row['owner__full_name'], 'job_owner')}
++                for row in jobs if row['id'] in visible['jobs']]
++    task_dtos = [{'id': row['id'], 'title': row['title'], 'status': row['status'], 'deadline': row['deadline'],
++                  'assignee': person(row['assignee_employee_id'], row['assignee_employee__full_name'], 'task_assignee')}
++                 for row in tasks if row['id'] in visible['tasks']]
++    invoice_dtos = [{'invoice_id': row['invoice_id'], 'code': row['invoice__code'],
++                    'currency': row['invoice__currency'], 'due_date': row['invoice__due_date']}
++                   for row in invoices if row['id'] in visible['invoices']]
++    capped = [cap(values) for values in (line_dtos, job_dtos, task_dtos, invoice_dtos)]
++    more = dict(zip(('lines', 'jobs', 'tasks', 'invoices'), (value[1] for value in capped)))
++    partial |= any(more.values())
++    source['as_of'] = str(as_of())
++    result = {'schema': SCHEMA, 'order': {'id': order.pk, 'code': order_values['code'],
++        'status': order_values['status'], 'due_date': order_values['due_date'],
++        'owner': person(order_values['owner_id'], order_values['owner__full_name'], 'order_owner')},
++        'as_of': source['as_of'], 'scope': {'order_id': order.pk, 'purchase_allocation': 'not_recorded',
++            'message': 'Призначення очікуваних закупівель цьому замовленню не зафіксовано'},
++        'lines': capped[0][0], 'linked_jobs': capped[1][0], 'linked_tasks': capped[2][0],
++        'linked_invoice_refs': capped[3][0], 'limits': {'per_section': LIMIT, 'has_more': more},
++        'completeness': 'restricted' if restricted else 'partial' if partial else 'complete'}
++    if restricted:
++        result['scope']['explanation'] = RESTRICTED
++    return serial(result), digest(source)
++
++
++def build(request, pk):
++    first_policy = Policy(request)
++    first_access = first_policy.access_revision()
++    if getattr(request, 'bos_access_revision', first_access) != first_access:
++        raise ReadStateChanged()
++    before = write_revision()
++    body, first_digest = collect(first_policy, pk)
++    middle = write_revision()
++    second_policy = Policy(request)
++    if second_policy.access_revision() != first_access:
++        raise ReadStateChanged()
++    try:
++        _, second_digest = collect(second_policy, pk)
++    except ObjectDoesNotExist:
++        raise ReadStateChanged() from None
++    final_policy = Policy(request)
++    final_access = final_policy.access_revision()
++    after = write_revision()
++    if before != middle or middle != after or first_digest != second_digest or first_access != final_access:
++        raise ReadStateChanged()
++    request.bos_access_revision = final_access
++    body['access_revision'] = final_access
++    body['generated_at'] = timezone.now().isoformat()
++    return body
+--- /dev/null
++++ b/erp/test_order_trace.py
+@@ -0,0 +1,291 @@
++"""BATCH-02: isolated HTTP trace facts, field boundaries and read conflicts."""
++import json
++import time
++from decimal import Decimal
++from unittest.mock import patch
++from uuid import uuid4
++
++from django.conf import settings
++from django.contrib.auth.models import Group
++from django.db import connection
++from django.test import Client
++from django.test.utils import CaptureQueriesContext
++
++from erp import balances
++from erp.models import (Event, InvoiceLink, Lot, Movement, OrderCancellation,
++                        Production, Reservation, SalesLine)
++from operations.models import AuditEvent, Configuration, Invoice
++from operations.test_access import A04SyntheticCase as _SyntheticCase, nested_keys
++from tasks.models import Task
++
++
++class OrderTraceTests(_SyntheticCase):
++    @classmethod
++    def setUpTestData(cls):
++        super().setUpTestData()
++        cls.line.quantity = Decimal('10.000')
++        cls.line.shipped = Decimal('2.000')
++        cls.line.invoiced = Decimal('0')
++        cls.line.save()
++        cls.shipment = Movement.objects.get(line=cls.line, kind='shipment')
++        cls.shipment.quantity = Decimal('-2.000')
++        cls.shipment.save()
++        cls.reservation = Reservation.objects.create(lot=cls.lot, line=cls.line, quantity='3.125')
++        cls.receipt = Movement.objects.create(lot=cls.lot, kind='receipt', purchase=cls.purchase,
++            quantity='9', reference='TRACE-RECEIPT')
++        cls.job = Production.objects.create(code='TRACE-JOB', line=cls.line, item=cls.item,
++            quantity='2', revision='A', location=cls.location, owner=cls.employee, due_date=cls.today)
++        cls.task.sales_order = cls.order
++        cls.task.assignee_employee = cls.employee
++        cls.task.save()
++
++    @property
++    def url(self):
++        return f'/api/erp/orders/{self.order.pk}/trace/'
++
++    def get_trace(self, role='ceo'):
++        return self.json_get(self.grant(role, 'view_document'), self.url)
++
++    def cancellation(self, quantity='2.000'):
++        self.grant('ceo')
++        event = Event.objects.create(action='erp_cancel_order', role='ceo', payload={}, result={})
++        return OrderCancellation.objects.create(line=self.line, quantity=quantity,
++            operation_id=uuid4(), payload_hash='a'*64, code='TRACE-CANCEL', reason='PRIVATE REASON',
++            business_date=self.today, actor=self.users['ceo'], event=event,
++            before_snapshot={}, after_snapshot={})
++
++    def hidden_reservation(self):
++        lot = Lot.objects.create(code='TRACE-HIDDEN-LOT', item=self.item, location=self.location,
++            revision='A', quantity='2', quality='approved', documents={'certificate': self.hidden_doc.pk})
++        return Reservation.objects.create(lot=lot, line=self.line, quantity='1.875')
++
++    def test_trace_decimal_sources_and_read_only(self):
++        cancellation = self.cancellation()
++        client = self.grant('ceo', 'view_document')
++        before = list(Configuration.objects.order_by('pk').values())
++        with CaptureQueriesContext(connection) as queries:
++            start = time.monotonic()
++            data = self.json_get(client, self.url)
++            elapsed = time.monotonic() - start
++        captured_queries = list(queries.captured_queries)
++        line = data['lines'][0]
++        self.assertEqual(data['schema'], 'bos.order-trace.v1')
++        self.assertEqual(data['order']['id'], self.order.pk)
++        self.assertEqual((line['ordered'], line['shipped'], line['cancelled'], line['open'], line['usable_reserved']),
++            ('10.000', '2.000', '2.000', balances.quantity_text(balances.sales_open(self.line)), '3.125'))
++        refs = line['source_refs']
++        self.assertEqual(refs['line'], {'type': 'sales_line', 'id': self.line.pk})
++        self.assertEqual(refs['cancellations'][0]['id'], cancellation.pk)
++        self.assertEqual(refs['reservations'][0]['id'], self.reservation.pk)
++        self.assertEqual(refs['shipments'][0]['quantity'], '-2.000')
++        self.assertEqual(refs['lot_origins'], [{'relation':'lot_origin', 'lot_id':self.lot.pk,
++            'receipt_id':self.receipt.pk, 'purchase_id':self.purchase.pk}])
++        self.assertEqual(data['linked_jobs'][0]['owner']['role'], 'job_owner')
++        self.assertEqual(data['linked_tasks'][0]['assignee']['role'], 'task_assignee')
++        self.assertEqual(data['order']['owner']['role'], 'order_owner')
++        self.assertEqual(data['completeness'], 'complete')
++        self.assertEqual(before, list(Configuration.objects.order_by('pk').values()))
++        for query in captured_queries:
++            self.assertFalse(query['sql'].lstrip().upper().startswith(('INSERT ', 'UPDATE ', 'DELETE ')), query['sql'])
++        again = self.json_get(client, self.url)
++        print('ORDER_TRACE_SAMPLE '+json.dumps(data,ensure_ascii=False))
++        data.pop('generated_at'); again.pop('generated_at')
++        self.assertEqual(data, again)
++        print('ORDER_TRACE_SYNTHETIC_METRIC '+json.dumps({'sql_count':len(captured_queries), 'elapsed_seconds':round(elapsed,6),
++            'backend':connection.vendor, 'lines':1, 'reservations':1, 'shipments':1, 'scope':'small fixture only'}))
++
++    def test_ceo_manager_observer_field_allowlists(self):
++        for role in ('ceo', 'manager', 'observer'):
++            with self.subTest(role=role):
++                client = self.grant(role, 'view_document')
++                with CaptureQueriesContext(connection) as queries:
++                    start = time.monotonic()
++                    data = self.json_get(client, self.url)
++                    elapsed = time.monotonic() - start
++                print('ORDER_TRACE_ROLE_METRIC '+json.dumps({'role':role, 'sql_count':len(queries), 'elapsed_seconds':round(elapsed,6), 'backend':connection.vendor, 'scope':'small fixture only'}))
++                self.assertTrue(data['lines'])
++                self.assertTrue(data['linked_invoice_refs'])
++                self.assertEqual(set(data['linked_invoice_refs'][0]), {'invoice_id','code','currency','due_date'})
++                forbidden = {'price','cost','unit_cost','amount','paid','result','payload','approval_snapshot',
++                    'phone','email','birthday','notes','reason','read_revision','erp_write','hidden_count'}
++                self.assertFalse(set(nested_keys(data)) & forbidden)
++                self.assert_no_canaries(data, (self.HIDDEN, self.HIDDEN_VERSION, self.HR_PHONE, self.HR_EMAIL)+self.FINANCE_AMOUNTS)
++
++    def test_hidden_reservation_is_null_not_zero_or_visible_sum(self):
++        hidden = self.hidden_reservation()
++        for role in ('manager','observer'):
++            data = self.get_trace(role); line = data['lines'][0]
++            self.assertIsNone(line['usable_reserved'])
++            self.assertEqual(line['completeness'], 'restricted')
++            self.assertEqual(data['completeness'], 'restricted')
++            self.assertNotIn(hidden.pk, [r['id'] for r in line['source_refs']['reservations']])
++            self.assert_no_canaries(data, ('TRACE-HIDDEN-LOT', self.HIDDEN, '1.875'))
++        self.assertEqual(self.get_trace()['lines'][0]['usable_reserved'], '5.000')
++
++    def test_only_allowed_invoice_links_and_historical_tasks(self):
++        invoice = Invoice.objects.create(code='TRACE-UNLINKED-PRIVATE', customer=self.customer,
++            amount='98765.43', currency='EUR', due_date=self.today)
++        InvoiceLink.objects.create(invoice=invoice, order=self.hidden_order, lines=[])
++        task = Task.objects.create(title='TRACE-HISTORY-PRIVATE', sales_order=self.order,
++            assignee_employee=self.employee, result=self.HIDDEN)
++        AuditEvent.objects.create(action='update_task', task=task,
++            payload={'schema':'bos.task-change.v1','source_refs':[{'order_id':self.hidden_order.pk}]})
++        for role in ('manager','observer'):
++            data = self.get_trace(role)
++            self.assertNotIn(invoice.pk, [x['invoice_id'] for x in data['linked_invoice_refs']])
++            self.assertNotIn(task.pk, [x['id'] for x in data['linked_tasks']])
++            self.assertEqual(data['completeness'], 'restricted')
++            self.assert_no_canaries(data, ('TRACE-UNLINKED-PRIVATE','TRACE-HISTORY-PRIVATE',self.HIDDEN))
++        self.assertIn(task.pk, [x['id'] for x in self.get_trace()['linked_tasks']])
++
++    def test_current_role_refresh_and_neutral_not_found(self):
++        client = self.grant('ceo', 'view_document')
++        url = f'/api/erp/orders/{self.hidden_order.pk}/trace/'
++        self.assertEqual(client.get(url).status_code, 200)
++        self.users['ceo'].groups.set([Group.objects.get_or_create(name='observer')[0]])
++        denied = client.get(url); missing = client.get('/api/erp/orders/999999/trace/')
++        self.assertEqual(denied.status_code, 404)
++        self.assertEqual(denied.json(), missing.json())
++        self.assert_no_canaries(denied.json(), (self.HIDDEN, self.hidden_order.code))
++
++    def test_method_and_no_documents_contract(self):
++        for role in ('ceo','manager','observer'):
++            client = self.grant(role, 'view_document')
++            for method in ('HEAD','OPTIONS','POST','PUT','PATCH','DELETE','TRACE','CONNECT'):
++                with self.subTest(role=role, method=method):
++                    expected = 403 if role == 'observer' and method not in ('HEAD','OPTIONS') else 405
++                    response = client.generic(method, self.url, HTTP_X_CSRFTOKEN=client.cookies[settings.CSRF_COOKIE_NAME].value)
++                    self.assertEqual(response.status_code, expected)
++            self.users[role].user_permissions.clear()
++            self.assertEqual(client.get(self.url).status_code, 200 if role == 'ceo' else 404)
++        anon = Client(enforce_csrf_checks=True)
++        anon.get('/api/auth/csrf/')
++        for method in ('GET','HEAD','OPTIONS','POST','PUT','PATCH','DELETE','TRACE','CONNECT'):
++            self.assertEqual(anon.generic(method, self.url,
++                HTTP_X_CSRFTOKEN=anon.cookies[settings.CSRF_COOKIE_NAME].value).status_code, 401)
++        technical = self.client_for('manager')
++        self.users['manager'].groups.clear()
++        for method in ('GET','HEAD','OPTIONS','POST','PUT','PATCH','DELETE','TRACE','CONNECT'):
++            self.assertEqual(technical.generic(method, self.url,
++                HTTP_X_CSRFTOKEN=technical.cookies[settings.CSRF_COOKIE_NAME].value).status_code, 403)
++
++    def test_unrelated_order_purchase_not_allocated(self):
++        other = SalesLine.objects.create(order=self.hidden_order, item=self.item, revision='A', quantity='6', price='1')
++        Movement.objects.create(lot=self.lot, line=other, quantity='-1', kind='shipment', reference='OTHER-ORDER')
++        data = self.get_trace()
++        self.assertEqual([x['line_id'] for x in data['lines']], [self.line.pk])
++        self.assertEqual(len(data['lines'][0]['source_refs']['shipments']), 1)
++        self.assertEqual(data['scope']['purchase_allocation'], 'not_recorded')
++        self.assertNotIn('allocated_purchase', json.dumps(data))
++
++    def test_partial_refs_keep_full_decimal_and_old_shipments(self):
++        Movement.objects.bulk_create([Movement(lot=self.lot, line=self.line, quantity='-0.001',
++            kind='shipment', reference='TRACE-PADDING') for _ in range(101)])
++        self.line.shipped=Decimal('2.101'); self.line.save()
++        # Unrelated global padding must not hide the old order movement.
++        Movement.objects.bulk_create([Movement(lot=self.hidden_lot, quantity='0', kind='test_padding',
++            reference='UNRELATED') for _ in range(301)])
++        data = self.get_trace(); line = data['lines'][0]
++        self.assertEqual(line['shipped'], '2.101')
++        self.assertEqual(line['open'], '7.899')
++        self.assertEqual(len(line['source_refs']['shipments']), 100)
++        self.assertIn(self.shipment.pk, [r['id'] for r in line['source_refs']['shipments']])
++        self.assertTrue(line['has_more']['shipments'])
++        self.assertEqual(data['completeness'], 'partial')
++
++    def change_between_reads(self, mutate):
++        from erp import order_trace
++        original = order_trace.collect
++        calls = []
++        def collect(*args, **kwargs):
++            result = original(*args, **kwargs)
++            calls.append(True)
++            if len(calls) == 1:
++                mutate()
++            return result
++        with patch.object(order_trace, 'collect', side_effect=collect):
++            response = self.grant('manager','view_document').get(self.url)
++        self.assertLessEqual(len(calls), 2, 'Automatic retries are forbidden')
++        self.assertEqual(response.status_code, 409, response.content)
++        self.assertEqual(response.json()['code'], 'read_state_changed')
++        self.assertEqual(set(response.json()), {'error','code'})
++
++    def test_reservation_change_between_reads_has_no_payload(self):
++        self.change_between_reads(lambda: Reservation.objects.filter(pk=self.reservation.pk).update(quantity='2.000'))
++
++    def test_document_admission_change_between_reads_has_no_payload(self):
++        self.item.required_documents=['certificate']; self.item.save()
++        self.lot.documents={'certificate':self.public_doc.pk}; self.lot.save()
++        self.change_between_reads(lambda: type(self.public_doc).objects.filter(pk=self.public_doc.pk).update(status='needs_review'))
++
++    def test_permission_change_between_reads_has_no_payload(self):
++        self.change_between_reads(lambda: self.users['manager'].user_permissions.clear())
++
++    def test_metadata_and_membership_changes_between_reads_have_no_payload(self):
++        mutations = [lambda: type(self.employee).objects.filter(pk=self.employee.pk).update(full_name='Changed owner'),
++            lambda: Task.objects.create(title='New task membership', sales_order=self.order),
++            lambda: Configuration.objects.create(key='erp_write', value={'sequence':1})]
++        for mutate in mutations:
++            with self.subTest(mutate=mutate):
++                self.change_between_reads(mutate)
++
++    def test_revoked_identity_between_reads_uses_identity_denial(self):
++        from erp import order_trace
++        original = order_trace.collect
++        def collect(*args, **kwargs):
++            result = original(*args, **kwargs)
++            type(self.users['manager']).objects.filter(pk=self.users['manager'].pk).update(is_active=False)
++            return result
++        client = self.grant('manager','view_document')
++        with patch.object(order_trace, 'collect', side_effect=collect):
++            response = client.get(self.url)
++        self.assertEqual(response.status_code, 401)
++        self.assertEqual(response.json()['code'], 'identity_denied')
++        self.assertEqual(response['X-BoS-Identity'], 'denied')
++
++    def test_hidden_latest_document_does_not_disclose_admission(self):
++        self.item.required_documents=['certificate']; self.item.save()
++        self.lot.documents={'certificate':self.public_version.pk}; self.lot.save()
++        data = self.get_trace('observer'); line=data['lines'][0]
++        self.assertIsNone(line['usable_reserved'])
++        self.assertIsNone(line['source_refs']['reservations'][0]['usable'])
++        self.assertEqual(line['completeness'], 'restricted')
++        self.assert_no_canaries(data, (self.HIDDEN_VERSION,))
++
++    def test_hidden_purchase_receipt_is_not_a_lot_origin(self):
++        self.purchase.request = self.requests['R02']; self.purchase.save()
++        for role in ('manager', 'observer'):
++            data = self.get_trace(role)
++            self.assertEqual(data['lines'][0]['source_refs']['lot_origins'], [])
++            self.assertEqual(data['lines'][0]['completeness'], 'restricted')
++            self.assert_no_canaries(data, (self.purchase.code, self.HIDDEN))
++        self.assertEqual(self.get_trace()['lines'][0]['source_refs']['lot_origins'][0]['purchase_id'], self.purchase.pk)
++
++    def test_physical_return_movement_does_not_reduce_gross_shipped(self):
++        Movement.objects.create(lot=self.lot, line=self.line, quantity='1', kind='customer_return', reference='RETURN')
++        data = self.get_trace(); line = data['lines'][0]
++        self.assertEqual(line['shipped'], '2.000')
++        self.assertEqual(line['open'], '8.000')
++        self.assertEqual([row['id'] for row in line['source_refs']['shipments']], [self.shipment.pk])
++        self.assertIn('фізичне повернення її не зменшує', line['basis'])
++
++    def test_hidden_shipment_keeps_admitted_line_quantity_without_source_leak(self):
++        hidden_lot = Lot.objects.create(code='TRACE-SHIP-HIDDEN-LOT', item=self.item,
++            location=self.location, revision='A', quantity='1', quality='approved',
++            documents={'certificate':self.hidden_doc.pk})
++        hidden = Movement.objects.create(lot=hidden_lot, line=self.line, kind='shipment',
++            quantity='-1.125', reference='TRACE-SHIP-HIDDEN-REF')
++        SalesLine.objects.filter(pk=self.line.pk).update(shipped='3.125')
++        for role in ('manager','observer'):
++            data = self.get_trace(role); line = data['lines'][0]
++            self.assertEqual(line['shipped'], '3.125')
++            self.assertEqual(line['open'], '6.875')
++            self.assertEqual(line['completeness'], 'restricted')
++            self.assertEqual([r['id'] for r in line['source_refs']['shipments']], [self.shipment.pk])
++            self.assertNotIn(hidden.pk, [r['id'] for r in line['source_refs']['shipments']])
++            self.assert_no_canaries(data, ('TRACE-SHIP-HIDDEN-LOT','TRACE-SHIP-HIDDEN-REF','-1.125',self.HIDDEN))
++
++    def test_snapshot_and_global_fingerprint_are_not_called(self):
++        with (patch('erp.queries.snapshot', side_effect=AssertionError('global snapshot')),
++                patch('erp.service.fingerprint', side_effect=AssertionError('global fingerprint'))):
++            self.get_trace()
+--- a/erp/views.py
++++ b/erp/views.py
+@@ -69,3 +69,19 @@
+             try:p.action(payload)
+             except (PermissionError, ObjectDoesNotExist):data={**data,'payload':None}
+     return JsonResponse(data,json_dumps_params={'ensure_ascii':False})
++
++
++@require_GET
++@errors
++def order_trace(request,pk):
++    from boss_project.identity import IdentityDenied
++    from .order_trace import build, ReadStateChanged
++    try:
++        data=build(request,pk)
++    except IdentityDenied as exc:
++        response=JsonResponse({'error':str(exc),'code':'identity_denied'},status=exc.status)
++        response['X-BoS-Identity']='denied'
++        return response
++    except ReadStateChanged:
++        return JsonResponse({'error':'Дані або доступ змінилися. Оновіть картку.','code':'read_state_changed'},status=409)
++    return JsonResponse(data,json_dumps_params={'ensure_ascii':False})
+--- a/erp/urls.py
++++ b/erp/urls.py
+@@ -1,3 +1,3 @@
+ from django.urls import path
+ from . import views, import_views, correction_views
+-urlpatterns=[path('corrections/outcome/',correction_views.outcome,name='bos-correction-outcome'),path('import/preview/',import_views.preview,name='bos-import-preview'),path('import/template/',import_views.template,name='bos-import-template'),path('import/batches/<uuid:batch_id>/',import_views.batch_detail,name='bos-import-batch'),path('import/batches/<uuid:batch_id>/export/',import_views.export,name='bos-import-export'),path('orders/<int:pk>/next/',views.next_action),path('snapshot/',views.snapshot),path('preview/',views.preview),path('export/',views.export),path('changes/<int:pk>/impact/',views.change_impact),path('orders/<int:pk>/draft/',views.draft)]
++urlpatterns=[path('orders/<int:pk>/trace/',views.order_trace,name='bos-order-trace'),path('corrections/outcome/',correction_views.outcome,name='bos-correction-outcome'),path('import/preview/',import_views.preview,name='bos-import-preview'),path('import/template/',import_views.template,name='bos-import-template'),path('import/batches/<uuid:batch_id>/',import_views.batch_detail,name='bos-import-batch'),path('import/batches/<uuid:batch_id>/export/',import_views.export,name='bos-import-export'),path('orders/<int:pk>/next/',views.next_action),path('snapshot/',views.snapshot),path('preview/',views.preview),path('export/',views.export),path('changes/<int:pk>/impact/',views.change_impact),path('orders/<int:pk>/draft/',views.draft)]
+--- a/scripts/access_routes.json
++++ b/scripts/access_routes.json
+@@ -1,5 +1,5 @@
+ {
+-  "source": "Accepted ACCESS_AUDIT_UA + A03 auth additions; live resolver 2026-09-11; permissions are in check_access.py, not inferred from handlers; A09 server health additions 2026-09-12 (original patterns unchanged); B02 four explicit CEO-only initial-import routes (all previous patterns retained); B03 explicit read-only committed correction outcome route (all176 entries retained); C01 explicit task-history plain/format and owner proposal-status routes; all177 B03 records and57 required field IDs retained C03 adds8 named statement paths and2 DRF journal-summary definitions; no ledger admin registration.",
++  "source": "Accepted ACCESS_AUDIT_UA + A03 auth additions; live resolver 2026-09-11; permissions are in check_access.py, not inferred from handlers; A09 server health additions 2026-09-12 (original patterns unchanged); B02 four explicit CEO-only initial-import routes (all previous patterns retained); B03 explicit read-only committed correction outcome route (all176 entries retained); C01 explicit task-history plain/format and owner proposal-status routes; all177 B03 records and57 required field IDs retained C03 adds8 named statement paths and2 DRF journal-summary definitions; no ledger admin registration. | 2026-09-20 BATCH-02 PLAN-LINKS-READ additive GET and field boundaries; historical writers85/12 unchanged.",
+   "patterns": [
+     {
+       "actions": null,
+@@ -1781,6 +1781,16 @@
+       },
+       "model": null,
+       "converters": {}
++    },
++    {
++      "pattern": "api/erp/orders/<int:pk>/trace/",
++      "name": "bos-order-trace",
++      "callback": "erp.views.order_trace",
++      "actions": null,
++      "model": null,
++      "converters": {
++        "pk": "IntConverter"
++      }
+     }
+   ],
+   "required_field_tests": [
+@@ -1840,6 +1850,24 @@
+     "operations.test_document_contract_visibility.A04DocumentContractVisibilityTests.test_visible_document_cannot_disclose_a_now_hidden_contract_fk",
+     "operations.test_remaining_context.A04RemainingContextTests.test_replay_rechecks_scope_of_created_result_not_only_original_payload",
+     "operations.test_remaining_context.A04RemainingContextTests.test_visible_order_next_step_never_names_a_hidden_job_component",
+-    "operations.test_review_response_projection.A04ReviewResponseProjectionTests.test_review_without_contract_change_still_uses_document_projection"
++    "operations.test_review_response_projection.A04ReviewResponseProjectionTests.test_review_without_contract_change_still_uses_document_projection",
++    "erp.test_order_trace.OrderTraceTests.test_trace_decimal_sources_and_read_only",
++    "erp.test_order_trace.OrderTraceTests.test_ceo_manager_observer_field_allowlists",
++    "erp.test_order_trace.OrderTraceTests.test_hidden_reservation_is_null_not_zero_or_visible_sum",
++    "erp.test_order_trace.OrderTraceTests.test_only_allowed_invoice_links_and_historical_tasks",
++    "erp.test_order_trace.OrderTraceTests.test_current_role_refresh_and_neutral_not_found",
++    "erp.test_order_trace.OrderTraceTests.test_method_and_no_documents_contract",
++    "erp.test_order_trace.OrderTraceTests.test_unrelated_order_purchase_not_allocated",
++    "erp.test_order_trace.OrderTraceTests.test_partial_refs_keep_full_decimal_and_old_shipments",
++    "erp.test_order_trace.OrderTraceTests.test_reservation_change_between_reads_has_no_payload",
++    "erp.test_order_trace.OrderTraceTests.test_document_admission_change_between_reads_has_no_payload",
++    "erp.test_order_trace.OrderTraceTests.test_permission_change_between_reads_has_no_payload",
++    "erp.test_order_trace.OrderTraceTests.test_metadata_and_membership_changes_between_reads_have_no_payload",
++    "erp.test_order_trace.OrderTraceTests.test_revoked_identity_between_reads_uses_identity_denial",
++    "erp.test_order_trace.OrderTraceTests.test_hidden_latest_document_does_not_disclose_admission",
++    "erp.test_order_trace.OrderTraceTests.test_hidden_purchase_receipt_is_not_a_lot_origin",
++    "erp.test_order_trace.OrderTraceTests.test_physical_return_movement_does_not_reduce_gross_shipped",
++    "erp.test_order_trace.OrderTraceTests.test_snapshot_and_global_fingerprint_are_not_called",
++    "erp.test_order_trace.OrderTraceTests.test_hidden_shipment_keeps_admitted_line_quantity_without_source_leak"
+   ]
+ }
+--- a/scripts/check_access.py
++++ b/scripts/check_access.py
+@@ -38,6 +38,7 @@
+     '/api/statements/imports/{pk}/export/','/api/statements/lines/',
+     '/api/statements/lines/{pk}/','/api/statements/lines/{pk}/candidates/','/api/statements/summary/'}
+ RAW_GET = {
++    '/api/erp/orders/{pk}/trace/',
+     '/api/erp/corrections/outcome/',
+     '/api/erp/import/template/', '/api/erp/import/batches/{batch_id}/', '/api/erp/import/batches/{batch_id}/export/',
+     '/api/erp/orders/{pk}/next/', '/api/erp/snapshot/', '/api/erp/export/',
+@@ -63,7 +64,7 @@
+     p.add_argument('--project-root', type=Path, default=Path(__file__).resolve().parents[1])
+     p.add_argument('--manifest', type=Path, default=Path(__file__).with_name('access_routes.json'))
+     p.add_argument('--fixture-module', default='operations.test_access')
+-    p.add_argument('--field-tests', nargs='+', default=['operations.test_access', 'operations.test_blind_paths', 'operations.test_remaining_context', 'operations.test_document_contract_visibility', 'operations.test_access_boundaries', 'operations.test_review_response_projection'])
++    p.add_argument('--field-tests', nargs='+', default=['operations.test_access', 'operations.test_blind_paths', 'operations.test_remaining_context', 'operations.test_document_contract_visibility', 'operations.test_access_boundaries', 'operations.test_review_response_projection', 'erp.test_order_trace'])
+     p.add_argument('--output', type=Path)
+     p.add_argument('--catalogue-only', action='store_true', help='Diagnostic only; always incomplete/exit 1.')
+     return p.parse_args()
+@@ -178,6 +179,13 @@
+         return {401}, 'anonymous_business_denied'
+     if role == 'technical_admin':
+         return {403}, 'staff_is_not_business_role'
++    if route == '/api/erp/orders/{pk}/trace/':
++        if method != 'GET':
++            denied = role == 'observer' and method not in ('HEAD', 'OPTIONS')
++            return ({403} if denied else {405}), 'order_trace_unsupported_read_only'
++        if role != 'ceo' and variant == 'no_documents':
++            return {404}, 'order_trace_source_unavailable'
++        return {200}, 'order_trace_scoped_read_only'
+     if route in C03_READS|{C03_SOURCE,C03_JOURNAL}:
+         if role!='ceo':return {403}, 'statement_ceo_only_read_only'
+         if route.endswith('/export/') and variant=='no_export' and method=='GET':return {403}, 'statement_export_capability_read_only'
+@@ -388,6 +396,8 @@
+         # Keep the complete body in the byte/canary oracle and all nested actions.
+         scan_data = {key: value for key, value in data.items() if key != 'description'}
+     leaks += ['field:' + key for key in sorted(set(nested_keys(scan_data)) & forbidden)]
++    if route == '/api/erp/orders/{pk}/trace/' and response.status_code == 200 and method == 'GET':
++        leaks += order_trace_oracle(data, role, fixtures)
+     if route == '/api/erp/corrections/outcome/':
+         leaks += correction_outcome_oracle(data, response.status_code, method, role, fixtures, variant)
+     if route in (C01_HISTORY,C01_OUTCOME) or route.startswith('/api/tasks/'):
+@@ -405,6 +415,30 @@
+             if anchor not in decoded_text:
+                 leaks.append('missing_positive_anchor:' + anchor)
+     return leaks, len(raw)
++
++
++def order_trace_oracle(data, role, fixtures):
++    """New route only: exact positive order and nested field/privacy boundaries."""
++    if not isinstance(data, dict) or data.get('schema') != 'bos.order-trace.v1':
++        return ['trace_schema_missing']
++    if data.get('order', {}).get('id') != fixtures.seed.order.pk or not data.get('lines'):
++        return ['trace_positive_order_missing']
++    errors = []
++    forbidden = {'price', 'cost', 'unit_cost', 'amount', 'paid', 'payload', 'result',
++                 'approval_snapshot', 'phone', 'email', 'birthday', 'read_revision', 'hidden_count'}
++    errors += ['trace_forbidden_field:' + key for key in sorted(set(nested_keys(data)) & forbidden)]
++    invoices = {row.get('invoice_id') for row in data.get('linked_invoice_refs', [])}
++    if fixtures.trace_hidden_invoice_id in invoices:
++        errors.append('trace_unrelated_invoice_link')
++    if role != 'ceo':
++        line = next((row for row in data['lines'] if row.get('line_id') == fixtures.seed.line.pk), None)
++        if line is None or line.get('usable_reserved') is not None or line.get('completeness') != 'restricted':
++            errors.append('trace_hidden_reservation_not_restricted')
++        elif fixtures.trace_hidden_reservation_id in {r.get('id') for r in line['source_refs']['reservations']}:
++            errors.append('trace_hidden_reservation_id')
++        if fixtures.trace_hidden_task_id in {row.get('id') for row in data.get('linked_tasks', [])}:
++            errors.append('trace_hidden_historical_task')
++    return errors
+ 
+ 
+ def statement_export_oracle(raw,fixtures):
+--- a/scripts/access_fixtures.py
++++ b/scripts/access_fixtures.py
+@@ -171,6 +171,27 @@
+         self.build_correction_outcome()
+         self.build_task_controls()
+         self.build_statement_controls()
++        self.build_order_trace_controls()
++
++    def build_order_trace_controls(self):
++        """Additive source-boundary canaries; not product-generated receipts."""
++        from erp.models import Lot, Reservation, InvoiceLink
++        from operations.models import Invoice, AuditEvent
++        from tasks.models import Task
++        lot = Lot.objects.create(code='A04-TRACE-HIDDEN-LOT', item=self.seed.item,
++            location=self.seed.location, revision='A', quantity='2', quality='approved',
++            documents={'certificate': self.seed.hidden_doc.pk})
++        # The existing fully shipped line gets a zero balance edge: no fake stock commitment.
++        reservation = Reservation.objects.create(lot=lot, line=self.seed.line, quantity='0')
++        self.trace_hidden_reservation_id = reservation.pk
++        invoice = Invoice.objects.create(code='A04-TRACE-HIDDEN-INVOICE', customer=self.seed.customer,
++            amount='91823.71', currency='EUR', due_date=self.today)
++        InvoiceLink.objects.create(invoice=invoice, order=self.seed.hidden_order, lines=[])
++        self.trace_hidden_invoice_id = invoice.pk
++        task = Task.objects.create(title='A04 TRACE HIDDEN HISTORICAL TASK', sales_order=self.seed.order)
++        AuditEvent.objects.create(action='update_task', task=task,
++            payload={'schema': 'bos.task-change.v1', 'source_refs': [{'order_id': self.seed.hidden_order.pk}]})
++        self.trace_hidden_task_id = task.pk
+ 
+     def statement_upload_payload(self, code='A04-C03-NEW-SOURCE'):
+         return {'code':code,'revision':'A','title':'A04 C03 private source',
+@@ -627,6 +648,10 @@
+         if role!='ceo' and (role!='technical_admin' or not path.startswith('/admin/')):
+             markers += list(self.c03_markers.values()) + [self.c03_account_ref,self.c03_source_system,
+                 'A04-C03-SOURCE','A04-C03-UNIMPORTED','A04 C03 private historical task']
++        if '/trace/' in path and role != 'ceo':
++            markers += ['A04-TRACE-HIDDEN-LOT', 'A04 TRACE HIDDEN HISTORICAL TASK']
++        if '/trace/' in path:
++            markers += ['A04-TRACE-HIDDEN-INVOICE', '91823.71']
+         return list(set(markers))
+ 
+     def positive_anchors(self, row, path, role, variant):
+@@ -649,6 +674,8 @@
+             return []
+         if role not in ('ceo', 'manager', 'observer'):
+             return []
++        if route == '/api/erp/orders/{pk}/trace/':
++            return ['bos.order-trace.v1', '"order_id": ' + str(self.seed.order.pk), 'A04-SO-OPEN']
+         if route == '/api/erp/corrections/outcome/' and role in ('ceo', 'manager') and variant == 'full':
+             return [self.correction_action, self.correction_operation_id, '"goods_return_id": ' + str(self.correction_source_ids['goods_return_id']), '"receipt_id": ' + str(self.correction_source_ids['receipt_id'])]
+         if route.startswith('/api/erp/import/') and role=='ceo':
+--- a/docs/ACCESS_UA.md
++++ b/docs/ACCESS_UA.md
+@@ -27,3 +27,15 @@
+ Локальні нотатки й налаштування розділено за користувачем та роллю. Старі нерозділені записи не видаляються і не передаються першому користувачеві. Зміна ролі або дозволу закриває застарілий екран на наступній відповіді сервера; для нових прав потрібен повторний вхід. Раніше отриманий користувачем файл не можна відкликати цією дією.
+ 
+ Зовнішня модель C02 не підключена. Працює локальний сценарний помічник із поточними правами та контрольованим погодженням. Обмеження зовнішнього адаптера не є доказом його готовності.
++
++## 20.09.2026 · PLAN-LINKS-READ, additive читання одного замовлення
++
++`GET /api/erp/orders/<pk>/trace/` (`bos-order-trace`) повертає `bos.order-trace.v1` після поточної `Policy` для замовлення й кожного джерела. Поля: кількості Decimal-рядками, дозволені source IDs, окремі owner/assignee ролі, metadata прямо пов'язаних робіт і доручень та allowlist `invoice_id/code/currency/due_date` через дозволений `InvoiceLink`. Історичні джерела доручень перевіряє `Policy.tasks()`. Ціни, суми, собівартість, raw audit payload/result і document bytes не повертаються.
++
++За недоступного складника похідний показник має `null`/`restricted`; немає прихованих IDs, назв чи лічильників. Придатність резерву використовує чинний `usable()` лише після допуску всіх потрібних документів та найновіших версій, включаючи перевірку збережених bytes. Прихована новіша версія дає нейтральне обмеження, не розкриття причини. `lot_origin` доводить тільки пряме приймання з `Movement.purchase` тієї самої партії; збіг item не є розподілом закупівлі. Фізичне повернення не зменшує gross shipped.
++
++100 видимих refs на секцію; суми обчислюються до обрізання повного дозволеного набору. `has_more` стосується лише дозволених записів, а `partial` не означає повної історії. Прихованість має пріоритет `restricted`, а видиме обрізання лишається у `has_more`. Секції line/job/task/invoice також обмежені 100. Оновлення лише явне, без автоматичного повтору 409.
++
++GET не створює mutex, proposal чи audit. Два матеріалізованих проходи з новими Policy, приватним digest спожитих значень/складу наборів, допуску документів і metadata та перевіркою `erp_write` до/між/після відхиляють нестабільне читання через 409 `read_state_changed` без business payload. Фінальна свіжа identity/access перевірка ловить відкликання всередині другого проходу. `generated_at` є часом підготовки, не atomic snapshot; протокол оптимістичний. Вартість Policy лишається глобальною; незалежна ERP-дія може консервативно спричинити 409.
++
++Точні method/role/no_documents oracles додані лише для цього route. Anonymous 401, technical_admin 403; дозволені business GET 200; manager/observer без доступу до документа order 404; HEAD/OPTIONS 405; observer unsafe 403, інші business unsafe 405. CEO/no_documents читає за чинною Policy. Старі 190 definitions і 57 field tests збережено; нові тести додаються до них. Це не новий PASS gate4 і не зміна історичного інвентарю 85/12 чи 11 GATES.

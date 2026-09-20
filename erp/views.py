@@ -69,3 +69,19 @@ def next_action(request,pk):
             try:p.action(payload)
             except (PermissionError, ObjectDoesNotExist):data={**data,'payload':None}
     return JsonResponse(data,json_dumps_params={'ensure_ascii':False})
+
+
+@require_GET
+@errors
+def order_trace(request,pk):
+    from boss_project.identity import IdentityDenied
+    from .order_trace import build, ReadStateChanged
+    try:
+        data=build(request,pk)
+    except IdentityDenied as exc:
+        response=JsonResponse({'error':str(exc),'code':'identity_denied'},status=exc.status)
+        response['X-BoS-Identity']='denied'
+        return response
+    except ReadStateChanged:
+        return JsonResponse({'error':'Дані або доступ змінилися. Оновіть картку.','code':'read_state_changed'},status=409)
+    return JsonResponse(data,json_dumps_params={'ensure_ascii':False})

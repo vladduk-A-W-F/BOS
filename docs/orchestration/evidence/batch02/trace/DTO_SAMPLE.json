@@ -1,0 +1,141 @@
+{
+  "as_of": "2026-09-20",
+  "completeness": "complete",
+  "limits": {
+    "has_more": {
+      "invoices": false,
+      "jobs": false,
+      "lines": false,
+      "tasks": false
+    },
+    "per_section": 100
+  },
+  "lines": [
+    {
+      "basis": "Відвантажено — історична кількість позиції; фізичне повернення її не зменшує. Відкрито = замовлено − відвантажено − скасовано.",
+      "cancelled": "2.000",
+      "completeness": "complete",
+      "has_more": {
+        "cancellations": false,
+        "lot_origins": false,
+        "reservations": false,
+        "shipments": false
+      },
+      "item": {
+        "code": "A04-ITEM",
+        "id": 1,
+        "name": "Виріб A04",
+        "unit": "шт."
+      },
+      "line_id": 1,
+      "open": "6.000",
+      "ordered": "10.000",
+      "revision": "A",
+      "shipped": "2.000",
+      "source_refs": {
+        "cancellations": [
+          {
+            "created_at": "2026-09-20T11:10:55.800Z",
+            "id": 1,
+            "quantity": "2.000"
+          }
+        ],
+        "line": {
+          "id": 1,
+          "type": "sales_line"
+        },
+        "lot_origins": [
+          {
+            "lot_id": 1,
+            "purchase_id": 1,
+            "receipt_id": 2,
+            "relation": "lot_origin"
+          }
+        ],
+        "reservations": [
+          {
+            "id": 1,
+            "lot_id": 1,
+            "quantity": "3.125",
+            "usable": true
+          }
+        ],
+        "shipments": [
+          {
+            "created_at": "2026-09-20T11:10:55.771Z",
+            "id": 1,
+            "lot_id": 1,
+            "quantity": "-2.000"
+          }
+        ]
+      },
+      "usable_reserved": "3.125"
+    }
+  ],
+  "linked_invoice_refs": [
+    {
+      "code": "A04-INV-EUR",
+      "currency": "EUR",
+      "due_date": "2026-09-17",
+      "invoice_id": 1
+    },
+    {
+      "code": "A04-INV-USD",
+      "currency": "USD",
+      "due_date": "2026-09-17",
+      "invoice_id": 2
+    },
+    {
+      "code": "A04-INV-UAH",
+      "currency": "UAH",
+      "due_date": "2026-09-17",
+      "invoice_id": 3
+    }
+  ],
+  "linked_jobs": [
+    {
+      "code": "TRACE-JOB",
+      "due_date": "2026-09-20",
+      "id": 1,
+      "line_id": 1,
+      "owner": {
+        "id": 1,
+        "name": "Синтетичний Працівник A04",
+        "role": "job_owner"
+      },
+      "status": "planned"
+    }
+  ],
+  "linked_tasks": [
+    {
+      "assignee": {
+        "id": 1,
+        "name": "Синтетичний Працівник A04",
+        "role": "task_assignee"
+      },
+      "deadline": "2026-09-19",
+      "id": 1,
+      "status": "active",
+      "title": "Відкрите доручення A04"
+    }
+  ],
+  "order": {
+    "code": "A04-SO-OPEN",
+    "due_date": "2026-12-19",
+    "id": 1,
+    "owner": {
+      "id": 1,
+      "name": "Синтетичний Працівник A04",
+      "role": "order_owner"
+    },
+    "status": "confirmed"
+  },
+  "schema": "bos.order-trace.v1",
+  "scope": {
+    "message": "Призначення очікуваних закупівель цьому замовленню не зафіксовано",
+    "order_id": 1,
+    "purchase_allocation": "not_recorded"
+  },
+  "access_revision": "60d3581bdff57fe71f8c90d1752ec20da850b1aa279cfa3a06deb3aab4d4ce16",
+  "generated_at": "2026-09-20T11:10:55.842749+00:00"
+}

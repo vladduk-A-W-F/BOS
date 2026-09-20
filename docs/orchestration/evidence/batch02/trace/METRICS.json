@@ -1,0 +1,52 @@
+[
+  {
+    "role": "ceo",
+    "sql_count": 74,
+    "elapsed_seconds": 0.041603,
+    "backend": "sqlite",
+    "scope": "small fixture only",
+    "evidence": "green01/raw.log",
+    "valid": true
+  },
+  {
+    "role": "manager",
+    "sql_count": 124,
+    "elapsed_seconds": 0.059399,
+    "backend": "sqlite",
+    "scope": "small fixture only",
+    "evidence": "green01/raw.log",
+    "valid": true
+  },
+  {
+    "role": "observer",
+    "sql_count": 124,
+    "elapsed_seconds": 0.055587,
+    "backend": "sqlite",
+    "scope": "small fixture only",
+    "evidence": "green01/raw.log",
+    "valid": true
+  },
+  {
+    "sql_count": 0,
+    "elapsed_seconds": 0.034772,
+    "backend": "sqlite",
+    "lines": 1,
+    "reservations": 1,
+    "shipments": 1,
+    "scope": "small fixture only",
+    "evidence": "green01/raw.log",
+    "valid": false,
+    "reason": "CaptureQueriesContext was inspected after another request reset the log; corrected by frozen list in green02."
+  },
+  {
+    "sql_count": 76,
+    "elapsed_seconds": 0.04061,
+    "backend": "sqlite",
+    "lines": 1,
+    "reservations": 1,
+    "shipments": 1,
+    "scope": "small fixture only",
+    "evidence": "green02/raw.log",
+    "valid": true
+  }
+]

@@ -1,5 +1,5 @@
 {
-  "source": "Accepted ACCESS_AUDIT_UA + A03 auth additions; live resolver 2026-09-11; permissions are in check_access.py, not inferred from handlers; A09 server health additions 2026-09-12 (original patterns unchanged); B02 four explicit CEO-only initial-import routes (all previous patterns retained); B03 explicit read-only committed correction outcome route (all176 entries retained); C01 explicit task-history plain/format and owner proposal-status routes; all177 B03 records and57 required field IDs retained C03 adds8 named statement paths and2 DRF journal-summary definitions; no ledger admin registration.",
+  "source": "Accepted ACCESS_AUDIT_UA + A03 auth additions; live resolver 2026-09-11; permissions are in check_access.py, not inferred from handlers; A09 server health additions 2026-09-12 (original patterns unchanged); B02 four explicit CEO-only initial-import routes (all previous patterns retained); B03 explicit read-only committed correction outcome route (all176 entries retained); C01 explicit task-history plain/format and owner proposal-status routes; all177 B03 records and57 required field IDs retained C03 adds8 named statement paths and2 DRF journal-summary definitions; no ledger admin registration. | 2026-09-20 BATCH-02 PLAN-LINKS-READ additive GET and field boundaries; historical writers85/12 unchanged.",
   "patterns": [
     {
       "actions": null,
@@ -1781,6 +1781,16 @@
       },
       "model": null,
       "converters": {}
+    },
+    {
+      "pattern": "api/erp/orders/<int:pk>/trace/",
+      "name": "bos-order-trace",
+      "callback": "erp.views.order_trace",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "pk": "IntConverter"
+      }
     }
   ],
   "required_field_tests": [
@@ -1840,6 +1850,24 @@
     "operations.test_document_contract_visibility.A04DocumentContractVisibilityTests.test_visible_document_cannot_disclose_a_now_hidden_contract_fk",
     "operations.test_remaining_context.A04RemainingContextTests.test_replay_rechecks_scope_of_created_result_not_only_original_payload",
     "operations.test_remaining_context.A04RemainingContextTests.test_visible_order_next_step_never_names_a_hidden_job_component",
-    "operations.test_review_response_projection.A04ReviewResponseProjectionTests.test_review_without_contract_change_still_uses_document_projection"
+    "operations.test_review_response_projection.A04ReviewResponseProjectionTests.test_review_without_contract_change_still_uses_document_projection",
+    "erp.test_order_trace.OrderTraceTests.test_trace_decimal_sources_and_read_only",
+    "erp.test_order_trace.OrderTraceTests.test_ceo_manager_observer_field_allowlists",
+    "erp.test_order_trace.OrderTraceTests.test_hidden_reservation_is_null_not_zero_or_visible_sum",
+    "erp.test_order_trace.OrderTraceTests.test_only_allowed_invoice_links_and_historical_tasks",
+    "erp.test_order_trace.OrderTraceTests.test_current_role_refresh_and_neutral_not_found",
+    "erp.test_order_trace.OrderTraceTests.test_method_and_no_documents_contract",
+    "erp.test_order_trace.OrderTraceTests.test_unrelated_order_purchase_not_allocated",
+    "erp.test_order_trace.OrderTraceTests.test_partial_refs_keep_full_decimal_and_old_shipments",
+    "erp.test_order_trace.OrderTraceTests.test_reservation_change_between_reads_has_no_payload",
+    "erp.test_order_trace.OrderTraceTests.test_document_admission_change_between_reads_has_no_payload",
+    "erp.test_order_trace.OrderTraceTests.test_permission_change_between_reads_has_no_payload",
+    "erp.test_order_trace.OrderTraceTests.test_metadata_and_membership_changes_between_reads_have_no_payload",
+    "erp.test_order_trace.OrderTraceTests.test_revoked_identity_between_reads_uses_identity_denial",
+    "erp.test_order_trace.OrderTraceTests.test_hidden_latest_document_does_not_disclose_admission",
+    "erp.test_order_trace.OrderTraceTests.test_hidden_purchase_receipt_is_not_a_lot_origin",
+    "erp.test_order_trace.OrderTraceTests.test_physical_return_movement_does_not_reduce_gross_shipped",
+    "erp.test_order_trace.OrderTraceTests.test_snapshot_and_global_fingerprint_are_not_called",
+    "erp.test_order_trace.OrderTraceTests.test_hidden_shipment_keeps_admitted_line_quantity_without_source_leak"
   ]
 }

@@ -38,6 +38,7 @@ C03_READS={'/api/statements/imports/','/api/statements/imports/{pk}/',
     '/api/statements/imports/{pk}/export/','/api/statements/lines/',
     '/api/statements/lines/{pk}/','/api/statements/lines/{pk}/candidates/','/api/statements/summary/'}
 RAW_GET = {
+    '/api/erp/orders/{pk}/trace/',
     '/api/erp/corrections/outcome/',
     '/api/erp/import/template/', '/api/erp/import/batches/{batch_id}/', '/api/erp/import/batches/{batch_id}/export/',
     '/api/erp/orders/{pk}/next/', '/api/erp/snapshot/', '/api/erp/export/',
@@ -63,7 +64,7 @@ def parse_args():
     p.add_argument('--project-root', type=Path, default=Path(__file__).resolve().parents[1])
     p.add_argument('--manifest', type=Path, default=Path(__file__).with_name('access_routes.json'))
     p.add_argument('--fixture-module', default='operations.test_access')
-    p.add_argument('--field-tests', nargs='+', default=['operations.test_access', 'operations.test_blind_paths', 'operations.test_remaining_context', 'operations.test_document_contract_visibility', 'operations.test_access_boundaries', 'operations.test_review_response_projection'])
+    p.add_argument('--field-tests', nargs='+', default=['operations.test_access', 'operations.test_blind_paths', 'operations.test_remaining_context', 'operations.test_document_contract_visibility', 'operations.test_access_boundaries', 'operations.test_review_response_projection', 'erp.test_order_trace'])
     p.add_argument('--output', type=Path)
     p.add_argument('--catalogue-only', action='store_true', help='Diagnostic only; always incomplete/exit 1.')
     return p.parse_args()
@@ -178,6 +179,13 @@ def contract(row, path, method, role, variant='full'):
         return {401}, 'anonymous_business_denied'
     if role == 'technical_admin':
         return {403}, 'staff_is_not_business_role'
+    if route == '/api/erp/orders/{pk}/trace/':
+        if method != 'GET':
+            denied = role == 'observer' and method not in ('HEAD', 'OPTIONS')
+            return ({403} if denied else {405}), 'order_trace_unsupported_read_only'
+        if role != 'ceo' and variant == 'no_documents':
+            return {404}, 'order_trace_source_unavailable'
+        return {200}, 'order_trace_scoped_read_only'
     if route in C03_READS|{C03_SOURCE,C03_JOURNAL}:
         if role!='ceo':return {403}, 'statement_ceo_only_read_only'
         if route.endswith('/export/') and variant=='no_export' and method=='GET':return {403}, 'statement_export_capability_read_only'
@@ -388,6 +396,8 @@ def response_oracle(response, row, path, method, role, fixtures, variant):
         # Keep the complete body in the byte/canary oracle and all nested actions.
         scan_data = {key: value for key, value in data.items() if key != 'description'}
     leaks += ['field:' + key for key in sorted(set(nested_keys(scan_data)) & forbidden)]
+    if route == '/api/erp/orders/{pk}/trace/' and response.status_code == 200 and method == 'GET':
+        leaks += order_trace_oracle(data, role, fixtures)
     if route == '/api/erp/corrections/outcome/':
         leaks += correction_outcome_oracle(data, response.status_code, method, role, fixtures, variant)
     if route in (C01_HISTORY,C01_OUTCOME) or route.startswith('/api/tasks/'):
@@ -405,6 +415,30 @@ def response_oracle(response, row, path, method, role, fixtures, variant):
             if anchor not in decoded_text:
                 leaks.append('missing_positive_anchor:' + anchor)
     return leaks, len(raw)
+
+
+def order_trace_oracle(data, role, fixtures):
+    """New route only: exact positive order and nested field/privacy boundaries."""
+    if not isinstance(data, dict) or data.get('schema') != 'bos.order-trace.v1':
+        return ['trace_schema_missing']
+    if data.get('order', {}).get('id') != fixtures.seed.order.pk or not data.get('lines'):
+        return ['trace_positive_order_missing']
+    errors = []
+    forbidden = {'price', 'cost', 'unit_cost', 'amount', 'paid', 'payload', 'result',
+                 'approval_snapshot', 'phone', 'email', 'birthday', 'read_revision', 'hidden_count'}
+    errors += ['trace_forbidden_field:' + key for key in sorted(set(nested_keys(data)) & forbidden)]
+    invoices = {row.get('invoice_id') for row in data.get('linked_invoice_refs', [])}
+    if fixtures.trace_hidden_invoice_id in invoices:
+        errors.append('trace_unrelated_invoice_link')
+    if role != 'ceo':
+        line = next((row for row in data['lines'] if row.get('line_id') == fixtures.seed.line.pk), None)
+        if line is None or line.get('usable_reserved') is not None or line.get('completeness') != 'restricted':
+            errors.append('trace_hidden_reservation_not_restricted')
+        elif fixtures.trace_hidden_reservation_id in {r.get('id') for r in line['source_refs']['reservations']}:
+            errors.append('trace_hidden_reservation_id')
+        if fixtures.trace_hidden_task_id in {row.get('id') for row in data.get('linked_tasks', [])}:
+            errors.append('trace_hidden_historical_task')
+    return errors
 
 
 def statement_export_oracle(raw,fixtures):

@@ -171,6 +171,27 @@ class SweepFixtures:
         self.build_correction_outcome()
         self.build_task_controls()
         self.build_statement_controls()
+        self.build_order_trace_controls()
+
+    def build_order_trace_controls(self):
+        """Additive source-boundary canaries; not product-generated receipts."""
+        from erp.models import Lot, Reservation, InvoiceLink
+        from operations.models import Invoice, AuditEvent
+        from tasks.models import Task
+        lot = Lot.objects.create(code='A04-TRACE-HIDDEN-LOT', item=self.seed.item,
+            location=self.seed.location, revision='A', quantity='2', quality='approved',
+            documents={'certificate': self.seed.hidden_doc.pk})
+        # The existing fully shipped line gets a zero balance edge: no fake stock commitment.
+        reservation = Reservation.objects.create(lot=lot, line=self.seed.line, quantity='0')
+        self.trace_hidden_reservation_id = reservation.pk
+        invoice = Invoice.objects.create(code='A04-TRACE-HIDDEN-INVOICE', customer=self.seed.customer,
+            amount='91823.71', currency='EUR', due_date=self.today)
+        InvoiceLink.objects.create(invoice=invoice, order=self.seed.hidden_order, lines=[])
+        self.trace_hidden_invoice_id = invoice.pk
+        task = Task.objects.create(title='A04 TRACE HIDDEN HISTORICAL TASK', sales_order=self.seed.order)
+        AuditEvent.objects.create(action='update_task', task=task,
+            payload={'schema': 'bos.task-change.v1', 'source_refs': [{'order_id': self.seed.hidden_order.pk}]})
+        self.trace_hidden_task_id = task.pk
 
     def statement_upload_payload(self, code='A04-C03-NEW-SOURCE'):
         return {'code':code,'revision':'A','title':'A04 C03 private source',
@@ -627,6 +648,10 @@ class SweepFixtures:
         if role!='ceo' and (role!='technical_admin' or not path.startswith('/admin/')):
             markers += list(self.c03_markers.values()) + [self.c03_account_ref,self.c03_source_system,
                 'A04-C03-SOURCE','A04-C03-UNIMPORTED','A04 C03 private historical task']
+        if '/trace/' in path and role != 'ceo':
+            markers += ['A04-TRACE-HIDDEN-LOT', 'A04 TRACE HIDDEN HISTORICAL TASK']
+        if '/trace/' in path:
+            markers += ['A04-TRACE-HIDDEN-INVOICE', '91823.71']
         return list(set(markers))
 
     def positive_anchors(self, row, path, role, variant):
@@ -649,6 +674,8 @@ class SweepFixtures:
             return []
         if role not in ('ceo', 'manager', 'observer'):
             return []
+        if route == '/api/erp/orders/{pk}/trace/':
+            return ['bos.order-trace.v1', '"order_id": ' + str(self.seed.order.pk), 'A04-SO-OPEN']
         if route == '/api/erp/corrections/outcome/' and role in ('ceo', 'manager') and variant == 'full':
             return [self.correction_action, self.correction_operation_id, '"goods_return_id": ' + str(self.correction_source_ids['goods_return_id']), '"receipt_id": ' + str(self.correction_source_ids['receipt_id'])]
         if route.startswith('/api/erp/import/') and role=='ceo':
