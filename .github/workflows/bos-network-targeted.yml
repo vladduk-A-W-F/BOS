@@ -70,7 +70,6 @@ jobs:
       BOS_PGUSER: bos_ci
       BOS_PGPASSWORD: bos_synthetic_ci_only
       BOS_NETWORK_CANDIDATE_SHA: ${{ github.sha }}
-      BOS_NETWORK_OUTPUT: ${{ runner.temp }}/bos-network-pg-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - name: Кандидат
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
@@ -85,7 +84,11 @@ jobs:
           python-version: '3.12'
       - name: Каталог доказів
         if: always()
-        run: mkdir -p "$BOS_NETWORK_OUTPUT"
+        env:
+          BOS_NETWORK_OUTPUT: ${{ runner.temp }}/bos-network-pg-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          mkdir -p "$BOS_NETWORK_OUTPUT"
+          echo "BOS_NETWORK_OUTPUT=$BOS_NETWORK_OUTPUT" >> "$GITHUB_ENV"
       - name: Залежності з окремими журналами
         run: python -m pip install -r candidate/requirements-ci.txt > "$BOS_NETWORK_OUTPUT/dependencies.stdout.log" 2> "$BOS_NETWORK_OUTPUT/dependencies.stderr.log"
       - name: Два нові конкурентні сценарії PostgreSQL 16
@@ -131,7 +134,6 @@ jobs:
       PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
       BOS_NETWORK_CANDIDATE_SHA: ${{ github.sha }}
       BOS_NETWORK_RUNTIME_SHA256: c15dfe0e3aeefde2fd4fa7af0e9dd2c7c04072a59b185554b821576b4c2111ca
-      BOS_NETWORK_BROWSER_OUTPUT: ${{ runner.temp }}/bos-network-browser-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - name: Exact candidate
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
@@ -146,7 +148,11 @@ jobs:
           python-version: '3.12'
       - name: Evidence directory
         if: always()
-        run: mkdir -p "$BOS_NETWORK_BROWSER_OUTPUT"
+        env:
+          BOS_NETWORK_BROWSER_OUTPUT: ${{ runner.temp }}/bos-network-browser-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          mkdir -p "$BOS_NETWORK_BROWSER_OUTPUT"
+          echo "BOS_NETWORK_BROWSER_OUTPUT=$BOS_NETWORK_BROWSER_OUTPUT" >> "$GITHUB_ENV"
       - name: Require preinstalled Chrome without downloads
         run: |
           python3 - <<'PY'

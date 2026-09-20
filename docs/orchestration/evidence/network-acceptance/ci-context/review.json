@@ -1,0 +1,28 @@
+{
+  "card": "NETWORK-CI-CONTEXT-FIX",
+  "reviewer": "integration_diagnosis",
+  "reviewed_at": "2026-09-20T14:26:19.689213+00:00",
+  "verdict": "ACCEPT_SCOPED_FIX_FOR_ONE_GUARDED_ACTUAL_RUN",
+  "workflow_sha256": "8fe89df7a6d8dc7f4680cb190a7258bf0dabfb10224bafdeb8ab77a27505fb3e",
+  "patch_sha256": "c47fa21f18487c8986067d6c521cb43dbe84200456c9ae129a973de18415f7e3",
+  "failure_run_id": 35516152992,
+  "failure_commit_prefix": "0975280",
+  "failure_stage": "GitHub workflow validation before jobs; no app/PG/browser execution",
+  "root_cause": "runner context forbidden in jobs.<job_id>.env; two occurrences moved to existing always() step env and persisted through GITHUB_ENV",
+  "official_basis": "https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#context-availability",
+  "prior_review_limit": "Earlier YAML/AST review missed GitHub expression context validity; source approval superseded for workflow",
+  "only_intended_semantic_changes": true,
+  "expression_sites": 33,
+  "unsupported_context_sites": [],
+  "bash_syntax_steps": 10,
+  "python_ast_blocks": 4,
+  "findings": [],
+  "app_runs_by_reviewer": 0,
+  "ci_runs_by_reviewer": 0,
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "remaining": [
+    "GitHub execution evidence still pending; this is not PG/browser acceptance",
+    "Exact existing token/branch/source/first-attempt guards remain unchanged; historical suite bans preserved"
+  ]
+}
