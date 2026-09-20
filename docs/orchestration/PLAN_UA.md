@@ -1,3 +1,7 @@
+# Реальний ERP інкремент · 20.09.2026
+
+Філії України/UAH/доступні джерела/перший CEO інтегровані в Git`e66af863b0bd840cefb4ef78e5a17414411f3db8`, незалежно scoped accepted. [Звіт і докази](VERTICAL_UA_UA.md). Продовжуємо UI-LOCAL-RUNNER (390/768/1440,200%,keyboard/Escape/network,new UAH preview/confirm), standalone empty migrations і поточний access sweep; same-N restore prerequisites окремо. Після готового кандидата — точний decision packet для full acceptance без скидання P05 3/3/A09/A10. GPT/connector stages лишаються відкритими залежностями, загальна готовністьfalse. Далі збережено попередній лендинг checkpoint та план.
+
 # Лендинг завершено · 20.09.2026
 
 [BoS](https://business-operating-system.vladduk134.chatgpt.site) опубліковано як **version 3**, source `ce0322034971a1ddc5cd66470e3792bb26f56493`. Поточний public доступ збережено без зміни налаштувань. **ACCEPT_SCOPED_LANDING_NAVIGATION**: мобільні екрани, вкладки, вхід/повернення з демо та legacy redirects перевірені. Виправлено hashchange старих посилань, пробіл у мобільному заголовку, доступне ім’я пошуку та неточну обіцянку приватного доступу. Звіт: [LANDING_BROWSER_UA.md](LANDING_BROWSER_UA.md); receipt: `evidence/batch04/landing-v3-20260920.json`.

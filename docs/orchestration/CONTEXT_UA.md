@@ -1,5 +1,7 @@
 # BoS · глибинний контекст
 
+Поточний продуктовий checkpoint20.09.2026: [VERTICAL_UA_UA.md](VERTICAL_UA_UA.md), Git`e66af863b0bd840cefb4ef78e5a17414411f3db8`, runtime`7ea639f89ed86ac0bc9fc5ecf201d4d4752fab22e5876700f16a1634e59ffad6`. Повний локальний Git перевірено; українські Branch links/Policy sources/UAHseed/реальний UI і перший CEO scoped accepted. BackendPG15/15,ownerPG17/17; browser/fullgate acceptance ще не зараховано. Нижчі старі checkpoint-кандидати є історією. Новий локальний browser runner дозволений уточненням A11; старі blocked routes/full limits збережені.
+
 Версія 1.1, 20.09.2026. Погоджене пакетне виконання; production та product GPT не запущені.
 
 ## Вектор власника

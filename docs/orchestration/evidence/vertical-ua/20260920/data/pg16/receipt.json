@@ -1,0 +1,53 @@
+{
+  "scope": "VERTICAL-UA-DATA targeted PostgreSQL16 only",
+  "allocated_database": "bos_verify_205e2b023e644017",
+  "allocated_test_database": "test_bos_verify_205e2b023e644017",
+  "source_before": {
+    "erp/models.py": "e9feeb3f336ecb8418c65f4da48593a3beb6aa56c3be6fc3cfc5bc57288c466b",
+    "erp/service.py": "c31bdb6801604d16dcf0831c5c3cdacd6a899054c7b190ad62a260747f67aedd",
+    "erp/queries.py": "64d377afbf75bfe5c32b3f3bad43b80b2e11e75fadef60918a7aa2e747084a2e",
+    "erp/workpoints.py": "23131853b9bb6728d2815339e52d99f442e69e97845923541a42b0ffc8eefc07",
+    "erp/views.py": "4990594314ad78fc59ebcadbb0d174adfd1d5bcab86a54da36103ee46b140114",
+    "erp/urls.py": "3dbd84b68eed6f0818366be3960323c99be15cbdf54c65bbff0e7c910467a113",
+    "boss_project/policy.py": "949f997f4632274e77d279a9ecf4b44ecd157b47249e056269a798c68f0b4518",
+    "operations/projections.py": "5c2534d94c4a89794e022d0914ac64584672f027ab96bbecf3fdc6bc87172ea4",
+    "erp/migrations/0006_branch_links.py": "77f54cffecd28e0188fcff937295c0e6ccc5ba9be191f9f193a1ab268c74a8c3",
+    "erp/management/commands/seed_bos_ua.py": "e3bec5ff4836d293394349919172352698b036afdcad1151810c36e09dc0b098",
+    "erp/test_workpoints.py": "a0d559c4d8322675ea0bf9b128b9a8f1a511b0a4a3f3de226d8c8213a8d7dccc"
+  },
+  "full_suite": false,
+  "browser_e2e": false,
+  "server_version_num": 160015,
+  "command": [
+    "D:\\3\\Codex\\2026-09-20\\bos-execution\\work\\vertical-ua\\venv\\Scripts\\python.exe",
+    "-X",
+    "utf8",
+    "manage.py",
+    "test",
+    "erp.test_workpoints",
+    "--settings=verification_settings",
+    "--noinput",
+    "-v",
+    "2"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 41.891,
+  "database_inventory_restored": false,
+  "source_after": {
+    "erp/models.py": "e9feeb3f336ecb8418c65f4da48593a3beb6aa56c3be6fc3cfc5bc57288c466b",
+    "erp/service.py": "c31bdb6801604d16dcf0831c5c3cdacd6a899054c7b190ad62a260747f67aedd",
+    "erp/queries.py": "64d377afbf75bfe5c32b3f3bad43b80b2e11e75fadef60918a7aa2e747084a2e",
+    "erp/workpoints.py": "23131853b9bb6728d2815339e52d99f442e69e97845923541a42b0ffc8eefc07",
+    "erp/views.py": "4990594314ad78fc59ebcadbb0d174adfd1d5bcab86a54da36103ee46b140114",
+    "erp/urls.py": "3dbd84b68eed6f0818366be3960323c99be15cbdf54c65bbff0e7c910467a113",
+    "boss_project/policy.py": "949f997f4632274e77d279a9ecf4b44ecd157b47249e056269a798c68f0b4518",
+    "operations/projections.py": "5c2534d94c4a89794e022d0914ac64584672f027ab96bbecf3fdc6bc87172ea4",
+    "erp/migrations/0006_branch_links.py": "77f54cffecd28e0188fcff937295c0e6ccc5ba9be191f9f193a1ab268c74a8c3",
+    "erp/management/commands/seed_bos_ua.py": "e3bec5ff4836d293394349919172352698b036afdcad1151810c36e09dc0b098",
+    "erp/test_workpoints.py": "a0d559c4d8322675ea0bf9b128b9a8f1a511b0a4a3f3de226d8c8213a8d7dccc"
+  },
+  "source_unchanged": true,
+  "raw_sha256": "e4a01a496a2f217f3416d4d833eb67c2193351dbe172f82d4dec8144c585fc38",
+  "allocated_databases_cleanup_verified": true,
+  "database_inventory_note": "Concurrent BOOTSTRAP-OWNER run used and removed separate allocated databases on the same disposable cluster; whole-cluster inventory is not this-card cleanup oracle. Only this cards two exact allocated database names are checked here."
+}

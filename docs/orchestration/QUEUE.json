@@ -265,6 +265,82 @@
       "external_prerequisites": [],
       "card": "docs/orchestration/WINDOWS_SOURCE_UA.md",
       "evidence": "docs/orchestration/evidence/windows-source/report.json"
+    },
+    {
+      "id": "FRONTEND-GLOBALS",
+      "title": "Native browser globals у lexical checker",
+      "owner": "bos_implementer",
+      "depends_on": [],
+      "checkpoint": "C5",
+      "status": "ACCEPTED_SCOPED",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/cards/FRONTEND-GLOBALS.md",
+      "evidence": "docs/orchestration/VERTICAL_UA_UA.md"
+    },
+    {
+      "id": "BOOTSTRAP-OWNER",
+      "title": "Перший керівник порожньої установки",
+      "owner": "bos_implementer",
+      "depends_on": [],
+      "checkpoint": "C5",
+      "status": "ACCEPT_SCOPED",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/cards/BOOTSTRAP-OWNER.md",
+      "evidence": "docs/orchestration/VERTICAL_UA_UA.md"
+    },
+    {
+      "id": "VERTICAL-UA-DATA",
+      "title": "Філія, склад, замовлення та джерела UAH",
+      "owner": "bos_implementer",
+      "depends_on": [
+        "PLAN-LINKS-READ"
+      ],
+      "checkpoint": "C5",
+      "status": "ACCEPTED_SCOPED",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/cards/VERTICAL-UA-DATA.md",
+      "evidence": "docs/orchestration/VERTICAL_UA_UA.md"
+    },
+    {
+      "id": "VERTICAL-UA-UI",
+      "title": "Робочі точки в чинному ERP UI",
+      "owner": "bos_ux",
+      "depends_on": [
+        "VERTICAL-UA-DATA",
+        "FRONTEND-GLOBALS"
+      ],
+      "checkpoint": "C3",
+      "status": "ACCEPT_SCOPED_CONTROLLED_UI",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/cards/VERTICAL-UA-UI.md",
+      "evidence": "docs/orchestration/VERTICAL_UA_UA.md"
+    },
+    {
+      "id": "UI-LOCAL-RUNNER",
+      "title": "Новий ізольований локальний browser runner",
+      "owner": "bos_test_ci",
+      "depends_on": [
+        "VERTICAL-UA-UI"
+      ],
+      "checkpoint": "C3",
+      "status": "IN_PROGRESS",
+      "external_prerequisites": [],
+      "card": null,
+      "evidence": "docs/orchestration/VERTICAL_UA_UA.md"
+    },
+    {
+      "id": "LOCAL-GATE1-4",
+      "title": "Порожні міграції й актуальний access sweep",
+      "owner": "bos_test_ci",
+      "depends_on": [
+        "VERTICAL-UA-DATA",
+        "BOOTSTRAP-OWNER"
+      ],
+      "checkpoint": "C5",
+      "status": "IN_PROGRESS",
+      "external_prerequisites": [],
+      "card": null,
+      "evidence": "docs/orchestration/VERTICAL_UA_UA.md"
     }
   ]
 }

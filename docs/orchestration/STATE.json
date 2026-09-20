@@ -3,10 +3,10 @@
   "updated_at": "2026-09-20",
   "canonical_repository": "vladduk-A-W-F/BOS",
   "setup_branch": "setup/bos-gpt-orchestration-20260920",
-  "product_candidate_commit": "8060075455206257d6283c70906facca98f0bc1a",
-  "runtime_source_sha256": "ce495b29214f21a80b8efd5bf41f6f219b5cb182b0453a7c43dac8899bc06ed5",
+  "product_candidate_commit": "e66af863b0bd840cefb4ef78e5a17414411f3db8",
+  "runtime_source_sha256": "7ea639f89ed86ac0bc9fc5ecf201d4d4752fab22e5876700f16a1634e59ffad6",
   "runtime_reconstructed_and_digest_matched": true,
-  "whole_local_git_tree_verified": false,
+  "whole_local_git_tree_verified": true,
   "technical_ready": false,
   "pilot_allowed": false,
   "execution": {
@@ -20,11 +20,12 @@
     "mode_after_resume": "BATCH_WITH_REVIEW",
     "batch_mode_authorized": true,
     "ci_scope": "Targeted new-card verification only; no exhausted full/PG suite/E2E retry",
-    "through": "BATCH-02 → BATCH-03 SaaS packaging → BATCH-04 landing",
+    "through": "VERTICAL-UA -> UI-LOCAL-RUNNER -> allowed acceptance preparation",
     "landing_publication_allowed": true,
     "landing_audience": "Preserve current audience; public revision 2 observed before and after v3 publication; access not changed by this task.",
-    "latest_instruction": "И ТЕПЕРЬ ОБНОВ И ВЫПОЛНЯЙ ПАКЕТЫ ОДИН А ДРУГИМ ДО ЛЕНДИНГА",
-    "historical_landing_audience": "Original authorization preserved existing owner-private audience at initial publication."
+    "latest_instruction": "Continue the actual ERP Ukrainian workpoints/UAH/first-owner increment and independent allowed acceptance work; historical operation-specific restrictions remain.",
+    "historical_landing_audience": "Original authorization preserved existing owner-private audience at initial publication.",
+    "a11_clarification": "Old cloud-CDP/CDN/loopback bypass remains forbidden. The owner explicitly authorizes a new isolated local browser runner on 2026-09-20."
   },
   "historical_limits": {
     "P05_timeout_cycle_used": 3,
@@ -48,11 +49,10 @@
   "runtime_environment": {
     "python": "3.12.14",
     "django_installed": true,
-    "postgres16_available": false,
+    "postgres16_available": true,
     "codex_cli_available": false,
     "application_started_this_setup": false,
-    "postgres16_local_blocker": "apt-get update: setgroups/setegid/seteuid not permitted; no bypass attempted",
-    "venv": "execution/venv outside repository",
+    "venv": "D:\\3\\Codex\\2026-09-20\\bos-execution\\work\\vertical-ua\\venv",
     "django_version": "6.0.5",
     "djangorestframework_version": "3.17.1",
     "postgres16_ci": {
@@ -194,6 +194,19 @@
       "reviewer": "bos_batch_review",
       "postgres_green_real_business_http_methods": 16,
       "postgres_stage_fake_connection_guard_methods": 10
+    },
+    "previous_local_environment": {
+      "postgres16_available": false,
+      "postgres16_local_blocker": "apt-get update: setgroups/setegid/seteuid not permitted; no bypass attempted",
+      "venv": "execution/venv outside repository"
+    },
+    "platform": "Windows 10",
+    "postgres16_local": {
+      "version": "16.15",
+      "version_num": 160015,
+      "port": 55439,
+      "scope": "isolated synthetic verification cluster, not production deployment",
+      "service_created": false
     }
   },
   "config_validation": "PASS_STATIC",
@@ -212,8 +225,8 @@
   "main_reconciliation_before_merge_required": true,
   "master_v2_1_sha256": "4ab578d4ab1a6c959ed7aa791f09a7c8284c04df1d48b6a575671f53df7c4caf",
   "master_v2_1_sha_verified": true,
-  "setup_head": "d9e00f43efe41f44a82e166f33708f7c6dab84aa",
-  "current_batch": "BATCH-04",
+  "setup_head": "e66af863b0bd840cefb4ef78e5a17414411f3db8",
+  "current_batch": "VERTICAL-UA",
   "plugins": {
     "github": "CONFIRMED",
     "figma": "CONFIRMED",
@@ -221,9 +234,9 @@
     "openai_developers": "NOT_INSTALLED_REQUIRES_USER_UI",
     "codex_security": "NOT_INSTALLED_REQUIRES_USER_UI"
   },
-  "setup_head_note": "Verified GitHub PR head before this evidence update. Sites source v3 is separate and published; Django runtime stays at accepted BATCH02 identity. Resulting documentation commit is recorded by Git, not self-embedded.",
-  "next_action": "PLAN-LANDING complete in scoped live QA. Next product stages: GPT assistant and customer-specific connectors. Full transactional demo E2E and backend/production acceptance remain open; historical retry limits unchanged.",
-  "batch_result": "THROUGH_LANDING_COMPLETE_SCOPED_BROWSER_ACCEPTED_WITH_RELEASE_BLOCKERS",
+  "setup_head_note": "Exact full Git code head before this documentation update; later commit identity is recorded by Git.",
+  "next_action": "Local new browser acceptance runner, standalone empty migrations and current access sweep; same-N restore prerequisites. No exhausted full/postgres/e2e/windows presets; GPT/connector stages remain open.",
+  "batch_result": "VERTICAL_UA_SCOPED_CODE_ACCEPTED_BROWSER_AND_FULL_GATES_PENDING",
   "baseline_product_commit": "7d46dced3bcf06d44755cf53366c9e16bd465582",
   "next_after_owner_review_note": "Історичне поле початкового setup для compatibility validator; P10-003 вже scoped accepted. Чинна черга — next_action та QUEUE.",
   "verification": {
@@ -498,6 +511,44 @@
       "review_evidence": "docs/orchestration/evidence/plan-time/20260920/REVIEW.md",
       "evidence_reader_run_id": 35514074336,
       "evidence_reader_runtime_executed": false
+    },
+    "vertical_ua": {
+      "status": "ACCEPT_SCOPED",
+      "candidate_commit": "e66af863b0bd840cefb4ef78e5a17414411f3db8",
+      "source_sha256": "7ea639f89ed86ac0bc9fc5ecf201d4d4752fab22e5876700f16a1634e59ffad6",
+      "backend_sqlite_tests": 15,
+      "backend_pg16_tests": 15,
+      "owner_sqlite_initial_tests": 16,
+      "owner_sqlite_new_warning_test": 1,
+      "owner_pg16_tests": 17,
+      "ui_controlled_cases": 20,
+      "real_django_role_contracts": 3,
+      "route_catalogue": 192,
+      "required_access_field_tests": 86,
+      "allocated_database_cleanup": true,
+      "whole_cluster_inventory_restored": false,
+      "whole_cluster_inventory_note": "Other independently allocated owner databases changed concurrently; only each cards exact two issued names were verified absent.",
+      "backend_review": "ACCEPTED_SCOPED time_probe_review",
+      "owner_review": "ACCEPT_SCOPED ua_vertical_ui_audit",
+      "ui_review": "ACCEPT_SCOPED root independent of UI author",
+      "browser_acceptance": false,
+      "full_gate_acceptance": false,
+      "full_suite_run": false,
+      "evidence": "docs/orchestration/evidence/vertical-ua/20260920/index.json",
+      "report": "docs/orchestration/VERTICAL_UA_UA.md"
+    },
+    "full_git": {
+      "status": "VERIFIED",
+      "bundle_commit": "8fec775319c0311adf09fc83433cd795dbc14425",
+      "bundle_sha256": "8377d49af1d41cd34e4e2e02bf39142ba0913b6279f1f66ae7df7c3c60b99fcd",
+      "reachable_commits_at_import": 49,
+      "tracked_files_at_import": 1892,
+      "origin_refs_at_import": 9,
+      "shallow": false,
+      "fsck": "PASS",
+      "current_code_commit": "e66af863b0bd840cefb4ef78e5a17414411f3db8",
+      "worktree": "D:\\3\\Codex\\2026-09-20\\bos-execution\\work\\bos-fullgit-20260920",
+      "api_commit_objects_verified": true
     }
   },
   "implementation_authorization": {
@@ -547,5 +598,10 @@
     "database_files": 0,
     "package_sha256": "ae539ebc2797303e7524de9eee9af218411d649b8e2b2d79a0c9c26d753bc427",
     "installer_run": false
+  },
+  "historical_product_candidate": {
+    "commit": "8060075455206257d6283c70906facca98f0bc1a",
+    "source_sha256": "ce495b29214f21a80b8efd5bf41f6f219b5cb182b0453a7c43dac8899bc06ed5",
+    "note": "Historical BATCH02/PLAN-TIME scoped results remain attached to this previous runtime."
   }
 }

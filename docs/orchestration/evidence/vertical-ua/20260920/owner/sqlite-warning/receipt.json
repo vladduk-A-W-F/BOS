@@ -1,0 +1,31 @@
+{
+  "backend": "sqlite",
+  "source_before": {
+    "operations/management/commands/bootstrap_bos_owner.py": "202263e62589c8ff67b622cfb67f72c4d73a66f1479522d34a9c5ade68e3e6b4",
+    "operations/test_bootstrap_owner.py": "f45e7cbf122aa2d47fe33b26214121889d4e8862fa819c32dfcf5b7d6a161edf",
+    "docs/FIRST_OWNER_UA.md": "c780f29637a78afc83b0b95612faedda3990310ef68d1de4a4cecc6a0d8d394d"
+  },
+  "complete": true,
+  "full_suite": false,
+  "installer_run": false,
+  "command": [
+    "D:\\3\\Codex\\2026-09-20\\bos-execution\\work\\vertical-ua\\venv\\Scripts\\python.exe",
+    "-X",
+    "utf8",
+    "-B",
+    "manage.py",
+    "test",
+    "operations.test_bootstrap_owner.FirstOwnerTests.test_getpass_warning_never_falls_back_to_echo_or_writes",
+    "--settings=verification_settings",
+    "--verbosity=2",
+    "--noinput"
+  ],
+  "exit_code": 0,
+  "source_after": {
+    "operations/management/commands/bootstrap_bos_owner.py": "202263e62589c8ff67b622cfb67f72c4d73a66f1479522d34a9c5ade68e3e6b4",
+    "operations/test_bootstrap_owner.py": "f45e7cbf122aa2d47fe33b26214121889d4e8862fa819c32dfcf5b7d6a161edf",
+    "docs/FIRST_OWNER_UA.md": "c780f29637a78afc83b0b95612faedda3990310ef68d1de4a4cecc6a0d8d394d"
+  },
+  "elapsed_seconds": 30.843,
+  "raw_sha256": "aaffd36daee8769e3bff2934a2e65645a171c9fcc019b05f9af3c93c6bb2f5c4"
+}
