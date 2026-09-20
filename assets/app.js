@@ -17207,6 +17207,7 @@ function WorkpointsPanel({
   }
   async function begin(type, preset = {}) {
     if (lock.current || !bundle || !bosCanAction(type)) return;
+    const opener = document.activeElement;
     lock.current = true;
     setBusy(true);
     clearDetails();
@@ -17223,6 +17224,7 @@ function WorkpointsPanel({
       setAction({
         type,
         scope,
+        opener,
         data: next.snapshot,
         preset: {
           ...(['order', 'location'].includes(type) && point.branch ? {
@@ -17384,7 +17386,10 @@ function WorkpointsPanel({
       ...value,
       submitted
     } : value),
-    onClose: () => setAction(null),
+    onClose: () => {
+      setAction(null);
+      if (action.scope === bosHttpScope() && action.opener?.isConnected && !action.opener.disabled) action.opener.focus();
+    },
     onDone: async r => {
       const scope = bosHttpScope();
       setAction(null);
