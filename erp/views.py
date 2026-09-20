@@ -43,6 +43,17 @@ def preview(request):
     proposal=approvals.preview(request,payload,snapshot_fingerprint=token,dependency_context=context);proposal['effect']=effect;proposal['impact']=delta
     return JsonResponse(proposal)
 
+
+@require_GET
+@errors
+def workpoints(request):
+    from .workpoints import build
+    from .order_trace import ReadStateChanged
+    try:
+        return JsonResponse(build(request), json_dumps_params={'ensure_ascii': False})
+    except ReadStateChanged:
+        return JsonResponse({'error': 'Дані або права змінилися. Оновіть робочі точки.'}, status=409)
+
 @require_GET
 @errors
 def change_impact(request,pk):

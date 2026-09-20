@@ -57,7 +57,9 @@ def plan_line(line,policy=None):
 @exact
 def snapshot(policy=None):
     visible=lambda rows:policy.filter_queryset(rows) if policy else rows
+    from branches.models import Branch
     result={name:list(visible(model.objects.order_by('pk')).values()) for name,model in [('items',Item),('locations',Location),('lots',Lot),('orders',SalesOrder),('lines',SalesLine),('jobs',Production),('reservations',Reservation),('purchases',Purchase),('inspections',Inspection),('changes',ChangeOrder),('operator_entries',OperatorEntry)]}
+    result['branches']=list(visible(Branch.objects.order_by('pk')).values('id','code','name','short_name','type','lat','lng'))
     from .corrections import snapshot_rows,effective_row,invoice_basis
     result.update(snapshot_rows(policy))
     for row in result['lines']:row.update(effective_row(SalesLine.objects.get(pk=row['id']),policy))

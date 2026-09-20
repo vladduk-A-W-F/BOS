@@ -6,9 +6,9 @@ from django.core.exceptions import ObjectDoesNotExist
 ERP_FIELDS = {
     'tasks':'title category priority assignee_id deadline order_id status result archived is_overdue',
     'items': 'id code name unit kind method revision document_id material external_codes required_documents bom routing minimum lead_days currency',
-    'locations': 'id code name kind supplier_id',
+    'locations': 'id code name kind supplier_id branch_id',
     'lots': 'id code item_id location_id revision quantity quality currency documents reserved available missing_documents',
-    'orders': 'id code customer_id owner_id due_date currency status',
+    'orders': 'id code customer_id owner_id due_date currency status branch_id',
     'lines': 'id order_id item_id revision quantity shipped invoiced',
     'jobs': 'id code line_id item_id quantity produced revision bom routing location_id owner_id due_date status needs_review currency',
     'reservations': 'id lot_id line_id production_id quantity',

@@ -38,6 +38,7 @@ C03_READS={'/api/statements/imports/','/api/statements/imports/{pk}/',
     '/api/statements/imports/{pk}/export/','/api/statements/lines/',
     '/api/statements/lines/{pk}/','/api/statements/lines/{pk}/candidates/','/api/statements/summary/'}
 RAW_GET = {
+    '/api/erp/workpoints/',
     '/api/erp/orders/{pk}/trace/',
     '/api/erp/corrections/outcome/',
     '/api/erp/import/template/', '/api/erp/import/batches/{batch_id}/', '/api/erp/import/batches/{batch_id}/export/',
@@ -64,7 +65,7 @@ def parse_args():
     p.add_argument('--project-root', type=Path, default=Path(__file__).resolve().parents[1])
     p.add_argument('--manifest', type=Path, default=Path(__file__).with_name('access_routes.json'))
     p.add_argument('--fixture-module', default='operations.test_access')
-    p.add_argument('--field-tests', nargs='+', default=['operations.test_access', 'operations.test_blind_paths', 'operations.test_remaining_context', 'operations.test_document_contract_visibility', 'operations.test_access_boundaries', 'operations.test_review_response_projection', 'erp.test_order_trace'])
+    p.add_argument('--field-tests', nargs='+', default=['operations.test_access', 'operations.test_blind_paths', 'operations.test_remaining_context', 'operations.test_document_contract_visibility', 'operations.test_access_boundaries', 'operations.test_review_response_projection', 'erp.test_order_trace', 'erp.test_workpoints.WorkpointTests'])
     p.add_argument('--output', type=Path)
     p.add_argument('--catalogue-only', action='store_true', help='Diagnostic only; always incomplete/exit 1.')
     return p.parse_args()
@@ -179,6 +180,11 @@ def contract(row, path, method, role, variant='full'):
         return {401}, 'anonymous_business_denied'
     if role == 'technical_admin':
         return {403}, 'staff_is_not_business_role'
+    if route == '/api/erp/workpoints/':
+        if method != 'GET':
+            denied = role == 'observer' and method not in ('HEAD', 'OPTIONS')
+            return ({403} if denied else {405}), 'workpoints_unsupported_read_only'
+        return {200}, 'workpoints_visible_sources_read_only'
     if route == '/api/erp/orders/{pk}/trace/':
         if method != 'GET':
             denied = role == 'observer' and method not in ('HEAD', 'OPTIONS')
@@ -398,6 +404,8 @@ def response_oracle(response, row, path, method, role, fixtures, variant):
     leaks += ['field:' + key for key in sorted(set(nested_keys(scan_data)) & forbidden)]
     if route == '/api/erp/orders/{pk}/trace/' and response.status_code == 200 and method == 'GET':
         leaks += order_trace_oracle(data, role, fixtures)
+    if route == '/api/erp/workpoints/' and response.status_code == 200 and method == 'GET':
+        leaks += workpoints_oracle(data, role, fixtures, variant)
     if route == '/api/erp/corrections/outcome/':
         leaks += correction_outcome_oracle(data, response.status_code, method, role, fixtures, variant)
     if route in (C01_HISTORY,C01_OUTCOME) or route.startswith('/api/tasks/'):
@@ -415,6 +423,33 @@ def response_oracle(response, row, path, method, role, fixtures, variant):
             if anchor not in decoded_text:
                 leaks.append('missing_positive_anchor:' + anchor)
     return leaks, len(raw)
+
+
+def workpoints_oracle(data, role, fixtures, variant):
+    if not isinstance(data, dict) or data.get('schema') != 'bos.workpoints.v1' or data.get('scope') != 'visible_records':
+        return ['workpoints_schema_missing']
+    errors = []
+    order_ids = set()
+    for point in data.get('points', []):
+        order_ids.update(point.get('order_ids', []))
+        if point.get('movement_scope') != 'latest_300_visible_global':
+            errors.append('workpoints_movement_scope_missing')
+        if role != 'ceo':
+            if point.get('money') is not None or point.get('completeness') != 'restricted':
+                errors.append('workpoints_finance_not_restricted')
+            if any(row.get('available') is not None for row in point.get('stock', [])):
+                errors.append('workpoints_hidden_reservation_inference')
+            for key, value in [('order_ids', fixtures.seed.hidden_order.pk),
+                    ('lot_ids', fixtures.seed.hidden_lot.pk), ('document_ids', fixtures.seed.hidden_doc.pk)]:
+                if value in point.get(key, []):
+                    errors.append('workpoints_hidden_' + key)
+            if variant == 'no_documents' and point.get('document_ids'):
+                errors.append('workpoints_document_capability_leak')
+    if (role == 'ceo' or variant != 'no_documents') and fixtures.seed.order.pk not in order_ids:
+        errors.append('workpoints_positive_order_missing')
+    forbidden = {'phone', 'email', 'birthday', 'payload', 'approval_snapshot', 'hidden_count', 'read_revision'}
+    errors += ['workpoints_forbidden_field:' + key for key in sorted(set(nested_keys(data)) & forbidden)]
+    return errors
 
 
 def order_trace_oracle(data, role, fixtures):
@@ -1065,6 +1100,8 @@ def main():
                 if canonical(path) == '/api/erp/corrections/outcome/':
                     contexts += [('manager', 'no_documents')]
                 if canonical(path) == C01_HISTORY:
+                    contexts += [(r,'no_documents') for r in ('manager','observer')]
+                if canonical(path) == '/api/erp/workpoints/':
                     contexts += [(r,'no_documents') for r in ('manager','observer')]
                 if canonical(path)=='/api/statements/imports/{pk}/export/':
                     contexts += [('ceo','no_export')]

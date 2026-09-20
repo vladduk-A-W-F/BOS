@@ -29,6 +29,7 @@ class Location(models.Model):
     name=models.CharField(max_length=200)
     kind=models.CharField(max_length=20,default='warehouse')
     supplier=models.ForeignKey('finance.Counterparty',null=True,blank=True,on_delete=models.PROTECT)
+    branch=models.ForeignKey('branches.Branch',null=True,blank=True,on_delete=models.PROTECT)
 
 class Lot(models.Model):
     code=models.CharField(max_length=60,unique=True)
@@ -55,6 +56,7 @@ class SalesOrder(models.Model):
     currency=models.CharField(max_length=3,default='EUR')
     status=models.CharField(max_length=20,default='quote')
     notes=models.TextField(blank=True)
+    branch=models.ForeignKey('branches.Branch',null=True,blank=True,on_delete=models.PROTECT)
 
     class Meta:
         constraints = [

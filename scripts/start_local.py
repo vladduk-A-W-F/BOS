@@ -109,6 +109,7 @@ def main():
         run([str(python),'manage.py','seed_bos_demo'],env)
         run([str(python),'manage.py','seed_erp_demo'],env)
         run([str(python),'manage.py','seed_bos_workspace'],env)
+        run([str(python),'manage.py','seed_bos_ua'],env)
     port = pick_port()
     url = 'http://127.0.0.1:%s/' % port
     emit('Відкрити: ' + url)

@@ -9,17 +9,18 @@ from operations.models import Document,Configuration,Invoice
 from operations.service import as_of,newest,Conflict
 from employees.models import Employee
 from finance.models import Counterparty
+from branches.models import Branch
 from boss_project.data_rules import field_values, portable_tree, decimal_value
 
 D=Decimal
 ZERO=D('0')
-MODELS=[Item,Location,Lot,SalesOrder,SalesLine,Production,Reservation,Purchase,Movement,Inspection,ChangeOrder,InvoiceLink,OperatorEntry]
+MODELS=[Item,Location,Lot,SalesOrder,SalesLine,Production,Reservation,Purchase,Movement,Inspection,ChangeOrder,InvoiceLink,OperatorEntry,Branch]
 # req fields; optional values have explicit defaults, unknown fields rejected.
 SCHEMAS={
 'import_batch':('batch','source_part_sha256'),
 'item':('code name unit kind method revision currency','material external_codes required_documents bom routing minimum lead_days planned_cost document_id'),
-'location':('code name kind','supplier_id'),
-'order':('code customer_id owner_id due_date currency lines','notes'),
+'location':('code name kind','supplier_id branch_id'),
+'order':('code customer_id owner_id due_date currency lines','notes branch_id'),
 'confirm_order':('order_id',''),
 'opening':('code item_id location_id quantity unit_cost currency revision','documents reason'),
 'purchase':('code item_id supplier_id quantity price currency due_date revision','extras production_id request_id quote_id supplier_confirmation direct_reason'),
@@ -209,9 +210,11 @@ def dispatch(payload,role='manager',log=True,*,import_context=None,import_phase=
         obj=Item.objects.create(**d);out={'item_id':obj.id,'code':obj.code}
     elif a=='location':
         if d['kind'] not in ('warehouse','production','supplier'):raise ValueError('Невідомий тип місця.')
+        if d.get('branch_id'):Branch.objects.get(pk=d['branch_id'])
         if d['kind']=='supplier':Counterparty.objects.get(pk=d.get('supplier_id'),type='supplier')
         obj=Location.objects.create(**d);out={'location_id':obj.id,'code':obj.code}
     elif a=='order':
+        if d.get('branch_id'):Branch.objects.get(pk=d['branch_id'])
         lines=d.pop('lines');customer=Counterparty.objects.get(pk=d['customer_id'],type='customer');Employee.objects.get(pk=d['owner_id'])
         if not isinstance(lines,list) or not 1<=len(lines)<=100:raise ValueError('Замовлення потребує 1–100 позицій.')
         obj=SalesOrder.objects.create(**d)

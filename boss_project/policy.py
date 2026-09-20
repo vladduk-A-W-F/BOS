@@ -172,7 +172,10 @@ class Policy:
         from django.core.exceptions import ObjectDoesNotExist
         if value is None:
             return
-        if name in ('receipt_id','shipment_id','movement_id','source_movement_id'):
+        if name == 'branch_id':
+            from branches.models import Branch
+            self.queryset(Branch).get(pk=value)
+        elif name in ('receipt_id','shipment_id','movement_id','source_movement_id'):
             from erp.models import Movement
             obj=self.queryset(Movement).get(pk=value)
             expected={'receipt_id':'receipt','shipment_id':'shipment'}.get(name)
