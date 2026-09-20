@@ -18,25 +18,8 @@ def textnum(n):return str(n.quantize(D('.001'))).rstrip('0').rstrip('.') if n el
 
 def rows(model):return list(model.objects.order_by('pk').values())
 
-def _lot_usable(lot,facts,revision=None):
-    if facts is None or lot.pk not in facts:
-        # The caller already selected this lot through its existing Policy query.
-        return usable(lot,revision)
-    value=facts[lot.pk]
-    return value['usable'] and (revision is None or value['revision']==revision)
-
-
-def _lot_free(lot,facts):
-    return free(lot) if facts is None or lot.pk not in facts else facts[lot.pk]['free']
-
-
 @exact
 def plan_line(line,policy=None):
-    # Standalone planning keeps the original live service reads.
-    return _plan_line(line,policy)
-
-
-def _plan_line(line,policy=None,lot_facts=None):
     visible=lambda rows:policy.filter_queryset(rows) if policy else rows
     today=as_of();remaining=sales_open(line)
     location_id=line.order.fulfillment_location_id
@@ -45,8 +28,8 @@ def _plan_line(line,policy=None,lot_facts=None):
     if location_id is not None:
         reserved_rows=reserved_rows.filter(lot__location_id=location_id)
         stock_rows=stock_rows.filter(location_id=location_id)
-    own=sum((r.quantity for r in visible(reserved_rows) if _lot_usable(r.lot,lot_facts,line.revision)),D(0))
-    available=sum((_lot_free(lot,lot_facts) for lot in visible(stock_rows) if _lot_usable(lot,lot_facts)),D(0))
+    own=sum((r.quantity for r in visible(reserved_rows) if usable(r.lot,line.revision)),D(0))
+    available=sum((free(lot) for lot in visible(stock_rows) if usable(lot)),D(0))
     shortage=max(D(0),remaining-own-available)
     incoming=[];dates=[];covered=D(0);reasons=[]
     for job in visible(Production.objects.filter(line=line,currency=line.order.currency).exclude(status='done')):
@@ -55,8 +38,8 @@ def _plan_line(line,policy=None,lot_facts=None):
     material=[]
     for b in line.item.bom:
         item=Item.objects.get(pk=b['item_id']);need=shortage*D(b['quantity'])
-        stock=sum((_lot_free(x,lot_facts) for x in visible(Lot.objects.filter(item=item,currency=line.order.currency).select_related('item')) if _lot_usable(x,lot_facts)),D(0))
-        own_material=sum((r.quantity for r in visible(Reservation.objects.filter(production__line=line,lot__item=item,lot__currency=line.order.currency).select_related('lot__item')) if _lot_usable(r.lot,lot_facts)),D(0));stock+=own_material
+        stock=sum((free(x) for x in visible(Lot.objects.filter(item=item,currency=line.order.currency).select_related('item')) if usable(x)),D(0))
+        own_material=sum((r.quantity for r in visible(Reservation.objects.filter(production__line=line,lot__item=item,lot__currency=line.order.currency).select_related('lot__item')) if usable(r.lot)),D(0));stock+=own_material
         purchases=[p for p in visible(Purchase.objects.filter(item=item,currency=line.order.currency).exclude(status='received').order_by('due_date')) if purchase_open(p)>0]
         pending=sum((purchase_open(p) for p in purchases),D(0));before_due=sum((purchase_open(p) for p in purchases if p.due_date<=line.order.due_date),D(0))
         deficit=max(D(0),need-stock-before_due)
@@ -95,20 +78,14 @@ def snapshot(policy=None):
     result['employees']=list(Employee.objects.values('id','full_name','role'));result['partners']=list(Counterparty.objects.values('id','name','type'))
     result['requests']=list(visible(ProcurementRequest.objects.all()).values('id','code','part'))
     result['documents']=list(visible(Document.objects.all()).values('id','code','revision','title','status'))
-    # One invocation only: preview's before/after snapshots must never share facts.
-    lot_facts={}
     for row in result['lots']:
-        lot=Lot.objects.select_related('item').get(pk=row['id'])
-        held=reserved(lot);missing=accepted_documents(lot.item,lot.documents)
-        value={'revision':lot.revision,'usable':lot.quality=='approved' and not missing,'free':lot.quantity-held}
-        lot_facts[lot.pk]=value
-        row.update(reserved=str(held),available=str(value['free'] if value['usable'] else D(0)),missing_documents=missing)
+        lot=Lot.objects.select_related('item').get(pk=row['id']);row.update(reserved=str(reserved(lot)),available=str(free(lot) if usable(lot) else D(0)),missing_documents=accepted_documents(lot.item,lot.documents))
     result['replenishment']=[]
     for item in visible(Item.objects.filter(minimum__gt=0)):
-        available=sum((_lot_free(x,lot_facts) for x in visible(Lot.objects.filter(item=item).select_related('item')) if _lot_usable(x,lot_facts)),D(0))
+        available=sum((free(x) for x in visible(Lot.objects.filter(item=item).select_related('item')) if usable(x)),D(0))
         incoming=sum((purchase_open(p) for p in visible(Purchase.objects.filter(item=item).exclude(status='received'))),D(0))
         result['replenishment'].append({'item_id':item.id,'code':item.code,'unit':item.unit,'minimum':str(item.minimum),'available':str(available),'incoming':str(incoming),'suggested':str(max(D(0),item.minimum-available-incoming))})
-    result['plans']=[_plan_line(x,policy,lot_facts) for x in visible(SalesLine.objects.select_related('order','item').filter(order__status='confirmed'))]
+    result['plans']=[plan_line(x,policy) for x in visible(SalesLine.objects.select_related('order','item').filter(order__status='confirmed'))]
     result['invoices']=list(visible(InvoiceLink.objects.all()).values('invoice_id','order_id','lines'))
     for row in result['invoices']:
         inv=Invoice.objects.get(pk=row['invoice_id']);row.update(code=inv.code,amount=str(inv.amount),paid=str(inv.paid),open=money_open(inv),due_date=str(inv.due_date),currency=inv.currency)
@@ -130,7 +107,7 @@ def snapshot(policy=None):
         inspections=Inspection.objects.filter(lot__movements__in=receipts).distinct();quality=inspections.exclude(result='approved').count()
         score.append({'supplier_id':supplier.id,'name':supplier.name,'orders':pos.count(),'receipts':count,'on_time_pct':round(100*(count-late)/count,1) if count else None,'inspections':inspections.count(),'nonconformities':quality,'rescheduled':sum(1 for p in pos if p.due_date!=p.original_due),'basis':'OTD за подіями приймання; невідповідності за записами перевірок. Без історії оцінка не обчислюється.'})
     result['supplier_scores']=score
-    result['as_of']=str(as_of());result['summary']={'orders':visible(SalesOrder.objects.filter(status='confirmed')).count(),'jobs':visible(Production.objects.exclude(status='done')).count(),'blocked_lots':sum(1 for l in visible(Lot.objects.filter(quantity__gt=0).select_related('item')) if not _lot_usable(l,lot_facts)),'late_purchases':sum(1 for p in visible(Purchase.objects.exclude(status='received').filter(due_date__lt=as_of())) if purchase_open(p)>0),'review_jobs':visible(Production.objects.filter(needs_review=True)).count()}
+    result['as_of']=str(as_of());result['summary']={'orders':visible(SalesOrder.objects.filter(status='confirmed')).count(),'jobs':visible(Production.objects.exclude(status='done')).count(),'blocked_lots':sum(1 for l in visible(Lot.objects.filter(quantity__gt=0).select_related('item')) if not usable(l)),'late_purchases':sum(1 for p in visible(Purchase.objects.exclude(status='received').filter(due_date__lt=as_of())) if purchase_open(p)>0),'review_jobs':visible(Production.objects.filter(needs_review=True)).count()}
     result=json.loads(json.dumps(result,cls=DjangoJSONEncoder,ensure_ascii=False))
     if policy:
         from operations.projections import snapshot as project
