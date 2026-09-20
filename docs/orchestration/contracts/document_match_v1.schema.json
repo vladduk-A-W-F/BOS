@@ -1,0 +1,1025 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:bos:document-match:v1",
+  "title": "Synthetic supplier-invoice matching result, scoped mock contract",
+  "$comment": "Schema is structural. Python validates cross-field evidence offsets/quotes, source identity, positive/range Decimal quantities, unique IDs, selection/link membership, and arithmetic. Caller still owes actual Policy and original-byte verification. No operation or persistence.",
+  "$ref": "#/$defs/result",
+  "$defs": {
+    "id": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "sha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "currency": {
+      "enum": [
+        "EUR",
+        "USD",
+        "UAH"
+      ]
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "document_id",
+        "code",
+        "revision",
+        "sha256"
+      ],
+      "properties": {
+        "document_id": {
+          "$ref": "#/$defs/id"
+        },
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha"
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "document_id",
+        "code",
+        "revision",
+        "sha256",
+        "status",
+        "sections"
+      ],
+      "properties": {
+        "document_id": {
+          "$ref": "#/$defs/id"
+        },
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha"
+        },
+        "status": {
+          "enum": [
+            "needs_review",
+            "approved",
+            "ocr_required"
+          ]
+        },
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "source",
+              "text"
+            ],
+            "properties": {
+              "source": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              },
+              "text": {
+                "type": "string",
+                "maxLength": 500000
+              }
+            }
+          },
+          "maxItems": 100
+        }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "evidence"
+      ],
+      "properties": {
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "evidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "page",
+            "source",
+            "start",
+            "end",
+            "quote",
+            "source_sha256"
+          ],
+          "properties": {
+            "page": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "source": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "start": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "end": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "quote": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "source_sha256": {
+              "$ref": "#/$defs/sha"
+            }
+          }
+        }
+      }
+    },
+    "fields": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "supplier_edrpou",
+        "invoice_number",
+        "invoice_date",
+        "currency",
+        "tax_basis",
+        "total",
+        "lines"
+      ],
+      "properties": {
+        "supplier_edrpou": {
+          "$ref": "#/$defs/claim"
+        },
+        "invoice_number": {
+          "$ref": "#/$defs/claim"
+        },
+        "invoice_date": {
+          "$ref": "#/$defs/claim"
+        },
+        "currency": {
+          "$ref": "#/$defs/claim"
+        },
+        "tax_basis": {
+          "$ref": "#/$defs/claim"
+        },
+        "total": {
+          "$ref": "#/$defs/claim"
+        },
+        "lines": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "ordinal",
+              "item_code",
+              "revision",
+              "unit",
+              "quantity",
+              "unit_price",
+              "line_total"
+            ],
+            "properties": {
+              "ordinal": {
+                "const": 1
+              },
+              "item_code": {
+                "$ref": "#/$defs/claim"
+              },
+              "revision": {
+                "$ref": "#/$defs/claim"
+              },
+              "unit": {
+                "$ref": "#/$defs/claim"
+              },
+              "quantity": {
+                "$ref": "#/$defs/claim"
+              },
+              "unit_price": {
+                "$ref": "#/$defs/claim"
+              },
+              "line_total": {
+                "$ref": "#/$defs/claim"
+              }
+            }
+          }
+        }
+      }
+    },
+    "draft": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "provider",
+        "source",
+        "state",
+        "fields",
+        "exceptions"
+      ],
+      "properties": {
+        "schema": {
+          "const": "bos.document-match.v1"
+        },
+        "provider": {
+          "const": "mock.synthetic-invoice.v1"
+        },
+        "source": {
+          "$ref": "#/$defs/identity"
+        },
+        "state": {
+          "enum": [
+            "extracted",
+            "needs_information"
+          ]
+        },
+        "fields": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/fields"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "exceptions": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "ocr_required",
+              "unsupported_document",
+              "unsupported_multi_line",
+              "ambiguous_field",
+              "missing_field"
+            ]
+          },
+          "maxItems": 20
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "extracted"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "fields": {
+                "$ref": "#/$defs/fields"
+              },
+              "exceptions": {
+                "maxItems": 0
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "fields": {
+                "type": "null"
+              },
+              "exceptions": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "purchase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "code",
+        "supplier_id",
+        "item_id",
+        "revision",
+        "unit",
+        "currency",
+        "quantity",
+        "price",
+        "extras"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "supplier_id": {
+          "$ref": "#/$defs/id"
+        },
+        "item_id": {
+          "$ref": "#/$defs/id"
+        },
+        "revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "currency": {
+          "$ref": "#/$defs/currency"
+        },
+        "quantity": {
+          "type": "string",
+          "maxLength": 32,
+          "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,3})?$"
+        },
+        "price": {
+          "type": "string",
+          "maxLength": 32,
+          "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,2})?$"
+        },
+        "extras": {
+          "type": "string",
+          "maxLength": 32,
+          "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,2})?$"
+        }
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "purchase_id",
+        "item_id",
+        "revision",
+        "unit",
+        "currency",
+        "quantity",
+        "returned_quantity"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "purchase_id": {
+          "$ref": "#/$defs/id"
+        },
+        "item_id": {
+          "$ref": "#/$defs/id"
+        },
+        "revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "currency": {
+          "$ref": "#/$defs/currency"
+        },
+        "quantity": {
+          "type": "string",
+          "maxLength": 32,
+          "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,3})?$"
+        },
+        "returned_quantity": {
+          "type": "string",
+          "maxLength": 32,
+          "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,3})?$"
+        }
+      }
+    },
+    "context": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "access",
+            "source",
+            "suppliers",
+            "items",
+            "selection",
+            "purchase",
+            "receipts"
+          ],
+          "properties": {
+            "access": {
+              "const": "admitted"
+            },
+            "source": {
+              "$ref": "#/$defs/source"
+            },
+            "suppliers": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "name",
+                  "edrpou",
+                  "type",
+                  "is_active"
+                ],
+                "properties": {
+                  "id": {
+                    "$ref": "#/$defs/id"
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "edrpou": {
+                    "type": "string",
+                    "maxLength": 20
+                  },
+                  "type": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "is_active": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              "maxItems": 100
+            },
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "code",
+                  "revision",
+                  "unit"
+                ],
+                "properties": {
+                  "id": {
+                    "$ref": "#/$defs/id"
+                  },
+                  "code": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 60
+                  },
+                  "revision": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 40
+                  },
+                  "unit": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  }
+                }
+              },
+              "maxItems": 100
+            },
+            "selection": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "supplier_id",
+                "item_id",
+                "purchase_id"
+              ],
+              "properties": {
+                "supplier_id": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/id"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "item_id": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/id"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "purchase_id": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/id"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "purchase": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/purchase"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "receipts": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/receipt"
+              },
+              "maxItems": 100
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "access",
+            "source",
+            "suppliers",
+            "items",
+            "selection",
+            "purchase",
+            "receipts"
+          ],
+          "properties": {
+            "access": {
+              "const": "restricted"
+            },
+            "source": {},
+            "suppliers": {},
+            "items": {},
+            "selection": {},
+            "purchase": {},
+            "receipts": {}
+          }
+        }
+      ]
+    },
+    "matches": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "supplier_candidate_ids",
+        "item_candidate_ids",
+        "supplier_id",
+        "item_id",
+        "purchase_id",
+        "receipt_ids"
+      ],
+      "properties": {
+        "supplier_candidate_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "maxItems": 100,
+          "uniqueItems": true
+        },
+        "item_candidate_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "maxItems": 100,
+          "uniqueItems": true
+        },
+        "supplier_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "item_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "purchase_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "receipt_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "maxItems": 100,
+          "uniqueItems": true
+        }
+      }
+    },
+    "comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "invoice_currency",
+        "purchase_currency",
+        "invoice_unit",
+        "purchase_unit",
+        "quantity",
+        "price",
+        "line_total",
+        "invoice_total",
+        "receipt_quantity"
+      ],
+      "properties": {
+        "invoice_currency": {
+          "$ref": "#/$defs/currency"
+        },
+        "purchase_currency": {
+          "$ref": "#/$defs/currency"
+        },
+        "invoice_unit": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "purchase_unit": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "quantity": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "invoice",
+                "expected",
+                "difference"
+              ],
+              "properties": {
+                "invoice": {
+                  "type": "string",
+                  "maxLength": 32,
+                  "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,3})?$"
+                },
+                "expected": {
+                  "type": "string",
+                  "maxLength": 32,
+                  "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,3})?$"
+                },
+                "difference": {
+                  "type": "string",
+                  "maxLength": 32,
+                  "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,3})?$"
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "price": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "invoice",
+                "expected",
+                "difference"
+              ],
+              "properties": {
+                "invoice": {
+                  "type": "string",
+                  "maxLength": 32,
+                  "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,2})?$"
+                },
+                "expected": {
+                  "type": "string",
+                  "maxLength": 32,
+                  "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,2})?$"
+                },
+                "difference": {
+                  "type": "string",
+                  "maxLength": 32,
+                  "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,2})?$"
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "line_total": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "invoice",
+            "expected",
+            "difference"
+          ],
+          "properties": {
+            "invoice": {
+              "type": "string",
+              "maxLength": 32,
+              "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,2})?$"
+            },
+            "expected": {
+              "type": "string",
+              "maxLength": 32,
+              "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,2})?$"
+            },
+            "difference": {
+              "type": "string",
+              "maxLength": 32,
+              "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,2})?$"
+            }
+          }
+        },
+        "invoice_total": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "invoice",
+            "expected",
+            "difference"
+          ],
+          "properties": {
+            "invoice": {
+              "type": "string",
+              "maxLength": 32,
+              "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,2})?$"
+            },
+            "expected": {
+              "type": "string",
+              "maxLength": 32,
+              "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,2})?$"
+            },
+            "difference": {
+              "type": "string",
+              "maxLength": 32,
+              "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,2})?$"
+            }
+          }
+        },
+        "receipt_quantity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "gross",
+            "returned",
+            "net",
+            "invoice",
+            "difference"
+          ],
+          "properties": {
+            "gross": {
+              "type": "string",
+              "maxLength": 32,
+              "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,3})?$"
+            },
+            "returned": {
+              "type": "string",
+              "maxLength": 32,
+              "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,3})?$"
+            },
+            "net": {
+              "type": "string",
+              "maxLength": 32,
+              "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,3})?$"
+            },
+            "invoice": {
+              "type": "string",
+              "maxLength": 32,
+              "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,3})?$"
+            },
+            "difference": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 32,
+                  "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,3})?$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "provider",
+        "source",
+        "fields",
+        "matches",
+        "comparison",
+        "exceptions",
+        "decision",
+        "operation_proposal"
+      ],
+      "properties": {
+        "schema": {
+          "const": "bos.document-match.v1"
+        },
+        "provider": {
+          "const": "mock.synthetic-invoice.v1"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/identity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "fields": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/fields"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "matches": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/matches"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "comparison": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/comparison"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "exceptions": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "restricted",
+              "source_changed",
+              "ocr_required",
+              "unsupported_document",
+              "unsupported_multi_line",
+              "ambiguous_field",
+              "missing_field",
+              "supplier_missing",
+              "supplier_ambiguous",
+              "supplier_selection_required",
+              "supplier_selection_mismatch",
+              "item_missing",
+              "item_ambiguous",
+              "item_selection_required",
+              "item_selection_mismatch",
+              "purchase_missing",
+              "purchase_selection_mismatch",
+              "purchase_supplier_mismatch",
+              "purchase_item_mismatch",
+              "revision_mismatch",
+              "unit_mismatch",
+              "currency_mismatch",
+              "unsupported_tax_basis",
+              "unsupported_extras",
+              "full_purchase_quantity_mismatch",
+              "price_mismatch",
+              "line_total_mismatch",
+              "invoice_total_mismatch",
+              "receipt_source_mismatch",
+              "receipt_overage",
+              "received_quantity_mismatch"
+            ]
+          },
+          "maxItems": 20,
+          "uniqueItems": true
+        },
+        "decision": {
+          "enum": [
+            "accept_draft",
+            "reject_draft",
+            "needs_information"
+          ]
+        },
+        "operation_proposal": {
+          "type": "null"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "decision": {
+                "const": "accept_draft"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "source": {
+                "$ref": "#/$defs/identity"
+              },
+              "fields": {
+                "$ref": "#/$defs/fields"
+              },
+              "matches": {
+                "$ref": "#/$defs/matches"
+              },
+              "comparison": {
+                "$ref": "#/$defs/comparison"
+              },
+              "exceptions": {
+                "maxItems": 0
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "exceptions": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
