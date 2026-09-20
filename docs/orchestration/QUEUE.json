@@ -76,7 +76,7 @@
         "PLAN-TIME"
       ],
       "checkpoint": "C1",
-      "status": "DIAGNOSTIC_ACCEPTED_ADR_PROPOSED",
+      "status": "DIRECTION_ACCEPTED_IMPLEMENTATION_IN_PROGRESS",
       "external_prerequisites": [],
       "card": null,
       "evidence": "docs/orchestration/BATCH_01_UA.md"
@@ -98,7 +98,7 @@
       "owner": "bos_architect",
       "depends_on": [],
       "checkpoint": "C2",
-      "status": "SPEC_ACCEPTED_IMPLEMENTATION_PENDING",
+      "status": "SPEC_ACCEPTED_READ_IMPLEMENTATION_IN_PROGRESS",
       "external_prerequisites": [],
       "card": null,
       "evidence": "docs/orchestration/BATCH_01_UA.md"
@@ -111,7 +111,7 @@
         "PLAN-LINKS"
       ],
       "checkpoint": "C3",
-      "status": "BRIEF_PREPARED_UI_NOT_IMPLEMENTED",
+      "status": "BRIEF_ACCEPTED_TRACE_IMPLEMENTATION_IN_PROGRESS",
       "external_prerequisites": [],
       "card": null,
       "evidence": "docs/orchestration/BATCH_01_UA.md"
@@ -160,6 +160,80 @@
       "external_prerequisites": [],
       "card": null,
       "evidence": "docs/orchestration/BATCH_01_UA.md"
+    },
+    {
+      "id": "PLAN-LINKS-READ",
+      "title": "Реалізувати серверний trace одного замовлення",
+      "owner": "bos_implementer",
+      "depends_on": [
+        "PLAN-LINKS"
+      ],
+      "checkpoint": "C2",
+      "status": "IN_PROGRESS",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/BATCH_02_PLAN_UA.md"
+    },
+    {
+      "id": "PLAN-UX-TRACE",
+      "title": "Додати джерела виконання в чинний inspector",
+      "owner": "bos_ux",
+      "depends_on": [
+        "PLAN-LINKS-READ",
+        "PLAN-UX"
+      ],
+      "checkpoint": "C3",
+      "status": "IN_PROGRESS",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/BATCH_02_PLAN_UA.md"
+    },
+    {
+      "id": "PLAN-N2-ADJUST",
+      "title": "Адресна перевірка погодження erp_adjust",
+      "owner": "bos_implementer",
+      "depends_on": [
+        "PLAN-N2"
+      ],
+      "checkpoint": "C1",
+      "status": "IN_PROGRESS",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/BATCH_02_PLAN_UA.md"
+    },
+    {
+      "id": "PLAN-SAAS",
+      "title": "Пакет SaaS з ізоляцією компаній та onboarding",
+      "owner": "bos_architect",
+      "depends_on": [
+        "PLAN-UX-TRACE"
+      ],
+      "checkpoint": "C3",
+      "status": "PLANNED",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/BATCH_02_PLAN_UA.md"
+    },
+    {
+      "id": "PLAN-LANDING",
+      "title": "Лендинг готового ядра та шлях до демонстрації",
+      "owner": "bos_ux",
+      "depends_on": [
+        "PLAN-SAAS"
+      ],
+      "checkpoint": "C3",
+      "status": "PLANNED",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/BATCH_02_PLAN_UA.md"
+    },
+    {
+      "id": "PLAN-CONNECTORS",
+      "title": "Контракти підключення систем клієнтів",
+      "owner": "bos_architect",
+      "depends_on": [
+        "PLAN-SAAS",
+        "PLAN-GPT"
+      ],
+      "checkpoint": "C4",
+      "status": "PLANNED",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/BATCH_02_PLAN_UA.md"
     }
   ]
 }

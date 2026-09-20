@@ -19,7 +19,11 @@
     "reason": "20.09.2026 власник перевірив план і прямо доручив: «план верный реализуй ... делай несколько задач паралельно ... отчеты по модулям ... остановок без нужды не требуется». Це замінює попередню паузу й правило однієї картки за хід. Дозволено виконувати погоджений план пакетно, інтегрувати перевірені зміни послідовно й зупинятися тільки на реальному питанні/рішенні/доступі. Історичні заборони й межі конкретних операцій зберігаються.",
     "mode_after_resume": "BATCH_WITH_REVIEW",
     "batch_mode_authorized": true,
-    "ci_scope": "Targeted new-card verification only; no exhausted full/PG suite/E2E retry"
+    "ci_scope": "Targeted new-card verification only; no exhausted full/PG suite/E2E retry",
+    "through": "BATCH-02 → BATCH-03 SaaS packaging → BATCH-04 landing",
+    "landing_publication_allowed": true,
+    "landing_audience": "preserve existing owner-private Sites audience",
+    "latest_instruction": "И ТЕПЕРЬ ОБНОВ И ВЫПОЛНЯЙ ПАКЕТЫ ОДИН А ДРУГИМ ДО ЛЕНДИНГА"
   },
   "historical_limits": {
     "P05_timeout_cycle_used": 3,
@@ -191,8 +195,8 @@
   "main_reconciliation_before_merge_required": true,
   "master_v2_1_sha256": "4ab578d4ab1a6c959ed7aa791f09a7c8284c04df1d48b6a575671f53df7c4caf",
   "master_v2_1_sha_verified": true,
-  "setup_head": "aecf8ee1f556b60f3fa34b66a001372e332d02ab",
-  "current_batch": "BATCH-01",
+  "setup_head": "f757a3bd2186a83ece0ae030e5e1bac70e663751",
+  "current_batch": "BATCH-02",
   "plugins": {
     "github": "CONFIRMED",
     "figma": "CONFIRMED",
@@ -200,9 +204,9 @@
     "openai_developers": "NOT_INSTALLED_REQUIRES_USER_UI",
     "codex_security": "NOT_INSTALLED_REQUIRES_USER_UI"
   },
-  "setup_head_note": "Останній перевірений CI-кандидат; пізніші документаційні коміти див. GitHub PR.",
-  "next_action": "PLAN-LINKS-READ; N2 ADR decision before mechanism change; external GPT off pending data/budget",
-  "batch_result": "PASS_SCOPED",
+  "setup_head_note": "Перевірений remote HEAD перед BATCH-02; чинний runtime31c692c5 походить із CI BATCH-01.",
+  "next_action": "Sequential reviewed integration of BATCH-02, SaaS packaging, existing Site landing and private publication; assistant/connectors next stage",
+  "batch_result": "IN_PROGRESS",
   "baseline_product_commit": "7d46dced3bcf06d44755cf53366c9e16bd465582",
   "next_after_owner_review_note": "Історичне поле початкового setup для compatibility validator; P10-003 вже scoped accepted. Чинна черга — next_action та QUEUE.",
   "verification": {
@@ -343,5 +347,25 @@
     },
     "n2": "SCOPED_DIAGNOSTIC_ACCEPTED; one SQLite probe; mechanism unchanged",
     "full_acceptance": "BLOCKED; no full rerun; no E2E rerun"
+  },
+  "implementation_authorization": {
+    "message": "ДОВАЬ В ПЛАН РЕАЛИЗАЦИЮ И ПРОДОЛЖАЙ",
+    "date": "2026-09-20",
+    "applies_to": "Proposed progressive dependency-scoped confirmations and continuation of approved implementation plan",
+    "n2_semantics": "Keep pending proposal usable after independent changes only when relevant sources, displayed effect and rights are unchanged",
+    "scope": "First erp_adjust, explicit server context, global fallback for legacy/other actions; necessary additive proposal metadata allowed",
+    "pilot_process_selection": "UNSPECIFIED; generic synthetic procurement/stock/sale preparation continues"
+  },
+  "product_direction_update": {
+    "source": "User-provided chat screenshot on 2026-09-20",
+    "sequence": [
+      "Complete SaaS panel",
+      "Landing page",
+      "Control/assistant bot",
+      "Customer-specific needs and integrations"
+    ],
+    "hosting_boundary": "Managed isolated company installation remains initial implementation; shared database multi-tenancy not inferred",
+    "app_block": "NOT_EXPOSED_IN_CURRENT_TOOLS",
+    "visualize": "AVAILABLE_INLINE"
   }
 }
