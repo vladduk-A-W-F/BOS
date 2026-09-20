@@ -6,7 +6,7 @@ const section=html.slice(html.indexOf('// Scoped order facts;'),html.indexOf('fu
 const compiled=babel.transform(section,{presets:['react']}).code;
 function supply(target=null){return {schema:'bos.supply-options.v1',access_revision:'r1',generated_at:'2026-09-20T12:00:00Z',scope:'visible_sources',line:{id:3,item_id:8,unit:'шт.',revision:'A'},target_location:target?{id:target}:null,supported:true,completeness:'complete',basis:'Очікуване не є гарантованим запасом',quantities:{remaining:'9007199254740993.125',reserved_usable:'0.000',quantity_to_cover:'5.000',available_all_locations:'2.000',available_target:target?'0.000':null,target_gap:target?'5.000':null,uncovered_after_stock:'3.000',unallocated_expected:'2.000',indicative_after_expected:'1.000'},stock:[{lot_id:4,code:'LOT-EXACT',location:{id:2,code:'WH-SOURCE'},revision:'A',quantity:'2.000',available:'2.000',eligible:true,unit:'шт.',reason:'available',document_ids:[]}],waiting:[],purchases:[],limits:{has_more:{}}};}
 function settlement(){const money={currency:'UAH',gross_invoiced:'10.01',credited:'0.00',invoiced:'10.01',paid:'0.01',open:'10.00',customer_credit:'0.00'};return {schema:'bos.order-settlement.v1',access_revision:'r1',generated_at:'2026-09-20T12:00:00Z',scope:'linked_invoices',order:{id:7},totals:[money],invoices:[{...money,invoice_id:9,code:'INV-EXACT',due_date:'2026-10-01',payment_history:{status:'complete',recorded_total:'0.01',difference:'0.00',entries:[{event_id:10,amount:'0.01',currency:'UAH',reference:'REF-10',issues:[],created_at:'2026-09-20'}]},adjustments:[],has_more:{}}],payment_history_status:'complete',limits:{has_more:{}},basis:'Облікова оплата, без конвертації'};}
-function harness(kind='supply',role='ceo'){
+function harness(kind='supply',role='ceo',extraProps={}){
  let hooks=[],cursor=0,dirty=true,pending=[],tree,unmounted=false;
  const requests=[],events=new Map(),actions=[],window={BOS_RUNTIME:{user_id:1,mode:'working',role,access_revision:'r1'}};
  window.addEventListener=(name,fn)=>{if(!events.has(name))events.set(name,new Set());events.get(name).add(fn);};window.removeEventListener=(name,fn)=>events.get(name)?.delete(fn);
@@ -15,8 +15,8 @@ function harness(kind='supply',role='ceo'){
  useState(initial){const i=cursor++;if(!hooks[i])hooks[i]={value:typeof initial==='function'?initial():initial};return [hooks[i].value,value=>{if(!unmounted){hooks[i].value=typeof value==='function'?value(hooks[i].value):value;dirty=true;}}];},
  useRef(initial){const i=cursor++;if(!hooks[i])hooks[i]={current:initial};return hooks[i];},
  useEffect(fn,deps){const i=cursor++,old=hooks[i];if(!old||deps.some((v,j)=>v!==old.deps[j])){hooks[i]={deps,cleanup:old?.cleanup};pending.push(()=>{hooks[i].cleanup?.();hooks[i].cleanup=fn();});}}};
- vm.createContext(context);vm.runInContext(compiled+'\nthis.Component='+(kind==='supply'?'OrderSupplyOptions':'OrderSettlement')+';',context);
- const props={orderId:7,data:{lines:[{id:3,order_id:7,item_id:8,revision:'A'}],items:[{id:8,code:'ITEM',method:'buy'}],locations:[{id:2,code:'WH-SOURCE'},{id:5,code:'WH-TARGET'}]},onAction:(...args)=>actions.push(args)};
+ vm.createContext(context);vm.runInContext(compiled+'\nthis.Component='+(kind==='document'?'PurchaseDocumentMatch':kind==='supply'?'OrderSupplyOptions':'OrderSettlement')+';',context);
+ const props={orderId:7,data:{lines:[{id:3,order_id:7,item_id:8,revision:'A'}],items:[{id:8,code:'ITEM',method:'buy'}],locations:[{id:2,code:'WH-SOURCE'},{id:5,code:'WH-TARGET'}]},onAction:(...args)=>actions.push(args),...extraProps};
  function render(){cursor=0;dirty=false;tree=context.Component(props);while(pending.length)pending.shift()();}
  async function flush(){for(let i=0;i<8;i++){await new Promise(resolve=>setImmediate(resolve));if(dirty)render();}}
  function walk(node,out){if(node==null||node===false)return out;if(Array.isArray(node)){node.forEach(n=>walk(n,out));return out;}if(typeof node==='object'){out.push(node);walk(node.children,out);}return out;}

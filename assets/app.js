@@ -16519,6 +16519,136 @@ function OrderSupplyOptions({
     className: "op-muted"
   }, "\u0414\u043B\u044F \u0434\u0456\u0457 \u0432\u043A\u0430\u0436\u0456\u0442\u044C \u043A\u0456\u043B\u044C\u043A\u0456\u0441\u0442\u044C \u0456 \u043F\u043E\u0442\u0440\u0456\u0431\u043D\u0456 \u0440\u0435\u043A\u0432\u0456\u0437\u0438\u0442\u0438. \u0417\u0430\u043F\u0438\u0441 \u0432\u0438\u043A\u043E\u043D\u0443\u0454\u0442\u044C\u0441\u044F \u043F\u0456\u0441\u043B\u044F \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0438 \u0442\u0430 \u043E\u043A\u0440\u0435\u043C\u043E\u0433\u043E \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F.")));
 }
+const DOCUMENT_MATCH_ISSUES = {
+  ocr_required: 'У файлі немає тексту. Потрібен OCR або ручне читання.',
+  unsupported_document: 'Формат змісту не підтримується навчальним зіставленням.',
+  unsupported_multi_line: 'Підтримується лише один рядок рахунку.',
+  source_not_current: 'Існує новіша версія документа.',
+  unsupported_source_status: 'Стан документа не дозволяє це зіставлення.',
+  source_unreadable: 'Не вдалося перевірити оригінал документа.',
+  document_parse_failed: 'Не вдалося прочитати оригінал.',
+  source_limit_exceeded: 'Документ перевищує межі цієї перевірки.',
+  context_limit_exceeded: 'Забагато джерел для цієї перевірки.',
+  supplier_selection_required: 'Явно оберіть постачальника.',
+  item_selection_required: 'Явно оберіть номенклатуру.',
+  supplier_ambiguous: 'Є кілька постачальників із цим кодом. Оберіть точний запис.',
+  item_ambiguous: 'Є кілька відповідних позицій. Оберіть точний запис.',
+  supplier_missing: 'Постачальника з документа не знайдено.',
+  item_missing: 'Номенклатуру з документа не знайдено.',
+  supplier_selection_mismatch: 'Обраний постачальник не відповідає документу.',
+  item_selection_mismatch: 'Обрана номенклатура не відповідає документу.',
+  purchase_missing: 'Закупівля недоступна.',
+  purchase_supplier_mismatch: 'Постачальник не збігається із закупівлею.',
+  purchase_item_mismatch: 'Номенклатура не збігається із закупівлею.',
+  currency_mismatch: 'Валюти не збігаються; конвертацію не виконано.',
+  unit_mismatch: 'Одиниці виміру не збігаються.',
+  revision_mismatch: 'Версія виробу не збігається.',
+  unsupported_tax_basis: 'Ця версія підтримує лише рахунок без ПДВ.',
+  unsupported_extras: 'Додаткові витрати потребують окремої перевірки.',
+  full_purchase_quantity_mismatch: 'Кількість не відповідає всій закупівлі; частковий рахунок не підтримується.',
+  received_quantity_mismatch: 'Кількість після повернень не відповідає рахунку.',
+  price_mismatch: 'Ціна не відповідає закупівлі.',
+  line_total_mismatch: 'Сума рядка не узгоджується з кількістю й ціною.',
+  invoice_total_mismatch: 'Сума рахунку не відповідає рядку.',
+  receipt_overage: 'Приймання перевищує закупівлю.',
+  inconsistent_receipt_history: 'Джерела приймань і повернень не узгоджуються.',
+  invalid_source_data: 'Дані джерела потребують ручної перевірки.',
+  missing_field: 'У документі бракує поля.',
+  ambiguous_field: 'Поле документа має неоднозначне значення.'
+};
+const DOCUMENT_MATCH_FIELDS = [['supplier_edrpou', 'Код постачальника'], ['invoice_number', 'Номер рахунку'], ['invoice_date', 'Дата рахунку'], ['currency', 'Валюта'], ['tax_basis', 'Податкова основа'], ['total', 'Сума рахунку']];
+const DOCUMENT_MATCH_LINE = [['item_code', 'Код номенклатури'], ['revision', 'Версія'], ['unit', 'Одиниця'], ['quantity', 'Кількість'], ['unit_price', 'Ціна одиниці'], ['line_total', 'Сума рядка']];
+function documentMatchVerify(value, purchaseId, documentId, revision) {
+  const draft = value?.draft,
+    pk = n => Number.isSafeInteger(n) && n > 0;
+  if (bosRole() !== 'ceo' || value?.schema !== 'bos.document-match-read.v1' || value.purchase_id !== purchaseId || value.document_id !== documentId || value.access_revision !== revision || typeof value.generated_at !== 'string' || draft?.schema !== 'bos.document-match.v1' || draft.provider !== 'mock.synthetic-invoice.v1' || draft.operation_proposal !== null || !Array.isArray(draft.exceptions) || !['accept_draft', 'needs_information', 'reject_draft'].includes(draft.decision)) throw Error('document_match_context');
+  if (draft.source !== null && (draft.source?.document_id !== documentId || typeof draft.source?.sha256 !== 'string' || !/^[a-f0-9]{64}$/.test(draft.source.sha256))) throw Error('document_match_source');
+  if (draft.fields !== null) {
+    if (!draft.source || !Array.isArray(draft.fields.lines) || draft.fields.lines.length !== 1) throw Error('document_match_fields');
+    for (const claim of [...DOCUMENT_MATCH_FIELDS.map(([key]) => draft.fields[key]), ...DOCUMENT_MATCH_LINE.map(([key]) => draft.fields.lines[0][key])]) {
+      const evidence = claim?.evidence;
+      if (typeof claim?.value !== 'string' || !evidence || !pk(evidence.page) || evidence.source_sha256 !== draft.source.sha256 || evidence.quote !== claim.value || typeof evidence.source !== 'string' || !Number.isSafeInteger(evidence.start) || !Number.isSafeInteger(evidence.end) || evidence.start < 0 || evidence.end <= evidence.start) throw Error('document_match_evidence');
+    }
+  }
+  return value;
+}
+function PurchaseDocumentMatch({
+  purchase,
+  data,
+  onDocument
+}) {
+  const [selection, setSelection] = useState({
+      document_id: '',
+      supplier_id: '',
+      item_id: ''
+    }),
+    [submitted, setSubmitted] = useState(null);
+  const path = submitted ? 'purchases/' + purchase.id + '/document-match/?' + Object.entries(submitted).filter(([, value]) => value !== '').map(([key, value]) => key + '=' + encodeURIComponent(value)).join('&') : null;
+  const {
+      state,
+      refresh
+    } = useERPProjection(path, (value, revision) => documentMatchVerify(value, purchase.id, Number(submitted.document_id), revision)),
+    draft = state.data?.draft;
+  function change(key, value) {
+    setSubmitted(null);
+    setSelection(old => ({
+      ...old,
+      [key]: value
+    }));
+  }
+  function compare() {
+    if (submitted) refresh();else setSubmitted({
+      ...selection
+    });
+  }
+  const field = (key, label, rows) => /*#__PURE__*/React.createElement("label", null, label, /*#__PURE__*/React.createElement(Select, {
+    value: selection[key],
+    onChange: event => change(key, event.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "\u041E\u0431\u0435\u0440\u0456\u0442\u044C \u0437\u0430\u043F\u0438\u0441"), rows.map(row => /*#__PURE__*/React.createElement("option", {
+    key: row.id,
+    value: row.id
+  }, row.label))));
+  const claim = (label, value) => /*#__PURE__*/React.createElement("div", {
+    className: "bos-trace-line",
+    key: label
+  }, /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, label, ":"), " ", value.value), /*#__PURE__*/React.createElement("details", null, /*#__PURE__*/React.createElement("summary", null, "\u0414\u0436\u0435\u0440\u0435\u043B\u043E \u043F\u043E\u043B\u044F \xAB", label, "\xBB"), /*#__PURE__*/React.createElement("p", null, value.evidence.source, " \xB7 \u0444\u0440\u0430\u0433\u043C\u0435\u043D\u0442 ", value.evidence.start, "\u2013", value.evidence.end), /*#__PURE__*/React.createElement("blockquote", null, value.evidence.quote), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "SHA-256: ", value.evidence.source_sha256)));
+  return /*#__PURE__*/React.createElement("section", {
+    className: "bos-order-trace",
+    "aria-label": "\u0417\u0456\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u043D\u044F \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456"
+  }, /*#__PURE__*/React.createElement("h3", null, "\u0417\u0456\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u043D\u044F \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456"), /*#__PURE__*/React.createElement("p", null, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0435 \u0437\u0456\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u043D\u044F \u0441\u0438\u043D\u0442\u0435\u0442\u0438\u0447\u043D\u043E\u0433\u043E \u0440\u0430\u0445\u0443\u043D\u043A\u0443: \u043E\u0434\u0438\u043D \u0440\u044F\u0434\u043E\u043A, \u043E\u0434\u043D\u0430 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044F \u0442\u0430 \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0456 \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F. \u0417\u0432\u0438\u0447\u0430\u0439\u043D\u0456 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0438 \u043F\u043E\u0432\u0435\u0440\u0442\u0430\u044E\u0442\u044C \u044F\u0432\u043D\u0443 \u043F\u0440\u0438\u0447\u0438\u043D\u0443 \u043D\u0435\u043C\u043E\u0436\u043B\u0438\u0432\u043E\u0441\u0442\u0456 \u0437\u0456\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u043D\u044F. OCR \u0442\u0430 AI \u043D\u0435 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0456."), /*#__PURE__*/React.createElement("p", null, "\u0417\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044F: ", purchase.code, ". \u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442, \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043B\u044C\u043D\u0438\u043A \u0456 \u043D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0430 \u043E\u0431\u0438\u0440\u0430\u044E\u0442\u044C\u0441\u044F \u044F\u0432\u043D\u043E."), /*#__PURE__*/React.createElement("div", {
+    className: "erp-form"
+  }, field('document_id', 'Документ для зіставлення', (data.documents || []).map(row => ({
+    id: row.id,
+    label: row.code + ' · ' + row.revision + ' · ' + row.title
+  }))), field('supplier_id', 'Постачальник у документі', data.partners.filter(row => row.type === 'supplier').map(row => ({
+    id: row.id,
+    label: row.name
+  }))), field('item_id', 'Номенклатура у документі', data.items.map(row => ({
+    id: row.id,
+    label: row.code + ' · ' + row.name + ' · ' + row.revision
+  })))), /*#__PURE__*/React.createElement(Button, {
+    disabled: !selection.document_id || state.status === 'loading',
+    onClick: compare
+  }, "\u0417\u0456\u0441\u0442\u0430\u0432\u0438\u0442\u0438 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442"), /*#__PURE__*/React.createElement(FlowReadStatus, {
+    state: state
+  }), draft && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h4", null, draft.decision === 'accept_draft' ? 'Синтетична чернетка узгоджена' : 'Зіставлення потребує перевірки'), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442 \u043D\u0435 \u0437\u0430\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043E. \u041F\u0440\u043E\u0432\u043E\u0434\u043A\u0438, \u043E\u043F\u043B\u0430\u0442\u0438 \u0439 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u0446\u0456\u0454\u044E \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u043E\u044E \u043D\u0435 \u0441\u0442\u0432\u043E\u0440\u044E\u044E\u0442\u044C\u0441\u044F."), draft.exceptions.map(code => /*#__PURE__*/React.createElement("p", {
+    key: code,
+    role: "status"
+  }, DOCUMENT_MATCH_ISSUES[code] || 'Потрібна ручна перевірка джерел: ' + code)), draft.source && /*#__PURE__*/React.createElement("p", null, draft.source.code, " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", draft.source.revision, " \xB7 ", /*#__PURE__*/React.createElement(Button, {
+    onClick: () => onDocument(draft.source.document_id)
+  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u043E\u0440\u0438\u0433\u0456\u043D\u0430\u043B \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430")), draft.fields && /*#__PURE__*/React.createElement(React.Fragment, null, DOCUMENT_MATCH_FIELDS.map(([key, label]) => claim(label, draft.fields[key])), /*#__PURE__*/React.createElement("h4", null, "\u041F\u043E\u0437\u0438\u0446\u0456\u044F \u0440\u0430\u0445\u0443\u043D\u043A\u0443"), DOCUMENT_MATCH_LINE.map(([key, label]) => claim(label, draft.fields.lines[0][key]))), draft.matches && /*#__PURE__*/React.createElement("p", null, "\u041E\u0431\u0440\u0430\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430: \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043B\u044C\u043D\u0438\u043A ", draft.matches.supplier_id === null ? 'не узгоджений' : '№' + draft.matches.supplier_id, "; \u043D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0430 ", draft.matches.item_id === null ? 'не узгоджена' : '№' + draft.matches.item_id, "; \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044F ", draft.matches.purchase_id === null ? 'не узгоджена' : '№' + draft.matches.purchase_id, ". \u041F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F: ", draft.matches.receipt_ids.map(id => '№' + id).join(', ') || 'немає узгоджених джерел', "."), draft.comparison && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h4", null, "\u0417\u0432\u0456\u0440\u043A\u0430 \u043A\u0456\u043B\u044C\u043A\u043E\u0441\u0442\u0456 \u0442\u0430 \u0441\u0443\u043C"), [['quantity', 'Кількість із закупівлею'], ['price', 'Ціна із закупівлею'], ['line_total', 'Сума рядка'], ['invoice_total', 'Підсумок рахунку']].map(([key, label]) => {
+    const row = draft.comparison[key];
+    return /*#__PURE__*/React.createElement("p", {
+      key: key
+    }, label, ": ", row ? 'у документі ' + row.invoice + '; очікується ' + row.expected + '; різниця ' + row.difference : 'не порівнюється через валюту або одиницю');
+  }), /*#__PURE__*/React.createElement("p", null, "\u041F\u0440\u0438\u0439\u043D\u044F\u0442\u043E: ", draft.comparison.receipt_quantity.gross, "; \u043F\u043E\u0432\u0435\u0440\u043D\u0443\u0442\u043E: ", draft.comparison.receipt_quantity.returned, "; \u043F\u0456\u0441\u043B\u044F \u043F\u043E\u0432\u0435\u0440\u043D\u0435\u043D\u044C: ", draft.comparison.receipt_quantity.net, " ", draft.comparison.purchase_unit, "."))));
+}
 function BoSInspector({
   selection,
   data,
@@ -16768,6 +16898,11 @@ function BoSInspector({
       }, "\u041F\u043E\u0432\u0435\u0440\u043D\u0435\u043D\u043D\u044F \u043D\u0435 \u0437\u043C\u0435\u043D\u0448\u0443\u0454 \u0444\u0430\u043A\u0442 \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F \u0456 \u043D\u0435 \u0441\u0442\u0432\u043E\u0440\u044E\u0454 \u0437\u0430\u043C\u0456\u043D\u043D\u0443 \u043F\u043E\u0441\u0442\u0430\u0432\u043A\u0443."), bosRole() !== 'observer' && /*#__PURE__*/React.createElement("p", null, "\u0426\u0456\u043D\u0430 ", r.price, " ", r.currency, "; \u0434\u043E\u0434\u0430\u0442\u043A\u043E\u0432\u0456 \u0432\u0438\u0442\u0440\u0430\u0442\u0438 ", r.extras, "."), /*#__PURE__*/React.createElement("p", null, "\u041E\u0447\u0456\u043A\u0443\u0454\u043C\u043E ", erpDate(r.due_date), "; \u043F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0438\u0439 \u0441\u0442\u0440\u043E\u043A ", erpDate(r.original_due), "."), r.production_id && /*#__PURE__*/React.createElement("p", null, "\u0414\u043B\u044F ", link('jobs', r.production_id)), r.request_id && /*#__PURE__*/React.createElement("p", null, "\u0417\u0430\u044F\u0432\u043A\u0430 ", label('requests', r.request_id)), /*#__PURE__*/React.createElement(PurchaseSource, {
         snapshot: r.approval_snapshot,
         purchase: r,
+        onDocument: setDoc
+      }), bosRole() === 'ceo' && /*#__PURE__*/React.createElement(PurchaseDocumentMatch, {
+        key: id + ':' + c03Scope(),
+        purchase: r,
+        data: data,
         onDocument: setDoc
       }), acts([['receive', {
         purchase_id: id,

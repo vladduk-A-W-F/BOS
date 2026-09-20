@@ -38,6 +38,7 @@ C03_READS={'/api/statements/imports/','/api/statements/imports/{pk}/',
     '/api/statements/imports/{pk}/export/','/api/statements/lines/',
     '/api/statements/lines/{pk}/','/api/statements/lines/{pk}/candidates/','/api/statements/summary/'}
 RAW_GET = {
+    '/api/erp/purchases/{pk}/document-match/',
     '/api/erp/orders/{pk}/settlement/', '/api/erp/lines/{pk}/supply-options/',
     '/api/erp/workpoints/',
     '/api/erp/orders/{pk}/trace/',
@@ -66,7 +67,7 @@ def parse_args():
     p.add_argument('--project-root', type=Path, default=Path(__file__).resolve().parents[1])
     p.add_argument('--manifest', type=Path, default=Path(__file__).with_name('access_routes.json'))
     p.add_argument('--fixture-module', default='operations.test_access')
-    p.add_argument('--field-tests', nargs='+', default=['operations.test_access', 'operations.test_blind_paths', 'operations.test_remaining_context', 'operations.test_document_contract_visibility', 'operations.test_access_boundaries', 'operations.test_review_response_projection', 'erp.test_order_trace', 'erp.test_workpoints.WorkpointTests'])
+    p.add_argument('--field-tests', nargs='+', default=['operations.test_access', 'operations.test_blind_paths', 'operations.test_remaining_context', 'operations.test_document_contract_visibility', 'operations.test_access_boundaries', 'operations.test_review_response_projection', 'erp.test_order_trace', 'erp.test_workpoints.WorkpointTests', 'erp.test_flow_projection_routes.FlowProjectionRouteTests', 'erp.test_document_match_route.DocumentMatchRouteTests'])
     p.add_argument('--output', type=Path)
     p.add_argument('--catalogue-only', action='store_true', help='Diagnostic only; always incomplete/exit 1.')
     return p.parse_args()
@@ -181,6 +182,11 @@ def contract(row, path, method, role, variant='full'):
         return {401}, 'anonymous_business_denied'
     if role == 'technical_admin':
         return {403}, 'staff_is_not_business_role'
+    if route == '/api/erp/purchases/{pk}/document-match/':
+        if method != 'GET':
+            denied = role == 'observer' and method not in ('HEAD', 'OPTIONS')
+            return ({403} if denied else {405}), 'document_match_get_only'
+        return ({200} if role == 'ceo' else {403}), 'document_match_ceo_synthetic_read_only'
     if route in ('/api/erp/orders/{pk}/settlement/', '/api/erp/lines/{pk}/supply-options/'):
         if method != 'GET':
             denied = role == 'observer' and method not in ('HEAD', 'OPTIONS')
@@ -431,6 +437,13 @@ def response_oracle(response, row, path, method, role, fixtures, variant):
     if route == '/api/erp/orders/{pk}/settlement/' and response.status_code == 200 and method == 'GET':
         if role != 'ceo' or data.get('schema') != 'bos.order-settlement.v1' or data.get('order', {}).get('id') != fixtures.seed.order.pk:
             leaks.append('settlement_identity_or_scope')
+    if route == '/api/erp/purchases/{pk}/document-match/' and response.status_code == 200 and method == 'GET':
+        if (role != 'ceo' or data.get('schema') != 'bos.document-match-read.v1'
+                or data.get('document_id') != fixtures.seed.public_doc.pk
+                or data.get('purchase_id') != fixtures.seed.purchase.pk
+                or data.get('draft', {}).get('provider') != 'mock.synthetic-invoice.v1'
+                or data.get('draft', {}).get('operation_proposal', 'missing') is not None):
+            leaks.append('document_match_identity_or_scope')
     if route == '/api/erp/corrections/outcome/':
         leaks += correction_outcome_oracle(data, response.status_code, method, role, fixtures, variant)
     if route in (C01_HISTORY,C01_OUTCOME) or route.startswith('/api/tasks/'):

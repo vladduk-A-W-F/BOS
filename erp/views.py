@@ -140,3 +140,31 @@ def supply_options(request, pk):
             raise ValueError('Оберіть одне дійсне місце зберігання.')
         target = int(value)
     return projection_response(request, build, pk, target)
+
+
+@require_GET
+@errors
+def document_match(request, pk):
+    from django.utils import timezone
+    from operations.document_matching.server_adapter import build
+    from .models import Purchase
+    policy = Policy(request)
+    if not policy.ceo:
+        raise PermissionError('Це зіставлення доступне лише керівнику.')
+    policy.queryset(Purchase).get(pk=pk)
+    def selected(name, required=False):
+        values = request.GET.getlist(name)
+        if not values and not required:
+            return None
+        if (len(values) != 1 or not values[0].isascii() or not values[0].isdecimal()
+                or len(values[0]) > 16 or not 0 < int(values[0]) <= 9007199254740991):
+            raise ValueError('Оберіть один дійсний запис: ' + name)
+        return int(values[0])
+    document_id = selected('document_id', required=True)
+    supplier_id, item_id = selected('supplier_id'), selected('item_id')
+    def read(current):
+        draft = build(current, document_id, purchase_id=pk, supplier_id=supplier_id, item_id=item_id)
+        return {'schema': 'bos.document-match-read.v1', 'purchase_id': pk, 'document_id': document_id,
+                'access_revision': current.bos_access_revision, 'generated_at': timezone.now().isoformat(),
+                'draft': draft}
+    return projection_response(request, read)

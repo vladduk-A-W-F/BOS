@@ -399,6 +399,8 @@ class SweepFixtures:
             values['pk'] = self.seed.order.pk
         elif 'api/erp/lines/' in pattern:
             values['pk'] = self.seed.line.pk
+        elif 'api/erp/purchases/' in pattern:
+            values['pk'] = self.seed.purchase.pk
         elif 'api/erp/changes/' in pattern:
             values['pk'] = self.seed.change.pk
         elif 'api/operations/rfq/' in pattern:
@@ -406,6 +408,8 @@ class SweepFixtures:
         return values
 
     def query(self, row, path):
+        if row['name'] == 'bos-document-match':
+            return '?document_id=' + str(self.seed.public_doc.pk)
         if row['name'] == 'admin:autocomplete':
             return '?app_label=finance&model_name=salary&field_name=employee&term=A04'
         if path == '/api/erp/corrections/outcome/':
@@ -682,6 +686,8 @@ class SweepFixtures:
             return ['bos.order-settlement.v1', 'A04-SO-OPEN']
         if route == '/api/erp/lines/{pk}/supply-options/':
             return ['bos.supply-options.v1', '"order_id": ' + str(self.seed.order.pk)]
+        if route == '/api/erp/purchases/{pk}/document-match/':
+            return ['bos.document-match-read.v1', 'mock.synthetic-invoice.v1', '"operation_proposal": null']
         if route == '/api/erp/corrections/outcome/' and role in ('ceo', 'manager') and variant == 'full':
             return [self.correction_action, self.correction_operation_id, '"goods_return_id": ' + str(self.correction_source_ids['goods_return_id']), '"receipt_id": ' + str(self.correction_source_ids['receipt_id'])]
         if route.startswith('/api/erp/import/') and role=='ceo':
