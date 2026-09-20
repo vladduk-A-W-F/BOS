@@ -211,7 +211,7 @@
   "main_reconciliation_before_merge_required": true,
   "master_v2_1_sha256": "4ab578d4ab1a6c959ed7aa791f09a7c8284c04df1d48b6a575671f53df7c4caf",
   "master_v2_1_sha_verified": true,
-  "setup_head": "262d67d51eab157f2b9d70342b02abb6d0ea6fb3",
+  "setup_head": "82beca6c14e097a31200068d72b15334c5bed319",
   "current_batch": "BATCH-04",
   "plugins": {
     "github": "CONFIRMED",
@@ -220,7 +220,7 @@
     "openai_developers": "NOT_INSTALLED_REQUIRES_USER_UI",
     "codex_security": "NOT_INSTALLED_REQUIRES_USER_UI"
   },
-  "setup_head_note": "Verified remote HEAD before final BATCH04/state report commit; runtime proven on CI8060075.",
+  "setup_head_note": "Verified PR head before this documentation-only evidence update; product runtime remains CI8060075/sourcece495b29. Exact resulting commit is recorded by Git, not self-embedded.",
   "next_action": "Owner review of landing/modules; next product stages GPT assistant and customer-specific connectors, production readiness remains blocked",
   "batch_result": "THROUGH_LANDING_COMPLETE_WITH_DOCUMENTED_RELEASE_BLOCKERS",
   "baseline_product_commit": "7d46dced3bcf06d44755cf53366c9e16bd465582",
@@ -402,6 +402,36 @@
       "exit_code": 0,
       "commit": "f2fa1e91e518a69cf729f1acedeac426dddd5009",
       "source_sha256": "b9722ed16722cee83de6d7b30d9cac7077488237bd5f3020c60709e851ab859d"
+    },
+    "native_windows_source": {
+      "status": "ACCEPT_SCOPED_NATIVE_WINDOWS_SOURCE",
+      "candidate_commit": "82beca6c14e097a31200068d72b15334c5bed319",
+      "source_sha256": "ce495b29214f21a80b8efd5bf41f6f219b5cb182b0453a7c43dac8899bc06ed5",
+      "runtime_files": 348,
+      "platform": "Windows-10-10.0.19045-SP0",
+      "python": "3.12.14",
+      "actual_path_type": "WindowsPath",
+      "existing_unit_methods": 2,
+      "native_file_probes": 6,
+      "runtime_blobs_verified_before_and_after": true,
+      "exit_code": 0,
+      "independent_node_digest_match": true,
+      "linux_ci_run": 35507888776,
+      "linux_ci_commit": "8060075455206257d6283c70906facca98f0bc1a",
+      "evidence": "docs/orchestration/evidence/windows-source/report.json",
+      "review": "docs/orchestration/evidence/windows-source/REVIEW.md",
+      "full_windows_gate11": "NOT_RUN",
+      "whole_git_tree_verified": false
+    },
+    "browser_followup": {
+      "status": "PENDING_NO_OBSERVATION",
+      "reason": "CUA_TOOL_TIMEOUT",
+      "source": "Main orchestrator report on 2026-09-20; browser creation did not return page state",
+      "landing_observed": false,
+      "demo_observed": false,
+      "access_denial_established": false,
+      "site_defect_established": false,
+      "browser_acceptance": false
     }
   },
   "implementation_authorization": {

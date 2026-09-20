@@ -87,10 +87,12 @@
       "owner": "bos_test_ci",
       "depends_on": [],
       "checkpoint": "C1",
-      "status": "ACCEPT_SCOPED_SIMULATED_PLATFORMS",
+      "status": "ACCEPT_SCOPED_NATIVE_WINDOWS_RUNTIME_SHA",
       "external_prerequisites": [],
       "card": null,
-      "evidence": "docs/orchestration/BATCH_01_UA.md"
+      "evidence": "docs/orchestration/WINDOWS_SOURCE_UA.md",
+      "historical_evidence": "docs/orchestration/BATCH_01_UA.md",
+      "full_windows_gate11": "NOT_RUN"
     },
     {
       "id": "PLAN-LINKS",
@@ -239,6 +241,19 @@
       "status": "PLANNED",
       "external_prerequisites": [],
       "card": "docs/orchestration/BATCH_02_PLAN_UA.md"
+    },
+    {
+      "id": "PLAN-SOURCE-WINDOWS",
+      "title": "Native Windows source SHA proof for the current runtime",
+      "owner": "bos_test_ci",
+      "depends_on": [
+        "PLAN-SOURCE"
+      ],
+      "checkpoint": "C1",
+      "status": "ACCEPT_SCOPED_NATIVE_WINDOWS_SOURCE",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/WINDOWS_SOURCE_UA.md",
+      "evidence": "docs/orchestration/evidence/windows-source/report.json"
     }
   ]
 }
