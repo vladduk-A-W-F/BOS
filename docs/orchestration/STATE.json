@@ -3,8 +3,8 @@
   "updated_at": "2026-09-20",
   "canonical_repository": "vladduk-A-W-F/BOS",
   "setup_branch": "setup/bos-gpt-orchestration-20260920",
-  "product_candidate_commit": "7d46dced3bcf06d44755cf53366c9e16bd465582",
-  "runtime_source_sha256": "10d86748d682926a898d2d2dfecd43fd7f6962f6ed38602da7ae704e52aca154",
+  "product_candidate_commit": "aecf8ee1f556b60f3fa34b66a001372e332d02ab",
+  "runtime_source_sha256": "31c692c5f3113446452e8d15faf95c29b019f433550bf4d0658c4f0428e54d20",
   "runtime_reconstructed_and_digest_matched": true,
   "whole_local_git_tree_verified": false,
   "technical_ready": false,
@@ -47,7 +47,133 @@
     "codex_cli_available": false,
     "application_started_this_setup": false,
     "postgres16_local_blocker": "apt-get update: setgroups/setegid/seteuid not permitted; no bypass attempted",
-    "venv": "execution/venv outside repository"
+    "venv": "execution/venv outside repository",
+    "django_version": "6.0.5",
+    "djangorestframework_version": "3.17.1",
+    "postgres16_ci": {
+      "status": "PASS_SCOPED",
+      "candidate_commit": "aecf8ee1f556b60f3fa34b66a001372e332d02ab",
+      "run_id": 35503944302,
+      "run_attempt": 1,
+      "url": "https://github.com/vladduk-A-W-F/BOS/actions/runs/35503944302",
+      "postgres_version_num": 160015,
+      "source_sha256": "31c692c5f3113446452e8d15faf95c29b019f433550bf4d0658c4f0428e54d20",
+      "harness_sha256": "30046f9c933b7a0fefc8e1813e07ca2fbea782bb6ebba9974d74a8dd59a13cfb",
+      "postgres_green_tests": 26,
+      "expected_red_methods": 3,
+      "unit_tests": 7,
+      "source_unchanged": {
+        "candidate": true,
+        "baseline": true
+      },
+      "canaries_unchanged": true,
+      "indexed_files_verified": 22,
+      "artifact_id": 10603616377,
+      "artifact_zip_sha256": "542a3c5975a0a4e1533f0f744bf3ad57e2f0f111afe232f04fb4efaf28185247",
+      "artifact_zip_bytes": 28579,
+      "artifact_expiry": "2026-10-20T10:05:11Z",
+      "archive_local_path": "docs/orchestration/evidence/batch01/PG16/BoS_BATCH01_PG16_35503944302.zip",
+      "full_run": false,
+      "business_e2e_run": false,
+      "technical_ready": false,
+      "pilot_allowed": false,
+      "review": "ACCEPT_SCOPED",
+      "checks": [
+        {
+          "label": "postgres-red-p10-003",
+          "status": "EXPECTED_RED",
+          "accepted": true,
+          "exit_code": 1,
+          "observed_test_counts": [
+            1
+          ],
+          "duration_seconds": 5.093
+        },
+        {
+          "label": "postgres-red-f03",
+          "status": "EXPECTED_RED",
+          "accepted": true,
+          "exit_code": 1,
+          "observed_test_counts": [
+            1
+          ],
+          "duration_seconds": 5.088
+        },
+        {
+          "label": "postgres-red-n1-request",
+          "status": "EXPECTED_RED",
+          "accepted": true,
+          "exit_code": 1,
+          "observed_test_counts": [
+            1
+          ],
+          "duration_seconds": 8.346
+        },
+        {
+          "label": "postgres-green-import",
+          "status": "PASS",
+          "accepted": true,
+          "exit_code": 0,
+          "observed_test_counts": [
+            15
+          ],
+          "duration_seconds": 9.415
+        },
+        {
+          "label": "postgres-green-finance",
+          "status": "PASS",
+          "accepted": true,
+          "exit_code": 0,
+          "observed_test_counts": [
+            5
+          ],
+          "duration_seconds": 21.451
+        },
+        {
+          "label": "postgres-green-request-invoice",
+          "status": "PASS",
+          "accepted": true,
+          "exit_code": 0,
+          "observed_test_counts": [
+            4
+          ],
+          "duration_seconds": 20.998
+        },
+        {
+          "label": "postgres-green-n1-ship",
+          "status": "PASS",
+          "accepted": true,
+          "exit_code": 0,
+          "observed_test_counts": [
+            2
+          ],
+          "duration_seconds": 35.031
+        },
+        {
+          "label": "artifact-unit-f06",
+          "status": "PASS",
+          "accepted": true,
+          "exit_code": 0,
+          "observed_test_counts": [
+            5
+          ],
+          "duration_seconds": 1.183
+        },
+        {
+          "label": "source-unit-digest",
+          "status": "PASS",
+          "accepted": true,
+          "exit_code": 0,
+          "observed_test_counts": [
+            2
+          ],
+          "duration_seconds": 0.328
+        }
+      ],
+      "reviewer": "bos_batch_review",
+      "postgres_green_real_business_http_methods": 16,
+      "postgres_stage_fake_connection_guard_methods": 10
+    }
   },
   "config_validation": "PASS_STATIC",
   "independent_setup_review": "ACCEPT_SCOPED_STATIC",
@@ -65,7 +191,7 @@
   "main_reconciliation_before_merge_required": true,
   "master_v2_1_sha256": "4ab578d4ab1a6c959ed7aa791f09a7c8284c04df1d48b6a575671f53df7c4caf",
   "master_v2_1_sha_verified": true,
-  "setup_head": "b6074de6c6a91e58eac886666fc5bf3371e13e39",
+  "setup_head": "aecf8ee1f556b60f3fa34b66a001372e332d02ab",
   "current_batch": "BATCH-01",
   "plugins": {
     "github": "CONFIRMED",
@@ -73,5 +199,149 @@
     "sites": "CONFIRMED",
     "openai_developers": "NOT_INSTALLED_REQUIRES_USER_UI",
     "codex_security": "NOT_INSTALLED_REQUIRES_USER_UI"
+  },
+  "setup_head_note": "Останній перевірений CI-кандидат; пізніші документаційні коміти див. GitHub PR.",
+  "next_action": "PLAN-LINKS-READ; N2 ADR decision before mechanism change; external GPT off pending data/budget",
+  "batch_result": "PASS_SCOPED",
+  "baseline_product_commit": "7d46dced3bcf06d44755cf53366c9e16bd465582",
+  "next_after_owner_review_note": "Історичне поле початкового setup для compatibility validator; P10-003 вже scoped accepted. Чинна черга — next_action та QUEUE.",
+  "verification": {
+    "sqlite_targeted": {
+      "tests": 24,
+      "exit_code": 0,
+      "commit": "f2fa1e91e518a69cf729f1acedeac426dddd5009",
+      "source_sha256": "b9722ed16722cee83de6d7b30d9cac7077488237bd5f3020c60709e851ab859d"
+    },
+    "artifact_and_source_units": {
+      "tests": 7,
+      "exit_code": 0,
+      "source_sha256": "31c692c5f3113446452e8d15faf95c29b019f433550bf4d0658c4f0428e54d20"
+    },
+    "pg_ci": {
+      "status": "PASS_SCOPED",
+      "candidate_commit": "aecf8ee1f556b60f3fa34b66a001372e332d02ab",
+      "run_id": 35503944302,
+      "run_attempt": 1,
+      "url": "https://github.com/vladduk-A-W-F/BOS/actions/runs/35503944302",
+      "postgres_version_num": 160015,
+      "source_sha256": "31c692c5f3113446452e8d15faf95c29b019f433550bf4d0658c4f0428e54d20",
+      "harness_sha256": "30046f9c933b7a0fefc8e1813e07ca2fbea782bb6ebba9974d74a8dd59a13cfb",
+      "postgres_green_tests": 26,
+      "expected_red_methods": 3,
+      "unit_tests": 7,
+      "source_unchanged": {
+        "candidate": true,
+        "baseline": true
+      },
+      "canaries_unchanged": true,
+      "indexed_files_verified": 22,
+      "artifact_id": 10603616377,
+      "artifact_zip_sha256": "542a3c5975a0a4e1533f0f744bf3ad57e2f0f111afe232f04fb4efaf28185247",
+      "artifact_zip_bytes": 28579,
+      "artifact_expiry": "2026-10-20T10:05:11Z",
+      "archive_local_path": "docs/orchestration/evidence/batch01/PG16/BoS_BATCH01_PG16_35503944302.zip",
+      "full_run": false,
+      "business_e2e_run": false,
+      "technical_ready": false,
+      "pilot_allowed": false,
+      "review": "ACCEPT_SCOPED",
+      "checks": [
+        {
+          "label": "postgres-red-p10-003",
+          "status": "EXPECTED_RED",
+          "accepted": true,
+          "exit_code": 1,
+          "observed_test_counts": [
+            1
+          ],
+          "duration_seconds": 5.093
+        },
+        {
+          "label": "postgres-red-f03",
+          "status": "EXPECTED_RED",
+          "accepted": true,
+          "exit_code": 1,
+          "observed_test_counts": [
+            1
+          ],
+          "duration_seconds": 5.088
+        },
+        {
+          "label": "postgres-red-n1-request",
+          "status": "EXPECTED_RED",
+          "accepted": true,
+          "exit_code": 1,
+          "observed_test_counts": [
+            1
+          ],
+          "duration_seconds": 8.346
+        },
+        {
+          "label": "postgres-green-import",
+          "status": "PASS",
+          "accepted": true,
+          "exit_code": 0,
+          "observed_test_counts": [
+            15
+          ],
+          "duration_seconds": 9.415
+        },
+        {
+          "label": "postgres-green-finance",
+          "status": "PASS",
+          "accepted": true,
+          "exit_code": 0,
+          "observed_test_counts": [
+            5
+          ],
+          "duration_seconds": 21.451
+        },
+        {
+          "label": "postgres-green-request-invoice",
+          "status": "PASS",
+          "accepted": true,
+          "exit_code": 0,
+          "observed_test_counts": [
+            4
+          ],
+          "duration_seconds": 20.998
+        },
+        {
+          "label": "postgres-green-n1-ship",
+          "status": "PASS",
+          "accepted": true,
+          "exit_code": 0,
+          "observed_test_counts": [
+            2
+          ],
+          "duration_seconds": 35.031
+        },
+        {
+          "label": "artifact-unit-f06",
+          "status": "PASS",
+          "accepted": true,
+          "exit_code": 0,
+          "observed_test_counts": [
+            5
+          ],
+          "duration_seconds": 1.183
+        },
+        {
+          "label": "source-unit-digest",
+          "status": "PASS",
+          "accepted": true,
+          "exit_code": 0,
+          "observed_test_counts": [
+            2
+          ],
+          "duration_seconds": 0.328
+        }
+      ],
+      "reviewer": "bos_batch_review",
+      "postgres_green_real_business_http_methods": 16,
+      "postgres_stage_fake_connection_guard_methods": 10
+    },
+    "n2": "SCOPED_DIAGNOSTIC_ACCEPTED; one SQLite probe; mechanism unchanged",
+    "full_acceptance": "BLOCKED; no full rerun; no E2E rerun"
   }
 }

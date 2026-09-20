@@ -1,0 +1,724 @@
+{
+  "batch": "BATCH-01",
+  "scope": "new-card focused regressions only",
+  "started_at": "2026-09-20T10:03:22.558898+00:00",
+  "accepted_scoped": true,
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "full_run": false,
+  "business_e2e_run": false,
+  "historical_p05_used": 3,
+  "historical_p05_limit": 3,
+  "A09_retried": false,
+  "A10_retried": false,
+  "A11_retried": false,
+  "python": "3.12.14",
+  "run_id": "35503944302",
+  "run_attempt": "1",
+  "candidate_commit": "aecf8ee1f556b60f3fa34b66a001372e332d02ab",
+  "checks": [
+    {
+      "label": "postgres-red-p10-003",
+      "source": "baseline",
+      "labels": [
+        "erp.test_initial_import.InitialImportTests.test_actual_three_currency_import_preserves_overdue_origin_and_pending_stock"
+      ],
+      "expected_tests": 1,
+      "expected_red": "guard",
+      "timeout_seconds": 120,
+      "status": "EXPECTED_RED",
+      "accepted": true,
+      "mode": "postgres16",
+      "effective_timeout_seconds": 120,
+      "started_at": "2026-09-20T10:03:23.641688+00:00",
+      "source_sha256": "10d86748d682926a898d2d2dfecd43fd7f6962f6ed38602da7ae704e52aca154",
+      "commit": "7d46dced3bcf06d44755cf53366c9e16bd465582",
+      "stdout_log": "postgres-red-p10-003.stdout.log",
+      "stderr_log": "postgres-red-p10-003.stderr.log",
+      "source_database": "bos_verify_728358a257fe4959",
+      "source_canary_before": {
+        "database": "bos_verify_728358a257fe4959",
+        "version_num": 160015,
+        "tables": [
+          [
+            "public",
+            "bos_batch_source_canary",
+            "BASE TABLE"
+          ]
+        ],
+        "rows": [
+          [
+            1,
+            "Synthetic BATCH-01 source must remain unchanged"
+          ]
+        ]
+      },
+      "command": [
+        "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+        "-B",
+        "-c",
+        "\nimport json, logging, os, sys\nos.environ['DJANGO_SETTINGS_MODULE'] = 'verification_settings'\nimport django\ndjango.setup()\n# Preserve the actual SQL exception behind expected red HTTP 500 responses.\nrequest_logger = logging.getLogger('django.request')\nrequest_logger.setLevel(logging.ERROR)\nrequest_logger.addHandler(logging.StreamHandler())\nfrom django.db import connection\nfrom django.test.runner import DiscoverRunner\n\nclass FocusedRunner(DiscoverRunner):\n    def setup_databases(self, **kwargs):\n        old_config = super().setup_databases(**kwargs)\n        with connection.cursor() as cursor:\n            cursor.execute(\"SELECT current_database(), current_setting('server_version_num')\")\n            name, version = cursor.fetchone()\n        proof = {'vendor': connection.vendor, 'database': name, 'version_num': int(version)}\n        print('BOS_BATCH_TEST_DATABASE ' + json.dumps(proof), flush=True)\n        if (proof['vendor'] != 'postgresql' or not 160000 <= proof['version_num'] < 170000\n                or name != 'test_' + os.environ['BOS_TEST_DB_NAME']):\n            raise RuntimeError('Refuse unexpected test database or PostgreSQL version')\n        return old_config\n\nraise SystemExit(bool(FocusedRunner(verbosity=2, interactive=False).run_tests(sys.argv[1:])))\n",
+        "erp.test_initial_import.InitialImportTests.test_actual_three_currency_import_preserves_overdue_origin_and_pending_stock"
+      ],
+      "exit_code": 1,
+      "source_canary_after": {
+        "database": "bos_verify_728358a257fe4959",
+        "version_num": 160015,
+        "tables": [
+          [
+            "public",
+            "bos_batch_source_canary",
+            "BASE TABLE"
+          ]
+        ],
+        "rows": [
+          [
+            1,
+            "Synthetic BATCH-01 source must remain unchanged"
+          ]
+        ]
+      },
+      "source_database_unchanged": true,
+      "observed_test_counts": [
+        1
+      ],
+      "test_summaries": [
+        "FAILED (failures=1)"
+      ],
+      "disallowed_test_outcomes": [],
+      "test_database_proofs": [
+        {
+          "vendor": "postgresql",
+          "database": "test_bos_verify_728358a257fe4959",
+          "version_num": 160015
+        }
+      ],
+      "expected_failure_markers": {
+        "test_initial_import.py": true,
+        "name.startswith('check_')": true,
+        "AssertionError: False is not true": true
+      },
+      "completed_at": "2026-09-20T10:03:28.734606+00:00",
+      "duration_seconds": 5.093,
+      "stdout_sha256": "b09d161388f00209ac4987d24964ee46408626f1864241463a167c0389562ace",
+      "stderr_sha256": "e4e9c9f140b96a78827bc06a8e2a964a93515bf7d3ef19db9abcc94e31e9f2ba"
+    },
+    {
+      "label": "postgres-red-f03",
+      "source": "baseline",
+      "labels": [
+        "finance.test_statement_concurrency.StatementConcurrencyTests.test_distinct_import_proposals_same_source_have_one_immutable_effect"
+      ],
+      "expected_tests": 1,
+      "expected_red": "invoice",
+      "timeout_seconds": 120,
+      "status": "EXPECTED_RED",
+      "accepted": true,
+      "mode": "postgres16",
+      "effective_timeout_seconds": 120,
+      "started_at": "2026-09-20T10:03:28.735225+00:00",
+      "source_sha256": "10d86748d682926a898d2d2dfecd43fd7f6962f6ed38602da7ae704e52aca154",
+      "commit": "7d46dced3bcf06d44755cf53366c9e16bd465582",
+      "stdout_log": "postgres-red-f03.stdout.log",
+      "stderr_log": "postgres-red-f03.stderr.log",
+      "source_database": "bos_verify_105048901c7a4a90",
+      "source_canary_before": {
+        "database": "bos_verify_105048901c7a4a90",
+        "version_num": 160015,
+        "tables": [
+          [
+            "public",
+            "bos_batch_source_canary",
+            "BASE TABLE"
+          ]
+        ],
+        "rows": [
+          [
+            1,
+            "Synthetic BATCH-01 source must remain unchanged"
+          ]
+        ]
+      },
+      "command": [
+        "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+        "-B",
+        "-c",
+        "\nimport json, logging, os, sys\nos.environ['DJANGO_SETTINGS_MODULE'] = 'verification_settings'\nimport django\ndjango.setup()\n# Preserve the actual SQL exception behind expected red HTTP 500 responses.\nrequest_logger = logging.getLogger('django.request')\nrequest_logger.setLevel(logging.ERROR)\nrequest_logger.addHandler(logging.StreamHandler())\nfrom django.db import connection\nfrom django.test.runner import DiscoverRunner\n\nclass FocusedRunner(DiscoverRunner):\n    def setup_databases(self, **kwargs):\n        old_config = super().setup_databases(**kwargs)\n        with connection.cursor() as cursor:\n            cursor.execute(\"SELECT current_database(), current_setting('server_version_num')\")\n            name, version = cursor.fetchone()\n        proof = {'vendor': connection.vendor, 'database': name, 'version_num': int(version)}\n        print('BOS_BATCH_TEST_DATABASE ' + json.dumps(proof), flush=True)\n        if (proof['vendor'] != 'postgresql' or not 160000 <= proof['version_num'] < 170000\n                or name != 'test_' + os.environ['BOS_TEST_DB_NAME']):\n            raise RuntimeError('Refuse unexpected test database or PostgreSQL version')\n        return old_config\n\nraise SystemExit(bool(FocusedRunner(verbosity=2, interactive=False).run_tests(sys.argv[1:])))\n",
+        "finance.test_statement_concurrency.StatementConcurrencyTests.test_distinct_import_proposals_same_source_have_one_immutable_effect"
+      ],
+      "exit_code": 1,
+      "source_canary_after": {
+        "database": "bos_verify_105048901c7a4a90",
+        "version_num": 160015,
+        "tables": [
+          [
+            "public",
+            "bos_batch_source_canary",
+            "BASE TABLE"
+          ]
+        ],
+        "rows": [
+          [
+            1,
+            "Synthetic BATCH-01 source must remain unchanged"
+          ]
+        ]
+      },
+      "source_database_unchanged": true,
+      "observed_test_counts": [
+        1
+      ],
+      "test_summaries": [
+        "FAILED (errors=3)"
+      ],
+      "disallowed_test_outcomes": [],
+      "test_database_proofs": [
+        {
+          "vendor": "postgresql",
+          "database": "test_bos_verify_105048901c7a4a90",
+          "version_num": 160015
+        }
+      ],
+      "expected_failure_markers": {
+        "test_distinct_import_proposals_same_source_have_one_immutable_effect": true,
+        "django.db.utils.DataError: value too long for type character varying(30)": true
+      },
+      "completed_at": "2026-09-20T10:03:33.823512+00:00",
+      "duration_seconds": 5.088,
+      "stdout_sha256": "d8581b6d05f7d54742c192ffad61b7ae266dffe7d80d1df9609699b00b97213c",
+      "stderr_sha256": "4e53ab6825a8c1febb909addc3d9ac7917a8215e6db543b832a8af4dc559849a"
+    },
+    {
+      "label": "postgres-red-n1-request",
+      "source": "baseline-request",
+      "labels": [
+        "operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes"
+      ],
+      "expected_tests": 1,
+      "expected_red": "request",
+      "timeout_seconds": 120,
+      "status": "EXPECTED_RED",
+      "accepted": true,
+      "mode": "postgres16",
+      "effective_timeout_seconds": 120,
+      "started_at": "2026-09-20T10:03:33.824585+00:00",
+      "source_sha256": "75dda11a795921ab7b129df15013b774d2214993f11bb30facecd29c8662e962",
+      "commit": "7d46dced3bcf06d44755cf53366c9e16bd465582",
+      "stdout_log": "postgres-red-n1-request.stdout.log",
+      "stderr_log": "postgres-red-n1-request.stderr.log",
+      "source_database": "bos_verify_0c93786f8d604e4a",
+      "source_canary_before": {
+        "database": "bos_verify_0c93786f8d604e4a",
+        "version_num": 160015,
+        "tables": [
+          [
+            "public",
+            "bos_batch_source_canary",
+            "BASE TABLE"
+          ]
+        ],
+        "rows": [
+          [
+            1,
+            "Synthetic BATCH-01 source must remain unchanged"
+          ]
+        ]
+      },
+      "command": [
+        "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+        "-B",
+        "-c",
+        "\nimport json, logging, os, sys\nos.environ['DJANGO_SETTINGS_MODULE'] = 'verification_settings'\nimport django\ndjango.setup()\n# Preserve the actual SQL exception behind expected red HTTP 500 responses.\nrequest_logger = logging.getLogger('django.request')\nrequest_logger.setLevel(logging.ERROR)\nrequest_logger.addHandler(logging.StreamHandler())\nfrom django.db import connection\nfrom django.test.runner import DiscoverRunner\n\nclass FocusedRunner(DiscoverRunner):\n    def setup_databases(self, **kwargs):\n        old_config = super().setup_databases(**kwargs)\n        with connection.cursor() as cursor:\n            cursor.execute(\"SELECT current_database(), current_setting('server_version_num')\")\n            name, version = cursor.fetchone()\n        proof = {'vendor': connection.vendor, 'database': name, 'version_num': int(version)}\n        print('BOS_BATCH_TEST_DATABASE ' + json.dumps(proof), flush=True)\n        if (proof['vendor'] != 'postgresql' or not 160000 <= proof['version_num'] < 170000\n                or name != 'test_' + os.environ['BOS_TEST_DB_NAME']):\n            raise RuntimeError('Refuse unexpected test database or PostgreSQL version')\n        return old_config\n\nraise SystemExit(bool(FocusedRunner(verbosity=2, interactive=False).run_tests(sys.argv[1:])))\n",
+        "operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes"
+      ],
+      "exit_code": 1,
+      "source_canary_after": {
+        "database": "bos_verify_0c93786f8d604e4a",
+        "version_num": 160015,
+        "tables": [
+          [
+            "public",
+            "bos_batch_source_canary",
+            "BASE TABLE"
+          ]
+        ],
+        "rows": [
+          [
+            1,
+            "Synthetic BATCH-01 source must remain unchanged"
+          ]
+        ]
+      },
+      "source_database_unchanged": true,
+      "observed_test_counts": [
+        1
+      ],
+      "test_summaries": [
+        "FAILED (failures=36)"
+      ],
+      "disallowed_test_outcomes": [],
+      "test_database_proofs": [
+        {
+          "vendor": "postgresql",
+          "database": "test_bos_verify_0c93786f8d604e4a",
+          "version_num": 160015
+        }
+      ],
+      "expected_failure_markers": {
+        "test_raw_overflow_refused_without_trimming_or_partial_writes": true,
+        "500 != 422": true,
+        "value too long for type character varying(": true
+      },
+      "completed_at": "2026-09-20T10:03:42.170197+00:00",
+      "duration_seconds": 8.346,
+      "stdout_sha256": "817a1415c91de09ade14c130b47f164a65e26d7ba323624225b0df764ccee9c0",
+      "stderr_sha256": "15488d84e455ef743d42d17be81667c099236ee72a279df608fcac3309070da3"
+    },
+    {
+      "label": "postgres-green-import",
+      "source": "candidate",
+      "labels": [
+        "erp.test_initial_import.InitialImportTests.test_actual_three_currency_import_preserves_overdue_origin_and_pending_stock",
+        "erp.test_initial_import_isolation.InitialImportIsolationTests",
+        "erp.test_import_concurrency.ERPImportConcurrencyTests"
+      ],
+      "expected_tests": 15,
+      "expected_red": null,
+      "timeout_seconds": 180,
+      "status": "PASS",
+      "accepted": true,
+      "mode": "postgres16",
+      "effective_timeout_seconds": 180,
+      "started_at": "2026-09-20T10:03:42.171095+00:00",
+      "source_sha256": "31c692c5f3113446452e8d15faf95c29b019f433550bf4d0658c4f0428e54d20",
+      "commit": "aecf8ee1f556b60f3fa34b66a001372e332d02ab",
+      "stdout_log": "postgres-green-import.stdout.log",
+      "stderr_log": "postgres-green-import.stderr.log",
+      "source_database": "bos_verify_8bca77408fd742bc",
+      "source_canary_before": {
+        "database": "bos_verify_8bca77408fd742bc",
+        "version_num": 160015,
+        "tables": [
+          [
+            "public",
+            "bos_batch_source_canary",
+            "BASE TABLE"
+          ]
+        ],
+        "rows": [
+          [
+            1,
+            "Synthetic BATCH-01 source must remain unchanged"
+          ]
+        ]
+      },
+      "command": [
+        "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+        "-B",
+        "-c",
+        "\nimport json, logging, os, sys\nos.environ['DJANGO_SETTINGS_MODULE'] = 'verification_settings'\nimport django\ndjango.setup()\n# Preserve the actual SQL exception behind expected red HTTP 500 responses.\nrequest_logger = logging.getLogger('django.request')\nrequest_logger.setLevel(logging.ERROR)\nrequest_logger.addHandler(logging.StreamHandler())\nfrom django.db import connection\nfrom django.test.runner import DiscoverRunner\n\nclass FocusedRunner(DiscoverRunner):\n    def setup_databases(self, **kwargs):\n        old_config = super().setup_databases(**kwargs)\n        with connection.cursor() as cursor:\n            cursor.execute(\"SELECT current_database(), current_setting('server_version_num')\")\n            name, version = cursor.fetchone()\n        proof = {'vendor': connection.vendor, 'database': name, 'version_num': int(version)}\n        print('BOS_BATCH_TEST_DATABASE ' + json.dumps(proof), flush=True)\n        if (proof['vendor'] != 'postgresql' or not 160000 <= proof['version_num'] < 170000\n                or name != 'test_' + os.environ['BOS_TEST_DB_NAME']):\n            raise RuntimeError('Refuse unexpected test database or PostgreSQL version')\n        return old_config\n\nraise SystemExit(bool(FocusedRunner(verbosity=2, interactive=False).run_tests(sys.argv[1:])))\n",
+        "erp.test_initial_import.InitialImportTests.test_actual_three_currency_import_preserves_overdue_origin_and_pending_stock",
+        "erp.test_initial_import_isolation.InitialImportIsolationTests",
+        "erp.test_import_concurrency.ERPImportConcurrencyTests"
+      ],
+      "exit_code": 0,
+      "source_canary_after": {
+        "database": "bos_verify_8bca77408fd742bc",
+        "version_num": 160015,
+        "tables": [
+          [
+            "public",
+            "bos_batch_source_canary",
+            "BASE TABLE"
+          ]
+        ],
+        "rows": [
+          [
+            1,
+            "Synthetic BATCH-01 source must remain unchanged"
+          ]
+        ]
+      },
+      "source_database_unchanged": true,
+      "observed_test_counts": [
+        15
+      ],
+      "test_summaries": [
+        "OK"
+      ],
+      "disallowed_test_outcomes": [],
+      "test_database_proofs": [
+        {
+          "vendor": "postgresql",
+          "database": "test_bos_verify_8bca77408fd742bc",
+          "version_num": 160015
+        }
+      ],
+      "completed_at": "2026-09-20T10:03:51.586512+00:00",
+      "duration_seconds": 9.415,
+      "stdout_sha256": "9be34ccf925b28207fe3a5878979d9c4f9b64502ea6bac4bf4709a4068540f1e",
+      "stderr_sha256": "fddfe4c6877a9aeb5beb5727cd189c9a5986b371bda577bf20837c49e50fc97c"
+    },
+    {
+      "label": "postgres-green-finance",
+      "source": "candidate",
+      "labels": [
+        "finance.test_statement_concurrency.StatementConcurrencyTests"
+      ],
+      "expected_tests": 5,
+      "expected_red": null,
+      "timeout_seconds": 240,
+      "status": "PASS",
+      "accepted": true,
+      "mode": "postgres16",
+      "effective_timeout_seconds": 240,
+      "started_at": "2026-09-20T10:03:51.588090+00:00",
+      "source_sha256": "31c692c5f3113446452e8d15faf95c29b019f433550bf4d0658c4f0428e54d20",
+      "commit": "aecf8ee1f556b60f3fa34b66a001372e332d02ab",
+      "stdout_log": "postgres-green-finance.stdout.log",
+      "stderr_log": "postgres-green-finance.stderr.log",
+      "source_database": "bos_verify_2507b3fa7bc94d8a",
+      "source_canary_before": {
+        "database": "bos_verify_2507b3fa7bc94d8a",
+        "version_num": 160015,
+        "tables": [
+          [
+            "public",
+            "bos_batch_source_canary",
+            "BASE TABLE"
+          ]
+        ],
+        "rows": [
+          [
+            1,
+            "Synthetic BATCH-01 source must remain unchanged"
+          ]
+        ]
+      },
+      "command": [
+        "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+        "-B",
+        "-c",
+        "\nimport json, logging, os, sys\nos.environ['DJANGO_SETTINGS_MODULE'] = 'verification_settings'\nimport django\ndjango.setup()\n# Preserve the actual SQL exception behind expected red HTTP 500 responses.\nrequest_logger = logging.getLogger('django.request')\nrequest_logger.setLevel(logging.ERROR)\nrequest_logger.addHandler(logging.StreamHandler())\nfrom django.db import connection\nfrom django.test.runner import DiscoverRunner\n\nclass FocusedRunner(DiscoverRunner):\n    def setup_databases(self, **kwargs):\n        old_config = super().setup_databases(**kwargs)\n        with connection.cursor() as cursor:\n            cursor.execute(\"SELECT current_database(), current_setting('server_version_num')\")\n            name, version = cursor.fetchone()\n        proof = {'vendor': connection.vendor, 'database': name, 'version_num': int(version)}\n        print('BOS_BATCH_TEST_DATABASE ' + json.dumps(proof), flush=True)\n        if (proof['vendor'] != 'postgresql' or not 160000 <= proof['version_num'] < 170000\n                or name != 'test_' + os.environ['BOS_TEST_DB_NAME']):\n            raise RuntimeError('Refuse unexpected test database or PostgreSQL version')\n        return old_config\n\nraise SystemExit(bool(FocusedRunner(verbosity=2, interactive=False).run_tests(sys.argv[1:])))\n",
+        "finance.test_statement_concurrency.StatementConcurrencyTests"
+      ],
+      "exit_code": 0,
+      "source_canary_after": {
+        "database": "bos_verify_2507b3fa7bc94d8a",
+        "version_num": 160015,
+        "tables": [
+          [
+            "public",
+            "bos_batch_source_canary",
+            "BASE TABLE"
+          ]
+        ],
+        "rows": [
+          [
+            1,
+            "Synthetic BATCH-01 source must remain unchanged"
+          ]
+        ]
+      },
+      "source_database_unchanged": true,
+      "observed_test_counts": [
+        5
+      ],
+      "test_summaries": [
+        "OK"
+      ],
+      "disallowed_test_outcomes": [],
+      "test_database_proofs": [
+        {
+          "vendor": "postgresql",
+          "database": "test_bos_verify_2507b3fa7bc94d8a",
+          "version_num": 160015
+        }
+      ],
+      "completed_at": "2026-09-20T10:04:13.039215+00:00",
+      "duration_seconds": 21.451,
+      "stdout_sha256": "05f7c920631fd02500b86b7634d287b47200e21cfc3570219fc1a4b1304daa65",
+      "stderr_sha256": "8c8ef6778442fcbe06586d43eac12381299b6cb642431ed0616b5769c99555e1"
+    },
+    {
+      "label": "postgres-green-request-invoice",
+      "source": "candidate",
+      "labels": [
+        "operations.test_request_lengths.ProcurementRequestLengthTests",
+        "erp.test_value_boundaries.A07BoundaryTests.test_l01_invoice_code_30_ascii_and_unicode_round_trip",
+        "erp.test_value_boundaries.A07BoundaryTests.test_l01_invoice_code_31_refused_without_truncation_or_trim"
+      ],
+      "expected_tests": 4,
+      "expected_red": null,
+      "timeout_seconds": 240,
+      "status": "PASS",
+      "accepted": true,
+      "mode": "postgres16",
+      "effective_timeout_seconds": 240,
+      "started_at": "2026-09-20T10:04:13.041591+00:00",
+      "source_sha256": "31c692c5f3113446452e8d15faf95c29b019f433550bf4d0658c4f0428e54d20",
+      "commit": "aecf8ee1f556b60f3fa34b66a001372e332d02ab",
+      "stdout_log": "postgres-green-request-invoice.stdout.log",
+      "stderr_log": "postgres-green-request-invoice.stderr.log",
+      "source_database": "bos_verify_f294dc64992a4da3",
+      "source_canary_before": {
+        "database": "bos_verify_f294dc64992a4da3",
+        "version_num": 160015,
+        "tables": [
+          [
+            "public",
+            "bos_batch_source_canary",
+            "BASE TABLE"
+          ]
+        ],
+        "rows": [
+          [
+            1,
+            "Synthetic BATCH-01 source must remain unchanged"
+          ]
+        ]
+      },
+      "command": [
+        "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+        "-B",
+        "-c",
+        "\nimport json, logging, os, sys\nos.environ['DJANGO_SETTINGS_MODULE'] = 'verification_settings'\nimport django\ndjango.setup()\n# Preserve the actual SQL exception behind expected red HTTP 500 responses.\nrequest_logger = logging.getLogger('django.request')\nrequest_logger.setLevel(logging.ERROR)\nrequest_logger.addHandler(logging.StreamHandler())\nfrom django.db import connection\nfrom django.test.runner import DiscoverRunner\n\nclass FocusedRunner(DiscoverRunner):\n    def setup_databases(self, **kwargs):\n        old_config = super().setup_databases(**kwargs)\n        with connection.cursor() as cursor:\n            cursor.execute(\"SELECT current_database(), current_setting('server_version_num')\")\n            name, version = cursor.fetchone()\n        proof = {'vendor': connection.vendor, 'database': name, 'version_num': int(version)}\n        print('BOS_BATCH_TEST_DATABASE ' + json.dumps(proof), flush=True)\n        if (proof['vendor'] != 'postgresql' or not 160000 <= proof['version_num'] < 170000\n                or name != 'test_' + os.environ['BOS_TEST_DB_NAME']):\n            raise RuntimeError('Refuse unexpected test database or PostgreSQL version')\n        return old_config\n\nraise SystemExit(bool(FocusedRunner(verbosity=2, interactive=False).run_tests(sys.argv[1:])))\n",
+        "operations.test_request_lengths.ProcurementRequestLengthTests",
+        "erp.test_value_boundaries.A07BoundaryTests.test_l01_invoice_code_30_ascii_and_unicode_round_trip",
+        "erp.test_value_boundaries.A07BoundaryTests.test_l01_invoice_code_31_refused_without_truncation_or_trim"
+      ],
+      "exit_code": 0,
+      "source_canary_after": {
+        "database": "bos_verify_f294dc64992a4da3",
+        "version_num": 160015,
+        "tables": [
+          [
+            "public",
+            "bos_batch_source_canary",
+            "BASE TABLE"
+          ]
+        ],
+        "rows": [
+          [
+            1,
+            "Synthetic BATCH-01 source must remain unchanged"
+          ]
+        ]
+      },
+      "source_database_unchanged": true,
+      "observed_test_counts": [
+        4
+      ],
+      "test_summaries": [
+        "OK"
+      ],
+      "disallowed_test_outcomes": [],
+      "test_database_proofs": [
+        {
+          "vendor": "postgresql",
+          "database": "test_bos_verify_f294dc64992a4da3",
+          "version_num": 160015
+        }
+      ],
+      "completed_at": "2026-09-20T10:04:34.039416+00:00",
+      "duration_seconds": 20.998,
+      "stdout_sha256": "5d431a0c53e9ce71c72ea688524179bd93f07fbf9931cdad28c334413b1b6e77",
+      "stderr_sha256": "46da3285ee744d962cba6bcb99dbf2deea1904d032cf03b14b7d595c64d75890"
+    },
+    {
+      "label": "postgres-green-n1-ship",
+      "source": "candidate",
+      "labels": [
+        "erp.test_shipping_reference_lengths.ShippingReferenceLengthTests"
+      ],
+      "expected_tests": 2,
+      "expected_red": null,
+      "timeout_seconds": 240,
+      "status": "PASS",
+      "accepted": true,
+      "mode": "postgres16",
+      "effective_timeout_seconds": 240,
+      "started_at": "2026-09-20T10:04:34.041141+00:00",
+      "source_sha256": "31c692c5f3113446452e8d15faf95c29b019f433550bf4d0658c4f0428e54d20",
+      "commit": "aecf8ee1f556b60f3fa34b66a001372e332d02ab",
+      "stdout_log": "postgres-green-n1-ship.stdout.log",
+      "stderr_log": "postgres-green-n1-ship.stderr.log",
+      "source_database": "bos_verify_0a64fb680a2e4ba4",
+      "source_canary_before": {
+        "database": "bos_verify_0a64fb680a2e4ba4",
+        "version_num": 160015,
+        "tables": [
+          [
+            "public",
+            "bos_batch_source_canary",
+            "BASE TABLE"
+          ]
+        ],
+        "rows": [
+          [
+            1,
+            "Synthetic BATCH-01 source must remain unchanged"
+          ]
+        ]
+      },
+      "command": [
+        "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+        "-B",
+        "-c",
+        "\nimport json, logging, os, sys\nos.environ['DJANGO_SETTINGS_MODULE'] = 'verification_settings'\nimport django\ndjango.setup()\n# Preserve the actual SQL exception behind expected red HTTP 500 responses.\nrequest_logger = logging.getLogger('django.request')\nrequest_logger.setLevel(logging.ERROR)\nrequest_logger.addHandler(logging.StreamHandler())\nfrom django.db import connection\nfrom django.test.runner import DiscoverRunner\n\nclass FocusedRunner(DiscoverRunner):\n    def setup_databases(self, **kwargs):\n        old_config = super().setup_databases(**kwargs)\n        with connection.cursor() as cursor:\n            cursor.execute(\"SELECT current_database(), current_setting('server_version_num')\")\n            name, version = cursor.fetchone()\n        proof = {'vendor': connection.vendor, 'database': name, 'version_num': int(version)}\n        print('BOS_BATCH_TEST_DATABASE ' + json.dumps(proof), flush=True)\n        if (proof['vendor'] != 'postgresql' or not 160000 <= proof['version_num'] < 170000\n                or name != 'test_' + os.environ['BOS_TEST_DB_NAME']):\n            raise RuntimeError('Refuse unexpected test database or PostgreSQL version')\n        return old_config\n\nraise SystemExit(bool(FocusedRunner(verbosity=2, interactive=False).run_tests(sys.argv[1:])))\n",
+        "erp.test_shipping_reference_lengths.ShippingReferenceLengthTests"
+      ],
+      "exit_code": 0,
+      "source_canary_after": {
+        "database": "bos_verify_0a64fb680a2e4ba4",
+        "version_num": 160015,
+        "tables": [
+          [
+            "public",
+            "bos_batch_source_canary",
+            "BASE TABLE"
+          ]
+        ],
+        "rows": [
+          [
+            1,
+            "Synthetic BATCH-01 source must remain unchanged"
+          ]
+        ]
+      },
+      "source_database_unchanged": true,
+      "observed_test_counts": [
+        2
+      ],
+      "test_summaries": [
+        "OK"
+      ],
+      "disallowed_test_outcomes": [],
+      "test_database_proofs": [
+        {
+          "vendor": "postgresql",
+          "database": "test_bos_verify_0a64fb680a2e4ba4",
+          "version_num": 160015
+        }
+      ],
+      "completed_at": "2026-09-20T10:05:09.071986+00:00",
+      "duration_seconds": 35.031,
+      "stdout_sha256": "27c8bffc02c03a41ff4be13c1b01aa0ae4fdfd3f62c70b95f5a35c39f97b8c5f",
+      "stderr_sha256": "f8bea02ba13ab875692c03de307e2f5413183323449024104b12d59e70c7ac13"
+    },
+    {
+      "label": "artifact-unit-f06",
+      "source": "candidate",
+      "labels": [
+        "scripts.test_verify_evidence.VerifyE2EEvidenceTests"
+      ],
+      "expected_tests": 5,
+      "expected_red": null,
+      "timeout_seconds": 90,
+      "status": "PASS",
+      "accepted": true,
+      "mode": "unit",
+      "effective_timeout_seconds": 90,
+      "started_at": "2026-09-20T10:05:09.073714+00:00",
+      "source_sha256": "31c692c5f3113446452e8d15faf95c29b019f433550bf4d0658c4f0428e54d20",
+      "commit": "aecf8ee1f556b60f3fa34b66a001372e332d02ab",
+      "stdout_log": "artifact-unit-f06.stdout.log",
+      "stderr_log": "artifact-unit-f06.stderr.log",
+      "command": [
+        "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+        "-B",
+        "-m",
+        "unittest",
+        "scripts.test_verify_evidence.VerifyE2EEvidenceTests",
+        "-v"
+      ],
+      "exit_code": 0,
+      "observed_test_counts": [
+        5
+      ],
+      "test_summaries": [
+        "OK"
+      ],
+      "disallowed_test_outcomes": [],
+      "completed_at": "2026-09-20T10:05:10.256202+00:00",
+      "duration_seconds": 1.183,
+      "stdout_sha256": "d2e7b748cd29918b0d0043ac5e72225cb3e6036aa81a28a303a32b409cb2428e",
+      "stderr_sha256": "a7c58742a7d6af3e672feca2934d13e5a306f5298eb6eedda2f2e00590336310"
+    },
+    {
+      "label": "source-unit-digest",
+      "source": "candidate",
+      "labels": [
+        "scripts.test_source_digest.SourceDigestPathOrderTests"
+      ],
+      "expected_tests": 2,
+      "expected_red": null,
+      "timeout_seconds": 60,
+      "status": "PASS",
+      "accepted": true,
+      "mode": "unit",
+      "effective_timeout_seconds": 60,
+      "started_at": "2026-09-20T10:05:10.257452+00:00",
+      "source_sha256": "31c692c5f3113446452e8d15faf95c29b019f433550bf4d0658c4f0428e54d20",
+      "commit": "aecf8ee1f556b60f3fa34b66a001372e332d02ab",
+      "stdout_log": "source-unit-digest.stdout.log",
+      "stderr_log": "source-unit-digest.stderr.log",
+      "command": [
+        "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+        "-B",
+        "-m",
+        "unittest",
+        "scripts.test_source_digest.SourceDigestPathOrderTests",
+        "-v"
+      ],
+      "exit_code": 0,
+      "observed_test_counts": [
+        2
+      ],
+      "test_summaries": [
+        "OK"
+      ],
+      "disallowed_test_outcomes": [],
+      "completed_at": "2026-09-20T10:05:10.585006+00:00",
+      "duration_seconds": 0.328,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "73935907dd23df6584d884333e4223a97656a190f4ce6dcac9d3d675d49e352a"
+    }
+  ],
+  "errors": [],
+  "ship_included": true,
+  "harness_sha256": "30046f9c933b7a0fefc8e1813e07ca2fbea782bb6ebba9974d74a8dd59a13cfb",
+  "runner_timeout_seconds": 900,
+  "head_changed_ci_paths": [
+    ".github/workflows/bos-batch01-targeted.yml"
+  ],
+  "source_before": {
+    "candidate": {
+      "source_sha256": "31c692c5f3113446452e8d15faf95c29b019f433550bf4d0658c4f0428e54d20",
+      "source_databases": {}
+    },
+    "baseline": {
+      "source_sha256": "10d86748d682926a898d2d2dfecd43fd7f6962f6ed38602da7ae704e52aca154",
+      "source_databases": {}
+    }
+  },
+  "baseline_commit": "7d46dced3bcf06d44755cf53366c9e16bd465582",
+  "dependencies": {
+    "Django": "6.0.5",
+    "djangorestframework": "3.17.1",
+    "psycopg": "3.3.6"
+  },
+  "postgres_version_num": 160015,
+  "postgres_version": "PostgreSQL 16.15 (Debian 16.15-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+  "baseline_overlay": {
+    "only_added_file": "operations/test_request_lengths.py",
+    "sha256": "0adbbcf48d8a500f3a199b1c51569358ca200564f14e73b56b5e677a9183598c",
+    "source_sha256": "75dda11a795921ab7b129df15013b774d2214993f11bb30facecd29c8662e962"
+  },
+  "source_unchanged": {
+    "candidate": true,
+    "baseline": true
+  },
+  "completed_at": "2026-09-20T10:05:10.759023+00:00",
+  "status": "PASS_SCOPED"
+}

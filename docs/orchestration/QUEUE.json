@@ -10,9 +10,11 @@
       "owner": "bos_test_ci",
       "depends_on": [],
       "checkpoint": "C1",
-      "status": "IN_PROGRESS",
+      "status": "ACCEPT_SCOPED",
       "external_prerequisites": [],
-      "card": "docs/orchestration/cards/P10-003.md"
+      "card": "docs/orchestration/cards/P10-003.md",
+      "evidence": "docs/orchestration/BATCH_01_UA.md",
+      "pg_ci_status": "PASS_SCOPED"
     },
     {
       "id": "PLAN-N1",
@@ -20,9 +22,11 @@
       "owner": "bos_diagnostician",
       "depends_on": [],
       "checkpoint": "C1",
-      "status": "IN_PROGRESS",
+      "status": "ACCEPT_SCOPED_REQUEST_SHIP",
       "external_prerequisites": [],
-      "card": null
+      "card": null,
+      "evidence": "docs/orchestration/BATCH_01_UA.md",
+      "pg_ci_status": "PASS_SCOPED"
     },
     {
       "id": "PLAN-F03",
@@ -32,9 +36,11 @@
         "PLAN-N1"
       ],
       "checkpoint": "C1",
-      "status": "PREPARED_NOT_STARTED",
+      "status": "ACCEPT_SCOPED",
       "external_prerequisites": [],
-      "card": null
+      "card": null,
+      "evidence": "docs/orchestration/BATCH_01_UA.md",
+      "pg_ci_status": "PASS_SCOPED"
     },
     {
       "id": "PLAN-F06",
@@ -42,9 +48,10 @@
       "owner": "bos_test_ci",
       "depends_on": [],
       "checkpoint": "C1",
-      "status": "PREPARED_NOT_STARTED",
+      "status": "ACCEPT_SCOPED_UNIT_ONLY",
       "external_prerequisites": [],
-      "card": null
+      "card": null,
+      "evidence": "docs/orchestration/BATCH_01_UA.md"
     },
     {
       "id": "PLAN-TIME",
@@ -56,9 +63,10 @@
         "PLAN-F03"
       ],
       "checkpoint": "C1",
-      "status": "PREPARED_NOT_STARTED",
+      "status": "DIAGNOSIS_COMPLETE_CAUSES_OPEN",
       "external_prerequisites": [],
-      "card": null
+      "card": null,
+      "evidence": "docs/orchestration/BATCH_01_UA.md"
     },
     {
       "id": "PLAN-N2",
@@ -68,9 +76,10 @@
         "PLAN-TIME"
       ],
       "checkpoint": "C1",
-      "status": "PREPARED_NOT_STARTED",
+      "status": "DIAGNOSTIC_ACCEPTED_ADR_PROPOSED",
       "external_prerequisites": [],
-      "card": null
+      "card": null,
+      "evidence": "docs/orchestration/BATCH_01_UA.md"
     },
     {
       "id": "PLAN-SOURCE",
@@ -78,9 +87,10 @@
       "owner": "bos_test_ci",
       "depends_on": [],
       "checkpoint": "C1",
-      "status": "PREPARED_NOT_STARTED",
+      "status": "ACCEPT_SCOPED_SIMULATED_PLATFORMS",
       "external_prerequisites": [],
-      "card": null
+      "card": null,
+      "evidence": "docs/orchestration/BATCH_01_UA.md"
     },
     {
       "id": "PLAN-LINKS",
@@ -88,9 +98,10 @@
       "owner": "bos_architect",
       "depends_on": [],
       "checkpoint": "C2",
-      "status": "IN_PROGRESS",
+      "status": "SPEC_ACCEPTED_IMPLEMENTATION_PENDING",
       "external_prerequisites": [],
-      "card": null
+      "card": null,
+      "evidence": "docs/orchestration/BATCH_01_UA.md"
     },
     {
       "id": "PLAN-UX",
@@ -100,9 +111,10 @@
         "PLAN-LINKS"
       ],
       "checkpoint": "C3",
-      "status": "PREPARED_NOT_STARTED",
+      "status": "BRIEF_PREPARED_UI_NOT_IMPLEMENTED",
       "external_prerequisites": [],
-      "card": null
+      "card": null,
+      "evidence": "docs/orchestration/BATCH_01_UA.md"
     },
     {
       "id": "PLAN-GPT",
@@ -112,9 +124,10 @@
         "PLAN-LINKS"
       ],
       "checkpoint": "C4",
-      "status": "PREPARED_NOT_STARTED",
+      "status": "CONTRACT_PREPARED_API_OFF",
       "external_prerequisites": [],
-      "card": null
+      "card": null,
+      "evidence": "docs/orchestration/BATCH_01_UA.md"
     },
     {
       "id": "PLAN-ACCEPT",
@@ -128,11 +141,12 @@
         "PLAN-GPT"
       ],
       "checkpoint": "C5",
-      "status": "PREPARED_NOT_STARTED",
+      "status": "BLOCKED_HISTORICAL_LIMITS_AND_PRODUCT_GAPS",
       "external_prerequisites": [
         "Historical suite restrictions resolved without bypass; same candidate; all original P19 prerequisites; C2-C4 product changes accepted"
       ],
-      "card": null
+      "card": null,
+      "evidence": "docs/orchestration/BATCH_01_UA.md"
     },
     {
       "id": "PLAN-PILOT",
@@ -142,9 +156,10 @@
         "PLAN-LINKS"
       ],
       "checkpoint": "C6",
-      "status": "PREPARED_NOT_STARTED",
+      "status": "PASSPORT_PREPARED_OWNER_INPUT_PENDING",
       "external_prerequisites": [],
-      "card": null
+      "card": null,
+      "evidence": "docs/orchestration/BATCH_01_UA.md"
     }
   ]
 }
