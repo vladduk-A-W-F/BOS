@@ -16886,7 +16886,7 @@ function ImpactTable({
   }, /*#__PURE__*/React.createElement(ERPTable, {
     rows: changes,
     empty: "\u041A\u0456\u043B\u044C\u043A\u0456\u0441\u043D\u0456 \u043F\u043E\u043A\u0430\u0437\u043D\u0438\u043A\u0438 \u043D\u0435 \u0437\u043C\u0456\u043D\u044E\u044E\u0442\u044C\u0441\u044F. \u0411\u0443\u0434\u0435 \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043E \u0440\u0456\u0448\u0435\u043D\u043D\u044F \u0442\u0430 \u0437\u0430\u043F\u0438\u0441 \u0436\u0443\u0440\u043D\u0430\u043B\u0443.",
-    columns: [["Запис", 'code'], ["Показник", 'label'], ["Було", r => r.before === null ? 'Новий запис' : typeof r.before === 'boolean' ? r.before ? 'Так' : 'Ні' : ERP_LABELS[r.before] || String(r.before)], ["Стане / стало", r => typeof r.after === 'boolean' ? r.after ? 'Так' : 'Ні' : (ERP_LABELS[r.after] || String(r.after)) + (r.currency && ['amount', 'paid', 'open', 'actual_cost', 'effective_credit', 'net_amount', 'receivable', 'customer_credit', 'total', 'agreed_amount', 'allocated_cost', 'return_allocated_cost'].includes(r.field) ? ' ' + r.currency : '')]]
+    columns: [["Запис", 'code'], ["Показник", 'label'], ["Було", r => r.before === null ? 'Новий запис' : typeof r.before === 'boolean' ? r.before ? 'Так' : 'Ні' : ERP_LABELS[r.before] || String(r.before)], ["Стане / стало", r => typeof r.after === 'boolean' ? r.after ? 'Так' : 'Ні' : (ERP_LABELS[r.after] || String(r.after)) + (r.currency && ['amount', 'paid', 'open', 'actual_cost', 'effective_credit', 'net_amount', 'receivable', 'customer_credit', 'total', 'agreed_amount', 'allocated_cost', 'return_allocated_cost', 'retained', 'collectible', 'total_cost'].includes(r.field) ? ' ' + r.currency : '')]]
   }));
 }
 function NextAction({
