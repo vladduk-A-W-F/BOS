@@ -1,6 +1,6 @@
 # PLAN-TIME-PROBE — P06-F04/F05 diagnostic samples
 
-Status: INDEPENDENT_STATIC_REVIEW_ACCEPTED. Five local stdlib supervisor controls passed on Windows/Python 3.12.14, including real child termination at 1.031 seconds despite a slow observer and preservation of raw logs. Application/DB execution is still pending. This card authorizes diagnostic evidence only. P06 remains BLOCKED; technical_ready=false; pilot_allowed=false; historical P05 remains 3/3.
+Status: BOUNDED_DIAGNOSTICS_COMPLETE_CAUSES_OPEN. Five local stdlib supervisor controls passed on Windows/Python 3.12.14, including real child termination at 1.031 seconds despite a slow observer and preservation of raw logs. The two scoped PostgreSQL samples subsequently completed and their raw artifact was independently verified. This card authorizes diagnostic evidence only. P06 remains BLOCKED; technical_ready=false; pilot_allowed=false; historical P05 remains 3/3.
 
 Historical evidence proves two incomplete processes with a 600-second limit. It does not identify the active test, stack, or invariant phase at the deadline. No claim that either cause is fixed is supported yet.
 
@@ -16,3 +16,9 @@ Each sample receives a newly allocated, isolated PostgreSQL 16 database and a 60
 Stop after the first incomplete or failed sample. No full suite, full PostgreSQL gate, business E2E, browser, seed, 1000-sequence rerun, schema/product change, or extension of the historical 600-second limit is in scope. No original database, main branch, Sites, or other active module is changed. An observed successful sample does not demonstrate why a historical 600-second process timed out.
 
 Independent review and local supervisor controls must pass before publication. Acceptance here means only that both bounded samples completed with exact database identity, active assertions, expected test/request counts, preserved runtime/source canary, and retained raw evidence. Timings include instrumentation overhead; nested timings cannot be added. Any minimal runtime fix requires a demonstrated cause and separate review.
+
+## Verified result
+
+Diagnostic commit 1876ad00412b558fcfe0f23ab5291c90caeba63a, run 35513613026 attempt 1: PostgreSQL 16.15; one Django method with three currency subtests (6.801 seconds including setup/cleanup) and one opening-confirm-adjust-four-replay sequence (5.856 seconds). Both exit 0 without timeout; runtime SHA, source canary and database cleanup verified. Evidence-only reader commit 56a718116577799cca5c098b427b88322b60cd82 retrieved the existing artifact; all targeted diagnostic/BATCH jobs on that reader commit were SKIPPED.
+
+See [results](../PLAN_TIME_RESULTS_UA.md), [receipt](../evidence/plan-time/20260920/receipt.json), and [independent review](../evidence/plan-time/20260920/REVIEW.md). No runtime fix applied. Historical causes remain unproven; P06/readiness/P05 limits are unchanged.

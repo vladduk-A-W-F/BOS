@@ -1,0 +1,172 @@
+{
+  "schema": "bos.plan-time.v1",
+  "card": "PLAN-TIME-PROBE",
+  "complete": true,
+  "root_cause_proven": false,
+  "full_suite_run": false,
+  "gate3_run": false,
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "historical_p05": "3/3",
+  "source_base": "87b679888c18ed1920f4735aa945dacad514bcaa",
+  "run_id": "35513613026",
+  "run_attempt": "1",
+  "samples": [
+    {
+      "mode": "django",
+      "status": "SCOPED_DIAGNOSTIC_COMPLETE",
+      "complete": true,
+      "budget_seconds": 60,
+      "issued_database": "bos_verify_aceee58c6a584aa2",
+      "source_canary_before": {
+        "database": "bos_verify_aceee58c6a584aa2",
+        "version_num": 160015,
+        "tables": [
+          [
+            "public",
+            "bos_time_source_canary",
+            "BASE TABLE"
+          ]
+        ],
+        "rows": [
+          [
+            1,
+            "Synthetic diagnostic canary"
+          ]
+        ]
+      },
+      "companion_absent_before_worker": true,
+      "worker_sha256": "08b9af4ea85ebafe6dfc1cb9aad6cbaffcb5878222dc117c200b2c491268b01a",
+      "stack_dump_after_worker_seconds": 45.0,
+      "process": {
+        "command": [
+          "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+          "-B",
+          "/home/runner/work/BOS/BOS/candidate/.github/ci/plan_time_django.py",
+          "--output",
+          "/home/runner/work/_temp/bos-plan-time-35513613026-1/django.json"
+        ],
+        "timeout_seconds": 59.655903849,
+        "wait_samples": [
+          {
+            "elapsed_seconds": 0.001,
+            "rows": []
+          },
+          {
+            "elapsed_seconds": 5.018,
+            "rows": [
+              {
+                "pid": 114,
+                "database": "test_bos_verify_aceee58c6a584aa2",
+                "state": "idle",
+                "wait_event_type": "Client",
+                "wait_event": "ClientRead",
+                "blocking_pids": []
+              }
+            ]
+          }
+        ],
+        "timed_out": false,
+        "exit_code": 0,
+        "observed_process_exit": 0,
+        "duration_seconds": 6.431,
+        "stdout": "django.stdout.log",
+        "stderr": "django.stderr.log",
+        "stdout_sha256": "cad51498782dd98704f8109f4402bb7afbf6a0875eb8511bf359b9c6dcd3d0b4",
+        "stderr_sha256": "51345d387ab4cc1a396e26bfa4b18d356c1111714ac1d6136a40d736e7950631"
+      },
+      "worker_report": "django.json",
+      "worker_report_sha256": "5639b3ffcb79c4a5ea755c25c3f6a5b2115ec0e5ef1fd06c16dd4fe234b92ed2",
+      "source_canary_after": {
+        "database": "bos_verify_aceee58c6a584aa2",
+        "version_num": 160015,
+        "tables": [
+          [
+            "public",
+            "bos_time_source_canary",
+            "BASE TABLE"
+          ]
+        ],
+        "rows": [
+          [
+            1,
+            "Synthetic diagnostic canary"
+          ]
+        ]
+      },
+      "source_canary_unchanged": true,
+      "test_database_cleanup_verified": true,
+      "issued_database_cleanup_verified": true,
+      "total_seconds": 6.801
+    },
+    {
+      "mode": "replay",
+      "status": "SCOPED_DIAGNOSTIC_COMPLETE",
+      "complete": true,
+      "budget_seconds": 60,
+      "issued_database": "bos_verify_cc82a3f33cad4a29",
+      "worker_sha256": "ef2de845d1719765bed6787d5784051f9032cc32be04896d758e9da93dffe862",
+      "stack_dump_after_worker_seconds": 45.0,
+      "process": {
+        "command": [
+          "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+          "-B",
+          "/home/runner/work/BOS/BOS/candidate/.github/ci/plan_time_replay.py",
+          "--output",
+          "/home/runner/work/_temp/bos-plan-time-35513613026-1/replay.json"
+        ],
+        "timeout_seconds": 59.98064580900001,
+        "wait_samples": [
+          {
+            "elapsed_seconds": 0.001,
+            "rows": []
+          },
+          {
+            "elapsed_seconds": 5.017,
+            "rows": [
+              {
+                "pid": 137,
+                "database": "bos_verify_cc82a3f33cad4a29",
+                "state": "idle in transaction",
+                "wait_event_type": "Client",
+                "wait_event": "ClientRead",
+                "blocking_pids": []
+              }
+            ]
+          }
+        ],
+        "timed_out": false,
+        "exit_code": 0,
+        "observed_process_exit": 0,
+        "duration_seconds": 5.825,
+        "stdout": "replay.stdout.log",
+        "stderr": "replay.stderr.log",
+        "stdout_sha256": "1722bdcefad3a04f13c2bffabf3ef9d09e99cff00d83373a3773e0e4480151eb",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "worker_report": "replay.json",
+      "worker_report_sha256": "fb596242704628943fab3c1f3529ef02fff61d49afee38167e36321356171279",
+      "issued_database_cleanup_verified": true,
+      "total_seconds": 5.856
+    }
+  ],
+  "errors": [],
+  "candidate_commit": "1876ad00412b558fcfe0f23ab5291c90caeba63a",
+  "source_before": {
+    "source_sha256": "ce495b29214f21a80b8efd5bf41f6f219b5cb182b0453a7c43dac8899bc06ed5",
+    "source_databases": {}
+  },
+  "dependencies": {
+    "Django": "6.0.5",
+    "djangorestframework": "3.17.1",
+    "psycopg": "3.3.6"
+  },
+  "harness_sha256": "c495cd26b85e31861e635f13790be267fae25c2cd21b7a761db1dcc467dd8a00",
+  "reused_helper_sha256": "30046f9c933b7a0fefc8e1813e07ca2fbea782bb6ebba9974d74a8dd59a13cfb",
+  "source_after": {
+    "source_sha256": "ce495b29214f21a80b8efd5bf41f6f219b5cb182b0453a7c43dac8899bc06ed5",
+    "source_databases": {}
+  },
+  "source_unchanged": true,
+  "status": "SCOPED_DIAGNOSTIC_COMPLETE"
+}

@@ -1,0 +1,141 @@
+{
+  "schema": "bos.plan-time.acceptance.v1",
+  "status": "BOUNDED_DIAGNOSTICS_COMPLETE_CAUSES_OPEN",
+  "diagnostic": {
+    "commit": "1876ad00412b558fcfe0f23ab5291c90caeba63a",
+    "run_id": 35513613026,
+    "run_attempt": 1,
+    "job_id": 106085730850,
+    "conclusion": "success"
+  },
+  "source": {
+    "runtime_commit": "8060075455206257d6283c70906facca98f0bc1a",
+    "sha256": "ce495b29214f21a80b8efd5bf41f6f219b5cb182b0453a7c43dac8899bc06ed5",
+    "unchanged": true
+  },
+  "artifact": {
+    "id": 10606505258,
+    "name": "bos-plan-time-targeted-35513613026-1",
+    "bytes": 22338,
+    "sha256": "1fd89539b1fd46fbd27a6b8a79549aad00288519a6ead3b78032749fbb0d53fb",
+    "archive_members": 11,
+    "indexed_files_verified": 10,
+    "expires_at": "2026-10-20T13:29:47Z",
+    "repository_copy": "docs/orchestration/evidence/plan-time/20260920/BoS_PLAN_TIME_35513613026.zip"
+  },
+  "reader": {
+    "commit": "56a718116577799cca5c098b427b88322b60cd82",
+    "run_id": 35514074336,
+    "job_id": 106086930483,
+    "conclusion": "success",
+    "runtime_executed": false,
+    "database_started": false,
+    "transport_members": 12,
+    "transport_parts": 40,
+    "complete_sentinels": true,
+    "workflow_sha256": "4acf814b76353daca0bdc8600198830250ef05f1a7d1147e499adc35eaca98f1"
+  },
+  "independent_byte_verification": {
+    "root": "Python3.12 stdlib, offline in memory; ZIP SHA and all 10 index entries verified",
+    "reviewer": "time_probe_final_review; independent .NET in-memory ZIP reconstruction and all 10 index entries verified"
+  },
+  "skipped_on_reader_commit": [
+    {
+      "run_id": 35514074293,
+      "job_id": 106086955521,
+      "name": "PLAN-TIME targeted",
+      "conclusion": "skipped"
+    },
+    {
+      "run_id": 35514074309,
+      "job_id": 106086952331,
+      "name": "BATCH-01 targeted",
+      "conclusion": "skipped"
+    },
+    {
+      "run_id": 35514074285,
+      "job_id": 106086950936,
+      "name": "BATCH-02 targeted",
+      "conclusion": "skipped"
+    }
+  ],
+  "postgres_version_num": 160015,
+  "django": {
+    "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item",
+    "tests": 1,
+    "subtests": 3,
+    "currencies": [
+      "EUR",
+      "USD",
+      "UAH"
+    ],
+    "sample_seconds": 6.801,
+    "worker_seconds": 6.431,
+    "database_setup_seconds": 2.533409803,
+    "test_body_seconds": 1.589566528,
+    "actual_http_login_seconds": 0.574286777,
+    "pbkdf2_calls": 2,
+    "pbkdf2_iterations": 1200000,
+    "pbkdf2_wall_sum_seconds": 0.551668549,
+    "fingerprint_calls": 6,
+    "fingerprint_wall_sum_seconds": 0.111823084,
+    "snapshot_calls": 12,
+    "snapshot_wall_sum_seconds": 0.86850528,
+    "sql_execute_calls": 2740,
+    "sql_thread_records": 7,
+    "source_canary_unchanged": true,
+    "test_database_cleanup_verified": true,
+    "issued_database_cleanup_verified": true
+  },
+  "replay": {
+    "sequences": 1,
+    "replay_requests": 4,
+    "http_200_responses": 6,
+    "sample_seconds": 5.856,
+    "worker_seconds": 5.825,
+    "migration_seconds": 2.429155476,
+    "authentication_once_seconds": 1.070057796,
+    "global_fingerprint_calls": 8,
+    "queries_per_fingerprint": 24,
+    "fingerprint_wall_sum_seconds": 0.134974337,
+    "full_snapshot_calls": 4,
+    "snapshot_sql_count": 148,
+    "snapshot_wall_sum_seconds": 0.099370786,
+    "cached_http_range_seconds": [
+      0.021380108,
+      0.022307081
+    ],
+    "managed_model_table_counts": 55,
+    "row_counts_restored": true,
+    "issued_database_cleanup_verified": true,
+    "unused_oracle_fingerprint_seconds": 0.015666313
+  },
+  "preparation_review": "ACCEPT_SCOPED_PLAN_TIME_DIAGNOSTIC",
+  "evidence_reader_review": "ACCEPT_SCOPED_EVIDENCE_READER",
+  "evidence_review": "ACCEPT_SCOPED_PLAN_TIME_EVIDENCE",
+  "limits": {
+    "root_cause_proven": false,
+    "runtime_fix_applied": false,
+    "full_suite_run": false,
+    "gate3_run": false,
+    "business_e2e_run": false,
+    "historical_timeout_seconds": 600,
+    "historical_p05_used": 3,
+    "historical_p05_limit": 3,
+    "P06": "BLOCKED",
+    "technical_ready": false,
+    "pilot_allowed": false
+  },
+  "timing_cautions": [
+    "Nested/function timings and sums across threads are not additive elapsed time.",
+    "F05 phase timing includes checkpoint report writes at phase entry; function timing is narrower.",
+    "One synthetic sequence is not a 1000-sequence workload; no duration projection is accepted.",
+    "Wait polling every 5 seconds cannot rule out short intervening lock waits.",
+    "Hasher settings and product assertions were not relaxed."
+  ],
+  "local_controls": {
+    "tests": 5,
+    "result": "PASS_PRESERVED_PREPUBLICATION_RESULT",
+    "note": "Historical local report is not bound to the final harness SHA; independent reviewer inspected its actual subprocess controls and retained log hashes."
+  }
+}

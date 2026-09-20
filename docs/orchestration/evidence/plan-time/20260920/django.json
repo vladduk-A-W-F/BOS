@@ -1,0 +1,917 @@
+{
+  "schema": 1,
+  "scope": "PLAN-TIME/P06-F04 ONE unchanged Django method, three currency subtests",
+  "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item",
+  "status": "SCOPED_DIAGNOSTIC_PASS",
+  "complete": true,
+  "root_cause_proven": false,
+  "full_suite_run": false,
+  "gate_acceptance": false,
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "parent_total_budget_seconds": 60,
+  "faulthandler_after_seconds": 45,
+  "timing_semantics": "Wall/CPU timings are inclusive and may overlap; CPU is per-thread except total process_cpu_seconds. Do not sum nested phases.",
+  "source_root": "/home/runner/work/BOS/BOS/candidate",
+  "issued_database": "bos_verify_aceee58c6a584aa2",
+  "expected_test_database": "test_bos_verify_aceee58c6a584aa2",
+  "media_root": "/tmp/bos-time-django-n7egqzpg/media",
+  "source_database_proof": {
+    "actual_database": "bos_verify_aceee58c6a584aa2",
+    "version": "16.15 (Debian 16.15-1.pgdg13+2)",
+    "version_num": 160015,
+    "test_database_absent_before_creation": true
+  },
+  "django_version": "6.0.5",
+  "effective_password_hashers": [
+    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
+    "django.contrib.auth.hashers.Argon2PasswordHasher",
+    "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
+    "django.contrib.auth.hashers.ScryptPasswordHasher"
+  ],
+  "effective_hasher": {
+    "algorithm": "pbkdf2_sha256",
+    "iterations": 1200000
+  },
+  "discovered_test_ids": [
+    "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item"
+  ],
+  "test_database_proof": {
+    "actual_database": "test_bos_verify_aceee58c6a584aa2",
+    "configured_database": "test_bos_verify_aceee58c6a584aa2",
+    "vendor": "postgresql",
+    "version_num": 160015
+  },
+  "database": {
+    "vendor": "postgresql",
+    "database": "test_bos_verify_aceee58c6a584aa2",
+    "version_num": 160015
+  },
+  "tests_run": 1,
+  "tests_failed": 0,
+  "tests_skipped": 0,
+  "test_result": {
+    "tests_run": 1,
+    "started_ids": [
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item"
+    ],
+    "completed_ids": [
+      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item"
+    ],
+    "skipped": [],
+    "errors": [],
+    "failures": [],
+    "expected_failures": [],
+    "unexpected_successes": [],
+    "subtests": [
+      {
+        "id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item (action='item', currency='EUR')",
+        "success": true
+      },
+      {
+        "id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item (action='item', currency='USD')",
+        "success": true
+      },
+      {
+        "id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item (action='item', currency='UAH')",
+        "success": true
+      }
+    ],
+    "runner_failures": 0
+  },
+  "exit_code": 0,
+  "wall_seconds": 6.115485730999978,
+  "process_cpu_seconds": 5.086727993999999,
+  "phases": [
+    {
+      "name": "bootstrap.source_database_proof",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": null,
+      "started_seconds": 0.15415065499999514,
+      "wall_seconds": 0.007387454999985721,
+      "thread_cpu_seconds": 0.004401638999999985
+    },
+    {
+      "name": "bootstrap.django_setup",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": null,
+      "started_seconds": 0.16159369299998616,
+      "wall_seconds": 0.572630456000013,
+      "thread_cpu_seconds": 0.304028419
+    },
+    {
+      "name": "runner.build_suite",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "runner.run_selected_test",
+      "started_seconds": 0.7349554339999997,
+      "wall_seconds": 0.0005339359999823046,
+      "thread_cpu_seconds": 0.0005341020000000363
+    },
+    {
+      "name": "runner.database_setup",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "runner.run_selected_test",
+      "started_seconds": 0.7355328109999846,
+      "wall_seconds": 2.533409803000012,
+      "thread_cpu_seconds": 2.27599035
+    },
+    {
+      "name": "runner.system_checks",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "runner.run_selected_test",
+      "started_seconds": 3.2689794989999825,
+      "wall_seconds": 0.5767191360000083,
+      "thread_cpu_seconds": 0.5755947789999998
+    },
+    {
+      "name": "test._pre_setup",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.setUpClass",
+      "started_seconds": 3.8458799979999867,
+      "wall_seconds": 5.528900001650072e-05,
+      "thread_cpu_seconds": 5.527300000007784e-05
+    },
+    {
+      "name": "test.setUpClass",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "runner.run_selected_test",
+      "started_seconds": 3.8458156209999856,
+      "wall_seconds": 0.00013652500001626322,
+      "thread_cpu_seconds": 0.00013643600000001754
+    },
+    {
+      "name": "password.PBKDF2.encode",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.actual_http_login",
+      "started_seconds": 3.8488704789999986,
+      "algorithm": "pbkdf2_sha256",
+      "iterations": 1200000,
+      "wall_seconds": 0.2760837179999953,
+      "thread_cpu_seconds": 0.276082272
+    },
+    {
+      "name": "password.PBKDF2.encode",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.actual_http_login",
+      "started_seconds": 4.138322334999998,
+      "algorithm": "pbkdf2_sha256",
+      "iterations": 1200000,
+      "wall_seconds": 0.2755848310000033,
+      "thread_cpu_seconds": 0.2755807130000001
+    },
+    {
+      "name": "test.actual_http_login",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.setUp",
+      "started_seconds": 3.8486816589999933,
+      "wall_seconds": 0.5742867769999975,
+      "thread_cpu_seconds": 0.567684828
+    },
+    {
+      "name": "test.setUp",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.result",
+      "started_seconds": 3.8460196039999914,
+      "wall_seconds": 0.5777889560000062,
+      "thread_cpu_seconds": 0.5699621440000002
+    },
+    {
+      "name": "test.business_state",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.currency",
+      "started_seconds": 4.4365854119999995,
+      "wall_seconds": 0.0157382749999897,
+      "thread_cpu_seconds": 0.011411837999999896
+    },
+    {
+      "name": "erp.fingerprint",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.currency",
+      "started_seconds": 4.47379395599998,
+      "wall_seconds": 0.019106629000020803,
+      "thread_cpu_seconds": 0.01341499600000029
+    },
+    {
+      "name": "erp.snapshot",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.currency",
+      "started_seconds": 4.499539540000001,
+      "wall_seconds": 0.05091873899999655,
+      "thread_cpu_seconds": 0.037178319999999765
+    },
+    {
+      "name": "erp.snapshot",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.currency",
+      "started_seconds": 4.555691160999999,
+      "wall_seconds": 0.047772789999982024,
+      "thread_cpu_seconds": 0.03487580899999987
+    },
+    {
+      "name": "test.business_state",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.currency",
+      "started_seconds": 4.613730631999999,
+      "wall_seconds": 0.012038099999983842,
+      "thread_cpu_seconds": 0.008828720000000345
+    },
+    {
+      "name": "erp.fingerprint",
+      "thread_id": 140566339774144,
+      "thread_name": "ThreadPoolExecutor-1_1",
+      "parent": "test.confirm_or_replay",
+      "started_seconds": 4.672580629999999,
+      "wall_seconds": 0.019425678999994034,
+      "thread_cpu_seconds": 0.01195349
+    },
+    {
+      "name": "erp.snapshot",
+      "thread_id": 140566339774144,
+      "thread_name": "ThreadPoolExecutor-1_1",
+      "parent": "test.confirm_or_replay",
+      "started_seconds": 4.6960617659999855,
+      "wall_seconds": 0.0486886510000204,
+      "thread_cpu_seconds": 0.035019207000000004
+    },
+    {
+      "name": "erp.snapshot",
+      "thread_id": 140566339774144,
+      "thread_name": "ThreadPoolExecutor-1_1",
+      "parent": "test.confirm_or_replay",
+      "started_seconds": 4.750937577000002,
+      "wall_seconds": 0.047777679999995826,
+      "thread_cpu_seconds": 0.034750734000000005
+    },
+    {
+      "name": "test.confirm_or_replay",
+      "thread_id": 140566339774144,
+      "thread_name": "ThreadPoolExecutor-1_1",
+      "parent": null,
+      "started_seconds": 4.6375303890000055,
+      "wall_seconds": 0.16777546799997367,
+      "thread_cpu_seconds": 0.10938326200000001
+    },
+    {
+      "name": "test.confirm_or_replay",
+      "thread_id": 140566356555456,
+      "thread_name": "ThreadPoolExecutor-1_0",
+      "parent": null,
+      "started_seconds": 4.637589914999978,
+      "wall_seconds": 0.17459668200001488,
+      "thread_cpu_seconds": 0.017622273
+    },
+    {
+      "name": "test.business_state",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.business_oracle",
+      "started_seconds": 4.812862601000006,
+      "wall_seconds": 0.01234627699997759,
+      "thread_cpu_seconds": 0.00893087999999942
+    },
+    {
+      "name": "test.business_oracle",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.currency",
+      "started_seconds": 4.812810853000002,
+      "wall_seconds": 0.022058603999994375,
+      "thread_cpu_seconds": 0.016034171999999458
+    },
+    {
+      "name": "test.confirm_or_replay",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.currency",
+      "started_seconds": 4.836298518999996,
+      "wall_seconds": 0.02231883599998241,
+      "thread_cpu_seconds": 0.016087729999999745
+    },
+    {
+      "name": "test.business_state",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.currency",
+      "started_seconds": 4.858675422000005,
+      "wall_seconds": 0.011973259000001235,
+      "thread_cpu_seconds": 0.00876601099999963
+    },
+    {
+      "name": "test.currency",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.test_http_pair_item",
+      "started_seconds": 4.423892145999986,
+      "action": "item",
+      "currency": "EUR",
+      "wall_seconds": 0.44761162000000354,
+      "thread_cpu_seconds": 0.1889841849999998
+    },
+    {
+      "name": "test.business_state",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.currency",
+      "started_seconds": 4.879660615000006,
+      "wall_seconds": 0.013225448999975242,
+      "thread_cpu_seconds": 0.009690174000000162
+    },
+    {
+      "name": "erp.fingerprint",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.currency",
+      "started_seconds": 4.910326478999991,
+      "wall_seconds": 0.01548899100001222,
+      "thread_cpu_seconds": 0.011733784999999664
+    },
+    {
+      "name": "erp.snapshot",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.currency",
+      "started_seconds": 4.931513777999982,
+      "wall_seconds": 0.07359637999999791,
+      "thread_cpu_seconds": 0.05395851200000035
+    },
+    {
+      "name": "erp.snapshot",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.currency",
+      "started_seconds": 5.0111860509999815,
+      "wall_seconds": 0.07138385800001856,
+      "thread_cpu_seconds": 0.051973676000000246
+    },
+    {
+      "name": "test.business_state",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.currency",
+      "started_seconds": 5.092381736999982,
+      "wall_seconds": 0.012844555000015134,
+      "thread_cpu_seconds": 0.009543983000000367
+    },
+    {
+      "name": "erp.fingerprint",
+      "thread_id": 140566339774144,
+      "thread_name": "ThreadPoolExecutor-2_1",
+      "parent": "test.confirm_or_replay",
+      "started_seconds": 5.147335781999999,
+      "wall_seconds": 0.021021249999989777,
+      "thread_cpu_seconds": 0.012829934000000001
+    },
+    {
+      "name": "erp.snapshot",
+      "thread_id": 140566339774144,
+      "thread_name": "ThreadPoolExecutor-2_1",
+      "parent": "test.confirm_or_replay",
+      "started_seconds": 5.172016404999994,
+      "wall_seconds": 0.07298767200001066,
+      "thread_cpu_seconds": 0.05179667500000001
+    },
+    {
+      "name": "erp.snapshot",
+      "thread_id": 140566339774144,
+      "thread_name": "ThreadPoolExecutor-2_1",
+      "parent": "test.confirm_or_replay",
+      "started_seconds": 5.251161661999987,
+      "wall_seconds": 0.0719421269999998,
+      "thread_cpu_seconds": 0.052273060999999996
+    },
+    {
+      "name": "test.confirm_or_replay",
+      "thread_id": 140566339774144,
+      "thread_name": "ThreadPoolExecutor-2_1",
+      "parent": null,
+      "started_seconds": 5.115662751000002,
+      "wall_seconds": 0.21296572500000366,
+      "thread_cpu_seconds": 0.14328406
+    },
+    {
+      "name": "test.confirm_or_replay",
+      "thread_id": 140566356555456,
+      "thread_name": "ThreadPoolExecutor-2_0",
+      "parent": null,
+      "started_seconds": 5.115711102999995,
+      "wall_seconds": 0.2197431219999828,
+      "thread_cpu_seconds": 0.016609962
+    },
+    {
+      "name": "test.business_state",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.business_oracle",
+      "started_seconds": 5.33604583799999,
+      "wall_seconds": 0.012488254000004417,
+      "thread_cpu_seconds": 0.009235039
+    },
+    {
+      "name": "test.business_oracle",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.currency",
+      "started_seconds": 5.335997579999997,
+      "wall_seconds": 0.024365904999996246,
+      "thread_cpu_seconds": 0.01807675999999958
+    },
+    {
+      "name": "test.confirm_or_replay",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.currency",
+      "started_seconds": 5.361780947,
+      "wall_seconds": 0.02071040499998844,
+      "thread_cpu_seconds": 0.014962860000000688
+    },
+    {
+      "name": "test.business_state",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.currency",
+      "started_seconds": 5.382531150999995,
+      "wall_seconds": 0.012321732000003749,
+      "thread_cpu_seconds": 0.00895567400000008
+    },
+    {
+      "name": "test.currency",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.test_http_pair_item",
+      "started_seconds": 4.871592569000001,
+      "action": "item",
+      "currency": "USD",
+      "wall_seconds": 0.5241840119999779,
+      "thread_cpu_seconds": 0.2153139089999998
+    },
+    {
+      "name": "test.business_state",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.currency",
+      "started_seconds": 5.403842033999979,
+      "wall_seconds": 0.013402402000025404,
+      "thread_cpu_seconds": 0.009997487999999777
+    },
+    {
+      "name": "erp.fingerprint",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.currency",
+      "started_seconds": 5.432081012999987,
+      "wall_seconds": 0.0150357569999926,
+      "thread_cpu_seconds": 0.011252998999999875
+    },
+    {
+      "name": "erp.snapshot",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.currency",
+      "started_seconds": 5.452876935999996,
+      "wall_seconds": 0.0946524830000044,
+      "thread_cpu_seconds": 0.06833767899999987
+    },
+    {
+      "name": "erp.snapshot",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.currency",
+      "started_seconds": 5.552789695999991,
+      "wall_seconds": 0.09464074900000696,
+      "thread_cpu_seconds": 0.06841862200000026
+    },
+    {
+      "name": "test.business_state",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.currency",
+      "started_seconds": 5.657337052000003,
+      "wall_seconds": 0.013187485999992532,
+      "thread_cpu_seconds": 0.009850552000000512
+    },
+    {
+      "name": "erp.fingerprint",
+      "thread_id": 140566339774144,
+      "thread_name": "ThreadPoolExecutor-3_1",
+      "parent": "test.confirm_or_replay",
+      "started_seconds": 5.712658301999994,
+      "wall_seconds": 0.021744777999998632,
+      "thread_cpu_seconds": 0.013334858999999998
+    },
+    {
+      "name": "erp.snapshot",
+      "thread_id": 140566339774144,
+      "thread_name": "ThreadPoolExecutor-3_1",
+      "parent": "test.confirm_or_replay",
+      "started_seconds": 5.738106448999986,
+      "wall_seconds": 0.09697827600001574,
+      "thread_cpu_seconds": 0.06881453400000001
+    },
+    {
+      "name": "erp.snapshot",
+      "thread_id": 140566339774144,
+      "thread_name": "ThreadPoolExecutor-3_1",
+      "parent": "test.confirm_or_replay",
+      "started_seconds": 5.841038561000005,
+      "wall_seconds": 0.09716587499997331,
+      "thread_cpu_seconds": 0.07018196900000001
+    },
+    {
+      "name": "test.confirm_or_replay",
+      "thread_id": 140566339774144,
+      "thread_name": "ThreadPoolExecutor-3_1",
+      "parent": null,
+      "started_seconds": 5.681165727999996,
+      "wall_seconds": 0.2626151249999964,
+      "thread_cpu_seconds": 0.177877646
+    },
+    {
+      "name": "test.confirm_or_replay",
+      "thread_id": 140566356555456,
+      "thread_name": "ThreadPoolExecutor-3_0",
+      "parent": null,
+      "started_seconds": 5.681117397999998,
+      "wall_seconds": 0.2699521730000072,
+      "thread_cpu_seconds": 0.016740237
+    },
+    {
+      "name": "test.business_state",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.business_oracle",
+      "started_seconds": 5.951582933999987,
+      "wall_seconds": 0.01319009299999152,
+      "thread_cpu_seconds": 0.009805799000000448
+    },
+    {
+      "name": "test.business_oracle",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.currency",
+      "started_seconds": 5.9515357889999905,
+      "wall_seconds": 0.02660301500000628,
+      "thread_cpu_seconds": 0.019653368999999365
+    },
+    {
+      "name": "test.confirm_or_replay",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.currency",
+      "started_seconds": 5.979456355999986,
+      "wall_seconds": 0.020623407000016414,
+      "thread_cpu_seconds": 0.01498266999999931
+    },
+    {
+      "name": "test.business_state",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.currency",
+      "started_seconds": 6.000120371999998,
+      "wall_seconds": 0.01230668299999138,
+      "thread_cpu_seconds": 0.009055501999999827
+    },
+    {
+      "name": "test.currency",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.test_http_pair_item",
+      "started_seconds": 5.395864485999994,
+      "action": "item",
+      "currency": "UAH",
+      "wall_seconds": 0.6174968869999873,
+      "thread_cpu_seconds": 0.2453794569999994
+    },
+    {
+      "name": "test.test_http_pair_item",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.result",
+      "started_seconds": 4.423853950999984,
+      "wall_seconds": 1.589566528000006,
+      "thread_cpu_seconds": 0.6499502369999997
+    },
+    {
+      "name": "test.tearDown",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "test.result",
+      "started_seconds": 6.013445199999978,
+      "wall_seconds": 1.142000002118948e-05,
+      "thread_cpu_seconds": 1.1465000000043801e-05
+    },
+    {
+      "name": "test.result",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "runner.run_selected_test",
+      "started_seconds": 3.8459825159999923,
+      "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item",
+      "wall_seconds": 2.1675184309999906,
+      "thread_cpu_seconds": 1.22007493
+    },
+    {
+      "name": "test._post_teardown",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "runner.run_selected_test",
+      "started_seconds": 6.013523075999984,
+      "wall_seconds": 0.0799748510000029,
+      "thread_cpu_seconds": 0.03688969199999992
+    },
+    {
+      "name": "test.tearDownClass",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "runner.run_selected_test",
+      "started_seconds": 6.09356434,
+      "wall_seconds": 2.1049999986644252e-05,
+      "thread_cpu_seconds": 2.500899999979822e-05
+    },
+    {
+      "name": "runner.database_teardown",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": "runner.run_selected_test",
+      "started_seconds": 6.093729166999992,
+      "wall_seconds": 0.019813785999986067,
+      "thread_cpu_seconds": 0.003757084000000077
+    },
+    {
+      "name": "runner.run_selected_test",
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "parent": null,
+      "started_seconds": 0.73478498099999,
+      "wall_seconds": 5.378866254999991,
+      "thread_cpu_seconds": 4.1137345409999995
+    }
+  ],
+  "sql_threads": [
+    {
+      "thread_id": 140566558571392,
+      "thread_name": "MainThread",
+      "count": 1879,
+      "wall_seconds": 0.7225406639994958,
+      "thread_cpu_seconds": 0.1824033489999869,
+      "errors": 0,
+      "by_phase": {
+        "runner.run_selected_test/runner.database_setup": {
+          "count": 593,
+          "wall_seconds": 0.29357282699987763,
+          "thread_cpu_seconds": 0.05754395500000109,
+          "errors": 0
+        },
+        "runner.run_selected_test/test.result/test.setUp": {
+          "count": 3,
+          "wall_seconds": 0.0017637770000362707,
+          "thread_cpu_seconds": 0.0006384179999998629,
+          "errors": 0
+        },
+        "runner.run_selected_test/test.result/test.setUp/test.actual_http_login": {
+          "count": 20,
+          "wall_seconds": 0.009046964000020807,
+          "thread_cpu_seconds": 0.003142588000001112,
+          "errors": 0
+        },
+        "runner.run_selected_test/test.result/test.test_http_pair_item/test.currency": {
+          "count": 192,
+          "wall_seconds": 0.0662386909999384,
+          "thread_cpu_seconds": 0.020976675999999195,
+          "errors": 0
+        },
+        "runner.run_selected_test/test.result/test.test_http_pair_item/test.currency/test.business_state": {
+          "count": 171,
+          "wall_seconds": 0.04548988099989515,
+          "thread_cpu_seconds": 0.014648564999998559,
+          "errors": 0
+        },
+        "runner.run_selected_test/test.result/test.test_http_pair_item/test.currency/erp.fingerprint": {
+          "count": 72,
+          "wall_seconds": 0.019419887000026392,
+          "thread_cpu_seconds": 0.006214423000000746,
+          "errors": 0
+        },
+        "runner.run_selected_test/test.result/test.test_http_pair_item/test.currency/erp.snapshot": {
+          "count": 576,
+          "wall_seconds": 0.17182664099971134,
+          "thread_cpu_seconds": 0.0537651429999908,
+          "errors": 0
+        },
+        "runner.run_selected_test/test.result/test.test_http_pair_item/test.currency/test.business_oracle/test.business_state": {
+          "count": 57,
+          "wall_seconds": 0.01464485200003196,
+          "thread_cpu_seconds": 0.0046513380000003934,
+          "errors": 0
+        },
+        "runner.run_selected_test/test.result/test.test_http_pair_item/test.currency/test.business_oracle": {
+          "count": 51,
+          "wall_seconds": 0.013974280000070394,
+          "thread_cpu_seconds": 0.004773364999998364,
+          "errors": 0
+        },
+        "runner.run_selected_test/test.result/test.test_http_pair_item/test.currency/test.confirm_or_replay": {
+          "count": 75,
+          "wall_seconds": 0.025161306999905264,
+          "thread_cpu_seconds": 0.007833863999999302,
+          "errors": 0
+        },
+        "runner.run_selected_test/test._post_teardown": {
+          "count": 68,
+          "wall_seconds": 0.048008775999988984,
+          "thread_cpu_seconds": 0.008133337999997714,
+          "errors": 0
+        },
+        "runner.run_selected_test/runner.database_teardown": {
+          "count": 1,
+          "wall_seconds": 0.013392780999993192,
+          "thread_cpu_seconds": 8.167599999975295e-05,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "thread_id": 140566339774144,
+      "thread_name": "ThreadPoolExecutor-1_1",
+      "count": 202,
+      "wall_seconds": 0.07613709500023447,
+      "thread_cpu_seconds": 0.019392976999999947,
+      "errors": 0,
+      "by_phase": {
+        "test.confirm_or_replay": {
+          "count": 46,
+          "wall_seconds": 0.027866595000091365,
+          "thread_cpu_seconds": 0.005262347999999958,
+          "errors": 0
+        },
+        "test.confirm_or_replay/erp.fingerprint": {
+          "count": 24,
+          "wall_seconds": 0.009508304999997108,
+          "thread_cpu_seconds": 0.002041554999999997,
+          "errors": 0
+        },
+        "test.confirm_or_replay/erp.snapshot": {
+          "count": 132,
+          "wall_seconds": 0.038762195000145994,
+          "thread_cpu_seconds": 0.012089073999999991,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "thread_id": 140566356555456,
+      "thread_name": "ThreadPoolExecutor-1_0",
+      "count": 25,
+      "wall_seconds": 0.1586381700000743,
+      "thread_cpu_seconds": 0.002990744000000014,
+      "errors": 0,
+      "by_phase": {
+        "test.confirm_or_replay": {
+          "count": 25,
+          "wall_seconds": 0.1586381700000743,
+          "thread_cpu_seconds": 0.002990744000000014,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "thread_id": 140566339774144,
+      "thread_name": "ThreadPoolExecutor-2_1",
+      "count": 262,
+      "wall_seconds": 0.09333657099992365,
+      "thread_cpu_seconds": 0.024676133999999753,
+      "errors": 0,
+      "by_phase": {
+        "test.confirm_or_replay": {
+          "count": 46,
+          "wall_seconds": 0.024510625000061737,
+          "thread_cpu_seconds": 0.004865949999999979,
+          "errors": 0
+        },
+        "test.confirm_or_replay/erp.fingerprint": {
+          "count": 24,
+          "wall_seconds": 0.010421577000016669,
+          "thread_cpu_seconds": 0.0022440859999999993,
+          "errors": 0
+        },
+        "test.confirm_or_replay/erp.snapshot": {
+          "count": 192,
+          "wall_seconds": 0.058404368999845246,
+          "thread_cpu_seconds": 0.017566097999999773,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "thread_id": 140566356555456,
+      "thread_name": "ThreadPoolExecutor-2_0",
+      "count": 25,
+      "wall_seconds": 0.20429445000002033,
+      "thread_cpu_seconds": 0.002835594000000003,
+      "errors": 0,
+      "by_phase": {
+        "test.confirm_or_replay": {
+          "count": 25,
+          "wall_seconds": 0.20429445000002033,
+          "thread_cpu_seconds": 0.002835594000000003,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "thread_id": 140566356555456,
+      "thread_name": "ThreadPoolExecutor-3_0",
+      "count": 25,
+      "wall_seconds": 0.25575438899997494,
+      "thread_cpu_seconds": 0.0028684220000000015,
+      "errors": 0,
+      "by_phase": {
+        "test.confirm_or_replay": {
+          "count": 25,
+          "wall_seconds": 0.25575438899997494,
+          "thread_cpu_seconds": 0.0028684220000000015,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "thread_id": 140566339774144,
+      "thread_name": "ThreadPoolExecutor-3_1",
+      "count": 322,
+      "wall_seconds": 0.11360771300013539,
+      "thread_cpu_seconds": 0.030640591999999824,
+      "errors": 0,
+      "by_phase": {
+        "test.confirm_or_replay": {
+          "count": 46,
+          "wall_seconds": 0.0242955480000262,
+          "thread_cpu_seconds": 0.004776633000000003,
+          "errors": 0
+        },
+        "test.confirm_or_replay/erp.fingerprint": {
+          "count": 24,
+          "wall_seconds": 0.01072282699999505,
+          "thread_cpu_seconds": 0.002343966999999985,
+          "errors": 0
+        },
+        "test.confirm_or_replay/erp.snapshot": {
+          "count": 252,
+          "wall_seconds": 0.07858933800011414,
+          "thread_cpu_seconds": 0.023519991999999837,
+          "errors": 0
+        }
+      }
+    }
+  ],
+  "password_encode_calls": [
+    {
+      "algorithm": "pbkdf2_sha256",
+      "iterations": 1200000
+    },
+    {
+      "algorithm": "pbkdf2_sha256",
+      "iterations": 1200000
+    }
+  ],
+  "phase_counts": {
+    "bootstrap.django_setup": 1,
+    "bootstrap.source_database_proof": 1,
+    "erp.fingerprint": 6,
+    "erp.snapshot": 12,
+    "password.PBKDF2.encode": 2,
+    "runner.build_suite": 1,
+    "runner.database_setup": 1,
+    "runner.database_teardown": 1,
+    "runner.run_selected_test": 1,
+    "runner.system_checks": 1,
+    "test._post_teardown": 1,
+    "test._pre_setup": 1,
+    "test.actual_http_login": 1,
+    "test.business_oracle": 3,
+    "test.business_state": 12,
+    "test.confirm_or_replay": 9,
+    "test.currency": 3,
+    "test.result": 1,
+    "test.setUp": 1,
+    "test.setUpClass": 1,
+    "test.tearDown": 1,
+    "test.tearDownClass": 1,
+    "test.test_http_pair_item": 1
+  }
+}
