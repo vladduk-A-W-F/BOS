@@ -1,0 +1,150 @@
+Found 39 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: django_filters, messages, rest_framework, staticfiles
+  Apply all migrations: admin, ai_assistant, auth, branches, contenttypes, employees, erp, finance, operations, sessions, tasks
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying ai_assistant.0001_initial... OK
+  Applying ai_assistant.0002_taskchangelog... OK
+  Applying ai_assistant.0003_claudeusagelog... OK
+  Applying ai_assistant.0004_employeechangelog... OK
+  Applying ai_assistant.0005_chatfile... OK
+  Applying ai_assistant.0006_alter_chatmessage_created_at_and_more... OK
+  Applying ai_assistant.0007_employeechangelog_undone_at... OK
+  Applying ai_assistant.0008_chatmessage_archived_at_chatmessage_user_and_more... OK
+  Applying ai_assistant.0009_private_documents... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying branches.0001_initial... OK
+  Applying branches.0002_branch_short_name... OK
+  Applying branches.0003_fill_short_names... OK
+  Applying employees.0001_initial... OK
+  Applying employees.0002_alter_employee_department... OK
+  Applying employees.0003_employee_branch... OK
+  Applying employees.0004_employee_archived_at... OK
+  Applying employees.0005_employee_user... OK
+  Applying tasks.0001_initial... OK
+  Applying tasks.0002_alter_task_priority... OK
+  Applying tasks.0003_alter_task_deadline_alter_task_priority_and_more... OK
+  Applying tasks.0004_task_branch... OK
+  Applying finance.0001_initial... OK
+  Applying finance.0002_alter_salary_unique_together_alter_contract_status_and_more... OK
+  Applying finance.0003_transaction_branch... OK
+  Applying operations.0001_initial... OK
+  Applying operations.0002_actionproposal_user... OK
+  Applying operations.0003_loginattempt... OK
+  Applying operations.0004_alter_document_options_document_access_level... OK
+  Applying operations.0005_invoice_boundaries... OK
+  Applying operations.0006_private_documents... OK
+  Applying finance.0004_salary_archived_at_transaction_archived_at_and_more... OK
+  Applying finance.0005_alter_transaction_branch_alter_transaction_contract_and_more... OK
+  Applying finance.0006_financialintent... OK
+  Applying finance.0007_money_boundaries... OK
+  Applying erp.0001_initial... OK
+  Applying erp.0002_row_boundaries... OK
+  Applying erp.0003_purchase_source... OK
+  Applying erp.0004_initial_import_ledger... OK
+  Applying erp.0005_source_corrections... OK
+  Applying finance.0008_statement_ledgers... OK
+  Applying operations.0007_actionproposal_dependency_context... OK
+  Applying sessions.0001_initial... OK
+  Applying tasks.0005_controlled_tasks... OK
+
+--- STDERR ---
+Creating test database for alias 'default' ('/tmp/bos-targeted-vkyuzgv1/check_318eb1fbb58c4d28a9f80d98232cd62d.sqlite3_django_test')...
+Destroying old test database for alias 'default' ('/tmp/bos-targeted-vkyuzgv1/check_318eb1fbb58c4d28a9f80d98232cd62d.sqlite3_django_test')...
+Destroying test database for alias 'default' ('/tmp/bos-targeted-vkyuzgv1/check_318eb1fbb58c4d28a9f80d98232cd62d.sqlite3_django_test')...
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/BOS/manage.py", line 22, in <module>
+    main()
+  File "/workspace/scratch/4dbe5b4c73ee/BOS/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/workspace/scratch/4dbe5b4c73ee/execution/venv/lib/python3.12/site-packages/django/core/management/__init__.py", line 443, in execute_from_command_line
+    utility.execute()
+  File "/workspace/scratch/4dbe5b4c73ee/execution/venv/lib/python3.12/site-packages/django/core/management/__init__.py", line 437, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "/workspace/scratch/4dbe5b4c73ee/execution/venv/lib/python3.12/site-packages/django/core/management/commands/test.py", line 24, in run_from_argv
+    super().run_from_argv(argv)
+  File "/workspace/scratch/4dbe5b4c73ee/execution/venv/lib/python3.12/site-packages/django/core/management/base.py", line 420, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "/workspace/scratch/4dbe5b4c73ee/execution/venv/lib/python3.12/site-packages/django/core/management/base.py", line 464, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/4dbe5b4c73ee/execution/venv/lib/python3.12/site-packages/django/core/management/commands/test.py", line 63, in handle
+    failures = test_runner.run_tests(test_labels)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/4dbe5b4c73ee/execution/venv/lib/python3.12/site-packages/django/test/runner.py", line 1133, in run_tests
+    self.run_checks(databases)
+  File "/workspace/scratch/4dbe5b4c73ee/execution/venv/lib/python3.12/site-packages/django/test/runner.py", line 1055, in run_checks
+    call_command("check", verbosity=self.verbosity, databases=databases)
+  File "/workspace/scratch/4dbe5b4c73ee/execution/venv/lib/python3.12/site-packages/django/core/management/__init__.py", line 195, in call_command
+    return command.execute(*args, **defaults)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/4dbe5b4c73ee/execution/venv/lib/python3.12/site-packages/django/core/management/base.py", line 464, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/4dbe5b4c73ee/execution/venv/lib/python3.12/site-packages/django/core/management/commands/check.py", line 81, in handle
+    self.check(
+  File "/workspace/scratch/4dbe5b4c73ee/execution/venv/lib/python3.12/site-packages/django/core/management/base.py", line 496, in check
+    all_issues = checks.run_checks(
+                 ^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/4dbe5b4c73ee/execution/venv/lib/python3.12/site-packages/django/core/checks/registry.py", line 89, in run_checks
+    new_errors = check(app_configs=app_configs, databases=databases)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/4dbe5b4c73ee/execution/venv/lib/python3.12/site-packages/django/core/checks/urls.py", line 136, in check_custom_error_handlers
+    handler = resolver.resolve_error_handler(status_code)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/4dbe5b4c73ee/execution/venv/lib/python3.12/site-packages/django/urls/resolvers.py", line 743, in resolve_error_handler
+    callback = getattr(self.urlconf_module, "handler%s" % view_type, None)
+                       ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/4dbe5b4c73ee/execution/venv/lib/python3.12/site-packages/django/utils/functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/4dbe5b4c73ee/execution/venv/lib/python3.12/site-packages/django/urls/resolvers.py", line 722, in urlconf_module
+    return import_module(self.urlconf_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py", line 90, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/workspace/scratch/4dbe5b4c73ee/BOS/boss_project/urls.py", line 34, in <module>
+    path("api/erp/", include("erp.urls")),
+                     ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/4dbe5b4c73ee/execution/venv/lib/python3.12/site-packages/django/urls/conf.py", line 39, in include
+    urlconf_module = import_module(urlconf_module)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py", line 90, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/workspace/scratch/4dbe5b4c73ee/BOS/erp/urls.py", line 3, in <module>
+    urlpatterns=[path('orders/<int:pk>/trace/',views.order_trace,name='bos-order-trace'),path('corrections/outcome/',correction_views.outcome,name='bos-correction-outcome'),path('import/preview/',import_views.preview,name='bos-import-preview'),path('import/template/',import_views.template,name='bos-import-template'),path('import/batches/<uuid:batch_id>/',import_views.batch_detail,name='bos-import-batch'),path('import/batches/<uuid:batch_id>/export/',import_views.export,name='bos-import-export'),path('orders/<int:pk>/next/',views.next_action),path('snapshot/',views.snapshot),path('preview/',views.preview),path('export/',views.export),path('changes/<int:pk>/impact/',views.change_impact),path('orders/<int:pk>/draft/',views.draft)]
+                                               ^^^^^^^^^^^^^^^^^
+AttributeError: module 'erp.views' has no attribute 'order_trace'
