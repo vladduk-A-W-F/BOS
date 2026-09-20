@@ -1,0 +1,42 @@
+{
+  "card": "NETWORK-PLAN-CURRENCY",
+  "verdict": "ACCEPT_SCOPED",
+  "reviewer": "/root/integration_diagnosis",
+  "patch_sha256": "786722bbedbe3680f1d1b78475714c3b4d90e8ea102c7b265e1a8c78c92b8932",
+  "files": [
+    "erp/experience.py",
+    "erp/test_network_currency.py"
+  ],
+  "review_method": "Independent source/diff and raw RED→GREEN evidence review; no additional test invocation.",
+  "author_evidence": {
+    "before": {
+      "tests": 12,
+      "failures": 12,
+      "setup_errors": 0,
+      "raw": "before.raw.log"
+    },
+    "after": {
+      "tests": 12,
+      "outcome": "PASS",
+      "seconds": 4.249,
+      "raw": "after.raw.log"
+    },
+    "attempts_used": 2,
+    "assertions_unchanged": true
+  },
+  "confirmed": [
+    "Only recommendation logic and new regressions change",
+    "Production jobs/material stock/pending quality/remote transfers/purchases filtered to compatible currency",
+    "Existing foreign-currency/location reservations produce explicit no-action explanation without mutation or automatic conversion",
+    "Applicable advised actions exercised via HTTP preview and confirm, including reserve/start/finish",
+    "Explicit purchase destination and sales fulfillment destination preserved",
+    "Existing Policy visibility preserved",
+    "Historical currencies and quantities unchanged"
+  ],
+  "blocking_findings": [],
+  "limitations": [
+    "Synthetic SQLite HTTP scope; no PG/browser claim",
+    "Historical writer reconciliation of invalid/zero foreign reservations remains outside this change",
+    "Preexisting hidden or unusable reservations can still make a suggestion fail writer preview; does not justify inspecting or disclosing hidden data. Current patch does not claim global recommendation completeness."
+  ]
+}
