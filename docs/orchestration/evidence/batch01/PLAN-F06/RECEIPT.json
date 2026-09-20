@@ -1,0 +1,22 @@
+{
+  "card": "PLAN-F06",
+  "date": "2026-09-20",
+  "review": "ACCEPT_SCOPED",
+  "reviewer": "bos_batch_review",
+  "runtime_source_sha256": "5b9894d1be6c1a79df8895af902a97b94756f018e8ac8116a2c09536d978f38a",
+  "product_files": [
+    "scripts/verify.py",
+    "scripts/test_verify_evidence.py"
+  ],
+  "evidence": [
+    {
+      "file": "e2e_evidence_unit_green.log",
+      "sha256": "2f3778b006f007c0c7f873fe30679c9a94ec9f12ec5d8b494509506a78a877eb",
+      "bytes": 3247
+    }
+  ],
+  "postgres16": "PENDING",
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "result_uk": "Детальні e2e-report.json зберігаються у output/e2e-{backend}; перевіряються path/schema/backend/digest/completeness. 5/5 artifact-fixture unit tests, exit 0, 8 негативних підсценаріїв для кожного backend. Actual E2E/CI archive не запускались; це не їх PASS. GATES/SUITES/EXTENSIONS незмінні. Незалежний reviewer ACCEPT_SCOPED."
+}

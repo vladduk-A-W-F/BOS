@@ -192,13 +192,54 @@ def functional(backend, work, output, *, timeout=600):
     return {**combine(parts), 'backend': backend}
 
 
+def e2e_evidence(stdout, path, backend, returncode):
+    """Check the detailed report bytes that CI will actually upload."""
+    evidence = {'report': str(path), 'report_sha256': None, 'complete': False, 'errors': []}
+    errors = evidence['errors']
+    summaries = [value for value in json_objects(stdout)
+                 if value.get('gate') == 6 and 'report' in value]
+    if len(summaries) != 1:
+        errors.append('Expected exactly one E2E report summary.')
+    try:
+        raw = path.read_bytes()
+        evidence['report_sha256'] = hashlib.sha256(raw).hexdigest()
+        detail = json.loads(raw)
+        if not isinstance(detail, dict) or detail.get('schema') != 'bos.gate6.actual.v1' or detail.get('gate') != 6:
+            errors.append('Invalid detailed E2E report schema/gate.')
+        elif len(summaries) == 1:
+            summary = summaries[0]
+            if Path(summary['report']).resolve() != path:
+                errors.append('E2E summary points outside its assigned report path.')
+            if summary.get('report_sha256') != evidence['report_sha256']:
+                errors.append('Detailed E2E report SHA256 differs from its summary.')
+            if (not isinstance(detail.get('complete'), bool) or
+                    summary.get('complete') is not detail.get('complete')):
+                errors.append('E2E summary and detailed completion disagree.')
+            if returncode == 0 and detail.get('complete') is not True:
+                errors.append('Successful E2E process has an incomplete detailed report.')
+            vendor = detail.get('environment', {}).get('actual_vendor')
+            expected_vendor = 'postgresql' if backend == 'postgres' else 'sqlite'
+            if summary.get('vendor') != vendor or (detail.get('complete') and vendor != expected_vendor):
+                errors.append('E2E report backend differs from its summary or requested backend.')
+    except (OSError, ValueError, TypeError, AttributeError) as exc:
+        errors.append(f'Unreadable detailed E2E evidence: {type(exc).__name__}.')
+    evidence['complete'] = not errors
+    return evidence
+
+
 def extension(gate, backend, work, output):
     path = EXTENSIONS[gate]
     if not (work / 'source' / path).is_file():
         return outcome(MISSING, 'Потрібна справжня перевірка: ' + path, backend=backend)
+    command = [sys.executable, '-B', path]
+    if gate == 6:
+        report_path = output.resolve() / f'e2e-{backend}' / 'e2e-report.json'
+        command += ['--output', str(report_path)]
     with database(backend, work) as env:
-        result, receipt = execute([sys.executable, '-B', path], work / 'source', env,
+        result, receipt = execute(command, work / 'source', env,
                                   output / f'gate-{gate:02d}-{backend}.log')
+    if gate == 6:
+        receipt['evidence'] = e2e_evidence(result.stdout, report_path, backend, result.returncode)
     return outcome(PASS if result.returncode == 0 else FAIL, backend=backend, **receipt)
 
 
@@ -278,11 +319,15 @@ def main():
                         part = outcome(FAIL, f'{type(exc).__name__}: {exc}', backend=backend)
                     parts.append(part)
                 value = combine(parts)
+                if gate == 6:
+                    value['evidence_complete'] = all(part.get('evidence', {}).get('complete') is True
+                                                     for part in parts)
             report['gates'].append({'id': gate, 'name': GATES[gate], **value})
             print('  ' + value['status'], flush=True)
         report['source_databases_unchanged'] = live_hashes == {
             str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in ROOT.glob('*.sqlite3')}
         report['complete'] = (all(g['status'] == PASS for g in report['gates'])
+                              and all(g.get('evidence_complete', True) for g in report['gates'])
                               and len(report['gates']) == len(SUITES[args.suite])
                               and report['source_databases_unchanged'])
     output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
