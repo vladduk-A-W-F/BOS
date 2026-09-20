@@ -1,0 +1,31 @@
+test_directory_prefix_keeps_legacy_posix_component_order (scripts.test_source_digest.SourceDigestPathOrderTests.test_directory_prefix_keeps_legacy_posix_component_order) ... ok
+test_mixed_case_paths_have_same_digest_on_both_path_flavours (scripts.test_source_digest.SourceDigestPathOrderTests.test_mixed_case_paths_have_same_digest_on_both_path_flavours) ... 
+  test_mixed_case_paths_have_same_digest_on_both_path_flavours (scripts.test_source_digest.SourceDigestPathOrderTests.test_mixed_case_paths_have_same_digest_on_both_path_flavours) (flavour='PureWindowsPath', first='scripts/a.py') ... FAIL
+  test_mixed_case_paths_have_same_digest_on_both_path_flavours (scripts.test_source_digest.SourceDigestPathOrderTests.test_mixed_case_paths_have_same_digest_on_both_path_flavours) (flavour='PureWindowsPath', first='assets/Logo.png') ... FAIL
+
+======================================================================
+FAIL: test_mixed_case_paths_have_same_digest_on_both_path_flavours (scripts.test_source_digest.SourceDigestPathOrderTests.test_mixed_case_paths_have_same_digest_on_both_path_flavours) (flavour='PureWindowsPath', first='scripts/a.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/source_digest/src/scripts/test_source_digest.py", line 65, in test_mixed_case_paths_have_same_digest_on_both_path_flavours
+    self.assertEqual(verify.source_digest(), expected)
+AssertionError: '1954d42873536449259610646cf1a652bd5ab8e4c16f6b6d3c87b9cac2b5a6ed' != 'a3c4358ccd1624074de378d4989bc1ecfd7d9db2c72a7136b8353784e6d3909c'
+- 1954d42873536449259610646cf1a652bd5ab8e4c16f6b6d3c87b9cac2b5a6ed
++ a3c4358ccd1624074de378d4989bc1ecfd7d9db2c72a7136b8353784e6d3909c
+
+
+======================================================================
+FAIL: test_mixed_case_paths_have_same_digest_on_both_path_flavours (scripts.test_source_digest.SourceDigestPathOrderTests.test_mixed_case_paths_have_same_digest_on_both_path_flavours) (flavour='PureWindowsPath', first='assets/Logo.png')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/source_digest/src/scripts/test_source_digest.py", line 65, in test_mixed_case_paths_have_same_digest_on_both_path_flavours
+    self.assertEqual(verify.source_digest(), expected)
+AssertionError: '1954d42873536449259610646cf1a652bd5ab8e4c16f6b6d3c87b9cac2b5a6ed' != 'a3c4358ccd1624074de378d4989bc1ecfd7d9db2c72a7136b8353784e6d3909c'
+- 1954d42873536449259610646cf1a652bd5ab8e4c16f6b6d3c87b9cac2b5a6ed
++ a3c4358ccd1624074de378d4989bc1ecfd7d9db2c72a7136b8353784e6d3909c
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.010s
+
+FAILED (failures=2)

@@ -58,7 +58,9 @@ def source_digest():
               and p.suffix in {'.py', '.txt', '.bat', '.sh', '.ps1', '.yml', '.yaml'}]
     files += [ROOT / 'docs' / n for n in ('KNOWLEDGE_UA.md', 'PARAMETERS_UA.md')
               if (ROOT / 'docs' / n).exists()]
-    for path in sorted(set(files)):
+    # Case-sensitive relative components keep Linux ordering on every OS;
+    # sorting whole strings would reorder documents/ versus documents.json.
+    for path in sorted(set(files), key=lambda p: p.relative_to(ROOT).parts):
         digest.update(str(path.relative_to(ROOT)).replace('\\', '/').encode())
         content = path.read_bytes()
         if path.suffix in {'.py','.js','.cjs','.html','.css','.json','.jsonl','.md','.txt','.sh','.ps1','.bat','.yml','.yaml'}:

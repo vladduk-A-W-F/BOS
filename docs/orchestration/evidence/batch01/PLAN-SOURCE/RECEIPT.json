@@ -1,0 +1,42 @@
+{
+  "card": "PLAN-SOURCE",
+  "date": "2026-09-20",
+  "review": "ACCEPT_SCOPED",
+  "reviewer": "bos_batch_review",
+  "runtime_source_sha256": "31c692c5f3113446452e8d15faf95c29b019f433550bf4d0658c4f0428e54d20",
+  "product_files": [
+    "scripts/verify.py",
+    "scripts/test_source_digest.py"
+  ],
+  "evidence": [
+    {
+      "file": "red.log",
+      "sha256": "c84571a51791016d4989fcaf781795ef73160bfabde74be0d7a516f4d17e9d4e",
+      "bytes": 2815
+    },
+    {
+      "file": "green.log",
+      "sha256": "59aa7d6e24a5b7df3c125a5ae53344add33edfc77df1944044c7d763219482e3",
+      "bytes": 460
+    },
+    {
+      "file": "same-inventory-proof.json",
+      "sha256": "fee6a83e7a87c53028d80b8ae2b423ecdb3469d58a4bf5ebadccea782add54b1",
+      "bytes": 748
+    },
+    {
+      "file": "files.json",
+      "sha256": "e82b6c3db77c9fbe34747076852d571da41e3e26652655cf77e55c68b1d066c4",
+      "bytes": 365
+    },
+    {
+      "file": "AUTHOR_RESULT_UA.md",
+      "sha256": "fa7a19a69641c83265379bf76c9131466c9d814347f3c8a028559b3746696a7e",
+      "bytes": 7281
+    }
+  ],
+  "postgres16": "PENDING",
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "result_uk": "Case-sensitive relative components усувають різний порядок Windows/POSIX, зберігаючи Linux SHA тих самих342 файлів. Production helper: red дві Windows підперевірки; green2/2. Файловий склад, NUL/CRLF, GATES/SUITES незмінні; новий source343 враховує реальні зміни. Native Windows/full не перевірені. Незалежний reviewer ACCEPT_SCOPED."
+}
