@@ -139,7 +139,15 @@ class Acceptance:
         page.get_by_label('Логін', exact=True).fill(self.accounts[role][0])
         page.get_by_label('Пароль', exact=True).fill(self.accounts[role][1])
         page.get_by_role('button', name='Увійти', exact=True).click()
-        expect(page.locator('.bos-navbar')).to_be_visible()
+        # A new isolated browser context has no saved industry. Follow the
+        # application's ordinary first-login onboarding, including its Continue
+        # action; do not inject storage or bypass authentication/navigation.
+        expect(page.get_by_text('Оберіть сферу діяльності підприємства', exact=True)).to_be_visible(timeout=15000)
+        page.get_by_text('Виробництво', exact=True).click()
+        page.get_by_role('button', name='Розпочати роботу →', exact=True).click()
+        expect(page.locator('.bos-navbar')).to_be_visible(timeout=15000)
+        self.check(role + ' completes normal industry onboarding',
+            page.get_by_text('Оберіть сферу діяльності підприємства', exact=True).count() == 0)
         page.get_by_role('button', name='ERP', exact=True).click()
         # ERP selects network as its first submenu; close the navigation flyout.
         page.get_by_role('button', name='Мережа та операції', exact=True).click()
@@ -175,10 +183,21 @@ class Acceptance:
     def row(self, code):
         return self.page.locator('.network-workspace tbody tr').filter(has=self.page.get_by_text(code, exact=True))
 
+    @staticmethod
+    def control(scope, label):
+        # Wrapped SELECT labels include option text in Playwright's get_by_label
+        # engine. Match the existing label's unique title prefix, then its real
+        # control; strict locator operations still require exactly one match.
+        wrapper = scope.locator('label').filter(has_text=re.compile('^' + re.escape(label)))
+        actual = wrapper.evaluate("el => Array.from(el.childNodes).filter(n => n.nodeType === Node.TEXT_NODE).map(n => n.textContent).join('').trim()")
+        if actual != label:
+            raise AssertionError('Unexpected control label: ' + actual)
+        return wrapper.locator('input, select')
+
     def fill(self, fields):
         dialog = self.page.locator('dialog[open]').last
         for label, value in fields.items():
-            control = dialog.get_by_label(label, exact=True)
+            control = self.control(dialog, label)
             if control.evaluate('(el)=>el.tagName') == 'SELECT':
                 control.select_option(str(value))
             else:
@@ -224,10 +243,10 @@ class Acceptance:
         self.check('workflow is populated', initial['workflow']['metrics']['request_count'] > 0)
         self.group('Огляд')
         with page.expect_response(lambda r: '/api/erp/network/?' in r.url and 'branch_id=' in r.url):
-            page.get_by_label('Філія', exact=True).select_option(str(self.facts['branch_id']))
+            self.control(page.locator('.network-workspace'), 'Філія').select_option(str(self.facts['branch_id']))
         self.ready()
         with page.expect_response(lambda r: '/api/erp/network/?' in r.url and 'location_id=' in r.url):
-            page.get_by_label('Робоча точка', exact=True).select_option(str(self.facts['source_id']))
+            self.control(page.locator('.network-workspace'), 'Робоча точка').select_option(str(self.facts['source_id']))
         self.ready()
         query = 'currency=UAH&branch_id=' + str(self.facts['branch_id']) + '&location_id=' + str(self.facts['source_id'])
         filtered = self.snapshot(query)
@@ -256,15 +275,15 @@ class Acceptance:
         self.check('reference conversion arithmetic', page.locator('.network-converted strong').first.inner_text() == expected)
         self.check('converter does not mutate accounting', self.snapshot(query)['metrics'] == filtered['metrics'])
         with page.expect_response(lambda r: '/api/erp/network/?' in r.url and 'currency=EUR' in r.url):
-            page.get_by_label('Валюта наявних записів', exact=True).select_option('EUR')
+            self.control(page.locator('.network-workspace'), 'Валюта наявних записів').select_option('EUR')
         self.ready()
         eur = self.snapshot(query.replace('UAH', 'EUR'))
         self.check('EUR preserved separately', eur['metrics']['inventory_value'] == '15.00' and all(r['currency'] == 'EUR' for r in eur['rows']['lots']))
         with page.expect_response(lambda r: '/api/erp/network/?' in r.url and 'currency=UAH' in r.url):
-            page.get_by_label('Валюта наявних записів', exact=True).select_option('UAH')
+            self.control(page.locator('.network-workspace'), 'Валюта наявних записів').select_option('UAH')
         self.ready()
         with page.expect_response(lambda r: '/api/erp/network/?' in r.url and 'branch_id' not in r.url):
-            page.get_by_label('Філія', exact=True).select_option('')
+            self.control(page.locator('.network-workspace'), 'Філія').select_option('')
         self.ready()
         self.group('Документи й звірки')
         document_button = page.get_by_role('button', name='Відкрити документ', exact=True).first
