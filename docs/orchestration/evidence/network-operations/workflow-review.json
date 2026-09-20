@@ -1,0 +1,58 @@
+{
+  "cards": [
+    "NETWORK-WORKFLOW",
+    "NETWORK-SEED-RFQ-DELTA"
+  ],
+  "independent_reviewer": "/root/network_domain",
+  "verdict": "PASS",
+  "blocking_findings": [],
+  "patches": {
+    "network-workflow.patch": "3d770b005e216260b7c72b0d256a8d39132d0aef13c7634ae5707e734f4c1480",
+    "network-seed-rfq-delta.patch": "7008c2edc43c35e00b9b90026cf0c76339e243d116f6982c75ef48a8c9a176e6",
+    "network-demo-doc-delta.patch": "263bda285c95bb8bee0126f29e3519be4c78e41387f7df597afde47d6e5a5f2f"
+  },
+  "resolved_findings": [
+    {
+      "id": "WF-01",
+      "issue": "Reconciliation next-action routes did not match frontend routes",
+      "resolution": "Document route organizer/documents and bank route finance/bank; verified against actual frontend NAV"
+    },
+    {
+      "id": "WF-02",
+      "issue": "Selected quote timestamp after PO was counted as observed request cycle",
+      "resolution": "Visible selected quote must be timestamped no later than PO; independent unchanged regression changed FAIL→PASS"
+    }
+  ],
+  "independent_runtime": {
+    "test": "erp.test_network_workflow_review.IndependentWorkflowReview.test_selected_quote_after_purchase_excludes_observed_cycle",
+    "before_exit_code": 1,
+    "after_exit_code": 0,
+    "before_raw": "raw-before.log",
+    "after_raw": "raw-after.log",
+    "backend": "owned SQLite synthetic",
+    "tests_count": 1
+  },
+  "author_evidence_reviewed": {
+    "workflow": 6,
+    "seed": 6,
+    "synthetic_workflow_additive": 1,
+    "verdict": "PASS; code-level guards followed by one narrow independent rerun, no full repeat"
+  },
+  "confirmed": [
+    "Nullable two-step creation timestamps preserve old rows as NULL",
+    "Only current Policy-visible objects contribute documents, counts, groups and paths",
+    "No financial amounts in workflow projection",
+    "Synthetic acceleration comparison disabled",
+    "RFQ sources precede all 11 quote-linked purchases",
+    "13 requests,12 quotes,28 documents; 84/83/84 lots",
+    "Real partial receipt8 and full receipt22; inventory trace includes receipt cost",
+    "Demo-mode/fresh-business-database/private-storage cleanup guards remain unchanged",
+    "No auth credentials or destructive reset",
+    "Updated original seed guide explicitly states10 open overdue purchases in disruption"
+  ],
+  "limits": [
+    "No PostgreSQL/full-suite/browser/E2E proof",
+    "Root must wire workflow.build into network.build and test HTTP integration",
+    "Dates are observational timestamps; no causal acceleration claim"
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "card": "NETWORK-DOMAIN",
+  "base_sha": "87b679888c18ed1920f4735aa945dacad514bcaa",
+  "files": [
+    "erp/models.py",
+    "erp/migrations/0006_network_operations.py",
+    "erp/network_commands.py",
+    "erp/service.py",
+    "erp/balances.py",
+    "erp/payments.py",
+    "finance/statements.py",
+    "boss_project/policy.py",
+    "operations/projections.py",
+    "erp/test_network_commands.py",
+    "operations/models.py",
+    "operations/migrations/0008_procurement_currency_default.py"
+  ],
+  "patch_sha256": "0d52d536991b2f4f9f33048e5b72552b690ac09641f92dedf71abc9b1abc3caa",
+  "targeted_tests": {
+    "suite": "erp.test_network_commands",
+    "count": 10,
+    "outcome": "PASS",
+    "seconds": 12.064,
+    "raw": "test_raw.txt",
+    "engine": "SQLite disposable synthetic Django test database",
+    "limitation": "Tests precede subsequent schema-only UAH default changes; migration consistency checked afterward. No PostgreSQL/full/E2E runs."
+  },
+  "migration_check": {
+    "exit_code": 0,
+    "result": "No changes detected"
+  },
+  "review": "Pending independent reviewer"
+}

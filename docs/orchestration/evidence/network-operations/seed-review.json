@@ -1,0 +1,42 @@
+{
+  "returncode": 0,
+  "command": [
+    "/workspace/scratch/4dbe5b4c73ee/execution/venv/bin/python",
+    "-B",
+    "manage.py",
+    "test",
+    "erp.test_network_seed_review",
+    "--noinput",
+    "--verbosity=2"
+  ],
+  "new_tests_only": true,
+  "backend": "SQLite disposable synthetic",
+  "verdict": "PASS",
+  "card": "NETWORK-SEED",
+  "independent_reviewer": "/root/network_domain",
+  "reviewed_patch_sha256": "61d0db9e653a02b5ca30f38e6bc258fd0227f1b12eee2cbb549326a36285a286",
+  "blocking_findings": [],
+  "review_scope": [
+    "Demo/fresh DB guards",
+    "No reset or user/password creation",
+    "Idempotent marker retains later work",
+    "ERP mutex and durable transaction",
+    "Private file rollback ownership",
+    "UAH traces and reconciled quantities/costs",
+    "Counts and user documentation"
+  ],
+  "author_tests": {
+    "count": 6,
+    "verdict": "PASS",
+    "reviewed_raw": "execution/network-seed/test-output-2/raw.log"
+  },
+  "independent_tests": {
+    "count": 2,
+    "verdict": "PASS",
+    "raw": "execution/network-seed-review/raw.log"
+  },
+  "limitations": [
+    "SQLite only; no PostgreSQL, full suite, E2E or deployment",
+    "Future RFQ/quote additions not covered by this patch verdict"
+  ]
+}

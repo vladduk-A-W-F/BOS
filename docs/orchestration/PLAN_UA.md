@@ -69,3 +69,9 @@ C2/C3/C6 мають незалежні підготовчі частини й в
 ## Початкове зіставлення GitHub та умова майбутнього merge
 На початку setup 20.09.2026 main ecb8cf7f62a4b333b61481481d2eea97b3400b54 мав 2 власні коміти, а початкова база кандидата 7d46dced — 6 від спільної бази ecb6fb86. Це історичне зіставлення, не кількість комітів нинішньої робочої гілки. Зміни main від бази стосувалися blank.yml і verify.yml. Робоча гілка створена поверх 7d46dced та вже містить BATCH-01; перевірений CI head aecf8ee1, подальші documentation heads див. GitHub. Draft PR спрямовано до початкової fix-гілки. До будь-якого майбутнього злиття в main окремо зіставити CI-файли та чинні refs, зберегти сторонню роботу і перевірити тригери; автоматичного merge немає.
 
+
+
+## 20.09.2026 · Мережа та операції
+
+Доручення власника: інтегрувати карту України, точки, UAH-набори, переміщення, утримання, документи та рух заявок як робочий функціонал. Реалізація прийнята лише у scoped обсязі: незалежні reviews, два фінальні HTTP composition тести, UI19, збірка і migration consistency. Runtime candidate `b10760b16dfe933511cd880f02a29d840c03dcc1`. Звіт: `docs/orchestration/NETWORK_OPERATIONS_UA.md`. Наступні: NETWORK-ACCEPT-PC (новий дозволений browser/PG scope за доступності середовища) та NETWORK-PLAN-CURRENCY. Старі PG/Windows/landing results історичні й не доводять цей runtime. TECHNICAL_READY=false, PILOT_ALLOWED=false.
+

@@ -265,6 +265,44 @@
       "external_prerequisites": [],
       "card": "docs/orchestration/WINDOWS_SOURCE_UA.md",
       "evidence": "docs/orchestration/evidence/windows-source/report.json"
+    },
+    {
+      "id": "NETWORK-OPERATIONS",
+      "title": "Робоча мережа, UAH набори та рух заявок",
+      "owner": "bos_implementer",
+      "depends_on": [],
+      "checkpoint": "C3",
+      "status": "ACCEPT_SCOPED_NO_PG_OR_BROWSER",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/cards/NETWORK-OPERATIONS.md",
+      "evidence": "docs/orchestration/NETWORK_OPERATIONS_UA.md"
+    },
+    {
+      "id": "NETWORK-ACCEPT-PC",
+      "title": "Адресне приймання мережі на ПК: браузер і PostgreSQL",
+      "owner": "bos_test_ci",
+      "depends_on": [
+        "NETWORK-OPERATIONS"
+      ],
+      "checkpoint": "C3",
+      "status": "READY_WHERE_NEW_SCOPE_ENVIRONMENT_AVAILABLE",
+      "external_prerequisites": [
+        "Available browser and isolated PostgreSQL; honor per-problem historical attempt limits"
+      ],
+      "card": "docs/CODEX_NETWORK_TASK_UA.md"
+    },
+    {
+      "id": "NETWORK-PLAN-CURRENCY",
+      "title": "Валютна узгодженість старих production-material підказок",
+      "owner": "bos_implementer",
+      "depends_on": [
+        "NETWORK-OPERATIONS"
+      ],
+      "checkpoint": "C3",
+      "status": "PLANNED",
+      "external_prerequisites": [],
+      "card": "docs/CODEX_NETWORK_TASK_UA.md"
     }
   ]
 }
+
