@@ -1,10 +1,10 @@
 {
   "schema": 1,
-  "updated_at": "2026-09-20T18:17:54+00:00",
+  "updated_at": "2026-09-20T22:55:47.203089+00:00",
   "canonical_repository": "vladduk-A-W-F/BOS",
   "setup_branch": "setup/bos-gpt-orchestration-20260920",
-  "product_candidate_commit": "646d3b80597e087a1ada14221024ec40588996f0",
-  "runtime_source_sha256": "98b011a583c7803d88c888070a3412789559919ecb5692ef34f5e8ad59b5072a",
+  "product_candidate_commit": "e038d6db562c6f36c06808c0793f66a6d63982cf",
+  "runtime_source_sha256": "c514204ef289386959c997a0404a579b5e66ba45c4b2fa9cb1580375413f9d9e",
   "runtime_reconstructed_and_digest_matched": true,
   "whole_local_git_tree_verified": true,
   "technical_ready": false,
@@ -23,13 +23,18 @@
     "through": "Three parallel business scenarios -> scoped browser acceptance -> persistent synthetic review -> remaining authorized gates",
     "landing_publication_allowed": true,
     "landing_audience": "Preserve current audience; public revision 2 observed before and after v3 publication; access not changed by this task.",
-    "latest_instruction": "Continue all three scenarios; product_integration_continuation is sole current integrator. Evidence writer provides docs-only patch without touching active or old checkout.",
+    "latest_instruction": "Permanent execution_writer is sole shared integrator; root coordinates and publication. Independent agents return private patches/reviews. Existing precise authorizations and historical limits remain.",
     "historical_landing_audience": "Original authorization preserved existing owner-private audience at initial publication.",
     "a11_clarification": "Old cloud-CDP/CDN/loopback bypass remains forbidden. The owner explicitly authorizes a new isolated local browser runner on 2026-09-20.",
-    "shared_git_writer": "/root/product_integration_continuation",
-    "shared_git_writer_thread": "01a0be90-e790-7351-a8ac-059d523941c4",
+    "shared_git_writer": "execution_writer",
+    "shared_git_writer_thread": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
     "original_checkout_preserved": true,
-    "external_owner_reservation": "PRESERVED; no release in this packet"
+    "external_owner_reservation": "PRESERVED; no release in this packet",
+    "previous_shared_git_writer": {
+      "owner": "/root/product_integration_continuation",
+      "thread": "01a0be90-e790-7351-a8ac-059d523941c4",
+      "current_role": "Independent reviewer only; no shared write ownership"
+    }
   },
   "historical_limits": {
     "P05_timeout_cycle_used": 3,
@@ -230,7 +235,7 @@
   "master_v2_1_sha256": "4ab578d4ab1a6c959ed7aa791f09a7c8284c04df1d48b6a575671f53df7c4caf",
   "master_v2_1_sha_verified": true,
   "setup_head": "e66af863b0bd840cefb4ef78e5a17414411f3db8",
-  "current_batch": "VERTICAL-UA",
+  "current_batch": "NETWORK-COMPOSITION-C514",
   "plugins": {
     "github": "CONFIRMED",
     "figma": "CONFIRMED",
@@ -239,8 +244,8 @@
     "codex_security": "NOT_INSTALLED_REQUIRES_USER_UI"
   },
   "setup_head_note": "Exact full Git code head before this documentation update; later commit identity is recorded by Git.",
-  "next_action": "Root reviews this design organization docs/config proposal and separately the dedicated design chat existing author package:19 screenshots and one proposed visual increment, independent review pending. Do not repeat the completed author audit. Old reviewer supplies partial handoff only. Product integration and remaining source/PG/restore/full-business gates stay with their assigned owners. Checkpoint620aeab is already published as reported; do not repeat prior registry work or acceptance runs.",
-  "batch_result": "CONTINUATION_GATE10_AND_PERSISTENT_DEMO_ACCEPTED_EXACT_646D3B8_OTHER_GATES_OPEN",
+  "next_action": "Root reviews this private3-file registry; permanent writer alone applies an exact approved package. S2 private v4 source correction/review and separate UI/domain acceptance remain open. v6 evidence metadata correction/review is separate; accepted v5_1 requires its addendum and actual6 has separate accepted refs. No browser7/profiler4/full-suite run or push is authorized here.",
+  "batch_result": "SCOPED_SOURCE_AND_NINE_STYLED_CONTEXTS_ACCEPTED_ACROSS_TWO_RUNS_FULL_GATES_OPEN",
   "baseline_product_commit": "7d46dced3bcf06d44755cf53366c9e16bd465582",
   "next_after_owner_review_note": "Історичне поле початкового setup для compatibility validator; P10-003 вже scoped accepted. Чинна черга — next_action та QUEUE.",
   "verification": {
@@ -614,7 +619,7 @@
     "evidence": "docs/orchestration/VERTICAL_UA_UA.md",
     "retained_without_relabelling": true
   },
-  "product_candidate_scope": "Product646d3b8/source98b011 accepted only within existing evidence scopes; documentation checkpoint620aeab reported published. Design organization is a separate proposal pending independent review.",
+  "product_candidate_scope": "Local e038/c514 accepted only within exact source, actual5 five checks and actual6 four readonly contexts. Prior overallFAILs retained; not one full green run, S2 write or MVP.",
   "continuation_20260920": {
     "status": "GATE10_AND_PERSISTENT_DEMO_ACCEPTED_EXACT_SOURCE",
     "base_head": "646d3b80597e087a1ada14221024ec40588996f0",
@@ -930,26 +935,26 @@
   },
   "parallel_scenarios": {
     "contract": "docs/orchestration/PARALLEL_SCENARIOS_UA.md",
-    "status": "BOUNDED_BROWSER_FLOWS_ACCEPTED_FULL_SCENARIOS_OPEN",
-    "current_integrator": "/root/product_integration_continuation",
+    "status": "CURRENT_C514_SCOPED_BROWSER_CONTEXTS_ACCEPTED_FULL_SCENARIOS_OPEN",
+    "current_integrator": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
     "external_reservation": "PRESERVED",
     "end_to_end_accepted": false,
-    "actual_browser_candidate_commit": "646d3b80597e087a1ada14221024ec40588996f0",
+    "actual_browser_candidate_commit": "e038d6db562c6f36c06808c0793f66a6d63982cf",
     "scenarios": [
       {
         "id": "S1",
         "scope": "order/reserve/ship/invoice/partial payment/debt",
-        "status": "PAYMENT12.34UAH_UI_PREVIEW_CONFIRM_SAME_PROPOSAL_HTTP_REPLAY_ACCEPTED; complete order-to-debt process remains open"
+        "status": "Current c514 hold/release and settlement reads accepted; payment count unchanged. Prior646 payment evidence remains historical. Complete order-to-debt process open."
       },
       {
         "id": "S2",
         "scope": "synthetic supplier document extraction/matching/receipt reconciliation",
-        "status": "ACTUAL_ORDINARY_DOCUMENT_UNSUPPORTED_NO_WRITES_ACCEPTED; synthetic mock read-only matching only, no approval/posting/persistent exception queue"
+        "status": "Current c514 unsupported-document read accepted at1440/768/390 with warnings/original control. Supplier invoice registration v4 remains private and unaccepted; no full write or persistent exception workflow accepted."
       },
       {
         "id": "S3",
         "scope": "shortage/purchase or transfer/receipt/quality/stock",
-        "status": "TRANSFER1_UNIT_UI_PREVIEW_CONFIRM_SAME_PROPOSAL_HTTP_REPLAY_ACCEPTED; complete procurement/receipt/quality process remains open"
+        "status": "Current c514 dispatch/receive plus same-proposal replays accepted; received lot remains pending quality. Full procurement/quality/stock process open."
       }
     ]
   },
@@ -1042,7 +1047,7 @@
   "design_department": {
     "role": "bos_ux",
     "department": "DESIGN",
-    "status": "BRIEF_ACCEPTED_SCOPED_PRIVATE_INCREMENT_ACTIVE_ORGANIZATION_REVIEW_PENDING",
+    "status": "C514_PRESENTATION_ACCEPTED_SCOPED_OTHER_DESIGN_AND_MVP_GAPS_OPEN",
     "contract": "docs/design/DEPARTMENT_UA.md",
     "existing_card": "PLAN-UX",
     "first_task": "docs/design/PLAN_UX_INCREMENT_UA.md",
@@ -1098,7 +1103,7 @@
     },
     "ownership": {
       "design_domain": "docs/design and privately prepared specifications/patches; repo writes require separately assigned allowlist",
-      "shared_frontend_integrator": "/root/product_integration_continuation",
+      "shared_frontend_integrator": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
       "shared_frontend_files": [
         "frontend/boss_app_source.html",
         "assets/app.js"
@@ -1113,8 +1118,8 @@
       "first_design_report_metadata_read": true,
       "first_design_visual_findings_reviewed_by_organization_writer": false
     },
-    "organization_accepted": false,
-    "ui_implemented": false,
+    "organization_accepted": true,
+    "ui_implemented": true,
     "audit_duplicated_by_writer": false,
     "model_or_tool_launch_claimed": false,
     "runtime_settings_changed": false,
@@ -1136,6 +1141,34 @@
       "implementation_accepted": false
     },
     "current_assignment": {
+      "id": "PLAN-UX/READABLE-FACTS",
+      "status": "ACCEPT_SCOPED_NINE_CONTEXTS_ACROSS_ACTUAL5_AND6_OTHER_UX_GAPS_OPEN",
+      "source_commit": "e038d6db562c6f36c06808c0793f66a6d63982cf",
+      "source_sha256": "c514204ef289386959c997a0404a579b5e66ba45c4b2fa9cb1580375413f9d9e",
+      "shared_frontend_integrator": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+      "implementation_accepted": true,
+      "accepted_scope": "Existing three readonly sections at1440/768/390 across two actual runs, plus narrow money nowrap correction; not full current Gate10, native200, accessibility or S2 write.",
+      "evidence": "docs/orchestration/NETWORK_COMPOSITION_UA.md",
+      "application_review": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/money-wrap-application-independent-review/REVIEW.json",
+        "sha256": "d87d8fe3d3dcbcf1b05020262b018bc4a7205e7c67fd1aed1dfc53bb039413f4"
+      },
+      "actual5_review": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/attempt5-independent-review/REVIEW.json",
+        "sha256": "e1661816c6c696b315ac430024a10e941239302fe85fcb8cfe717fda43779575"
+      },
+      "actual6_review": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/attempt6-independent-review/REVIEW.json",
+        "sha256": "fed147aaff757b6c452fa2cdbc7064a628dc3413ef937776866af8c60e0ba2c1"
+      },
+      "root_acceptance": {
+        "path": "D:/3/BOSDev/reports/root/ACTUAL6-READONLY-ACCEPTED-20260921.json",
+        "sha256": "8001b65507ddf515adabe8386b5d9ef4e3f0d2e29c397c2c9f0df30626e6afd8"
+      },
+      "next_step": "Separate accepted S2 backend/UI contract and linked MVP execution package; do not repeat accepted audit/capture scope without a new exact decision."
+    },
+    "historical_fields_note": "first_assignment, first_author_result, source_context and current_brief_review retain initial646/preparatory snapshots; current assignment above records c514 scoped presentation acceptance. Organization committed598143; QA separation committedddafd172. No full UX/MVP readiness claim.",
+    "historical_assignment_before_c514": {
       "id": "PLAN-UX/READABLE-FACTS",
       "status": "ACTIVE_PRIVATE_PRESENTATION_PREPARATION",
       "assignment": {
@@ -1169,7 +1202,7 @@
       "implementation_accepted": false,
       "next_step": "Independent private diff review, then sole integrator imports/builds; actual final browser evidence is a separately bounded acceptance."
     },
-    "historical_fields_note": "first_assignment and first_author_result preserve the original INITIAL_REPORT pending snapshot; current status is recorded separately above."
+    "organization_commit": "598143113dfa9cd85caa1403c6d40e4956466468"
   },
   "owner_reporting": {
     "status": "DEFINED_FOR_INDEPENDENT_REVIEW",
@@ -1189,9 +1222,10 @@
       {
         "owner": "/root/product_integration_continuation",
         "parent_thread_id": "01a0be90-e790-7351-a8ac-059d523941c4",
-        "department": "ENGINEERING",
+        "department": "INDEPENDENT_REVIEW",
         "reports_directory": "D:/3/BOSDev/reports/product_integration",
-        "delivery": "unchanged author report relayed by root"
+        "delivery": "unchanged author report relayed by root",
+        "scope_note": "Former shared integrator; now independently reviews assigned packets only."
       },
       {
         "owner": "/root/browser_evidence_check",
@@ -1219,9 +1253,10 @@
       {
         "owner": "execution_writer",
         "thread_id": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
-        "department": "DOCS_COORDINATION",
+        "department": "ENGINEERING_INTEGRATION",
         "reports_directory": "D:/3/BOSDev/reports/execution_writer",
-        "delivery": "codex_channel.py --target observer"
+        "delivery": "codex_channel.py --target observer",
+        "scope_note": "Sole shared writer/integrator under exact root decisions; root coordinates/publication."
       }
     ],
     "events": [
@@ -1238,5 +1273,229 @@
     "observer_json_writer": "controller only under bos_dev.state_lock",
     "heartbeat": "existing single heartbeat unchanged",
     "delivery_is_execution_evidence": false
+  },
+  "historical_registry_before_network_c514": {
+    "updated_at": "2026-09-20T18:17:54+00:00",
+    "product_candidate_commit": "646d3b80597e087a1ada14221024ec40588996f0",
+    "runtime_source_sha256": "98b011a583c7803d88c888070a3412789559919ecb5692ef34f5e8ad59b5072a",
+    "current_batch": "VERTICAL-UA",
+    "next_action": "Root reviews this design organization docs/config proposal and separately the dedicated design chat existing author package:19 screenshots and one proposed visual increment, independent review pending. Do not repeat the completed author audit. Old reviewer supplies partial handoff only. Product integration and remaining source/PG/restore/full-business gates stay with their assigned owners. Checkpoint620aeab is already published as reported; do not repeat prior registry work or acceptance runs.",
+    "batch_result": "CONTINUATION_GATE10_AND_PERSISTENT_DEMO_ACCEPTED_EXACT_646D3B8_OTHER_GATES_OPEN",
+    "product_candidate_scope": "Product646d3b8/source98b011 accepted only within existing evidence scopes; documentation checkpoint620aeab reported published. Design organization is a separate proposal pending independent review.",
+    "parallel_scenarios": {
+      "contract": "docs/orchestration/PARALLEL_SCENARIOS_UA.md",
+      "status": "BOUNDED_BROWSER_FLOWS_ACCEPTED_FULL_SCENARIOS_OPEN",
+      "current_integrator": "/root/product_integration_continuation",
+      "external_reservation": "PRESERVED",
+      "end_to_end_accepted": false,
+      "actual_browser_candidate_commit": "646d3b80597e087a1ada14221024ec40588996f0",
+      "scenarios": [
+        {
+          "id": "S1",
+          "scope": "order/reserve/ship/invoice/partial payment/debt",
+          "status": "PAYMENT12.34UAH_UI_PREVIEW_CONFIRM_SAME_PROPOSAL_HTTP_REPLAY_ACCEPTED; complete order-to-debt process remains open"
+        },
+        {
+          "id": "S2",
+          "scope": "synthetic supplier document extraction/matching/receipt reconciliation",
+          "status": "ACTUAL_ORDINARY_DOCUMENT_UNSUPPORTED_NO_WRITES_ACCEPTED; synthetic mock read-only matching only, no approval/posting/persistent exception queue"
+        },
+        {
+          "id": "S3",
+          "scope": "shortage/purchase or transfer/receipt/quality/stock",
+          "status": "TRANSFER1_UNIT_UI_PREVIEW_CONFIRM_SAME_PROPOSAL_HTTP_REPLAY_ACCEPTED; complete procurement/receipt/quality process remains open"
+        }
+      ]
+    }
+  },
+  "network_composition_c514": {
+    "status": "ACCEPT_SCOPED_SOURCE_AND_SEPARATE_BROWSER_CONTEXTS_OTHER_GAPS_OPEN",
+    "report": "docs/orchestration/NETWORK_COMPOSITION_UA.md",
+    "source_commit": "e038d6db562c6f36c06808c0793f66a6d63982cf",
+    "runtime_source_sha256": "c514204ef289386959c997a0404a579b5e66ba45c4b2fa9cb1580375413f9d9e",
+    "local_source_status": "CLEAN_E038_OBSERVED_BEFORE_PRIVATE_DOCS_PROPOSAL",
+    "runtime_file_count": 420,
+    "source_application_review": {
+      "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/money-wrap-application-independent-review/REVIEW.json",
+      "sha256": "d87d8fe3d3dcbcf1b05020262b018bc4a7205e7c67fd1aed1dfc53bb039413f4"
+    },
+    "sole_shared_integrator": {
+      "owner": "execution_writer",
+      "thread_id": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+      "scope": "Only reviewed exact root-authorized integration; root coordinates and publication. Former internal integrator is reviewer only."
+    },
+    "qa_organization": {
+      "commit": "ddafd1727613213dfe7fb6bb9035cf4c3cb102be",
+      "contract": "docs/orchestration/QA_RELEASE_UA.md",
+      "executed_new_tests_by_this_registry": false
+    },
+    "browser": {
+      "actual_attempts_consumed": 6,
+      "previous_overall_failures_preserved": 5,
+      "startup_failure_separate": true,
+      "actual7_authorized": false,
+      "historical_limits_reset": false,
+      "actual5": {
+        "overall": "FAIL_PRESERVED",
+        "accepted_checks": [
+          "network_map_table_1440_390",
+          "hold_payment",
+          "release_payment",
+          "transfer_dispatch",
+          "transfer_receive"
+        ],
+        "four_confirms_and_four_same_proposal_replays": true,
+        "events_added": 4,
+        "movements_added": 2,
+        "payments_added": 0,
+        "accepted_styled_contexts": {
+          "supply": [
+            1440,
+            768,
+            390
+          ],
+          "settlement": [
+            1440,
+            768
+          ]
+        },
+        "exact_failing_ancestor_known": false,
+        "review": {
+          "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/attempt5-independent-review/REVIEW.json",
+          "sha256": "e1661816c6c696b315ac430024a10e941239302fe85fcb8cfe717fda43779575"
+        }
+      },
+      "actual6": {
+        "outcome": "ACCEPT_SCOPED_FOUR_REMAINING_READONLY_CONTEXTS",
+        "contexts": {
+          "settlement": [
+            390
+          ],
+          "document-match": [
+            1440,
+            768,
+            390
+          ]
+        },
+        "business_changes": 0,
+        "auth_login_POSTs": 1,
+        "auth_sessions": [
+          3,
+          4
+        ],
+        "business_before_after_sha256": "15cbbe4c3d4392c36e637f2f0e8bb3367b1415a8ffebd78eed6f12bc72a7263b",
+        "review": {
+          "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/attempt6-independent-review/REVIEW.json",
+          "sha256": "fed147aaff757b6c452fa2cdbc7064a628dc3413ef937776866af8c60e0ba2c1"
+        },
+        "root_acceptance": {
+          "path": "D:/3/BOSDev/reports/root/ACTUAL6-READONLY-ACCEPTED-20260921.json",
+          "sha256": "8001b65507ddf515adabe8386b5d9ef4e3f0d2e29c397c2c9f0df30626e6afd8"
+        },
+        "manifest": {
+          "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/local-review-prep/execution-attempt-6-readonly/manifest.json",
+          "sha256": "b212951a5910b68ca8262ac314db8d0d31d241190d6758c724f08220bef114c7"
+        },
+        "receipt": {
+          "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/local-review-prep/execution-attempt-6-readonly/receipt.json",
+          "sha256": "6605285d5dc969070e5b9209a3b1edeb7e94499fee4c038886ee52b2ab57e684"
+        }
+      },
+      "combined_styled_contexts": 9,
+      "combined_scope": "Nine section/width contexts accepted across two runs; not one all-green run.",
+      "same_proposal_replay_is_full_concurrency": false,
+      "full_gate10_current_source": false,
+      "full_s2_write": false,
+      "full_business_e2e": false,
+      "runtime8879": "STOPPED; child/launcher exits verified, browser/profile closed; outer stop no_owned_record",
+      "older8876": "Historical646 acceptance preserved; no fresh health check in this registry"
+    },
+    "profiler": {
+      "attempts_used": 3,
+      "attempt_limit": 3,
+      "new_run_authorized": false,
+      "historical_postfix_source": "b722646b593cb26853176263e15c5775fa6c2b5b85619c6d320e171d7daef27a",
+      "historical_view_seconds": 3.4038,
+      "scope": "Historical standalone RequestFactory view; not current c514 HTTP timing or speedup ratio"
+    },
+    "delivery": {
+      "source_delivery_review": {
+        "path": "D:/3/BOSDev/reports/root/SOURCE-DELIVERY-C514-INDEPENDENT-REVIEW-20260920.json",
+        "sha256": "b61692ad4082829f8aa990cca07c3e4c2223acae668de3a250ff4a4a208eb98f"
+      },
+      "source_delivery_is_product_release": false,
+      "partial_evidence_status": "ACCEPTED_V5_1_WITH_REQUIRED_ADDENDUM_ACTUAL6_SEPARATE",
+      "partial_package_review": {
+        "path": "D:/3/BOSDev/reports/root/C514-EVIDENCE-V5-1-ACCEPTED-20260921.json",
+        "sha256": "4929fbb97eb6b81808e13f1ecc23d53c271cc8200600c331abd4285227545534"
+      },
+      "partial_manifest": {
+        "path": "D:/3/BOSDev/handoffs/network-c514-evidence-20260921/MANIFEST_C514_v5_1.json",
+        "sha256": "16d317b5931f43f3345327b2a53fb8b03f07dc26f5744a427f204e9199163d23"
+      },
+      "partial_index": {
+        "path": "D:/3/BOSDev/handoffs/network-c514-evidence-20260921/EVIDENCE_INDEX_C514_v5_1.json",
+        "sha256": "4e79cdb67cc3d787fdd46f30e64cbf8dba0a6b58f81712b629a238943c33be88"
+      },
+      "required_addendum": {
+        "path": "D:/3/BOSDev/handoffs/network-c514-evidence-20260921/CURRENT_AUTHORIZATION_ADDENDUM_20260921.json",
+        "sha256": "ac80ef6275fd490b0de5fe6fd9a037436c57cce38c2999ba4f6b111e12bce4b6"
+      },
+      "actual6_in_v5_1": false,
+      "v6_status": "AUTHOR_FROZEN_METADATA_CORRECTION_REQUIRED_NOT_ACCEPTED_AT_THIS_REGISTRY_SNAPSHOT",
+      "portable_tracked_integration": false,
+      "public_download_link_created": false,
+      "installer_ready": false
+    },
+    "publication": {
+      "pr": "https://github.com/vladduk-A-W-F/BOS/pull/1",
+      "last_confirmed_remote_head": "620aeab2010c6c8327ce46c25bb62435bcf7f9e4",
+      "status": "OPEN_DRAFT_620_REPORTED_BY_ROOT_FRESH_METADATA",
+      "e038_published": false,
+      "remote_rechecked_by_this_writer": false,
+      "push_performed_by_this_writer": false
+    },
+    "s2_backend": {
+      "card": "S2-SUPPLIER-INVOICE-REGISTRATION",
+      "owner_thread_id": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+      "status": "PRIVATE_V4_CORRECTION_ASSIGNED_AFTER_V3_CHANGES_REQUIRED",
+      "decision": {
+        "path": "D:/3/BOSDev/reports/root/S2-SUPPLIER-INVOICE-REGISTRATION-CARD-20260921.json",
+        "sha256": "693e5fe52af1686ad64714f04d3561026421bba883f5916288ed93a3006c7c11"
+      },
+      "v2_review_sha256": "72b7a75cbfdc85fa2e16ce2f01f2e79280c0e74c45a37ac916380bebe287229d",
+      "v3_review": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/s2-supplier-invoice-private-independent-review/V3_REVIEW.json",
+        "sha256": "a7613f0c002312d999f682e546ce68cb31539aa432c7c5b1060f9ae21b523d30"
+      },
+      "v4_assignment": {
+        "path": "D:/3/BOSDev/reports/root/message-writer-s2-v4-correction-20260921.md",
+        "sha256": "99b43c10b7be82f3e453cae0ffd8ce917651af73167f19d80c2609064addecf3"
+      },
+      "integrated": false,
+      "runtime_tested_on_c514": false,
+      "private_version_history_is_product_acceptance": false,
+      "canonical_task_added_here": false,
+      "scope": "Future durable supplier-side invoice registration; not customer Invoice, payment, repeat receipt, AP settlement or general-ledger posting. Private attempts/findings preserved; no new run authorized by registry."
+    },
+    "planning": {
+      "s2_s3_contracts": {
+        "path": "D:/3/BOSDev/reports/root/CURRENT-SCOPED-ACCEPTANCE-20260921.json",
+        "sha256": "dc1c551c2b03108e9d8214edb9de44d3c57e19617bb0f69c40970d2e4915fc1f"
+      },
+      "s2_source_null": "Inline original action exists only with draft.source; otherwise ordinary document flow/current-source reselect is a planning clarification.",
+      "s3_replay": "New receive preview for already-received transfer returns422; replay of same completed proposal returns200 previous receipt without new movement.",
+      "linked_mvp_fixture_v2_manifest_sha256": "9bff93a49210e8045add2b741828643d2398ffcf4aae19315d26f9bd69fbdfea",
+      "linked_mvp_fixture_review": {
+        "path": "D:/3/BOSDev/reports/mvp/MVP-LINKED-UA-FIXTURE-INDEPENDENT-REVIEW-20260921.json",
+        "sha256": "28d06b3055bf1b117cbd7b225b26b5cb4d2c955dad88ad93aa078ca7f6fe9368"
+      },
+      "fixture_execution_ready": false,
+      "fixture_executed": false
+    },
+    "gate_policy": "The unchanged11 gate objects and old646 continuation are historical scoped evidence; no current c514 gate closure inferred from this reconciliation.",
+    "technical_ready": false,
+    "pilot_allowed": false,
+    "mvp_complete": false
   }
 }
