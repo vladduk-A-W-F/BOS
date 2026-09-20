@@ -15818,7 +15818,9 @@ function moduleActionPreset(action, row, descriptor) {
 function moduleCell(column, row, currency) {
   const value = row[column.key];
   if (value == null) return '—';
-  if (column.type === 'money') return moduleMoney(value, row.currency || currency);
+  if (column.type === 'money') return /*#__PURE__*/React.createElement("span", {
+    className: "network-registry-money"
+  }, moduleMoney(value, row.currency || currency));
   if (['date', 'datetime'].includes(column.type)) return erpDate(value);
   if (['process', 'kind', 'status', 'quality', 'effective_status', 'coordinate_basis'].includes(column.key)) return ERP_LABELS[value] || {
     import: 'Імпорт',

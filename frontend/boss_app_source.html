@@ -223,6 +223,8 @@ input:not([type=checkbox]):not([type=radio]),select,textarea{border-color:#65758
 @media(max-width:650px){.module-toolbar label{flex-basis:100%;min-width:0}.module-view-switch{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.module-view-switch button{width:100%;min-height:42px}.module-pagination{justify-content:center}.module-inbox-item summary strong,.module-inbox-item summary span{display:block}.module-kanban,.module-map-records{grid-template-columns:1fr}.network-kpis{grid-template-columns:1fr}}
 /* CORE_MODULE_VIEWS_STYLE_END */
 
+/* NETWORK_MONEY_WRAP: preserve a full amount, fractional part and currency as one table-cell unit. */
+.network-registry-money{white-space:nowrap;overflow-wrap:normal;word-break:normal;font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
@@ -4299,7 +4301,7 @@ function moduleActionPreset(action,row,descriptor){
 }
 function moduleCell(column,row,currency){
  const value=row[column.key];if(value==null)return '—';
- if(column.type==='money')return moduleMoney(value,row.currency||currency);
+ if(column.type==='money')return <span className="network-registry-money">{moduleMoney(value,row.currency||currency)}</span>;
  if(['date','datetime'].includes(column.type))return erpDate(value);
  if(['process','kind','status','quality','effective_status','coordinate_basis'].includes(column.key))return ERP_LABELS[value]||({import:'Імпорт',purchase:'Закупівля',sale:'Продаж',export:'Експорт',point:'Координати точки',branch:'Центр філії',missing:'Не задано',in_transit:'У дорозі',held:'Утримано',released:'Знято'})[value]||String(value);
  return ['string','number','boolean'].includes(typeof value)?String(value):'Див. картку запису';
