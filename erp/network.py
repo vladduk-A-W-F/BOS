@@ -6,7 +6,7 @@ from math import isfinite
 from django.conf import settings
 
 from .balances import exact, money_text, money
-from . import queries
+from . import queries, network_workflow
 
 CURRENCIES = ('UAH', 'EUR', 'USD')
 TABLES = ('points', 'lots', 'purchases', 'orders', 'jobs', 'transfers', 'invoices', 'retentions')
@@ -170,6 +170,8 @@ def build(policy, params):
         )
     capabilities = policy.capabilities()
     return {
+        **network_workflow.build(policy, {'currency': currency,
+            'branch_id': selected_branch, 'location_id': selected_point}),
         'schema': 'bos.network.v1', 'as_of': data['as_of'], 'data_mode': settings.BOS_DATA_MODE,
         'currency': currency, 'currency_options': list(CURRENCIES),
         'filters': {'branch_id': selected_branch, 'location_id': selected_point},

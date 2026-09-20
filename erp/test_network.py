@@ -105,7 +105,11 @@ class NetworkReadTests(A04SyntheticCase):
         data = self.network(client, suffix)
         response = client.get('/api/erp/network/export/' + suffix + '&format=json')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), data)
+        exported = response.json()
+        from datetime import datetime
+        self.assertGreaterEqual(datetime.fromisoformat(exported['workflow'].pop('measured_at')),
+                                datetime.fromisoformat(data['workflow'].pop('measured_at')))
+        self.assertEqual(exported, data)
         response = client.get('/api/erp/network/export/' + suffix + '&table=points')
         self.assertEqual(response.status_code, 200)
         table = list(csv.DictReader(io.StringIO(response.content.decode('utf-8-sig')), delimiter=';'))
