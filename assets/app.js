@@ -17411,7 +17411,7 @@ function OrderSettlement({
     } = useERPProjection('orders/' + orderId + '/settlement/', (value, revision) => flowVerify(value, 'bos.order-settlement.v1', orderId, revision)),
     facts = state.data;
   return /*#__PURE__*/React.createElement("section", {
-    className: "bos-order-trace",
+    className: "bos-order-trace bos-readable-facts",
     "aria-label": "\u0420\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043A\u0438 \u0437\u0430 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F\u043C"
   }, /*#__PURE__*/React.createElement("div", {
     className: "erp-row"
@@ -17420,22 +17420,28 @@ function OrderSettlement({
     onClick: refresh
   }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438 \u0440\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043A\u0438")), /*#__PURE__*/React.createElement(FlowReadStatus, {
     state: state
-  }), facts && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
+  }), facts && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "bos-readable-facts__context"
+  }, /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
   }, facts.basis), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
   }, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0435\u043D\u043E: ", facts.generated_at), facts.payment_history_status !== 'complete' && /*#__PURE__*/React.createElement("p", {
     role: "status"
-  }, "\u0406\u0441\u0442\u043E\u0440\u0456\u044F \u043E\u043F\u043B\u0430\u0442 \u043D\u0435\u043F\u043E\u0432\u043D\u0430 \u0430\u0431\u043E \u043D\u0435 \u0443\u0437\u0433\u043E\u0434\u0436\u0443\u0454\u0442\u044C\u0441\u044F \u0437 \u043E\u0431\u043B\u0456\u043A\u043E\u0432\u043E\u044E \u0441\u0443\u043C\u043E\u044E. \u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0442\u0435 \u0434\u0436\u0435\u0440\u0435\u043B\u0430 \u0440\u0430\u0445\u0443\u043D\u043A\u0456\u0432."), facts.limits?.has_more?.invoices && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0447\u0430\u0441\u0442\u0438\u043D\u0443 \u0440\u0430\u0445\u0443\u043D\u043A\u0456\u0432. \u041F\u0456\u0434\u0441\u0443\u043C\u043A\u0438 \u0432\u043A\u043B\u044E\u0447\u0430\u044E\u0442\u044C \u0443\u0441\u0456 \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0456 \u0440\u0430\u0445\u0443\u043D\u043A\u0438."), facts.totals.map(row => /*#__PURE__*/React.createElement("div", {
+  }, "\u0406\u0441\u0442\u043E\u0440\u0456\u044F \u043E\u043F\u043B\u0430\u0442 \u043D\u0435\u043F\u043E\u0432\u043D\u0430 \u0430\u0431\u043E \u043D\u0435 \u0443\u0437\u0433\u043E\u0434\u0436\u0443\u0454\u0442\u044C\u0441\u044F \u0437 \u043E\u0431\u043B\u0456\u043A\u043E\u0432\u043E\u044E \u0441\u0443\u043C\u043E\u044E. \u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0442\u0435 \u0434\u0436\u0435\u0440\u0435\u043B\u0430 \u0440\u0430\u0445\u0443\u043D\u043A\u0456\u0432."), facts.limits?.has_more?.invoices && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0447\u0430\u0441\u0442\u0438\u043D\u0443 \u0440\u0430\u0445\u0443\u043D\u043A\u0456\u0432. \u041F\u0456\u0434\u0441\u0443\u043C\u043A\u0438 \u0432\u043A\u043B\u044E\u0447\u0430\u044E\u0442\u044C \u0443\u0441\u0456 \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0456 \u0440\u0430\u0445\u0443\u043D\u043A\u0438.")), facts.totals.map(row => /*#__PURE__*/React.createElement("div", {
     key: row.currency
   }, /*#__PURE__*/React.createElement("h4", null, row.currency), /*#__PURE__*/React.createElement("dl", {
-    className: "bos-trace-metrics"
+    className: "bos-trace-metrics bos-readable-facts__metrics"
   }, FLOW_MONEY.map(([key, label]) => /*#__PURE__*/React.createElement("div", {
     key: key
-  }, /*#__PURE__*/React.createElement("dt", null, label), /*#__PURE__*/React.createElement("dd", null, row[key], " ", /*#__PURE__*/React.createElement("small", null, row.currency))))))), facts.invoices.length === 0 && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0438\u0445 \u0440\u0430\u0445\u0443\u043D\u043A\u0456\u0432 \u0449\u0435 \u043D\u0435\u043C\u0430\u0454."), facts.invoices.map(row => /*#__PURE__*/React.createElement("article", {
+  }, /*#__PURE__*/React.createElement("dt", null, label), /*#__PURE__*/React.createElement("dd", null, row[key], " ", /*#__PURE__*/React.createElement("small", null, row.currency))))))), /*#__PURE__*/React.createElement("div", {
+    className: "bos-readable-facts__sources"
+  }, facts.invoices.length === 0 && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0438\u0445 \u0440\u0430\u0445\u0443\u043D\u043A\u0456\u0432 \u0449\u0435 \u043D\u0435\u043C\u0430\u0454."), facts.invoices.map(row => /*#__PURE__*/React.createElement("article", {
     key: row.invoice_id,
-    className: "bos-trace-line"
-  }, /*#__PURE__*/React.createElement("h4", null, row.code, " \xB7 \u0434\u043E ", erpDate(row.due_date)), /*#__PURE__*/React.createElement("p", null, "\u0411\u043E\u0440\u0433 \u0437\u0430 \u0440\u0430\u0445\u0443\u043D\u043A\u043E\u043C: ", row.open, " ", row.currency, ". \u0423\u0442\u0440\u0438\u043C\u0430\u043D\u043E: ", row.retained, " ", row.currency, ". \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u043E \u0434\u043E \u043E\u043F\u043B\u0430\u0442\u0438: ", row.collectible, " ", row.currency, ". \u041E\u0431\u043B\u0456\u043A\u043E\u0432\u0430 \u043E\u043F\u043B\u0430\u0442\u0430: ", row.paid, " ", row.currency, "."), !readOnly && bosCanAction('payment') && /*#__PURE__*/React.createElement(Button, {
+    className: "bos-trace-line bos-readable-facts__source-card"
+  }, /*#__PURE__*/React.createElement("h4", null, row.code, " \xB7 \u0434\u043E ", erpDate(row.due_date)), /*#__PURE__*/React.createElement("p", {
+    className: "bos-readable-facts__invoice-values"
+  }, /*#__PURE__*/React.createElement("span", null, "\u0411\u043E\u0440\u0433 \u0437\u0430 \u0440\u0430\u0445\u0443\u043D\u043A\u043E\u043C: ", row.open, " ", row.currency, ". "), /*#__PURE__*/React.createElement("span", null, "\u0423\u0442\u0440\u0438\u043C\u0430\u043D\u043E: ", row.retained, " ", row.currency, ". "), /*#__PURE__*/React.createElement("span", null, "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u043E \u0434\u043E \u043E\u043F\u043B\u0430\u0442\u0438: ", row.collectible, " ", row.currency, ". "), /*#__PURE__*/React.createElement("span", null, "\u041E\u0431\u043B\u0456\u043A\u043E\u0432\u0430 \u043E\u043F\u043B\u0430\u0442\u0430: ", row.paid, " ", row.currency, ".")), !readOnly && bosCanAction('payment') && /*#__PURE__*/React.createElement(Button, {
     disabled: !flowPositive(row.collectible),
     onClick: () => {
       if (flowPositive(row.collectible)) onAction('payment', {
@@ -17451,7 +17457,7 @@ function OrderSettlement({
     key: entry.adjustment_id
   }, entry.code, " \xB7 ", entry.kind === 'credit' ? 'Кредит' : 'Сторно', " \xB7 ", entry.amount, " ", entry.currency, entry.active ? ' · чинний' : '')), row.retentions.map(entry => /*#__PURE__*/React.createElement("p", {
     key: entry.retention_id
-  }, "\u0423\u0442\u0440\u0438\u043C\u0430\u043D\u043D\u044F \u2116", entry.retention_id, " \xB7 ", entry.code, " \xB7 ", entry.amount, " ", entry.currency, " \xB7 ", entry.status === 'held' ? 'чинне' : 'зняте', " \xB7 ", entry.reason, entry.release_reason ? ' · ' + entry.release_reason : '')), (row.has_more?.payments || row.has_more?.adjustments || row.has_more?.retentions) && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0447\u0430\u0441\u0442\u0438\u043D\u0443 \u0434\u0436\u0435\u0440\u0435\u043B; \u0437\u0432\u0456\u0440\u043A\u0430 \u0432\u0440\u0430\u0445\u043E\u0432\u0443\u0454 \u0432\u0441\u0456 \u0437\u0430\u043F\u0438\u0441\u0438 \u0446\u044C\u043E\u0433\u043E \u0440\u0430\u0445\u0443\u043D\u043A\u0443."))))));
+  }, "\u0423\u0442\u0440\u0438\u043C\u0430\u043D\u043D\u044F \u2116", entry.retention_id, " \xB7 ", entry.code, " \xB7 ", entry.amount, " ", entry.currency, " \xB7 ", entry.status === 'held' ? 'чинне' : 'зняте', " \xB7 ", entry.reason, entry.release_reason ? ' · ' + entry.release_reason : '')), (row.has_more?.payments || row.has_more?.adjustments || row.has_more?.retentions) && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0447\u0430\u0441\u0442\u0438\u043D\u0443 \u0434\u0436\u0435\u0440\u0435\u043B; \u0437\u0432\u0456\u0440\u043A\u0430 \u0432\u0440\u0430\u0445\u043E\u0432\u0443\u0454 \u0432\u0441\u0456 \u0437\u0430\u043F\u0438\u0441\u0438 \u0446\u044C\u043E\u0433\u043E \u0440\u0430\u0445\u0443\u043D\u043A\u0443.")))))));
 }
 function OrderSupplyOptions({
   orderId,
@@ -17486,7 +17492,7 @@ function OrderSupplyOptions({
   }, label) : null;
   if (!lines.length) return null;
   return /*#__PURE__*/React.createElement("section", {
-    className: "bos-order-trace",
+    className: "bos-order-trace bos-readable-facts",
     "aria-label": "\u0417\u0430\u0431\u0435\u0437\u043F\u0435\u0447\u0435\u043D\u043D\u044F \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F"
   }, /*#__PURE__*/React.createElement("h3", null, "\u0417\u0430\u0431\u0435\u0437\u043F\u0435\u0447\u0435\u043D\u043D\u044F \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("div", {
     className: "erp-form"
@@ -17511,18 +17517,30 @@ function OrderSupplyOptions({
     onClick: refresh
   }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438 \u0437\u0430\u0431\u0435\u0437\u043F\u0435\u0447\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement(FlowReadStatus, {
     state: state
-  }), facts && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
+  }), facts && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "bos-readable-facts__context"
+  }, /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
-  }, facts.basis), facts.fulfillment_location && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u0430 \u0442\u043E\u0447\u043A\u0430 \u0432\u0438\u043A\u043E\u043D\u0430\u043D\u043D\u044F: ", facts.fulfillment_location.code, ". \u041C\u0456\u0441\u0446\u0435 \u0434\u043B\u044F \u043D\u043E\u0432\u043E\u0457 \u0434\u0456\u0457 \u043E\u0431\u0435\u0440\u0456\u0442\u044C \u044F\u0432\u043D\u043E."), !facts.supported && /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u043E \u0434\u043B\u044F \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043E\u0433\u043E \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u0442\u0430 \u0437\u0430\u043A\u0443\u043F\u043E\u0432\u0443\u0432\u0430\u043D\u043E\u0457 \u043D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0438."), facts.completeness === 'restricted' && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u043B\u0438\u0448\u0435 \u0434\u043E\u0437\u0432\u043E\u043B\u0435\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430. \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0456\u0441\u0442\u044C \u0456 \u0437\u0430\u0433\u0430\u043B\u044C\u043D\u0438\u0439 \u0434\u0435\u0444\u0456\u0446\u0438\u0442 \u043D\u0435 \u0432\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u0456."), /*#__PURE__*/React.createElement("dl", {
-    className: "bos-trace-metrics"
+  }, facts.basis), facts.fulfillment_location && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u0430 \u0442\u043E\u0447\u043A\u0430 \u0432\u0438\u043A\u043E\u043D\u0430\u043D\u043D\u044F: ", facts.fulfillment_location.code, ". \u041C\u0456\u0441\u0446\u0435 \u0434\u043B\u044F \u043D\u043E\u0432\u043E\u0457 \u0434\u0456\u0457 \u043E\u0431\u0435\u0440\u0456\u0442\u044C \u044F\u0432\u043D\u043E."), !facts.supported && /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u043E \u0434\u043B\u044F \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043E\u0433\u043E \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u0442\u0430 \u0437\u0430\u043A\u0443\u043F\u043E\u0432\u0443\u0432\u0430\u043D\u043E\u0457 \u043D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0438."), facts.completeness === 'restricted' && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u043B\u0438\u0448\u0435 \u0434\u043E\u0437\u0432\u043E\u043B\u0435\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430. \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0456\u0441\u0442\u044C \u0456 \u0437\u0430\u0433\u0430\u043B\u044C\u043D\u0438\u0439 \u0434\u0435\u0444\u0456\u0446\u0438\u0442 \u043D\u0435 \u0432\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u0456.")), /*#__PURE__*/React.createElement("dl", {
+    className: "bos-trace-metrics bos-readable-facts__metrics"
   }, FLOW_QUANTITIES.map(([key, label]) => /*#__PURE__*/React.createElement("div", {
     key: key
-  }, /*#__PURE__*/React.createElement("dt", null, label), /*#__PURE__*/React.createElement("dd", null, facts.quantities[key] === null ? 'Не визначено' : facts.quantities[key] + ' ' + facts.line.unit)))), /*#__PURE__*/React.createElement("h4", null, "\u0420\u0435\u0437\u0435\u0440\u0432\u0438 \u0446\u0456\u0454\u0457 \u043F\u043E\u0437\u0438\u0446\u0456\u0457"), (facts.reservations || []).map(row => /*#__PURE__*/React.createElement("p", {
+  }, /*#__PURE__*/React.createElement("dt", null, label), /*#__PURE__*/React.createElement("dd", null, facts.quantities[key] === null ? 'Не визначено' : facts.quantities[key] + ' ' + facts.line.unit)))), /*#__PURE__*/React.createElement("div", {
+    className: "bos-readable-facts__sources"
+  }, /*#__PURE__*/React.createElement("h4", null, "\u0420\u0435\u0437\u0435\u0440\u0432\u0438 \u0446\u0456\u0454\u0457 \u043F\u043E\u0437\u0438\u0446\u0456\u0457"), (facts.reservations || []).map(row => /*#__PURE__*/React.createElement("p", {
     key: row.reservation_id
   }, "\u0420\u0435\u0437\u0435\u0440\u0432 \u2116", row.reservation_id, " \xB7 ", row.code, " \xB7 ", row.location.code, " \xB7 ", row.quantity, " ", row.unit, ". ", row.reason === 'release_transfer_required' ? 'Потрібно окремо звільнити резерв, перемістити та зарезервувати у точці виконання.' : 'Резерв у місці виконання; придатність врахована в підсумку.')), /*#__PURE__*/React.createElement("h4", null, "\u041F\u0430\u0440\u0442\u0456\u0457 \u0442\u0430 \u043C\u0456\u0441\u0446\u044F \u0437\u0431\u0435\u0440\u0456\u0433\u0430\u043D\u043D\u044F"), [...facts.stock, ...facts.waiting].map(row => /*#__PURE__*/React.createElement("div", {
     key: row.lot_id,
-    className: "bos-trace-line"
-  }, /*#__PURE__*/React.createElement("p", null, row.code, " \xB7 ", row.location.code, " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", row.revision, " \xB7 ", reasons[row.reason] || 'Перевірте стан партії'), /*#__PURE__*/React.createElement("p", null, "\u0424\u0456\u0437\u0438\u0447\u043D\u043E: ", row.quantity, " ", row.unit, ". \u0412\u0456\u043B\u044C\u043D\u043E: ", row.available === null ? 'Не визначено' : row.available + ' ' + row.unit, "."), row.document_ids.length > 0 && /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0438: ", row.document_ids.map(id => '№' + id).join(', ')), row.eligible && /*#__PURE__*/React.createElement("div", {
+    className: "bos-trace-line bos-readable-facts__source-card"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "bos-readable-facts__lot-heading"
+  }, /*#__PURE__*/React.createElement("strong", {
+    className: "bos-readable-facts__lot-code"
+  }, row.code), /*#__PURE__*/React.createElement("span", {
+    className: "bos-readable-facts__lot-location"
+  }, " \xB7 ", row.location.code, " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", row.revision), /*#__PURE__*/React.createElement("span", {
+    className: "bos-readable-facts__lot-status"
+  }, " \xB7 ", reasons[row.reason] || 'Перевірте стан партії')), /*#__PURE__*/React.createElement("p", null, "\u0424\u0456\u0437\u0438\u0447\u043D\u043E: ", row.quantity, " ", row.unit, ". \u0412\u0456\u043B\u044C\u043D\u043E: ", row.available === null ? 'Не визначено' : row.available + ' ' + row.unit, "."), row.document_ids.length > 0 && /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0438: ", row.document_ids.map(id => '№' + id).join(', ')), row.eligible && /*#__PURE__*/React.createElement("div", {
     className: "erp-actions"
   }, action('reserve', {
     lot_id: row.lot_id,
@@ -17534,7 +17552,7 @@ function OrderSupplyOptions({
     quantity: ''
   }, 'Миттєво перемістити · ' + row.code)))), !targetId && /*#__PURE__*/React.createElement("p", null, "\u0414\u043B\u044F \u043F\u0435\u0440\u0435\u043C\u0456\u0449\u0435\u043D\u043D\u044F \u044F\u0432\u043D\u043E \u043E\u0431\u0435\u0440\u0456\u0442\u044C \u043C\u0456\u0441\u0446\u0435 \u043F\u0440\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u043D\u044F."), /*#__PURE__*/React.createElement("h4", null, "\u041E\u0447\u0456\u043A\u0443\u0432\u0430\u043D\u0456 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456"), facts.purchases.map(row => /*#__PURE__*/React.createElement("p", {
     key: row.purchase_id
-  }, row.code, " \xB7 ", row.open_quantity, " ", row.unit, " \xB7 \u043E\u0447\u0456\u043A\u0443\u0454\u0442\u044C\u0441\u044F ", erpDate(row.due_date), " \xB7 ", reasons[row.reason] || 'Потребує перевірки', " \xB7 \u043F\u0440\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u043D\u044F: ", row.destination?.code || 'Не визначено у поточному доступі')), Object.values(facts.limits?.has_more || {}).some(Boolean) && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0447\u0430\u0441\u0442\u0438\u043D\u0443 \u0434\u0436\u0435\u0440\u0435\u043B; \u043F\u0456\u0434\u0441\u0443\u043C\u043A\u0438 \u043C\u0430\u044E\u0442\u044C \u043E\u043A\u0440\u0435\u043C\u0438\u0439 \u043E\u0431\u0441\u044F\u0433 \u0434\u043E\u0441\u0442\u0443\u043F\u0443."), action('purchase', {
+  }, row.code, " \xB7 ", row.open_quantity, " ", row.unit, " \xB7 \u043E\u0447\u0456\u043A\u0443\u0454\u0442\u044C\u0441\u044F ", erpDate(row.due_date), " \xB7 ", reasons[row.reason] || 'Потребує перевірки', " \xB7 \u043F\u0440\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u043D\u044F: ", row.destination?.code || 'Не визначено у поточному доступі')), Object.values(facts.limits?.has_more || {}).some(Boolean) && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0447\u0430\u0441\u0442\u0438\u043D\u0443 \u0434\u0436\u0435\u0440\u0435\u043B; \u043F\u0456\u0434\u0441\u0443\u043C\u043A\u0438 \u043C\u0430\u044E\u0442\u044C \u043E\u043A\u0440\u0435\u043C\u0438\u0439 \u043E\u0431\u0441\u044F\u0433 \u0434\u043E\u0441\u0442\u0443\u043F\u0443.")), action('purchase', {
     item_id: facts.line.item_id,
     revision: facts.line.revision,
     currency: facts.line.currency,
@@ -17641,15 +17659,17 @@ function PurchaseDocumentMatch({
     value: row.id
   }, row.label))));
   const claim = (label, value) => /*#__PURE__*/React.createElement("div", {
-    className: "bos-trace-line",
+    className: "bos-trace-line bos-readable-facts__source-card",
     key: label
   }, /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, label, ":"), " ", value.value), /*#__PURE__*/React.createElement("details", null, /*#__PURE__*/React.createElement("summary", null, "\u0414\u0436\u0435\u0440\u0435\u043B\u043E \u043F\u043E\u043B\u044F \xAB", label, "\xBB"), /*#__PURE__*/React.createElement("p", null, value.evidence.source, " \xB7 \u0444\u0440\u0430\u0433\u043C\u0435\u043D\u0442 ", value.evidence.start, "\u2013", value.evidence.end), /*#__PURE__*/React.createElement("blockquote", null, value.evidence.quote), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
   }, "SHA-256: ", value.evidence.source_sha256)));
   return /*#__PURE__*/React.createElement("section", {
-    className: "bos-order-trace",
+    className: "bos-order-trace bos-readable-facts",
     "aria-label": "\u0417\u0456\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u043D\u044F \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456"
-  }, /*#__PURE__*/React.createElement("h3", null, "\u0417\u0456\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u043D\u044F \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456"), /*#__PURE__*/React.createElement("p", null, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0435 \u0437\u0456\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u043D\u044F \u0441\u0438\u043D\u0442\u0435\u0442\u0438\u0447\u043D\u043E\u0433\u043E \u0440\u0430\u0445\u0443\u043D\u043A\u0443: \u043E\u0434\u0438\u043D \u0440\u044F\u0434\u043E\u043A, \u043E\u0434\u043D\u0430 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044F \u0442\u0430 \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0456 \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F. \u0417\u0432\u0438\u0447\u0430\u0439\u043D\u0456 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0438 \u043F\u043E\u0432\u0435\u0440\u0442\u0430\u044E\u0442\u044C \u044F\u0432\u043D\u0443 \u043F\u0440\u0438\u0447\u0438\u043D\u0443 \u043D\u0435\u043C\u043E\u0436\u043B\u0438\u0432\u043E\u0441\u0442\u0456 \u0437\u0456\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u043D\u044F. OCR \u0442\u0430 AI \u043D\u0435 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0456."), /*#__PURE__*/React.createElement("p", null, "\u0417\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044F: ", purchase.code, ". \u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442, \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043B\u044C\u043D\u0438\u043A \u0456 \u043D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0430 \u043E\u0431\u0438\u0440\u0430\u044E\u0442\u044C\u0441\u044F \u044F\u0432\u043D\u043E."), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("h3", null, "\u0417\u0456\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u043D\u044F \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456"), /*#__PURE__*/React.createElement("div", {
+    className: "bos-readable-facts__context"
+  }, /*#__PURE__*/React.createElement("p", null, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0435 \u0437\u0456\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u043D\u044F \u0441\u0438\u043D\u0442\u0435\u0442\u0438\u0447\u043D\u043E\u0433\u043E \u0440\u0430\u0445\u0443\u043D\u043A\u0443: \u043E\u0434\u0438\u043D \u0440\u044F\u0434\u043E\u043A, \u043E\u0434\u043D\u0430 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044F \u0442\u0430 \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0456 \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F. \u0417\u0432\u0438\u0447\u0430\u0439\u043D\u0456 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0438 \u043F\u043E\u0432\u0435\u0440\u0442\u0430\u044E\u0442\u044C \u044F\u0432\u043D\u0443 \u043F\u0440\u0438\u0447\u0438\u043D\u0443 \u043D\u0435\u043C\u043E\u0436\u043B\u0438\u0432\u043E\u0441\u0442\u0456 \u0437\u0456\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u043D\u044F. OCR \u0442\u0430 AI \u043D\u0435 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0456."), /*#__PURE__*/React.createElement("p", null, "\u0417\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044F: ", purchase.code, ". \u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442, \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043B\u044C\u043D\u0438\u043A \u0456 \u043D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0430 \u043E\u0431\u0438\u0440\u0430\u044E\u0442\u044C\u0441\u044F \u044F\u0432\u043D\u043E.")), /*#__PURE__*/React.createElement("div", {
     className: "erp-form"
   }, field('document_id', 'Документ для зіставлення', (data.documents || []).map(row => ({
     id: row.id,
@@ -17665,19 +17685,24 @@ function PurchaseDocumentMatch({
     onClick: compare
   }, "\u0417\u0456\u0441\u0442\u0430\u0432\u0438\u0442\u0438 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442"), /*#__PURE__*/React.createElement(FlowReadStatus, {
     state: state
-  }), draft && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h4", null, draft.decision === 'accept_draft' ? 'Синтетична чернетка узгоджена' : 'Зіставлення потребує перевірки'), /*#__PURE__*/React.createElement("p", {
+  }), draft && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "bos-readable-facts__result"
+  }, /*#__PURE__*/React.createElement("h4", null, draft.decision === 'accept_draft' ? 'Синтетична чернетка узгоджена' : 'Зіставлення потребує перевірки'), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
   }, "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442 \u043D\u0435 \u0437\u0430\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043E. \u041F\u0440\u043E\u0432\u043E\u0434\u043A\u0438, \u043E\u043F\u043B\u0430\u0442\u0438 \u0439 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u0446\u0456\u0454\u044E \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u043E\u044E \u043D\u0435 \u0441\u0442\u0432\u043E\u0440\u044E\u044E\u0442\u044C\u0441\u044F."), draft.exceptions.map(code => /*#__PURE__*/React.createElement("p", {
     key: code,
-    role: "status"
+    role: "status",
+    className: "bos-readable-facts__issue"
   }, DOCUMENT_MATCH_ISSUES[code] || 'Потрібна ручна перевірка джерел: ' + code)), draft.source && /*#__PURE__*/React.createElement("p", null, draft.source.code, " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", draft.source.revision, " \xB7 ", /*#__PURE__*/React.createElement(Button, {
     onClick: () => onDocument(draft.source.document_id)
-  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u043E\u0440\u0438\u0433\u0456\u043D\u0430\u043B \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430")), draft.fields && /*#__PURE__*/React.createElement(React.Fragment, null, DOCUMENT_MATCH_FIELDS.map(([key, label]) => claim(label, draft.fields[key])), /*#__PURE__*/React.createElement("h4", null, "\u041F\u043E\u0437\u0438\u0446\u0456\u044F \u0440\u0430\u0445\u0443\u043D\u043A\u0443"), DOCUMENT_MATCH_LINE.map(([key, label]) => claim(label, draft.fields.lines[0][key]))), draft.matches && /*#__PURE__*/React.createElement("p", null, "\u041E\u0431\u0440\u0430\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430: \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043B\u044C\u043D\u0438\u043A ", draft.matches.supplier_id === null ? 'не узгоджений' : '№' + draft.matches.supplier_id, "; \u043D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0430 ", draft.matches.item_id === null ? 'не узгоджена' : '№' + draft.matches.item_id, "; \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044F ", draft.matches.purchase_id === null ? 'не узгоджена' : '№' + draft.matches.purchase_id, ". \u041F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F: ", draft.matches.receipt_ids.map(id => '№' + id).join(', ') || 'немає узгоджених джерел', "."), draft.comparison && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h4", null, "\u0417\u0432\u0456\u0440\u043A\u0430 \u043A\u0456\u043B\u044C\u043A\u043E\u0441\u0442\u0456 \u0442\u0430 \u0441\u0443\u043C"), [['quantity', 'Кількість із закупівлею'], ['price', 'Ціна із закупівлею'], ['line_total', 'Сума рядка'], ['invoice_total', 'Підсумок рахунку']].map(([key, label]) => {
+  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u043E\u0440\u0438\u0433\u0456\u043D\u0430\u043B \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430"))), /*#__PURE__*/React.createElement("div", {
+    className: "bos-readable-facts__sources"
+  }, draft.fields && /*#__PURE__*/React.createElement(React.Fragment, null, DOCUMENT_MATCH_FIELDS.map(([key, label]) => claim(label, draft.fields[key])), /*#__PURE__*/React.createElement("h4", null, "\u041F\u043E\u0437\u0438\u0446\u0456\u044F \u0440\u0430\u0445\u0443\u043D\u043A\u0443"), DOCUMENT_MATCH_LINE.map(([key, label]) => claim(label, draft.fields.lines[0][key]))), draft.matches && /*#__PURE__*/React.createElement("p", null, "\u041E\u0431\u0440\u0430\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430: \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043B\u044C\u043D\u0438\u043A ", draft.matches.supplier_id === null ? 'не узгоджений' : '№' + draft.matches.supplier_id, "; \u043D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0430 ", draft.matches.item_id === null ? 'не узгоджена' : '№' + draft.matches.item_id, "; \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044F ", draft.matches.purchase_id === null ? 'не узгоджена' : '№' + draft.matches.purchase_id, ". \u041F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F: ", draft.matches.receipt_ids.map(id => '№' + id).join(', ') || 'немає узгоджених джерел', "."), draft.comparison && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h4", null, "\u0417\u0432\u0456\u0440\u043A\u0430 \u043A\u0456\u043B\u044C\u043A\u043E\u0441\u0442\u0456 \u0442\u0430 \u0441\u0443\u043C"), [['quantity', 'Кількість із закупівлею'], ['price', 'Ціна із закупівлею'], ['line_total', 'Сума рядка'], ['invoice_total', 'Підсумок рахунку']].map(([key, label]) => {
     const row = draft.comparison[key];
     return /*#__PURE__*/React.createElement("p", {
       key: key
     }, label, ": ", row ? 'у документі ' + row.invoice + '; очікується ' + row.expected + '; різниця ' + row.difference : 'не порівнюється через валюту або одиницю');
-  }), /*#__PURE__*/React.createElement("p", null, "\u041F\u0440\u0438\u0439\u043D\u044F\u0442\u043E: ", draft.comparison.receipt_quantity.gross, "; \u043F\u043E\u0432\u0435\u0440\u043D\u0443\u0442\u043E: ", draft.comparison.receipt_quantity.returned, "; \u043F\u0456\u0441\u043B\u044F \u043F\u043E\u0432\u0435\u0440\u043D\u0435\u043D\u044C: ", draft.comparison.receipt_quantity.net, " ", draft.comparison.purchase_unit, "."))));
+  }), /*#__PURE__*/React.createElement("p", null, "\u041F\u0440\u0438\u0439\u043D\u044F\u0442\u043E: ", draft.comparison.receipt_quantity.gross, "; \u043F\u043E\u0432\u0435\u0440\u043D\u0443\u0442\u043E: ", draft.comparison.receipt_quantity.returned, "; \u043F\u0456\u0441\u043B\u044F \u043F\u043E\u0432\u0435\u0440\u043D\u0435\u043D\u044C: ", draft.comparison.receipt_quantity.net, " ", draft.comparison.purchase_unit, ".")))));
 }
 function BoSInspector({
   selection,

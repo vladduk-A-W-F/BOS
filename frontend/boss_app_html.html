@@ -183,6 +183,27 @@ input:not([type=checkbox]):not([type=radio]),select,textarea{border-color:#65758
 
 /* Order trace: scoped, read-only source facts. */
 .bos-order-trace{border-top:1px solid #394455;border-bottom:1px solid #394455;margin:22px 0;padding:14px 0;min-width:0;overflow-wrap:anywhere}.bos-order-trace h3{margin:0}.bos-order-trace h4{margin:18px 0 10px}.bos-order-trace button,.bos-order-trace summary{min-height:44px;max-width:100%;white-space:normal;overflow-wrap:anywhere}.bos-order-trace button:focus-visible,.bos-order-trace summary:focus-visible{outline:3px solid #a7ccff;outline-offset:3px}.bos-order-trace button:disabled{cursor:default;opacity:.65}.bos-trace-line{padding:8px 0 18px;border-bottom:1px solid #394455}.bos-trace-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:12px;margin:14px 0}.bos-trace-metrics>div{min-width:0;padding:12px;border:1px solid #394455;border-radius:8px}.bos-trace-metrics dt{font-size:14px;color:#bdc9d8}.bos-trace-metrics dd{margin:8px 0 0;font-size:20px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.bos-trace-metrics small{font-size:14px}.bos-order-trace summary{cursor:pointer;padding:10px 0;box-sizing:border-box}.bos-trace-source{display:flex;gap:8px 12px;align-items:center;flex-wrap:wrap;padding:10px 0;min-width:0}.bos-trace-source>*{min-width:0;max-width:100%}.bos-trace-source p{flex-basis:100%}@media(max-width:600px){.bos-trace-source{align-items:stretch;flex-direction:column}.bos-order-trace .erp-row{align-items:stretch}}
+/* PLAN-UX readable facts: only the three assigned projection sections. */
+.bos-readable-facts{container:bos-readable-facts / inline-size}
+.bos-readable-facts .bos-readable-facts__context{max-width:78ch;margin:16px 0;line-height:1.5}
+.bos-readable-facts .bos-readable-facts__context>p{margin:10px 0}
+.bos-readable-facts .bos-readable-facts__metrics{grid-template-columns:minmax(0,1fr);gap:12px}
+.bos-readable-facts .bos-readable-facts__metrics>div{min-width:0}
+.bos-readable-facts .bos-readable-facts__metrics dt,.bos-readable-facts .bos-readable-facts__metrics dd{line-height:1.4}
+.bos-readable-facts .bos-readable-facts__sources{margin:20px 0;min-width:0}
+.bos-readable-facts .bos-readable-facts__source-card{margin:12px 0;padding:16px;border:1px solid #394455;border-radius:10px;background:#12141A;min-width:0;line-height:1.5}
+.bos-readable-facts .bos-readable-facts__source-card>h4:first-child{margin-top:0}
+.bos-readable-facts .bos-readable-facts__invoice-values>span{display:block}
+.bos-readable-facts .bos-readable-facts__lot-heading{display:grid;gap:8px;margin-top:0}
+.bos-readable-facts .bos-readable-facts__lot-code{font-weight:650}
+.bos-readable-facts .bos-readable-facts__lot-location{color:#bdc9d8}
+.bos-readable-facts .bos-readable-facts__lot-status{width:fit-content;max-width:100%;padding:4px 8px;border:1px solid #596577;border-radius:6px;font-size:14px;line-height:1.4}
+.bos-readable-facts .bos-readable-facts__result{margin:20px 0;padding:16px;border:1px solid #596577;border-radius:12px;line-height:1.5}
+.bos-readable-facts .bos-readable-facts__result>h4:first-child{margin-top:0}
+.bos-readable-facts .bos-readable-facts__issue{padding-inline-start:12px;border-inline-start:2px solid #A7B1BF}
+@container bos-readable-facts (min-width:400px){.bos-readable-facts .bos-readable-facts__metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@container bos-readable-facts (min-width:640px){.bos-readable-facts .bos-readable-facts__metrics{grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* PLAN-UX readable facts end. */
 /* Workpoints: responsive workflow groups and local coordinate overview. */
 .bos-workpoints{border:1px solid #45536a;border-radius:14px;padding:20px;min-width:0}.bos-point-picker{display:grid;gap:14px;margin:16px 0}.bos-point-picker label{display:flex;flex-direction:column;gap:8px;max-width:560px}.bos-point-picker select{font-size:16px;min-height:44px;max-width:100%}.bos-point-sections{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}.bos-point-sections>div{min-width:0}.bos-point-sections h4{margin-top:18px}.bos-point-map{position:relative;height:280px;min-width:0;border:1px solid #45536a;border-radius:8px;background-color:#131d28;background-image:linear-gradient(#27384b 1px,transparent 1px),linear-gradient(90deg,#27384b 1px,transparent 1px);background-size:10% 20%;margin:14px 0}.bos-point-map button{position:absolute;transform:translate(-50%,-50%)!important;min-height:44px;max-width:130px;padding:6px;color:#e3edff;background:#24384f;border:2px solid #8db9e6;overflow-wrap:anywhere}.bos-point-map button[aria-pressed=true]{background:#315b45;border-color:#aeefc9}.bos-workpoints button:focus-visible,.bos-workpoints select:focus-visible,.bos-workpoints summary:focus-visible,.bos-http summary:focus-visible{outline:3px solid #a7ccff;outline-offset:3px}.bos-workpoints summary,.bos-http summary{padding:10px 0;cursor:pointer;min-height:44px}.bos-http{padding:0 4px}.bos-point-sections .bos-next{flex-direction:column;align-items:stretch}@media(max-width:1100px){.bos-point-sections{grid-template-columns:1fr}}@media(max-width:650px){.bos-workpoints{padding:12px}.bos-point-map{height:320px}.bos-point-map button{max-width:92px;font-size:12px}}
 /* NETWORK_STYLES_BEGIN: existing BoS palette, no external assets. */
