@@ -20,7 +20,7 @@ from decimal import Decimal,InvalidOperation
 from boss_project.identity import actor, IdentityDenied
 from boss_project.policy import Policy
 from . import projections
-from boss_project.data_rules import strict_json_loads
+from boss_project.data_rules import field_values, strict_json_loads
 from .private_storage import verified_document_bytes, private_document_storage, legacy_blob_usage
 
 from tasks.commands import ConfirmConflict
@@ -251,10 +251,11 @@ def chat(request):
 @transaction.atomic
 def request_create(request):
     from erp.service import write_lock
-    write_lock()
     d=body(request)
     fields={'code','part','revision','quantity','unit','currency','required_by','owner_id','document_id','details'}
     if set(d)!=fields:raise ValueError()
+    field_values(ProcurementRequest,d)
+    write_lock()
     for key,limit in [('code',30),('part',120),('revision',40),('unit',20)]:
         if not isinstance(d[key],str) or not 1<=len(d[key].strip())<=limit:raise ValueError()
     if type(d['quantity'])!=int or not 1<=d['quantity']<=100000 or d['currency'] not in ('EUR','UAH','USD'):raise ValueError()

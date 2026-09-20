@@ -1,0 +1,426 @@
+Creating test database for alias 'default' ('/workspace/scratch/4dbe5b4c73ee/execution/n1/check_request_red.sqlite3_django_test')...
+Destroying old test database for alias 'default' ('/workspace/scratch/4dbe5b4c73ee/execution/n1/check_request_red.sqlite3_django_test')...
+Found 2 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: django_filters, messages, rest_framework, staticfiles
+  Apply all migrations: admin, ai_assistant, auth, branches, contenttypes, employees, erp, finance, operations, sessions, tasks
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying ai_assistant.0001_initial... OK
+  Applying ai_assistant.0002_taskchangelog... OK
+  Applying ai_assistant.0003_claudeusagelog... OK
+  Applying ai_assistant.0004_employeechangelog... OK
+  Applying ai_assistant.0005_chatfile... OK
+  Applying ai_assistant.0006_alter_chatmessage_created_at_and_more... OK
+  Applying ai_assistant.0007_employeechangelog_undone_at... OK
+  Applying ai_assistant.0008_chatmessage_archived_at_chatmessage_user_and_more... OK
+  Applying ai_assistant.0009_private_documents... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying branches.0001_initial... OK
+  Applying branches.0002_branch_short_name... OK
+  Applying branches.0003_fill_short_names... OK
+  Applying employees.0001_initial... OK
+  Applying employees.0002_alter_employee_department... OK
+  Applying employees.0003_employee_branch... OK
+  Applying employees.0004_employee_archived_at... OK
+  Applying employees.0005_employee_user... OK
+  Applying tasks.0001_initial... OK
+  Applying tasks.0002_alter_task_priority... OK
+  Applying tasks.0003_alter_task_deadline_alter_task_priority_and_more... OK
+  Applying tasks.0004_task_branch... OK
+  Applying finance.0001_initial... OK
+  Applying finance.0002_alter_salary_unique_together_alter_contract_status_and_more... OK
+  Applying finance.0003_transaction_branch... OK
+  Applying operations.0001_initial... OK
+  Applying operations.0002_actionproposal_user... OK
+  Applying operations.0003_loginattempt... OK
+  Applying operations.0004_alter_document_options_document_access_level... OK
+  Applying operations.0005_invoice_boundaries... OK
+  Applying operations.0006_private_documents... OK
+  Applying finance.0004_salary_archived_at_transaction_archived_at_and_more... OK
+  Applying finance.0005_alter_transaction_branch_alter_transaction_contract_and_more... OK
+  Applying finance.0006_financialintent... OK
+  Applying finance.0007_money_boundaries... OK
+  Applying erp.0001_initial... OK
+  Applying erp.0002_row_boundaries... OK
+  Applying erp.0003_purchase_source... OK
+  Applying erp.0004_initial_import_ledger... OK
+  Applying erp.0005_source_corrections... OK
+  Applying finance.0008_statement_ledgers... OK
+  Applying sessions.0001_initial... OK
+  Applying tasks.0005_controlled_tasks...test_model_limits_accept_exact_raw_text_without_trimming (operations.test_request_lengths.ProcurementRequestLengthTests.test_model_limits_accept_exact_raw_text_without_trimming) ... ok
+test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) ... 
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='code', value='AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='code', value='AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='code', value=' AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='code', value='ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='code', value='ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ ') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='code', value=' ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='code', value='🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='code', value='🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂 ') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='code', value=' 🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='part', value='AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='part', value='AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='part', value=' AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='part', value='ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='part', value='ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ ') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='part', value=' ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='part', value='🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='part', value='🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂 ') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='part', value=' 🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='revision', value='AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='revision', value='AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='revision', value=' AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='revision', value='ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='revision', value='ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ ') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='revision', value=' ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='revision', value='🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='revision', value='🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂 ') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='revision', value=' 🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='unit', value='AAAAAAAAAAAAAAAAAAAAA') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='unit', value='AAAAAAAAAAAAAAAAAAAA ') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='unit', value=' AAAAAAAAAAAAAAAAAAAA') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='unit', value='ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='unit', value='ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ ') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='unit', value=' ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='unit', value='🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='unit', value='🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂 ') ... FAIL
+  test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='unit', value=' 🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂') ... FAIL
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='code', value='AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 86, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertIn(f'максимум {limit} символів', response.json()['error'])
+AssertionError: 'максимум 30 символів' not found in 'Перевірте формат і обов’язкові поля запиту.'
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='code', value='AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 84, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertEqual(self.state(), before)
+AssertionError: {'ope[504 chars]t': [{'id': 1, 'code': 'AAAAAAAAAAAAAAAAAAAAAA[1957 chars]: []} != {'ope[504 chars]t': [], 'operations.SupplierQuote': [], 'opera[1644 chars]: []}
+Diff is 4076 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='code', value=' AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 84, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertEqual(self.state(), before)
+AssertionError: {'ope[762 chars]iew'}, {'id': 2, 'code': ' AAAAAAAAAAAAAAAAAAA[1959 chars]: []} != {'ope[762 chars]iew'}], 'operations.SupplierQuote': [], 'opera[1699 chars]: []}
+Diff is 4816 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='code', value='ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 86, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertIn(f'максимум {limit} символів', response.json()['error'])
+AssertionError: 'максимум 30 символів' not found in 'Перевірте формат і обов’язкові поля запиту.'
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='code', value='ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 84, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertEqual(self.state(), before)
+AssertionError: {'ope[1022 chars]iew'}, {'id': 3, 'code': 'ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ[1959 chars]: []} != {'ope[1022 chars]iew'}], 'operations.SupplierQuote': [], 'opera[1699 chars]: []}
+Diff is 5531 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='code', value=' ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 84, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertEqual(self.state(), before)
+AssertionError: {'ope[1282 chars]iew'}, {'id': 4, 'code': ' ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ[1959 chars]: []} != {'ope[1282 chars]iew'}], 'operations.SupplierQuote': [], 'opera[1699 chars]: []}
+Diff is 6246 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='code', value='🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 86, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertIn(f'максимум {limit} символів', response.json()['error'])
+AssertionError: 'максимум 30 символів' not found in 'Перевірте формат і обов’язкові поля запиту.'
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='code', value='🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂 ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 84, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertEqual(self.state(), before)
+AssertionError: {'ope[1542 chars]iew'}, {'id': 5, 'code': '🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂[1959 chars]: []} != {'ope[1542 chars]iew'}], 'operations.SupplierQuote': [], 'opera[1699 chars]: []}
+Diff is 6961 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='code', value=' 🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 84, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertEqual(self.state(), before)
+AssertionError: {'ope[1802 chars]iew'}, {'id': 6, 'code': ' 🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂[1959 chars]: []} != {'ope[1802 chars]iew'}], 'operations.SupplierQuote': [], 'opera[1699 chars]: []}
+Diff is 7676 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='part', value='AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 86, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertIn(f'максимум {limit} символів', response.json()['error'])
+AssertionError: 'максимум 120 символів' not found in 'Перевірте формат і обов’язкові поля запиту.'
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='part', value='AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 84, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertEqual(self.state(), before)
+AssertionError: {'ope[2062 chars]iew'}, {'id': 7, 'code': 'N1-R-11', 'part': 'A[2039 chars]: []} != {'ope[2062 chars]iew'}], 'operations.SupplierQuote': [], 'opera[1699 chars]: []}
+Diff is 8471 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='part', value=' AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 84, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertEqual(self.state(), before)
+AssertionError: {'ope[2402 chars]iew'}, {'id': 8, 'code': 'N1-R-12', 'part': ' [2039 chars]: []} != {'ope[2402 chars]iew'}], 'operations.SupplierQuote': [], 'opera[1699 chars]: []}
+Diff is 9315 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='part', value='ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 86, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertIn(f'максимум {limit} символів', response.json()['error'])
+AssertionError: 'максимум 120 символів' not found in 'Перевірте формат і обов’язкові поля запиту.'
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='part', value='ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 84, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertEqual(self.state(), before)
+AssertionError: {'ope[2742 chars]iew'}, {'id': 9, 'code': 'N1-R-14', 'part': 'Ї[2039 chars]: []} != {'ope[2742 chars]iew'}], 'operations.SupplierQuote': [], 'opera[1699 chars]: []}
+Diff is 10110 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='part', value=' ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 84, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertEqual(self.state(), before)
+AssertionError: {'ope[3082 chars]iew'}, {'id': 10, 'code': 'N1-R-15', 'part': '[2041 chars]: []} != {'ope[3082 chars]iew'}], 'operations.SupplierQuote': [], 'opera[1699 chars]: []}
+Diff is 10957 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='part', value='🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 86, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertIn(f'максимум {limit} символів', response.json()['error'])
+AssertionError: 'максимум 120 символів' not found in 'Перевірте формат і обов’язкові поля запиту.'
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='part', value='🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂 ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 84, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertEqual(self.state(), before)
+AssertionError: {'ope[3423 chars]iew'}, {'id': 11, 'code': 'N1-R-17', 'part': '[2041 chars]: []} != {'ope[3423 chars]iew'}], 'operations.SupplierQuote': [], 'opera[1700 chars]: []}
+Diff is 11755 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='part', value=' 🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 84, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertEqual(self.state(), before)
+AssertionError: {'ope[3764 chars]iew'}, {'id': 12, 'code': 'N1-R-18', 'part': '[2041 chars]: []} != {'ope[3764 chars]iew'}], 'operations.SupplierQuote': [], 'opera[1700 chars]: []}
+Diff is 12600 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='revision', value='AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 86, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertIn(f'максимум {limit} символів', response.json()['error'])
+AssertionError: 'максимум 40 символів' not found in 'Перевірте формат і обов’язкові поля запиту.'
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='revision', value='AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 84, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertEqual(self.state(), before)
+AssertionError: {'ope[4105 chars]iew'}, {'id': 13, 'code': 'N1-R-20', 'part': '[1977 chars]: []} != {'ope[4105 chars]iew'}], 'operations.SupplierQuote': [], 'opera[1700 chars]: []}
+Diff is 13332 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='revision', value=' AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 84, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertEqual(self.state(), before)
+AssertionError: {'ope[4382 chars]iew'}, {'id': 14, 'code': 'N1-R-21', 'part': '[1977 chars]: []} != {'ope[4382 chars]iew'}], 'operations.SupplierQuote': [], 'opera[1700 chars]: []}
+Diff is 14117 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='revision', value='ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 86, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertIn(f'максимум {limit} символів', response.json()['error'])
+AssertionError: 'максимум 40 символів' not found in 'Перевірте формат і обов’язкові поля запиту.'
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='revision', value='ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 84, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertEqual(self.state(), before)
+AssertionError: {'ope[4659 chars]iew'}, {'id': 15, 'code': 'N1-R-23', 'part': '[1977 chars]: []} != {'ope[4659 chars]iew'}], 'operations.SupplierQuote': [], 'opera[1700 chars]: []}
+Diff is 14849 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='revision', value=' ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 84, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertEqual(self.state(), before)
+AssertionError: {'ope[4936 chars]iew'}, {'id': 16, 'code': 'N1-R-24', 'part': '[1977 chars]: []} != {'ope[4936 chars]iew'}], 'operations.SupplierQuote': [], 'opera[1700 chars]: []}
+Diff is 15634 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='revision', value='🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 86, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertIn(f'максимум {limit} символів', response.json()['error'])
+AssertionError: 'максимум 40 символів' not found in 'Перевірте формат і обов’язкові поля запиту.'
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='revision', value='🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂 ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 84, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertEqual(self.state(), before)
+AssertionError: {'ope[5213 chars]iew'}, {'id': 17, 'code': 'N1-R-26', 'part': '[1977 chars]: []} != {'ope[5213 chars]iew'}], 'operations.SupplierQuote': [], 'opera[1700 chars]: []}
+Diff is 16366 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='revision', value=' 🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 84, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertEqual(self.state(), before)
+AssertionError: {'ope[5490 chars]iew'}, {'id': 18, 'code': 'N1-R-27', 'part': '[1977 chars]: []} != {'ope[5490 chars]iew'}], 'operations.SupplierQuote': [], 'opera[1700 chars]: []}
+Diff is 17151 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='unit', value='AAAAAAAAAAAAAAAAAAAAA')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 86, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertIn(f'максимум {limit} символів', response.json()['error'])
+AssertionError: 'максимум 20 символів' not found in 'Перевірте формат і обов’язкові поля запиту.'
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='unit', value='AAAAAAAAAAAAAAAAAAAA ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 84, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertEqual(self.state(), before)
+AssertionError: {'ope[5767 chars]iew'}, {'id': 19, 'code': 'N1-R-29', 'part': '[1955 chars]: []} != {'ope[5767 chars]iew'}], 'operations.SupplierQuote': [], 'opera[1700 chars]: []}
+Diff is 17971 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='unit', value=' AAAAAAAAAAAAAAAAAAAA')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 84, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertEqual(self.state(), before)
+AssertionError: {'ope[6022 chars]iew'}, {'id': 20, 'code': 'N1-R-30', 'part': '[1955 chars]: []} != {'ope[6022 chars]iew'}], 'operations.SupplierQuote': [], 'opera[1700 chars]: []}
+Diff is 18717 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='unit', value='ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 86, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertIn(f'максимум {limit} символів', response.json()['error'])
+AssertionError: 'максимум 20 символів' not found in 'Перевірте формат і обов’язкові поля запиту.'
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='unit', value='ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 84, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertEqual(self.state(), before)
+AssertionError: {'ope[6277 chars]iew'}, {'id': 21, 'code': 'N1-R-32', 'part': '[1955 chars]: []} != {'ope[6277 chars]iew'}], 'operations.SupplierQuote': [], 'opera[1700 chars]: []}
+Diff is 19427 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='unit', value=' ЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇЇ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 84, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertEqual(self.state(), before)
+AssertionError: {'ope[6532 chars]iew'}, {'id': 22, 'code': 'N1-R-33', 'part': '[1955 chars]: []} != {'ope[6532 chars]iew'}], 'operations.SupplierQuote': [], 'opera[1700 chars]: []}
+Diff is 20137 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='unit', value='🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 86, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertIn(f'максимум {limit} символів', response.json()['error'])
+AssertionError: 'максимум 20 символів' not found in 'Перевірте формат і обов’язкові поля запиту.'
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='unit', value='🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂 ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 84, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertEqual(self.state(), before)
+AssertionError: {'ope[6787 chars]iew'}, {'id': 23, 'code': 'N1-R-35', 'part': '[1955 chars]: []} != {'ope[6787 chars]iew'}], 'operations.SupplierQuote': [], 'opera[1700 chars]: []}
+Diff is 20847 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_raw_overflow_refused_without_trimming_or_partial_writes (operations.test_request_lengths.ProcurementRequestLengthTests.test_raw_overflow_refused_without_trimming_or_partial_writes) (field='unit', value=' 🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/n1/src/operations/test_request_lengths.py", line 84, in test_raw_overflow_refused_without_trimming_or_partial_writes
+    self.assertEqual(self.state(), before)
+AssertionError: {'ope[7042 chars]iew'}, {'id': 24, 'code': 'N1-R-36', 'part': '[1955 chars]: []} != {'ope[7042 chars]iew'}], 'operations.SupplierQuote': [], 'opera[1700 chars]: []}
+Diff is 21557 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.990s
+
+FAILED (failures=36)
+Destroying test database for alias 'default' ('/workspace/scratch/4dbe5b4c73ee/execution/n1/check_request_red.sqlite3_django_test')...
+ OK
+System check identified no issues (0 silenced).
