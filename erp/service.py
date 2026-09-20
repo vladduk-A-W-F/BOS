@@ -89,7 +89,7 @@ def clean(payload):
         if k in d and (not isinstance(d[k],str) or not 1<=len(d[k].strip())<=60):raise ValueError('Код або версія: 1–60 символів.')
     target={'item':Item,'location':Location,'order':SalesOrder,'opening':Lot,
         'purchase':Purchase,'receive':Lot,'job':Production,'transfer':Lot,
-        'operator':OperatorEntry,'finish':Lot,'return':Lot,'invoice':Invoice,
+        'operator':OperatorEntry,'finish':Lot,'ship':Movement,'return':Lot,'invoice':Invoice,
         'change':ChangeOrder}.get(a)
     if target is not None:field_values(target,d)
     return d
