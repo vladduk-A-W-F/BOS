@@ -16232,6 +16232,293 @@ function OrderTrace({
     className: "op-muted"
   }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0442\u044F \u0434\u0436\u0435\u0440\u0435\u043B \u0443 \u0446\u044C\u043E\u043C\u0443 \u043F\u0435\u0440\u0435\u0433\u043B\u044F\u0434\u0456 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0435. \u0412\u0456\u0434\u043A\u0440\u0438\u0439\u0442\u0435 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u0447\u0435\u0440\u0435\u0437 \xAB\u041F\u0440\u043E\u0434\u0430\u0436\u0456\xBB \u0430\u0431\u043E \xAB\u0421\u044C\u043E\u0433\u043E\u0434\u043D\u0456\xBB.")));
 }
+
+// Scoped order facts; displayed amounts remain server Decimal strings.
+const FLOW_MONEY = [['gross_invoiced', 'Первісна сума'], ['credited', 'Чинний кредит'], ['invoiced', 'До оплати за рахунками'], ['paid', 'Облікова оплата'], ['open', 'Залишок до оплати'], ['customer_credit', 'Переплата клієнта']];
+const FLOW_QUANTITIES = [['remaining', 'Залишилось виконати'], ['reserved_usable', 'Придатний резерв'], ['quantity_to_cover', 'Потреба без резерву'], ['available_all_locations', 'Вільно в усіх місцях'], ['available_target', 'Вільно в обраному місці'], ['uncovered_after_stock', 'Не покрито запасом'], ['unallocated_expected', 'Очікується без розподілу']];
+function flowDecimal(value) {
+  return typeof value === 'string' && /^\d+(?:\.\d+)?$/.test(value);
+}
+function flowPositive(value) {
+  return flowDecimal(value) && /[1-9]/.test(value);
+}
+function flowVerify(value, schema, id, revision, target = null) {
+  const pk = n => Number.isSafeInteger(n) && n > 0;
+  if (value?.schema !== schema || value.access_revision !== revision || typeof value.generated_at !== 'string') throw Error('projection_context');
+  if (schema === 'bos.order-settlement.v1') {
+    if (bosRole() !== 'ceo') throw Error('finance_denied');
+    if (value.order?.id !== id || value.scope !== 'linked_invoices' || !Array.isArray(value.totals) || !Array.isArray(value.invoices)) throw Error('settlement_shape');
+    for (const row of [...value.totals, ...value.invoices]) if (typeof row.currency !== 'string' || FLOW_MONEY.some(([key]) => !flowDecimal(row[key]))) throw Error('settlement_money');
+    for (const row of value.invoices) {
+      if (!pk(row.invoice_id) || typeof row.code !== 'string' || !Array.isArray(row.payment_history?.entries) || !Array.isArray(row.adjustments)) throw Error('settlement_sources');
+      for (const entry of row.payment_history.entries) if (!pk(entry.event_id) || entry.amount !== null && !flowDecimal(entry.amount) || !Array.isArray(entry.issues)) throw Error('payment_source');
+    }
+  } else {
+    if (value.line?.id !== id || !pk(value.line.item_id) || typeof value.line.unit !== 'string' || value.scope !== 'visible_sources' || (value.target_location?.id ?? null) !== target || !value.quantities || typeof value.supported !== 'boolean') throw Error('supply_shape');
+    for (const amount of Object.values(value.quantities)) if (amount !== null && !flowDecimal(amount)) throw Error('supply_quantity');
+    if (bosRole() !== 'ceo' && (['reserved_usable', 'quantity_to_cover', 'available_all_locations', 'available_target', 'target_gap', 'uncovered_after_stock', 'unallocated_expected', 'indicative_after_expected'].some(key => value.quantities[key] !== null) || value.completeness !== 'restricted')) throw Error('restricted_supply');
+    for (const key of ['stock', 'waiting', 'purchases']) if (!Array.isArray(value[key])) throw Error('supply_sources');
+    for (const row of [...value.stock, ...value.waiting]) if (!pk(row.lot_id) || !pk(row.location?.id) || !flowDecimal(row.quantity) || row.available !== null && !flowDecimal(row.available) || !Array.isArray(row.document_ids) || bosRole() !== 'ceo' && (row.available !== null || row.eligible !== null)) throw Error('supply_lot');
+    for (const row of value.purchases) if (!pk(row.purchase_id) || !flowDecimal(row.open_quantity)) throw Error('supply_purchase');
+  }
+  return value;
+}
+function useERPProjection(path, verify) {
+  const context = (path || '') + ':' + c03Scope(),
+    [state, setState] = useState({
+      context,
+      status: 'idle',
+      data: null
+    });
+  const current = useRef(context),
+    sequence = useRef(0),
+    controller = useRef(null);
+  current.current = context;
+  function cancel() {
+    sequence.current++;
+    controller.current?.abort();
+    controller.current = null;
+  }
+  function invalidate(status) {
+    cancel();
+    setState({
+      context,
+      status,
+      data: null
+    });
+  }
+  async function refresh() {
+    cancel();
+    const ticket = sequence.current,
+      origin = context,
+      revision = window.BOS_RUNTIME?.access_revision;
+    if (!path) {
+      setState({
+        context,
+        status: 'idle',
+        data: null
+      });
+      return;
+    }
+    if (!Number.isSafeInteger(window.BOS_RUNTIME?.user_id) || !revision) {
+      invalidate('denied');
+      return;
+    }
+    const abort = new AbortController();
+    controller.current = abort;
+    const timer = setTimeout(() => abort.abort(), 30000);
+    const valid = () => ticket === sequence.current && current.current === origin && path + ':' + c03Scope() === origin;
+    setState({
+      context,
+      status: 'loading',
+      data: null
+    });
+    try {
+      const response = await fetch('/api/erp/' + path, {
+        cache: 'no-store',
+        signal: abort.signal
+      });
+      if (!valid()) return;
+      if ([401, 403, 404].includes(response.status)) {
+        invalidate('denied');
+        return;
+      }
+      if (response.status === 409) {
+        invalidate('changed');
+        return;
+      }
+      if (!response.ok) throw Error('projection_http');
+      const payload = await response.json();
+      if (!valid()) return;
+      const header = response.headers.get('X-BoS-Access');
+      if (header && header !== revision) {
+        invalidate('denied');
+        return;
+      }
+      setState({
+        context,
+        status: 'ready',
+        data: verify(payload, revision)
+      });
+    } catch (e) {
+      if (valid()) setState({
+        context,
+        status: 'error',
+        data: null
+      });
+    } finally {
+      clearTimeout(timer);
+      if (controller.current === abort) controller.current = null;
+    }
+  }
+  useEffect(() => {
+    refresh();
+    const denied = () => invalidate('denied'),
+      changed = () => invalidate('changed');
+    window.addEventListener('bos:session-ended', denied);
+    window.addEventListener('bos:data-changed', changed);
+    return () => {
+      cancel();
+      window.removeEventListener('bos:session-ended', denied);
+      window.removeEventListener('bos:data-changed', changed);
+    };
+  }, [context]);
+  return {
+    state: state.context === context ? state : {
+      context,
+      status: 'idle',
+      data: null
+    },
+    refresh
+  };
+}
+function FlowReadStatus({
+  state
+}) {
+  return /*#__PURE__*/React.createElement(React.Fragment, null, state.status === 'loading' && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u044F\u0454\u043C\u043E \u043F\u043E\u0442\u043E\u0447\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430\u2026"), state.status === 'changed' && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0414\u0430\u043D\u0456 \u0437\u043C\u0456\u043D\u0438\u043B\u0438\u0441\u044F. \u041E\u043D\u043E\u0432\u0456\u0442\u044C \u0434\u0436\u0435\u0440\u0435\u043B\u0430 \u043F\u0435\u0440\u0435\u0434 \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u043E\u044E \u0434\u0456\u0454\u044E."), state.status === 'denied' && /*#__PURE__*/React.createElement("p", {
+    role: "alert"
+  }, "\u0414\u0436\u0435\u0440\u0435\u043B\u0430 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0434\u043B\u044F \u043F\u043E\u0442\u043E\u0447\u043D\u043E\u0433\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u0443."), state.status === 'error' && /*#__PURE__*/React.createElement("p", {
+    role: "alert"
+  }, "\u041D\u0435 \u0432\u0434\u0430\u043B\u043E\u0441\u044F \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u0438\u0442\u0438 \u0434\u0436\u0435\u0440\u0435\u043B\u0430. \u041F\u043E\u0432\u0442\u043E\u0440\u0456\u0442\u044C \u043E\u043D\u043E\u0432\u043B\u0435\u043D\u043D\u044F."));
+}
+function OrderSettlement({
+  orderId,
+  onAction,
+  readOnly = false
+}) {
+  const {
+      state,
+      refresh
+    } = useERPProjection('orders/' + orderId + '/settlement/', (value, revision) => flowVerify(value, 'bos.order-settlement.v1', orderId, revision)),
+    facts = state.data;
+  return /*#__PURE__*/React.createElement("section", {
+    className: "bos-order-trace",
+    "aria-label": "\u0420\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043A\u0438 \u0437\u0430 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F\u043C"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "erp-row"
+  }, /*#__PURE__*/React.createElement("h3", null, "\u0420\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043A\u0438 \u0437\u0430 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F\u043C"), /*#__PURE__*/React.createElement(Button, {
+    disabled: state.status === 'loading',
+    onClick: refresh
+  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438 \u0440\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043A\u0438")), /*#__PURE__*/React.createElement(FlowReadStatus, {
+    state: state
+  }), facts && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, facts.basis), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0435\u043D\u043E: ", facts.generated_at), facts.payment_history_status !== 'complete' && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0406\u0441\u0442\u043E\u0440\u0456\u044F \u043E\u043F\u043B\u0430\u0442 \u043D\u0435\u043F\u043E\u0432\u043D\u0430 \u0430\u0431\u043E \u043D\u0435 \u0443\u0437\u0433\u043E\u0434\u0436\u0443\u0454\u0442\u044C\u0441\u044F \u0437 \u043E\u0431\u043B\u0456\u043A\u043E\u0432\u043E\u044E \u0441\u0443\u043C\u043E\u044E. \u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0442\u0435 \u0434\u0436\u0435\u0440\u0435\u043B\u0430 \u0440\u0430\u0445\u0443\u043D\u043A\u0456\u0432."), facts.limits?.has_more?.invoices && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0447\u0430\u0441\u0442\u0438\u043D\u0443 \u0440\u0430\u0445\u0443\u043D\u043A\u0456\u0432. \u041F\u0456\u0434\u0441\u0443\u043C\u043A\u0438 \u0432\u043A\u043B\u044E\u0447\u0430\u044E\u0442\u044C \u0443\u0441\u0456 \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0456 \u0440\u0430\u0445\u0443\u043D\u043A\u0438."), facts.totals.map(row => /*#__PURE__*/React.createElement("div", {
+    key: row.currency
+  }, /*#__PURE__*/React.createElement("h4", null, row.currency), /*#__PURE__*/React.createElement("dl", {
+    className: "bos-trace-metrics"
+  }, FLOW_MONEY.map(([key, label]) => /*#__PURE__*/React.createElement("div", {
+    key: key
+  }, /*#__PURE__*/React.createElement("dt", null, label), /*#__PURE__*/React.createElement("dd", null, row[key], " ", /*#__PURE__*/React.createElement("small", null, row.currency))))))), facts.invoices.length === 0 && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0438\u0445 \u0440\u0430\u0445\u0443\u043D\u043A\u0456\u0432 \u0449\u0435 \u043D\u0435\u043C\u0430\u0454."), facts.invoices.map(row => /*#__PURE__*/React.createElement("article", {
+    key: row.invoice_id,
+    className: "bos-trace-line"
+  }, /*#__PURE__*/React.createElement("h4", null, row.code, " \xB7 \u0434\u043E ", erpDate(row.due_date)), /*#__PURE__*/React.createElement("p", null, "\u0414\u043E \u043E\u043F\u043B\u0430\u0442\u0438: ", row.open, " ", row.currency, ". \u041E\u0431\u043B\u0456\u043A\u043E\u0432\u0430 \u043E\u043F\u043B\u0430\u0442\u0430: ", row.paid, " ", row.currency, "."), !readOnly && bosCanAction('payment') && flowPositive(row.open) && /*#__PURE__*/React.createElement(Button, {
+    onClick: () => onAction('payment', {
+      invoice_id: row.invoice_id,
+      amount: row.open
+    })
+  }, "\u0417\u0430\u0440\u0435\u0454\u0441\u0442\u0440\u0443\u0432\u0430\u0442\u0438 \u043E\u043F\u043B\u0430\u0442\u0443 \xB7 ", row.code), /*#__PURE__*/React.createElement("details", null, /*#__PURE__*/React.createElement("summary", null, "\u0414\u0436\u0435\u0440\u0435\u043B\u0430 \u0440\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043A\u0443 \xB7 ", row.code), /*#__PURE__*/React.createElement("p", null, "\u041F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043E \u043A\u043E\u0440\u0435\u043A\u0442\u043D\u0438\u043C\u0438 \u0437\u0430\u043F\u0438\u0441\u0430\u043C\u0438: ", row.payment_history.recorded_total, " ", row.currency, ". \u0420\u0456\u0437\u043D\u0438\u0446\u044F \u0437 \u043E\u0431\u043B\u0456\u043A\u043E\u043C: ", row.payment_history.difference, " ", row.currency, "."), row.payment_history.status !== 'complete' && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u041F\u043E\u0442\u0440\u0456\u0431\u043D\u0430 \u0437\u0432\u0456\u0440\u043A\u0430 \u0456\u0441\u0442\u043E\u0440\u0456\u0457 \u043E\u043F\u043B\u0430\u0442 \u0446\u044C\u043E\u0433\u043E \u0440\u0430\u0445\u0443\u043D\u043A\u0443."), row.payment_history.entries.map(entry => /*#__PURE__*/React.createElement("p", {
+    key: entry.event_id
+  }, "\u041F\u043E\u0434\u0456\u044F \u2116", entry.event_id, " \xB7 ", entry.reference || 'Немає коректного підтвердження', " \xB7 ", entry.amount ?? 'Суму не визначено', " ", entry.currency, " \xB7 ", erpDate(entry.created_at), entry.issues.length > 0 ? ' · Потребує перевірки' : '')), row.adjustments.map(entry => /*#__PURE__*/React.createElement("p", {
+    key: entry.adjustment_id
+  }, entry.code, " \xB7 ", entry.kind === 'credit' ? 'Кредит' : 'Сторно', " \xB7 ", entry.amount, " ", entry.currency, entry.active ? ' · чинний' : '')), (row.has_more?.payments || row.has_more?.adjustments) && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0447\u0430\u0441\u0442\u0438\u043D\u0443 \u0434\u0436\u0435\u0440\u0435\u043B; \u0437\u0432\u0456\u0440\u043A\u0430 \u0432\u0440\u0430\u0445\u043E\u0432\u0443\u0454 \u0432\u0441\u0456 \u0437\u0430\u043F\u0438\u0441\u0438 \u0446\u044C\u043E\u0433\u043E \u0440\u0430\u0445\u0443\u043D\u043A\u0443."))))));
+}
+function OrderSupplyOptions({
+  orderId,
+  data,
+  onAction,
+  readOnly = false
+}) {
+  const [lineId, setLineId] = useState(''),
+    [targetId, setTargetId] = useState('');
+  const lines = data.lines.filter(row => row.order_id === orderId && data.items.some(item => item.id === row.item_id && item.method === 'buy'));
+  const path = lineId ? 'lines/' + lineId + '/supply-options/' + (targetId ? '?target_location_id=' + targetId : '') : null;
+  const {
+      state,
+      refresh
+    } = useERPProjection(path, (value, revision) => flowVerify(value, 'bos.supply-options.v1', Number(lineId), revision, targetId ? Number(targetId) : null)),
+    facts = state.data;
+  const reasons = {
+    revision_mismatch: 'Інша версія',
+    quality_pending: 'Очікує перевірки якості',
+    quality_blocked: 'Якість заблоковано',
+    document_admission_required: 'Потрібні чинні документи',
+    fully_reserved: 'Немає вільного залишку',
+    availability_restricted: 'Доступність не визначена у поточному доступі',
+    available: 'Доступна партія'
+  };
+  const action = (name, preset, label) => !readOnly && facts?.supported && bosCanAction(name) ? /*#__PURE__*/React.createElement(Button, {
+    onClick: () => onAction(name, preset)
+  }, label) : null;
+  if (!lines.length) return null;
+  return /*#__PURE__*/React.createElement("section", {
+    className: "bos-order-trace",
+    "aria-label": "\u0417\u0430\u0431\u0435\u0437\u043F\u0435\u0447\u0435\u043D\u043D\u044F \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F"
+  }, /*#__PURE__*/React.createElement("h3", null, "\u0417\u0430\u0431\u0435\u0437\u043F\u0435\u0447\u0435\u043D\u043D\u044F \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("div", {
+    className: "erp-form"
+  }, /*#__PURE__*/React.createElement("label", null, "\u041F\u043E\u0437\u0438\u0446\u0456\u044F \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F", /*#__PURE__*/React.createElement(Select, {
+    value: lineId,
+    onChange: event => setLineId(event.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "\u041E\u0431\u0435\u0440\u0456\u0442\u044C \u043F\u043E\u0437\u0438\u0446\u0456\u044E"), lines.map(row => /*#__PURE__*/React.createElement("option", {
+    key: row.id,
+    value: row.id
+  }, "\u2116", row.id, " \xB7 ", data.items.find(item => item.id === row.item_id)?.code, " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", row.revision)))), /*#__PURE__*/React.createElement("label", null, "\u041C\u0456\u0441\u0446\u0435 \u043F\u0440\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u043D\u044F", /*#__PURE__*/React.createElement(Select, {
+    value: targetId,
+    onChange: event => setTargetId(event.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "\u041D\u0435 \u043E\u0431\u0440\u0430\u043D\u043E"), data.locations.map(row => /*#__PURE__*/React.createElement("option", {
+    key: row.id,
+    value: row.id
+  }, row.code, " \xB7 ", row.name))))), /*#__PURE__*/React.createElement(Button, {
+    disabled: !lineId || state.status === 'loading',
+    onClick: refresh
+  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438 \u0437\u0430\u0431\u0435\u0437\u043F\u0435\u0447\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement(FlowReadStatus, {
+    state: state
+  }), facts && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, facts.basis), !facts.supported && /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u043E \u0434\u043B\u044F \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043E\u0433\u043E \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u0442\u0430 \u0437\u0430\u043A\u0443\u043F\u043E\u0432\u0443\u0432\u0430\u043D\u043E\u0457 \u043D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0438."), facts.completeness === 'restricted' && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u043B\u0438\u0448\u0435 \u0434\u043E\u0437\u0432\u043E\u043B\u0435\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430. \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0456\u0441\u0442\u044C \u0456 \u0437\u0430\u0433\u0430\u043B\u044C\u043D\u0438\u0439 \u0434\u0435\u0444\u0456\u0446\u0438\u0442 \u043D\u0435 \u0432\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u0456."), /*#__PURE__*/React.createElement("dl", {
+    className: "bos-trace-metrics"
+  }, FLOW_QUANTITIES.map(([key, label]) => /*#__PURE__*/React.createElement("div", {
+    key: key
+  }, /*#__PURE__*/React.createElement("dt", null, label), /*#__PURE__*/React.createElement("dd", null, facts.quantities[key] === null ? 'Не визначено' : facts.quantities[key] + ' ' + facts.line.unit)))), /*#__PURE__*/React.createElement("h4", null, "\u041F\u0430\u0440\u0442\u0456\u0457 \u0442\u0430 \u043C\u0456\u0441\u0446\u044F \u0437\u0431\u0435\u0440\u0456\u0433\u0430\u043D\u043D\u044F"), [...facts.stock, ...facts.waiting].map(row => /*#__PURE__*/React.createElement("div", {
+    key: row.lot_id,
+    className: "bos-trace-line"
+  }, /*#__PURE__*/React.createElement("p", null, row.code, " \xB7 ", row.location.code, " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", row.revision, " \xB7 ", reasons[row.reason] || 'Перевірте стан партії'), /*#__PURE__*/React.createElement("p", null, "\u0424\u0456\u0437\u0438\u0447\u043D\u043E: ", row.quantity, " ", row.unit, ". \u0412\u0456\u043B\u044C\u043D\u043E: ", row.available === null ? 'Не визначено' : row.available + ' ' + row.unit, "."), row.document_ids.length > 0 && /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0438: ", row.document_ids.map(id => '№' + id).join(', ')), row.eligible && /*#__PURE__*/React.createElement("div", {
+    className: "erp-actions"
+  }, action('reserve', {
+    lot_id: row.lot_id,
+    line_id: facts.line.id,
+    quantity: ''
+  }, 'Резервувати · ' + row.code), targetId && row.location.id !== Number(targetId) && action('transfer', {
+    lot_id: row.lot_id,
+    location_id: Number(targetId),
+    quantity: ''
+  }, 'Перемістити · ' + row.code)))), !targetId && /*#__PURE__*/React.createElement("p", null, "\u0414\u043B\u044F \u043F\u0435\u0440\u0435\u043C\u0456\u0449\u0435\u043D\u043D\u044F \u044F\u0432\u043D\u043E \u043E\u0431\u0435\u0440\u0456\u0442\u044C \u043C\u0456\u0441\u0446\u0435 \u043F\u0440\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u043D\u044F."), /*#__PURE__*/React.createElement("h4", null, "\u041E\u0447\u0456\u043A\u0443\u0432\u0430\u043D\u0456 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456"), facts.purchases.map(row => /*#__PURE__*/React.createElement("p", {
+    key: row.purchase_id
+  }, row.code, " \xB7 ", row.open_quantity, " ", row.unit, " \xB7 \u043E\u0447\u0456\u043A\u0443\u0454\u0442\u044C\u0441\u044F ", erpDate(row.due_date), " \xB7 ", row.eligible_as_unallocated_expectation ? 'Не розподілено цьому замовленню' : row.allocation === 'production' ? 'Призначено виробничій роботі' : 'Інша версія')), Object.values(facts.limits?.has_more || {}).some(Boolean) && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0447\u0430\u0441\u0442\u0438\u043D\u0443 \u0434\u0436\u0435\u0440\u0435\u043B; \u043F\u0456\u0434\u0441\u0443\u043C\u043A\u0438 \u043C\u0430\u044E\u0442\u044C \u043E\u043A\u0440\u0435\u043C\u0438\u0439 \u043E\u0431\u0441\u044F\u0433 \u0434\u043E\u0441\u0442\u0443\u043F\u0443."), action('purchase', {
+    item_id: facts.line.item_id,
+    revision: facts.line.revision,
+    quantity: flowPositive(facts.quantities.uncovered_after_stock) ? facts.quantities.uncovered_after_stock : '',
+    price: '',
+    supplier_id: '',
+    due_date: ''
+  }, 'Підготувати закупівлю'), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0414\u043B\u044F \u0434\u0456\u0457 \u0432\u043A\u0430\u0436\u0456\u0442\u044C \u043A\u0456\u043B\u044C\u043A\u0456\u0441\u0442\u044C \u0456 \u043F\u043E\u0442\u0440\u0456\u0431\u043D\u0456 \u0440\u0435\u043A\u0432\u0456\u0437\u0438\u0442\u0438. \u0417\u0430\u043F\u0438\u0441 \u0432\u0438\u043A\u043E\u043D\u0443\u0454\u0442\u044C\u0441\u044F \u043F\u0456\u0441\u043B\u044F \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0438 \u0442\u0430 \u043E\u043A\u0440\u0435\u043C\u043E\u0433\u043E \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F.")));
+}
 function BoSInspector({
   selection,
   data,
@@ -16369,6 +16656,17 @@ function BoSInspector({
         orderId: id,
         onTraceSelect: onTraceSelect,
         onNavigate: onNavigate
+      }), /*#__PURE__*/React.createElement(OrderSupplyOptions, {
+        key: 'supply:' + id + ':' + c03Scope(),
+        orderId: id,
+        data: data,
+        onAction: onAction,
+        readOnly: readOnly
+      }), bosRole() === 'ceo' && /*#__PURE__*/React.createElement(OrderSettlement, {
+        key: 'settlement:' + id + ':' + c03Scope(),
+        orderId: id,
+        onAction: onAction,
+        readOnly: readOnly
       }), bosCan('finance') && cost && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h3", null, "\u0424\u0456\u043D\u0430\u043D\u0441\u043E\u0432\u0438\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442"), /*#__PURE__*/React.createElement("p", null, "\u0412\u0456\u0434\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043E \u043D\u0430 ", erpNum(cost?.shipped_value), " ", r.currency, "; \u0441\u043E\u0431\u0456\u0432\u0430\u0440\u0442\u0456\u0441\u0442\u044C ", erpNum(cost?.shipped_cost), "; \u0440\u0456\u0437\u043D\u0438\u0446\u044F ", erpNum(cost?.gross_margin), ".")), baseTable('invoices', data.invoices.filter(x => x.order_id === id)), acts([['invoice', {
         order_id: id,
         due_date: r.due_date

@@ -103,3 +103,40 @@ def order_trace(request,pk):
     except ReadStateChanged:
         return JsonResponse({'error':'Дані або доступ змінилися. Оновіть картку.','code':'read_state_changed'},status=409)
     return JsonResponse(data,json_dumps_params={'ensure_ascii':False})
+
+
+def projection_response(request, build, *args):
+    """The same neutral read-conflict and identity boundary as order trace."""
+    from boss_project.identity import IdentityDenied
+    from .order_trace import ReadStateChanged
+    try:
+        data = build(request, *args)
+    except IdentityDenied as exc:
+        response = JsonResponse({'error': str(exc), 'code': 'identity_denied'}, status=exc.status)
+        response['X-BoS-Identity'] = 'denied'
+        return response
+    except ReadStateChanged:
+        return JsonResponse({'error': 'Дані або доступ змінилися. Оновіть картку.',
+                             'code': 'read_state_changed'}, status=409)
+    return JsonResponse(data, json_dumps_params={'ensure_ascii': False})
+
+
+@require_GET
+@errors
+def order_settlement(request, pk):
+    from .order_settlement import build
+    return projection_response(request, build, pk)
+
+
+@require_GET
+@errors
+def supply_options(request, pk):
+    from .supply_options import build
+    values = request.GET.getlist('target_location_id')
+    target = None
+    if values:
+        value = values[0]
+        if len(values) != 1 or not value.isascii() or not value.isdecimal() or len(value) > 18 or int(value) <= 0:
+            raise ValueError('Оберіть одне дійсне місце зберігання.')
+        target = int(value)
+    return projection_response(request, build, pk, target)

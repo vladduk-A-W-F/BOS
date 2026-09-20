@@ -38,6 +38,7 @@ C03_READS={'/api/statements/imports/','/api/statements/imports/{pk}/',
     '/api/statements/imports/{pk}/export/','/api/statements/lines/',
     '/api/statements/lines/{pk}/','/api/statements/lines/{pk}/candidates/','/api/statements/summary/'}
 RAW_GET = {
+    '/api/erp/orders/{pk}/settlement/', '/api/erp/lines/{pk}/supply-options/',
     '/api/erp/workpoints/',
     '/api/erp/orders/{pk}/trace/',
     '/api/erp/corrections/outcome/',
@@ -180,6 +181,15 @@ def contract(row, path, method, role, variant='full'):
         return {401}, 'anonymous_business_denied'
     if role == 'technical_admin':
         return {403}, 'staff_is_not_business_role'
+    if route in ('/api/erp/orders/{pk}/settlement/', '/api/erp/lines/{pk}/supply-options/'):
+        if method != 'GET':
+            denied = role == 'observer' and method not in ('HEAD', 'OPTIONS')
+            return ({403} if denied else {405}), 'flow_projection_get_only'
+        if route.endswith('/settlement/'):
+            return ({200} if role == 'ceo' else {403}), 'order_settlement_ceo_only'
+        if role != 'ceo' and variant == 'no_documents':
+            return {404}, 'supply_line_not_admitted'
+        return {200}, 'supply_visible_sources_only'
     if route == '/api/erp/workpoints/':
         if method != 'GET':
             denied = role == 'observer' and method not in ('HEAD', 'OPTIONS')
@@ -406,6 +416,21 @@ def response_oracle(response, row, path, method, role, fixtures, variant):
         leaks += order_trace_oracle(data, role, fixtures)
     if route == '/api/erp/workpoints/' and response.status_code == 200 and method == 'GET':
         leaks += workpoints_oracle(data, role, fixtures, variant)
+    if route == '/api/erp/lines/{pk}/supply-options/' and response.status_code == 200 and method == 'GET':
+        if data.get('schema') != 'bos.supply-options.v1' or data.get('line', {}).get('id') != fixtures.seed.line.pk:
+            leaks.append('supply_positive_line_missing')
+        if role != 'ceo':
+            restricted = ('reserved_usable', 'quantity_to_cover', 'available_all_locations',
+                          'available_target', 'target_gap', 'uncovered_after_stock',
+                          'unallocated_expected', 'indicative_after_expected')
+            if any(data.get('quantities', {}).get(key) is not None for key in restricted):
+                leaks.append('supply_hidden_availability_inference')
+            if any(row.get('available') is not None or row.get('eligible') is not None
+                   for row in data.get('stock', []) + data.get('waiting', [])):
+                leaks.append('supply_hidden_lot_inference')
+    if route == '/api/erp/orders/{pk}/settlement/' and response.status_code == 200 and method == 'GET':
+        if role != 'ceo' or data.get('schema') != 'bos.order-settlement.v1' or data.get('order', {}).get('id') != fixtures.seed.order.pk:
+            leaks.append('settlement_identity_or_scope')
     if route == '/api/erp/corrections/outcome/':
         leaks += correction_outcome_oracle(data, response.status_code, method, role, fixtures, variant)
     if route in (C01_HISTORY,C01_OUTCOME) or route.startswith('/api/tasks/'):
@@ -1101,7 +1126,7 @@ def main():
                     contexts += [('manager', 'no_documents')]
                 if canonical(path) == C01_HISTORY:
                     contexts += [(r,'no_documents') for r in ('manager','observer')]
-                if canonical(path) == '/api/erp/workpoints/':
+                if canonical(path) in ('/api/erp/workpoints/', '/api/erp/lines/{pk}/supply-options/'):
                     contexts += [(r,'no_documents') for r in ('manager','observer')]
                 if canonical(path)=='/api/statements/imports/{pk}/export/':
                     contexts += [('ceo','no_export')]

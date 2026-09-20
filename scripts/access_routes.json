@@ -1,5 +1,5 @@
 {
-  "source": "Accepted ACCESS_AUDIT_UA + A03 auth additions; live resolver 2026-09-11; permissions are in check_access.py, not inferred from handlers; A09 server health additions 2026-09-12 (original patterns unchanged); B02 four explicit CEO-only initial-import routes (all previous patterns retained); B03 explicit read-only committed correction outcome route (all176 entries retained); C01 explicit task-history plain/format and owner proposal-status routes; all177 B03 records and57 required field IDs retained C03 adds8 named statement paths and2 DRF journal-summary definitions; no ledger admin registration. | 2026-09-20 BATCH-02 PLAN-LINKS-READ additive GET and field boundaries; historical writers85/12 unchanged. | 2026-09-20 VERTICAL-UA-DATA additive GET workpoints, visible-source role oracle; historical definitions and writers85/12 unchanged.",
+  "source": "Accepted ACCESS_AUDIT_UA + A03 auth additions; live resolver 2026-09-11; permissions are in check_access.py, not inferred from handlers; A09 server health additions 2026-09-12 (original patterns unchanged); B02 four explicit CEO-only initial-import routes (all previous patterns retained); B03 explicit read-only committed correction outcome route (all176 entries retained); C01 explicit task-history plain/format and owner proposal-status routes; all177 B03 records and57 required field IDs retained C03 adds8 named statement paths and2 DRF journal-summary definitions; no ledger admin registration. | 2026-09-20 BATCH-02 PLAN-LINKS-READ additive GET and field boundaries; historical writers85/12 unchanged. | 2026-09-20 VERTICAL-UA-DATA additive GET workpoints, visible-source role oracle; historical definitions and writers85/12 unchanged. | 2026-09-20 FLOW-READ-UI adds two scoped GET definitions; historical writers85/12 unchanged.",
   "patterns": [
     {
       "actions": null,
@@ -1799,6 +1799,26 @@
       "actions": null,
       "model": null,
       "converters": {}
+    },
+    {
+      "pattern": "api/erp/orders/<int:pk>/settlement/",
+      "name": "bos-order-settlement",
+      "callback": "erp.views.order_settlement",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "pk": "IntConverter"
+      }
+    },
+    {
+      "pattern": "api/erp/lines/<int:pk>/supply-options/",
+      "name": "bos-supply-options",
+      "callback": "erp.views.supply_options",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "pk": "IntConverter"
+      }
     }
   ],
   "required_field_tests": [
@@ -1887,6 +1907,11 @@
     "erp.test_workpoints.WorkpointTests.test_branch_is_owning_order_not_fulfilment_location",
     "erp.test_workpoints.WorkpointTests.test_preview_confirm_replay_and_optional_legacy_links",
     "erp.test_workpoints.WorkpointTests.test_invalid_branch_observer_and_changed_branch_confirmation",
-    "erp.test_workpoints.WorkpointTests.test_source_and_access_change_fail_closed"
+    "erp.test_workpoints.WorkpointTests.test_source_and_access_change_fail_closed",
+    "erp.test_flow_projection_routes.FlowProjectionRouteTests.test_reads_are_get_only_and_anonymous_is_denied",
+    "erp.test_flow_projection_routes.FlowProjectionRouteTests.test_finance_ceo_only_and_restricted_supply_no_inference",
+    "erp.test_flow_projection_routes.FlowProjectionRouteTests.test_explicit_target_and_invalid_duplicate_query",
+    "erp.test_flow_projection_routes.FlowProjectionRouteTests.test_stale_and_hidden_reads_never_return_old_payload",
+    "erp.test_flow_projection_routes.FlowProjectionRouteTests.test_supply_reserve_uses_existing_preview_confirm_and_replay"
   ]
 }

@@ -397,6 +397,8 @@ class SweepFixtures:
             values['pk'] = self.seed.public_doc.pk
         elif 'api/erp/orders/' in pattern:
             values['pk'] = self.seed.order.pk
+        elif 'api/erp/lines/' in pattern:
+            values['pk'] = self.seed.line.pk
         elif 'api/erp/changes/' in pattern:
             values['pk'] = self.seed.change.pk
         elif 'api/operations/rfq/' in pattern:
@@ -676,6 +678,10 @@ class SweepFixtures:
             return []
         if route == '/api/erp/orders/{pk}/trace/':
             return ['bos.order-trace.v1', '"order_id": ' + str(self.seed.order.pk), 'A04-SO-OPEN']
+        if route == '/api/erp/orders/{pk}/settlement/':
+            return ['bos.order-settlement.v1', 'A04-SO-OPEN']
+        if route == '/api/erp/lines/{pk}/supply-options/':
+            return ['bos.supply-options.v1', '"order_id": ' + str(self.seed.order.pk)]
         if route == '/api/erp/corrections/outcome/' and role in ('ceo', 'manager') and variant == 'full':
             return [self.correction_action, self.correction_operation_id, '"goods_return_id": ' + str(self.correction_source_ids['goods_return_id']), '"receipt_id": ' + str(self.correction_source_ids['receipt_id'])]
         if route.startswith('/api/erp/import/') and role=='ceo':
