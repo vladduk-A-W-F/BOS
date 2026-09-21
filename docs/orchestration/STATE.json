@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_at": "2026-09-20T17:33:42.480912+00:00",
+  "updated_at": "2026-09-21T06:27:38Z",
   "canonical_repository": "vladduk-A-W-F/BOS",
   "setup_branch": "setup/bos-gpt-orchestration-20260920",
   "product_candidate_commit": "646d3b80597e087a1ada14221024ec40588996f0",
@@ -239,7 +239,7 @@
     "codex_security": "NOT_INSTALLED_REQUIRES_USER_UI"
   },
   "setup_head_note": "Exact full Git code head before this documentation update; later commit identity is recorded by Git.",
-  "next_action": "Designated integrator independently reviews/applies this646d3b8 registry patch, reconciles separate PR2 and coordinates publication. Remaining gates stay individually open: incomplete access evidence, bounded PG plan/fixture reconciliation, unproven same-N prerequisites and full business scope. No automatic full/PG/E2E retry.",
+  "next_action": "REVIEW-BRANCH-RECONCILE: read-only узгодити точні PR1/PR2 refs, графи міграцій і семантику полів; паралельно REVIEW-NETWORK-PAYMENT-DIAG та REVIEW-EVIDENCE-PORTABILITY. Після цього REVIEW-CANDIDATE-ACCEPTANCE-PACKET. UI-LOCAL-RUNNER і registry patch уже прийняті/опубліковані для 646d3b8/620aeab, не повторювати. Продуктову інтеграцію цим review не виконано; вичерпані full/PG/E2E/network прогони не запускати.",
   "batch_result": "CONTINUATION_GATE10_AND_PERSISTENT_DEMO_ACCEPTED_EXACT_646D3B8_OTHER_GATES_OPEN",
   "baseline_product_commit": "7d46dced3bcf06d44755cf53366c9e16bd465582",
   "next_after_owner_review_note": "Історичне поле початкового setup для compatibility validator; P10-003 вже scoped accepted. Чинна черга — next_action та QUEUE.",
@@ -1020,5 +1020,43 @@
       "status": "NOT_ACCEPTED_CURRENT_CANDIDATE",
       "evidence_limit": "Windows source/stdlib proofs and Python3.12 runtime do not establish fresh Windows criteria1-3 and6."
     }
-  ]
+  ],
+  "daily_integrator_review": {
+    "date": "2026-09-21",
+    "status": "DOCS_ONLY_REVIEW_PROPOSAL",
+    "report": "docs/orchestration/daily/2026-09-21_UA.md",
+    "checkpoint": "docs/orchestration/daily/2026-09-21.json",
+    "observed_head": "620aeab2010c6c8327ce46c25bb62435bcf7f9e4",
+    "product_candidate_commit": "646d3b80597e087a1ada14221024ec40588996f0",
+    "runtime_source_sha256": "98b011a583c7803d88c888070a3412789559919ecb5692ef34f5e8ad59b5072a",
+    "review_branch": "review/bos-daily-integrator",
+    "active_branch_modified": false,
+    "product_changes_implemented": false,
+    "local_codex_receipt_confirmed": false,
+    "prior_next_action": "Designated integrator independently reviews/applies this646d3b8 registry patch, reconciles separate PR2 and coordinates publication. Remaining gates stay individually open: incomplete access evidence, bounded PG plan/fixture reconciliation, unproven same-N prerequisites and full business scope. No automatic full/PG/E2E retry.",
+    "cross_branch": {
+      "network_head": "abb8845f6563bafa806029ddc1e7c2cace09907c",
+      "network_mergeable": false,
+      "network_plan_currency": "ACCEPT_SCOPED_ON_PR2_NOT_INTEGRATED",
+      "network_pg": "PASS_SCOPED_TWO_MUTEX_CASES_AT_929A395_C15DFE",
+      "network_browser": "PARTIAL_TIMEOUT_PAYMENT_PREVIEW_3_OF_3_NO_AUTO_RETRY",
+      "core_views": "SCOPED_COMPONENT_STATIC_NO_BROWSER_CURRENT_HEAD",
+      "tracking_head": "ce7f82995c90ca49a40004b75e77df13ada3ad3c",
+      "tracking_ci": "ECHO_ONLY_NOT_PRODUCT_ACCEPTANCE"
+    },
+    "additional_observed_limits": {
+      "network_workflow_used": 3,
+      "network_workflow_limit": 3,
+      "network_read_used": 3,
+      "network_composition_used": 3,
+      "core_views_component_used": 3,
+      "automatic_retry_allowed": false
+    },
+    "next_cards": [
+      "REVIEW-BRANCH-RECONCILE",
+      "REVIEW-NETWORK-PAYMENT-DIAG",
+      "REVIEW-EVIDENCE-PORTABILITY",
+      "REVIEW-CANDIDATE-ACCEPTANCE-PACKET"
+    ]
+  }
 }

@@ -36,3 +36,11 @@
 
 ### D20 · Через пакет SaaS до лендингу
 320файлів кодового пакета звірено, installer не запускався. Існуючий owner-private Site version2 опубліковано; demo й localStorage збережено. ProductionDjango/pilot/API залишаються вимкненими за відкритими умовами.
+
+### D21 · Незалежний контроль GitHub · 21.09.2026
+
+Поточна база review — PR1 head 620aeab2010c6c8327ce46c25bb62435bcf7f9e4, а не main. PR2 abb8845f6563bafa806029ddc1e7c2cace09907c потребує reconciliation; дві migrations 0006 повторно додають Location.branch. PR3 є журналом власника, не щоденним інтеграційним review і не продуктовим кандидатом. Деталі та точні SHA: daily/2026-09-21_UA.md.
+
+Виправлено тільки поточний план/чергу: не повторювати вже прийнятий UI-LOCAL-RUNNER і вже опублікований registry patch. Наступні картки — reconciliation, read-only payment timeout diagnosis, перенесення доказів і acceptance packet. Історичні scoped PASS збережені на своїх SHA; зелений scope job, skipped job або echo-only CI не є прийманням продукту. NETWORK-PLAN-CURRENCY у PR2 вже scoped accepted, хоча його старий реєстр ще PLANNED; при майбутній інтеграції звести реєстри за новішими доказами, не переписувати їх історію.
+
+Цей docs-only review не змінює AGENTS, дозволи, readiness, pilot, production, Sites або активну гілку Codex. Не підтверджує стан незбереженої локальної роботи чи працюючого процесу. Майбутній кандидат потребує окремої прив'язки доказів; ліміти network workflow/read/composition/core-views також не скидаються новою назвою картки.

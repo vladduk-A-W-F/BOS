@@ -2,7 +2,7 @@
   "schema": 1,
   "launch_gate": "BATCH_EXECUTION",
   "all_tasks_require_owner_plan_review": false,
-  "rules": "PLAN-* є запропонованими ключами; не перейменовувати історичні P-ID. Залежності необхідні, але не замінюють external_prerequisites.",
+  "rules": "PLAN-* є запропонованими ключами; не перейменовувати історичні P-ID. Залежності необхідні, але не замінюють external_prerequisites. Щоденний checkpoint 21.09.2026: наступні дії REVIEW-*; старі accepted картки не повторювати. Review-гілка не означає доставку вказівки локальному Codex. Історичні ліміти кожної проблеми діють незалежно від нового ID.",
   "tasks": [
     {
       "id": "P10-003",
@@ -143,7 +143,8 @@
         "PLAN-F06",
         "PLAN-SOURCE",
         "PLAN-UX",
-        "PLAN-GPT"
+        "PLAN-GPT",
+        "REVIEW-CANDIDATE-ACCEPTANCE-PACKET"
       ],
       "checkpoint": "C5",
       "status": "BLOCKED_HISTORICAL_LIMITS_AND_PRODUCT_GAPS",
@@ -339,7 +340,9 @@
       ],
       "checkpoint": "C5",
       "status": "INCOMPLETE_NO_CURRENT_ACCEPTANCE",
-      "external_prerequisites": [],
+      "external_prerequisites": [
+        "Спочатку REVIEW-CANDIDATE-ACCEPTANCE-PACKET з точним SHA, scope, середовищем та перевіркою лімітів; не поновлювати перерваний access-current-1 автоматично."
+      ],
       "card": "docs/orchestration/CONTINUATION_20260920_UA.md",
       "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
       "acceptance_scope": "Historical PG migration only; SQLite original exit unknown; access-current-1 interrupted without final receipt"
@@ -495,6 +498,62 @@
       "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
       "local_commit": "646d3b80597e087a1ada14221024ec40588996f0",
       "full_scenario_acceptance": false
+    },
+    {
+      "id": "REVIEW-BRANCH-RECONCILE",
+      "title": "Узгодити графи й семантику PR1/PR2",
+      "owner": "bos_architect",
+      "depends_on": [],
+      "checkpoint": "C5",
+      "status": "READY_READ_ONLY",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/cards/REVIEW-BRANCH-RECONCILE.md",
+      "evidence": "docs/orchestration/daily/2026-09-21_UA.md",
+      "priority": "P1"
+    },
+    {
+      "id": "REVIEW-NETWORK-PAYMENT-DIAG",
+      "title": "Локалізувати timeout payment preview без повторного запуску",
+      "owner": "bos_diagnostician",
+      "depends_on": [],
+      "checkpoint": "C5",
+      "status": "READY_READ_ONLY",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/cards/REVIEW-NETWORK-PAYMENT-DIAG.md",
+      "evidence": "docs/orchestration/daily/2026-09-21_UA.md",
+      "priority": "P1"
+    },
+    {
+      "id": "REVIEW-EVIDENCE-PORTABILITY",
+      "title": "Зберегти первісні докази continuation і незалежні SHA-verdict",
+      "owner": "bos_evidence",
+      "depends_on": [],
+      "checkpoint": "C5",
+      "status": "READY_EVIDENCE_COLLECTION",
+      "external_prerequisites": [
+        "Якщо точних первісних локальних receipts немає у доступних джерелах, потрібне їх безпечне перенесення локальним інтегратором; не вигадувати exit codes і не повторювати тести."
+      ],
+      "card": "docs/orchestration/cards/REVIEW-EVIDENCE-PORTABILITY.md",
+      "evidence": "docs/orchestration/daily/2026-09-21_UA.md",
+      "priority": "P1"
+    },
+    {
+      "id": "REVIEW-CANDIDATE-ACCEPTANCE-PACKET",
+      "title": "Матриця 11 gates і дозволених перевірок узгодженого кандидата",
+      "owner": "bos_readiness_auditor",
+      "depends_on": [
+        "REVIEW-BRANCH-RECONCILE",
+        "REVIEW-NETWORK-PAYMENT-DIAG",
+        "REVIEW-EVIDENCE-PORTABILITY"
+      ],
+      "checkpoint": "C5",
+      "status": "BLOCKED_DEPENDENCIES",
+      "external_prerequisites": [
+        "Потрібні точний опублікований кандидат, окремий review інтеграції та рішення про допустимий scope; ліміти не скидаються."
+      ],
+      "card": "docs/orchestration/cards/REVIEW-CANDIDATE-ACCEPTANCE-PACKET.md",
+      "evidence": "docs/orchestration/daily/2026-09-21_UA.md",
+      "priority": "P1"
     }
   ]
 }

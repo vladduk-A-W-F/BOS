@@ -1,0 +1,1244 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "observed_at": "2026-09-21T06:27:38Z",
+  "repository": "vladduk-A-W-F/BOS",
+  "previous_daily_checkpoint": null,
+  "baseline_window": {
+    "from": "2026-09-20T06:21:47Z",
+    "to": "2026-09-21T06:27:38Z",
+    "reason": "Перший щоденний checkpoint; попереднього звіту у перевірених refs/PR не знайдено."
+  },
+  "candidate": {
+    "pr": 1,
+    "branch": "setup/bos-gpt-orchestration-20260920",
+    "head": "620aeab2010c6c8327ce46c25bb62435bcf7f9e4",
+    "product_commit": "646d3b80597e087a1ada14221024ec40588996f0",
+    "source_sha256": "98b011a583c7803d88c888070a3412789559919ecb5692ef34f5e8ad59b5072a",
+    "reason": "Актуальна продуктова лінія з опублікованим continuation evidence; main відстає/розходиться, PR2 не інтегровано, PR3 лише tracker."
+  },
+  "branches": [
+    {
+      "name": "ci/p05-sqlite-20260918",
+      "sha": "7e69baaaa06d3a075b6537bedef3be943b2ff7ae"
+    },
+    {
+      "name": "ci/p05-sqlite-r2-20260918",
+      "sha": "b11aa8ce8f5855c34fa197e35b8fe77a850e9df0"
+    },
+    {
+      "name": "feat/network-operations-20260920",
+      "sha": "abb8845f6563bafa806029ddc1e7c2cace09907c"
+    },
+    {
+      "name": "fix/p10-001-timeout-evidence-20260918",
+      "sha": "f343409c349c406f4bf8139c25fef976f88d3e44"
+    },
+    {
+      "name": "fix/p10-002-task-sequence-20260919",
+      "sha": "7d46dced3bcf06d44755cf53366c9e16bd465582"
+    },
+    {
+      "name": "main",
+      "sha": "ecb8cf7f62a4b333b61481481d2eea97b3400b54"
+    },
+    {
+      "name": "setup/bos-baseline",
+      "sha": "ecb6fb86d8c757f9467864319c17c78c048a2131"
+    },
+    {
+      "name": "setup/bos-gpt-orchestration-20260920",
+      "sha": "620aeab2010c6c8327ce46c25bb62435bcf7f9e4"
+    },
+    {
+      "name": "setup/bos-transfer-p02",
+      "sha": "9e25784f3c59965969f20124c487e6152d89f0ce"
+    },
+    {
+      "name": "tracking/bos-progress",
+      "sha": "ce7f82995c90ca49a40004b75e77df13ada3ad3c"
+    }
+  ],
+  "pull_requests": [
+    {
+      "number": 3,
+      "title": "Tracking/bos progress",
+      "url": "https://github.com/vladduk-A-W-F/BOS/pull/3",
+      "head": "tracking/bos-progress",
+      "head_sha": "ce7f82995c90ca49a40004b75e77df13ada3ad3c",
+      "base": "main",
+      "api_base_sha": "ecb8cf7f62a4b333b61481481d2eea97b3400b54",
+      "state": "open",
+      "draft": false,
+      "updated_at": "2026-09-20T19:57:48Z",
+      "formal_reviews": []
+    },
+    {
+      "number": 1,
+      "title": "BoS: Ukrainian ERP workpoints, recoverable approvals and source-based workflows",
+      "url": "https://github.com/vladduk-A-W-F/BOS/pull/1",
+      "head": "setup/bos-gpt-orchestration-20260920",
+      "head_sha": "620aeab2010c6c8327ce46c25bb62435bcf7f9e4",
+      "base": "fix/p10-002-task-sequence-20260919",
+      "api_base_sha": "7d46dced3bcf06d44755cf53366c9e16bd465582",
+      "state": "open",
+      "draft": true,
+      "updated_at": "2026-09-20T17:49:32Z",
+      "formal_reviews": []
+    },
+    {
+      "number": 2,
+      "title": "BoS: робоча мережа України, UAH операції та рух заявок",
+      "url": "https://github.com/vladduk-A-W-F/BOS/pull/2",
+      "head": "feat/network-operations-20260920",
+      "head_sha": "abb8845f6563bafa806029ddc1e7c2cace09907c",
+      "base": "setup/bos-gpt-orchestration-20260920",
+      "api_base_sha": "edd5227e666442d8324044559b6e8cf10eaf8be1",
+      "state": "open",
+      "draft": true,
+      "updated_at": "2026-09-20T16:25:04Z",
+      "formal_reviews": []
+    }
+  ],
+  "comparisons": {
+    "main_to_candidate": {
+      "status": "diverged",
+      "ahead_by": 56,
+      "behind_by": 2
+    },
+    "network_to_candidate": {
+      "merge_base": "edd5227e666442d8324044559b6e8cf10eaf8be1",
+      "network_ahead_by": 15,
+      "network_behind_by": 18,
+      "mergeable": false
+    },
+    "api_note": "PR2 base_sha у metadata дорівнює старому edd5227; актуальний ref setup окремо перевірено як 620aeab."
+  },
+  "commits_last_day": [
+    {
+      "sha": "620aeab2010c6c8327ce46c25bb62435bcf7f9e4",
+      "date": "2026-09-20T17:46:26Z",
+      "message": "docs: record accepted continuation checkpoint and scoped evidence"
+    },
+    {
+      "sha": "646d3b80597e087a1ada14221024ec40588996f0",
+      "date": "2026-09-20T17:10:46Z",
+      "message": "fix(ui): restore action opener focus after async source read"
+    },
+    {
+      "sha": "530043a80c1196dfcd7bc8bef73b2ec041c09a68",
+      "date": "2026-09-20T16:59:44Z",
+      "message": "fix(ui-runner): bind child ownership before application startup"
+    },
+    {
+      "sha": "23f7145be0e67724719a4dc015c32f2d684b33ad",
+      "date": "2026-09-20T16:58:23Z",
+      "message": "test(ui): verify scoped supply payment and document read flows"
+    },
+    {
+      "sha": "accbedc8582bb05a4e784a46b2c23422dbeaf931",
+      "date": "2026-09-20T16:57:36Z",
+      "message": "feat(documents): show scoped synthetic matching with original evidence"
+    },
+    {
+      "sha": "bc6cc57503fdd042415e1c4ff93c7867e20ae91a",
+      "date": "2026-09-20T16:48:44Z",
+      "message": "fix(local-review): prove owned process identity before starting runtime"
+    },
+    {
+      "sha": "bfbc588a2445eeb04e7ef13c2ecca5c72f4eb47d",
+      "date": "2026-09-20T16:41:37Z",
+      "message": "feat(ui): connect order supply and settlement through controlled actions"
+    },
+    {
+      "sha": "67cc588f9f1171442d1822bae127bc6369ecddf3",
+      "date": "2026-09-20T16:40:06Z",
+      "message": "feat(documents): read verified sources through scoped mock adapter"
+    },
+    {
+      "sha": "ae10e3f2498a8292bcfe065d593a95cc3c0272b9",
+      "date": "2026-09-20T16:33:11Z",
+      "message": "feat(erp): expose exact order-scoped settlement sources"
+    },
+    {
+      "sha": "92d0713c7cc46c683ae72192661924a3a14083f7",
+      "date": "2026-09-20T16:22:18Z",
+      "message": "feat(erp): project visible supply options for a sales line"
+    },
+    {
+      "sha": "90e2cf833ab601fe543d1dbdb64e087b432cfd32",
+      "date": "2026-09-20T16:22:17Z",
+      "message": "feat(documents): define evidence-backed mock reconciliation contract"
+    },
+    {
+      "sha": "811a61399f4616a3b3d9d5d5305e593eb6e6e9fe",
+      "date": "2026-09-20T16:22:17Z",
+      "message": "fix(ui): preserve confirmation intent through response loss"
+    },
+    {
+      "sha": "3d979060fe9862119ba8ad6c9d8bd505103796e3",
+      "date": "2026-09-20T14:50:48Z",
+      "message": "docs: record independently reviewed Ukrainian ERP checkpoint"
+    },
+    {
+      "sha": "e66af863b0bd840cefb4ef78e5a17414411f3db8",
+      "date": "2026-09-20T14:37:20Z",
+      "message": "feat: connect workpoint workflows and measured HTTP observations in ERP"
+    },
+    {
+      "sha": "f44a5f59fdf47f57662fddecbabb374f9f9eaed4",
+      "date": "2026-09-20T14:36:15Z",
+      "message": "feat: link Ukrainian workpoints to policy-scoped ERP sources"
+    },
+    {
+      "sha": "90dc8a52eb94efbade07bfd7f64c7aa88779a38c",
+      "date": "2026-09-20T14:35:22Z",
+      "message": "feat: bootstrap the first business owner in an empty installation"
+    },
+    {
+      "sha": "b54a736fa89cf062c024c8e1defdf3ec289a8e9c",
+      "date": "2026-09-20T14:33:51Z",
+      "message": "fix: recognize native browser globals in frontend checker"
+    },
+    {
+      "sha": "8fec775319c0311adf09fc83433cd795dbc14425",
+      "date": "2026-09-20T14:06:29Z",
+      "message": "chore: export verified full Git bundle for isolated development"
+    },
+    {
+      "sha": "edd5227e666442d8324044559b6e8cf10eaf8be1",
+      "date": "2026-09-20T13:46:48Z",
+      "message": "docs: preserve verified PLAN-TIME measurements with historical causes open"
+    },
+    {
+      "sha": "56a718116577799cca5c098b427b88322b60cd82",
+      "date": "2026-09-20T13:37:52Z",
+      "message": "ci: read the completed PLAN-TIME artifact without rerunning diagnostics"
+    },
+    {
+      "sha": "1876ad00412b558fcfe0f23ab5291c90caeba63a",
+      "date": "2026-09-20T13:28:29Z",
+      "message": "ci: add bounded PLAN-TIME PostgreSQL 16 diagnostic samples"
+    },
+    {
+      "sha": "87b679888c18ed1920f4735aa945dacad514bcaa",
+      "date": "2026-09-20T13:09:22Z",
+      "message": "Complete scoped landing acceptance with published v3 evidence"
+    },
+    {
+      "sha": "d9e00f43efe41f44a82e166f33708f7c6dab84aa",
+      "date": "2026-09-20T12:38:30Z",
+      "message": "docs: record scoped landing browser checks and pending mobile acceptance"
+    },
+    {
+      "sha": "a8257712fb49d18de71da1345f3fe55130152953",
+      "date": "2026-09-20T12:11:15Z",
+      "message": "docs(PLAN-SOURCE-WINDOWS): verify native source identity and synchronize evidence\n\nArchive native Windows 10/Python 3.12.14 proof for 348 exact runtime blobs, two path unit methods and six native file probes. Independent review confirms the Linux CI digest and unchanged source. Record reverified BATCH02 evidence and browser no-observation timeout. Preserve GATE11 pending, P06 blocked, P05 3/3 and readiness/pilot false; no runtime or CI changes."
+    },
+    {
+      "sha": "0c59f2ba74acdffc05fd653dc0b401ecc71be9b3",
+      "date": "2026-09-20T12:10:54Z",
+      "message": "docs(P10-003): reconcile accepted isolation guard card with verified PG16 evidence\n\nCorrect the stale IN_PROGRESS card using independently rechecked BATCH01 raw evidence. Preserve historical receipts, runtime source and all readiness limits."
+    },
+    {
+      "sha": "82beca6c14e097a31200068d72b15334c5bed319",
+      "date": "2026-09-20T11:38:03Z",
+      "message": "docs: record private landing publication and completed package checkpoints"
+    },
+    {
+      "sha": "262d67d51eab157f2b9d70342b02abb6d0ea6fb3",
+      "date": "2026-09-20T11:34:06Z",
+      "message": "docs: package isolated-company SaaS handoff and verified source manifest"
+    },
+    {
+      "sha": "98a7cb69fa968710ae0a0efad5a51fa46692ec19",
+      "date": "2026-09-20T11:33:27Z",
+      "message": "docs: accept BATCH-02 with verified PostgreSQL evidence and module reports"
+    },
+    {
+      "sha": "8060075455206257d6283c70906facca98f0bc1a",
+      "date": "2026-09-20T11:27:24Z",
+      "message": "ci: verify reviewed BATCH-02 on PostgreSQL 16 with real mutex evidence"
+    },
+    {
+      "sha": "603de9de7c92c77ce7a69d198fdfc786e8aca8e3",
+      "date": "2026-09-20T11:23:22Z",
+      "message": "feat: preserve stock adjustments across unrelated changes with scoped confirmation"
+    },
+    {
+      "sha": "313850f02ec866ededc417602e155427d7cc5222",
+      "date": "2026-09-20T11:16:40Z",
+      "message": "feat: show order sources in existing inspector with fresh access navigation"
+    },
+    {
+      "sha": "1958163e982cf249dbdf619389fe3568a5510b53",
+      "date": "2026-09-20T11:16:11Z",
+      "message": "feat: expose policy-scoped order sources with stable read checks"
+    },
+    {
+      "sha": "58ac6cf53f8be62c88c4ad824b2db10d741ab638",
+      "date": "2026-09-20T11:10:58Z",
+      "message": "docs: authorize reviewed packages through SaaS landing"
+    },
+    {
+      "sha": "f757a3bd2186a83ece0ae030e5e1bac70e663751",
+      "date": "2026-09-20T10:17:21Z",
+      "message": "docs(bos): record verified batch outcomes, PG16 evidence and current execution queue"
+    },
+    {
+      "sha": "a1dbbbd65305f6020d64246b51b05c105debb97a",
+      "date": "2026-09-20T10:11:08Z",
+      "message": "docs(ux): define order source navigation and role-aware states"
+    },
+    {
+      "sha": "b633243401a6a4e4b3f5f29507bb0b5826d83ebd",
+      "date": "2026-09-20T10:10:43Z",
+      "message": "docs(n2): preserve measured invalidation evidence and proposed dependency ADR"
+    },
+    {
+      "sha": "aecf8ee1f556b60f3fa34b66a001372e332d02ab",
+      "date": "2026-09-20T10:02:22Z",
+      "message": "fix(ci): resolve evidence path in supported step contexts"
+    },
+    {
+      "sha": "e5886c4942b1ecf2432e554604766a4b00c39bab",
+      "date": "2026-09-20T09:53:05Z",
+      "message": "ci(batch01): run bounded PostgreSQL regressions on the reviewed candidate\n\nPin baseline and runtime digests, inspect real PostgreSQL 16 test identity, retain source canaries/raw logs/hash index, and reject skipped or ambiguous results. Three expected-red methods, 26 green PG methods and seven artifact/path unit tests. PR scope job prevents docs-only HEAD changes from running application tests. Independently reviewed; no full/E2E or production activation."
+    },
+    {
+      "sha": "823ed804b33316257ac5e62e5aedcf093e72646b",
+      "date": "2026-09-20T09:52:12Z",
+      "message": "docs(diagnostics): distinguish timeout evidence from unproven causes\n\nPLAN-TIME: verify historical receipt hashes, locate the incomplete replay interval, and document independent disposable databases. Correct unsupported quadratic-growth and cross-process-lock hypotheses. No app or timeout-gate rerun; F04/F05 remain open."
+    },
+    {
+      "sha": "7f8c0c3cae739d9de37589f33c0c0a4cbb6d1579",
+      "date": "2026-09-20T09:51:25Z",
+      "message": "docs(pilot): define process passport and measurable acceptance evidence\n\nPLAN-PILOT planning: propose the existing procurement-to-payment flow, record missing company/owners and process choice, and define baseline and reconciliation metrics. No invented ROI, production start or pilot permission."
+    },
+    {
+      "sha": "ba923bfeee913475263707376b7ba3dd8e6175e5",
+      "date": "2026-09-20T09:51:22Z",
+      "message": "docs(assistant): define grounded read-only GPT contract and eval cases\n\nPLAN-GPT planning: server-owned role-scoped facts, typed references, numeric checks, access revalidation and explicit no-write behavior. External API stays disabled pending data and budget decisions. Fourteen proposed eval cases; no model invocation or claim of implementation."
+    },
+    {
+      "sha": "448681aadd849f7648cf40ef7f1e3e38cbe192b1",
+      "date": "2026-09-20T09:51:02Z",
+      "message": "docs(processes): ground linked operations plan in existing models\n\nPLAN-LINKS: record actual relations, synthetic scenario and metric formulas, and a scoped future order-source read contract. Preserve existing uncapped shipment sources, distinguish purchase candidates from allocation, and require additive access coverage. Independently reviewed planning only; no endpoint or readiness claim."
+    },
+    {
+      "sha": "73e9905a86fc61cde4be2337ef14fb0f6a134192",
+      "date": "2026-09-20T09:46:52Z",
+      "message": "fix(verification): stabilize source path ordering across platforms\n\nPLAN-SOURCE/P04-F01: sort relative path components case-sensitively, preserving legacy Linux ordering including directory prefixes. Two path-only regression tests pass. The same 342-file inventory retains its Linux digest under both pathlib flavours; native Windows and full acceptance remain pending. Independently reviewed."
+    },
+    {
+      "sha": "f2fa1e91e518a69cf729f1acedeac426dddd5009",
+      "date": "2026-09-20T09:39:52Z",
+      "message": "fix(shipping): reject raw references exceeding Movement storage limit\n\nPLAN-N1-SHIP: apply existing model metadata validation before dispatch writes and at preview/confirm. Keep the 60-character business rule and exact valid text. Two focused SQLite tests cover 27 valid and 36 invalid subcases; preserve baseline failures. Independent review ACCEPT_SCOPED; PostgreSQL pending."
+    },
+    {
+      "sha": "fbceef29d005a720b036a434484d43c98b5c09d4",
+      "date": "2026-09-20T09:38:28Z",
+      "message": "fix(verification): retain and validate detailed per-backend E2E evidence\n\nPLAN-F06: route each report inside the archived output and verify report identity, digest and completion. Preserve process status and existing gates. Five artifact-fixture tests pass; actual E2E and uploaded archive remain unverified. Independent review ACCEPT_SCOPED."
+    },
+    {
+      "sha": "6ba28309f98d8b409874642a0eb703ab46d96002",
+      "date": "2026-09-20T09:38:10Z",
+      "message": "fix(procurement): validate raw request field lengths before writes\n\nPLAN-N1-REQUEST: enforce model limits on code, part, revision and unit before locking or creating rows. Preserve original text and existing document/role rules. Baseline failure and five passing focused SQLite tests archived; PostgreSQL pending. Independent review ACCEPT_SCOPED."
+    },
+    {
+      "sha": "f079902166e14fce5dfcd4c2273472fec507437b",
+      "date": "2026-09-20T09:37:46Z",
+      "message": "fix(tests): generate valid invoice codes in statement race fixtures\n\nPLAN-F03: use a 20-character currency plus random identifier, preserving the actual concurrency scenarios and assertions. Five SQLite HTTP/SQL race tests pass; PostgreSQL evidence pending. Independently reviewed."
+    },
+    {
+      "sha": "a393a881f203557bc0951b9e6368818127b9430f",
+      "date": "2026-09-20T09:37:01Z",
+      "message": "fix(tests): validate actual disposable import database for both backends\n\nP10-003: require exact verification profile, configured Django test name and live connection identity before fixture writes. Preserve import business assertions; add 10 guard regressions. SQLite guard plus actual HTTP import: 11 pass; PostgreSQL pending. Independent review ACCEPT_SCOPED."
+    },
+    {
+      "sha": "c64c7bc0fe7825154917d1c58da36af021e8377a",
+      "date": "2026-09-20T09:27:54Z",
+      "message": "chore(orchestration): record owner-approved parallel batch execution\n\nReplace the plan-review pause and per-card stop rule with explicit owner authorization. Preserve historical full-run restrictions and independent review. Record isolated dependencies and module reporting."
+    },
+    {
+      "sha": "b6074de6c6a91e58eac886666fc5bf3371e13e39",
+      "date": "2026-09-20T09:04:18Z",
+      "message": "chore(BoS): prepare GPT/Codex orchestration and owner-review checkpoints\n\nAdd project context, nine agent roles, read-only control commands and paused execution plan. Preserve eleven acceptance gates and historical restrictions. Reconcile P10-002 evidence without rerunning application tests or workflows. No runtime changes; no launch authorization."
+    }
+  ],
+  "ci": [
+    {
+      "run_id": 35527009512,
+      "url": "https://github.com/vladduk-A-W-F/BOS/actions/runs/35527009512",
+      "jobs": [
+        {
+          "id": 106120825144,
+          "name": "source-bundle",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Fetch the actual repository and complete reachable history",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Produce source-only Git bundle if this commit requests it",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Preserve the private source bundle",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 4
+            },
+            {
+              "name": "Post Fetch the actual repository and complete reachable history",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            }
+          ]
+        }
+      ],
+      "head_sha": "620aeab2010c6c8327ce46c25bb62435bcf7f9e4",
+      "event": "pull_request",
+      "run_attempt": 1,
+      "conclusion": "success",
+      "status": "completed"
+    },
+    {
+      "run_id": 35527009503,
+      "url": "https://github.com/vladduk-A-W-F/BOS/actions/runs/35527009503",
+      "jobs": [
+        {
+          "id": 106120824959,
+          "name": "scope",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Точний HEAD для перевірки обсягу",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Прогін лише для коміту CI",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Post Точний HEAD для перевірки обсягу",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            }
+          ]
+        },
+        {
+          "id": 106120843794,
+          "name": "targeted",
+          "status": "completed",
+          "conclusion": "skipped",
+          "steps": null
+        }
+      ],
+      "head_sha": "620aeab2010c6c8327ce46c25bb62435bcf7f9e4",
+      "event": "pull_request",
+      "run_attempt": 1,
+      "conclusion": "success",
+      "status": "completed"
+    },
+    {
+      "run_id": 35527009500,
+      "url": "https://github.com/vladduk-A-W-F/BOS/actions/runs/35527009500",
+      "jobs": [
+        {
+          "id": 106120825414,
+          "name": "scope",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Точний HEAD для перевірки обсягу",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Прогін лише для коміту CI",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Post Точний HEAD для перевірки обсягу",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            }
+          ]
+        },
+        {
+          "id": 106120847773,
+          "name": "targeted",
+          "status": "completed",
+          "conclusion": "skipped",
+          "steps": null
+        }
+      ],
+      "head_sha": "620aeab2010c6c8327ce46c25bb62435bcf7f9e4",
+      "event": "pull_request",
+      "run_attempt": 1,
+      "conclusion": "success",
+      "status": "completed"
+    },
+    {
+      "run_id": 35527009498,
+      "url": "https://github.com/vladduk-A-W-F/BOS/actions/runs/35527009498",
+      "jobs": [
+        {
+          "id": 106120824835,
+          "name": "read-existing-evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Validate and read the completed artifact without executing its contents",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            }
+          ]
+        }
+      ],
+      "head_sha": "620aeab2010c6c8327ce46c25bb62435bcf7f9e4",
+      "event": "pull_request",
+      "run_attempt": 1,
+      "conclusion": "success",
+      "status": "completed"
+    },
+    {
+      "run_id": 35527009493,
+      "url": "https://github.com/vladduk-A-W-F/BOS/actions/runs/35527009493",
+      "jobs": [
+        {
+          "id": 106120825009,
+          "name": "scope",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Точний HEAD для перевірки обсягу",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Прогін лише для коміту CI",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Post Точний HEAD для перевірки обсягу",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            }
+          ]
+        },
+        {
+          "id": 106120847383,
+          "name": "targeted",
+          "status": "completed",
+          "conclusion": "skipped",
+          "steps": null
+        }
+      ],
+      "head_sha": "620aeab2010c6c8327ce46c25bb62435bcf7f9e4",
+      "event": "pull_request",
+      "run_attempt": 1,
+      "conclusion": "success",
+      "status": "completed"
+    },
+    {
+      "run_id": 35533990251,
+      "url": "https://github.com/vladduk-A-W-F/BOS/actions/runs/35533990251",
+      "jobs": [
+        {
+          "id": 106139609728,
+          "name": "build",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run a one-line script",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run a multi-line script",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            }
+          ]
+        }
+      ],
+      "head_sha": "ce7f82995c90ca49a40004b75e77df13ada3ad3c",
+      "event": "pull_request",
+      "run_attempt": 1,
+      "conclusion": "success",
+      "status": "completed"
+    },
+    {
+      "run_id": 35516896359,
+      "url": "https://github.com/vladduk-A-W-F/BOS/actions/runs/35516896359",
+      "jobs": [
+        {
+          "id": 106094255652,
+          "name": "scope",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Точний кандидат",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Токен одного погодженого коміту",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Post Точний кандидат",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            }
+          ]
+        },
+        {
+          "id": 106094275478,
+          "name": "postgres",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Кандидат",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Python 3.12",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Каталог доказів",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Залежності з окремими журналами",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Два нові конкурентні сценарії PostgreSQL 16",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Докази, включно з невиконаним запуском",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Зберегти адресні докази",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Python 3.12",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Post Кандидат",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            }
+          ]
+        },
+        {
+          "id": 106094275495,
+          "name": "browser",
+          "status": "completed",
+          "conclusion": "failure",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Exact candidate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Python 3.12",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Evidence directory",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Require preinstalled Chrome without downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Existing Python dependencies and browser driver only",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "One new bounded network browser scope",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 7
+            },
+            {
+              "name": "Finalize available evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Browser receipts and screenshots",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Python 3.12",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 17
+            },
+            {
+              "name": "Post Exact candidate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            }
+          ]
+        }
+      ],
+      "head_sha": "929a395547fa1ed496171120a14b19bc8d5b6f87",
+      "event": "push",
+      "run_attempt": 1,
+      "conclusion": "failure",
+      "status": "completed"
+    },
+    {
+      "run_id": 35507888776,
+      "url": "https://github.com/vladduk-A-W-F/BOS/actions/runs/35507888776",
+      "jobs": [
+        {
+          "id": 106070663904,
+          "name": "scope",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Точний HEAD для перевірки обсягу",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Прогін лише для коміту CI",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Post Точний HEAD для перевірки обсягу",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            }
+          ]
+        },
+        {
+          "id": 106070687194,
+          "name": "targeted",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Кандидат",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Python 3.12",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Каталог доказів",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Залежності з окремими журналами",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Один адресний прогін без повторів",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "SHA-індекс навіть після відмови",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Зберегти всі наявні докази",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Python 3.12",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Post Кандидат",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            }
+          ]
+        }
+      ],
+      "head_sha": "8060075455206257d6283c70906facca98f0bc1a",
+      "event": "pull_request",
+      "run_attempt": 1,
+      "conclusion": "success",
+      "status": "completed"
+    },
+    {
+      "run_id": 35503944302,
+      "url": "https://github.com/vladduk-A-W-F/BOS/actions/runs/35503944302",
+      "jobs": [
+        {
+          "id": 106060451199,
+          "name": "scope",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Точний HEAD для перевірки обсягу",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Прогін лише для коміту CI",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Post Точний HEAD для перевірки обсягу",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            }
+          ]
+        },
+        {
+          "id": 106060472541,
+          "name": "targeted",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Кандидат",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Точна історична версія",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Python 3.12",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Каталог доказів",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Залежності з окремими журналами",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Один адресний прогін без повторів",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "SHA-індекс навіть після відмови",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Зберегти всі наявні докази",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Post Python 3.12",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Post Точна історична версія",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Post Кандидат",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            }
+          ]
+        }
+      ],
+      "head_sha": "aecf8ee1f556b60f3fa34b66a001372e332d02ab",
+      "event": "pull_request",
+      "run_attempt": 1,
+      "conclusion": "success",
+      "status": "completed"
+    }
+  ],
+  "network_current_head_workflow_count": 0,
+  "findings": [
+    {
+      "id": "F1",
+      "priority": "P1",
+      "kind": "INTEGRATION_BLOCKER",
+      "summary": "Дві sibling migrations 0006 повторно додають Location.branch.",
+      "card": "REVIEW-BRANCH-RECONCILE"
+    },
+    {
+      "id": "F2",
+      "priority": "P1",
+      "kind": "INCOMPLETE_ACCEPTANCE_CAUSE_UNKNOWN",
+      "summary": "Browser payment preview timeout; workflow3/3, raw не доводить першопричину.",
+      "card": "REVIEW-NETWORK-PAYMENT-DIAG"
+    },
+    {
+      "id": "F3",
+      "priority": "P1",
+      "kind": "EVIDENCE_PORTABILITY",
+      "summary": "Окремі continuation raw/receipt/verdict залишаються локальними посиланнями.",
+      "card": "REVIEW-EVIDENCE-PORTABILITY"
+    },
+    {
+      "id": "F4",
+      "priority": "P1",
+      "kind": "STALE_PLAN_CORRECTED_IN_REVIEW",
+      "summary": "Старий next_action повторює опублікований registry patch та прийнятий UI runner; PR2 currency/acceptance реєстри також застарілі.",
+      "card": "REVIEW-CANDIDATE-ACCEPTANCE-PACKET"
+    }
+  ],
+  "independent_reviews": {
+    "acceptance": "review_acceptance: Gate10 raw/report/receipt SHA звірено; product646d3b8→620aeab docs-only; межі й portability findings підтверджені.",
+    "network": "review_network: migration source collision, PG2/bounded browser/source bindings та core views limits перевірено read-only."
+  },
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "product_tests_run": false,
+  "ci_triggered_explicitly": false,
+  "product_changes_implemented": false,
+  "local_codex_state_observed": false,
+  "next_cards": [
+    "REVIEW-BRANCH-RECONCILE",
+    "REVIEW-NETWORK-PAYMENT-DIAG",
+    "REVIEW-EVIDENCE-PORTABILITY",
+    "REVIEW-CANDIDATE-ACCEPTANCE-PACKET"
+  ],
+  "review_branch": "review/bos-daily-integrator",
+  "checkpoint_consumption": "Наступний запуск знаходить відкритий PR review/bos-daily-integrator, читає останній daily checkpoint звідти, порівнює всі свіжі refs/CI; не створює дубліката. Перед записом перечитує файли/head. Якщо кандидат змінився — узгоджує зміни review-гілки без force-push, активна гілка недоторкана.",
+  "docs_review": {
+    "verdict": "ACCEPT_SCOPED_DOCS",
+    "reviewer": "review_acceptance",
+    "static_validation": {
+      "result": "PASS",
+      "roles": 9,
+      "tasks": 39,
+      "gates": 11,
+      "application_tests_run": false
+    },
+    "historical_state_preservation": "PASS: updated_at/next_action змінені, additive daily_integrator_review; решта значень STATE незмінні включно з великими created_ticks."
+  }
+}
