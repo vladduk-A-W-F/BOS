@@ -9975,6 +9975,454 @@ function Dictaphone() {
     }
   }, result)));
 }
+function sdcCatalogScope() {
+  const r = window.BOS_RUNTIME;
+  if (!r || !Number.isSafeInteger(r.user_id) || r.user_id <= 0 || !['ceo', 'manager', 'observer'].includes(r.role) || !['working', 'demo'].includes(r.mode) || typeof r.access_revision !== 'string' || !r.access_revision) return '';
+  return JSON.stringify([r.user_id, r.employee_id ?? null, r.mode, r.role, r.access_revision, Object.entries(r.capabilities || {}).sort()]);
+}
+function sdcCatalogProjection(tree, people) {
+  const object = v => v !== null && typeof v === 'object' && !Array.isArray(v),
+    id = v => Number.isSafeInteger(v) && v > 0;
+  const types = ['headquarters', 'department', 'regional', 'mobile', 'foreign'];
+  if (!Array.isArray(tree) || !Array.isArray(people)) throw Error('CATALOG_FORMAT');
+  const nodes = [],
+    seen = new Set(),
+    pending = [...tree];
+  for (let i = 0; i < pending.length; i++) {
+    const n = pending[i];
+    if (!object(n) || !id(n.id) || seen.has(n.id) || typeof n.name !== 'string' || typeof n.code !== 'string' || !types.includes(n.type) || !Array.isArray(n.children)) throw Error('CATALOG_FORMAT');
+    seen.add(n.id);
+    nodes.push({
+      id: n.id,
+      name: n.name,
+      code: n.code,
+      type: n.type
+    });
+    for (const child of n.children) pending.push(child);
+  }
+  const employees = [],
+    employeeIds = new Set();
+  for (const p of people) {
+    if (!object(p) || !id(p.id) || employeeIds.has(p.id) || typeof p.full_name !== 'string' || typeof p.role !== 'string' || typeof p.department !== 'string' || !(p.branch === null || id(p.branch)) || !(p.archived_at === null || typeof p.archived_at === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(p.archived_at) && Number.isFinite(Date.parse(p.archived_at)))) throw Error('CATALOG_FORMAT');
+    employeeIds.add(p.id);
+    employees.push({
+      id: p.id,
+      name: p.full_name,
+      role: p.role,
+      legacyDepartment: p.department,
+      branch: p.branch,
+      archived: p.archived_at !== null
+    });
+  }
+  return {
+    nodes,
+    employees
+  };
+}
+async function sdcCatalogRead(url, ticket, current) {
+  if (!current(ticket)) throw Object.assign(Error('CATALOG_OBSOLETE'), {
+    catalogStatus: 'obsolete'
+  });
+  const response = await fetch(url, {
+    method: 'GET',
+    credentials: 'same-origin',
+    cache: 'no-store',
+    signal: ticket.controller.signal
+  });
+  if (!current(ticket)) throw Object.assign(Error('CATALOG_OBSOLETE'), {
+    catalogStatus: 'obsolete'
+  });
+  const access = response.headers.get('X-BoS-Access');
+  if (response.status === 401 || response.headers.get('X-BoS-Identity') === 'denied' || access !== ticket.revision) throw Object.assign(Error('CATALOG_ACCESS'), {
+    catalogStatus: 'denied',
+    lock: true
+  });
+  if (response.status === 403) throw Object.assign(Error('CATALOG_DENIED'), {
+    catalogStatus: 'denied'
+  });
+  if ([404, 409].includes(response.status)) throw Object.assign(Error('CATALOG_CHANGED'), {
+    catalogStatus: 'stale'
+  });
+  if (!response.ok) throw Error('CATALOG_HTTP');
+  const body = await response.json();
+  if (!current(ticket)) throw Object.assign(Error('CATALOG_OBSOLETE'), {
+    catalogStatus: 'obsolete'
+  });
+  return body;
+}
+function SettingsDepartmentCatalog({
+  legacyDepartments,
+  onLegacyChange
+}) {
+  const scope = sdcCatalogScope(),
+    [view, setView] = useState({
+      scope: '',
+      status: 'initial',
+      data: null,
+      at: null,
+      error: ''
+    }),
+    [newLocal, setNewLocal] = useState('');
+  const life = useRef({
+    alive: false,
+    scope: '',
+    epoch: 0,
+    pending: null,
+    view: null,
+    blocked: false,
+    legacy: legacyDepartments
+  });
+  life.current.legacy = legacyDepartments;
+  function publish(next) {
+    life.current.view = next;
+    setView(next);
+  }
+  function cancel() {
+    const l = life.current;
+    l.epoch++;
+    if (l.pending) {
+      clearTimeout(l.pending.timer);
+      l.pending.controller.abort();
+      l.pending = null;
+    }
+  }
+  function erase(status, message, lock = false) {
+    const l = life.current,
+      at = status === 'stale' ? l.view?.at || null : null;
+    cancel();
+    l.blocked = l.blocked || lock;
+    publish({
+      scope: l.scope,
+      status,
+      data: null,
+      at,
+      error: message
+    });
+    setNewLocal('');
+  }
+  function current(ticket) {
+    const l = life.current;
+    if (!l.alive || l.epoch !== ticket.epoch || l.scope !== ticket.scope || l.blocked) return false;
+    if (sdcCatalogScope() !== ticket.scope) {
+      erase('denied', 'Обліковий запис або доступ змінився. Відкрийте каталог у чинній сесії.', true);
+      return false;
+    }
+    return true;
+  }
+  async function readCatalog() {
+    const l = life.current;
+    if (!l.alive || l.blocked || l.pending) return;
+    if (!scope || l.scope !== scope || sdcCatalogScope() !== scope) {
+      erase('denied', 'Каталог потребує чинної сесії та підтвердженого доступу.', true);
+      return;
+    }
+    const previousAt = l.view?.at || null;
+    cancel();
+    const ticket = {
+      scope,
+      epoch: l.epoch,
+      revision: window.BOS_RUNTIME.access_revision,
+      controller: new AbortController(),
+      timer: null
+    };
+    l.pending = ticket;
+    publish({
+      scope,
+      status: previousAt ? 'refreshing' : 'loading',
+      data: null,
+      at: previousAt,
+      error: ''
+    });
+    ticket.timer = setTimeout(() => {
+      if (!current(ticket)) return;
+      cancel();
+      publish({
+        scope,
+        status: previousAt ? 'stale' : 'error',
+        data: null,
+        at: previousAt,
+        error: 'Читання не завершилося вчасно. Оновіть каталог вручну.'
+      });
+    }, 30000);
+    try {
+      const [tree, people] = await Promise.all([sdcCatalogRead('/api/branches/', ticket, current), sdcCatalogRead('/api/employees/', ticket, current)]);
+      if (!current(ticket)) return;
+      const data = sdcCatalogProjection(tree, people);
+      if (!current(ticket)) return;
+      publish({
+        scope,
+        status: data.nodes.length === 0 && data.employees.length === 0 ? 'empty' : 'fresh',
+        data,
+        at: new Date().toISOString(),
+        error: ''
+      });
+    } catch (error) {
+      if (!current(ticket)) return;
+      const denied = error.catalogStatus === 'denied',
+        changed = error.catalogStatus === 'stale';
+      cancel();
+      if (error.lock) l.blocked = true;
+      publish({
+        scope,
+        status: denied ? 'denied' : changed || previousAt ? 'stale' : 'error',
+        data: null,
+        at: denied ? null : previousAt,
+        error: denied ? 'Доступ до каталогу не підтверджено. Перевірте сесію та права.' : changed ? 'Дані каталогу змінилися або недоступні. Оновіть читання вручну.' : 'Не отримано два повні читання у підтримуваному форматі. Оновіть каталог вручну.'
+      });
+    } finally {
+      clearTimeout(ticket.timer);
+      if (l.pending === ticket) l.pending = null;
+    }
+  }
+  useEffect(() => {
+    const l = life.current;
+    l.alive = true;
+    l.scope = scope;
+    l.blocked = false;
+    cancel();
+    publish({
+      scope,
+      status: 'initial',
+      data: null,
+      at: null,
+      error: ''
+    });
+    setNewLocal('');
+    const ended = () => erase('denied', 'Сесію або доступ змінено. Попередній каталог приховано.', true);
+    const changed = () => {
+      if (sdcCatalogScope() !== l.scope) ended();else erase('stale', 'Є зміни даних. Попередні записи приховано; оновіть каталог вручну.');
+    };
+    window.addEventListener('bos:session-ended', ended);
+    window.addEventListener('bos:data-changed', changed);
+    if (scope) readCatalog();else erase('denied', 'Каталог потребує чинної сесії та підтвердженого доступу.', true);
+    return () => {
+      l.alive = false;
+      cancel();
+      l.view = null;
+      window.removeEventListener('bos:session-ended', ended);
+      window.removeEventListener('bos:data-changed', changed);
+    };
+  }, [scope]);
+  const renderedEpoch = life.current.epoch,
+    contextOk = !!scope && view.scope === scope && sdcCatalogScope() === scope && !life.current.blocked;
+  const data = contextOk && life.current.view === view ? view.data : null,
+    status = contextOk ? view.status : 'denied',
+    busy = ['initial', 'loading', 'refreshing'].includes(status);
+  function ownsRender() {
+    const l = life.current;
+    if (l.alive && l.scope === scope && sdcCatalogScope() !== scope) {
+      erase('denied', 'Обліковий запис або доступ змінився. Попередній каталог приховано.', true);
+      return false;
+    }
+    return l.alive && !l.blocked && l.scope === scope && sdcCatalogScope() === scope && l.epoch === renderedEpoch;
+  }
+  function refresh() {
+    if (ownsRender()) readCatalog();
+  }
+  const legacyValid = Array.isArray(legacyDepartments) && legacyDepartments.every(d => typeof d === 'string');
+  function addLocal() {
+    if (!ownsRender() || !legacyValid || life.current.legacy !== legacyDepartments || !newLocal.trim()) return;
+    onLegacyChange([...legacyDepartments, newLocal.trim()]);
+    setNewLocal('');
+  }
+  function removeLocal(index) {
+    if (!ownsRender() || !legacyValid || life.current.legacy !== legacyDepartments) return;
+    onLegacyChange(legacyDepartments.filter((_, i) => i !== index));
+  }
+  const types = {
+    headquarters: 'центральний офіс',
+    department: 'відділ',
+    regional: 'регіональний філіал',
+    mobile: 'мобільний офіс',
+    foreign: 'іноземний філіал'
+  };
+  const departments = data ? data.nodes.filter(n => n.type === 'department') : [],
+    otherNodes = data ? data.nodes.filter(n => n.type !== 'department') : [];
+  const byId = new Map(data ? data.nodes.map(n => [n.id, n]) : []),
+    outside = data ? data.employees.filter(e => !byId.has(e.branch) || byId.get(e.branch).type !== 'department') : [];
+  function person(e) {
+    return /*#__PURE__*/React.createElement("li", {
+      key: e.id,
+      style: {
+        marginBottom: 8
+      }
+    }, /*#__PURE__*/React.createElement("strong", null, e.name || 'Ім’я не надано'), " \xB7 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A \u2116", e.id, " \xB7 ", e.archived ? 'Архівний запис' : 'Активний запис', e.role && /*#__PURE__*/React.createElement("span", null, " \xB7 ", e.role), e.legacyDepartment && /*#__PURE__*/React.createElement("div", {
+      className: "op-muted"
+    }, "\u0406\u0441\u0442\u043E\u0440\u0438\u0447\u043D\u0430 \u0442\u0435\u043A\u0441\u0442\u043E\u0432\u0430 \u043C\u0456\u0442\u043A\u0430: ", e.legacyDepartment, ". \u0412\u043E\u043D\u0430 \u043D\u0435 \u0432\u0438\u0437\u043D\u0430\u0447\u0430\u0454 \u043D\u0430\u043B\u0435\u0436\u043D\u0456\u0441\u0442\u044C \u0434\u043E \u0432\u0456\u0434\u0434\u0456\u043B\u0443."));
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 16,
+      minWidth: 0,
+      overflowWrap: 'anywhere'
+    }
+  }, /*#__PURE__*/React.createElement("section", {
+    "aria-label": "\u0421\u0435\u0440\u0432\u0435\u0440\u043D\u0438\u0439 \u043A\u0430\u0442\u0430\u043B\u043E\u0433 \u0432\u0456\u0434\u0434\u0456\u043B\u0456\u0432",
+    "aria-busy": busy,
+    style: cardS({
+      padding: 16,
+      minWidth: 0
+    })
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: 10,
+      justifyContent: 'space-between',
+      alignItems: 'center'
+    }
+  }, /*#__PURE__*/React.createElement("h3", {
+    style: {
+      color: T.text,
+      margin: 0,
+      fontSize: 16
+    }
+  }, "\u0412\u0456\u0434\u0434\u0456\u043B\u0438 \u0442\u0430 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A\u0438"), /*#__PURE__*/React.createElement(Button, {
+    onClick: refresh,
+    disabled: busy || !contextOk,
+    style: {
+      whiteSpace: 'normal',
+      maxWidth: '100%'
+    }
+  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433")), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0421\u0435\u0440\u0432\u0435\u0440\u043D\u0456 \u0432\u0456\u0434\u0434\u0456\u043B\u0438 \u043C\u0430\u044E\u0442\u044C \u0432\u043B\u0430\u0441\u043D\u0456 ID. \u041D\u0430\u043B\u0435\u0436\u043D\u0456\u0441\u0442\u044C \u0432\u0438\u0437\u043D\u0430\u0447\u0430\u0454 \u043B\u0438\u0448\u0435 \u043F\u0440\u0438\u0432\u2019\u044F\u0437\u043A\u0430 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A\u0430 \u0434\u043E ID \u0432\u0456\u0434\u0434\u0456\u043B\u0443 \u2014 \u043D\u0435 \u043E\u0434\u043D\u0430\u043A\u043E\u0432\u0430 \u043D\u0430\u0437\u0432\u0430 \u0456 \u043D\u0435 \u0431\u0430\u0442\u044C\u043A\u0456\u0432\u0441\u044C\u043A\u0438\u0439 \u0432\u0443\u0437\u043E\u043B."), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u043B\u0438\u0448\u0435 \u043E\u0442\u0440\u0438\u043C\u0430\u043D\u0456 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0437\u0430\u043F\u0438\u0441\u0438. \u0426\u0435 \u043D\u0435 \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043D\u044F \u043F\u043E\u0432\u043D\u043E\u0433\u043E \u0448\u0442\u0430\u0442\u0443, \u0447\u0438\u0441\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u0456 \u0432\u0441\u044C\u043E\u0433\u043E \u0432\u0456\u0434\u0434\u0456\u043B\u0443 \u0447\u0438 \u0439\u043E\u0433\u043E KPI. \u0421\u043F\u0438\u0441\u043A\u0438 \u0447\u0438\u0442\u0430\u044E\u0442\u044C\u0441\u044F \u043E\u043A\u0440\u0435\u043C\u043E, \u0430 \u043D\u0435 \u044F\u043A \u0454\u0434\u0438\u043D\u0438\u0439 \u043A\u0430\u0434\u0440\u043E\u0432\u0438\u0439 \u0437\u0440\u0456\u0437."), busy && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, status === 'refreshing' ? 'Оновлюємо каталог…' : 'Завантаження каталогу…'), status === 'empty' && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0427\u0438\u0442\u0430\u043D\u043D\u044F \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u043E. \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0432\u0443\u0437\u043B\u0456\u0432 \u0456 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A\u0456\u0432 \u043D\u0435\u043C\u0430\u0454."), status === 'fresh' && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u041A\u0430\u0442\u0430\u043B\u043E\u0433 \u043F\u0440\u043E\u0447\u0438\u0442\u0430\u043D\u043E. \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0437\u0430\u043F\u0438\u0441\u0438 \u043D\u0430\u0432\u0435\u0434\u0435\u043D\u043E \u043D\u0438\u0436\u0447\u0435."), ['denied', 'error', 'stale'].includes(status) && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, contextOk ? view.error || 'Оновіть каталог вручну.' : view.error || 'Каталог приховано: сесія або доступ потребують перевірки.'), contextOk && view.at && /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, data ? 'Успішне читання в цьому вікні' : 'Попереднє успішне читання в цьому вікні', ": ", /*#__PURE__*/React.createElement("time", {
+    dateTime: view.at
+  }, new Date(view.at).toLocaleString('uk-UA', {
+    timeZoneName: 'short'
+  })), ". \u0426\u0435 \u0447\u0430\u0441 \u0447\u0438\u0442\u0430\u043D\u043D\u044F, \u043D\u0435 \u0434\u0430\u0442\u0430 \u043A\u0430\u0434\u0440\u043E\u0432\u043E\u0433\u043E \u0437\u0440\u0456\u0437\u0443."), data && /*#__PURE__*/React.createElement("div", null, departments.length === 0 ? /*#__PURE__*/React.createElement("p", null, "\u0421\u0435\u0440\u0435\u0434 \u043E\u0442\u0440\u0438\u043C\u0430\u043D\u0438\u0445 \u0432\u0443\u0437\u043B\u0456\u0432 \u043D\u0435\u043C\u0430\u0454 \u0432\u0456\u0434\u0434\u0456\u043B\u0456\u0432.") : departments.map(department => {
+    const members = data.employees.filter(e => e.branch === department.id),
+      active = members.filter(e => !e.archived),
+      archived = members.filter(e => e.archived);
+    return /*#__PURE__*/React.createElement("section", {
+      key: department.id,
+      "aria-label": 'Відділ №' + department.id,
+      style: {
+        borderTop: '1px solid ' + T.border,
+        paddingTop: 12,
+        marginTop: 12
+      }
+    }, /*#__PURE__*/React.createElement("h4", {
+      style: {
+        margin: '0 0 8px'
+      }
+    }, department.name || 'Назву не надано', " \xB7 \u0432\u0456\u0434\u0434\u0456\u043B \u2116", department.id), /*#__PURE__*/React.createElement("p", {
+      className: "op-muted"
+    }, "\u041A\u043E\u0434: ", department.code || 'не надано', ". \u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0430\u043A\u0442\u0438\u0432\u043D\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432: ", active.length, "; \u0430\u0440\u0445\u0456\u0432\u043D\u0438\u0445: ", archived.length, "."), /*#__PURE__*/React.createElement("h5", null, "\u0410\u043A\u0442\u0438\u0432\u043D\u0456 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A\u0438"), active.length ? /*#__PURE__*/React.createElement("ul", {
+      style: {
+        paddingLeft: 20
+      }
+    }, active.map(person)) : /*#__PURE__*/React.createElement("p", null, "\u0410\u043A\u0442\u0438\u0432\u043D\u0438\u0445 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A\u0456\u0432 \u0441\u0435\u0440\u0435\u0434 \u043E\u0442\u0440\u0438\u043C\u0430\u043D\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u043D\u0435 \u043F\u043E\u043A\u0430\u0437\u0430\u043D\u043E."), archived.length > 0 && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h5", null, "\u0410\u0440\u0445\u0456\u0432\u043D\u0456 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A\u0438"), /*#__PURE__*/React.createElement("ul", {
+      style: {
+        paddingLeft: 20
+      }
+    }, archived.map(person))));
+  }), outside.length > 0 && /*#__PURE__*/React.createElement("section", {
+    style: {
+      borderTop: '1px solid ' + T.border,
+      paddingTop: 12,
+      marginTop: 12
+    }
+  }, /*#__PURE__*/React.createElement("h4", null, "\u0421\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A\u0438 \u043F\u043E\u0437\u0430 \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u0438\u043C \u0432\u0456\u0434\u0434\u0456\u043B\u043E\u043C"), /*#__PURE__*/React.createElement("ul", {
+    style: {
+      paddingLeft: 20
+    }
+  }, outside.map(e => /*#__PURE__*/React.createElement("li", {
+    key: e.id,
+    style: {
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement("strong", null, e.name || 'Ім’я не надано'), " \xB7 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A \u2116", e.id, " \xB7 ", e.archived ? 'Архівний запис' : 'Активний запис', /*#__PURE__*/React.createElement("div", null, e.branch === null ? 'Прив’язку до вузла не задано.' : byId.has(e.branch) ? 'Прив’язано до вузла №' + e.branch + ' «' + byId.get(e.branch).name + '»; тип: ' + types[byId.get(e.branch).type] + ', це не відділ.' : 'Вузол №' + e.branch + ' відсутній у доступному каталозі. Тип і належність до відділу не підтверджено.'), e.legacyDepartment && /*#__PURE__*/React.createElement("div", {
+    className: "op-muted"
+  }, "\u0406\u0441\u0442\u043E\u0440\u0438\u0447\u043D\u0430 \u0442\u0435\u043A\u0441\u0442\u043E\u0432\u0430 \u043C\u0456\u0442\u043A\u0430: ", e.legacyDepartment, ". \u0412\u043E\u043D\u0430 \u043D\u0435 \u0454 \u043F\u0440\u0438\u0432\u2019\u044F\u0437\u043A\u043E\u044E \u0434\u043E \u0432\u0456\u0434\u0434\u0456\u043B\u0443."))))), otherNodes.length > 0 && /*#__PURE__*/React.createElement("details", {
+    style: {
+      marginTop: 14
+    }
+  }, /*#__PURE__*/React.createElement("summary", null, "\u0406\u043D\u0448\u0456 \u0432\u0443\u0437\u043B\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0443 \u2014 \u043D\u0435 \u0432\u0456\u0434\u0434\u0456\u043B\u0438"), /*#__PURE__*/React.createElement("ul", {
+    style: {
+      paddingLeft: 20
+    }
+  }, otherNodes.map(n => /*#__PURE__*/React.createElement("li", {
+    key: n.id
+  }, n.name || 'Назву не надано', " \xB7 \u0432\u0443\u0437\u043E\u043B \u2116", n.id, " \xB7 ", types[n.type], " \xB7 \u043A\u043E\u0434 ", n.code || 'не надано')))))), /*#__PURE__*/React.createElement("section", {
+    "aria-label": "\u041B\u043E\u043A\u0430\u043B\u044C\u043D\u0456 \u0456\u0441\u0442\u043E\u0440\u0438\u0447\u043D\u0456 \u043D\u0430\u0437\u0432\u0438 \u0432\u0456\u0434\u0434\u0456\u043B\u0456\u0432",
+    style: cardS({
+      padding: 16,
+      minWidth: 0
+    })
+  }, /*#__PURE__*/React.createElement("h3", {
+    style: {
+      margin: '0 0 8px',
+      fontSize: 14
+    }
+  }, "\u041B\u043E\u043A\u0430\u043B\u044C\u043D\u0456 \u0456\u0441\u0442\u043E\u0440\u0438\u0447\u043D\u0456 \u043D\u0430\u0437\u0432\u0438 (legacy)"), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0426\u0456 \u0440\u044F\u0434\u043A\u0438 \u0437\u0431\u0435\u0440\u0456\u0433\u0430\u044E\u0442\u044C\u0441\u044F \u043B\u0438\u0448\u0435 \u0432 \u043D\u0430\u043B\u0430\u0448\u0442\u0443\u0432\u0430\u043D\u043D\u044F\u0445 \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0430. \u0414\u043E\u0434\u0430\u0432\u0430\u043D\u043D\u044F \u0430\u0431\u043E \u043F\u0440\u0438\u0431\u0438\u0440\u0430\u043D\u043D\u044F \u043D\u0430\u0437\u0432\u0438 \u043D\u0435 \u0441\u0442\u0432\u043E\u0440\u044E\u0454 \u0439 \u043D\u0435 \u0432\u0438\u0434\u0430\u043B\u044F\u0454 \u0441\u0435\u0440\u0432\u0435\u0440\u043D\u0438\u0439 \u0432\u0456\u0434\u0434\u0456\u043B \u0442\u0430 \u043D\u0435 \u0437\u043C\u0456\u043D\u044E\u0454 \u043F\u0440\u0438\u0432\u2019\u044F\u0437\u043A\u0443 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A\u0456\u0432. \u041F\u043E\u043F\u0435\u0440\u0435\u0434\u043D\u0456 \u043D\u0430\u0437\u0432\u0438 \u043D\u0435 \u043F\u0435\u0440\u0435\u043D\u043E\u0441\u044F\u0442\u044C\u0441\u044F \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u043D\u043E."), contextOk && legacyValid ? /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: 8,
+      marginBottom: 12
+    }
+  }, /*#__PURE__*/React.createElement("label", {
+    style: {
+      flex: '1 1 180px',
+      minWidth: 0
+    }
+  }, "\u041D\u043E\u0432\u0430 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u0430 \u043D\u0430\u0437\u0432\u0430", /*#__PURE__*/React.createElement(Input, {
+    value: newLocal,
+    onChange: e => {
+      if (ownsRender()) setNewLocal(e.target.value);
+    },
+    placeholder: "\u041B\u0438\u0448\u0435 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u0430 \u0442\u0435\u043A\u0441\u0442\u043E\u0432\u0430 \u043D\u0430\u0437\u0432\u0430",
+    style: {
+      width: '100%',
+      minWidth: 0,
+      boxSizing: 'border-box'
+    }
+  })), /*#__PURE__*/React.createElement(Button, {
+    onClick: addLocal,
+    disabled: !newLocal.trim(),
+    style: {
+      whiteSpace: 'normal',
+      maxWidth: '100%'
+    }
+  }, "\u0414\u043E\u0434\u0430\u0442\u0438 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u0443 \u043D\u0430\u0437\u0432\u0443")), legacyDepartments.length ? /*#__PURE__*/React.createElement("ul", {
+    style: {
+      paddingLeft: 20
+    }
+  }, legacyDepartments.map((name, index) => /*#__PURE__*/React.createElement("li", {
+    key: index,
+    style: {
+      marginBottom: 8
+    }
+  }, /*#__PURE__*/React.createElement("span", null, name || 'Порожня локальна назва'), ' ', /*#__PURE__*/React.createElement(Button, {
+    variant: "subtle",
+    onClick: () => removeLocal(index),
+    "aria-label": 'Прибрати локальну назву ' + name,
+    style: {
+      whiteSpace: 'normal',
+      maxWidth: '100%'
+    }
+  }, "\u041F\u0440\u0438\u0431\u0440\u0430\u0442\u0438 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u0443 \u043D\u0430\u0437\u0432\u0443")))) : /*#__PURE__*/React.createElement("p", null, "\u041B\u043E\u043A\u0430\u043B\u044C\u043D\u0438\u0445 \u043D\u0430\u0437\u0432 \u043D\u0435\u043C\u0430\u0454.")) : /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, contextOk ? 'Локальний список має непідтримуваний формат. Його збережено без змін.' : 'Локальні назви приховано до підтвердження поточного контексту.')));
+}
 function Settings({
   settings,
   setSettings,
@@ -10028,7 +10476,6 @@ function Settings({
     l: 'Дані',
     ic: '📊'
   }];
-  const [newD, setNewD] = useState('');
   return /*#__PURE__*/React.createElement("div", {
     style: {
       padding: 24
@@ -10269,77 +10716,10 @@ function Settings({
     }
   }, e.dept)), bosCan('hr_private') && /*#__PURE__*/React.createElement(Badge, {
     tone: "neutral"
-  }, e.kpi, "%")))), tab === 'departments' && /*#__PURE__*/React.createElement("div", {
-    style: cardS({
-      padding: 22
-    })
-  }, /*#__PURE__*/React.createElement("h3", {
-    style: {
-      color: T.text,
-      margin: '0 0 14px',
-      fontSize: 14,
-      fontWeight: 600
-    }
-  }, "\u0412\u0456\u0434\u0434\u0456\u043B\u0438 \u043F\u0456\u0434\u043F\u0440\u0438\u0454\u043C\u0441\u0442\u0432\u0430"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 9,
-      marginBottom: 16
-    }
-  }, /*#__PURE__*/React.createElement(Input, {
-    value: newD,
-    onChange: e => setNewD(e.target.value),
-    onKeyDown: e => {
-      if (e.key === 'Enter' && newD.trim()) {
-        upd('departments', [...settings.departments, newD.trim()]);
-        setNewD('');
-      }
-    },
-    placeholder: "\u041D\u043E\u0432\u0438\u0439 \u0432\u0456\u0434\u0434\u0456\u043B",
-    style: {
-      flex: 1
-    }
-  }), /*#__PURE__*/React.createElement(Button, {
-    variant: "primary",
-    onClick: () => {
-      if (!newD.trim()) return;
-      upd('departments', [...settings.departments, newD.trim()]);
-      setNewD('');
-    },
-    style: {
-      fontSize: 12,
-      padding: '10px 14px'
-    }
-  }, "+ \u0414\u043E\u0434\u0430\u0442\u0438")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: 7
-    }
-  }, settings.departments.map(d => /*#__PURE__*/React.createElement("div", {
-    key: d,
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 7,
-      background: T.primaryGlow,
-      border: '1px solid ' + T.primary + '55',
-      borderRadius: T.radMd,
-      padding: '5px 13px'
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: T.text,
-      fontSize: 12
-    }
-  }, d), /*#__PURE__*/React.createElement("span", {
-    onClick: () => upd('departments', settings.departments.filter(x => x !== d)),
-    style: {
-      color: T.red,
-      cursor: 'pointer',
-      fontSize: 13
-    }
-  }, "\u2715"))))), tab === 'industry' && /*#__PURE__*/React.createElement("div", {
+  }, e.kpi, "%")))), tab === 'departments' && /*#__PURE__*/React.createElement(SettingsDepartmentCatalog, {
+    legacyDepartments: settings.departments,
+    onLegacyChange: value => upd('departments', value)
+  }), tab === 'industry' && /*#__PURE__*/React.createElement("div", {
     style: cardS({
       padding: 22
     })

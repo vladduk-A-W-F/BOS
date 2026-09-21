@@ -3237,12 +3237,122 @@ function Dictaphone(){
   );
 }
 
+function sdcCatalogScope(){
+ const r=window.BOS_RUNTIME;
+ if(!r||!Number.isSafeInteger(r.user_id)||r.user_id<=0||!['ceo','manager','observer'].includes(r.role)||!['working','demo'].includes(r.mode)||typeof r.access_revision!=='string'||!r.access_revision)return '';
+ return JSON.stringify([r.user_id,r.employee_id??null,r.mode,r.role,r.access_revision,Object.entries(r.capabilities||{}).sort()]);
+}
+function sdcCatalogProjection(tree,people){
+ const object=v=>v!==null&&typeof v==='object'&&!Array.isArray(v),id=v=>Number.isSafeInteger(v)&&v>0;
+ const types=['headquarters','department','regional','mobile','foreign'];
+ if(!Array.isArray(tree)||!Array.isArray(people))throw Error('CATALOG_FORMAT');
+ const nodes=[],seen=new Set(),pending=[...tree];
+ for(let i=0;i<pending.length;i++){
+  const n=pending[i];
+  if(!object(n)||!id(n.id)||seen.has(n.id)||typeof n.name!=='string'||typeof n.code!=='string'||!types.includes(n.type)||!Array.isArray(n.children))throw Error('CATALOG_FORMAT');
+  seen.add(n.id);nodes.push({id:n.id,name:n.name,code:n.code,type:n.type});for(const child of n.children)pending.push(child);
+ }
+ const employees=[],employeeIds=new Set();
+ for(const p of people){
+  if(!object(p)||!id(p.id)||employeeIds.has(p.id)||typeof p.full_name!=='string'||typeof p.role!=='string'||typeof p.department!=='string'||!(p.branch===null||id(p.branch))||!(p.archived_at===null||(typeof p.archived_at==='string'&&/^\d{4}-\d{2}-\d{2}T/.test(p.archived_at)&&Number.isFinite(Date.parse(p.archived_at)))))throw Error('CATALOG_FORMAT');
+  employeeIds.add(p.id);employees.push({id:p.id,name:p.full_name,role:p.role,legacyDepartment:p.department,branch:p.branch,archived:p.archived_at!==null});
+ }
+ return {nodes,employees};
+}
+async function sdcCatalogRead(url,ticket,current){
+ if(!current(ticket))throw Object.assign(Error('CATALOG_OBSOLETE'),{catalogStatus:'obsolete'});
+ const response=await fetch(url,{method:'GET',credentials:'same-origin',cache:'no-store',signal:ticket.controller.signal});
+ if(!current(ticket))throw Object.assign(Error('CATALOG_OBSOLETE'),{catalogStatus:'obsolete'});
+ const access=response.headers.get('X-BoS-Access');
+ if(response.status===401||response.headers.get('X-BoS-Identity')==='denied'||access!==ticket.revision)throw Object.assign(Error('CATALOG_ACCESS'),{catalogStatus:'denied',lock:true});
+ if(response.status===403)throw Object.assign(Error('CATALOG_DENIED'),{catalogStatus:'denied'});
+ if([404,409].includes(response.status))throw Object.assign(Error('CATALOG_CHANGED'),{catalogStatus:'stale'});
+ if(!response.ok)throw Error('CATALOG_HTTP');
+ const body=await response.json();
+ if(!current(ticket))throw Object.assign(Error('CATALOG_OBSOLETE'),{catalogStatus:'obsolete'});
+ return body;
+}
+function SettingsDepartmentCatalog({legacyDepartments,onLegacyChange}){
+ const scope=sdcCatalogScope(),[view,setView]=useState({scope:'',status:'initial',data:null,at:null,error:''}),[newLocal,setNewLocal]=useState('');
+ const life=useRef({alive:false,scope:'',epoch:0,pending:null,view:null,blocked:false,legacy:legacyDepartments});life.current.legacy=legacyDepartments;
+ function publish(next){life.current.view=next;setView(next);}
+ function cancel(){const l=life.current;l.epoch++;if(l.pending){clearTimeout(l.pending.timer);l.pending.controller.abort();l.pending=null;}}
+ function erase(status,message,lock=false){const l=life.current,at=status==='stale'?l.view?.at||null:null;cancel();l.blocked=l.blocked||lock;publish({scope:l.scope,status,data:null,at,error:message});setNewLocal('');}
+ function current(ticket){
+  const l=life.current;if(!l.alive||l.epoch!==ticket.epoch||l.scope!==ticket.scope||l.blocked)return false;
+  if(sdcCatalogScope()!==ticket.scope){erase('denied','Обліковий запис або доступ змінився. Відкрийте каталог у чинній сесії.',true);return false;}
+  return true;
+ }
+ async function readCatalog(){
+  const l=life.current;if(!l.alive||l.blocked||l.pending)return;
+  if(!scope||l.scope!==scope||sdcCatalogScope()!==scope){erase('denied','Каталог потребує чинної сесії та підтвердженого доступу.',true);return;}
+  const previousAt=l.view?.at||null;cancel();
+  const ticket={scope,epoch:l.epoch,revision:window.BOS_RUNTIME.access_revision,controller:new AbortController(),timer:null};l.pending=ticket;
+  publish({scope,status:previousAt?'refreshing':'loading',data:null,at:previousAt,error:''});
+  ticket.timer=setTimeout(()=>{if(!current(ticket))return;cancel();publish({scope,status:previousAt?'stale':'error',data:null,at:previousAt,error:'Читання не завершилося вчасно. Оновіть каталог вручну.'});},30000);
+  try{
+   const [tree,people]=await Promise.all([sdcCatalogRead('/api/branches/',ticket,current),sdcCatalogRead('/api/employees/',ticket,current)]);
+   if(!current(ticket))return;
+   const data=sdcCatalogProjection(tree,people);
+   if(!current(ticket))return;
+   publish({scope,status:data.nodes.length===0&&data.employees.length===0?'empty':'fresh',data,at:new Date().toISOString(),error:''});
+  }catch(error){
+   if(!current(ticket))return;
+   const denied=error.catalogStatus==='denied',changed=error.catalogStatus==='stale';
+   cancel();if(error.lock)l.blocked=true;
+   publish({scope,status:denied?'denied':changed||previousAt?'stale':'error',data:null,at:denied?null:previousAt,error:denied?'Доступ до каталогу не підтверджено. Перевірте сесію та права.':changed?'Дані каталогу змінилися або недоступні. Оновіть читання вручну.':'Не отримано два повні читання у підтримуваному форматі. Оновіть каталог вручну.'});
+  }finally{clearTimeout(ticket.timer);if(l.pending===ticket)l.pending=null;}
+ }
+ useEffect(()=>{
+  const l=life.current;l.alive=true;l.scope=scope;l.blocked=false;cancel();publish({scope,status:'initial',data:null,at:null,error:''});setNewLocal('');
+  const ended=()=>erase('denied','Сесію або доступ змінено. Попередній каталог приховано.',true);
+  const changed=()=>{if(sdcCatalogScope()!==l.scope)ended();else erase('stale','Є зміни даних. Попередні записи приховано; оновіть каталог вручну.');};
+  window.addEventListener('bos:session-ended',ended);window.addEventListener('bos:data-changed',changed);
+  if(scope)readCatalog();else erase('denied','Каталог потребує чинної сесії та підтвердженого доступу.',true);
+  return()=>{l.alive=false;cancel();l.view=null;window.removeEventListener('bos:session-ended',ended);window.removeEventListener('bos:data-changed',changed);};
+ },[scope]);
+ const renderedEpoch=life.current.epoch,contextOk=!!scope&&view.scope===scope&&sdcCatalogScope()===scope&&!life.current.blocked;
+ const data=contextOk&&life.current.view===view?view.data:null,status=contextOk?view.status:'denied',busy=['initial','loading','refreshing'].includes(status);
+ function ownsRender(){const l=life.current;if(l.alive&&l.scope===scope&&sdcCatalogScope()!==scope){erase('denied','Обліковий запис або доступ змінився. Попередній каталог приховано.',true);return false;}return l.alive&&!l.blocked&&l.scope===scope&&sdcCatalogScope()===scope&&l.epoch===renderedEpoch;}
+ function refresh(){if(ownsRender())readCatalog();}
+ const legacyValid=Array.isArray(legacyDepartments)&&legacyDepartments.every(d=>typeof d==='string');
+ function addLocal(){if(!ownsRender()||!legacyValid||life.current.legacy!==legacyDepartments||!newLocal.trim())return;onLegacyChange([...legacyDepartments,newLocal.trim()]);setNewLocal('');}
+ function removeLocal(index){if(!ownsRender()||!legacyValid||life.current.legacy!==legacyDepartments)return;onLegacyChange(legacyDepartments.filter((_,i)=>i!==index));}
+ const types={headquarters:'центральний офіс',department:'відділ',regional:'регіональний філіал',mobile:'мобільний офіс',foreign:'іноземний філіал'};
+ const departments=data?data.nodes.filter(n=>n.type==='department'):[],otherNodes=data?data.nodes.filter(n=>n.type!=='department'):[];
+ const byId=new Map(data?data.nodes.map(n=>[n.id,n]):[]),outside=data?data.employees.filter(e=>!byId.has(e.branch)||byId.get(e.branch).type!=='department'):[];
+ function person(e){return <li key={e.id} style={{marginBottom:8}}><strong>{e.name||'Ім’я не надано'}</strong> · співробітник №{e.id} · {e.archived?'Архівний запис':'Активний запис'}{e.role&&<span> · {e.role}</span>}{e.legacyDepartment&&<div className="op-muted">Історична текстова мітка: {e.legacyDepartment}. Вона не визначає належність до відділу.</div>}</li>;}
+ return <div style={{display:'flex',flexDirection:'column',gap:16,minWidth:0,overflowWrap:'anywhere'}}>
+  <section aria-label="Серверний каталог відділів" aria-busy={busy} style={cardS({padding:16,minWidth:0})}>
+   <div style={{display:'flex',flexWrap:'wrap',gap:10,justifyContent:'space-between',alignItems:'center'}}><h3 style={{color:T.text,margin:0,fontSize:16}}>Відділи та доступні співробітники</h3><Button onClick={refresh} disabled={busy||!contextOk} style={{whiteSpace:'normal',maxWidth:'100%'}}>Оновити каталог</Button></div>
+   <p className="op-muted">Серверні відділи мають власні ID. Належність визначає лише прив’язка співробітника до ID відділу — не однакова назва і не батьківський вузол.</p>
+   <p className="op-muted">Показано лише отримані доступні записи. Це не підтвердження повного штату, чисельності всього відділу чи його KPI. Списки читаються окремо, а не як єдиний кадровий зріз.</p>
+   {busy&&<p role="status">{status==='refreshing'?'Оновлюємо каталог…':'Завантаження каталогу…'}</p>}
+   {status==='empty'&&<p role="status">Читання завершено. Доступних вузлів і співробітників немає.</p>}
+   {status==='fresh'&&<p role="status">Каталог прочитано. Доступні записи наведено нижче.</p>}
+   {['denied','error','stale'].includes(status)&&<p role="alert" className="erp-error">{contextOk?view.error||'Оновіть каталог вручну.':view.error||'Каталог приховано: сесія або доступ потребують перевірки.'}</p>}
+   {contextOk&&view.at&&<p className="op-muted">{data?'Успішне читання в цьому вікні':'Попереднє успішне читання в цьому вікні'}: <time dateTime={view.at}>{new Date(view.at).toLocaleString('uk-UA',{timeZoneName:'short'})}</time>. Це час читання, не дата кадрового зрізу.</p>}
+   {data&&<div>
+    {departments.length===0?<p>Серед отриманих вузлів немає відділів.</p>:departments.map(department=>{
+     const members=data.employees.filter(e=>e.branch===department.id),active=members.filter(e=>!e.archived),archived=members.filter(e=>e.archived);
+     return <section key={department.id} aria-label={'Відділ №'+department.id} style={{borderTop:'1px solid '+T.border,paddingTop:12,marginTop:12}}><h4 style={{margin:'0 0 8px'}}>{department.name||'Назву не надано'} · відділ №{department.id}</h4><p className="op-muted">Код: {department.code||'не надано'}. Показано доступних активних записів: {active.length}; архівних: {archived.length}.</p><h5>Активні співробітники</h5>{active.length?<ul style={{paddingLeft:20}}>{active.map(person)}</ul>:<p>Активних співробітників серед отриманих записів не показано.</p>}{archived.length>0&&<div><h5>Архівні співробітники</h5><ul style={{paddingLeft:20}}>{archived.map(person)}</ul></div>}</section>;
+    })}
+    {outside.length>0&&<section style={{borderTop:'1px solid '+T.border,paddingTop:12,marginTop:12}}><h4>Співробітники поза підтвердженим відділом</h4><ul style={{paddingLeft:20}}>{outside.map(e=><li key={e.id} style={{marginBottom:10}}><strong>{e.name||'Ім’я не надано'}</strong> · співробітник №{e.id} · {e.archived?'Архівний запис':'Активний запис'}<div>{e.branch===null?'Прив’язку до вузла не задано.':byId.has(e.branch)?'Прив’язано до вузла №'+e.branch+' «'+byId.get(e.branch).name+'»; тип: '+types[byId.get(e.branch).type]+', це не відділ.':'Вузол №'+e.branch+' відсутній у доступному каталозі. Тип і належність до відділу не підтверджено.'}</div>{e.legacyDepartment&&<div className="op-muted">Історична текстова мітка: {e.legacyDepartment}. Вона не є прив’язкою до відділу.</div>}</li>)}</ul></section>}
+    {otherNodes.length>0&&<details style={{marginTop:14}}><summary>Інші вузли каталогу — не відділи</summary><ul style={{paddingLeft:20}}>{otherNodes.map(n=><li key={n.id}>{n.name||'Назву не надано'} · вузол №{n.id} · {types[n.type]} · код {n.code||'не надано'}</li>)}</ul></details>}
+   </div>}
+  </section>
+  <section aria-label="Локальні історичні назви відділів" style={cardS({padding:16,minWidth:0})}>
+   <h3 style={{margin:'0 0 8px',fontSize:14}}>Локальні історичні назви (legacy)</h3>
+   <p className="op-muted">Ці рядки зберігаються лише в налаштуваннях браузера. Додавання або прибирання назви не створює й не видаляє серверний відділ та не змінює прив’язку співробітників. Попередні назви не переносяться автоматично.</p>
+   {contextOk&&legacyValid?<div><div style={{display:'flex',flexWrap:'wrap',gap:8,marginBottom:12}}><label style={{flex:'1 1 180px',minWidth:0}}>Нова локальна назва<Input value={newLocal} onChange={e=>{if(ownsRender())setNewLocal(e.target.value);}} placeholder="Лише локальна текстова назва" style={{width:'100%',minWidth:0,boxSizing:'border-box'}}/></label><Button onClick={addLocal} disabled={!newLocal.trim()} style={{whiteSpace:'normal',maxWidth:'100%'}}>Додати локальну назву</Button></div>{legacyDepartments.length?<ul style={{paddingLeft:20}}>{legacyDepartments.map((name,index)=><li key={index} style={{marginBottom:8}}><span>{name||'Порожня локальна назва'}</span>{' '}<Button variant="subtle" onClick={()=>removeLocal(index)} aria-label={'Прибрати локальну назву '+name} style={{whiteSpace:'normal',maxWidth:'100%'}}>Прибрати локальну назву</Button></li>)}</ul>:<p>Локальних назв немає.</p>}</div>:<p className="op-muted">{contextOk?'Локальний список має непідтримуваний формат. Його збережено без змін.':'Локальні назви приховано до підтвердження поточного контексту.'}</p>}
+  </section>
+ </div>;
+}
 function Settings({settings,setSettings,employees,setEmployees,industry,setIndustry}){
   const [tab,setTab]=useState('profile');
   const upd=(path,val)=>{setSettings(prev=>{const s=JSON.parse(JSON.stringify(prev));const parts=path.split('.');let cur=s;for(let i=0;i<parts.length-1;i++)cur=cur[parts[i]];cur[parts[parts.length-1]]=val;return s;});};
   const COLORS=['#667eea','#ef4444','#f7971e','#10b981','#0ea5e9','#e879f9','#f43f5e','#6366f1'];
   const STABS=[{id:'profile',l:'Профіль',ic:'👤'},{id:'theme',l:'Вигляд',ic:'🎨'},{id:'employees',l:'Співробітники',ic:'👥'},{id:'departments',l:'Відділи',ic:'🏛'},{id:'industry',l:'Діяльність',ic:'🏢'},{id:'notifications',l:'Сповіщення',ic:'🔔'},{id:'regional',l:'Регіональні',ic:'🌐'},{id:'data',l:'Дані',ic:'📊'}];
-  const [newD,setNewD]=useState('');
   return(
     <div style={{padding:24}}>
       <h2 style={{color:T.text,margin:'0 0 18px',fontSize:20,fontWeight:700}}>Налаштування</h2>
@@ -3296,23 +3406,7 @@ function Settings({settings,setSettings,employees,setEmployees,industry,setIndus
               ))}
             </div>
           )}
-          {tab==='departments'&&(
-            <div style={cardS({padding:22})}>
-              <h3 style={{color:T.text,margin:'0 0 14px',fontSize:14,fontWeight:600}}>Відділи підприємства</h3>
-              <div style={{display:'flex',gap:9,marginBottom:16}}>
-                <Input value={newD} onChange={e=>setNewD(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&newD.trim()){upd('departments',[...settings.departments,newD.trim()]);setNewD('');}}} placeholder="Новий відділ" style={{flex:1}}/>
-                <Button variant="primary" onClick={()=>{if(!newD.trim())return;upd('departments',[...settings.departments,newD.trim()]);setNewD('');}} style={{fontSize:12,padding:'10px 14px'}}>+ Додати</Button>
-              </div>
-              <div style={{display:'flex',flexWrap:'wrap',gap:7}}>
-                {settings.departments.map(d=>(
-                  <div key={d} style={{display:'flex',alignItems:'center',gap:7,background:T.primaryGlow,border:'1px solid '+T.primary+'55',borderRadius:T.radMd,padding:'5px 13px'}}>
-                    <span style={{color:T.text,fontSize:12}}>{d}</span>
-                    <span onClick={()=>upd('departments',settings.departments.filter(x=>x!==d))} style={{color:T.red,cursor:'pointer',fontSize:13}}>✕</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          {tab==='departments'&&<SettingsDepartmentCatalog legacyDepartments={settings.departments} onLegacyChange={value=>upd('departments',value)}/>}
           {tab==='industry'&&(
             <div style={cardS({padding:22})}>
               <h3 style={{color:T.text,margin:'0 0 14px',fontSize:14,fontWeight:600}}>Сфера діяльності</h3>
