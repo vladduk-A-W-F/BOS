@@ -17465,10 +17465,13 @@ function OrderSupplyOptions({
   orderId,
   data,
   onAction,
-  readOnly = false
+  readOnly = false,
+  onTraceSelect,
+  onDocument,
+  initialSupply = null
 }) {
-  const [lineId, setLineId] = useState(''),
-    [targetId, setTargetId] = useState('');
+  const [lineId, setLineId] = useState(initialSupply?.line_id ? String(initialSupply.line_id) : ''),
+    [targetId, setTargetId] = useState(initialSupply?.target_id ? String(initialSupply.target_id) : '');
   const lines = data.lines.filter(row => row.order_id === orderId && data.items.some(item => item.id === row.item_id && item.method === 'buy'));
   const path = lineId ? 'lines/' + lineId + '/supply-options/' + (targetId ? '?target_location_id=' + targetId : '') : null;
   const {
@@ -17489,7 +17492,134 @@ function OrderSupplyOptions({
     availability_restricted: 'Доступність не визначена у поточному доступі',
     available: 'Доступна партія'
   };
-  const action = (name, preset, label) => !readOnly && facts?.supported && bosCanAction(name) ? /*#__PURE__*/React.createElement(Button, {
+  const navContext = [orderId, lineId, targetId, c03Scope()].join(':'),
+    navCurrent = useRef(navContext),
+    navSequence = useRef(0),
+    navController = useRef(null),
+    navLock = useRef(false);
+  navCurrent.current = navContext;
+  const navCurrentNow = (ticket, origin) => navSequence.current === ticket && navCurrent.current === origin && [orderId, lineId, targetId, c03Scope()].join(':') === origin;
+  const [opening, setOpening] = useState(false),
+    [sourceError, setSourceError] = useState(''),
+    [sourceBlocked, setSourceBlocked] = useState(false),
+    blockedRefresh = useRef(0);
+  const visibleFacts = sourceBlocked ? null : facts;
+  function stopOpen() {
+    navSequence.current++;
+    navController.current?.abort();
+    navController.current = null;
+    navLock.current = false;
+  }
+  function blockSources(message) {
+    stopOpen();
+    setOpening(false);
+    setSourceBlocked(true);
+    setSourceError(message);
+  }
+  function refreshSupply() {
+    if (sourceBlocked) blockedRefresh.current++;
+    refresh();
+  }
+  useEffect(() => {
+    if (sourceBlocked && state.status === 'ready' && blockedRefresh.current) {
+      blockedRefresh.current = 0;
+      setSourceBlocked(false);
+      setSourceError('');
+    }
+  }, [sourceBlocked, state.status, state.data]);
+  useEffect(() => {
+    setOpening(false);
+    setSourceError('');
+    setSourceBlocked(false);
+    blockedRefresh.current = 0;
+    const denied = () => blockSources('Джерело недоступне для поточного доступу.'),
+      changed = () => blockSources('Дані змінилися. Оновіть забезпечення перед відкриттям джерела.');
+    window.addEventListener('bos:session-ended', denied);
+    window.addEventListener('bos:data-changed', changed);
+    return () => {
+      stopOpen();
+      window.removeEventListener('bos:session-ended', denied);
+      window.removeEventListener('bos:data-changed', changed);
+    };
+  }, [navContext]);
+  async function openSource(kind, id) {
+    if (navLock.current || !visibleFacts || !lineId || !onTraceSelect) return;
+    navLock.current = true;
+    setOpening(true);
+    setSourceError('');
+    const ticket = navSequence.current,
+      origin = navContext,
+      controller = new AbortController();
+    navController.current = controller;
+    const deny = message => {
+      const error = Error(message);
+      error.sourceStatus = message;
+      throw error;
+    };
+    try {
+      const revision = window.BOS_RUNTIME?.access_revision;
+      if (!revision) deny('Джерело недоступне для поточного доступу.');
+      const supplyResponse = await fetch('/api/erp/' + path, {
+        method: 'GET',
+        cache: 'no-store',
+        signal: controller.signal
+      });
+      if (!navCurrentNow(ticket, origin)) return;
+      if ([401, 403, 404].includes(supplyResponse.status)) deny('Джерело недоступне для поточного доступу.');
+      if (supplyResponse.status === 409) deny('Дані змінилися. Оновіть забезпечення перед відкриттям джерела.');
+      if (!supplyResponse.ok) deny('Не вдалося перевірити джерело. Повторіть відкриття.');
+      let projected;
+      try {
+        projected = flowVerify(await supplyResponse.json(), 'bos.supply-options.v1', Number(lineId), revision, targetId ? Number(targetId) : null);
+      } catch {
+        deny('Дані змінилися або джерело більше не відповідає поточному доступу. Оновіть забезпечення.');
+      }
+      if (!navCurrentNow(ticket, origin) || supplyResponse.headers.get('X-BoS-Access') && supplyResponse.headers.get('X-BoS-Access') !== revision) deny('Джерело недоступне для поточного доступу.');
+      const inProjection = kind === 'purchases' ? projected.purchases.some(row => row.purchase_id === id) : kind === 'lots' ? [...projected.stock, ...projected.waiting].some(row => row.lot_id === id) : kind === 'documents' ? [...projected.stock, ...projected.waiting].some(row => row.document_ids.includes(id)) : false;
+      if (!inProjection) deny('Джерело більше не належить до показаного забезпечення. Оновіть забезпечення.');
+      const snapshotResponse = await fetch('/api/erp/snapshot/', {
+        method: 'GET',
+        cache: 'no-store',
+        signal: controller.signal
+      });
+      if (!navCurrentNow(ticket, origin)) return;
+      if ([401, 403, 404].includes(snapshotResponse.status)) deny('Джерело недоступне для поточного доступу.');
+      if (snapshotResponse.status === 409) deny('Дані змінилися. Оновіть забезпечення перед відкриттям джерела.');
+      if (!snapshotResponse.ok) deny('Не вдалося перевірити джерело. Повторіть відкриття.');
+      const fresh = await snapshotResponse.json();
+      if (!navCurrentNow(ticket, origin) || snapshotResponse.headers.get('X-BoS-Access') && snapshotResponse.headers.get('X-BoS-Access') !== revision) deny('Джерело недоступне для поточного доступу.');
+      if (!b03FindRecord(fresh, 'orders', orderId) || !fresh.lines?.some(row => row.id === Number(lineId) && row.order_id === orderId) || targetId && !b03FindRecord(fresh, 'locations', Number(targetId))) deny('Початкове замовлення або вибрана позиція більше недоступні. Поверніться до замовлення.');
+      if (!b03FindRecord(fresh, kind, id)) deny('Джерело відсутнє серед доступних поточних записів. Оновіть забезпечення.');
+      const supplyReturn = {
+        order_id: orderId,
+        line_id: Number(lineId),
+        target_id: targetId ? Number(targetId) : null
+      };
+      if (kind === 'documents') {
+        onDocument?.(id);
+        return;
+      }
+      onTraceSelect({
+        kind,
+        id,
+        supplyReturn
+      }, fresh);
+    } catch (error) {
+      if (navCurrentNow(ticket, origin) && error.name !== 'AbortError') blockSources(error.sourceStatus || 'Не вдалося перевірити поточні джерела. Оновіть забезпечення.');
+    } finally {
+      if (navCurrentNow(ticket, origin)) {
+        navLock.current = false;
+        navController.current = null;
+        setOpening(false);
+      }
+    }
+  }
+  const sourceButton = (kind, id, label) => Number.isSafeInteger(id) ? /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    disabled: opening || !onTraceSelect,
+    onClick: () => openSource(kind, id)
+  }, label) : null;
+  const action = (name, preset, label) => !readOnly && visibleFacts?.supported && bosCanAction(name) ? /*#__PURE__*/React.createElement(Button, {
     onClick: () => onAction(name, preset)
   }, label) : null;
   if (!lines.length) return null;
@@ -17515,11 +17645,16 @@ function OrderSupplyOptions({
     key: row.id,
     value: row.id
   }, row.code, " \xB7 ", row.name))))), /*#__PURE__*/React.createElement(Button, {
-    disabled: !lineId || state.status === 'loading',
-    onClick: refresh
+    disabled: !lineId || state.status === 'loading' || opening,
+    onClick: refreshSupply
   }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438 \u0437\u0430\u0431\u0435\u0437\u043F\u0435\u0447\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement(FlowReadStatus, {
     state: state
-  }), facts && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+  }), opening && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u044F\u0454\u043C\u043E \u0434\u043E\u0441\u0442\u0443\u043F \u0456 \u0437\u0432\u2019\u044F\u0437\u043E\u043A \u0434\u0436\u0435\u0440\u0435\u043B\u0430\u2026"), sourceError && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, sourceError), visibleFacts && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     className: "bos-readable-facts__context"
   }, /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
@@ -17542,19 +17677,19 @@ function OrderSupplyOptions({
     className: "bos-readable-facts__lot-location"
   }, " \xB7 ", row.location.code, " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", row.revision), /*#__PURE__*/React.createElement("span", {
     className: "bos-readable-facts__lot-status"
-  }, " \xB7 ", reasons[row.reason] || 'Перевірте стан партії')), /*#__PURE__*/React.createElement("p", null, "\u0424\u0456\u0437\u0438\u0447\u043D\u043E: ", row.quantity, " ", row.unit, ". \u0412\u0456\u043B\u044C\u043D\u043E: ", row.available === null ? 'Не визначено' : row.available + ' ' + row.unit, "."), row.document_ids.length > 0 && /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0438: ", row.document_ids.map(id => '№' + id).join(', ')), row.eligible && /*#__PURE__*/React.createElement("div", {
+  }, " \xB7 ", reasons[row.reason] || 'Перевірте стан партії')), /*#__PURE__*/React.createElement("p", null, "\u0424\u0456\u0437\u0438\u0447\u043D\u043E: ", row.quantity, " ", row.unit, ". \u0412\u0456\u043B\u044C\u043D\u043E: ", row.available === null ? 'Не визначено' : row.available + ' ' + row.unit, "."), row.document_ids.length > 0 && /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0438: ", row.document_ids.map(id => sourceButton('documents', id, 'Відкрити документ №' + id))), /*#__PURE__*/React.createElement("div", {
     className: "erp-actions"
-  }, action('reserve', {
+  }, sourceButton('lots', row.lot_id, 'Відкрити партію · ' + row.code), row.eligible && action('reserve', {
     lot_id: row.lot_id,
     line_id: facts.line.id,
     quantity: ''
-  }, 'Резервувати · ' + row.code), targetId && row.location.id !== Number(targetId) && action('transfer', {
+  }, 'Резервувати · ' + row.code), row.eligible && targetId && row.location.id !== Number(targetId) && action('transfer', {
     lot_id: row.lot_id,
     location_id: Number(targetId),
     quantity: ''
-  }, 'Миттєво перемістити · ' + row.code)))), !targetId && /*#__PURE__*/React.createElement("p", null, "\u0414\u043B\u044F \u043F\u0435\u0440\u0435\u043C\u0456\u0449\u0435\u043D\u043D\u044F \u044F\u0432\u043D\u043E \u043E\u0431\u0435\u0440\u0456\u0442\u044C \u043C\u0456\u0441\u0446\u0435 \u043F\u0440\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u043D\u044F."), /*#__PURE__*/React.createElement("h4", null, "\u041E\u0447\u0456\u043A\u0443\u0432\u0430\u043D\u0456 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456"), facts.purchases.map(row => /*#__PURE__*/React.createElement("p", {
+  }, 'Миттєво перемістити · ' + row.code)))), !targetId && /*#__PURE__*/React.createElement("p", null, "\u0414\u043B\u044F \u043F\u0435\u0440\u0435\u043C\u0456\u0449\u0435\u043D\u043D\u044F \u044F\u0432\u043D\u043E \u043E\u0431\u0435\u0440\u0456\u0442\u044C \u043C\u0456\u0441\u0446\u0435 \u043F\u0440\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u043D\u044F."), /*#__PURE__*/React.createElement("h4", null, "\u041E\u0447\u0456\u043A\u0443\u0432\u0430\u043D\u0456 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456"), facts.purchases.map(row => /*#__PURE__*/React.createElement("div", {
     key: row.purchase_id
-  }, row.code, " \xB7 ", row.open_quantity, " ", row.unit, " \xB7 \u043E\u0447\u0456\u043A\u0443\u0454\u0442\u044C\u0441\u044F ", erpDate(row.due_date), " \xB7 ", reasons[row.reason] || 'Потребує перевірки', " \xB7 \u043F\u0440\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u043D\u044F: ", row.destination?.code || 'Не визначено у поточному доступі')), Object.values(facts.limits?.has_more || {}).some(Boolean) && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0447\u0430\u0441\u0442\u0438\u043D\u0443 \u0434\u0436\u0435\u0440\u0435\u043B; \u043F\u0456\u0434\u0441\u0443\u043C\u043A\u0438 \u043C\u0430\u044E\u0442\u044C \u043E\u043A\u0440\u0435\u043C\u0438\u0439 \u043E\u0431\u0441\u044F\u0433 \u0434\u043E\u0441\u0442\u0443\u043F\u0443.")), action('purchase', {
+  }, /*#__PURE__*/React.createElement("p", null, row.code, " \xB7 ", row.open_quantity, " ", row.unit, " \xB7 \u043E\u0447\u0456\u043A\u0443\u0454\u0442\u044C\u0441\u044F ", erpDate(row.due_date), " \xB7 ", reasons[row.reason] || 'Потребує перевірки', " \xB7 \u043F\u0440\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u043D\u044F: ", row.destination?.code || 'Не визначено у поточному доступі'), sourceButton('purchases', row.purchase_id, 'Відкрити закупівлю · ' + row.code))), Object.values(facts.limits?.has_more || {}).some(Boolean) && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0447\u0430\u0441\u0442\u0438\u043D\u0443 \u0434\u0436\u0435\u0440\u0435\u043B; \u043F\u0456\u0434\u0441\u0443\u043C\u043A\u0438 \u043C\u0430\u044E\u0442\u044C \u043E\u043A\u0440\u0435\u043C\u0438\u0439 \u043E\u0431\u0441\u044F\u0433 \u0434\u043E\u0441\u0442\u0443\u043F\u0443.")), action('purchase', {
     item_id: facts.line.item_id,
     revision: facts.line.revision,
     currency: facts.line.currency,
@@ -17567,7 +17702,7 @@ function OrderSupplyOptions({
     due_date: ''
   }, 'Підготувати закупівлю'), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
-  }, "\u0414\u043B\u044F \u0434\u0456\u0457 \u0432\u043A\u0430\u0436\u0456\u0442\u044C \u043A\u0456\u043B\u044C\u043A\u0456\u0441\u0442\u044C \u0456 \u043F\u043E\u0442\u0440\u0456\u0431\u043D\u0456 \u0440\u0435\u043A\u0432\u0456\u0437\u0438\u0442\u0438. \u0417\u0430\u043F\u0438\u0441 \u0432\u0438\u043A\u043E\u043D\u0443\u0454\u0442\u044C\u0441\u044F \u043F\u0456\u0441\u043B\u044F \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0438 \u0442\u0430 \u043E\u043A\u0440\u0435\u043C\u043E\u0433\u043E \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F.")));
+  }, "\u041E\u0447\u0456\u043A\u0443\u0432\u0430\u043D\u0456 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456 \u043F\u043E\u043A\u0430\u0437\u0430\u043D\u0456 \u044F\u043A \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430. \u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0442\u044F \u043D\u0435 \u043E\u0437\u043D\u0430\u0447\u0430\u0454, \u0449\u043E \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044E \u043F\u0440\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u043E \u0446\u044C\u043E\u043C\u0443 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044E. \u0414\u043B\u044F \u0434\u0456\u0457 \u0432\u043A\u0430\u0436\u0456\u0442\u044C \u043A\u0456\u043B\u044C\u043A\u0456\u0441\u0442\u044C \u0456 \u043F\u043E\u0442\u0440\u0456\u0431\u043D\u0456 \u0440\u0435\u043A\u0432\u0456\u0437\u0438\u0442\u0438; \u0437\u0430\u043F\u0438\u0441 \u0432\u0438\u043A\u043E\u043D\u0443\u0454\u0442\u044C\u0441\u044F \u043B\u0438\u0448\u0435 \u043F\u0456\u0441\u043B\u044F \u043D\u0430\u044F\u0432\u043D\u043E\u0457 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0438 \u0442\u0430 \u043E\u043A\u0440\u0435\u043C\u043E\u0433\u043E \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F.")));
 }
 const DOCUMENT_MATCH_ISSUES = {
   ocr_required: 'У файлі немає тексту. Потрібен OCR або ручне читання.',
@@ -17851,11 +17986,14 @@ function BoSInspector({
         onTraceSelect: onTraceSelect,
         onNavigate: onNavigate
       }), /*#__PURE__*/React.createElement(OrderSupplyOptions, {
-        key: 'supply:' + id + ':' + c03Scope(),
+        key: 'supply:' + id + ':' + c03Scope() + ':' + (selection.supplyReturn?.line_id || ''),
         orderId: id,
         data: data,
         onAction: onAction,
-        readOnly: readOnly
+        readOnly: readOnly,
+        onTraceSelect: onTraceSelect,
+        onDocument: setDoc,
+        initialSupply: selection.supplyReturn
       }), bosRole() === 'ceo' && /*#__PURE__*/React.createElement(OrderSettlement, {
         key: 'settlement:' + id + ':' + c03Scope(),
         orderId: id,
@@ -18046,7 +18184,13 @@ function BoSInspector({
     onClose: onClose
   }, /*#__PURE__*/React.createElement("div", {
     className: "erp-row"
-  }, /*#__PURE__*/React.createElement("h2", null, title), /*#__PURE__*/React.createElement(Button, {
+  }, /*#__PURE__*/React.createElement("h2", null, title), selection.supplyReturn && /*#__PURE__*/React.createElement(Button, {
+    onClick: () => onSelect({
+      kind: 'orders',
+      id: selection.supplyReturn.order_id,
+      supplyReturn: selection.supplyReturn
+    })
+  }, "\u041F\u043E\u0432\u0435\u0440\u043D\u0443\u0442\u0438\u0441\u044F \u0434\u043E \u0437\u0430\u0431\u0435\u0437\u043F\u0435\u0447\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement(Button, {
     onClick: () => ref.current.close()
   }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438")), body, doc && /*#__PURE__*/React.createElement(DocViewer, {
     id: doc,
