@@ -19061,69 +19061,382 @@ function WorkpointsPanel({
     changes: receipt.value.impact
   }))));
 }
+// HOME owns only the provenance of its snapshot read; command receipts have their own lifecycle.
+function homeReadScope() {
+  const r = window.BOS_RUNTIME;
+  if (!r || r.user_id == null || !r.mode || !r.role || !r.access_revision) return '';
+  return JSON.stringify([r.user_id, r.mode, r.role, r.access_revision, r.employee_id ?? null, Object.entries(r.capabilities || {}).sort(([a], [b]) => a.localeCompare(b))]);
+}
+function homeKnownNumber(value) {
+  return typeof value === 'number' && Number.isFinite(value) || typeof value === 'string' && /^-?\d+(?:\.\d+)?$/.test(value) && Number.isFinite(Number(value));
+}
+function homeBusinessDate(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+  const d = new Date(value + 'T00:00:00Z');
+  return Number.isFinite(d.getTime()) && d.toISOString().slice(0, 10) === value ? value : null;
+}
+function homeSnapshotShape(value, financial) {
+  const object = x => !!x && typeof x === 'object' && !Array.isArray(x),
+    pk = x => Number.isSafeInteger(x) && x > 0;
+  const rows = (list, id = 'id') => Array.isArray(list) && list.every(x => object(x) && pk(x[id])) && new Set(list.map(x => x[id])).size === list.length;
+  const scalar = x => x == null || typeof x === 'string' || typeof x === 'boolean' || typeof x === 'number' && Number.isFinite(x),
+    fields = (row, keys) => keys.every(key => scalar(row[key]));
+  const array = (list, check) => Array.isArray(list) && list.every(x => object(x) && check(x));
+  const bom = list => array(list, x => pk(x.item_id) && homeKnownNumber(x.quantity));
+  const routing = list => array(list, x => typeof x.name === 'string' && fields(x, ['instruction', 'days']));
+  const remaining = (row, done) => homeKnownNumber(row.quantity) && Number(row.quantity) > 0 && homeKnownNumber(row[done]) && Number(row[done]) >= 0 && Number(row[done]) <= Number(row.quantity) && (row.open_quantity != null ? homeKnownNumber(row.open_quantity) : [row.quantity, row[done]].every(x => /^\d+(?:\.\d{1,3})?$/.test(String(x))));
+  if (!object(value) || !object(value.home)) return false;
+  const required = ['items', 'locations', 'lots', 'orders', 'lines', 'jobs', 'reservations', 'purchases', 'events', 'employees', 'partners', 'documents', 'movements', 'operator_entries'];
+  const optional = ['requests', 'branches', 'changes', 'source_movements', 'correction_events', 'cancellations', 'cancellation_releases', 'goods_returns', 'supplier_claims', 'invoice_adjustments', 'invoice_adjustment_lines', 'transfers', 'retentions'];
+  for (const key of required) if (!rows(value[key])) return false;
+  for (const key of optional) if (value[key] !== undefined && !rows(value[key])) return false;
+  if (!rows(value.invoices, 'invoice_id') || !rows(value.home.tasks)) return false;
+  // These values are rendered directly by the retained overview/record tables.
+  // Absent display fields are allowed; objects/arrays cannot masquerade as text.
+  const displayFields = ['code', 'name', 'full_name', 'title', 'unit', 'kind', 'method', 'revision', 'material', 'status', 'quality', 'quantity', 'reserved', 'available', 'shipped', 'produced', 'received', 'open_quantity', 'cancelled_quantity', 'returned_quantity', 'price', 'extras', 'unit_cost', 'planned_cost', 'actual_cost', 'currency', 'notes', 'note', 'reason', 'reference', 'lot_code', 'address', 'lat', 'lng', 'destination_country', 'origin_country', 'effective_status', 'operation', 'minutes', 'defects', 'target_revision', 'disposition', 'before_quantity', 'after_quantity', 'amount', 'paid', 'open', 'effective_credit', 'net_amount', 'receivable', 'customer_credit', 'retained', 'collectible', 'total', 'source_cost', 'allocated_cost', 'agreed_amount', 'due_date', 'original_due', 'created_at', 'business_date'];
+  for (const key of [...required, ...optional, 'invoices']) if (value[key] && !value[key].every(x => fields(x, displayFields))) return false;
+  for (const [key, field] of [['orders', 'code'], ['lots', 'code'], ['invoices', 'code'], ['partners', 'name'], ['employees', 'full_name']]) if (!value[key].every(x => typeof x[field] === 'string')) return false;
+  if (!value.jobs.every(x => typeof x.status === 'string') || !value.events.every(x => typeof x.action === 'string')) return false;
+  const events = [...value.events, ...(value.correction_events || [])];
+  if (!events.every(x => typeof x.action === 'string' && (x.result == null || object(x.result) && fields(x.result, ['code', 'reference', 'note']) && (x.result.impact == null || array(x.result.impact, r => fields(r, ['code', 'label', 'field', 'currency'])))))) return false;
+  if (financial && !events.every(x => x.action !== 'erp_payment' || object(x.payload) && pk(x.payload.invoice_id) && fields(x.payload, ['reference', 'amount']))) return false;
+  if (!value.lots.every(x => homeKnownNumber(x.quantity) && typeof x.quality === 'string' && Array.isArray(x.missing_documents) && x.missing_documents.every(d => typeof d === 'string') && object(x.documents) && Object.values(x.documents).every(pk))) return false;
+  if (!value.items.every(x => bom(x.bom) && routing(x.routing) && object(x.external_codes) && Object.values(x.external_codes).every(scalar))) return false;
+  if (!value.jobs.every(x => bom(x.bom) && routing(x.routing))) return false;
+  if (!value.orders.every(x => typeof x.code === 'string') || !value.lines.every(x => pk(x.order_id) && pk(x.item_id) && remaining(x, 'shipped'))) return false;
+  if (!value.purchases.every(x => remaining(x, 'received'))) return false;
+  if (!value.home.tasks.every(x => typeof x.title === 'string' && typeof x.status === 'string' && typeof x.archived === 'boolean' && typeof x.is_overdue === 'boolean' && scalar(x.assignee_name ?? x.assignee ?? '') && fields(x, ['deadline']))) return false;
+  if (!value.purchases.every(x => {
+    const s = x.approval_snapshot;
+    return s == null || object(s) && fields(s, ['source', 'request_code', 'quote_code', 'source_reference', 'source_order_code', 'source_line_id', 'unit', 'revision', 'currency', 'agreed_quantity', 'price', 'extras', 'original_quantity', 'received_before_cutover', 'remaining_quantity', 'remaining_extras', 'original_extras', 'direct_reason', 'supplier_confirmation']) && (s.original_terms == null || object(s.original_terms)) && (s.source_documents == null || object(s.source_documents) && Object.values(s.source_documents).every(d => object(d) && pk(d.document_id) && fields(d, ['code', 'revision'])));
+  })) return false;
+  // Operational roles legitimately have no financial projection. Missing metric values remain unknown.
+  if (financial && (!Array.isArray(value.home.financial) || !value.home.financial.every(x => object(x) && typeof x.currency === 'string' && /^[A-Z]{3}$/.test(x.currency)) || !Array.isArray(value.costs) || !value.costs.every(object))) return false;
+  if (!value.invoices.every(x => !financial && x.lines === undefined || array(x.lines, line => pk(line.line_id) && homeKnownNumber(line.quantity) && scalar(line.price)))) return false;
+  if (value.costs !== undefined && !array(value.costs, x => pk(x.order_id) && fields(x, ['code', 'currency', 'order_value', 'shipped_value', 'shipped_cost', 'gross_margin']))) return false;
+  return true;
+}
+function homeSelectionVisible(selection, data) {
+  if (!selection || !data) return false;
+  if (selection.kind === 'metric') return bosCan('finance') && BOS_METRICS.some(x => x[0] === selection.key) && data.home.financial.some(x => x.currency === selection.currency && homeKnownNumber(x[selection.key]));
+  if (selection.kind === 'list') return ['jobs', 'lots', 'tasks', 'orders'].includes(selection.key);
+  return Number.isSafeInteger(selection.id) && Array.isArray(data[selection.kind]) && !!b03FindRecord(data, selection.kind, selection.id);
+}
 function BoSHome({
   onNavigate,
   refetchTasks,
   focus = false
 }) {
-  const [data, setData] = useState(null),
-    [error, setError] = useState(''),
+  const scope = homeReadScope(),
+    [view, setView] = useState({
+      scope: '',
+      status: 'initial',
+      data: null,
+      at: null,
+      error: ''
+    }),
     [currency, setCurrency] = useState('UAH'),
     [selection, setSelection] = useState(null),
     [action, setAction] = useState(null),
     [receipt, setReceipt] = useState(null);
-  const loadSeq = useRef(0);
-  async function refresh() {
-    const n = ++loadSeq.current;
+  const life = useRef({
+      alive: false,
+      scope: '',
+      epoch: 0,
+      accessEpoch: 0,
+      pending: null,
+      view: null,
+      actionId: 0,
+      nextSelection: null,
+      selected: null
+    }),
+    presentation = useRef('');
+  presentation.current = JSON.stringify([currency, focus]);
+  const renderedPresentation = presentation.current;
+  function publish(next) {
+    life.current.view = next;
+    setView(next);
+  }
+  function select(next) {
+    life.current.selected = next;
+    setSelection(next);
+  }
+  function cancelRead() {
+    const l = life.current;
+    l.epoch++;
+    if (l.pending) {
+      clearTimeout(l.pending.timer);
+      l.pending.controller.abort();
+      l.pending = null;
+    }
+  }
+  function clearContext(status, message) {
+    const l = life.current;
+    cancelRead();
+    l.accessEpoch++;
+    l.actionId++;
+    l.nextSelection = null;
+    select(null);
+    setAction(null);
+    setReceipt(null);
+    publish({
+      scope: l.scope,
+      status,
+      data: null,
+      at: null,
+      error: message
+    });
+  }
+  function readCurrent(ticket) {
+    const l = life.current;
+    if (l.alive && l.scope === ticket.scope && l.epoch === ticket.epoch && homeReadScope() !== ticket.scope) {
+      clearContext('context-drift', 'Контекст доступу змінився. Оновіть огляд у поточному обліковому записі.');
+      return false;
+    }
+    return l.alive && l.scope === ticket.scope && homeReadScope() === ticket.scope && l.epoch === ticket.epoch;
+  }
+  function failRead(ticket, clear = false, message = 'Не вдалося оновити робочий огляд. Повторіть читання вручну.') {
+    if (!readCurrent(ticket)) return;
+    if (clear) {
+      clearContext('denied', message);
+      return;
+    }
+    const previous = life.current.view;
+    publish({
+      ...previous,
+      status: previous.data ? 'stale' : 'error',
+      error: message
+    });
+  }
+  async function refresh(supersede = false) {
+    const l = life.current;
+    if (!l.alive) return;
+    if (!homeReadScope() || l.scope !== homeReadScope()) {
+      clearContext('context-drift', 'Контекст доступу змінився. Дочекайтеся актуального облікового запису та оновіть огляд.');
+      return;
+    }
+    if (l.pending && !supersede) return;
+    cancelRead();
+    select(null);
+    const controller = new AbortController(),
+      ticket = {
+        scope: l.scope,
+        epoch: l.epoch,
+        controller,
+        revision: window.BOS_RUNTIME.access_revision,
+        financial: bosCan('finance'),
+        timer: null
+      };
+    l.pending = ticket;
+    const previous = l.view;
+    publish({
+      ...previous,
+      scope: l.scope,
+      status: previous?.data ? 'refreshing' : 'loading',
+      data: previous?.data || null,
+      at: previous?.at || null,
+      error: ''
+    });
+    ticket.timer = setTimeout(() => {
+      if (!readCurrent(ticket)) return;
+      controller.abort();
+      l.pending = null;
+      failRead(ticket);
+      l.epoch++;
+    }, 30000);
     try {
-      const d = await erpFetch('snapshot/');
-      if (n === loadSeq.current) {
-        setData(d);
-        setError('');
+      const response = await fetch('/api/erp/snapshot/', {
+        cache: 'no-store',
+        signal: controller.signal
+      });
+      if (!readCurrent(ticket)) return;
+      const access = response.headers.get('X-BoS-Access');
+      if ([401, 403].includes(response.status) || response.headers.get('X-BoS-Identity') === 'denied' || access && access !== ticket.revision) {
+        failRead(ticket, true, 'Доступ до робочого огляду змінився. Перевірте обліковий запис і оновіть дані.');
+        return;
       }
-    } catch (e) {
-      if (n === loadSeq.current) setError(e.message);
+      if ([404, 409].includes(response.status)) {
+        failRead(ticket, true, 'Дані або контекст огляду змінилися. Оновіть огляд вручну.');
+        return;
+      }
+      if (!response.ok) {
+        failRead(ticket);
+        return;
+      }
+      if (access !== ticket.revision) {
+        failRead(ticket, true, 'Не вдалося підтвердити контекст читання. Оновіть огляд вручну.');
+        return;
+      }
+      const body = await response.json();
+      if (!readCurrent(ticket)) return;
+      if (!homeSnapshotShape(body, ticket.financial)) {
+        failRead(ticket, false, 'Сервер не повернув повний робочий огляд. Оновіть дані вручну.');
+        return;
+      }
+      const empty = ['orders', 'lots', 'jobs', 'invoices', 'events'].every(key => body[key].length === 0) && body.home.tasks.length === 0;
+      const next = l.nextSelection;
+      l.nextSelection = null;
+      publish({
+        scope: ticket.scope,
+        status: empty ? 'empty' : 'fresh',
+        data: body,
+        at: new Date().toISOString(),
+        error: ''
+      });
+      if (next && homeSelectionVisible(next, body)) select(next);
+    } catch {
+      failRead(ticket);
+    } finally {
+      clearTimeout(ticket.timer);
+      if (l.pending === ticket) l.pending = null;
     }
   }
   useEffect(() => {
-    refresh();
-    window.addEventListener('bos:data-changed', refresh);
-    return () => window.removeEventListener('bos:data-changed', refresh);
-  }, []);
+    const l = life.current;
+    l.alive = true;
+    l.scope = scope;
+    clearContext('initial', '');
+    const changed = () => {
+      if (l.scope !== homeReadScope()) {
+        clearContext('context-drift', 'Контекст доступу змінився. Оновіть огляд у поточному обліковому записі.');
+        return;
+      }
+      refresh(true);
+    };
+    const ended = () => clearContext('denied', 'Сесію або доступ змінено. Перевірте обліковий запис і оновіть огляд.');
+    window.addEventListener('bos:data-changed', changed);
+    window.addEventListener('bos:session-ended', ended);
+    if (scope) refresh();else publish({
+      scope,
+      status: 'denied',
+      data: null,
+      at: null,
+      error: 'Робочий огляд потребує чинного облікового запису.'
+    });
+    return () => {
+      l.alive = false;
+      cancelRead();
+      l.actionId++;
+      window.removeEventListener('bos:data-changed', changed);
+      window.removeEventListener('bos:session-ended', ended);
+    };
+  }, [scope]);
+  useEffect(() => {
+    select(null);
+    life.current.nextSelection = null;
+  }, [currency, focus]);
+  const inScope = view.scope === scope && !!scope,
+    data = inScope ? view.data : null,
+    status = inScope ? view.status : 'context-drift',
+    at = inScope ? view.at : null;
+  const ready = !!data && ['fresh', 'empty'].includes(status),
+    epoch = life.current.epoch,
+    busy = ['initial', 'loading', 'refreshing'].includes(status),
+    recoveryOwner = {
+      scope,
+      accessEpoch: life.current.accessEpoch,
+      data
+    };
+  function canUse() {
+    const l = life.current;
+    return l.alive && l.scope === scope && homeReadScope() === scope && l.epoch === epoch && l.view?.data === data && ['fresh', 'empty'].includes(l.view?.status) && presentation.current === renderedPresentation;
+  }
+  function canInspect() {
+    return canUse() && !!selection && life.current.selected === selection;
+  }
+  function open(next) {
+    if (canUse() && homeSelectionVisible(next, data)) select(next);
+  }
   function begin(type, preset) {
+    if (!canUse()) return;
     if (!bosCanAction(type)) {
-      setError('Ця дія недоступна вашому обліковому запису.');
+      publish({
+        ...life.current.view,
+        error: 'Ця дія недоступна вашому обліковому запису.'
+      });
       return;
     }
-    setSelection(null);
+    select(null);
+    const l = life.current;
     setAction({
+      id: ++l.actionId,
+      scope,
+      accessEpoch: l.accessEpoch,
       type,
-      preset
+      preset,
+      data
     });
   }
-  if (!data) return /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: 24
-    }
-  }, /*#__PURE__*/React.createElement("p", null, error || 'Завантаження робочого простору…'), /*#__PURE__*/React.createElement(Button, {
-    onClick: refresh
-  }, "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0438"));
-  const financials = bosCan('finance') ? data.home?.financial || [] : [],
+  function traceSelect(next) {
+    if (!canInspect()) return;
+    cancelRead();
+    select(null);
+    life.current.nextSelection = next;
+    publish({
+      ...life.current.view,
+      status: 'stale',
+      error: 'Джерело прочитано окремо. Оновіть робочий огляд, щоб відкрити запис у поточному контексті.'
+    });
+  }
+  function recover(entry) {
+    const l = life.current;
+    if (!l.alive || !recoveryOwner.data || l.scope !== recoveryOwner.scope || homeReadScope() !== recoveryOwner.scope || l.accessEpoch !== recoveryOwner.accessEpoch || l.view?.data !== recoveryOwner.data || ['denied', 'context-drift'].includes(l.view?.status)) return;
+    select(null);
+    setAction({
+      id: ++l.actionId,
+      scope: recoveryOwner.scope,
+      accessEpoch: recoveryOwner.accessEpoch,
+      type: entry.action,
+      preset: {},
+      recovery: entry,
+      data: recoveryOwner.data
+    });
+  }
+  function currentAction(value) {
+    const l = life.current;
+    return l.alive && value && value.id === l.actionId && value.accessEpoch === l.accessEpoch && value.scope === l.scope && value.scope === homeReadScope();
+  }
+  function closeAction(value) {
+    if (!currentAction(value)) return;
+    life.current.actionId++;
+    setAction(null);
+  }
+  function done(value, result, context) {
+    if (!currentAction(value)) return;
+    life.current.actionId++;
+    setAction(null);
+    setReceipt({
+      scope,
+      accessEpoch: life.current.accessEpoch,
+      value: s2ReceiptContext(result, context)
+    });
+    refresh(true);
+    refetchTasks?.();
+  }
+  const shownAction = action && action.scope === scope && action.accessEpoch === life.current.accessEpoch ? action : null,
+    shownReceipt = receipt && receipt.scope === scope && receipt.accessEpoch === life.current.accessEpoch ? receipt.value : null;
+  const financials = data && bosCan('finance') ? data.home.financial : [],
     financial = financials.find(x => x.currency === currency) || financials[0],
     cur = financial?.currency;
-  const homeTasks = (data.home?.tasks || []).filter(t => !t.archived).map(t => ({
+  const homeTasks = data ? data.home.tasks.filter(t => !t.archived).map(t => ({
       ...t,
       overdue: t.is_overdue === true
-    })),
+    })) : [],
     openTasks = homeTasks.filter(x => x.status !== 'done'),
     overdue = homeTasks.filter(x => x.overdue),
-    issues = data.lots.filter(x => Number(x.quantity) > 0 && (x.quality !== 'approved' || x.missing_documents.length));
-  const open = selection => setSelection(selection),
-    orders = data.orders.filter(o => data.lines.some(l => l.order_id === o.id && b03Positive(b03OpenLine(l)))),
+    issues = data ? data.lots.filter(x => Number(x.quantity) > 0 && (x.quality !== 'approved' || x.missing_documents.length)) : [];
+  const orders = data ? data.orders.filter(o => data.lines.some(l => l.order_id === o.id && b03Positive(b03OpenLine(l)))) : [],
     inspect = (kind, id) => open({
       kind,
       id
     });
+  const number = value => homeKnownNumber(value) ? erpNum(value) : '—',
+    businessDate = homeBusinessDate(data?.as_of),
+    previous = !!data && !ready;
+  const readLabel = previous ? 'Попереднє читання в цьому вікні' : 'Останнє успішне читання в цьому вікні';
+  const localTime = at ? new Date(at).toLocaleString('uk-UA', {
+    timeZoneName: 'short'
+  }) : null;
   return /*#__PURE__*/React.createElement("div", {
     className: "bos-home"
   }, /*#__PURE__*/React.createElement("div", {
@@ -19132,46 +19445,70 @@ function BoSHome({
     className: "op-muted"
   }, focus ? 'Рішення й наступні кроки за поточними замовленнями.' : 'Натисніть показник: відкриються записи, розрахунок і дії.')), /*#__PURE__*/React.createElement("div", {
     className: "erp-actions"
-  }, /*#__PURE__*/React.createElement(React.Fragment, null, financial && /*#__PURE__*/React.createElement(Select, {
+  }, financial && /*#__PURE__*/React.createElement(Select, {
     "aria-label": "\u0412\u0430\u043B\u044E\u0442\u0430 \u043F\u043E\u043A\u0430\u0437\u043D\u0438\u043A\u0456\u0432",
     value: cur,
-    onChange: e => setCurrency(e.target.value)
+    onChange: e => {
+      select(null);
+      life.current.nextSelection = null;
+      setCurrency(e.target.value);
+    }
   }, financials.map(x => /*#__PURE__*/React.createElement("option", {
     key: x.currency
-  }, x.currency)))), /*#__PURE__*/React.createElement(Button, {
-    onClick: refresh
-  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438"), /*#__PURE__*/React.createElement(Button, {
+  }, x.currency))), /*#__PURE__*/React.createElement(Button, {
+    disabled: busy,
+    onClick: () => refresh()
+  }, data ? 'Оновити' : 'Повторити'), /*#__PURE__*/React.createElement(Button, {
     onClick: () => onNavigate('info')
-  }, "\u042F\u043A \u043F\u0440\u0430\u0446\u044E\u0454 BoS"))), error && /*#__PURE__*/React.createElement("p", {
+  }, "\u042F\u043A \u043F\u0440\u0430\u0446\u044E\u0454 BoS"))), /*#__PURE__*/React.createElement("section", {
+    "aria-label": "\u0421\u0432\u0456\u0436\u0456\u0441\u0442\u044C \u0440\u043E\u0431\u043E\u0447\u043E\u0433\u043E \u043E\u0433\u043B\u044F\u0434\u0443",
+    "aria-busy": busy
+  }, status === 'loading' || status === 'initial' ? /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F \u0440\u043E\u0431\u043E\u0447\u043E\u0433\u043E \u043E\u0433\u043B\u044F\u0434\u0443\u2026") : status === 'refreshing' ? /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u041E\u043D\u043E\u0432\u043B\u044E\u0454\u043C\u043E \u0440\u043E\u0431\u043E\u0447\u0438\u0439 \u043E\u0433\u043B\u044F\u0434\u2026") : ready ? /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, status === 'empty' ? 'Читання завершено. Доступних робочих записів немає.' : 'Робочий огляд прочитано.') : null, at ? /*#__PURE__*/React.createElement("p", null, readLabel, ": ", /*#__PURE__*/React.createElement("time", {
+    dateTime: at
+  }, localTime), ". \u0417\u0430 \u0433\u043E\u0434\u0438\u043D\u043D\u0438\u043A\u043E\u043C \u0446\u044C\u043E\u0433\u043E \u043F\u0440\u0438\u0441\u0442\u0440\u043E\u044E; \u0447\u0430\u0441 \u043C\u0456\u0441\u0442\u0438\u0442\u044C \u0447\u0430\u0441\u043E\u0432\u0438\u0439 \u043F\u043E\u044F\u0441.") : /*#__PURE__*/React.createElement("p", null, "\u0423\u0441\u043F\u0456\u0448\u043D\u043E\u0433\u043E \u0447\u0438\u0442\u0430\u043D\u043D\u044F \u0449\u0435 \u043D\u0435\u043C\u0430\u0454."), data && /*#__PURE__*/React.createElement("p", null, "\u0411\u0456\u0437\u043D\u0435\u0441-\u0434\u0430\u0442\u0430 \u0440\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043A\u0443: ", businessDate ? /*#__PURE__*/React.createElement("time", {
+    dateTime: businessDate
+  }, businessDate) : 'Дату не надано', ". \u0426\u0435 \u0434\u0430\u0442\u0430 \u0440\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043A\u0443, \u0430 \u043D\u0435 \u0447\u0430\u0441 \u043E\u043D\u043E\u0432\u043B\u0435\u043D\u043D\u044F."), previous && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u043F\u043E\u043F\u0435\u0440\u0435\u0434\u043D\u0456 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0444\u0430\u043A\u0442\u0438. \u041D\u043E\u0432\u0456 \u0434\u0456\u0457 \u0442\u0430 \u043F\u0435\u0440\u0435\u0445\u043E\u0434\u0438 \u0434\u043E \u0457\u0445\u043D\u0456\u0445 \u0434\u0436\u0435\u0440\u0435\u043B \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u043F\u0456\u0441\u043B\u044F \u0443\u0441\u043F\u0456\u0448\u043D\u043E\u0433\u043E \u043E\u043D\u043E\u0432\u043B\u0435\u043D\u043D\u044F."), ready && /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0426\u0435 \u043E\u0441\u0442\u0430\u043D\u043D\u044F \u043F\u0440\u0438\u0439\u043D\u044F\u0442\u0430 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u044C \u0443 \u0446\u044C\u043E\u043C\u0443 \u0432\u0456\u043A\u043D\u0456. \u041D\u0430\u0441\u0442\u0443\u043F\u043D\u0456 \u0437\u043C\u0456\u043D\u0438 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u043F\u043E\u0442\u0440\u0435\u0431\u0443\u044E\u0442\u044C \u043D\u043E\u0432\u043E\u0433\u043E \u0447\u0438\u0442\u0430\u043D\u043D\u044F."), (inScope ? view.error : 'Контекст доступу змінився. Оновіть робочий огляд.') && /*#__PURE__*/React.createElement("p", {
     role: "alert",
     className: "erp-error"
-  }, error), receipt && /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement(Button, {
+  }, inScope ? view.error : 'Контекст доступу змінився. Оновіть робочий огляд.')), shownReceipt && /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement(Button, {
     onClick: () => setReceipt(null)
-  }, "\u041F\u0440\u0438\u0445\u043E\u0432\u0430\u0442\u0438"), receipt.action === 'erp_register_supplier_invoice' ? /*#__PURE__*/React.createElement(SupplierInvoiceReceipt, {
-    receipt: receipt,
+  }, "\u041F\u0440\u0438\u0445\u043E\u0432\u0430\u0442\u0438"), shownReceipt.action === 'erp_register_supplier_invoice' ? /*#__PURE__*/React.createElement(SupplierInvoiceReceipt, {
+    receipt: shownReceipt,
     data: data
   }) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h3", null, "\u041E\u043F\u0435\u0440\u0430\u0446\u0456\u044E \u0432\u0438\u043A\u043E\u043D\u0430\u043D\u043E \xB7 \u0432\u043F\u043B\u0438\u0432 \u043D\u0430 \u0437\u0430\u043F\u0438\u0441\u0438"), /*#__PURE__*/React.createElement(ImpactTable, {
-    changes: receipt.impact
-  }))), /*#__PURE__*/React.createElement(WorkpointsPanel, {
+    changes: shownReceipt.impact
+  })), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041A\u0432\u0438\u0442\u0430\u043D\u0446\u0456\u044F \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0443\u0454 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u044E; \u0441\u0432\u0456\u0436\u0456\u0441\u0442\u044C \u0440\u043E\u0431\u043E\u0447\u043E\u0433\u043E \u043E\u0433\u043B\u044F\u0434\u0443 \u0432\u0438\u0437\u043D\u0430\u0447\u0430\u0454\u0442\u044C\u0441\u044F \u043E\u043A\u0440\u0435\u043C\u0438\u043C \u0447\u0438\u0442\u0430\u043D\u043D\u044F\u043C \u0432\u0438\u0449\u0435.")), data && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(WorkpointsPanel, {
     onNavigate: onNavigate,
     refetchTasks: refetchTasks
-  }), /*#__PURE__*/React.createElement(HttpObservations, null), /*#__PURE__*/React.createElement("h2", null, "\u041E\u0433\u043B\u044F\u0434 \u0443\u0441\u0456\u0445 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u043A\u043E\u043C\u043F\u0430\u043D\u0456\u0457"), !focus && financial && /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement(HttpObservations, null), /*#__PURE__*/React.createElement("h2", null, "\u041E\u0433\u043B\u044F\u0434 \u0443\u0441\u0456\u0445 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u043A\u043E\u043C\u043F\u0430\u043D\u0456\u0457"), !focus && bosCan('finance') && !financial && /*#__PURE__*/React.createElement("p", null, "\u0424\u0456\u043D\u0430\u043D\u0441\u043E\u0432\u0456 \u043F\u043E\u043A\u0430\u0437\u043D\u0438\u043A\u0438 \u043D\u0435 \u043D\u0430\u0434\u0430\u043D\u043E."), !focus && financial && /*#__PURE__*/React.createElement("div", {
     className: "bos-kpi-grid"
   }, BOS_METRICS.map(([key, label, formula]) => /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: "bos-kpi",
+    disabled: !ready || !homeKnownNumber(financial[key]),
     key: key,
     onClick: () => open({
       kind: 'metric',
       key,
       currency: cur
     })
-  }, /*#__PURE__*/React.createElement("span", null, label), /*#__PURE__*/React.createElement("strong", null, erpNum(financial[key]), " ", /*#__PURE__*/React.createElement("small", null, cur)), /*#__PURE__*/React.createElement("p", null, formula), /*#__PURE__*/React.createElement("em", null, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u0440\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043E\u043A \u2197")))), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("span", null, label), /*#__PURE__*/React.createElement("strong", null, number(financial[key]), " ", /*#__PURE__*/React.createElement("small", null, cur)), /*#__PURE__*/React.createElement("p", null, formula), /*#__PURE__*/React.createElement("em", null, homeKnownNumber(financial[key]) ? 'Відкрити розрахунок ↗' : 'Дані не надано')))), /*#__PURE__*/React.createElement("div", {
     className: "bos-kpi-grid bos-counts"
   }, [['Відкриті роботи', data.jobs.filter(x => x.status !== 'done').length, 'jobs', false], ['Партії без допуску', issues.length, 'lots', false], ['Відкриті доручення', openTasks.length, 'tasks', false], ['Прострочені доручення', overdue.length, 'tasks', true]].map(([title, n, key, late]) => /*#__PURE__*/React.createElement("button", {
     className: "bos-kpi",
     type: "button",
     key: title,
+    disabled: !ready,
     onClick: () => open({
       kind: 'list',
       key,
@@ -19192,7 +19529,10 @@ function BoSHome({
     return /*#__PURE__*/React.createElement("div", {
       className: "bos-order",
       key: o.id
-    }, /*#__PURE__*/React.createElement(BoSLink, {
+    }, /*#__PURE__*/React.createElement("button", {
+      className: "bos-record-link",
+      type: "button",
+      disabled: !ready,
       onClick: () => inspect('orders', o.id)
     }, o.code, " \xB7 ", data.partners.find(x => x.id === o.customer_id)?.name), /*#__PURE__*/React.createElement("p", {
       className: "op-muted"
@@ -19201,7 +19541,8 @@ function BoSHome({
     }, "\u0412\u0456\u0434\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043E \u0432\u0456\u0434 \u043F\u0435\u0440\u0432\u0456\u0441\u043D\u043E\u0433\u043E \u043F\u043B\u0430\u043D\u0443 ", erpNum(completion), "%", /*#__PURE__*/React.createElement("progress", {
       value: completion,
       max: 100
-    })), /*#__PURE__*/React.createElement(NextAction, {
+    })), ready && /*#__PURE__*/React.createElement(NextAction, {
+      key: o.id + ':' + epoch,
       orderId: o.id,
       version: data.events[0]?.id,
       onAction: begin,
@@ -19210,66 +19551,76 @@ function BoSHome({
   }), !orders.length && /*#__PURE__*/React.createElement("p", null, "\u041D\u0435\u0432\u0438\u043A\u043E\u043D\u0430\u043D\u0438\u0445 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u044C \u0441\u0435\u0440\u0435\u0434 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u043D\u0435\u043C\u0430\u0454.")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, "\u0414\u0435 \u043F\u043E\u0442\u0440\u0456\u0431\u043D\u0430 \u0443\u0432\u0430\u0433\u0430"), issues.map(l => /*#__PURE__*/React.createElement("button", {
     className: "bos-attention",
     key: l.id,
+    disabled: !ready,
     onClick: () => inspect('lots', l.id)
   }, /*#__PURE__*/React.createElement("strong", null, l.code, " \xB7 ", erpNum(l.quantity)), /*#__PURE__*/React.createElement("span", null, ERP_LABELS[l.quality], l.missing_documents.length ? ' · бракує ' + l.missing_documents.join(', ') : ''))), overdue.map(t => /*#__PURE__*/React.createElement("button", {
     className: "bos-attention",
     key: 'task' + t.id,
-    onClick: () => onNavigate('hr', 'tasks')
+    disabled: !ready,
+    onClick: () => {
+      if (canUse()) onNavigate('hr', 'tasks');
+    }
   }, /*#__PURE__*/React.createElement("strong", null, t.title), /*#__PURE__*/React.createElement("span", null, c01Assignee(t), " \xB7 \u0434\u043E ", erpDate(t.deadline)))), !issues.length && !overdue.length && /*#__PURE__*/React.createElement("p", null, "\u0417\u0430 \u0446\u0438\u043C\u0438 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0430\u043C\u0438 \u0432\u0456\u0434\u0445\u0438\u043B\u0435\u043D\u044C \u043D\u0435\u043C\u0430\u0454.")), financial ? /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, "\u0420\u0430\u0445\u0443\u043D\u043A\u0438 \u0442\u0430 \u043E\u043F\u043B\u0430\u0442\u0438"), data.invoices.filter(x => x.currency === cur).map(i => /*#__PURE__*/React.createElement("div", {
     className: "bos-order",
     key: i.invoice_id
-  }, /*#__PURE__*/React.createElement(BoSLink, {
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "bos-record-link",
+    type: "button",
+    disabled: !ready,
     onClick: () => inspect('invoices', i.invoice_id)
   }, i.code), /*#__PURE__*/React.createElement("label", {
     className: "bos-progress"
-  }, "\u041E\u043F\u043B\u0430\u0447\u0435\u043D\u043E ", erpNum(i.paid), " / ", erpNum(i.amount), " ", cur, /*#__PURE__*/React.createElement("progress", {
+  }, "\u041E\u043F\u043B\u0430\u0447\u0435\u043D\u043E ", number(i.paid), " / ", number(i.amount), " ", cur, homeKnownNumber(i.paid) && homeKnownNumber(i.amount) && /*#__PURE__*/React.createElement("progress", {
     value: Number(i.paid),
     max: Number(i.amount) || 1
   })), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
-  }, "\u0414\u043E \u043E\u043F\u043B\u0430\u0442\u0438 ", b03Amount(i.open, cur), " \xB7 \u0434\u043E ", erpDate(i.due_date)), i.effective_credit != null && /*#__PURE__*/React.createElement("p", null, "\u0427\u0438\u043D\u043D\u0435 \u043A\u043E\u0440\u0438\u0433\u0443\u0432\u0430\u043D\u043D\u044F: ", b03Amount(i.effective_credit, cur), ". \u041A\u0440\u0435\u0434\u0438\u0442 \u043A\u043B\u0456\u0454\u043D\u0442\u0430: ", b03Amount(i.customer_credit, cur), "."))), !data.invoices.length && /*#__PURE__*/React.createElement("p", null, "\u0420\u0430\u0445\u0443\u043D\u043E\u043A \u0437\u2019\u044F\u0432\u0438\u0442\u044C\u0441\u044F \u043F\u0456\u0441\u043B\u044F \u0432\u0456\u0434\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F. \u041F\u0435\u0440\u0435\u0439\u0434\u0456\u0442\u044C \u0434\u043E \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u043E\u0433\u043E \u043A\u0440\u043E\u043A\u0443 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F.")) : /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, "\u0420\u0430\u0445\u0443\u043D\u043A\u0438 \u0434\u043E \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u044C"), data.invoices.map(i => /*#__PURE__*/React.createElement("div", {
+  }, "\u0414\u043E \u043E\u043F\u043B\u0430\u0442\u0438 ", homeKnownNumber(i.open) ? b03Amount(i.open, cur) : 'Дані не надано', " \xB7 \u0434\u043E ", erpDate(i.due_date)), i.effective_credit != null && /*#__PURE__*/React.createElement("p", null, "\u0427\u0438\u043D\u043D\u0435 \u043A\u043E\u0440\u0438\u0433\u0443\u0432\u0430\u043D\u043D\u044F: ", homeKnownNumber(i.effective_credit) ? b03Amount(i.effective_credit, cur) : '—', ". \u041A\u0440\u0435\u0434\u0438\u0442 \u043A\u043B\u0456\u0454\u043D\u0442\u0430: ", homeKnownNumber(i.customer_credit) ? b03Amount(i.customer_credit, cur) : '—', "."))), !data.invoices.length && /*#__PURE__*/React.createElement("p", null, "\u0420\u0430\u0445\u0443\u043D\u043E\u043A \u0437\u2019\u044F\u0432\u0438\u0442\u044C\u0441\u044F \u043F\u0456\u0441\u043B\u044F \u0432\u0456\u0434\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F. \u041F\u0435\u0440\u0435\u0439\u0434\u0456\u0442\u044C \u0434\u043E \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u043E\u0433\u043E \u043A\u0440\u043E\u043A\u0443 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F.")) : /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, "\u0420\u0430\u0445\u0443\u043D\u043A\u0438 \u0434\u043E \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u044C"), data.invoices.map(i => /*#__PURE__*/React.createElement("div", {
     className: "bos-order",
     key: i.invoice_id
-  }, /*#__PURE__*/React.createElement(BoSLink, {
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "bos-record-link",
+    type: "button",
+    disabled: !ready,
     onClick: () => inspect('invoices', i.invoice_id)
   }, i.code), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
   }, "\u0422\u0435\u0440\u043C\u0456\u043D ", erpDate(i.due_date)))), !data.invoices.length && /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0440\u0430\u0445\u0443\u043D\u043A\u0456\u0432 \u043F\u043E\u043A\u0438 \u043D\u0435\u043C\u0430\u0454.")))), /*#__PURE__*/React.createElement(B03PendingLauncher, {
-    onRecover: entry => {
-      setSelection(null);
-      setAction({
-        type: entry.action,
-        preset: {},
-        recovery: entry
-      });
-    }
+    onRecover: recover
   }), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, "\u041E\u0441\u0442\u0430\u043D\u043D\u0456 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0457"), /*#__PURE__*/React.createElement(ERPTable, {
     rows: data.events.slice(0, 8),
     columns: [["Операція", r => r.action === 'erp_import_batch' ? 'Початковий імпорт' : B03_ACTIONS[r.action.replace('erp_', '')]?.[0] || ERP_ACTIONS[r.action.replace('erp_', '')]?.[0] || r.action], ["Запис", r => r.result?.code || r.result?.reference || 'Запис журналу №' + r.id], ["Дата", r => erpDate(r.created_at)]],
-    onRow: r => inspect('events', r.id)
-  })), selection && /*#__PURE__*/React.createElement(BoSInspector, {
+    onRow: ready ? r => inspect('events', r.id) : undefined
+  })), ready && selection && /*#__PURE__*/React.createElement(BoSInspector, {
+    key: scope + ':' + epoch + ':' + renderedPresentation,
     selection: selection,
     data: data,
-    onClose: () => setSelection(null),
-    onSelect: setSelection,
-    onAction: begin,
-    onNavigate: onNavigate,
-    onTraceSelect: (next, fresh) => {
-      loadSeq.current++;
-      setData(fresh);
-      setSelection(next);
-    }
-  }), " ", action && /*#__PURE__*/React.createElement(BoSActionDialog, {
-    action: action.type,
-    preset: action.preset,
-    recovery: action.recovery,
-    data: data,
-    onClose: () => setAction(null),
-    onDone: (r, context) => {
-      setReceipt(s2ReceiptContext(r, context));
-      refresh();
-      refetchTasks?.();
-    }
+    onClose: () => {
+      if (canInspect()) select(null);
+    },
+    onSelect: next => {
+      if (canInspect()) open(next);
+    },
+    onAction: (type, preset) => {
+      if (canInspect()) begin(type, preset);
+    },
+    onNavigate: (...args) => {
+      if (canInspect()) onNavigate(...args);
+    },
+    onTraceSelect: traceSelect
+  })), shownAction && /*#__PURE__*/React.createElement(BoSActionDialog, {
+    action: shownAction.type,
+    preset: shownAction.preset,
+    recovery: shownAction.recovery,
+    data: shownAction.data,
+    onConfirmPending: submitted => {
+      if (currentAction(shownAction)) setAction(value => value ? {
+        ...value,
+        submitted
+      } : value);
+    },
+    onClose: () => closeAction(shownAction),
+    onDone: (r, context) => done(shownAction, r, context)
   }));
 }
 function BoSProductGuide({
