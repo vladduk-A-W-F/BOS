@@ -1,0 +1,49 @@
+{
+  "schema": "bos.independent.owner-smoke.actual2.review.v1",
+  "verdict": "ACCEPT_SCOPED_ACTUAL2_FAILURE_EVIDENCE_WITH_HARNESS_SYNCHRONIZATION_GAP",
+  "reviewer": "A; not author/executor",
+  "overall_actual_result": "FAIL",
+  "counts": {
+    "pass": 0,
+    "fail": 1,
+    "not_run": 3
+  },
+  "audit": {
+    "path": "D:\\3\\Codex\\2026-09-20\\bos-execution\\work\\network-composition-evidence-20260920\\cycle-v17-owner-smoke-actual2-independent-review-20260921\\AUDIT.json",
+    "sha256": "e195438696a5c2aa76c6b7e68e360e770a23c6a5c388cbe500baf5214489a8fb",
+    "bytes": 8058
+  },
+  "diagnosis": {
+    "path": "D:\\3\\Codex\\2026-09-20\\bos-execution\\work\\network-composition-evidence-20260920\\cycle-v17-owner-smoke-actual2-independent-review-20260921\\DIAGNOSIS.json",
+    "sha256": "3397624cf2cdcb235e6a08163ac4aabfda476b0f7d188c79fa98ec82a9225d73",
+    "bytes": 1793
+  },
+  "receipt": {
+    "path": "D:\\3\\BOSDev\\handoffs\\cycle-v17-owner-review-browser-smoke-preparation-20260921\\correction-v2\\execution-attempt-2\\receipt.json",
+    "sha256": "546b2ea9629eee7e9d4da492b82341134b7594080a3d22a33064997242961ab2",
+    "bytes": 8631
+  },
+  "execution_authorized": false,
+  "new_invocations_by_reviewer": 0,
+  "findings": [
+    {
+      "id": "SMOKE2-SYNC-1",
+      "scope": "harness readiness",
+      "status": "CORRECTION_REVIEW_PENDING",
+      "detail": "Immediate historical-response assertion precedes pending Workpoints ready condition. Saved evidence contains no workpoints response; no cached-success claim."
+    }
+  ],
+  "preserved": [
+    "Smoke1 FAIL 0PASS/0FAIL/4NOT_RUN",
+    "Smoke2 FAIL 0PASS/1FAIL/3NOT_RUN",
+    "Original host/target/gate exit1",
+    "Owner persistent server was left running in original receipt",
+    "Historical browser/profiler/P05 counters unchanged"
+  ],
+  "acceptance_limits": [
+    "Only authenticity/boundary of actual failure and bounded static diagnosis accepted",
+    "No route/browser/fullMVP acceptance",
+    "No product eventually-ready guarantee",
+    "No new server/DB/process checks; server state based on original held-handle receipt"
+  ]
+}

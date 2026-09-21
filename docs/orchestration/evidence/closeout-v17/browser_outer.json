@@ -1,0 +1,60 @@
+{
+  "schema": "bos.owner-smoke.outer-actual.v1",
+  "at": "2026-09-21T20:53:00.369927+00:00",
+  "overall": "PASS",
+  "attempt": 3,
+  "prior_actual_invocations": 2,
+  "max_invocations": 1,
+  "automatic_retry": false,
+  "gate_invocations": 1,
+  "target_started_receipt_present": true,
+  "actual_browser_launched": true,
+  "original_gate_returncode": 0,
+  "original_target_returncode": 0,
+  "target_exit_missing_not_inferred": false,
+  "timeout_seconds": 180,
+  "timeout": false,
+  "failure": null,
+  "capture_elapsed_seconds": 15.156000000002678,
+  "managed_wait_elapsed_seconds": 14.922000000005937,
+  "job_closed": true,
+  "member_before_release_proofs": [
+    {
+      "pid": 53432,
+      "created_ticks": 134344975654557593,
+      "image": "C:\\Users\\user\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+      "nonce": "4d78575894e209b69f71a8f9a3f0fdd9916867ed157a9772",
+      "member_before_release": true
+    }
+  ],
+  "retained_gate_cleanup": [
+    {
+      "pid_diagnostic_only": 53432,
+      "held_original_handle": true,
+      "exited": true,
+      "original_returncode": 0,
+      "held_gate_kill_after_close_wait": false
+    }
+  ],
+  "cleanup_errors": [],
+  "persistent_server_stop_called": false,
+  "profile_deletion_by_outer": false,
+  "streams": [
+    {
+      "path": "stdout.bin",
+      "sha256": "fc48647d411940a839da3f56a4bb02a5899cc35afb891dfc474f8960e8badc94",
+      "bytes": 268
+    },
+    {
+      "path": "stderr.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ],
+  "inner_receipt": {
+    "path": "D:/3/BOSDev/handoffs/cycle-v17-owner-review-browser-smoke-preparation-20260921/correction-v3a/execution-attempt-3/receipt.json",
+    "sha256": "6af4e6f9456be7cc4d1251941d5a3362e42872d71e38288a137a921e6741a0df"
+  },
+  "original_host_tool_result": "Recorded separately by host orchestration, never inferred from this report",
+  "limits": "On timeout the owned Job terminates this launch tree only. No claim of graceful browser close or profile removal is made without the inner receipt. Partial evidence and fresh profile are retained."
+}

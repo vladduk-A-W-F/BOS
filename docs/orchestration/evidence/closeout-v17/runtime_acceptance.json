@@ -1,0 +1,106 @@
+{
+  "schema": "bos.root.review-runtime-acceptance.v1",
+  "decision": "ACCEPT_EXISTING_REVIEW_UPDATED_AND_RUNNING_207C",
+  "foreign_review": {
+    "path": "D:\\3\\Codex\\2026-09-20\\bos-execution\\work\\network-composition-evidence-20260920\\cycle-v17-review-update-actual2-independent-review-20260921\\REVIEW.json",
+    "sha256": "690fbf7e27bf225911d7fd15dd2b4e8803a4ec871901f41fd3620df59bb2f321",
+    "bytes": 6645
+  },
+  "actual_outcome": {
+    "path": "D:\\3\\BOSDev\\handoffs\\cycle-v17-review-runtime-update-preparation-20260921\\bound207c-update2\\execution-attempt-2\\OUTCOME.json",
+    "sha256": "236a4b270ed5ac0c684935a2e730b4be8fbe7d42a29c5fbf8a51366dee7fd3f6",
+    "bytes": 624
+  },
+  "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+  "runtime_digest": "77e8ca05b58efc99d47ce8dd2887074b3c93ba6eaff863a24307ae0e89dc622a",
+  "runtime_records": {
+    "prepared": {
+      "path": "D:\\3\\Codex\\2026-09-20\\bos-execution\\work\\continuation-review-demo-20260920\\prepared.json",
+      "sha256": "d348445a9afaebae5bf5d0079b93d0cdc876199b8e46cb47045a21ad7ff54305",
+      "bytes": 2125
+    },
+    "process": {
+      "path": "D:\\3\\Codex\\2026-09-20\\bos-execution\\work\\continuation-review-demo-20260920\\process.json",
+      "sha256": "a040dc6941106289bb76b139a1d5b876b41c7b9bafabe1b2adc15bbcd1bbfcfe",
+      "bytes": 1335
+    },
+    "http": {
+      "path": "D:\\3\\Codex\\2026-09-20\\bos-execution\\work\\continuation-review-demo-20260920\\evidence\\http-readiness.json",
+      "sha256": "8aabba99bb526eb2f2463bd3b75a030c80524179cac6751936580cc16eb86078",
+      "bytes": 268
+    }
+  },
+  "review_url": "http://127.0.0.1:8876/",
+  "counts": {
+    "update": 1,
+    "migration_plan": 1,
+    "migrate": 1,
+    "start": 1,
+    "seed": 0,
+    "build": 0
+  },
+  "migration_nodes": [
+    [
+      "operations",
+      "0008_procurement_currency_default"
+    ],
+    [
+      "operations",
+      "0009_request_timing"
+    ],
+    [
+      "erp",
+      "0006_network_operations"
+    ],
+    [
+      "erp",
+      "0007_request_timing"
+    ],
+    [
+      "erp",
+      "0008_compose_branch_network"
+    ],
+    [
+      "operations",
+      "0010_supplier_invoice_registration"
+    ]
+  ],
+  "preservation": {
+    "existing_tables": 56,
+    "nonappend_tables_identical_in_all_old_columns": 53,
+    "nonappend_rows": 230,
+    "IDs_existing_business_branches_links_and_history": "Retained by identical old-column projections across every nonappend table, including primary keys and old foreign keys. No new historical dates or locations were inferred.",
+    "allowed_system_additions": {
+      "django_migrations": 6,
+      "django_content_type": 3,
+      "auth_permission": 12
+    },
+    "system_existing_row_subset": "Checked by executed pinned preserve_rows before receipt. Reviewer compared recorded table hashes/counts and reused reviewed implementation; no new database query.",
+    "new_business_tables_empty": true,
+    "foreign_key_check_recorded": "empty",
+    "integrity_check_recorded": "ok",
+    "backup_database_current_hash": "c6c515aef20d385bb6984bdc2488e04b746a3f425175f5f330a4644bb8af0859",
+    "post_migration_database_current_file_hash": "c9ef4350a2e69219c7a6a2020124dd01a5beef2ad0ea568c106d953bfbbc2e8e",
+    "backup_database_note": "SQLite backup API logically preserves original data; its physical bytes differ from original bcdbe6c7. No claim of byte-identical database backup.",
+    "old_source_backup_and_previous_source": "Both 521-file inventories equal frozen old source inventory.",
+    "media_current_and_backup_files": 0,
+    "private_current_and_backup_files": 1,
+    "private_bytes_equal_backup": true,
+    "private_contents_disclosed_or_decrypted": false,
+    "old_prepared_process_and_control_records": "Preserved exact in history backup; old process70c3 also retained as retired-process.json."
+  },
+  "prior_failure": {
+    "path": "D:\\3\\Codex\\2026-09-20\\bos-execution\\work\\network-composition-evidence-20260920\\cycle-v17-review-update-actual1-independent-review-20260921\\REVIEW.json",
+    "sha256": "9b559bffdd693f3eaba7bf51c91cdb65cb341e744f0ef4656b0593cd443c7f8c",
+    "bytes": 3898
+  },
+  "scope": "Updated existing isolated review runtime. Ready for bounded read-only browser smoke and owner manual review.",
+  "limitations": [
+    "Recorded readiness and process identities; no additional runtime probe performed by this acceptance.",
+    "Actual1 failure remains in history. Actual2 completed; no automatic update retry.",
+    "Browser/manual owner acceptance pending. Private membership and Task queue changes not installed."
+  ],
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "mvp_accepted": false
+}

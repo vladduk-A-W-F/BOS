@@ -1,3 +1,13 @@
+# Поточний цикл v17 · ручна перевірка власника · 21.09.2026
+
+Продуктовий source `207c7426bcd057cc1a5cfcf172d4c040b05221e9`, runtime `77e8ca05b58efc99d47ce8dd2887074b3c93ba6eaff863a24307ae0e89dc622a`. Стан підготовки/публікації: **FREEZE_FOR_OWNER_REVIEW**. Актуальна звірка всіх 35 карток, S1–S3, UXD-01–08 і 11 gates: [підсумковий звіт](CYCLE_V17_CLOSEOUT_RU.md), [машинна матриця](CYCLE_V17_MATRIX.json). Після передачі звіту — FREEZE_FOR_OWNER_REVIEW: нові етапи, агенти й автоматичні зміни зупинено до нових вказівок. Датовані відомості про доступність і відновлення застосунку наведено в підсумковому звіті. TECHNICAL_READY=false, PILOT_ALLOWED=false, MVP=false.
+
+Membership UI actual3: **FAIL overall (7 PASS / 1 FAIL / 0 NOT_RUN)**; private v5 лише static accepted, не застосований і behavior NOT_RUN. S2 має scoped backend/control/service докази; повне поточне UI/runtime приймання продукту не встановлено.
+
+Далі збережено історичні рішення і checkpoints; їхні «поточні» статуси та команди не перекривають цей датований запис.
+
+---
+
 # Реальний ERP інкремент · 20.09.2026
 
 Філії України/UAH/доступні джерела/перший CEO інтегровані в Git`e66af863b0bd840cefb4ef78e5a17414411f3db8`, незалежно scoped accepted. [Звіт і докази](VERTICAL_UA_UA.md). Продовжуємо UI-LOCAL-RUNNER (390/768/1440,200%,keyboard/Escape/network,new UAH preview/confirm), standalone empty migrations і поточний access sweep; same-N restore prerequisites окремо. Після готового кандидата — точний decision packet для full acceptance без скидання P05 3/3/A09/A10. GPT/connector stages лишаються відкритими залежностями, загальна готовністьfalse. Далі збережено попередній лендинг checkpoint та план.

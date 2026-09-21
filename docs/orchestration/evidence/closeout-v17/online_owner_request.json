@@ -1,0 +1,28 @@
+{
+  "schema": "bos.owner-temporary-online-review.v1",
+  "observed_at_utc": "2026-09-21T20:50:20.900901+00:00",
+  "request": "отлично как получить доступ онлайн",
+  "selected_answer": "Временная ссылка на время ручной проверки",
+  "goal": "Temporary HTTPS URL for the same frozen207c review application and existing synthetic data with ordinary authentication",
+  "owner": "observer",
+  "allowlist": [
+    "D:/3/BOSDev/online-review/20260921/"
+  ],
+  "no_product_source_change": true,
+  "no_database_copy_seed_migration": true,
+  "no_existing_app_restart_or_stop": true,
+  "no_paid_service_or_new_chat_automation": true,
+  "public_check_scope": "Connector/HTTPS/source asset, ordinary login and read-only request verification; no product E2E replay or business write",
+  "initial_findings": {
+    "runtime": "http://127.0.0.1:8876",
+    "ALLOWED_HOSTS": [
+      "127.0.0.1",
+      "localhost"
+    ],
+    "DEBUG": false,
+    "BOS_DATA_MODE": "working",
+    "external_transport": "Cloudflare Quick Tunnel candidate; connector not installed or started",
+    "CSRF": "Must preserve app CSRF and validate exact external HTTPS origin at any bridge; no bypass of authentication or role policy"
+  },
+  "status": "PREPARING_NOT_PUBLISHED"
+}

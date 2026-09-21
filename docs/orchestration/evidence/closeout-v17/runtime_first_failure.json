@@ -1,0 +1,58 @@
+{
+  "schema": "bos.cycle-v17.update-actual1.independent-review.v1",
+  "reviewer": "/root/document_server_adapter",
+  "verdict": "ACCEPT_SCOPED_ACTUAL1_FAILURE_EVIDENCE_PRE_MUTATION_BOUNDARY",
+  "actual_update_result": "FAIL",
+  "evidence_blockers": 0,
+  "audit": {
+    "path": "AUDIT.json",
+    "sha256": "c1c946a1712a5e82848ef2e9b5671cac01f3127980594eb573a9d7aafd40cd28",
+    "bytes": 18710
+  },
+  "original_evidence": {
+    "outer_manifest_sha256": "a5864c00eb09e82cf3c7f1c21943dfb5a29b3eb0de088b4d5bf60ecd29671c8d",
+    "inner_failure_manifest_sha256": "9686ed86e7375ee7f80f8763a4b881761204a8f17e8d6573b68d7e099aa2ed88",
+    "failure_outcome_sha256": "765c0cbf2722961517ffeb599012542eaf72d4cadc605ad0d8eda71ba7c30d67",
+    "raw_stderr_sha256": "6ecd16cebefc4839bb5d57787140f6c972a028c599b8c1b059f8ba1a8939ee1a",
+    "failure_trace_sha256": "a136a29cf16f58c399c3227636336bae30820f2a13b7211449bcc9421298aae7",
+    "root_approval_sha256": "12f781600423e4fb0c0e22192f7dc62cc2f96c64ed1b11e0e6aa450b2a050823",
+    "exact_wrapper_command_sha256": "6f0dcc7f6373a599b9c1973e4ff3b784c17f5fb1cdc852f0ee55502a417a401a",
+    "exact_host_command_sha256": "8604726ee7bbe1e33653dba7f29cbb0aef8e5a8f350624e4531dd3a2ca8ff489"
+  },
+  "actual_counts": {"update": 1, "migration_plan": 0, "migrate": 0, "start": 0, "seed": 0, "build": 0},
+  "original_process_evidence": {
+    "one_exec_and_three_same_session_continuations": true,
+    "chunks": ["8f6bb8", "268537", "4afc3d", "797c76"],
+    "updater_Popen_exit": 1,
+    "original_host_exit": 1,
+    "elapsed_seconds": 46.82799999999406,
+    "held_updater_launcher_exit_recorded": true,
+    "host_persistence_failures": 0,
+    "interrupted": false,
+    "exact_argv_cwd_and_authority_records_match": true
+  },
+  "failure_boundary": {
+    "phase": "ownership-stop",
+    "error": "PermissionError WinError31 from original review_process.identity line96, QueryFullProcessImageNameW",
+    "confirmed": "The exception arises while _handles is validating the recorded child/launcher handles, before _stop writes stopping state or calls TerminateProcess. The trace establishes that OpenProcess returned a handle and GetProcessTimes succeeded for the failing identity; it does not identify which of the two recorded identities failed.",
+    "not_established": ["The old process is absent", "The old process is live", "PID reuse occurred", "Either old process was stopped", "The device error itself proves an ownership mismatch"],
+    "ownership_record": "Preserved byte-for-byte; no absent-process interpretation or deletion is authorized."
+  },
+  "pre_mutation_proof": {
+    "all_521_old_source_files_exact": true,
+    "prepared_sha256": "251834049bd7d81a7b49c5458001d0313cbb4687062e95d823669b534b4ff836",
+    "process_sha256": "70c3c1ffbaa93ef48996c211b3334d5aff7ab7120a15bedf8143cf990d8121d9",
+    "sqlite_sha256": "bcdbe6c7fc0e818b99c47c9d2d6d239ab1e3bc78df86e1195fbe25664e80b5e7",
+    "sqlite_bytes": 1159168,
+    "expected_partial_writes": "Exclusive inner/outer evidence and update-history backup containing prepared.json, process.json and two original control files. All four copies equal originals.",
+    "not_reached": ["SQLite backup", "media/private/source backup", "source staging/promotion", "Django migration plan", "migrate", "prepared successor", "server start"],
+    "private_media_limit": "No new private/media payload hashing; code and original failure show their mutation/copy phases were not reached."
+  },
+  "next_step": "Review the separately authorized native read-only diagnostic already reported by C once its original receipts are frozen. Do not repeat it automatically or rerun update1. Minimum required facts are described in DIAGNOSIS.json.",
+  "execution_authorized": false,
+  "retry_authorized": false,
+  "runtime_updated": false,
+  "reviewer_db_connections": 0,
+  "reviewer_target_process_or_browser_runs": 0,
+  "reviewer_runtime_writes": 0
+}

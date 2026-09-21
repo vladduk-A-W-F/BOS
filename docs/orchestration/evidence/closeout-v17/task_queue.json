@@ -1,0 +1,74 @@
+{
+  "schema": "bos.root.controlled-jsx-acceptance.v1",
+  "accepted_at_utc": "2026-09-21T13:24:20.932925+00:00",
+  "decision": "ACCEPT_TQ_FIRST_CONTROLLED8_WITH_MOCKED_JSX_SCOPE",
+  "executor": "/root/product_integration_continuation",
+  "independent_reviewer": "native QUALITY",
+  "manifest": {
+    "path": "D:/3/BOSDev/handoffs/department-task-queue-controlled-execution-attempt1-20260921/MANIFEST.json",
+    "sha256": "6bd43f49d154f176c91842985e07e1e48ad6831c206ace5ef33085642e300b73",
+    "bytes": 10773
+  },
+  "outcome": {
+    "path": "D:/3/BOSDev/handoffs/department-task-queue-controlled-execution-attempt1-20260921/OUTCOME.json",
+    "sha256": "8a42993a2c80f1bab387cc88f8cd8d1060377fb30c5cf39eb5b04d1bd9a77edb",
+    "bytes": 8178
+  },
+  "independent_review": {
+    "path": "D:/3/BOSDev/handoffs/department-task-queue-first-actual-independent-review-20260921/REVIEW.md",
+    "sha256": "21b9581166d3d48cdea9cbbe23f068b8f35e0a4a4e9a51637a4ef38687166dee",
+    "bytes": 2953
+  },
+  "audit": {
+    "path": "D:/3/BOSDev/handoffs/department-task-queue-first-actual-independent-review-20260921/AUDIT.md",
+    "sha256": "1357fcb34c438de21fb70232ca33d9ad151a64ef571ceed4d58b7a90e37d2bf8",
+    "bytes": 1371
+  },
+  "findings": {
+    "path": "D:/3/BOSDev/handoffs/department-task-queue-first-actual-independent-review-20260921/FINDINGS.md",
+    "sha256": "0a2ec53d273cb262731995f94e47e9b6ce1ef6b12704e645bf94003ec3f10db7",
+    "bytes": 810
+  },
+  "root_execution_authority": {
+    "path": "D:/3/BOSDev/reports/root/TQ-FIRST-CONTROLLED-JSX-20260921-APPROVAL.json",
+    "sha256": "ed7c03fb24e3780efdad70311c459f72879faff42d91f7d5a626fcdfb8eddbbc",
+    "bytes": 4106
+  },
+  "source_sha256": "dc7c77c39662038420737d6b5e566593b0e0dd3ee4afde60e2cfe4970469e335",
+  "case_names": [
+    "TQ-01 only current sent handoff to the active assignee is waiting",
+    "TQ-02 process done archived superseded and mismatched assignments exclude waiting",
+    "TQ-03 counters share the fresh department archive search and date slice with labelled overlaps",
+    "TQ-04 loading stale error and denied states erase prior queue facts and counters",
+    "TQ-05 changed scope and obsolete reads cannot restore prior rows or aggregates",
+    "TQ-06 actual card facts open the same Task and source host with guarded callbacks",
+    "TQ-07 queue switches preserve business identities and issue no mutation or extra API",
+    "TQ-08 empty unknown and malformed facts cannot invent waiting or global counts"
+  ],
+  "actual_invocations": 1,
+  "pass": 8,
+  "fail": 0,
+  "not_run": 0,
+  "original_exits": {
+    "metadata_gate": 0,
+    "host": 0,
+    "outer": 0,
+    "wrapper": 0,
+    "Node": 0
+  },
+  "Node_seconds": 0.594,
+  "shared_baseline": "0f9578c39b84046dee2a9aa0d9474175b147387e",
+  "before_after_2120_pins_equal": true,
+  "shared_mutations": 0,
+  "automatic_retry": false,
+  "further_execution_authorized": false,
+  "scope": "Controlled JSX and mocked fetch on exact private source. Root checks source, foreign verdict and consumed authority; does not duplicate routine QA.",
+  "limits": [
+    "No real DOM/browser/network/layout/keyboard/accessibility acceptance",
+    "No Policy/server/DB/business mutation or nested Task/document workflow acceptance",
+    "No new build/shared source integration or full MVP acceptance"
+  ],
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "MVP": false
+}

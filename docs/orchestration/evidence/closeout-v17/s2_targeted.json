@@ -1,0 +1,74 @@
+{
+  "schema": "bos.root-s2-targeted-acceptance-and-integration-approval.v1",
+  "at_utc": "2026-09-20T23:46:55.185454+00:00",
+  "decision": "ACCEPT_11_TARGETED_TESTS_AND_APPROVE_EXACT_NINE_FILE_ATOMIC_INTEGRATION",
+  "card": "S2-SUPPLIER-INVOICE-REGISTRATION",
+  "writer_thread": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+  "shared_repository": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920",
+  "required_clean_head": "783774c36ccd0245cafb80c27674934b376c1712",
+  "private_source": "D:/3/BOSDev/work/s2-supplier-invoice-20260921",
+  "private_base": "e038d6db562c6f36c06808c0793f66a6d63982cf",
+  "manifest": {
+    "path": "D:/3/BOSDev/handoffs/s2-supplier-invoice-20260921/S2_PRIVATE_V5_1_MANIFEST.json",
+    "sha256": "f00b207506e42b9ad7b6791859f229898ebc6bbc3a530abd8e82320d279b46f3"
+  },
+  "patch": {
+    "path": "D:/3/BOSDev/handoffs/s2-supplier-invoice-20260921/S2_PRIVATE_V5_1_COMBINED.patch",
+    "sha256": "d07854ecf1c048759b27513ba77841e020be0c83680b080745a11ad37c7e9377"
+  },
+  "independent_source_review": {
+    "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/s2-supplier-invoice-private-independent-review/V5_REVIEW.json",
+    "sha256": "cc73262e532471cb38b2aed01a20416eda6c1162e338f8be1aac4bd6b4e64b84"
+  },
+  "independent_test_outcome_review": {
+    "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/s2-test4-independent-review/REVIEW.json",
+    "sha256": "ad6dd33058682426fe8d727826b84420c9f4f1d1fee1ed9319f7df2cb0b636d6"
+  },
+  "postimages": {
+    "boss_project/policy.py": "ad0d7d048942215895b25e15c6bf0ddaf88bf2e8b62adeebc83005f6f0cf671b",
+    "docs/orchestration/S2_SUPPLIER_INVOICE_UA.md": "27e262211781db06f24260f9eb3e2daeab3d75293c87f465d2efb654f52235cc",
+    "erp/views.py": "fb40eadca4b62730880c53f042dbb9a609a75795157124db40fc460c87da83cc",
+    "operations/document_matching/commands.py": "a45d9b53df150fc3caea3e006577d10548cc6a58fe3cd6ec8f0d033ea2fe86b3",
+    "operations/document_matching/registration.py": "75e70ba302bf318ac7935e01820b09806f717f9e40d50405323f4dee927c8a7a",
+    "operations/migrations/0010_supplier_invoice_registration.py": "51ac4e9d25b5bbde40c75732cd089e621e25f355e4f075b3bb188ead123b517d",
+    "operations/models.py": "67448adcf1318ac57fef3d1b573c3f0b3a714d6b71dfd012e58cfef2cf509d7e",
+    "operations/service.py": "75050173acc264efd9d756cccd14552a00118e89fbe9147acabccd9745a215a1",
+    "operations/test_supplier_invoice_registration.py": "b035b8faf68f612f78cede64bc4653ffcef033a096e9722d8c0f46f293235c7c"
+  },
+  "preimage_git_blobs": {
+    "boss_project/policy.py": "1e6330a64603e4bbe8c4414def29a1911246ad47",
+    "docs/orchestration/S2_SUPPLIER_INVOICE_UA.md": null,
+    "erp/views.py": "03aa09780c299b055397aa6ab396d457489bad51",
+    "operations/document_matching/commands.py": null,
+    "operations/document_matching/registration.py": null,
+    "operations/migrations/0010_supplier_invoice_registration.py": null,
+    "operations/models.py": "dc044e0019d3e78edad7f0354070dcbe5803463a",
+    "operations/service.py": "9d23c370da15641b8f963c506ec4984ab5793746",
+    "operations/test_supplier_invoice_registration.py": null
+  },
+  "targeted_result": {
+    "attempt": 4,
+    "prior_failures_preserved": 3,
+    "test_count": 11,
+    "passed": 11,
+    "test_seconds": 3.626,
+    "target_exit": 0,
+    "runner_exit": 0
+  },
+  "authorized_actions": [
+    "Sole writer verifies exact clean parent, private postimages and unchanged shared preimages.",
+    "Copy exactly nine reviewed raw postimages, preserving historical evidence and all unrelated files.",
+    "Explicitly stage each of nine paths including new files; verify staged names and byte hashes exactly before commit.",
+    "Create one atomic commit, without amend or history rewrite; return parent, commit, tree, nine blob and raw hashes, clean status.",
+    "Read-only recompute new product source manifest with existing accepted digest/inclusion contract, including new eligible files; report raw log/receipt."
+  ],
+  "digest_reference": "D:/3/BOSDev/handoffs/network-c514-source-delivery-20260920/product-source-manifest-c514.json",
+  "limits": [
+    "No further tests, app/browser/server execution, frontend build, deployment, real DB migration, push or merge under this decision.",
+    "No attempt5 or old full/PG/E2E/profiler retry; all prior failures retained.",
+    "Migration execution was only in disposable test DB; registration UI and linked MVP acceptance remain incomplete.",
+    "Source archive e038 and c514 evidence remain immutable historical packages, not evidence for changed runtime."
+  ],
+  "technical_ready": false,
+  "pilot_allowed": false
+}

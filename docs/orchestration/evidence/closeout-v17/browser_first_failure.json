@@ -1,0 +1,49 @@
+{
+  "schema": "independent.owner.smoke.actual1.review.v1",
+  "reviewer": "A / document_server_adapter",
+  "verdict": "ACCEPT_SCOPED_SMOKE1_FAILURE_EVIDENCE_WITH_HARNESS_SYNCHRONIZATION_GAP",
+  "evidence_blockers": [],
+  "actual_result": "FAIL",
+  "attempt_consumed": 1,
+  "counts": {"pass": 0, "fail": 0, "not_run": 4},
+  "failure": "normal_login_status_missing",
+  "failure_location": "browser_smoke.py:335 before owner identity validation and four route checks",
+  "receipt": {"sha256": "49d56606d730e4553bcc4b68343fdbff921f27e8c17498c11ee1318b56a69195", "bytes": 6653},
+  "original_exits": {"host": 1, "gate": 1, "target": 1, "timeout": false},
+  "original_host_chunks": ["ff13e9", "77cc7e"],
+  "original_host_session": 17071,
+  "original_results": 2,
+  "persistence_failures": [],
+  "observed_boundary": [
+    "Exactly one ordinary login POST /api/auth/login/ returned200. No business POST was permitted; the original response trace contains only that POST.",
+    "GET /api/operations/status/ and /api/runtime/status/ both returned200 and were recorded with phase authenticated. This does not replace the owner identity body guard, which did not complete.",
+    "workpoints, orders, procurement and network each remain NOT_RUN. No route acceptance is inferred from the successful transport statuses.",
+    "Existing failure PNG shows the onboarding industry-choice screen. It is failure evidence, not a successful route or layout check.",
+    "One startup anonymous /api/auth/me/401 and related console error are retained. No pageerrors, blocked requests or request failures were recorded."
+  ],
+  "cleanup_and_preservation": {
+    "original_browser_closed": true,
+    "original_held_edge_identities_exited": 7,
+    "profile_removed_and_absent_at_review": true,
+    "original_outer_job_closed": true,
+    "original_gate_held_handle_exited": true,
+    "cleanup_errors": [],
+    "persistent_server_enrolled_in_outer_job": false,
+    "server_stop_called": false,
+    "server_owned_handles_still_running_in_original_receipt": true,
+    "source426_before_after_digest": "77e8ca05b58efc99d47ce8dd2887074b3c93ba6eaff863a24307ae0e89dc622a",
+    "served_app_sha256": "4b2918a018cf2499a4aa2ea8ca598c7abfd17fd74379ab4236250723a5390263",
+    "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+    "shared_frontend_unchanged_recorded": true,
+    "DB_unchanged_claim": false,
+    "DB_limit": "Ordinary authentication can write session metadata. Reviewer performed no database connection or row query."
+  },
+  "diagnostic_conclusion": "The harness lacks an explicit wait for the asynchronous post-login operations/status response before requiring the response list. This is a concrete synchronization gap. Existing evidence does not show failed authentication, a failed server response, or a product route defect. Exact callback-delivery timing was not recorded and is not invented.",
+  "scope_limits": [
+    "Original overallFAIL and four NOT_RUN results remain immutable.",
+    "No target/browser/HTTP/DB/process invocation or stop by reviewer; only evidence reads, static source reads, hashes, original PNG view and review metadata writes.",
+    "No retry is authorized by this review. A separately frozen correction requires foreign static review and a separate exact root decision.",
+    "Persistent server was left untouched. Its current live state was not freshly sampled."
+  ],
+  "audit": {"path": "AUDIT.json", "sha256": "3def71d4ffb11c4db984b01a5623a1ebb4d77c5fb387030dd6dde4f58041baa6", "bytes": 7057}
+}
