@@ -53,11 +53,13 @@ def visible_tasks(policy):
 
 
 def project(task):
+    from .handoffs import latest
+    handoff=latest(task)
     return {'id':task.pk,'title':task.title,'priority':task.priority,'status':task.status,'assignee':task.assignee,
         'deadline':task.deadline.isoformat() if task.deadline else None,'category':task.category,'branch':task.branch_id,'branch_name':task.branch.name if task.branch_id else None,'created_at':task.created_at.isoformat() if task.created_at else None,
         'assignee_id':task.assignee_employee_id,'assignee_name':task.assignee_employee.full_name if task.assignee_employee_id else task.assignee,
         'order_id':task.sales_order_id,'order_code':task.sales_order.code if task.sales_order_id else None,'result':task.result,
-        'result_recorded':isinstance(task.result,str) and len(task.result.strip())>=3,'archived_at':task.archived_at.isoformat() if task.archived_at else None,'archived':task.archived_at is not None,'is_overdue':is_overdue(task)}
+        'result_recorded':isinstance(task.result,str) and len(task.result.strip())>=3,'archived_at':task.archived_at.isoformat() if task.archived_at else None,'archived':task.archived_at is not None,'is_overdue':is_overdue(task),'handoff':handoff}
 
 
 def project_list(rows):return [project(task) for task in rows.select_related('assignee_employee','sales_order','branch')]

@@ -14,7 +14,7 @@ from operations.projections import receipt as project_receipt
 from .commands import ACTIONS
 
 SALT='bos.task-history.v1'
-STATE_FIELDS={'title','assignee','assignee_id','assignee_name','deadline','order_id','order_code','request_code','history_refs','status','priority','category','branch_id','result','archived_at'}
+STATE_FIELDS={'handoff','title','assignee','assignee_id','assignee_name','deadline','order_id','order_code','request_code','history_refs','status','priority','category','branch_id','result','archived_at'}
 CHANGE_FIELDS={'kind','id','field','label','before','after','code'}
 
 
@@ -24,7 +24,7 @@ def item(event):
     def state(value):return {k:v for k,v in value.items() if k in STATE_FIELDS} if isinstance(value,dict) else None
     who=payload.get('actor',{})
     return {**row,'transition':payload.get('transition'),'actor':{k:who[k] for k in ('id','role','display') if k in who},'reason':payload.get('reason'),
-        'before':state(payload.get('before')),'after':state(payload.get('after')),'changes':[{k:v for k,v in r.items() if k in CHANGE_FIELDS} for r in payload.get('changes',[]) if isinstance(r,dict) and r.get('kind')=='tasks'],'legacy':False}
+        'before':state(payload.get('before')),'after':state(payload.get('after')),'changes':[{k:v for k,v in r.items() if k in CHANGE_FIELDS} for r in payload.get('changes',[]) if isinstance(r,dict) and r.get('kind')=='tasks'],'handoff':__import__('tasks.handoffs',fromlist=['serialize_handoff']).serialize_handoff(payload.get('handoff')) if payload.get('transition')=='handoff' else None,'legacy':False}
 
 
 def page(request,pk):
@@ -52,7 +52,11 @@ def proposal_status(request,proposal_id):
     policy=Policy(request);proposal=ActionProposal.objects.filter(pk=proposal_id,user_id=policy.actor.user_id,payload__action__in=ACTIONS).first()
     if proposal is None:raise ActionProposal.DoesNotExist()
     if policy.role!=proposal.role:raise PermissionError('Повноваження змінилися; погодження не надає доступу.')
-    policy.action(proposal.payload);stored=proposal.receipt;state='unknown';receipt=None
+    policy.action(proposal.payload)
+    if proposal.payload.get('action')=='handoff_task':
+        from .handoffs import validate_replay
+        validate_replay(request,proposal.payload)
+    stored=proposal.receipt;state='unknown';receipt=None
     if isinstance(stored,dict) and stored.get('state')=='succeeded' and stored.get('task_id') and stored.get('audit_id'):
         policy.tasks().get(pk=stored['task_id']);event=AuditEvent.objects.get(pk=stored['audit_id'],task_id=stored['task_id'])
         if event.action!=proposal.payload['action']:raise ActionProposal.DoesNotExist()

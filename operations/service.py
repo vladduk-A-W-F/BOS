@@ -73,7 +73,7 @@ def validate(data):
     return clean(data)
 
 def fingerprint(payload):
-    if payload.get('action') in ('create_task','update_task'):
+    if payload.get('action') in ('create_task','update_task','handoff_task'):
         from tasks.commands import fingerprint as task_fingerprint
         return task_fingerprint(payload)
     if payload.get('action')=='erp_import_batch':
@@ -91,7 +91,7 @@ def fingerprint(payload):
 def preview(request,payload,snapshot_fingerprint=None,*,dependency_context=None):
     from finance.statements import ACTIONS as STATEMENT_ACTIONS,preview as statement_preview
     if isinstance(payload,dict) and payload.get('action') in STATEMENT_ACTIONS:return statement_preview(request,payload)
-    if isinstance(payload,dict) and payload.get('action') in ('create_task','update_task'):
+    if isinstance(payload,dict) and payload.get('action') in ('create_task','update_task','handoff_task'):
         from tasks.commands import preview as task_preview
         return task_preview(request,payload)
     if isinstance(payload,dict) and payload.get('action')=='erp_import_batch':
@@ -120,7 +120,7 @@ def execute(request,proposal_id):
     p=ActionProposal.objects.filter(id=proposal_id,session_key=request.session.session_key).first()
     if not p:raise PermissionError('Погодження недоступне в цій сесії.')
     if p.user_id != principal.user_id or principal.role!=p.role or p.role not in ('ceo','manager'):raise PermissionError('Немає дозволу на виконання. Підготуйте власне нове погодження.')
-    if p.payload['action'].startswith('erp_') or p.payload['action'] in ('create_task','update_task'):
+    if p.payload['action'].startswith('erp_') or p.payload['action'] in ('create_task','update_task','handoff_task'):
         from erp.service import write_lock
         write_lock()
         # A competing confirmation may have completed while acquiring the mutex.
@@ -131,11 +131,14 @@ def execute(request,proposal_id):
     if p.payload.get('action')=='erp_import_batch':
         from erp.importing import locked_references
         locked_references(p.payload['batch'])
-    if p.payload['action'] in ('create_task','update_task'):
+    if p.payload['action'] in ('create_task','update_task','handoff_task'):
         request._bos_task_command=True
         from tasks.commands import locked_references
         locked_references(p.payload)
     policy=Policy(request);policy.action(p.payload)
+    if p.payload.get('action')=='handoff_task':
+        from tasks.handoffs import validate_replay
+        validate_replay(request,p.payload)
     if p.payload.get('action')=='erp_register_supplier_invoice':
         from .document_matching.registration import confirm
         return projections.receipt(policy,confirm(request,p))
@@ -159,7 +162,7 @@ def execute(request,proposal_id):
             p.receipt=receipt;p.save(update_fields=['receipt']);return projections.receipt(policy,receipt)
     from erp import adjustment_proposals
     scoped_adjustment=adjustment_proposals.pending(p,policy) if p.dependency_context is not None else False
-    if p.payload['action'] in ('create_task','update_task'):
+    if p.payload['action'] in ('create_task','update_task','handoff_task'):
         from tasks.commands import ConfirmConflict
         if p.expires_at<timezone.now():raise ConfirmConflict('proposal_expired','Строк погодження минув. Дію не виконано; підготуйте новий перегляд.')
         if p.fingerprint!=fingerprint(p.payload):raise ConfirmConflict('proposal_stale','Дані погодження змінилися. Дію не виконано; підготуйте новий перегляд.')

@@ -18,7 +18,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         rows=Policy(self.request).tasks().select_related('assignee_employee','sales_order','branch')
         if self.action!='list':return rows
-        for key in ('archived','overdue','assignee_id'):
+        for key in ('archived','overdue','assignee_id','department_id'):
             if len(self.request.query_params.getlist(key))>1:raise ValidationError({key:'Повторний параметр.'})
         archived=self.request.query_params.get('archived','false')
         if archived not in ('true','false'):raise ValidationError({'archived':'Потрібно true або false.'})
@@ -31,6 +31,10 @@ class TaskViewSet(viewsets.ModelViewSet):
             value=self.request.query_params['assignee_id']
             if not value.isascii() or not value.isdigit() or len(value)>19 or not 0<int(value)<=9223372036854775807:raise ValidationError({'assignee_id':'Потрібен позитивний ID.'})
             rows=rows.filter(assignee_employee_id=int(value))
+        if 'department_id' in self.request.query_params:
+            value=self.request.query_params['department_id']
+            if not value.isascii() or not value.isdigit() or len(value)>19 or not 0<int(value)<=9223372036854775807:raise ValidationError({'department_id':'Потрібен позитивний ID.'})
+            rows=rows.filter(assignee_employee__branch_id=int(value),assignee_employee__branch__type='department')
         return rows
     def approval_required(self,*args,**kwargs):return Response({'code':'approval_required','error':'Зміни доручень потребують попереднього перегляду та погодження.'},status=403)
     create=approval_required;update=approval_required;partial_update=approval_required;destroy=approval_required

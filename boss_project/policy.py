@@ -17,6 +17,12 @@ class Policy:
         # Never reuse request.user's permission cache after a role change.
         self.user = get_user_model().objects.get(pk=self.actor.user_id)
 
+    @classmethod
+    def for_user(cls, user):
+        from boss_project.identity import actor_for_user
+        instance=cls.__new__(cls);instance.request=None;instance.actor=actor_for_user(user);instance.role=instance.actor.role
+        instance.user=get_user_model().objects.get(pk=instance.actor.user_id);return instance
+
     @property
     def ceo(self):
         return self.role == 'ceo'
