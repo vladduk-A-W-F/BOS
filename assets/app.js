@@ -7962,6 +7962,9 @@ function Tasks({
     onDone: r => after(r, dialog.key)
   }));
 }
+function manualKpiValue(value) {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0 && value <= 100 ? value : null;
+}
 function Employees({
   employees,
   setEmployees,
@@ -8085,7 +8088,7 @@ function Employees({
   const byDept = deptFilter === 'all' ? employees : employees.filter(e => e.dept === deptFilter);
   const bySearch = search.trim() ? byDept.filter(e => (e.name || '').toLowerCase().includes(search.toLowerCase()) || (e.role || '').toLowerCase().includes(search.toLowerCase()) || (e.email || '').toLowerCase().includes(search.toLowerCase())) : byDept;
   const filtered = [...bySearch].sort((a, b) => {
-    if (sortBy === 'kpi') return (b.kpi || 0) - (a.kpi || 0);
+    if (sortBy === 'kpi') return (manualKpiValue(b.kpi) ?? -1) - (manualKpiValue(a.kpi) ?? -1);
     if (sortBy === 'birthday') return daysUntil(a.birthday) - daysUntil(b.birthday);
     return (a.name || '').localeCompare(b.name || '');
   });
@@ -8381,27 +8384,37 @@ function Employees({
       color: T.textMuted,
       fontSize: 12
     }
-  }, e.dept || '—'), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, e.dept || '—'), /*#__PURE__*/React.createElement("div", null, loading ? /*#__PURE__*/React.createElement("div", {
     style: {
-      color: kpiColor(e.kpi || 0),
+      color: T.textMuted,
+      fontSize: 11,
+      lineHeight: 1.35
+    }
+  }, "\u041E\u043D\u043E\u0432\u043B\u044E\u0454\u043C\u043E \u0440\u0443\u0447\u043D\u0438\u0439 \u0431\u0430\u043B\u2026") : error ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: T.textMuted,
+      fontSize: 11,
+      lineHeight: 1.35
+    }
+  }, "\u0420\u0443\u0447\u043D\u0438\u0439 \u0431\u0430\u043B \u043F\u043E\u0442\u0440\u0435\u0431\u0443\u0454 \u043F\u043E\u0432\u0442\u043E\u0440\u043D\u043E\u0433\u043E \u0447\u0438\u0442\u0430\u043D\u043D\u044F") : manualKpiValue(e.kpi) !== null ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: T.text,
       fontSize: 14,
-      fontWeight: 700,
-      marginBottom: 3
+      fontWeight: 700
     }
-  }, e.kpi || 0, "%"), /*#__PURE__*/React.createElement("div", {
+  }, manualKpiValue(e.kpi), "/100"), /*#__PURE__*/React.createElement("div", {
     style: {
-      background: T.surfaceHover,
-      borderRadius: 4,
-      height: 4,
-      overflow: 'hidden'
+      color: T.textMuted,
+      fontSize: 10,
+      marginTop: 3
     }
-  }, /*#__PURE__*/React.createElement("div", {
+  }, "\u0420\u0443\u0447\u043D\u0438\u0439 \u0431\u0430\u043B")) : /*#__PURE__*/React.createElement("div", {
     style: {
-      background: kpiColor(e.kpi || 0),
-      height: '100%',
-      width: (e.kpi || 0) + '%'
+      color: T.textMuted,
+      fontSize: 11,
+      lineHeight: 1.35
     }
-  }))), /*#__PURE__*/React.createElement("div", {
+  }, "\u0420\u0443\u0447\u043D\u0438\u0439 \u0431\u0430\u043B \u043D\u0435 \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043E")), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       flexDirection: 'column'
@@ -8601,17 +8614,56 @@ function Birthdays({
   }, "\u041D\u0435\u043C\u0430\u0454 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A\u0456\u0432")));
 }
 function KPI({
-  employees
+  employees,
+  loading,
+  error,
+  refetchEmployees,
+  denied = false
 }) {
-  // Сортировка по убыванию KPI — лучшие сверху
-  const sorted = [...employees].sort((a, b) => (b.kpi || 0) - (a.kpi || 0));
-
-  // Цвет KPI по порогам (тот же что в Employees таблице)
-  const kpiColor = k => k >= 90 ? T.primary : k >= 80 ? T.yellow : T.red;
-  const kpiLabel = k => k >= 90 ? 'Відмінно' : k >= 80 ? 'Добре' : 'Потребує уваги';
-
-  // Среднее значение по команде
-  const avg = employees.length > 0 ? Math.round(employees.reduce((s, e) => s + (e.kpi || 0), 0) / employees.length) : 0;
+  const entries = [...employees].map(employee => ({
+    employee,
+    score: manualKpiValue(employee.kpi)
+  })).sort((a, b) => (a.employee.name || '').localeCompare(b.employee.name || ''));
+  const measured = entries.filter(entry => entry.score !== null).length;
+  const heading = /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
+    style: {
+      color: T.text,
+      margin: 0,
+      fontSize: 22,
+      fontWeight: 700
+    }
+  }, "KPI \u043F\u0440\u0430\u0446\u0456\u0432\u043D\u0438\u043A\u0456\u0432"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      color: T.textMuted,
+      fontSize: 13,
+      margin: '6px 0 0'
+    }
+  }, "\u0420\u0443\u0447\u043D\u0456 \u0431\u0430\u043B\u0438 \u0437 \u0447\u0438\u043D\u043D\u0438\u0445 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432; \u043F\u0435\u0440\u0456\u043E\u0434 \u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u043E \u0432\u0438\u043C\u0456\u0440\u044E\u0432\u0430\u043D\u043D\u044F \u043D\u0435 \u043D\u0430\u0434\u0430\u043D\u0456."));
+  const state = (message, action) => /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: 24
+    }
+  }, heading, /*#__PURE__*/React.createElement(Card, {
+    pad: 20,
+    style: {
+      marginTop: 18
+    }
+  }, /*#__PURE__*/React.createElement("p", {
+    style: {
+      color: T.textMuted,
+      margin: 0,
+      lineHeight: 1.5
+    }
+  }, message), action && /*#__PURE__*/React.createElement(Button, {
+    onClick: action,
+    style: {
+      marginTop: 14
+    }
+  }, "\u0421\u043F\u0440\u043E\u0431\u0443\u0432\u0430\u0442\u0438 \u0437\u043D\u043E\u0432\u0443")));
+  if (denied) return state('Показники KPI недоступні для поточного облікового запису.');
+  if (loading) return state('Завантажуємо доступні ручні бали. Попередні показники не показуються як актуальні.');
+  if (error) return state('Не вдалося прочитати ручні бали: ' + error, refetchEmployees);
+  if (!employees.length) return state('Немає доступних записів співробітників для відображення KPI.');
   return /*#__PURE__*/React.createElement("div", {
     style: {
       padding: 24
@@ -8620,137 +8672,114 @@ function KPI({
     style: {
       display: 'flex',
       justifyContent: 'space-between',
-      alignItems: 'flex-end',
+      alignItems: 'flex-start',
       marginBottom: 18,
       flexWrap: 'wrap',
       gap: 12
     }
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
-    style: {
-      color: T.text,
-      margin: 0,
-      fontSize: 22,
-      fontWeight: 700
-    }
-  }, "KPI \u041F\u0440\u0430\u0446\u0456\u0432\u043D\u0438\u043A\u0456\u0432"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      color: T.textMuted,
-      fontSize: 12,
-      marginTop: 4
-    }
-  }, employees.length, " \u043E\u0441\u0456\u0431 \xB7 \u0441\u0435\u0440\u0435\u0434\u043D\u0456\u0439 ", avg, "%")), /*#__PURE__*/React.createElement(Card, {
+  }, heading, /*#__PURE__*/React.createElement(Card, {
     pad: "10px 16px",
     style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 12
+      maxWidth: 340
     }
-  }, /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
       color: T.textMuted,
       fontSize: 11,
       textTransform: 'uppercase',
       letterSpacing: '0.05em'
     }
-  }, "\u041A\u043E\u043C\u0430\u043D\u0434\u0430"), /*#__PURE__*/React.createElement("span", {
+  }, "\u041E\u0445\u043E\u043F\u043B\u0435\u043D\u043D\u044F \u0440\u0443\u0447\u043D\u0438\u043C\u0438 \u0431\u0430\u043B\u0430\u043C\u0438"), /*#__PURE__*/React.createElement("div", {
     style: {
-      color: kpiColor(avg),
-      fontSize: 24,
-      fontWeight: 700
+      color: T.text,
+      fontSize: 20,
+      fontWeight: 700,
+      marginTop: 4
     }
-  }, avg, "%"))), /*#__PURE__*/React.createElement("div", {
+  }, measured, " \u0437 ", entries.length, " \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: T.textMuted,
+      fontSize: 12,
+      marginTop: 4
+    }
+  }, "\u0414\u0430\u043D\u0438\u0445 \u0434\u043B\u044F \u043E\u0446\u0456\u043D\u043A\u0438 \u043A\u043E\u043C\u0430\u043D\u0434\u0438 \u043D\u0435\u043C\u0430\u0454."))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(2, 1fr)',
+      gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))',
       gap: 12
     }
-  }, sorted.map(e => {
-    const k = e.kpi || 0;
-    const color = kpiColor(k);
-    return /*#__PURE__*/React.createElement(Card, {
-      key: e.id,
-      pad: 16
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-        marginBottom: 14
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        width: 40,
-        height: 40,
-        borderRadius: '50%',
-        background: T.primaryGlow,
-        color: T.primary,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: 12,
-        fontWeight: 700,
-        flexShrink: 0
-      }
-    }, genAvatar(e.name)), /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: 1,
-        minWidth: 0
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        color: T.text,
-        fontWeight: 600,
-        fontSize: 13
-      }
-    }, e.name, " ", e.archived_at && /*#__PURE__*/React.createElement(Badge, {
-      tone: "neutral"
-    }, "\u0410\u0440\u0445\u0456\u0432")), /*#__PURE__*/React.createElement("div", {
-      style: {
-        color: T.textMuted,
-        fontSize: 11
-      }
-    }, e.dept || '—')), /*#__PURE__*/React.createElement("div", {
-      style: {
-        textAlign: 'right'
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        color: color,
-        fontSize: 22,
-        fontWeight: 700,
-        lineHeight: 1
-      }
-    }, k, "%"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        color: color,
-        fontSize: 10,
-        fontWeight: 600,
-        marginTop: 3
-      }
-    }, kpiLabel(k)))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        background: T.surfaceHover,
-        borderRadius: 4,
-        height: 6,
-        overflow: 'hidden'
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        background: color,
-        height: '100%',
-        width: k + '%',
-        transition: 'width 0.3s'
-      }
-    })));
-  }), employees.length === 0 && /*#__PURE__*/React.createElement("div", {
+  }, entries.map(({
+    employee,
+    score
+  }) => /*#__PURE__*/React.createElement(Card, {
+    key: employee.id,
+    pad: 16
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
-      gridColumn: 'span 2',
-      padding: 40,
-      textAlign: 'center',
-      color: T.textMuted,
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 40,
+      height: 40,
+      borderRadius: '50%',
+      background: T.primaryGlow,
+      color: T.primary,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: 12,
+      fontWeight: 700,
+      flexShrink: 0
+    }
+  }, genAvatar(employee.name)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: T.text,
+      fontWeight: 600,
       fontSize: 13
     }
-  }, "\u041D\u0435\u043C\u0430\u0454 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A\u0456\u0432")));
+  }, employee.name, " ", employee.archived_at && /*#__PURE__*/React.createElement(Badge, {
+    tone: "neutral"
+  }, "\u0410\u0440\u0445\u0456\u0432")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: T.textMuted,
+      fontSize: 11
+    }
+  }, employee.dept || '—'))), score !== null ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 16
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: T.text,
+      fontSize: 22,
+      fontWeight: 700
+    }
+  }, score, "/100"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: T.textMuted,
+      fontSize: 11,
+      marginTop: 3
+    }
+  }, "\u0420\u0443\u0447\u043D\u0438\u0439 \u0431\u0430\u043B")) : /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 16,
+      color: T.textMuted,
+      fontSize: 13,
+      lineHeight: 1.45
+    }
+  }, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: T.text
+    }
+  }, "\u0420\u0443\u0447\u043D\u0438\u0439 \u0431\u0430\u043B \u043D\u0435 \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043E"), /*#__PURE__*/React.createElement("br", null), "\u0417\u043D\u0430\u0447\u0435\u043D\u043D\u044F 0 \u0430\u0431\u043E \u0432\u0456\u0434\u0441\u0443\u0442\u043D\u0454; \u0447\u0438\u043D\u043D\u0438\u0439 DTO \u043D\u0435 \u0432\u0456\u0434\u0440\u0456\u0437\u043D\u044F\u0454 default \u0432\u0456\u0434 \u0432\u043D\u0435\u0441\u0435\u043D\u043E\u0433\u043E \u043D\u0443\u043B\u044F.")))));
 }
 function Schedule() {
   const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
@@ -21104,14 +21133,23 @@ function App() {
   } = nav;
   const sub = nav.sub || bosNavigation().find(n => n.id === section)?.subs[0]?.id || null;
   const renderContent = () => {
-    if (!bosCanView(section, sub)) return /*#__PURE__*/React.createElement("div", {
-      className: "erp-workspace"
-    }, /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, "\u0420\u043E\u0437\u0434\u0456\u043B \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0439"), /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0442\u043E\u0447\u043D\u0438\u0439 \u043E\u0431\u043B\u0456\u043A\u043E\u0432\u0438\u0439 \u0437\u0430\u043F\u0438\u0441 \u043D\u0435 \u043C\u0430\u0454 \u0434\u043E\u0441\u0442\u0443\u043F\u0443 \u0434\u043E \u0446\u044C\u043E\u0433\u043E \u0440\u043E\u0437\u0434\u0456\u043B\u0443."), /*#__PURE__*/React.createElement(Button, {
-      onClick: () => setNav({
-        section: 'dash',
-        sub: null
-      })
-    }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u0440\u043E\u0431\u043E\u0447\u0438\u0439 \u043E\u0433\u043B\u044F\u0434")));
+    if (!bosCanView(section, sub)) {
+      if (section === 'hr' && sub === 'kpi') return /*#__PURE__*/React.createElement(KPI, {
+        employees: [],
+        loading: false,
+        error: null,
+        refetchEmployees: refetchEmployees,
+        denied: true
+      });
+      return /*#__PURE__*/React.createElement("div", {
+        className: "erp-workspace"
+      }, /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, "\u0420\u043E\u0437\u0434\u0456\u043B \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0439"), /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0442\u043E\u0447\u043D\u0438\u0439 \u043E\u0431\u043B\u0456\u043A\u043E\u0432\u0438\u0439 \u0437\u0430\u043F\u0438\u0441 \u043D\u0435 \u043C\u0430\u0454 \u0434\u043E\u0441\u0442\u0443\u043F\u0443 \u0434\u043E \u0446\u044C\u043E\u0433\u043E \u0440\u043E\u0437\u0434\u0456\u043B\u0443."), /*#__PURE__*/React.createElement(Button, {
+        onClick: () => setNav({
+          section: 'dash',
+          sub: null
+        })
+      }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u0440\u043E\u0431\u043E\u0447\u0438\u0439 \u043E\u0433\u043B\u044F\u0434")));
+    }
     if (section === 'heli') return /*#__PURE__*/React.createElement(BoSHome, {
       focus: true,
       onNavigate: (section, sub) => setNav({
@@ -21211,7 +21249,10 @@ function App() {
         employees: employees
       });
       if (sub === 'kpi') return /*#__PURE__*/React.createElement(KPI, {
-        employees: employees
+        employees: employees,
+        loading: employeesLoading,
+        error: employeesError,
+        refetchEmployees: refetchEmployees
       });
     }
     if (section === 'organizer') {

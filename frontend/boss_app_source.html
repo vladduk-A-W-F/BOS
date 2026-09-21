@@ -2487,6 +2487,8 @@ function Tasks({tasks,setTasks,loading,error,refetchTasks}){
 }
 
 
+function manualKpiValue(value){return typeof value==='number'&&Number.isFinite(value)&&value>0&&value<=100?value:null;}
+
 function Employees({employees, setEmployees, depts, loading, error, refetchEmployees}) {
   // === STATE ===
   const [editId, setEditId] = useState(null);              // редактируем существующего
@@ -2571,7 +2573,7 @@ function Employees({employees, setEmployees, depts, loading, error, refetchEmplo
       )
     : byDept;
   const filtered = [...bySearch].sort((a, b) => {
-    if (sortBy === 'kpi')      return (b.kpi||0) - (a.kpi||0);
+    if (sortBy === 'kpi')      return (manualKpiValue(b.kpi)??-1) - (manualKpiValue(a.kpi)??-1);
     if (sortBy === 'birthday') return daysUntil(a.birthday) - daysUntil(b.birthday);
     return (a.name||'').localeCompare(b.name||'');
   });
@@ -2677,12 +2679,15 @@ function Employees({employees, setEmployees, depts, loading, error, refetchEmplo
               <span style={{color: T.text, fontSize: 13}}>{e.role || '—'}</span>
               {/* Відділ */}
               <span style={{color: T.textMuted, fontSize: 12}}>{e.dept || '—'}</span>
-              {/* KPI — число + progress bar */}
+              {/* KPI зберігається вручну; 0 не відрізняється від server default у чинному DTO. */}
               <div>
-                <div style={{color: kpiColor(e.kpi||0), fontSize: 14, fontWeight: 700, marginBottom: 3}}>{e.kpi||0}%</div>
-                <div style={{background: T.surfaceHover, borderRadius: 4, height: 4, overflow:'hidden'}}>
-                  <div style={{background: kpiColor(e.kpi||0), height:'100%', width: (e.kpi||0)+'%'}}/>
-                </div>
+                {loading
+                  ? <div style={{color:T.textMuted,fontSize:11,lineHeight:1.35}}>Оновлюємо ручний бал…</div>
+                  : error
+                  ? <div style={{color:T.textMuted,fontSize:11,lineHeight:1.35}}>Ручний бал потребує повторного читання</div>
+                  : manualKpiValue(e.kpi)!==null
+                  ? <><div style={{color:T.text, fontSize:14, fontWeight:700}}>{manualKpiValue(e.kpi)}/100</div><div style={{color:T.textMuted, fontSize:10, marginTop:3}}>Ручний бал</div></>
+                  : <div style={{color:T.textMuted, fontSize:11, lineHeight:1.35}}>Ручний бал не підтверджено</div>}
               </div>
               {/* Контакти */}
               <div style={{display:'flex', flexDirection:'column'}}>
@@ -2781,72 +2786,27 @@ function Birthdays({employees}) {
   );
 }
 
-function KPI({employees}) {
-  // Сортировка по убыванию KPI — лучшие сверху
-  const sorted = [...employees].sort((a, b) => (b.kpi || 0) - (a.kpi || 0));
-
-  // Цвет KPI по порогам (тот же что в Employees таблице)
-  const kpiColor = (k) => k >= 90 ? T.primary : k >= 80 ? T.yellow : T.red;
-  const kpiLabel = (k) => k >= 90 ? 'Відмінно' : k >= 80 ? 'Добре' : 'Потребує уваги';
-
-  // Среднее значение по команде
-  const avg = employees.length > 0
-    ? Math.round(employees.reduce((s, e) => s + (e.kpi || 0), 0) / employees.length)
-    : 0;
-
-  return (
-    <div style={{padding: 24}}>
-      {/* Заголовок + среднее по команде */}
-      <div style={{display:'flex', justifyContent:'space-between', alignItems:'flex-end', marginBottom: 18, flexWrap:'wrap', gap: 12}}>
-        <div>
-          <h2 style={{color: T.text, margin: 0, fontSize: 22, fontWeight: 700}}>KPI Працівників</h2>
-          <div style={{color: T.textMuted, fontSize: 12, marginTop: 4}}>{employees.length} осіб · середній {avg}%</div>
-        </div>
-        {/* Большой плашка-показатель среднего */}
-        <Card pad="10px 16px" style={{display:'flex', alignItems:'center', gap: 12}}>
-          <span style={{color: T.textMuted, fontSize: 11, textTransform:'uppercase', letterSpacing:'0.05em'}}>Команда</span>
-          <span style={{color: kpiColor(avg), fontSize: 24, fontWeight: 700}}>{avg}%</span>
-        </Card>
-      </div>
-
-      {/* Сетка 2 колонки */}
-      <div style={{display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap: 12}}>
-        {sorted.map(e => {
-          const k = e.kpi || 0;
-          const color = kpiColor(k);
-          return (
-            <Card key={e.id} pad={16}>
-              {/* Шапка карточки */}
-              <div style={{display:'flex', alignItems:'center', gap: 10, marginBottom: 14}}>
-                <div style={{width: 40, height: 40, borderRadius:'50%', background: T.primaryGlow, color: T.primary, display:'flex', alignItems:'center', justifyContent:'center', fontSize: 12, fontWeight: 700, flexShrink: 0}}>
-                  {genAvatar(e.name)}
-                </div>
-                <div style={{flex: 1, minWidth: 0}}>
-                  <div style={{color: T.text, fontWeight: 600, fontSize: 13}}>{e.name} {e.archived_at&&<Badge tone="neutral">Архів</Badge>}</div>
-                  <div style={{color: T.textMuted, fontSize: 11}}>{e.dept || '—'}</div>
-                </div>
-                {/* Большое число KPI цветом по порогу */}
-                <div style={{textAlign:'right'}}>
-                  <div style={{color: color, fontSize: 22, fontWeight: 700, lineHeight: 1}}>{k}%</div>
-                  <div style={{color: color, fontSize: 10, fontWeight: 600, marginTop: 3}}>{kpiLabel(k)}</div>
-                </div>
-              </div>
-              {/* Прогресс-бар */}
-              <div style={{background: T.surfaceHover, borderRadius: 4, height: 6, overflow:'hidden'}}>
-                <div style={{background: color, height:'100%', width: k+'%', transition:'width 0.3s'}}/>
-              </div>
-            </Card>
-          );
-        })}
-
-        {employees.length === 0 && (
-          <div style={{gridColumn:'span 2', padding: 40, textAlign:'center', color: T.textMuted, fontSize: 13}}>
-            Немає співробітників
-          </div>
-        )}
-      </div>
+function KPI({employees,loading,error,refetchEmployees,denied=false}) {
+  const entries=[...employees].map(employee=>({employee,score:manualKpiValue(employee.kpi)})).sort((a,b)=>(a.employee.name||'').localeCompare(b.employee.name||''));
+  const measured=entries.filter(entry=>entry.score!==null).length;
+  const heading=<div><h2 style={{color:T.text,margin:0,fontSize:22,fontWeight:700}}>KPI працівників</h2><p style={{color:T.textMuted,fontSize:13,margin:'6px 0 0'}}>Ручні бали з чинних доступних записів; період і джерело вимірювання не надані.</p></div>;
+  const state=(message,action)=> <div style={{padding:24}}>{heading}<Card pad={20} style={{marginTop:18}}><p style={{color:T.textMuted,margin:0,lineHeight:1.5}}>{message}</p>{action&&<Button onClick={action} style={{marginTop:14}}>Спробувати знову</Button>}</Card></div>;
+  if(denied)return state('Показники KPI недоступні для поточного облікового запису.');
+  if(loading)return state('Завантажуємо доступні ручні бали. Попередні показники не показуються як актуальні.');
+  if(error)return state('Не вдалося прочитати ручні бали: '+error,refetchEmployees);
+  if(!employees.length)return state('Немає доступних записів співробітників для відображення KPI.');
+  return <div style={{padding:24}}>
+    <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:18,flexWrap:'wrap',gap:12}}>
+      {heading}
+      <Card pad="10px 16px" style={{maxWidth:340}}><div style={{color:T.textMuted,fontSize:11,textTransform:'uppercase',letterSpacing:'0.05em'}}>Охоплення ручними балами</div><div style={{color:T.text,fontSize:20,fontWeight:700,marginTop:4}}>{measured} з {entries.length} доступних записів</div><div style={{color:T.textMuted,fontSize:12,marginTop:4}}>Даних для оцінки команди немає.</div></Card>
     </div>
-  );
+    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:12}}>
+      {entries.map(({employee,score})=><Card key={employee.id} pad={16}>
+        <div style={{display:'flex',alignItems:'center',gap:10}}><div style={{width:40,height:40,borderRadius:'50%',background:T.primaryGlow,color:T.primary,display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,flexShrink:0}}>{genAvatar(employee.name)}</div><div style={{flex:1,minWidth:0}}><div style={{color:T.text,fontWeight:600,fontSize:13}}>{employee.name} {employee.archived_at&&<Badge tone="neutral">Архів</Badge>}</div><div style={{color:T.textMuted,fontSize:11}}>{employee.dept||'—'}</div></div></div>
+        {score!==null?<div style={{marginTop:16}}><div style={{color:T.text,fontSize:22,fontWeight:700}}>{score}/100</div><div style={{color:T.textMuted,fontSize:11,marginTop:3}}>Ручний бал</div></div>:<div style={{marginTop:16,color:T.textMuted,fontSize:13,lineHeight:1.45}}><strong style={{color:T.text}}>Ручний бал не підтверджено</strong><br/>Значення 0 або відсутнє; чинний DTO не відрізняє default від внесеного нуля.</div>}
+      </Card>)}
+    </div>
+  </div>;
 }
 
 function Schedule(){
@@ -5344,7 +5304,7 @@ function App(){
   const sub=nav.sub||bosNavigation().find(n=>n.id===section)?.subs[0]?.id||null;
 
   const renderContent=()=>{
-    if(!bosCanView(section,sub))return <div className="erp-workspace"><Card><h2>Розділ недоступний</h2><p>Поточний обліковий запис не має доступу до цього розділу.</p><Button onClick={()=>setNav({section:'dash',sub:null})}>Відкрити робочий огляд</Button></Card></div>;
+    if(!bosCanView(section,sub)){if(section==='hr'&&sub==='kpi')return <KPI employees={[]} loading={false} error={null} refetchEmployees={refetchEmployees} denied/>;return <div className="erp-workspace"><Card><h2>Розділ недоступний</h2><p>Поточний обліковий запис не має доступу до цього розділу.</p><Button onClick={()=>setNav({section:'dash',sub:null})}>Відкрити робочий огляд</Button></Card></div>;}
     if(section==='heli') return <BoSHome focus onNavigate={(section,sub)=>setNav({section,sub})} refetchTasks={refetchTasks}/>;
     if(section==='dash') return <BoSHome onNavigate={(section,sub)=>setNav({section,sub})} refetchTasks={refetchTasks}/>;
     if(section==='erp')return <ERPWorkspace view={sub||'overview'} refetchTasks={refetchTasks} onNavigate={(section,sub)=>setNav({section,sub})}/>;
@@ -5363,7 +5323,7 @@ function App(){
       if(sub==='employees'&&!bosCan('hr_private'))return <BoSReadOnlyRecords title="Довідник співробітників" rows={employees} columns={[["Ім’я",'name'],["Посада",'role'],["Відділ",'dept'],["Стан",r=>r.archived_at?'В архіві':'Активний']]} onRefresh={refetchEmployees} loading={employeesLoading} error={employeesError}/>;
       if(sub==='employees') return <Employees employees={employees} setEmployees={setEmployees} depts={settings.departments} loading={employeesLoading} error={employeesError} refetchEmployees={refetchEmployees}/>;
       if(sub==='birthdays') return <Birthdays employees={employees}/>;
-      if(sub==='kpi') return <KPI employees={employees}/>;
+      if(sub==='kpi') return <KPI employees={employees} loading={employeesLoading} error={employeesError} refetchEmployees={refetchEmployees}/>;
     }
     if(section==='organizer'){
       if(sub==='documents')return <DocumentRegistry/>;
