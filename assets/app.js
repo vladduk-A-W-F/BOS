@@ -7488,215 +7488,343 @@ function Tasks({
   error,
   refetchTasks
 }) {
-  const [filter, setFilter] = useState('all'),
+  const scope = c01Scope(),
+    owner = useRef({
+      alive: true,
+      generation: 0,
+      scope,
+      controllers: new Set(),
+      context: '',
+      dialogKey: null
+    }),
+    heading = useRef(null),
+    opener = useRef(null),
+    serial = useRef(0);
+  const [department, setDepartment] = useState(''),
+    [tab, setTab] = useState('active'),
+    [filter, setFilter] = useState('all'),
     [search, setSearch] = useState(''),
     [sortBy, setSortBy] = useState('priority'),
-    [tab, setTab] = useState('active'),
+    [deadlineFrom, setDeadlineFrom] = useState(''),
+    [deadlineTo, setDeadlineTo] = useState(''),
+    [view, setView] = useState({
+      status: 'loading',
+      data: null,
+      error: ''
+    }),
     [dialog, setDialog] = useState(null),
-    [archive, setArchive] = useState([]),
-    [archiveError, setArchiveError] = useState(''),
-    [archiveLoading, setArchiveLoading] = useState(false);
-  const sequence = useRef(0),
-    archiveAbort = useRef(null),
-    live = useRef(true);
-  useEffect(() => () => {
-    live.current = false;
-    archiveAbort.current?.abort();
-  }, []);
+    [notice, setNotice] = useState('');
+  const context = JSON.stringify([department, tab]),
+    data = owner.current.alive && owner.current.scope === scope && owner.current.context === context ? view.data : null;
   useEffect(() => {
-    if (tab === 'archive') loadArchive();
+    const o = owner.current;
+    o.alive = true;
+    o.scope = scope;
+    o.context = context;
+    readList();
+    const ended = () => {
+        c01Cancel(o);
+        o.loading = false;
+        o.data = null;
+        o.dialogKey = null;
+        setDialog(null);
+        setView({
+          status: 'denied',
+          data: null,
+          error: 'Сесія або права змінилися. Доступні факти очищено.'
+        });
+        setNotice('');
+      },
+      changed = () => {
+        c01Cancel(o);
+        o.loading = false;
+        o.data = null;
+        setView({
+          status: 'stale',
+          data: null,
+          error: 'Дані змінилися. Оновіть список доступних доручень.'
+        });
+        setNotice('');
+      };
+    window.addEventListener('bos:session-ended', ended);
+    window.addEventListener('bos:data-changed', changed);
     return () => {
-      archiveAbort.current?.abort();
-      sequence.current++;
+      o.alive = false;
+      o.loading = false;
+      c01Cancel(o);
+      window.removeEventListener('bos:session-ended', ended);
+      window.removeEventListener('bos:data-changed', changed);
     };
-  }, [tab]);
-  async function loadArchive() {
-    const n = ++sequence.current;
-    archiveAbort.current?.abort();
-    const controller = new AbortController();
-    archiveAbort.current = controller;
-    setArchiveLoading(true);
-    setArchiveError('');
+  }, [scope, context]);
+  async function readList(result = null) {
+    const o = owner.current;
+    if (!o.alive || o.scope !== c01Scope() || o.context !== context) return;
+    if (o.loading) return;
+    o.loading = true;
+    c01Cancel(o);
+    o.data = null;
+    const t = {
+        generation: o.generation,
+        scope: o.scope
+      },
+      selected = department;
+    setView({
+      status: 'loading',
+      data: null,
+      error: ''
+    });
     try {
-      const r = await fetch('/api/tasks/?archived=true', {
-          signal: controller.signal
-        }),
-        body = await r.json();
-      if (!live.current || n !== sequence.current) return;
-      if (!r.ok || !Array.isArray(body)) throw Error(body.error || 'Архів недоступний.');
-      setArchive(body);
+      const query = new URLSearchParams({
+        archived: tab === 'archive' ? 'true' : 'false'
+      });
+      if (selected) query.set('department_id', String(c01InputId(selected)));
+      const [rows, tree, employees, clock] = await Promise.all([c01Read(o, t, '/api/tasks/?' + query.toString()), c01Read(o, t, '/api/branches/'), c01Read(o, t, '/api/employees/'), c01Read(o, t, '/api/operations/status/')]);
+      const departments = c01Departments(tree);
+      if (!c01Rows(rows) || !rows.every(c01TaskShape) || !c01Rows(employees) || employees.some(e => typeof e.full_name !== 'string') || !c01Date(clock.as_of) || clock.access_revision !== window.BOS_RUNTIME?.access_revision) throw Error('Не отримано повного доступного списку та серверної дати.');
+      if (selected && !departments.some(d => d.id === Number(selected))) throw Object.assign(Error('Обраний відділ зараз недоступний.'), {
+        denied: true
+      });
+      if (!c01Current(o, t) || o.context !== context) return;
+      const next = {
+        rows,
+        departments,
+        employees,
+        as_of: clock.as_of,
+        department: selected,
+        context
+      };
+      o.data = next;
+      setView({
+        status: 'fresh',
+        data: next,
+        error: ''
+      });
+      if (result?.task_id) setNotice(rows.some(r => r.id === result.task_id) ? 'Список перечитано після погодження. Поточне доручення доступне за цими фільтрами.' : 'Список перечитано після погодження. Доручення більше не входить до доступного списку цього відділу або архівного фільтра; це не видалення історії.');
     } catch (e) {
-      if (live.current && n === sequence.current) {
-        setArchive([]);
-        setArchiveError(e.name === 'AbortError' ? 'Читання архіву не завершилося.' : e.message);
+      if (c01Current(o, t)) {
+        o.data = null;
+        setView({
+          status: e.denied ? 'denied' : 'error',
+          data: null,
+          error: e.name === 'AbortError' ? 'Читання не завершилося. Оновіть список явно.' : e.message
+        });
       }
     } finally {
-      if (live.current && n === sequence.current) setArchiveLoading(false);
+      if (c01Current(o, t)) o.loading = false;
     }
   }
-  function open(task, mode = 'edit', preset = {}) {
+  function changeContext(key, value) {
+    const o = owner.current;
+    c01Cancel(o);
+    o.loading = false;
+    o.data = null;
+    o.context = 'CHANGING';
+    o.dialogKey = null;
+    setDialog(null);
+    setNotice('');
+    setView({
+      status: 'loading',
+      data: null,
+      error: ''
+    });
+    if (key === 'department') setDepartment(value);else {
+      setTab(value);
+      setFilter('all');
+    }
+  }
+  function open(task, mode = 'view', preset = {}) {
+    const o = owner.current;
+    if (!o.alive || o.scope !== scope || c01Scope() !== scope || view.status !== 'fresh' || o.data !== data || o.context !== context || task && !data.rows.some(t => t === task)) return;
+    opener.current = {
+      node: document.activeElement,
+      scroll: window.scrollY,
+      scope
+    };
+    const key = ++serial.current;
+    o.dialogKey = key;
     setDialog({
-      taskId: task?.id || null,
+      taskId: task?.id ?? null,
       mode,
       preset,
-      key: (task?.id || 'new') + ':' + mode + ':' + Date.now()
+      key,
+      scope
     });
   }
-  function refresh() {
-    refetchTasks();
-    if (tab === 'archive') loadArchive();
+  function closeDialog(key) {
+    if (owner.current.dialogKey !== key) return;
+    owner.current.dialogKey = null;
+    setDialog(null);
+    const previous = opener.current;
+    if (previous?.scope !== c01Scope()) return;
+    const node = previous.node;
+    if (node?.isConnected && !node.disabled) node.focus();else heading.current?.focus();
+    window.scrollTo?.(0, previous.scroll);
   }
-  const rows = tab === 'archive' ? archive : tasks.filter(t => !t.archived),
-    counts = {
-      all: rows.length,
-      active: 0,
-      process: 0,
-      done: 0,
-      overdue: 0
+  function recovered(entry) {
+    const o = owner.current;
+    if (!o.alive || c01Scope() !== scope || entry.user_id !== window.BOS_RUNTIME?.user_id) return;
+    opener.current = {
+      node: document.activeElement,
+      scroll: window.scrollY,
+      scope
     };
-  rows.forEach(t => {
-    const k = c01TaskSegment(t);
-    if (k in counts) counts[k]++;
-  });
-  const term = search.trim().toLowerCase(),
+    const key = ++serial.current;
+    o.dialogKey = key;
+    setDialog({
+      key,
+      recovery: entry,
+      scope
+    });
+  }
+  function after(result, key) {
+    if (!owner.current.alive || c01Scope() !== scope || owner.current.dialogKey !== key) return;
+    readList(result);
+    refetchTasks?.();
+  }
+  const term = search.trim().toLocaleLowerCase('uk-UA'),
     priorityOrder = {
       high: 0,
       medium: 1,
       low: 2
-    };
-  const filtered = rows.filter(t => tab === 'archive' || filter === 'all' || c01TaskSegment(t) === filter).filter(t => !term || [t.title, c01Assignee(t), t.category, t.order_code].some(s => (s || '').toLowerCase().includes(term))).sort((a, b) => sortBy === 'priority' ? (priorityOrder[a.priority] ?? 3) - (priorityOrder[b.priority] ?? 3) : (a.deadline || '9999').localeCompare(b.deadline || '9999'));
-  const pageError = tab === 'archive' ? archiveError : error,
-    pageLoading = tab === 'archive' ? archiveLoading : loading;
+    },
+    rows = data?.rows || [],
+    filtered = rows.filter(t => tab === 'archive' || filter === 'all' || c01TaskSegment(t) === filter).filter(t => !term || [t.title, c01Assignee(t), t.category, t.order_code].some(s => String(s || '').toLocaleLowerCase('uk-UA').includes(term))).filter(t => (!deadlineFrom || t.deadline && t.deadline >= deadlineFrom) && (!deadlineTo || t.deadline && t.deadline <= deadlineTo)).sort((a, b) => sortBy === 'priority' ? (priorityOrder[a.priority] ?? 3) - (priorityOrder[b.priority] ?? 3) : (a.deadline || '9999').localeCompare(b.deadline || '9999'));
+  const ownEmployee = data?.employees.find(e => e.id === window.BOS_RUNTIME?.employee_id),
+    ownDepartment = data?.departments.find(d => d.id === ownEmployee?.branch),
+    selectedDepartment = data?.departments.find(d => String(d.id) === department),
+    fresh = view.status === 'fresh' && !!data;
   return /*#__PURE__*/React.createElement("div", {
     style: {
-      padding: 24
+      padding: 'clamp(12px,3vw,24px)',
+      minWidth: 0,
+      overflowWrap: 'anywhere'
     }
   }, /*#__PURE__*/React.createElement("div", {
     className: "erp-row"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", null, "\u0414\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u043A\u043E\u043C\u0430\u043D\u0434\u0456"), /*#__PURE__*/React.createElement("p", {
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
+    ref: heading,
+    tabIndex: -1
+  }, "\u0414\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u0432\u0456\u0434\u0434\u0456\u043B\u0443"), data && /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
-  }, tab === 'archive' ? rows.length + ' в архіві' : rows.length + ' у робочому списку · ' + counts.overdue + ' прострочено')), /*#__PURE__*/React.createElement("div", {
+  }, selectedDepartment ? selectedDepartment.name + ' · ID ' + selectedDepartment.id : 'Усі доступні доручення', " \xB7 \u0441\u0435\u0440\u0432\u0435\u0440\u043D\u0430 \u0434\u0430\u0442\u0430 ", /*#__PURE__*/React.createElement("time", {
+    dateTime: data.as_of
+  }, data.as_of), " \xB7 \u043F\u043E\u043A\u0430\u0437\u0430\u043D\u043E ", filtered.length, " \u0456\u0437 ", rows.length, " \u043F\u0440\u043E\u0447\u0438\u0442\u0430\u043D\u0438\u0445 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432.")), /*#__PURE__*/React.createElement("div", {
     className: "erp-actions"
   }, /*#__PURE__*/React.createElement(Button, {
-    onClick: refresh
+    disabled: view.status === 'loading',
+    onClick: () => readList()
   }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438"), bosCan('write') && /*#__PURE__*/React.createElement(Button, {
+    disabled: !fresh,
     variant: "primary",
     onClick: () => open(null, 'create')
-  }, "+ \u041D\u043E\u0432\u0435 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F"))), /*#__PURE__*/React.createElement("div", {
-    className: "erp-row"
-  }, /*#__PURE__*/React.createElement(SegmentedControl, {
-    value: tab,
-    onChange: value => {
-      setTab(value);
-      setFilter('all');
-    },
-    options: [{
-      key: 'active',
-      label: 'Робочі доручення'
-    }, {
-      key: 'archive',
-      label: 'Архів'
-    }]
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "erp-actions"
-  }, /*#__PURE__*/React.createElement(Input, {
-    "aria-label": "\u041F\u043E\u0448\u0443\u043A \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u044C",
-    placeholder: "\u041D\u0430\u0437\u0432\u0430, \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u0430\u043B\u044C\u043D\u0438\u0439, \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F\u2026",
+  }, "+ \u041D\u043E\u0432\u0435 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F"))), data && /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, ownDepartment ? 'Ваш формальний відділ: ' + ownDepartment.name + ' · №' + ownDepartment.id : 'Ваш формальний відділ не визначено. Доступні доручення залишаються за чинними правами.', " \u0412\u0456\u0434\u0434\u0456\u043B \u0432\u0438\u043A\u043E\u043D\u0430\u0432\u0446\u044F \u043D\u0435 \u0437\u043C\u0456\u043D\u044E\u0454 \u043F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0443 \u0431\u0456\u0437\u043D\u0435\u0441-\u0444\u0456\u043B\u0456\u044E Task."), /*#__PURE__*/React.createElement("div", {
+    className: "erp-form"
+  }, /*#__PURE__*/React.createElement("label", null, "\u0412\u0456\u0434\u0434\u0456\u043B", /*#__PURE__*/React.createElement(Select, {
+    value: department,
+    disabled: !data && view.status === 'loading',
+    onChange: e => changeContext('department', e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "\u0423\u0441\u0456 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456"), department && !data?.departments.some(d => String(d.id) === department) && /*#__PURE__*/React.createElement("option", {
+    value: department
+  }, "\u041E\u0431\u0440\u0430\u043D\u0438\u0439 ID ", department), data?.departments.map(d => /*#__PURE__*/React.createElement("option", {
+    key: d.id,
+    value: d.id
+  }, d.name, " \xB7 ID ", d.id)))), /*#__PURE__*/React.createElement("label", null, "\u041F\u043E\u0448\u0443\u043A", /*#__PURE__*/React.createElement(Input, {
     value: search,
+    placeholder: "\u041D\u0430\u0437\u0432\u0430, \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u0430\u043B\u044C\u043D\u0438\u0439, \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F\u2026",
     onChange: e => setSearch(e.target.value)
-  }), /*#__PURE__*/React.createElement(Select, {
-    "aria-label": "\u0421\u043E\u0440\u0442\u0443\u0432\u0430\u043D\u043D\u044F \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u044C",
+  }))), /*#__PURE__*/React.createElement("details", null, /*#__PURE__*/React.createElement("summary", null, "\u0424\u0456\u043B\u044C\u0442\u0440\u0438 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u044C"), /*#__PURE__*/React.createElement("div", {
+    className: "erp-form"
+  }, /*#__PURE__*/React.createElement("label", null, "\u0421\u043F\u0438\u0441\u043E\u043A", /*#__PURE__*/React.createElement(Select, {
+    value: tab,
+    onChange: e => changeContext('tab', e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: "active"
+  }, "\u0420\u043E\u0431\u043E\u0447\u0456 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("option", {
+    value: "archive"
+  }, "\u0410\u0440\u0445\u0456\u0432"))), /*#__PURE__*/React.createElement("label", null, "\u0421\u0442\u0430\u043D", /*#__PURE__*/React.createElement(Select, {
+    value: filter,
+    onChange: e => setFilter(e.target.value)
+  }, [['all', 'Усі'], ['active', 'Вхідні — відкриті призначення'], ['process', 'У роботі'], ['done', 'Виконані'], ['overdue', 'Прострочені']].map(([key, label]) => /*#__PURE__*/React.createElement("option", {
+    key: key,
+    value: key
+  }, label)))), /*#__PURE__*/React.createElement("label", null, "\u0421\u043E\u0440\u0442\u0443\u0432\u0430\u043D\u043D\u044F", /*#__PURE__*/React.createElement(Select, {
     value: sortBy,
     onChange: e => setSortBy(e.target.value)
   }, /*#__PURE__*/React.createElement("option", {
     value: "priority"
   }, "\u0417\u0430 \u043F\u0440\u0456\u043E\u0440\u0438\u0442\u0435\u0442\u043E\u043C"), /*#__PURE__*/React.createElement("option", {
     value: "deadline"
-  }, "\u0417\u0430 \u0442\u0435\u0440\u043C\u0456\u043D\u043E\u043C")))), tab === 'active' && /*#__PURE__*/React.createElement(SegmentedControl, {
-    value: filter,
-    onChange: setFilter,
-    options: [['all', 'Усі'], ['active', 'Відкриті'], ['process', 'У роботі'], ['done', 'Виконані'], ['overdue', 'Прострочені']].map(([key, label]) => ({
-      key,
-      label: label + ' · ' + counts[key]
-    }))
-  }), pageError && /*#__PURE__*/React.createElement("p", {
+  }, "\u0417\u0430 \u0441\u0442\u0440\u043E\u043A\u043E\u043C"))), /*#__PURE__*/React.createElement("label", null, "\u0421\u0442\u0440\u043E\u043A \u0432\u0456\u0434", /*#__PURE__*/React.createElement(Input, {
+    type: "date",
+    value: deadlineFrom,
+    onChange: e => setDeadlineFrom(e.target.value)
+  })), /*#__PURE__*/React.createElement("label", null, "\u0421\u0442\u0440\u043E\u043A \u0434\u043E", /*#__PURE__*/React.createElement(Input, {
+    type: "date",
+    value: deadlineTo,
+    onChange: e => setDeadlineTo(e.target.value)
+  }))), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0414\u0456\u0430\u043F\u0430\u0437\u043E\u043D \u0441\u0442\u0440\u043E\u043A\u0456\u0432 \u0454 \u0444\u0456\u043B\u044C\u0442\u0440\u043E\u043C \u043F\u043E\u0442\u043E\u0447\u043D\u043E\u0433\u043E \u0447\u0438\u0442\u0430\u043D\u043D\u044F, \u0430 \u043D\u0435 \u0456\u0441\u0442\u043E\u0440\u0438\u0447\u043D\u0438\u043C \u043F\u0435\u0440\u0456\u043E\u0434\u043E\u043C. \xAB\u0412\u0445\u0456\u0434\u043D\u0456\xBB \u043D\u0435 \u043E\u0437\u043D\u0430\u0447\u0430\u0454 \u043E\u0441\u043E\u0431\u0438\u0441\u0442\u0435 \u043F\u0440\u0438\u0439\u043D\u044F\u0442\u0442\u044F."), /*#__PURE__*/React.createElement(Button, {
+    onClick: () => {
+      setSearch('');
+      setFilter('all');
+      setDeadlineFrom('');
+      setDeadlineTo('');
+    }
+  }, "\u0421\u043A\u0438\u043D\u0443\u0442\u0438 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u0456 \u0444\u0456\u043B\u044C\u0442\u0440\u0438")), view.status === 'loading' && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0427\u0438\u0442\u0430\u0454\u043C\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F\u2026"), view.error && /*#__PURE__*/React.createElement("p", {
     className: "erp-error",
     role: "alert"
-  }, pageError, " ", /*#__PURE__*/React.createElement(Button, {
-    onClick: refresh
-  }, "\u0421\u043F\u0440\u043E\u0431\u0443\u0432\u0430\u0442\u0438 \u0437\u043D\u043E\u0432\u0443")), pageLoading && /*#__PURE__*/React.createElement("p", {
+  }, view.error), notice && /*#__PURE__*/React.createElement("p", {
     role: "status"
-  }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0443\u0454\u043C\u043E \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F\u2026"), tab === 'archive' && /*#__PURE__*/React.createElement("p", {
-    className: "op-muted"
-  }, "\u0410\u0440\u0445\u0456\u0432\u043D\u0456 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u0437\u0431\u0435\u0440\u0456\u0433\u0430\u044E\u0442\u044C \u0434\u0436\u0435\u0440\u0435\u043B\u0430, \u0441\u0442\u0430\u0442\u0443\u0441, \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u0442\u0430 \u0456\u0441\u0442\u043E\u0440\u0456\u044E. \u0412\u0456\u0434\u043D\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u043E\u043A\u0440\u0435\u043C\u043E \u043F\u043E\u0433\u043E\u0434\u0436\u0443\u0454\u0442\u044C\u0441\u044F."), /*#__PURE__*/React.createElement("div", {
-    className: "op-table c01-task-table"
-  }, /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, ['Доручення', 'Відповідальний', 'Термін', 'Пріоритет', 'Статус', 'Дії'].map(h => /*#__PURE__*/React.createElement("th", {
-    key: h
-  }, h)))), /*#__PURE__*/React.createElement("tbody", null, filtered.map(t => /*#__PURE__*/React.createElement("tr", {
-    key: t.id
-  }, /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement(BoSLink, {
+  }, notice), fresh && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,300px),1fr))',
+      gap: 12
+    }
+  }, filtered.map(t => /*#__PURE__*/React.createElement("article", {
+    key: t.id,
+    className: "c01-current",
+    style: {
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement("h3", null, /*#__PURE__*/React.createElement(BoSLink, {
     onClick: () => open(t, 'view')
-  }, t.title), /*#__PURE__*/React.createElement("p", {
-    className: "op-muted"
-  }, "\u2116", t.id, " \xB7 ", t.category || 'Без категорії', t.order_code ? ' · ' + t.order_code : '')), /*#__PURE__*/React.createElement("td", null, c01Assignee(t) || 'Історично не призначено', t.assignee_id && /*#__PURE__*/React.createElement("p", {
-    className: "op-muted"
-  }, "ID ", t.assignee_id)), /*#__PURE__*/React.createElement("td", null, t.deadline || 'Без терміну', t.is_overdue && /*#__PURE__*/React.createElement("p", {
-    className: "erp-error"
-  }, "\u041F\u0440\u043E\u0441\u0442\u0440\u043E\u0447\u0435\u043D\u043E")), /*#__PURE__*/React.createElement("td", null, bosCan('write') && !t.archived ? /*#__PURE__*/React.createElement(PillSelect, {
-    value: t.priority || '',
-    color: priorityMeta(t.priority).color,
-    onChange: e => open(t, 'edit', {
-      priority: e.target.value || null
-    }),
-    options: [{
-      value: 'high',
-      label: 'Високий'
-    }, {
-      value: 'medium',
-      label: 'Середній'
-    }, {
-      value: 'low',
-      label: 'Низький'
-    }, {
-      value: '',
-      label: 'Без пріоритету'
-    }]
-  }) : {
+  }, t.title)), /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u2116", t.id, " \xB7 ", t.category || 'Без категорії'), /*#__PURE__*/React.createElement("p", null, c01Assignee(t) || 'Історично не призначено', t.assignee_id ? ' · співробітник №' + t.assignee_id : ''), /*#__PURE__*/React.createElement("p", null, "\u0421\u0442\u0440\u043E\u043A: ", t.deadline || 'Не задано', " \xB7 ", C01_STATUS[t.status] || t.status, t.is_overdue ? ' · Прострочено' : ''), /*#__PURE__*/React.createElement("p", null, "\u041F\u0440\u0456\u043E\u0440\u0438\u0442\u0435\u0442: ", {
     high: 'Високий',
     medium: 'Середній',
     low: 'Низький'
-  }[t.priority] || 'Без пріоритету'), /*#__PURE__*/React.createElement("td", null, bosCan('write') && !t.archived ? /*#__PURE__*/React.createElement(PillSelect, {
-    value: t.status,
-    color: t.is_overdue ? T.red : t.status === 'done' ? T.primary : T.text,
-    onChange: e => open(t, 'edit', {
-      status: e.target.value
-    }),
-    options: [...(!['active', 'process', 'done'].includes(t.status) ? [{
-      value: t.status,
-      label: C01_STATUS[t.status] || t.status
-    }] : []), ...['active', 'process', 'done'].map(s => ({
-      value: s,
-      label: C01_STATUS[s]
-    }))]
-  }) : C01_STATUS[t.status] || t.status), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("div", {
+  }[t.priority] || 'Без пріоритету', ". \u041F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0430 \u0444\u0456\u043B\u0456\u044F: ", t.branch_name || 'Не визначено', "."), /*#__PURE__*/React.createElement("div", {
     className: "erp-actions"
   }, /*#__PURE__*/React.createElement(Button, {
     onClick: () => open(t, 'view')
-  }, "\u0406\u0441\u0442\u043E\u0440\u0456\u044F"), bosCan('write') && (t.archived ? /*#__PURE__*/React.createElement(Button, {
+  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F"), c01CanHandoff(t) && /*#__PURE__*/React.createElement(Button, {
+    onClick: () => open(t, 'handoff')
+  }, "\u041F\u0435\u0440\u0435\u0434\u0430\u0442\u0438 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F"), bosCan('write') && (t.archived ? /*#__PURE__*/React.createElement(Button, {
     onClick: () => open(t, 'restore')
   }, "\u0412\u0456\u0434\u043D\u043E\u0432\u0438\u0442\u0438") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Button, {
-    onClick: () => open(t)
+    onClick: () => open(t, 'edit')
   }, "\u0420\u0435\u0434\u0430\u0433\u0443\u0432\u0430\u0442\u0438"), /*#__PURE__*/React.createElement(Button, {
     onClick: () => open(t, 'archive')
-  }, "\u0410\u0440\u0445\u0456\u0432\u0443\u0432\u0430\u0442\u0438"))))))))), !filtered.length && !pageLoading && /*#__PURE__*/React.createElement("p", {
-    className: "op-muted"
-  }, search ? 'Нічого не знайдено за цим пошуком.' : tab === 'archive' ? 'Архівних доручень немає.' : 'Доручень у цьому списку немає.')), dialog && /*#__PURE__*/React.createElement(ControlledTask, {
+  }, "\u0410\u0440\u0445\u0456\u0432\u0443\u0432\u0430\u0442\u0438"))))))), fresh && !filtered.length && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0417\u0430 \u0446\u0438\u043C\u0438 \u0444\u0456\u043B\u044C\u0442\u0440\u0430\u043C\u0438 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u044C \u043D\u0435\u043C\u0430\u0454. \u0426\u0435 \u043D\u0435 \u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043D\u044F \u043F\u0440\u043E \u043F\u0440\u0438\u0445\u043E\u0432\u0430\u043D\u0456 \u0437\u0430\u043F\u0438\u0441\u0438."), /*#__PURE__*/React.createElement(C01PendingLauncher, {
+    key: scope,
+    onRecover: recovered
+  }), dialog && /*#__PURE__*/React.createElement(ControlledTask, {
     key: dialog.key,
     taskId: dialog.taskId,
     mode: dialog.mode,
     preset: dialog.preset,
-    onClose: () => setDialog(null),
-    onDone: refresh
+    recovery: dialog.recovery,
+    onClose: () => closeDialog(dialog.key),
+    onDone: r => after(r, dialog.key)
   }));
 }
 function Employees({
@@ -11178,6 +11306,7 @@ const C01_STATUS = {
   overdue: 'Історичний статус: прострочене'
 };
 const C01_TRANSITIONS = {
+  handoff: 'Передано виконавцю',
   create: 'Створено',
   update: 'Змінено',
   archive: 'Архівовано',
@@ -11208,6 +11337,7 @@ function c01Text(value, label, min, max, trim = false) {
   return text;
 }
 function c01TaskPayload(value) {
+  if (value?.action === 'handoff_task') return c01HandoffPayload(value);
   if (!value || Array.isArray(value) || typeof value !== 'object' || !['create_task', 'update_task'].includes(value.action)) throw Error('Підтримуються create_task та update_task.');
   const create = value.action === 'create_task',
     keys = create ? ['action', 'title', 'assignee_id', 'deadline', 'category', 'priority', 'order_id', 'request_code'] : ['action', 'task_id', 'reason', ...C01_FIELDS];
@@ -11345,7 +11475,7 @@ function c01PendingRead() {
     throw Error('Не вдалося прочитати ідентифікатори погоджень. Їх не видалено.');
   }
   const user = window.BOS_RUNTIME?.user_id;
-  if (!Array.isArray(rows) || rows.some(e => !e || !c01UUID(e.proposal_id) || !['create_task', 'update_task'].includes(e.action) || e.user_id !== user || !c01Id(e.user_id) || e.task_id !== null && !c01Id(e.task_id))) throw Error('Збережені ідентифікатори мають невідомий формат. Дані не видалено.');
+  if (!Array.isArray(rows) || rows.some(e => !e || !c01UUID(e.proposal_id) || !['create_task', 'update_task', 'handoff_task'].includes(e.action) || e.user_id !== user || !c01Id(e.user_id) || e.task_id !== null && !c01Id(e.task_id) || e.action === 'handoff_task' && !c01Id(e.task_id))) throw Error('Збережені ідентифікатори мають невідомий формат. Дані не видалено.');
   return rows.map(({
     proposal_id,
     action,
@@ -11359,7 +11489,7 @@ function c01PendingRead() {
   }));
 }
 function c01PendingSave(entry) {
-  if (!c01Id(window.BOS_RUNTIME?.user_id) || entry.user_id !== window.BOS_RUNTIME.user_id || !c01UUID(entry.proposal_id)) throw Error('Не підтверджено обліковий запис або ідентифікатор погодження.');
+  if (!c01Id(window.BOS_RUNTIME?.user_id) || entry.user_id !== window.BOS_RUNTIME.user_id || !c01UUID(entry.proposal_id) || !['create_task', 'update_task', 'handoff_task'].includes(entry.action) || entry.action === 'handoff_task' && !c01Id(entry.task_id)) throw Error('Не підтверджено обліковий запис або ідентифікатор погодження.');
   const rows = c01PendingRead();
   if (!rows.some(r => r.proposal_id === entry.proposal_id)) rows.push({
     proposal_id: entry.proposal_id,
@@ -11377,6 +11507,348 @@ function c01PendingRemove(id) {
 function c01Terminal(status, body) {
   return status === 409 && ['proposal_stale', 'proposal_expired'].includes(body?.code);
 }
+// TASK_DEPARTMENT_HELPERS_BEGIN
+function c01Scope() {
+  const r = window.BOS_RUNTIME || {};
+  return JSON.stringify([r.user_id, r.mode, r.role, r.employee_id, r.access_revision, Object.entries(r.capabilities || {}).sort()]);
+}
+function c01Object(v) {
+  return !!v && typeof v === 'object' && !Array.isArray(v);
+}
+function c01Display(v) {
+  return v === null || v === undefined || ['string', 'number', 'boolean'].includes(typeof v);
+}
+function c01Rows(v) {
+  return Array.isArray(v) && v.every(r => c01Object(r) && c01Id(r.id)) && new Set(v.map(r => r.id)).size === v.length;
+}
+function c01Departments(tree) {
+  const out = [],
+    seen = new Set();
+  function visit(rows) {
+    if (!Array.isArray(rows)) throw Error('Неповна структура відділів.');
+    for (const row of rows) {
+      if (!c01Object(row) || !c01Id(row.id) || seen.has(row.id) || typeof row.name !== 'string' || typeof row.type !== 'string') throw Error('Неповна структура відділів.');
+      seen.add(row.id);
+      if (row.type === 'department') out.push({
+        id: row.id,
+        name: row.name
+      });
+      if (row.children !== undefined) visit(row.children);
+    }
+  }
+  visit(tree);
+  return out;
+}
+function c01SourceRefs(refs) {
+  return Array.isArray(refs) && refs.every(r => c01Object(r) && Object.keys(r).length === 1 && (c01Id(r.order_id) || typeof r.request_code === 'string' && r.request_code.trim().length > 0));
+}
+function c01HandoffShape(h) {
+  return c01Object(h) && h.schema === 'bos.task-handoff.v1' && ['sent', 'superseded'].includes(h.state) && c01Object(h.recipient) && c01Id(h.recipient.employee_id) && c01Id(h.recipient.user_id) && ['ceo', 'manager'].includes(h.recipient.role) && c01Object(h.recipient.department) && c01Id(h.recipient.department.id) && typeof h.recipient.department.name === 'string' && c01Object(h.sender) && c01Id(h.sender.user_id) && c01Display(h.sender.employee_id) && c01Object(h.sender.department) && c01Display(h.sender.department.name) && c01Object(h.previous_assignee) && c01Display(h.previous_assignee.employee_id) && typeof h.expected_result === 'string' && c01Date(h.deadline) && c01Date(h.as_of) && c01SourceRefs(h.source_refs);
+}
+function c01TaskShape(t) {
+  return c01Object(t) && c01Id(t.id) && typeof t.title === 'string' && typeof t.status === 'string' && typeof t.archived === 'boolean' && typeof t.is_overdue === 'boolean' && ['assignee', 'assignee_name', 'category', 'branch_name', 'order_code', 'result', 'priority'].every(k => c01Display(t[k])) && (t.assignee_id === null || c01Id(t.assignee_id)) && (t.order_id === null || c01Id(t.order_id)) && (t.deadline === null || c01Date(t.deadline)) && (t.handoff === null || t.handoff === undefined || c01HandoffShape(t.handoff) && typeof t.handoff.current === 'boolean');
+}
+function c01TaskChanges(rows, id) {
+  const value = v => c01Display(v) || c01Object(v) && ['name', 'code', 'id'].every(k => c01Display(v[k]));
+  return Array.isArray(rows) && rows.every(r => c01Object(r) && r.kind === 'tasks' && c01Id(r.id) && (id === undefined || r.id === id) && typeof r.field === 'string' && typeof r.label === 'string' && c01Display(r.code) && value(r.before) && value(r.after));
+}
+function c01HandoffChanges(rows, id, previous, recipient, deadline, beforeTask = null) {
+  if (!c01TaskChanges(rows, id) || previous !== null && !c01Id(previous) || !c01Id(recipient) || previous === recipient || !c01Date(deadline)) return false;
+  const fields = new Map();
+  for (const row of rows) {
+    if (!['assignee_id', 'deadline', 'status'].includes(row.field) || fields.has(row.field)) return false;
+    fields.set(row.field, row);
+  }
+  const assignee = fields.get('assignee_id'),
+    due = fields.get('deadline'),
+    status = fields.get('status');
+  if (!assignee || assignee.before !== previous || assignee.after !== recipient) return false;
+  if (due && (due.before !== null && !c01Date(due.before) || due.after !== deadline || due.before === due.after)) return false;
+  if (status && (status.before !== 'process' || status.after !== 'active')) return false;
+  if (beforeTask) {
+    if (beforeTask.id !== id || beforeTask.assignee_id !== previous || beforeTask.deadline !== null && !c01Date(beforeTask.deadline) || !['active', 'process'].includes(beforeTask.status)) return false;
+    if (beforeTask.deadline !== deadline !== !!due || due && due.before !== beforeTask.deadline || beforeTask.status !== 'active' !== !!status || status && status.before !== beforeTask.status) return false;
+  }
+  return true;
+}
+function c01HistoryShape(v, id) {
+  return c01Object(v) && v.task_id === id && Array.isArray(v.items) && v.items.every(x => c01Object(x) && c01UUID(x.id) && typeof x.created_at === 'string' && c01TaskChanges(x.changes, id) && c01Display(x.reason) && (x.handoff == null || c01HandoffShape(x.handoff))) && (v.next_cursor === null || typeof v.next_cursor === 'string');
+}
+function c01GatherSources(task, items = []) {
+  const out = [];
+  function add(refs) {
+    if (!c01SourceRefs(refs)) return;
+    for (const ref of refs) if (!out.some(r => JSON.stringify(r) === JSON.stringify(ref))) out.push(ref);
+  }
+  if (c01Id(task?.order_id)) add([{
+    order_id: task.order_id
+  }]);
+  add(task?.handoff?.source_refs);
+  for (const item of items) {
+    add(item.handoff?.source_refs);
+    add(item.before?.history_refs);
+    add(item.after?.history_refs);
+    for (const s of [item.before, item.after]) {
+      if (c01Id(s?.order_id)) add([{
+        order_id: s.order_id
+      }]);
+      if (typeof s?.request_code === 'string' && s.request_code) add([{
+        request_code: s.request_code
+      }]);
+    }
+  }
+  return out;
+}
+function c01CanHandoff(task) {
+  return !!task && !task.archived && task.status !== 'done' && bosCan('write') && (bosRole() === 'ceo' || bosRole() === 'manager' && c01Id(window.BOS_RUNTIME?.employee_id) && task.assignee_id === window.BOS_RUNTIME.employee_id);
+}
+function c01HandoffPayload(value, asOf) {
+  const keys = ['action', 'task_id', 'assignee_id', 'expected_result', 'deadline', 'reason'];
+  if (!c01Object(value) || Object.keys(value).length !== 6 || keys.some(k => !c01Own(value, k)) || value.action !== 'handoff_task' || !c01Id(value.task_id) || !c01Id(value.assignee_id)) throw Error('Передавання потребує рівно шість визначених полів і фактичні ID.');
+  const p = {
+    ...value,
+    expected_result: c01Text(value.expected_result, 'Очікуваний результат', 3, 2000, true),
+    reason: c01Text(value.reason, 'Причина', 3, 1000, true)
+  };
+  if (!c01Date(p.deadline) || asOf !== undefined && (!c01Date(asOf) || p.deadline < asOf)) throw Error('Строк має бути не раніше серверної дати зрізу.');
+  return p;
+}
+function c01SamePayload(a, b) {
+  return c01Object(a) && c01Object(b) && Object.keys(a).length === Object.keys(b).length && Object.keys(a).every(k => c01Own(b, k) && a[k] === b[k]);
+}
+function c01Current(owner, ticket) {
+  return owner.alive && owner.generation === ticket.generation && owner.scope === ticket.scope && c01Scope() === ticket.scope;
+}
+function c01Cancel(owner) {
+  owner.generation++;
+  for (const c of owner.controllers) c.abort();
+  owner.controllers.clear();
+}
+async function c01Read(owner, ticket, url, options = {}) {
+  if (!c01Current(owner, ticket)) throw Object.assign(Error('Попередній контекст закрито.'), {
+    obsolete: true
+  });
+  const controller = new AbortController();
+  owner.controllers.add(controller);
+  const timer = setTimeout(() => controller.abort(), 30000);
+  try {
+    const r = await fetch(url, {
+      cache: 'no-store',
+      ...options,
+      signal: controller.signal
+    });
+    if (!c01Current(owner, ticket)) throw Object.assign(Error('Попередній контекст закрито.'), {
+      obsolete: true
+    });
+    const revision = window.BOS_RUNTIME?.access_revision;
+    if (r.headers.get('X-BoS-Identity') === 'denied' || !revision || r.headers.get('X-BoS-Access') !== revision) throw Object.assign(Error('Права або сесія змінилися. Закрийте картку й перевірте доступ.'), {
+      denied: true,
+      status: r.status
+    });
+    const denied = [401, 403, 404, 409].includes(r.status);
+    let body;
+    try {
+      body = await r.json();
+    } catch {
+      if (!c01Current(owner, ticket)) throw Object.assign(Error('Попередній контекст закрито.'), {
+        obsolete: true
+      });
+      throw Object.assign(Error(denied ? 'Дані або права змінилися. Оновіть доступні джерела.' : 'Сервер повернув нечитабельну відповідь. Оновіть дані явно.'), {
+        denied,
+        status: r.status,
+        terminal: false
+      });
+    }
+    if (!c01Current(owner, ticket)) throw Object.assign(Error('Попередній контекст закрито.'), {
+      obsolete: true
+    });
+    if (!r.ok) throw Object.assign(Error(denied ? 'Дані або права змінилися. Оновіть доступні джерела.' : 'Не вдалося перевірити запит. Оновіть дані або виправте форму.'), {
+      denied,
+      status: r.status,
+      terminal: c01Terminal(r.status, body)
+    });
+    return body;
+  } finally {
+    clearTimeout(timer);
+    owner.controllers.delete(controller);
+  }
+}
+function C01HandoffFacts({
+  handoff,
+  historical = false
+}) {
+  if (!handoff) return null;
+  if (!c01HandoffShape(handoff)) return /*#__PURE__*/React.createElement("p", {
+    className: "erp-error"
+  }, "\u041F\u0440\u043E\u0454\u043A\u0446\u0456\u044F \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0456 \u043C\u0430\u0454 \u043D\u0435\u043F\u043E\u0432\u043D\u0438\u0439 \u0444\u043E\u0440\u043C\u0430\u0442. \u041F\u0435\u0440\u0435\u0447\u0438\u0442\u0430\u0439\u0442\u0435 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F.");
+  return /*#__PURE__*/React.createElement("section", {
+    className: "c01-current",
+    style: {
+      overflowWrap: 'anywhere'
+    }
+  }, /*#__PURE__*/React.createElement("h4", null, historical ? 'Історична передача' : handoff.current ? 'Очікуваний результат поточного призначення' : 'Очікуваний результат попереднього призначення'), /*#__PURE__*/React.createElement("p", {
+    className: "c01-text"
+  }, handoff.expected_result), /*#__PURE__*/React.createElement("p", null, "\u041E\u0442\u0440\u0438\u043C\u0443\u0432\u0430\u0447: \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A \u2116", handoff.recipient.employee_id, " \xB7 ", handoff.recipient.department.name, " \xB7 \u0432\u0456\u0434\u0434\u0456\u043B \u2116", handoff.recipient.department.id, "."), /*#__PURE__*/React.createElement("p", null, "\u0421\u0442\u0440\u043E\u043A: ", handoff.deadline, ". \u041F\u0435\u0440\u0435\u0434\u0430\u0432 \u043A\u043E\u0440\u0438\u0441\u0442\u0443\u0432\u0430\u0447 \u2116", handoff.sender.user_id, handoff.sender.employee_id ? ' · співробітник №' + handoff.sender.employee_id : '', "."), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, !historical && !handoff.current ? 'Попереднє призначення більше не застосовується. ' : '', "\u041F\u0435\u0440\u0435\u0434\u0430\u0447\u0430 \u0454 \u043F\u0440\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u043D\u044F\u043C, \u0430 \u043D\u0435 \u043E\u0441\u043E\u0431\u0438\u0441\u0442\u0438\u043C \u043F\u0440\u0438\u0439\u043D\u044F\u0442\u0442\u044F\u043C. \u0424\u0430\u043A\u0442\u0438\u0447\u043D\u0438\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 Task \u0437\u0431\u0435\u0440\u0456\u0433\u0430\u0454\u0442\u044C\u0441\u044F \u043E\u043A\u0440\u0435\u043C\u043E."));
+}
+function C01TaskSource({
+  taskId,
+  source,
+  onClose,
+  onDenied
+}) {
+  const owner = useRef({
+      alive: true,
+      generation: 0,
+      scope: c01Scope(),
+      controllers: new Set()
+    }),
+    [data, setData] = useState(null),
+    [documentData, setDocumentData] = useState(null),
+    [error, setError] = useState(''),
+    [busy, setBusy] = useState(false),
+    title = useRef(null);
+  const identity = JSON.stringify([taskId, source, c01Scope()]);
+  useEffect(() => {
+    const o = owner.current;
+    o.alive = true;
+    o.scope = c01Scope();
+    readSource();
+    const clear = () => {
+      c01Cancel(o);
+      setData(null);
+      setDocumentData(null);
+      setBusy(false);
+      setError('Джерела змінилися. Закрийте цей перегляд і відкрийте їх після оновлення.');
+    };
+    window.addEventListener('bos:session-ended', clear);
+    window.addEventListener('bos:data-changed', clear);
+    return () => {
+      o.alive = false;
+      c01Cancel(o);
+      window.removeEventListener('bos:session-ended', clear);
+      window.removeEventListener('bos:data-changed', clear);
+    };
+  }, [identity]);
+  async function readSource() {
+    const o = owner.current;
+    c01Cancel(o);
+    const t = {
+      generation: o.generation,
+      scope: o.scope
+    };
+    setData(null);
+    setDocumentData(null);
+    setError('');
+    setBusy(true);
+    try {
+      if (!c01Id(taskId)) throw Object.assign(Error('Потрібен фактичний ID доручення.'), {
+        denied: true
+      });
+      const [task, h] = await Promise.all([c01Read(o, t, '/api/tasks/' + taskId + '/'), c01Read(o, t, '/api/tasks/' + taskId + '/history/?limit=50')]);
+      if (!c01TaskShape(task) || task.id !== taskId || !c01HistoryShape(h, taskId) || !c01GatherSources(task, h.items).some(r => JSON.stringify(r) === JSON.stringify(source))) throw Object.assign(Error('Це джерело більше не підтверджене доступним дорученням.'), {
+        denied: true
+      });
+      let result;
+      if (c01Id(source.order_id)) {
+        const s = await c01Read(o, t, '/api/erp/snapshot/');
+        if (!Array.isArray(s.orders) || !c01Date(s.as_of)) throw Error('Неповне читання замовлень.');
+        const row = s.orders.find(r => r.id === source.order_id);
+        if (!row || typeof row.code !== 'string' || !['status', 'due_date'].every(k => c01Display(row[k]))) throw Object.assign(Error('Замовлення зараз недоступне.'), {
+          denied: true
+        });
+        result = {
+          kind: 'order',
+          row,
+          as_of: s.as_of
+        };
+      } else {
+        const s = await c01Read(o, t, '/api/operations/compare/?code=' + encodeURIComponent(source.request_code));
+        const r = s.request;
+        if (!c01Object(r) || r.code !== source.request_code || !c01Id(r.document_id) || !c01Date(s.as_of) || !['part', 'revision', 'quantity', 'unit', 'required_by', 'owner'].every(k => c01Display(r[k]))) throw Error('Не отримано підтвердженої заявки та її джерела.');
+        result = {
+          kind: 'request',
+          row: r,
+          as_of: s.as_of
+        };
+      }
+      if (!c01Current(o, t)) return;
+      setData(result);
+      title.current?.focus();
+    } catch (e) {
+      if (c01Current(o, t)) {
+        setData(null);
+        setError(e.message);
+        if (e.denied) onDenied?.();
+      }
+    } finally {
+      if (c01Current(o, t)) setBusy(false);
+    }
+  }
+  async function readDocument() {
+    const o = owner.current,
+      t = {
+        generation: o.generation,
+        scope: o.scope
+      },
+      id = data?.row.document_id;
+    if (busy || !c01Id(id)) return;
+    setBusy(true);
+    setDocumentData(null);
+    setError('');
+    try {
+      const d = await c01Read(o, t, '/api/operations/documents/' + id + '/');
+      if (d.id !== id || typeof d.title !== 'string' || typeof d.code !== 'string' || !c01Display(d.revision) || !c01Display(d.checksum) || typeof d.current !== 'boolean' || !Array.isArray(d.sections) || d.sections.some(s => !c01Object(s) || typeof s.source !== 'string' || typeof s.text !== 'string')) throw Error('Документ має неповний формат.');
+      if (c01Current(o, t)) setDocumentData(d);
+    } catch (e) {
+      if (c01Current(o, t)) {
+        setData(null);
+        setDocumentData(null);
+        setError(e.message);
+        if (e.denied) onDenied?.();
+      }
+    } finally {
+      if (c01Current(o, t)) setBusy(false);
+    }
+  }
+  return /*#__PURE__*/React.createElement("section", {
+    className: "c01-current",
+    "aria-label": "\u0414\u0436\u0435\u0440\u0435\u043B\u043E \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F",
+    style: {
+      overflowWrap: 'anywhere'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "erp-row"
+  }, /*#__PURE__*/React.createElement("h4", {
+    ref: title,
+    tabIndex: -1
+  }, "\u0414\u0436\u0435\u0440\u0435\u043B\u043E \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement(Button, {
+    onClick: () => {
+      owner.current.alive = false;
+      c01Cancel(owner.current);
+      onClose();
+    }
+  }, "\u041F\u043E\u0432\u0435\u0440\u043D\u0443\u0442\u0438\u0441\u044F \u0434\u043E \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F")), busy && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0427\u0438\u0442\u0430\u0454\u043C\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0435 \u0434\u0436\u0435\u0440\u0435\u043B\u043E\u2026"), error && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, error), data && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, "\u0421\u0435\u0440\u0432\u0435\u0440\u043D\u0430 \u0434\u0430\u0442\u0430: ", data.as_of), data.kind === 'order' ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("strong", null, data.row.code, " \xB7 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u2116", data.row.id), /*#__PURE__*/React.createElement("p", null, "\u0421\u0442\u0430\u0442\u0443\u0441: ", data.row.status || 'Не надано', " \xB7 \u0441\u0442\u0440\u043E\u043A: ", data.row.due_date || 'Не надано')) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("strong", null, "\u0417\u0430\u044F\u0432\u043A\u0430 ", data.row.code, " \xB7 ", data.row.part), /*#__PURE__*/React.createElement("p", null, data.row.quantity, " ", data.row.unit, " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", data.row.revision, " \xB7 \u043F\u043E\u0442\u0440\u0456\u0431\u043D\u043E \u0434\u043E ", data.row.required_by || 'Не надано'), /*#__PURE__*/React.createElement("p", null, "\u0412\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u0430\u043B\u044C\u043D\u0438\u0439: ", data.row.owner || 'Не надано'), /*#__PURE__*/React.createElement(Button, {
+    disabled: busy,
+    onClick: readDocument
+  }, "\u041F\u0440\u043E\u0447\u0438\u0442\u0430\u0442\u0438 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442-\u0434\u0436\u0435\u0440\u0435\u043B\u043E \u2116", data.row.document_id))), documentData && /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("h5", null, documentData.title), /*#__PURE__*/React.createElement("p", null, documentData.code, " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", documentData.revision, documentData.current ? '' : ' · не остання версія'), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0412\u0456\u0434\u0431\u0438\u0442\u043E\u043A \u0434\u0436\u0435\u0440\u0435\u043B\u0430: ", documentData.checksum || 'Не надано'), bosCan('download_documents') && /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("a", {
+    href: '/api/operations/documents/' + documentData.id + '/download/'
+  }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0438\u0442\u0438 \u043E\u0440\u0438\u0433\u0456\u043D\u0430\u043B \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430 \u2116", documentData.id)), documentData.sections.map((s, i) => /*#__PURE__*/React.createElement("div", {
+    key: i
+  }, /*#__PURE__*/React.createElement("strong", null, s.source), /*#__PURE__*/React.createElement("p", {
+    className: "c01-text"
+  }, s.text)))));
+}
+// TASK_DEPARTMENT_HELPERS_END
+
 // C01_HELPERS_END
 function C01Impact({
   changes = []
@@ -11420,11 +11892,578 @@ function C01PendingLauncher({
   }, "\u041B\u0438\u0448\u0435 \u0456\u0434\u0435\u043D\u0442\u0438\u0444\u0456\u043A\u0430\u0442\u043E\u0440\u0438 \u0432 \u043F\u043E\u0442\u043E\u0447\u043D\u0456\u0439 \u0432\u043A\u043B\u0430\u0434\u0446\u0456. \u0422\u0435\u043A\u0441\u0442 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u044C \u0456 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u0456\u0432 \u0442\u0443\u0442 \u043D\u0435 \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043E."), rows.map(r => /*#__PURE__*/React.createElement("div", {
     className: "erp-row",
     key: r.proposal_id
-  }, /*#__PURE__*/React.createElement("span", null, r.action === 'create_task' ? 'Створення доручення' : 'Зміна доручення №' + r.task_id, " \xB7 ", r.proposal_id), /*#__PURE__*/React.createElement(Button, {
+  }, /*#__PURE__*/React.createElement("span", null, r.action === 'create_task' ? 'Створення доручення' : r.action === 'handoff_task' ? 'Передача доручення №' + r.task_id : 'Зміна доручення №' + r.task_id, " \xB7 ", r.proposal_id), /*#__PURE__*/React.createElement(Button, {
     onClick: () => onRecover(r)
   }, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0438\u0442\u0438 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442")))) : null;
 }
-function ControlledTask({
+function C01Handoff({
+  taskId,
+  recovery = null,
+  importPayload = null,
+  onDone,
+  onClose
+}) {
+  const target = taskId || recovery?.task_id,
+    scope = c01Scope(),
+    dialog = useRef(null),
+    heading = useRef(null),
+    opener = useRef(null),
+    owner = useRef({
+      alive: true,
+      generation: 0,
+      scope,
+      controllers: new Set(),
+      lock: '',
+      pending: recovery,
+      receipt: null,
+      proposal: null
+    });
+  const [read, setRead] = useState(null),
+    [busy, setBusy] = useState(''),
+    [error, setError] = useState(''),
+    [values, setValues] = useState({
+      assignee_id: '',
+      expected_result: '',
+      deadline: '',
+      reason: ''
+    }),
+    [search, setSearch] = useState(''),
+    [proposal, setProposal] = useState(null),
+    [pending, setPending] = useState(recovery),
+    [outcome, setOutcome] = useState(null),
+    [receipt, setReceipt] = useState(null),
+    [source, setSource] = useState(null),
+    [historyOpen, setHistoryOpen] = useState(false);
+  useEffect(() => {
+    const o = owner.current;
+    o.alive = true;
+    o.scope = scope;
+    opener.current = document.activeElement;
+    dialog.current.showModal();
+    heading.current?.focus();
+    if (!recovery) refresh();
+    const ended = () => invalidate(true),
+      changed = () => {
+        if (o.lock === 'confirm') return;
+        invalidate(false);
+      };
+    window.addEventListener('bos:session-ended', ended);
+    window.addEventListener('bos:data-changed', changed);
+    return () => {
+      o.alive = false;
+      c01Cancel(o);
+      window.removeEventListener('bos:session-ended', ended);
+      window.removeEventListener('bos:data-changed', changed);
+    };
+  }, [target, scope]);
+  function revokeProposal() {
+    owner.current.proposal = null;
+    setProposal(null);
+  }
+  function invalidate(denied) {
+    const o = owner.current;
+    c01Cancel(o);
+    o.lock = '';
+    setBusy('');
+    setRead(null);
+    setSource(null);
+    revokeProposal();
+    setOutcome(null);
+    setReceipt(null);
+    o.receipt = null;
+    setValues({
+      assignee_id: '',
+      expected_result: '',
+      deadline: '',
+      reason: ''
+    });
+    setSearch('');
+    setHistoryOpen(false);
+    setError(denied ? 'Доступ або сесія змінилися. Закрийте картку й перевірте поточний доступ.' : 'Дані змінилися. Оновіть доручення перед наступною дією.');
+  }
+  function start(kind) {
+    const o = owner.current;
+    if (o.lock || !o.alive || o.scope !== c01Scope()) return null;
+    revokeProposal();
+    c01Cancel(o);
+    o.lock = kind;
+    setBusy(kind);
+    setError('');
+    return {
+      generation: o.generation,
+      scope: o.scope
+    };
+  }
+  function finish(t) {
+    const o = owner.current;
+    if (c01Current(o, t)) {
+      o.lock = '';
+      setBusy('');
+    }
+  }
+  function failed(e, t) {
+    if (!c01Current(owner.current, t)) return;
+    setRead(null);
+    setSource(null);
+    revokeProposal();
+    setOutcome(null);
+    setValues({
+      assignee_id: '',
+      expected_result: '',
+      deadline: '',
+      reason: ''
+    });
+    setSearch('');
+    if (e.denied) {
+      setReceipt(null);
+      owner.current.receipt = null;
+    }
+    setError(e.name === 'AbortError' ? 'Читання не завершилося. Оновіть доручення явно.' : e.message);
+  }
+  async function readFresh(t) {
+    const o = owner.current;
+    if (!c01Id(target)) throw Error('Потрібен фактичний ID доручення.');
+    const [task, employees, tree, clock, history] = await Promise.all([c01Read(o, t, '/api/tasks/' + target + '/'), c01Read(o, t, '/api/employees/'), c01Read(o, t, '/api/branches/'), c01Read(o, t, '/api/operations/status/'), c01Read(o, t, '/api/tasks/' + target + '/history/?limit=50')]);
+    const departments = c01Departments(tree);
+    if (!c01TaskShape(task) || task.id !== target || !c01Rows(employees) || employees.some(e => typeof e.full_name !== 'string' || !c01Display(e.branch_name)) || !c01Date(clock.as_of) || clock.access_revision !== window.BOS_RUNTIME?.access_revision || !c01HistoryShape(history, target)) throw Error('Неповний формат поточного доручення або довідників.');
+    return {
+      task,
+      employees,
+      departments,
+      as_of: clock.as_of,
+      history,
+      sources: c01GatherSources(task, history.items)
+    };
+  }
+  async function refresh() {
+    const t = start('read');
+    if (!t) return;
+    setRead(null);
+    setSource(null);
+    revokeProposal();
+    setOutcome(null);
+    try {
+      const next = await readFresh(t);
+      if (!c01Current(owner.current, t)) return;
+      if (!owner.current.seeded && importPayload) {
+        const seed = c01HandoffPayload(importPayload, next.as_of);
+        if (seed.task_id !== target) throw Error('Імпорт стосується іншого доручення.');
+        setValues({
+          assignee_id: seed.assignee_id,
+          expected_result: seed.expected_result,
+          deadline: seed.deadline,
+          reason: seed.reason
+        });
+      } else setValues(v => ({
+        ...v,
+        deadline: v.deadline || next.as_of
+      }));
+      owner.current.seeded = true;
+      setRead(next);
+      heading.current?.focus();
+    } catch (e) {
+      failed(e, t);
+    } finally {
+      finish(t);
+    }
+  }
+  function change(key, value) {
+    if (owner.current.lock || pending || receipt || !read) return;
+    setValues(v => ({
+      ...v,
+      [key]: value
+    }));
+    revokeProposal();
+    setError('');
+  }
+  function recipientAllowed(next, id) {
+    const row = next.employees.find(e => e.id === id);
+    return !!row && !row.archived_at && row.id !== next.task.assignee_id && next.departments.some(d => d.id === row.branch);
+  }
+  function payload() {
+    return c01HandoffPayload({
+      action: 'handoff_task',
+      task_id: target,
+      assignee_id: c01InputId(values.assignee_id),
+      expected_result: values.expected_result,
+      deadline: values.deadline,
+      reason: values.reason
+    }, read?.as_of);
+  }
+  async function preview(event) {
+    event?.preventDefault();
+    if (pending || receipt || !read || !c01CanHandoff(read.task)) return;
+    let intent;
+    try {
+      intent = payload();
+      if (!recipientAllowed(read, intent.assignee_id)) throw Error('Оберіть іншого активного співробітника з явним відділом.');
+    } catch (e) {
+      setError(e.message);
+      return;
+    }
+    const t = start('preview');
+    if (!t) return;
+    revokeProposal();
+    setSource(null);
+    try {
+      const next = await readFresh(t);
+      if (!c01Current(owner.current, t)) return;
+      if (!c01CanHandoff(next.task) || !recipientAllowed(next, intent.assignee_id) || !next.sources.length) throw Error('Передача недоступна для поточного доручення, отримувача або джерел.');
+      c01HandoffPayload(intent, next.as_of);
+      setRead(next);
+      const result = await c01Read(owner.current, t, '/api/operations/preview/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(intent)
+      });
+      if (!c01UUID(result.id) || !c01SamePayload(result.payload, intent) || !Number.isFinite(Date.parse(result.expires_at)) || Date.parse(result.expires_at) <= Date.now() || result.effect?.entity !== 'task' || result.effect.task_id !== target || result.effect.operation !== 'handoff' || !c01HandoffChanges(result.impact, target, next.task.assignee_id, intent.assignee_id, intent.deadline, next.task)) throw Error('Не отримано точного чинного погодження цієї передачі.');
+      if (c01Current(owner.current, t)) {
+        const verified = {
+          ...result,
+          ui_intent: intent,
+          ui_read: next,
+          ui_scope: t.scope,
+          ui_generation: t.generation
+        };
+        owner.current.proposal = verified;
+        setProposal(verified);
+        heading.current?.focus();
+      }
+    } catch (e) {
+      failed(e, t);
+    } finally {
+      finish(t);
+    }
+  }
+  function receiptValid(result, entry, intent = null, beforeTask = null) {
+    return result?.state === 'succeeded' && result.action === 'handoff_task' && result.task_id === target && entry.task_id === target && c01UUID(result.audit_id) && c01HandoffShape(result.handoff) && result.handoff.state === 'sent' && result.handoff.source_refs.length > 0 && (!intent || result.handoff.recipient.employee_id === intent.assignee_id && result.handoff.expected_result === intent.expected_result && result.handoff.deadline === intent.deadline) && c01HandoffChanges(result.impact, target, result.handoff.previous_assignee.employee_id, result.handoff.recipient.employee_id, result.handoff.deadline, beforeTask);
+  }
+  async function accepted(result, entry, t, intent = null, beforeTask = null) {
+    if (!receiptValid(result, entry, intent, beforeTask)) throw Error('Не отримано квитанції саме цієї передачі. Ідентифікатор збережено.');
+    if (!c01Current(owner.current, t)) return;
+    owner.current.receipt = result;
+    owner.current.pending = null;
+    setReceipt(result);
+    setPending(null);
+    revokeProposal();
+    setOutcome(null);
+    setRead(null);
+    setSource(null);
+    setValues({
+      assignee_id: '',
+      expected_result: '',
+      deadline: '',
+      reason: ''
+    });
+    try {
+      c01PendingRemove(entry.proposal_id);
+    } catch {
+      setError('Передачу записано, але локальний ID не вдалося прибрати. Перевірка того самого ID безпечна.');
+    }
+    try {
+      onDone?.(result);
+    } catch {
+      setError('Передачу записано. Оновіть список вручну.');
+    }
+    heading.current?.focus();
+    try {
+      const next = await readFresh(t);
+      if (c01Current(owner.current, t)) setRead(next);
+    } catch (e) {
+      failed(e, t);
+      if (c01Current(owner.current, t) && !e.denied) setError('Квитанцію отримано, але поточне доручення й історію не прочитано. Оновіть явно.');
+    }
+  }
+  async function confirm() {
+    if (!owner.current.alive || owner.current.scope !== c01Scope() || owner.current.lock || receipt || !bosCan('write')) return;
+    let entry = pending;
+    const intent = entry ? null : proposal?.ui_intent,
+      beforeTask = entry ? null : proposal?.ui_read.task;
+    if (entry) {
+      if (outcome?.same_session !== true || outcome.proposal_id !== entry.proposal_id) return;
+    } else {
+      if (!proposal || owner.current.proposal !== proposal || proposal.ui_scope !== scope || proposal.ui_generation !== owner.current.generation || proposal.ui_read !== read || !c01CanHandoff(read?.task)) return;
+      try {
+        if (!c01SamePayload(payload(), proposal.ui_intent) || Date.parse(proposal.expires_at) <= Date.now()) throw Error('Погодження втратило чинність. Оновіть і явно підготуйте новий перегляд.');
+      } catch (e) {
+        revokeProposal();
+        setError(e.message);
+        return;
+      }
+      entry = {
+        proposal_id: proposal.id,
+        action: 'handoff_task',
+        task_id: target,
+        user_id: window.BOS_RUNTIME?.user_id
+      };
+    }
+    try {
+      c01PendingSave(entry);
+    } catch {
+      setError('Погодження не надіслано: не вдалося надійно зберегти його ID.');
+      return;
+    }
+    const t = start('confirm');
+    if (!t) return;
+    owner.current.pending = entry;
+    setPending(entry);
+    setOutcome(null);
+    revokeProposal();
+    try {
+      const result = await c01Read(owner.current, t, '/api/operations/confirm/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          proposal_id: entry.proposal_id,
+          confirmed: true
+        })
+      });
+      await accepted(result, entry, t, intent, beforeTask);
+    } catch (e) {
+      if (!c01Current(owner.current, t)) return;
+      failed(e, t);
+      if (e.terminal) {
+        try {
+          c01PendingRemove(entry.proposal_id);
+          owner.current.pending = null;
+          setPending(null);
+        } catch {}
+        setError('Сервер підтвердив відмову без застосування. Оновіть доручення перед новим явним переглядом.');
+      } else setError(e.denied ? 'Результат або джерела зараз недоступні. ID збережено; автоматичного нового погодження немає.' : 'Результат погодження невідомий. Перевірте результат або повторіть те саме погодження.');
+    } finally {
+      finish(t);
+    }
+  }
+  async function recover() {
+    const entry = pending;
+    if (!entry || entry.user_id !== window.BOS_RUNTIME?.user_id || entry.task_id !== target || entry.action !== 'handoff_task' || !c01UUID(entry.proposal_id)) return;
+    const t = start('recovery');
+    if (!t) return;
+    setRead(null);
+    setSource(null);
+    setOutcome(null);
+    try {
+      const result = await c01Read(owner.current, t, '/api/operations/task-proposals/' + entry.proposal_id + '/');
+      if (result.proposal_id !== entry.proposal_id || result.action !== 'handoff_task' || typeof result.same_session !== 'boolean' || !['pending', 'expired', 'unknown', 'succeeded'].includes(result.state) || !Number.isFinite(Date.parse(result.expires_at))) throw Error('Не отримано статус саме цього погодження.');
+      if (result.state === 'succeeded') await accepted(result.receipt, entry, t);else {
+        setOutcome(result);
+        setError(result.same_session ? 'Збереженого успіху поки немає. Можна повторити лише те саме погодження.' : 'Початкова сесія недоступна. Доступна лише перевірка збереженого результату.');
+      }
+    } catch (e) {
+      failed(e, t);
+    } finally {
+      finish(t);
+    }
+  }
+  function close() {
+    if (owner.current.lock === 'confirm') return;
+    owner.current.alive = false;
+    c01Cancel(owner.current);
+    dialog.current.close();
+  }
+  function closed() {
+    owner.current.alive = false;
+    c01Cancel(owner.current);
+    onClose?.();
+    const node = opener.current;
+    if (node?.isConnected && !node.disabled) node.focus();
+  }
+  const employees = read ? read.employees.filter(e => recipientAllowed(read, e.id)) : [],
+    term = search.trim().toLocaleLowerCase('uk-UA'),
+    candidates = employees.filter(e => !term || c01EmployeeLabel(e).toLocaleLowerCase('uk-UA').includes(term)),
+    chosen = read?.employees.find(e => e.id === Number(values.assignee_id));
+  const previewEmployee = proposal?.ui_read.employees.find(e => e.id === proposal.payload.assignee_id),
+    previewDepartment = proposal?.ui_read.departments.find(d => d.id === previewEmployee?.branch);
+  return /*#__PURE__*/React.createElement("dialog", {
+    ref: dialog,
+    className: "bos-dialog c01-dialog",
+    style: {
+      width: 'min(900px,95vw)',
+      maxHeight: '90vh',
+      overflow: 'auto',
+      overflowWrap: 'anywhere'
+    },
+    "aria-labelledby": "c01-handoff-title",
+    onClose: closed,
+    onCancel: e => {
+      if (owner.current.lock === 'confirm') e.preventDefault();else {
+        owner.current.alive = false;
+        c01Cancel(owner.current);
+      }
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "erp-row"
+  }, /*#__PURE__*/React.createElement("h2", {
+    id: "c01-handoff-title",
+    ref: heading,
+    tabIndex: -1
+  }, receipt ? 'Квитанція передачі' : pending ? 'Перевірка передачі' : 'Передати доручення №' + target), /*#__PURE__*/React.createElement(Button, {
+    disabled: busy === 'confirm',
+    onClick: close
+  }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438")), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0422\u0435 \u0441\u0430\u043C\u0435 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F, \u0456\u043D\u0448\u0438\u0439 \u0432\u0438\u043A\u043E\u043D\u0430\u0432\u0435\u0446\u044C. \u041F\u0435\u0440\u0435\u0434\u0430\u0447\u0430 \u043D\u0435 \u0454 \u043E\u0441\u043E\u0431\u0438\u0441\u0442\u0438\u043C \u043F\u0440\u0438\u0439\u043D\u044F\u0442\u0442\u044F\u043C \u0456 \u043D\u0435 \u0437\u043C\u0456\u043D\u044E\u0454 \u0444\u0430\u043A\u0442\u0438\u0447\u043D\u0438\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u0447\u0438 \u043F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0443 \u0431\u0456\u0437\u043D\u0435\u0441-\u0444\u0456\u043B\u0456\u044E."), busy && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, busy === 'confirm' ? 'Погоджуємо передачу…' : 'Перевіряємо доступні дані…'), error && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, error), receipt && /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("h3", null, "\u0406\u0441\u0442\u043E\u0440\u0438\u0447\u043D\u0438\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0414\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u2116", receipt.task_id, " \u043F\u0435\u0440\u0435\u0434\u0430\u043D\u043E \u0432\u0438\u043A\u043E\u043D\u0430\u0432\u0446\u044E. \u041F\u043E\u0434\u0456\u044F ", receipt.audit_id, "."), /*#__PURE__*/React.createElement(C01HandoffFacts, {
+    handoff: receipt.handoff,
+    historical: true
+  }), /*#__PURE__*/React.createElement(C01Impact, {
+    changes: receipt.impact
+  }), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041A\u0432\u0438\u0442\u0430\u043D\u0446\u0456\u044F \u043D\u0435 \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0443\u0454 \u043F\u043E\u0442\u043E\u0447\u043D\u0438\u0439 \u0441\u0442\u0430\u043D \u043F\u0456\u0441\u043B\u044F \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0437\u043C\u0456\u043D.")), pending ? /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("h3", null, "ID \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("p", {
+    className: "c01-text"
+  }, pending.proposal_id), /*#__PURE__*/React.createElement("p", null, "\u0417\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043E \u043B\u0438\u0448\u0435 ID, \u0434\u0456\u044E, Task ID \u0456 \u043A\u043E\u0440\u0438\u0441\u0442\u0443\u0432\u0430\u0447\u0430. \u0422\u0435\u043A\u0441\u0442\u0438 \u0444\u043E\u0440\u043C\u0438 \u0442\u0430 \u0434\u0436\u0435\u0440\u0435\u043B \u043D\u0435 \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043E."), /*#__PURE__*/React.createElement("div", {
+    className: "actions"
+  }, /*#__PURE__*/React.createElement(Button, {
+    disabled: !!busy,
+    onClick: recover
+  }, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0438\u0442\u0438 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442"), outcome?.same_session === true && /*#__PURE__*/React.createElement(Button, {
+    disabled: !!busy || !bosCan('write'),
+    onClick: confirm
+  }, "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0438 \u0442\u0435 \u0441\u0430\u043C\u0435 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F"))) : /*#__PURE__*/React.createElement(Button, {
+    disabled: !!busy,
+    onClick: refresh
+  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u0442\u0430 \u0434\u0436\u0435\u0440\u0435\u043B\u0430"), read && /*#__PURE__*/React.createElement("section", {
+    className: "c01-current"
+  }, /*#__PURE__*/React.createElement("h3", null, read.task.title, " \xB7 \u2116", read.task.id), /*#__PURE__*/React.createElement("p", null, "\u0421\u0435\u0440\u0432\u0435\u0440\u043D\u0430 \u0434\u0430\u0442\u0430: ", /*#__PURE__*/React.createElement("time", {
+    dateTime: read.as_of
+  }, read.as_of), ". \u041F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0430 \u0431\u0456\u0437\u043D\u0435\u0441-\u0444\u0456\u043B\u0456\u044F: ", read.task.branch_name || 'Не визначено', read.task.branch ? ' · №' + read.task.branch : '', "."), /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0442\u043E\u0447\u043D\u0438\u0439 \u0432\u0438\u043A\u043E\u043D\u0430\u0432\u0435\u0446\u044C: ", c01Assignee(read.task) || 'Не визначено', read.task.assignee_id ? ' · №' + read.task.assignee_id : '', ". \u0421\u0442\u0430\u0442\u0443\u0441: ", C01_STATUS[read.task.status] || read.task.status, "."), /*#__PURE__*/React.createElement(C01HandoffFacts, {
+    handoff: read.task.handoff
+  }), /*#__PURE__*/React.createElement("h4", null, "\u0424\u0430\u043A\u0442\u0438\u0447\u043D\u0438\u0439 / \u043F\u043E\u043F\u0435\u0440\u0435\u0434\u043D\u0456\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 Task"), /*#__PURE__*/React.createElement("p", {
+    className: "c01-text"
+  }, read.task.result === null ? 'Історично не записано' : read.task.result || 'Ще не записано'), /*#__PURE__*/React.createElement("h4", null, "\u041F\u043E\u0442\u043E\u0447\u043D\u0435 \u0442\u0430 \u0456\u0441\u0442\u043E\u0440\u0438\u0447\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430"), /*#__PURE__*/React.createElement("div", {
+    className: "erp-actions"
+  }, read.sources.map(r => /*#__PURE__*/React.createElement(Button, {
+    key: JSON.stringify(r),
+    disabled: !!busy,
+    onClick: () => setSource(r)
+  }, r.order_id ? 'Відкрити замовлення №' + r.order_id : 'Відкрити заявку ' + r.request_code))), !read.sources.length && /*#__PURE__*/React.createElement("p", null, "\u041D\u0435 \u043E\u0442\u0440\u0438\u043C\u0430\u043D\u043E \u0434\u0436\u0435\u0440\u0435\u043B \u0434\u043B\u044F \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0456."), source && /*#__PURE__*/React.createElement(C01TaskSource, {
+    key: JSON.stringify(source) + owner.current.generation,
+    taskId: target,
+    source: source,
+    onClose: () => setSource(null),
+    onDenied: () => invalidate(true)
+  })), proposal && !pending && !receipt && /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("h3", null, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0442\u0435 \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0443"), /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u2116", target, ": ", proposal.ui_read.task.title), /*#__PURE__*/React.createElement("p", null, "\u0412\u0456\u0434 ", c01Assignee(proposal.ui_read.task) || 'Історично не призначено', " \u0434\u043E ", previewEmployee?.full_name, " \xB7 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A \u2116", proposal.payload.assignee_id, " \xB7 ", previewDepartment?.name, " \xB7 \u0432\u0456\u0434\u0434\u0456\u043B \u2116", previewDepartment?.id, "."), /*#__PURE__*/React.createElement("h4", null, "\u041E\u0447\u0456\u043A\u0443\u0432\u0430\u043D\u0438\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442"), /*#__PURE__*/React.createElement("p", {
+    className: "c01-text"
+  }, proposal.payload.expected_result), /*#__PURE__*/React.createElement("p", null, "\u0421\u0442\u0440\u043E\u043A: ", proposal.payload.deadline), /*#__PURE__*/React.createElement("p", {
+    className: "c01-text"
+  }, "\u041F\u0440\u0438\u0447\u0438\u043D\u0430: ", proposal.payload.reason), /*#__PURE__*/React.createElement(C01Impact, {
+    changes: proposal.impact
+  }), /*#__PURE__*/React.createElement("p", null, "\u0427\u0438\u043D\u043D\u0435 \u0434\u043E ", new Date(proposal.expires_at).toLocaleString('uk-UA'), "."), /*#__PURE__*/React.createElement("div", {
+    className: "actions"
+  }, /*#__PURE__*/React.createElement(Button, {
+    disabled: !!busy,
+    onClick: () => {
+      if (!owner.current.lock) revokeProposal();
+    }
+  }, "\u0414\u043E \u0444\u043E\u0440\u043C\u0438"), /*#__PURE__*/React.createElement(Button, {
+    disabled: !!busy,
+    variant: "primary",
+    onClick: confirm
+  }, "\u041F\u043E\u0433\u043E\u0434\u0438\u0442\u0438 \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0443"))), read && !proposal && !pending && !receipt && (c01CanHandoff(read.task) ? /*#__PURE__*/React.createElement("form", {
+    onSubmit: preview
+  }, /*#__PURE__*/React.createElement("fieldset", {
+    className: "b03-fieldset",
+    disabled: !!busy
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "erp-form"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "c01-wide"
+  }, "\u041F\u043E\u0448\u0443\u043A \u043E\u0442\u0440\u0438\u043C\u0443\u0432\u0430\u0447\u0430", /*#__PURE__*/React.createElement(Input, {
+    value: search,
+    onChange: e => setSearch(e.target.value),
+    placeholder: "\u0406\u043C\u2019\u044F, \u043F\u043E\u0441\u0430\u0434\u0430, \u0432\u0456\u0434\u0434\u0456\u043B \u0430\u0431\u043E ID"
+  })), /*#__PURE__*/React.createElement("label", {
+    className: "c01-wide"
+  }, "\u041E\u0442\u0440\u0438\u043C\u0443\u0432\u0430\u0447", /*#__PURE__*/React.createElement(Select, {
+    required: true,
+    value: values.assignee_id,
+    onChange: e => change('assignee_id', e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "\u041E\u0431\u0435\u0440\u0456\u0442\u044C \u0456\u043D\u0448\u043E\u0433\u043E \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A\u0430"), chosen && !candidates.some(e => e.id === chosen.id) && /*#__PURE__*/React.createElement("option", {
+    value: chosen.id
+  }, c01EmployeeLabel(chosen)), candidates.map(e => /*#__PURE__*/React.createElement("option", {
+    key: e.id,
+    value: e.id
+  }, c01EmployeeLabel(e))))), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted c01-wide"
+  }, "\u0421\u043F\u0438\u0441\u043E\u043A \u043F\u043E\u043A\u0430\u0437\u0443\u0454 \u0430\u043A\u0442\u0438\u0432\u043D\u0438\u0445 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A\u0456\u0432 \u0456\u0437 \u044F\u0432\u043D\u0438\u043C \u0432\u0456\u0434\u0434\u0456\u043B\u043E\u043C. \u041F\u0440\u0438\u0434\u0430\u0442\u043D\u0456\u0441\u0442\u044C \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u043E\u0433\u043E User, \u0440\u043E\u043B\u044C \u0456 \u0434\u043E\u0441\u0442\u0443\u043F \u0434\u043E \u0432\u0441\u0456\u0445 \u0434\u0436\u0435\u0440\u0435\u043B \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u0438\u0442\u044C \u0441\u0435\u0440\u0432\u0435\u0440."), /*#__PURE__*/React.createElement("label", {
+    className: "c01-wide"
+  }, "\u041E\u0447\u0456\u043A\u0443\u0432\u0430\u043D\u0438\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442", /*#__PURE__*/React.createElement("textarea", {
+    required: true,
+    minLength: 3,
+    maxLength: 2000,
+    className: "c01-textarea",
+    value: values.expected_result,
+    onChange: e => change('expected_result', e.target.value)
+  })), /*#__PURE__*/React.createElement("label", null, "\u0421\u0442\u0440\u043E\u043A", /*#__PURE__*/React.createElement(Input, {
+    type: "date",
+    required: true,
+    min: read.as_of,
+    value: values.deadline,
+    onChange: e => change('deadline', e.target.value)
+  })), /*#__PURE__*/React.createElement("label", {
+    className: "c01-wide"
+  }, "\u041F\u0440\u0438\u0447\u0438\u043D\u0430 \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0456", /*#__PURE__*/React.createElement("textarea", {
+    required: true,
+    minLength: 3,
+    maxLength: 1000,
+    className: "c01-textarea",
+    value: values.reason,
+    onChange: e => change('reason', e.target.value)
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "actions"
+  }, /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    type: "submit",
+    disabled: !read.sources.length
+  }, "\u041F\u0435\u0440\u0435\u0433\u043B\u044F\u043D\u0443\u0442\u0438 \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0443")))) : /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u041F\u0435\u0440\u0435\u0434\u0430\u0447\u0430 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0430 \u0437\u0430 \u043F\u043E\u0442\u043E\u0447\u043D\u0438\u043C\u0438 \u043F\u0440\u0430\u0432\u0430\u043C\u0438 \u0430\u0431\u043E \u0441\u0442\u0430\u043D\u043E\u043C \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F.")), read && /*#__PURE__*/React.createElement("details", {
+    open: historyOpen,
+    onToggle: e => setHistoryOpen(e.currentTarget.open)
+  }, /*#__PURE__*/React.createElement("summary", null, "\u0406\u0441\u0442\u043E\u0440\u0456\u044F \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F"), read.history.items.map(item => /*#__PURE__*/React.createElement("article", {
+    className: "c01-history",
+    key: item.id
+  }, /*#__PURE__*/React.createElement("h4", null, C01_TRANSITIONS[item.transition] || 'Історична подія', " \xB7 ", item.created_at), /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0434\u0456\u044F ", item.id), item.reason && /*#__PURE__*/React.createElement("p", {
+    className: "c01-text"
+  }, item.reason), item.handoff && /*#__PURE__*/React.createElement(C01HandoffFacts, {
+    handoff: item.handoff,
+    historical: true
+  }), /*#__PURE__*/React.createElement(C01Impact, {
+    changes: item.changes
+  }))), !read.history.items.length && /*#__PURE__*/React.createElement("p", null, "\u0417\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u0438\u0445 \u043F\u043E\u0434\u0456\u0439 \u043D\u0435\u043C\u0430\u0454."), read.history.next_cursor && /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u043E\u0441\u0442\u0430\u043D\u043D\u0456 50 \u043F\u043E\u0434\u0456\u0439. \u041F\u043E\u0432\u043D\u0430 \u0456\u0441\u0442\u043E\u0440\u0456\u044F \u0437 \u043F\u0430\u0433\u0456\u043D\u0430\u0446\u0456\u0454\u044E \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0430 \u0443 \u0437\u0432\u0438\u0447\u0430\u0439\u043D\u0456\u0439 \u043A\u0430\u0440\u0442\u0446\u0456 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F; \u0441\u0435\u0440\u0432\u0435\u0440 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u044F\u0454 \u0432\u0441\u0456 \u043D\u0430\u043A\u043E\u043F\u0438\u0447\u0435\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430.")));
+}
+function ControlledTask(props) {
+  const [handoff, setHandoff] = useState(false);
+  const explicit = props.mode === 'handoff' || props.recovery?.action === 'handoff_task' || props.importPayload?.action === 'handoff_task';
+  return handoff || explicit ? /*#__PURE__*/React.createElement(C01Handoff, {
+    key: (props.taskId || props.recovery?.task_id || props.importPayload?.task_id) + ':' + c01Scope(),
+    taskId: props.taskId || props.importPayload?.task_id,
+    recovery: props.recovery,
+    importPayload: props.importPayload,
+    onDone: props.onDone,
+    onClose: props.onClose
+  }) : /*#__PURE__*/React.createElement(C01TaskLegacy, _extends({
+    key: JSON.stringify([props.taskId, props.mode, props.recovery?.proposal_id, props.importPayload, c01Scope()])
+  }, props, {
+    onHandoff: () => setHandoff(true)
+  }));
+}
+function C01TaskLegacy({
   taskId = null,
   mode = 'create',
   preset = {},
@@ -11433,7 +12472,8 @@ function ControlledTask({
   onDone,
   onClose,
   importPayload,
-  recovery = null
+  recovery = null,
+  onHandoff
 }) {
   const imported = importPayload || {},
     seed = {
@@ -11469,7 +12509,8 @@ function ControlledTask({
     [historyCursor, setHistoryCursor] = useState(null),
     [historyLoaded, setHistoryLoaded] = useState(false),
     [orderOpen, setOrderOpen] = useState(false),
-    [scopeDenied, setScopeDenied] = useState(false);
+    [scopeDenied, setScopeDenied] = useState(false),
+    [taskSource, setTaskSource] = useState(null);
   const writable = bosCan('write'),
     archiveMode = ['archive', 'restore'].includes(initialMode),
     canEdit = writable && initialMode !== 'view' && (!task?.archived || initialMode === 'restore');
@@ -11514,6 +12555,7 @@ function ControlledTask({
     ref.current.close();
   }
   function denyScope() {
+    setTaskSource(null);
     setTask(null);
     setHistory([]);
     setHistoryCursor(null);
@@ -11817,7 +12859,26 @@ function ControlledTask({
     className: "op-muted"
   }, "\u0414\u0436\u0435\u0440\u0435\u043B\u043E: \u043F\u043E\u0442\u043E\u0447\u043D\u0438\u0439 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0439 \u0437\u0430\u043F\u0438\u0441 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u043F\u0440\u043E\u0434\u0430\u0436\u0443. \u0412\u0438\u043A\u043E\u043D\u0430\u043D\u043D\u044F \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u043D\u0435 \u043F\u0440\u043E\u0432\u043E\u0434\u0438\u0442\u044C \u0432\u0456\u0434\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F \u0430\u0431\u043E \u043E\u043F\u043B\u0430\u0442\u0443."))) : /*#__PURE__*/React.createElement("p", {
     className: "erp-error"
-  }, "\u0417\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u0437\u0430\u0440\u0430\u0437 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0435. \u041E\u043D\u043E\u0432\u0456\u0442\u044C \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430."))), /*#__PURE__*/React.createElement("h4", null, currentResultLabel), /*#__PURE__*/React.createElement("p", {
+  }, "\u0417\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u0437\u0430\u0440\u0430\u0437 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0435. \u041E\u043D\u043E\u0432\u0456\u0442\u044C \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430."))), /*#__PURE__*/React.createElement(C01HandoffFacts, {
+    handoff: task.handoff
+  }), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0430 \u0431\u0456\u0437\u043D\u0435\u0441-\u0444\u0456\u043B\u0456\u044F: ", task.branch_name || 'Не визначено', ". \u0412\u0456\u0434\u0434\u0456\u043B \u0432\u0438\u043A\u043E\u043D\u0430\u0432\u0446\u044F \u0454 \u043E\u043A\u0440\u0435\u043C\u0438\u043C \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442\u043E\u043C."), onHandoff && c01CanHandoff(task) && /*#__PURE__*/React.createElement(Button, {
+    disabled: !!busy || !!pending || !!receipt,
+    onClick: onHandoff
+  }, "\u041F\u0435\u0440\u0435\u0434\u0430\u0442\u0438 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("h4", null, "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u043F\u043E\u0442\u043E\u0447\u043D\u0456 \u0442\u0430 \u0456\u0441\u0442\u043E\u0440\u0438\u0447\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430"), /*#__PURE__*/React.createElement("div", {
+    className: "erp-actions"
+  }, c01GatherSources(task, history).map(source => /*#__PURE__*/React.createElement(Button, {
+    key: JSON.stringify(source),
+    disabled: !!busy,
+    onClick: () => setTaskSource(source)
+  }, source.order_id ? 'Відкрити джерело — замовлення №' + source.order_id : 'Відкрити джерело — заявка ' + source.request_code))), taskSource && /*#__PURE__*/React.createElement(C01TaskSource, {
+    key: JSON.stringify(taskSource),
+    taskId: task.id,
+    source: taskSource,
+    onClose: () => setTaskSource(null),
+    onDenied: denyScope
+  }), /*#__PURE__*/React.createElement("h4", null, currentResultLabel), /*#__PURE__*/React.createElement("p", {
     className: "c01-text"
   }, task.result === null ? 'Історичний результат не був записаний.' : task.result || 'Результат ще не записаний.'), task.status !== 'done' && task.result_recorded && /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
@@ -12017,7 +13078,10 @@ function ControlledTask({
     observer: 'Спостерігач'
   }[item.actor.role] || item.actor.role) : ''), item.reason && /*#__PURE__*/React.createElement("p", {
     className: "c01-text"
-  }, item.reason), item.legacy ? /*#__PURE__*/React.createElement("p", {
+  }, item.reason), item.handoff && /*#__PURE__*/React.createElement(C01HandoffFacts, {
+    handoff: item.handoff,
+    historical: true
+  }), item.legacy ? /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
   }, item.note || 'Структурований diff раніше не збережено.') : /*#__PURE__*/React.createElement(C01Impact, {
     changes: item.changes
