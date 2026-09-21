@@ -1788,16 +1788,159 @@ function NavBar({
     avatarColor,
     position
   } = settings.profile;
-  // Dropdown, закреплённый КЛИКОМ (id раздела или null). Hover-открытие работает чисто через CSS.
-  // Клик критичен для планшета (там нет hover) — меню держится открытым до выбора или клика вне.
   const [pinnedDrop, setPinnedDrop] = useState(null);
-
-  // Любой клик вне навигации закрывает закреплённый dropdown
+  const [ownerVersion, setOwnerVersion] = useState(0);
+  const navRoot = useRef(null),
+    mobileNav = useRef(null),
+    triggerRefs = useRef({}),
+    focusTimer = useRef(null),
+    focusFrame = useRef(null),
+    focusGeneration = useRef(0),
+    ownerEpoch = useRef(0),
+    openRef = useRef(null),
+    openOwner = useRef(null),
+    navRef = useRef(nav),
+    alive = useRef(true),
+    navigationScope = bosHttpScope();
+  navRef.current = nav;
+  openRef.current = pinnedDrop;
+  const cancelPendingFocus = () => {
+    focusGeneration.current++;
+    if (focusTimer.current !== null) {
+      window.clearTimeout(focusTimer.current);
+      focusTimer.current = null;
+    }
+    if (focusFrame.current !== null) {
+      window.cancelAnimationFrame(focusFrame.current);
+      focusFrame.current = null;
+    }
+  };
+  const mobileMode = () => window.matchMedia?.('(max-width: 1200px)').matches === true;
+  const captureOwner = () => ({
+    scope: bosHttpScope(),
+    epoch: ownerEpoch.current,
+    version: ownerVersion,
+    route: {
+      section: navRef.current.section,
+      sub: navRef.current.sub || null
+    },
+    mobile: mobileMode()
+  });
+  const ownsCurrent = owner => alive.current && owner.epoch === ownerEpoch.current && owner.version === ownerVersion && owner.scope === bosHttpScope() && owner.mobile === mobileMode() && navRef.current.section === owner.route.section && (navRef.current.sub || null) === owner.route.sub;
+  const routeIsAllowed = (section, sub) => bosNavigation().some(item => item.id === section && bosCanView(section, sub) && (sub == null || item.subs.some(itemSub => itemSub.id === sub)));
+  const modalOwnsFocus = () => {
+    const modal = document.querySelector('dialog[open]');
+    return !!(modal?.isConnected && modal.open);
+  };
+  const isVisible = node => !!(node?.isConnected && !node.disabled && node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden');
+  const setOpenDisclosure = (id, owner = null) => {
+    openRef.current = id;
+    openOwner.current = id ? owner : null;
+    setPinnedDrop(id);
+  };
+  const focusCurrentContent = () => {
+    const main = document.querySelector('main[data-bos-main]');
+    if (!modalOwnsFocus() && main?.isConnected) main.focus?.();
+  };
+  const focusTrigger = id => {
+    const trigger = triggerRefs.current[id];
+    if (modalOwnsFocus()) return;
+    if (isVisible(trigger)) {
+      trigger.focus();
+      return;
+    }
+    if (isVisible(mobileNav.current)) {
+      mobileNav.current.focus();
+      return;
+    }
+    focusCurrentContent();
+  };
+  const closeDisclosure = (id, returnFocus, owner) => {
+    if (!ownsCurrent(owner) || openOwner.current !== owner) return;
+    cancelPendingFocus();
+    if (openRef.current === id) setOpenDisclosure(null);
+    if (returnFocus) {
+      const generation = focusGeneration.current;
+      focusTimer.current = window.setTimeout(() => {
+        focusTimer.current = null;
+        if (generation === focusGeneration.current && ownsCurrent(owner)) focusTrigger(id);
+      }, 0);
+    }
+  };
+  const commitLeaf = (section, sub, returnCurrentFocus, owner) => {
+    const target = {
+      section,
+      sub: sub || null
+    };
+    cancelPendingFocus();
+    if (!ownsCurrent(owner) || !routeIsAllowed(target.section, target.sub)) return;
+    if (owner.route.section === target.section && owner.route.sub === target.sub) {
+      if (openRef.current === section) closeDisclosure(section, returnCurrentFocus, owner);
+      return;
+    }
+    setOpenDisclosure(null);
+    if (!ownsCurrent(owner) || !routeIsAllowed(target.section, target.sub)) return;
+    setNav(target);
+    const generation = focusGeneration.current;
+    focusTimer.current = window.setTimeout(() => {
+      focusTimer.current = null;
+      const targetIsCurrent = navRef.current.section === target.section && (navRef.current.sub || null) === target.sub;
+      if (generation === focusGeneration.current && alive.current && owner.epoch === ownerEpoch.current && owner.version === ownerVersion && owner.scope === bosHttpScope() && owner.mobile === mobileMode() && targetIsCurrent && routeIsAllowed(target.section, target.sub)) focusCurrentContent();
+    }, 0);
+  };
+  const closeAfterFocusLeaves = (event, owner) => {
+    const openId = openRef.current;
+    if (!openId) return;
+    const next = event.relatedTarget,
+      trigger = triggerRefs.current[openId],
+      disclosure = document.getElementById('bos-nav-disclosure-' + openId);
+    if (next && (trigger?.contains(next) || disclosure?.contains(next))) return;
+    if (!ownsCurrent(owner) || openOwner.current !== owner) return;
+    const generation = focusGeneration.current;
+    if (focusFrame.current !== null) window.cancelAnimationFrame(focusFrame.current);
+    focusFrame.current = window.requestAnimationFrame(() => {
+      focusFrame.current = null;
+      const active = document.activeElement,
+        currentTrigger = triggerRefs.current[openId],
+        currentDisclosure = document.getElementById('bos-nav-disclosure-' + openId);
+      if (generation === focusGeneration.current && ownsCurrent(owner) && openRef.current === openId && openOwner.current === owner && !(currentTrigger?.contains(active) || currentDisclosure?.contains(active))) setOpenDisclosure(null);
+    });
+  };
   useEffect(() => {
-    const close = () => setPinnedDrop(null);
-    document.addEventListener('click', close);
-    return () => document.removeEventListener('click', close);
+    alive.current = true;
+    const close = event => {
+      if (!navRoot.current?.contains(event.target)) {
+        cancelPendingFocus();
+        setOpenDisclosure(null);
+      }
+    };
+    const invalidate = () => {
+      ownerEpoch.current++;
+      cancelPendingFocus();
+      setOpenDisclosure(null);
+      setOwnerVersion(version => version + 1);
+    };
+    const media = window.matchMedia?.('(max-width: 1200px)');
+    document.addEventListener('pointerdown', close);
+    window.addEventListener('bos:session-ended', invalidate);
+    window.addEventListener('bos:data-changed', invalidate);
+    media?.addEventListener?.('change', invalidate);
+    return () => {
+      alive.current = false;
+      ownerEpoch.current++;
+      document.removeEventListener('pointerdown', close);
+      window.removeEventListener('bos:session-ended', invalidate);
+      window.removeEventListener('bos:data-changed', invalidate);
+      media?.removeEventListener?.('change', invalidate);
+      cancelPendingFocus();
+    };
   }, []);
+  useEffect(() => {
+    cancelPendingFocus();
+    setOpenDisclosure(null);
+  }, [navigationScope]);
+  const renderOwner = captureOwner(),
+    focusOwner = openOwner.current || renderOwner;
   const bellIcon = /*#__PURE__*/React.createElement("svg", {
     width: "18",
     height: "18",
@@ -1875,15 +2018,13 @@ function NavBar({
       marginTop: 1
     }
   }, "\u041F\u043E\u043C\u0456\u0447\u043D\u0438\u043A \u041A\u0435\u0440\u0456\u0432\u043D\u0438\u043A\u0430"))), /*#__PURE__*/React.createElement("select", {
+    ref: mobileNav,
     className: "bos-mobile-nav",
     "aria-label": "\u0420\u043E\u0437\u0434\u0456\u043B \u0441\u0438\u0441\u0442\u0435\u043C\u0438",
     value: nav.section + ':' + (nav.sub || ''),
     onChange: e => {
       const [section, sub] = e.target.value.split(':');
-      setNav({
-        section,
-        sub: sub || null
-      });
+      commitLeaf(section, sub || null, false, renderOwner);
     }
   }, bosNavigation().map(n => /*#__PURE__*/React.createElement("optgroup", {
     key: n.id,
@@ -1894,6 +2035,8 @@ function NavBar({
     key: x.id,
     value: n.id + ':' + x.id
   }, x.label))))), /*#__PURE__*/React.createElement("div", {
+    ref: navRoot,
+    onBlur: event => closeAfterFocusLeaves(event, focusOwner),
     className: "bos-nav-cluster",
     style: {
       position: 'absolute',
@@ -1906,74 +2049,66 @@ function NavBar({
   }, bosNavigation().map(n => {
     const isActive = nav.section === n.id;
     const hasSubs = n.subs.length > 0;
+    const disclosureOwner = pinnedDrop === n.id ? openOwner.current : renderOwner;
     // HR имеет badge с кол-вом активных доручень (фиксированная цифра-заглушка, как в старом Sidebar)
     const badge = n.id === 'hr' ? tasks.filter(t => !t.archived && t.status !== 'done').length : null;
     // AI имеет онлайн-индикатор (зелёная точка)
     const onlineDot = n.id === 'ai' && aiConfigured;
-    return (
-      /*#__PURE__*/
-      // Наведение на другой пункт закрывает чужой закреплённый dropdown — иначе видно два меню сразу
-      React.createElement("div", {
-        key: n.id,
-        className: "nav-slot",
-        onMouseEnter: () => setPinnedDrop(p => p === n.id ? p : null)
-      }, /*#__PURE__*/React.createElement("div", {
-        className: 'nav-pill' + (isActive ? ' active' : ''),
-        role: "button",
-        tabIndex: 0,
-        onClick: e => {
-          e.stopPropagation(); // иначе document-обработчик тут же закроет только что открытый dropdown
-          setNav({
-            section: n.id,
-            sub: n.subs[0]?.id || null
-          });
-          setPinnedDrop(hasSubs ? pinnedDrop === n.id ? null : n.id : null);
-        },
-        onKeyDown: e => onKey(e, () => {
-          setNav({
-            section: n.id,
-            sub: n.subs[0]?.id || null
-          });
-          setPinnedDrop(hasSubs ? pinnedDrop === n.id ? null : n.id : null);
-        })
-      }, /*#__PURE__*/React.createElement("span", {
-        className: "nav-pill-icon"
-      }, ICONS[n.iconKey] || null), /*#__PURE__*/React.createElement("span", {
-        className: "nav-pill-label"
-      }, n.label)), badge !== null && /*#__PURE__*/React.createElement("span", {
-        className: "nav-badge"
-      }, badge), onlineDot && /*#__PURE__*/React.createElement("span", {
-        className: "nav-dot"
-      }), hasSubs && /*#__PURE__*/React.createElement("div", {
-        className: 'nav-dropdown' + (pinnedDrop === n.id ? ' open' : ''),
-        onClick: e => e.stopPropagation()
-      }, n.subs.map(s => /*#__PURE__*/React.createElement("div", {
-        key: s.id,
-        className: 'nav-drop-item' + (nav.section === n.id && nav.sub === s.id ? ' active' : ''),
-        role: "button",
-        tabIndex: 0,
-        onClick: () => {
-          setNav({
-            section: n.id,
-            sub: s.id
-          });
-          setPinnedDrop(null);
-        },
-        onKeyDown: e => onKey(e, () => {
-          setNav({
-            section: n.id,
-            sub: s.id
-          });
-          setPinnedDrop(null);
-        })
-      }, /*#__PURE__*/React.createElement("span", {
-        style: {
-          display: 'flex',
-          alignItems: 'center',
-          width: 14
+    return /*#__PURE__*/React.createElement("div", {
+      key: n.id,
+      className: "nav-slot"
+    }, /*#__PURE__*/React.createElement("button", {
+      ref: node => {
+        if (node) triggerRefs.current[n.id] = node;else delete triggerRefs.current[n.id];
+      },
+      className: 'nav-pill' + (isActive ? ' active' : ''),
+      type: "button",
+      "aria-expanded": hasSubs ? pinnedDrop === n.id : undefined,
+      "aria-controls": hasSubs ? 'bos-nav-disclosure-' + n.id : undefined,
+      onClick: () => {
+        if (!ownsCurrent(renderOwner)) return;
+        if (hasSubs) {
+          cancelPendingFocus();
+          setOpenDisclosure(openRef.current === n.id ? null : n.id, openRef.current === n.id ? null : renderOwner);
+        } else commitLeaf(n.id, null, true, renderOwner);
+      },
+      onKeyDown: e => {
+        if (e.key === 'Escape' && hasSubs && pinnedDrop === n.id) {
+          e.preventDefault();
+          closeDisclosure(n.id, true, disclosureOwner);
         }
-      }, ICONS[s.iconKey] || null), /*#__PURE__*/React.createElement("span", null, s.label)))))
-    );
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "nav-pill-icon"
+    }, ICONS[n.iconKey] || null), /*#__PURE__*/React.createElement("span", {
+      className: "nav-pill-label"
+    }, n.label)), badge !== null && /*#__PURE__*/React.createElement("span", {
+      className: "nav-badge"
+    }, badge), onlineDot && /*#__PURE__*/React.createElement("span", {
+      className: "nav-dot"
+    }), hasSubs && /*#__PURE__*/React.createElement("div", {
+      id: 'bos-nav-disclosure-' + n.id,
+      className: 'nav-dropdown' + (pinnedDrop === n.id ? ' open' : ''),
+      hidden: pinnedDrop !== n.id,
+      onKeyDown: e => {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          closeDisclosure(n.id, true, disclosureOwner);
+        }
+      }
+    }, n.subs.map(s => /*#__PURE__*/React.createElement("button", {
+      key: s.id,
+      type: "button",
+      className: 'nav-drop-item' + (nav.section === n.id && nav.sub === s.id ? ' active' : ''),
+      "aria-current": nav.section === n.id && nav.sub === s.id ? 'page' : undefined,
+      onClick: () => commitLeaf(n.id, s.id, true, disclosureOwner)
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        width: 14
+      }
+    }, ICONS[s.iconKey] || null), /*#__PURE__*/React.createElement("span", null, s.label)))));
   })), /*#__PURE__*/React.createElement("div", {
     style: {
       marginLeft: 'auto',
@@ -21213,7 +21348,9 @@ function App() {
       setDataError(null);
       setNotice('');
     }
-  }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438")), /*#__PURE__*/React.createElement("div", {
+  }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438")), /*#__PURE__*/React.createElement("main", {
+    "data-bos-main": true,
+    tabIndex: -1,
     style: {
       flex: 1,
       overflowY: 'auto',

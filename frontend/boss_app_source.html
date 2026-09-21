@@ -66,7 +66,7 @@ body::before{content:'';position:fixed;inset:-20%;z-index:-1;pointer-events:none
   transition:width .35s cubic-bezier(.4,0,.2,1)}
 .nav-slot:hover{width:132px;z-index:60}
 .nav-pill{position:relative;width:100%;height:44px;border-radius:22px;
-  display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;padding:0;box-sizing:border-box;appearance:none;cursor:pointer;overflow:hidden;
   background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);color:rgba(255,255,255,0.6);
   transition:background .3s ease,border-color .3s ease,color .3s ease,box-shadow .3s ease}
 /* Раскрытая пилюля — стекло с mint-акцентом (граница), не сплошная зелёная заливка */
@@ -91,16 +91,15 @@ body::before{content:'';position:fixed;inset:-20%;z-index:-1;pointer-events:none
 .nav-dot{position:absolute;top:-2px;right:-2px;width:10px;height:10px;border-radius:50%;background:#6366f1;
   border:2px solid #0A0C10;pointer-events:none;z-index:2;transition:opacity .2s}
 .nav-slot:hover .nav-badge,.nav-slot:hover .nav-dot{opacity:0}
-/* Dropdown под-пунктов: открывается по hover (CSS) И по клику (класс .open из React) */
+/* Dropdown под-пунктов открывается только явным действием на trigger. */
 .nav-dropdown{position:absolute;top:calc(100% + 10px);left:50%;min-width:210px;padding:6px;border-radius:14px;
   background:rgba(21,23,27,0.92);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);
   border:1px solid rgba(255,255,255,0.1);box-shadow:0 16px 44px rgba(0,0,0,0.55);
   opacity:0;visibility:hidden;pointer-events:none;transform:translateX(-50%) translateY(-6px);
   transition:opacity .18s ease,transform .18s ease,visibility .18s;z-index:70}
-/* Невидимый мостик закрывает зазор между пилюлей и меню — hover не срывается при диагональном движении мыши */
-.nav-dropdown::before{content:'';position:absolute;top:-12px;left:0;right:0;height:12px}
-.nav-slot:hover .nav-dropdown,.nav-dropdown.open{opacity:1;visibility:visible;pointer-events:auto;transform:translateX(-50%) translateY(0)}
-.nav-drop-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;cursor:pointer;
+.nav-dropdown.open{opacity:1;visibility:visible;pointer-events:auto;transform:translateX(-50%) translateY(0)}
+.nav-dropdown[hidden]{display:none}
+.nav-drop-item{display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;box-sizing:border-box;border:0;border-radius:9px;cursor:pointer;text-align:left;background:transparent;
   color:rgba(255,255,255,0.65);font-size:13px;font-weight:500;transition:background .15s,color .15s}
 .nav-drop-item:hover{background:rgba(255,255,255,0.07);color:#fff}
 /* Активний під-пункт: нейтральна поверхня, золото лише текстом (інакше не відрізнити від hover) */
@@ -136,6 +135,7 @@ input::placeholder,textarea::placeholder{color:#A7B1BF}
 .nav-pill.active::after{background:#93C5FD}
 .nav-drop-item.active{color:#93C5FD}
 .nav-dropdown{background:#171A21;backdrop-filter:none}
+.nav-dropdown{max-height:min(60dvh,420px);overflow:auto}
 .nav-drop-item{min-height:40px;font-size:14px}
 .nav-slot:hover .nav-badge{opacity:1}
 .bos-mobile-nav{display:none}
@@ -740,17 +740,75 @@ const ICONS = {
 // справа колокольчик, AI-toggle и аватар (перенесены из Topbar/Sidebar).
 function NavBar({nav, setNav, settings, aiPanelOpen, setAiPanelOpen, tasks, aiConfigured}) {
   const {name, initials, avatarColor, position} = settings.profile;
-  // Dropdown, закреплённый КЛИКОМ (id раздела или null). Hover-открытие работает чисто через CSS.
-  // Клик критичен для планшета (там нет hover) — меню держится открытым до выбора или клика вне.
   const [pinnedDrop, setPinnedDrop] = useState(null);
+  const [ownerVersion,setOwnerVersion]=useState(0);
+  const navRoot=useRef(null),mobileNav=useRef(null),triggerRefs=useRef({}),focusTimer=useRef(null),focusFrame=useRef(null),focusGeneration=useRef(0),ownerEpoch=useRef(0),openRef=useRef(null),openOwner=useRef(null),navRef=useRef(nav),alive=useRef(true),navigationScope=bosHttpScope();
+  navRef.current=nav;openRef.current=pinnedDrop;
 
-  // Любой клик вне навигации закрывает закреплённый dropdown
+  const cancelPendingFocus=()=>{focusGeneration.current++;if(focusTimer.current!==null){window.clearTimeout(focusTimer.current);focusTimer.current=null;}if(focusFrame.current!==null){window.cancelAnimationFrame(focusFrame.current);focusFrame.current=null;}};
+  const mobileMode=()=>window.matchMedia?.('(max-width: 1200px)').matches===true;
+  const captureOwner=()=>({scope:bosHttpScope(),epoch:ownerEpoch.current,version:ownerVersion,route:{section:navRef.current.section,sub:navRef.current.sub||null},mobile:mobileMode()});
+  const ownsCurrent=owner=>alive.current&&owner.epoch===ownerEpoch.current&&owner.version===ownerVersion&&owner.scope===bosHttpScope()&&owner.mobile===mobileMode()&&navRef.current.section===owner.route.section&&(navRef.current.sub||null)===owner.route.sub;
+  const routeIsAllowed=(section,sub)=>bosNavigation().some(item=>item.id===section&&bosCanView(section,sub)&&(sub==null||item.subs.some(itemSub=>itemSub.id===sub)));
+  const modalOwnsFocus=()=>{const modal=document.querySelector('dialog[open]');return !!(modal?.isConnected&&modal.open);};
+  const isVisible=(node)=>!!(node?.isConnected&&!node.disabled&&node.getClientRects().length&&getComputedStyle(node).visibility!=='hidden');
+  const setOpenDisclosure=(id,owner=null)=>{openRef.current=id;openOwner.current=id?owner:null;setPinnedDrop(id);};
+  const focusCurrentContent=()=>{
+    const main=document.querySelector('main[data-bos-main]');
+    if(!modalOwnsFocus()&&main?.isConnected)main.focus?.();
+  };
+  const focusTrigger=(id)=>{
+    const trigger=triggerRefs.current[id];
+    if(modalOwnsFocus())return;
+    if(isVisible(trigger)){trigger.focus();return;}
+    if(isVisible(mobileNav.current)){mobileNav.current.focus();return;}
+    focusCurrentContent();
+  };
+  const closeDisclosure=(id,returnFocus,owner)=>{
+    if(!ownsCurrent(owner)||openOwner.current!==owner)return;
+    cancelPendingFocus();
+    if(openRef.current===id)setOpenDisclosure(null);
+    if(returnFocus){const generation=focusGeneration.current;focusTimer.current=window.setTimeout(()=>{focusTimer.current=null;if(generation===focusGeneration.current&&ownsCurrent(owner))focusTrigger(id);},0);}
+  };
+  const commitLeaf=(section,sub,returnCurrentFocus,owner)=>{
+    const target={section,sub:sub||null};
+    cancelPendingFocus();
+    if(!ownsCurrent(owner)||!routeIsAllowed(target.section,target.sub))return;
+    if(owner.route.section===target.section&&owner.route.sub===target.sub){if(openRef.current===section)closeDisclosure(section,returnCurrentFocus,owner);return;}
+    setOpenDisclosure(null);
+    if(!ownsCurrent(owner)||!routeIsAllowed(target.section,target.sub))return;
+    setNav(target);
+    const generation=focusGeneration.current;
+    focusTimer.current=window.setTimeout(()=>{
+      focusTimer.current=null;
+      const targetIsCurrent=navRef.current.section===target.section&&(navRef.current.sub||null)===target.sub;
+      if(generation===focusGeneration.current&&alive.current&&owner.epoch===ownerEpoch.current&&owner.version===ownerVersion&&owner.scope===bosHttpScope()&&owner.mobile===mobileMode()&&targetIsCurrent&&routeIsAllowed(target.section,target.sub))focusCurrentContent();
+    },0);
+  };
+  const closeAfterFocusLeaves=(event,owner)=>{
+    const openId=openRef.current;if(!openId)return;
+    const next=event.relatedTarget,trigger=triggerRefs.current[openId],disclosure=document.getElementById('bos-nav-disclosure-'+openId);
+    if(next&&(trigger?.contains(next)||disclosure?.contains(next)))return;
+    if(!ownsCurrent(owner)||openOwner.current!==owner)return;
+    const generation=focusGeneration.current;
+    if(focusFrame.current!==null)window.cancelAnimationFrame(focusFrame.current);
+    focusFrame.current=window.requestAnimationFrame(()=>{focusFrame.current=null;const active=document.activeElement,currentTrigger=triggerRefs.current[openId],currentDisclosure=document.getElementById('bos-nav-disclosure-'+openId);if(generation===focusGeneration.current&&ownsCurrent(owner)&&openRef.current===openId&&openOwner.current===owner&&!(currentTrigger?.contains(active)||currentDisclosure?.contains(active)))setOpenDisclosure(null);});
+  };
+
   useEffect(() => {
-    const close = () => setPinnedDrop(null);
-    document.addEventListener('click', close);
-    return () => document.removeEventListener('click', close);
+    alive.current=true;
+    const close = event => {if(!navRoot.current?.contains(event.target)){cancelPendingFocus();setOpenDisclosure(null);}};
+    const invalidate=()=>{ownerEpoch.current++;cancelPendingFocus();setOpenDisclosure(null);setOwnerVersion(version=>version+1);};
+    const media=window.matchMedia?.('(max-width: 1200px)');
+    document.addEventListener('pointerdown', close);
+    window.addEventListener('bos:session-ended', invalidate);
+    window.addEventListener('bos:data-changed', invalidate);
+    media?.addEventListener?.('change', invalidate);
+    return () => {alive.current=false;ownerEpoch.current++;document.removeEventListener('pointerdown', close);window.removeEventListener('bos:session-ended', invalidate);window.removeEventListener('bos:data-changed', invalidate);media?.removeEventListener?.('change', invalidate);cancelPendingFocus();};
   }, []);
+  useEffect(()=>{cancelPendingFocus();setOpenDisclosure(null);},[navigationScope]);
 
+  const renderOwner=captureOwner(),focusOwner=openOwner.current||renderOwner;
   const bellIcon = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>;
   const sparklesIcon = <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z"/></svg>;
 
@@ -771,45 +829,36 @@ function NavBar({nav, setNav, settings, aiPanelOpen, setAiPanelOpen, tasks, aiCo
 
       {/* Icon-пилюли по центру — absolute-центрирование, чтобы центр не зависел от ширины лого/правого блока.
           Зазор небольшой: на hover расступаются сами слоты (см. CSS .nav-slot:hover) */}
-      <select className="bos-mobile-nav" aria-label="Розділ системи" value={nav.section+':'+(nav.sub||'')} onChange={e=>{const [section,sub]=e.target.value.split(':');setNav({section,sub:sub||null});}}>{bosNavigation().map(n=><optgroup key={n.id} label={n.label}><option value={n.id+':'}>{n.label}</option>{n.subs.map(x=><option key={x.id} value={n.id+':'+x.id}>{x.label}</option>)}</optgroup>)}</select>
-      <div className="bos-nav-cluster" style={{position:'absolute', left:'50%', transform:'translateX(-50%)', display:'flex', gap:6, alignItems:'center'}}>
+      <select ref={mobileNav} className="bos-mobile-nav" aria-label="Розділ системи" value={nav.section+':'+(nav.sub||'')} onChange={e=>{const [section,sub]=e.target.value.split(':');commitLeaf(section,sub||null,false,renderOwner);}}>{bosNavigation().map(n=><optgroup key={n.id} label={n.label}><option value={n.id+':'}>{n.label}</option>{n.subs.map(x=><option key={x.id} value={n.id+':'+x.id}>{x.label}</option>)}</optgroup>)}</select>
+      <div ref={navRoot} onBlur={event=>closeAfterFocusLeaves(event,focusOwner)} className="bos-nav-cluster" style={{position:'absolute', left:'50%', transform:'translateX(-50%)', display:'flex', gap:6, alignItems:'center'}}>
         {bosNavigation().map(n => {
           const isActive = nav.section === n.id;
           const hasSubs = n.subs.length > 0;
+          const disclosureOwner=pinnedDrop===n.id?openOwner.current:renderOwner;
           // HR имеет badge с кол-вом активных доручень (фиксированная цифра-заглушка, как в старом Sidebar)
           const badge = n.id === 'hr' ? tasks.filter(t=>!t.archived&&t.status!=='done').length : null;
           // AI имеет онлайн-индикатор (зелёная точка)
           const onlineDot = n.id === 'ai' && aiConfigured;
           return (
-            // Наведение на другой пункт закрывает чужой закреплённый dropdown — иначе видно два меню сразу
-            <div key={n.id} className="nav-slot" onMouseEnter={()=>setPinnedDrop(p => p === n.id ? p : null)}>
-              <div className={'nav-pill' + (isActive ? ' active' : '')}
-                   role="button" tabIndex={0}
-                   onClick={e => {
-                     e.stopPropagation(); // иначе document-обработчик тут же закроет только что открытый dropdown
-                     setNav({section:n.id, sub:n.subs[0]?.id||null});
-                     setPinnedDrop(hasSubs ? (pinnedDrop === n.id ? null : n.id) : null);
-                   }}
-                   onKeyDown={e => onKey(e, () => {
-                     setNav({section:n.id, sub:n.subs[0]?.id||null});
-                     setPinnedDrop(hasSubs ? (pinnedDrop === n.id ? null : n.id) : null);
-                   })}>
+            <div key={n.id} className="nav-slot">
+              <button ref={node=>{if(node)triggerRefs.current[n.id]=node;else delete triggerRefs.current[n.id];}} className={'nav-pill' + (isActive ? ' active' : '')}
+                   type="button" aria-expanded={hasSubs?pinnedDrop===n.id:undefined} aria-controls={hasSubs?'bos-nav-disclosure-'+n.id:undefined}
+                   onClick={()=>{if(!ownsCurrent(renderOwner))return;if(hasSubs){cancelPendingFocus();setOpenDisclosure(openRef.current===n.id?null:n.id,openRef.current===n.id?null:renderOwner);}else commitLeaf(n.id,null,true,renderOwner);}}
+                   onKeyDown={e=>{if(e.key==='Escape'&&hasSubs&&pinnedDrop===n.id){e.preventDefault();closeDisclosure(n.id,true,disclosureOwner);}}}>
                 <span className="nav-pill-icon">{ICONS[n.iconKey] || null}</span>
                 <span className="nav-pill-label">{n.label}</span>
-              </div>
+              </button>
               {badge !== null && <span className="nav-badge">{badge}</span>}
               {onlineDot && <span className="nav-dot"/>}
               {hasSubs && (
-                <div className={'nav-dropdown' + (pinnedDrop === n.id ? ' open' : '')} onClick={e => e.stopPropagation()}>
+                <div id={'bos-nav-disclosure-'+n.id} className={'nav-dropdown' + (pinnedDrop === n.id ? ' open' : '')} hidden={pinnedDrop !== n.id} onKeyDown={e=>{if(e.key==='Escape'){e.preventDefault();closeDisclosure(n.id,true,disclosureOwner);}}}>
                   {n.subs.map(s => (
-                    <div key={s.id}
-                         className={'nav-drop-item' + (nav.section === n.id && nav.sub === s.id ? ' active' : '')}
-                         role="button" tabIndex={0}
-                         onClick={() => { setNav({section:n.id, sub:s.id}); setPinnedDrop(null); }}
-                         onKeyDown={e => onKey(e, () => { setNav({section:n.id, sub:s.id}); setPinnedDrop(null); })}>
-                      <span style={{display:'flex', alignItems:'center', width:14}}>{ICONS[s.iconKey] || null}</span>
-                      <span>{s.label}</span>
-                    </div>
+                    <button key={s.id} type="button"
+                          className={'nav-drop-item' + (nav.section === n.id && nav.sub === s.id ? ' active' : '')} aria-current={nav.section===n.id&&nav.sub===s.id?'page':undefined}
+                          onClick={() => commitLeaf(n.id,s.id,true,disclosureOwner)}>
+                       <span style={{display:'flex', alignItems:'center', width:14}}>{ICONS[s.iconKey] || null}</span>
+                       <span>{s.label}</span>
+                    </button>
                   ))}
                 </div>
               )}
@@ -5343,7 +5392,7 @@ function App(){
         <div style={{flex:1, minWidth:0, display:'flex', flexDirection:'column', overflow:'hidden'}}>
           <Topbar nav={nav} setNav={setNav} tasks={tasks} employees={employees} contracts={contracts} counterparties={counterparties} onCreated={()=>{refetchTasks();refetchDashboard(selectedBranch,period);setNotice("Доручення збережено");}}/>
           {(dataError||notice)&&<div className="bos-feedback" role="status">{dataError||notice}{dataError&&<button onClick={()=>{setDataError(null);refetchFinance();refetchBranches();refetchDashboard(selectedBranch,period);}}>Повторити</button>}<button onClick={()=>{setDataError(null);setNotice('');}}>Закрити</button></div>}
-          <div style={{flex:1, overflowY:'auto', overflowX:'hidden'}}><ERPConfirmRecovery/>{renderContent()}</div>
+          <main data-bos-main tabIndex={-1} style={{flex:1, overflowY:'auto', overflowX:'hidden'}}><ERPConfirmRecovery/>{renderContent()}</main>
         </div>
         {/* AI-панель — появляется/исчезает по toggle */}
         {aiPanelOpen && <AIPanel onClose={() => setAiPanelOpen(false)} refetchTasks={refetchTasks} refetchEmployees={refetchEmployees} refetchFinance={refetchFinance} aiConfigured={aiConfigured}/>}
