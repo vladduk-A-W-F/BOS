@@ -112,7 +112,7 @@ function bosStorageKey(key) {
 }
 function bosCanAction(action) {
   if (!bosCan('write')) return false;
-  if (['opening', 'payment', 'apply_change', 'resolve_job', 'adjust', 'import_batch', 'credit_invoice', 'reverse_credit', 'confirm_supplier_claim', 'hold_payment', 'release_payment', 'location_update', 'order_network', 'purchase_network'].includes(action)) return bosRole() === 'ceo';
+  if (['opening', 'payment', 'apply_change', 'resolve_job', 'adjust', 'import_batch', 'credit_invoice', 'reverse_credit', 'confirm_supplier_claim', 'hold_payment', 'release_payment', 'location_update', 'order_network', 'purchase_network', 'register_supplier_invoice'].includes(action)) return bosRole() === 'ceo';
   if (['attach', 'change'].includes(action) && !bosCan('view_documents')) return false;
   if (['quality', 'operator'].includes(action) && bosRole() !== 'ceo' && !window.BOS_RUNTIME?.employee_id) return false;
   return true;
@@ -12319,8 +12319,8 @@ function Procurement({
       setPurchaseBusy(false);
     }
   }
-  async function afterPurchase(result) {
-    setPurchaseReceipt(result);
+  async function afterPurchase(result, context) {
+    setPurchaseReceipt(s2ReceiptContext(result, context));
     setError('');
     try {
       const fresh = await erpFetch('snapshot/');
@@ -12462,7 +12462,10 @@ function Procurement({
     style: {
       color: T.green
     }
-  }, "\u0417\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043E \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u2116", receipt.task_id, ". \u0412\u043E\u043D\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0435 \u0432 HR \u0442\u0430 \u0436\u0443\u0440\u043D\u0430\u043B\u0456 \u0434\u0456\u0439."), purchaseReceipt && /*#__PURE__*/React.createElement("section", {
+  }, "\u0417\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043E \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u2116", receipt.task_id, ". \u0412\u043E\u043D\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0435 \u0432 HR \u0442\u0430 \u0436\u0443\u0440\u043D\u0430\u043B\u0456 \u0434\u0456\u0439."), purchaseReceipt?.action === 'erp_register_supplier_invoice' ? /*#__PURE__*/React.createElement(SupplierInvoiceReceipt, {
+    receipt: purchaseReceipt,
+    data: erpData
+  }) : purchaseReceipt && /*#__PURE__*/React.createElement("section", {
     className: "bos-next",
     "aria-label": "\u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", null, "\u041E\u043F\u0435\u0440\u0430\u0446\u0456\u044E \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043E"), /*#__PURE__*/React.createElement(ImpactTable, {
@@ -12670,7 +12673,8 @@ function OperationsAssistant({
     [raw, setRaw] = useState(''),
     [error, setError] = useState(''),
     [erpAction, setErpAction] = useState(null),
-    [statementAction, setStatementAction] = useState(null);
+    [statementAction, setStatementAction] = useState(null),
+    [supplierReceipt, setSupplierReceipt] = useState(null);
   useEffect(() => {
     const clear = () => setMessages([]);
     window.addEventListener('boss:clear-chat', clear);
@@ -12698,6 +12702,7 @@ function OperationsAssistant({
         if (!def && !correction) throw Error('Невідома ERP-дія.');
         if (!bosCanAction(type) || correction && b03Financial(type) && bosRole() !== 'ceo') throw Error('Ця дія недоступна вашому обліковому запису.');
         let preset = value;
+        if (type === 'register_supplier_invoice' && !s2ExactIntent(value)) throw Error('Потрібні рівно шість полів наміру з явними дійсними ID та SHA-256.');
         if (correction) {
           preset = b03ImportedAction(value);
         } else {
@@ -12847,9 +12852,9 @@ function OperationsAssistant({
     preset: erpAction.preset,
     data: erpAction.data,
     onClose: () => setErpAction(null),
-    onDone: r => {
+    onDone: (r, context) => {
       refetchTasks?.();
-      setMessages(m => [...m, {
+      if (r.action === 'erp_register_supplier_invoice') setSupplierReceipt(s2ReceiptContext(r, context));else setMessages(m => [...m, {
         role: 'assistant',
         text: 'ERP-операцію виконано. Запис журналу №' + r.erp_event_id + (r.note ? ' · ' + r.note : '')
       }]);
@@ -12867,6 +12872,8 @@ function OperationsAssistant({
         text: 'Збережено доручення №' + r.task_id + '. Результат додано до журналу.'
       }]);
     }
+  }), supplierReceipt && /*#__PURE__*/React.createElement(SupplierInvoiceReceipt, {
+    receipt: supplierReceipt
   }), doc && /*#__PURE__*/React.createElement(DocViewer, {
     id: doc,
     onClose: () => setDoc(null)
@@ -12981,6 +12988,7 @@ async function erpFetch(path, data) {
   return d;
 }
 const ERP_ACTIONS = {
+  register_supplier_invoice: ['Зареєструвати рахунок постачальника', [['document_id', 'Документ', 'documents'], ['purchase_id', 'Закупівля', 'purchases'], ['supplier_id', 'Постачальник', 'suppliers'], ['item_id', 'Номенклатура', 'items'], ['source_sha256', 'SHA-256 джерела']]],
   item: ['Нова номенклатура', [['code', 'Код'], ['name', 'Назва'], ['unit', 'Одиниця'], ['kind', 'Тип', 'enum:product,material,component'], ['method', 'Спосіб виконання', 'enum:buy,make,subcontract'], ['revision', 'Версія'], ['currency', 'Валюта', 'enum:UAH,EUR,USD'], ['material', 'Матеріал'], ['document_id', 'Креслення', 'documents?'], ['external_codes', 'Зовнішні коди', 'codes'], ['required_documents', 'Обов’язкові документи', 'tags'], ['minimum', 'Мінімальний запас', 'number'], ['lead_days', 'Строк закупівлі, днів', 'integer'], ['planned_cost', 'Планова собівартість одиниці', 'money'], ['bom', 'Склад виробу', 'bom'], ['routing', 'Маршрут операцій', 'routing']]],
   location: ['Нове місце зберігання', [['code', 'Код'], ['name', 'Назва / комірка'], ['kind', 'Тип', 'enum:warehouse,production,supplier'], ['supplier_id', 'Підрядник', 'suppliers?'], ['branch_id', 'Філія', 'branches?'], ['address', 'Адреса', 'text?'], ['lat', 'Широта WGS84', 'coordinate?'], ['lng', 'Довгота WGS84', 'coordinate?']]],
   location_update: ['Реквізити точки', [['location_id', 'Точка мережі', 'locations'], ['branch_id', 'Філія', 'branches?'], ['address', 'Адреса', 'text?'], ['lat', 'Широта WGS84', 'coordinate?'], ['lng', 'Довгота WGS84', 'coordinate?'], ['reason', 'Причина зміни']]],
@@ -13047,6 +13055,228 @@ function ERPTable({
     }
   }, empty));
 }
+// Supplier-invoice intent and receipt UI. Read context stays in memory, never in pending storage.
+const S2_INTENT_KEYS = ['action', 'document_id', 'item_id', 'purchase_id', 'source_sha256', 'supplier_id'];
+function s2PositiveId(value) {
+  return Number.isSafeInteger(value) && value > 0;
+}
+function s2Selection(value) {
+  const result = {};
+  for (const key of ['document_id', 'purchase_id', 'supplier_id', 'item_id']) {
+    const raw = value?.[key];
+    if (typeof raw !== 'number' && (typeof raw !== 'string' || !/^[1-9]\d*$/.test(raw))) return null;
+    const id = Number(raw);
+    if (!s2PositiveId(id)) return null;
+    result[key] = id;
+  }
+  return result;
+}
+function s2ExactIntent(value) {
+  return !!value && !Array.isArray(value) && Object.keys(value).sort().join(',') === S2_INTENT_KEYS.join(',') && value.action === 'erp_register_supplier_invoice' && ['document_id', 'purchase_id', 'supplier_id', 'item_id'].every(key => s2PositiveId(value[key])) && typeof value.source_sha256 === 'string' && /^[a-f0-9]{64}$/.test(value.source_sha256);
+}
+function s2ReadPath(selection) {
+  return selection ? 'purchases/' + selection.purchase_id + '/document-match/?document_id=' + selection.document_id + '&supplier_id=' + selection.supplier_id + '&item_id=' + selection.item_id : null;
+}
+function s2IntentFromRead(value, selection) {
+  if (!selection) throw Error('Явно оберіть документ, закупівлю, постачальника й номенклатуру.');
+  documentMatchVerify(value, selection.purchase_id, selection.document_id, window.BOS_RUNTIME?.access_revision, selection);
+  const draft = value.draft,
+    m = draft.matches,
+    registration = value.supplier_invoice_registration;
+  if (draft.decision !== 'accept_draft' || draft.exceptions.length || !draft.fields || !draft.source || !m || !['unregistered', 'matched'].includes(registration.status) || m.purchase_id !== selection.purchase_id || m.supplier_id !== selection.supplier_id || m.item_id !== selection.item_id) throw Error('Поточне зіставлення не дозволяє реєстрацію. Оновіть і перевірте джерела.');
+  return {
+    action: 'erp_register_supplier_invoice',
+    ...selection,
+    source_sha256: draft.source.sha256
+  };
+}
+function s2CanRegister(value, selection) {
+  try {
+    s2IntentFromRead(value, selection);
+    return true;
+  } catch {
+    return false;
+  }
+}
+function s2ProposalMatches(value, intent) {
+  return typeof value?.id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value.id) && s2ExactIntent(value.payload) && S2_INTENT_KEYS.every(key => value.payload[key] === intent[key]) && typeof value.expires_at === 'string' && Number.isFinite(Date.parse(value.expires_at)) && Date.parse(value.expires_at) > Date.now();
+}
+function s2ReceiptContext(receipt, context) {
+  if (receipt?.action !== 'erp_register_supplier_invoice') return receipt;
+  const selection = s2Selection(context?.selection);
+  return selection && selection.purchase_id === receipt.purchase_id ? {
+    ...receipt,
+    ui_read_selection: selection
+  } : receipt;
+}
+function SupplierInvoiceRegistrationFacts({
+  registration,
+  onDocument
+}) {
+  if (!registration) return null;
+  if (registration.status === 'unregistered') return /*#__PURE__*/React.createElement("p", null, "\u0420\u0430\u0445\u0443\u043D\u043E\u043A \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043B\u044C\u043D\u0438\u043A\u0430 \u0449\u0435 \u043D\u0435 \u0437\u0430\u0440\u0435\u0454\u0441\u0442\u0440\u043E\u0432\u0430\u043D\u043E.");
+  const row = registration.items[0];
+  return /*#__PURE__*/React.createElement("section", {
+    "aria-label": "\u0417\u0430\u0440\u0435\u0454\u0441\u0442\u0440\u043E\u0432\u0430\u043D\u0438\u0439 \u0440\u0430\u0445\u0443\u043D\u043E\u043A \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043B\u044C\u043D\u0438\u043A\u0430"
+  }, /*#__PURE__*/React.createElement("h4", null, registration.status === 'matched' ? 'Рахунок постачальника зареєстровано' : 'Реєстрація потребує окремої перевірки', " \xB7 \u2116", row.id), registration.status === 'requires_revalidation' && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0414\u0436\u0435\u0440\u0435\u043B\u043E \u0430\u0431\u043E \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442 \u0437\u043C\u0456\u043D\u0438\u043B\u0438\u0441\u044F. \u0406\u0441\u0442\u043E\u0440\u0438\u0447\u043D\u0443 \u0440\u0435\u0454\u0441\u0442\u0440\u0430\u0446\u0456\u044E \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043E; \u043F\u043E\u0442\u0440\u0456\u0431\u043D\u0430 \u043E\u043A\u0440\u0435\u043C\u0430 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0430. \u041D\u043E\u0432\u0430 \u0440\u0435\u0454\u0441\u0442\u0440\u0430\u0446\u0456\u044F \u0442\u0430 \u0437\u0430\u043C\u0456\u043D\u0430 \u043F\u0440\u0438\u0439\u043D\u044F\u0442\u043E\u0433\u043E \u0434\u0436\u0435\u0440\u0435\u043B\u0430 \u0442\u0443\u0442 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456."), /*#__PURE__*/React.createElement("p", null, "\u0417\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044F \u2116", row.purchase_id, " \xB7 \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043B\u044C\u043D\u0438\u043A \u2116", row.supplier_id), /*#__PURE__*/React.createElement("p", null, "\u0420\u0430\u0445\u0443\u043D\u043E\u043A ", row.invoice_number, " \u0432\u0456\u0434 ", row.invoice_date, " \xB7 ", row.amount, " ", row.currency), /*#__PURE__*/React.createElement("p", null, "\u041F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F: ", row.receipt_ids.join(', ') || 'немає', "; \u043F\u043E\u0432\u0435\u0440\u043D\u0435\u043D\u043D\u044F: ", row.return_ids.join(', ') || 'немає', "."), /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    onClick: () => onDocument?.(row.document_id)
+  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u043F\u0440\u0438\u0439\u043D\u044F\u0442\u0438\u0439 \u043E\u0440\u0438\u0433\u0456\u043D\u0430\u043B \u2116", row.document_id));
+}
+function SupplierInvoiceReadSummary({
+  value,
+  onDocument
+}) {
+  if (!value) return null;
+  const draft = value.draft;
+  return /*#__PURE__*/React.createElement("section", {
+    "aria-label": "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0435\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430 \u0440\u0435\u0454\u0441\u0442\u0440\u0430\u0446\u0456\u0457"
+  }, /*#__PURE__*/React.createElement("h3", null, "\u041E\u0441\u0442\u0430\u043D\u043D\u0454 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u0435\u043D\u0435 \u0447\u0438\u0442\u0430\u043D\u043D\u044F \u0434\u0436\u0435\u0440\u0435\u043B"), /*#__PURE__*/React.createElement("p", null, "\u0426\u0435 \u043F\u0440\u043E\u0447\u0438\u0442\u0430\u043D\u0456 \u0440\u0435\u043A\u0432\u0456\u0437\u0438\u0442\u0438 \u0434\u0436\u0435\u0440\u0435\u043B\u0430, \u0430 \u043D\u0435 \u0432\u043F\u043B\u0438\u0432 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F \u043D\u0430 \u043E\u0431\u043B\u0456\u043A."), /*#__PURE__*/React.createElement("p", null, "\u0417\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044F \u2116", value.purchase_id, " \xB7 \u0432\u0438\u0431\u0440\u0430\u043D\u0438\u0439 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442 \u2116", value.document_id), draft.source && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, "SHA-256: ", draft.source.sha256), /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    onClick: () => onDocument?.(draft.source.document_id)
+  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u0432\u0438\u0431\u0440\u0430\u043D\u0438\u0439 \u043E\u0440\u0438\u0433\u0456\u043D\u0430\u043B")), draft.fields && /*#__PURE__*/React.createElement("p", null, "\u0420\u0430\u0445\u0443\u043D\u043E\u043A ", draft.fields.invoice_number.value, " \u0432\u0456\u0434 ", draft.fields.invoice_date.value, " \xB7 ", draft.fields.total.value, " ", draft.fields.currency.value), draft.exceptions.map(code => /*#__PURE__*/React.createElement("p", {
+    role: "status",
+    key: code
+  }, DOCUMENT_MATCH_ISSUES[code] || 'Потрібна окрема перевірка джерела.')), /*#__PURE__*/React.createElement(SupplierInvoiceRegistrationFacts, {
+    registration: value.supplier_invoice_registration,
+    onDocument: onDocument
+  }));
+}
+function SupplierInvoiceReceipt(props) {
+  const binding = useRef(null),
+    origin = useRef(c03Scope()),
+    selectionKey = JSON.stringify(s2Selection(props.selection === undefined ? props.receipt?.ui_read_selection : props.selection)),
+    scope = c03Scope();
+  // A newly delivered receipt has a new object identity even when replay returns
+  // identical wire fields. This boundary resets all source state in every host.
+  if (!binding.current || binding.current.receipt !== props.receipt || binding.current.selectionKey !== selectionKey) binding.current = {
+    receipt: props.receipt,
+    selectionKey,
+    generation: (binding.current?.generation || 0) + 1
+  };
+  const own = binding.current;
+  if (origin.current !== scope || bosRole() !== 'ceo') return /*#__PURE__*/React.createElement("p", {
+    role: "alert"
+  }, "\u041A\u0432\u0438\u0442\u0430\u043D\u0446\u0456\u044F \u0442\u0430 \u0434\u0436\u0435\u0440\u0435\u043B\u0430 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0434\u043B\u044F \u043F\u043E\u0442\u043E\u0447\u043D\u043E\u0433\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u0443.");
+  return /*#__PURE__*/React.createElement(SupplierInvoiceReceiptRead, _extends({
+    key: own.generation
+  }, props, {
+    receiptCurrent: () => binding.current === own && origin.current === c03Scope()
+  }));
+}
+function SupplierInvoiceReceiptRead({
+  receipt,
+  selection = receipt?.ui_read_selection,
+  data = null,
+  receiptCurrent
+}) {
+  const chosen = s2Selection(selection),
+    initial = chosen?.purchase_id === receipt.purchase_id ? chosen : null,
+    scope = c03Scope(),
+    origin = useRef(scope),
+    alive = useRef(true),
+    sequence = useRef(0),
+    controller = useRef(null);
+  const [denied, setDenied] = useState(false),
+    [error, setError] = useState(''),
+    [busy, setBusy] = useState(false),
+    [opened, setOpened] = useState(!!initial),
+    [dataset, setDataset] = useState(data),
+    [doc, setDoc] = useState(null);
+  const current = () => alive.current && receiptCurrent() && origin.current === c03Scope() && bosRole() === 'ceo';
+  function deny() {
+    sequence.current++;
+    controller.current?.abort();
+    if (alive.current) {
+      setDenied(true);
+      setDataset(null);
+      setOpened(false);
+      setDoc(null);
+      setError('Поточні джерела недоступні для цього доступу.');
+    }
+  }
+  useEffect(() => {
+    alive.current = true;
+    window.addEventListener('bos:session-ended', deny);
+    return () => {
+      alive.current = false;
+      sequence.current++;
+      controller.current?.abort();
+      window.removeEventListener('bos:session-ended', deny);
+    };
+  }, []);
+  async function openPurchase() {
+    if (busy || !current()) return;
+    const ticket = ++sequence.current,
+      revision = window.BOS_RUNTIME?.access_revision,
+      abort = new AbortController();
+    controller.current = abort;
+    const timer = setTimeout(() => abort.abort(), 30000);
+    setBusy(true);
+    setError('');
+    try {
+      const response = await fetch('/api/erp/snapshot/', {
+        cache: 'no-store',
+        signal: abort.signal
+      });
+      if (!current() || ticket !== sequence.current) return;
+      if ([401, 403].includes(response.status) || response.headers.get('X-BoS-Identity') === 'denied' || response.headers.get('X-BoS-Access') && response.headers.get('X-BoS-Access') !== revision) {
+        deny();
+        return;
+      }
+      if (!response.ok) throw Error('source');
+      const fresh = await response.json();
+      if (!current() || ticket !== sequence.current) return;
+      if (!fresh || !['purchases', 'documents', 'partners', 'items'].every(key => Array.isArray(fresh[key])) || !fresh.purchases.some(row => row && row.id === receipt.purchase_id)) throw Error('source');
+      setDataset(fresh);
+      setOpened(true);
+    } catch {
+      if (current() && ticket === sequence.current) setError('Закупівля або її джерела недоступні. Оновіть дані з поточним доступом.');
+    } finally {
+      clearTimeout(timer);
+      if (current() && ticket === sequence.current) setBusy(false);
+      if (controller.current === abort) controller.current = null;
+    }
+  }
+  if (denied || origin.current !== scope || bosRole() !== 'ceo') return /*#__PURE__*/React.createElement("p", {
+    role: "alert"
+  }, "\u041A\u0432\u0438\u0442\u0430\u043D\u0446\u0456\u044F \u0442\u0430 \u0434\u0436\u0435\u0440\u0435\u043B\u0430 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0434\u043B\u044F \u043F\u043E\u0442\u043E\u0447\u043D\u043E\u0433\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u0443.");
+  const readData = dataset || {
+      purchases: [],
+      documents: [],
+      partners: [],
+      items: []
+    },
+    purchase = readData.purchases?.find(row => row.id === receipt.purchase_id) || {
+      id: receipt.purchase_id,
+      code: '№' + receipt.purchase_id
+    };
+  return /*#__PURE__*/React.createElement("section", {
+    "aria-label": "\u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u0440\u0435\u0454\u0441\u0442\u0440\u0430\u0446\u0456\u0457 \u0440\u0430\u0445\u0443\u043D\u043A\u0443 \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043B\u044C\u043D\u0438\u043A\u0430"
+  }, /*#__PURE__*/React.createElement("h3", null, receipt.replayed ? 'Цей рахунок уже зареєстровано' : 'Реєстрацію рахунку підтверджено', " \xB7 \u2116", receipt.supplier_invoice_registration_id), /*#__PURE__*/React.createElement("p", null, "\u0417\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044F \u2116", receipt.purchase_id, ". \u041E\u0442\u0440\u0438\u043C\u0430\u043D\u043E \u043A\u0432\u0438\u0442\u0430\u043D\u0446\u0456\u044E \u0441\u0430\u043C\u0435 \u0446\u044C\u043E\u0433\u043E \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F."), receipt.erp_event_id && /*#__PURE__*/React.createElement("p", null, "\u0417\u0430\u043F\u0438\u0441 \u0436\u0443\u0440\u043D\u0430\u043B\u0443 \u2116", receipt.erp_event_id, "."), /*#__PURE__*/React.createElement("p", null, "\u041A\u0432\u0438\u0442\u0430\u043D\u0446\u0456\u044F \u0444\u0456\u043A\u0441\u0443\u0454 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F. \u041F\u043E\u0442\u043E\u0447\u043D\u0430 \u043F\u0440\u0438\u0434\u0430\u0442\u043D\u0456\u0441\u0442\u044C \u0434\u0436\u0435\u0440\u0435\u043B \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u044F\u0454\u0442\u044C\u0441\u044F \u043E\u043A\u0440\u0435\u043C\u0438\u043C \u0447\u0438\u0442\u0430\u043D\u043D\u044F\u043C \u043D\u0438\u0436\u0447\u0435; \u043F\u043E\u0432\u0442\u043E\u0440 \u043A\u0432\u0438\u0442\u0430\u043D\u0446\u0456\u0457 \u043D\u0435 \u043E\u0437\u043D\u0430\u0447\u0430\u0454 \u0441\u0442\u0432\u043E\u0440\u0435\u043D\u043D\u044F \u043D\u043E\u0432\u043E\u0433\u043E \u0437\u0430\u043F\u0438\u0441\u0443."), /*#__PURE__*/React.createElement(Button, {
+    disabled: busy,
+    onClick: openPurchase
+  }, busy ? 'Перечитуємо закупівлю…' : 'Відкрити закупівлю та джерела'), error && /*#__PURE__*/React.createElement("p", {
+    role: "alert"
+  }, error), opened && /*#__PURE__*/React.createElement(PurchaseDocumentMatch, {
+    key: receipt.supplier_invoice_registration_id + ':' + scope,
+    purchase: purchase,
+    data: readData,
+    onDocument: id => {
+      if (current()) setDoc(id);
+    },
+    readOnly: true,
+    initialSelection: initial,
+    onDenied: deny,
+    readCurrent: current
+  }), doc && /*#__PURE__*/React.createElement(DocViewer, {
+    id: doc,
+    onClose: () => setDoc(null)
+  }));
+}
+
 // Ordinary ERP confirmations retain only IDs in this tab; the server owns identity and replay.
 const ERP_PENDING_PREFIX = 'bos:erp-confirm:';
 function erpPendingToken() {
@@ -13095,6 +13325,7 @@ function erpPendingRemove(binding, id) {
   erpPendingWrite(binding, erpPendingRead(binding).filter(r => r.proposal_id !== id));
 }
 function erpConfirmationReceipt(action, value, payload) {
+  if (action === 'register_supplier_invoice') return value?.state === 'succeeded' && value.action === 'erp_register_supplier_invoice' && Number.isSafeInteger(value.supplier_invoice_registration_id) && value.supplier_invoice_registration_id > 0 && Number.isSafeInteger(value.purchase_id) && value.purchase_id > 0 && value.invoice_matching_status === 'matched' && typeof value.replayed === 'boolean' && (value.replayed || s2PositiveId(value.erp_event_id)) && (!Object.prototype.hasOwnProperty.call(value, 'erp_event_id') || s2PositiveId(value.erp_event_id)) && (!payload || payload.purchase_id === value.purchase_id);
   const fields = {
       location_update: 'location_id',
       order_network: 'order_id',
@@ -13272,8 +13503,30 @@ function ERPActionDialog({
     received = useRef(false),
     invalid = useRef(false),
     binding = useRef(null);
+  const isS2 = action === 'register_supplier_invoice',
+    s2Chosen = s2Selection(values),
+    s2Sequence = useRef(0),
+    [s2Doc, setS2Doc] = useState(null);
+  const s2Context = JSON.stringify(s2Selection(preset)),
+    s2Origin = useRef(s2Context);
+  const s2Read = useERPProjection(isS2 && bosCanAction(action) && !recovery && !received.current ? s2ReadPath(s2Chosen) : null, (value, revision) => documentMatchVerify(value, s2Chosen.purchase_id, s2Chosen.document_id, revision, s2Chosen));
+  useEffect(() => {
+    if (!isS2) return;
+    const changed = () => {
+      s2Sequence.current++;
+      if (alive.current && !sent.current && !received.current) {
+        setProposal(null);
+        setError('Дані змінилися. Оновіть джерела перед новим переглядом.');
+      }
+    };
+    window.addEventListener('bos:data-changed', changed);
+    return () => window.removeEventListener('bos:data-changed', changed);
+  }, [isS2]);
+  useEffect(() => {
+    if (isS2 && (s2Read.state.status === 'denied' || s2Context !== s2Origin.current)) deny();
+  }, [isS2, s2Read.state.status, s2Context]);
   function current() {
-    return alive.current && !invalid.current && origin.current === bosHttpScope() && token.current === erpPendingToken() && bosCanAction(action);
+    return alive.current && !invalid.current && origin.current === bosHttpScope() && token.current === erpPendingToken() && bosCanAction(action) && (!isS2 || s2Context === s2Origin.current);
   }
   function deny() {
     invalid.current = true;
@@ -13284,6 +13537,7 @@ function ERPActionDialog({
       setPending(null);
       setReceipt(null);
       setValues({});
+      setS2Doc(null);
       setError('Сесію або дозвіл змінено. Закрийте діалог і перевірте поточний доступ.');
     }
   }
@@ -13655,31 +13909,55 @@ function ERPActionDialog({
         setError('Спершу перевірте незавершене погодження цієї дії. Новий перегляд не створено.');
         return;
       }
-      const payload = {
-        action: 'erp_' + action
-      };
-      for (const [k,, type = 'text'] of definition[1]) {
-        const v = values[k];
-        if ((action === 'location_update' && ['branch_id', 'lat', 'lng'].includes(k) || action === 'order_network' && k === 'fulfillment_location_id' || action === 'purchase_network' && k === 'destination_id') && (v === '' || v == null)) {
-          payload[k] = null;
-          continue;
+      let payload,
+        s2Fresh = null;
+      const s2Ticket = s2Sequence.current;
+      if (isS2) {
+        s2Fresh = await s2Read.refresh();
+        if (!current()) {
+          deny();
+          return;
         }
-        if (action === 'location_update' && k === 'address') {
-          payload[k] = String(v || '');
-          continue;
+        if (!s2Fresh || s2Ticket !== s2Sequence.current) throw Error('Не отримано поточного зіставлення. Оновіть джерела.');
+        payload = s2IntentFromRead(s2Fresh, s2Chosen);
+      } else {
+        payload = {
+          action: 'erp_' + action
+        };
+        for (const [k,, type = 'text'] of definition[1]) {
+          const v = values[k];
+          if ((action === 'location_update' && ['branch_id', 'lat', 'lng'].includes(k) || action === 'order_network' && k === 'fulfillment_location_id' || action === 'purchase_network' && k === 'destination_id') && (v === '' || v == null)) {
+            payload[k] = null;
+            continue;
+          }
+          if (action === 'location_update' && k === 'address') {
+            payload[k] = String(v || '');
+            continue;
+          }
+          if (['order_network', 'purchase_network'].includes(action) && ['destination_country', 'origin_country'].includes(k)) {
+            payload[k] = String(v || '').trim().toUpperCase();
+            continue;
+          }
+          if (type.endsWith('?') && (v === '' || v == null)) continue;
+          payload[k] = type === 'tags' ? Array.isArray(v) ? v : String(v).split(',').map(x => x.trim()).filter(Boolean) : k.endsWith('_id') || type === 'integer' ? Number(v) : v;
         }
-        if (['order_network', 'purchase_network'].includes(action) && ['destination_country', 'origin_country'].includes(k)) {
-          payload[k] = String(v || '').trim().toUpperCase();
-          continue;
-        }
-        if (type.endsWith('?') && (v === '' || v == null)) continue;
-        payload[k] = type === 'tags' ? Array.isArray(v) ? v : String(v).split(',').map(x => x.trim()).filter(Boolean) : k.endsWith('_id') || type === 'integer' ? Number(v) : v;
       }
-      const r = await request('/api/erp/preview/', payload);
+      const r = await request(action === 'register_supplier_invoice' ? '/api/operations/preview/' : '/api/erp/preview/', payload);
       if (!r) return;
-      if (!r.ok) throw Error(r.body?.error || 'Перевірка не пройдена.');
-      if (typeof r.body?.id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(r.body.id) || r.body.payload?.action !== payload.action || !r.body.effect || !Array.isArray(r.body.impact)) throw Error('Не отримано узгодженого перегляду операції.');
-      setProposal(r.body);
+      if (!r.ok) {
+        if (isS2) {
+          s2Read.invalidate(r.status === 409 ? 'changed' : 'error');
+          setProposal(null);
+          throw Error('Реєстрацію не погоджено. Оновіть і перевірте поточні джерела.');
+        }
+        throw Error(r.body?.error || 'Перевірка не пройдена.');
+      }
+      if (isS2 ? s2Ticket !== s2Sequence.current || !s2ProposalMatches(r.body, payload) : typeof r.body?.id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(r.body.id) || r.body.payload?.action !== payload.action || !r.body.effect || !Array.isArray(r.body.impact)) throw Error('Не отримано узгодженого перегляду операції.');
+      setProposal(isS2 ? {
+        ...r.body,
+        ui_verified_read: s2Fresh,
+        ui_read_generation: s2Ticket
+      } : r.body);
     } catch (e) {
       if (alive.current) {
         if (!current()) deny();else setError(e.message);
@@ -13689,8 +13967,16 @@ function ERPActionDialog({
       if (alive.current) setBusy(false);
     }
   }
+  function s2ConfirmCurrent() {
+    if (!isS2 || pending) return true;
+    if (proposal?.ui_read_generation === s2Sequence.current && Date.parse(proposal.expires_at) > Date.now()) return true;
+    setProposal(null);
+    s2Read.invalidate('changed');
+    setError('Джерела або строк погодження змінилися. Оновіть джерела перед новим переглядом.');
+    return false;
+  }
   async function confirmAction() {
-    if (lock.current || received.current || !pending && !proposal?.id) return;
+    if (lock.current || received.current || !pending && !proposal?.id || !s2ConfirmCurrent()) return;
     if (!current()) {
       deny();
       return;
@@ -13707,6 +13993,7 @@ function ERPActionDialog({
         return;
       }
       binding.current = key;
+      if (!s2ConfirmCurrent()) return;
       const entry = pending || {
         proposal_id: proposal.id,
         action
@@ -13751,7 +14038,9 @@ function ERPActionDialog({
         setError('Операцію виконано. Не вдалося прибрати ідентифікатор зі списку вкладки; його повтор не створить новий запис.');
       }
       try {
-        await onDone?.(r.body);
+        await onDone?.(r.body, isS2 ? {
+          selection: s2Chosen
+        } : null);
       } catch {
         if (current()) setError('Операцію виконано, але пов’язаний екран не оновився. Оновіть дані; повторювати дію не потрібно.');
       }
@@ -13776,6 +14065,20 @@ function ERPActionDialog({
   }, /*#__PURE__*/React.createElement("h2", null, "\u041F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0435"), /*#__PURE__*/React.createElement("p", {
     role: "alert"
   }, "\u0421\u0435\u0441\u0456\u044E \u0430\u0431\u043E \u0434\u043E\u0437\u0432\u0456\u043B \u0437\u043C\u0456\u043D\u0435\u043D\u043E. \u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0442\u0435 \u043F\u043E\u0442\u043E\u0447\u043D\u0438\u0439 \u0434\u043E\u0441\u0442\u0443\u043F."), /*#__PURE__*/React.createElement(Button, {
+    onClick: close
+  }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438"));
+  if (receipt && isS2) return /*#__PURE__*/React.createElement("dialog", {
+    ref: ref,
+    className: "bos-dialog erp-dialog",
+    onClose: onClose
+  }, /*#__PURE__*/React.createElement(SupplierInvoiceReceipt, {
+    receipt: receipt,
+    selection: s2Chosen,
+    data: data
+  }), error && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, error), /*#__PURE__*/React.createElement(Button, {
     onClick: close
   }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438"));
   if (receipt) return /*#__PURE__*/React.createElement("dialog", {
@@ -13814,6 +14117,66 @@ function ERPActionDialog({
     disabled: busy,
     onClick: confirmAction
   }, busy ? 'Чекаємо квитанцію…' : 'Повторити це саме погодження')));
+  if (isS2) return /*#__PURE__*/React.createElement("dialog", {
+    ref: ref,
+    className: "bos-dialog erp-dialog",
+    onClose: onClose,
+    onCancel: event => {
+      if (busy) event.preventDefault();
+    }
+  }, /*#__PURE__*/React.createElement("h2", null, definition[0]), /*#__PURE__*/React.createElement("p", null, "\u0417\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043D\u044F \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u0435\u043D\u043E\u0433\u043E \u0440\u0430\u0445\u0443\u043D\u043A\u0443 \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043B\u044C\u043D\u0438\u043A\u0430 \u0434\u043B\u044F \u0432\u0438\u0431\u0440\u0430\u043D\u043E\u0457 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456. \u0426\u0435 \u043D\u0435 \u0437\u0430\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043D\u044F \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430, \u043D\u0435 \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F \u0442\u043E\u0432\u0430\u0440\u0443, \u043D\u0435 \u043E\u043F\u043B\u0430\u0442\u0430 \u0456 \u043D\u0435 \u0431\u0443\u0445\u0433\u0430\u043B\u0442\u0435\u0440\u0441\u044C\u043A\u0430 \u043F\u0440\u043E\u0432\u043E\u0434\u043A\u0430."), !proposal ? /*#__PURE__*/React.createElement("form", {
+    onSubmit: preview
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "erp-form"
+  }, definition[1].map(([key, label, type]) => /*#__PURE__*/React.createElement("label", {
+    key: key
+  }, label, /*#__PURE__*/React.createElement(Input, {
+    readOnly: true,
+    value: key === 'source_sha256' ? s2Read.state.data?.draft.source?.sha256 || 'Ще не перевірено' : s2Chosen?.[key] ?? 'Не обрано'
+  })))), /*#__PURE__*/React.createElement(FlowReadStatus, {
+    state: s2Read.state
+  }), /*#__PURE__*/React.createElement(SupplierInvoiceReadSummary, {
+    value: s2Read.state.data,
+    onDocument: setS2Doc
+  }), !s2Chosen && /*#__PURE__*/React.createElement("p", {
+    role: "alert"
+  }, "\u041F\u043E\u0432\u0435\u0440\u043D\u0456\u0442\u044C\u0441\u044F \u0434\u043E \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456 \u0442\u0430 \u044F\u0432\u043D\u043E \u043E\u0431\u0435\u0440\u0456\u0442\u044C \u0443\u0441\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430."), error && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, error), /*#__PURE__*/React.createElement("div", {
+    className: "actions"
+  }, /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    disabled: busy,
+    onClick: close
+  }, "\u0421\u043A\u0430\u0441\u0443\u0432\u0430\u0442\u0438"), /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    disabled: busy || !s2Chosen || s2Read.state.status === 'loading',
+    onClick: () => s2Read.refresh()
+  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438 \u0434\u0436\u0435\u0440\u0435\u043B\u0430"), /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    disabled: busy || s2Read.state.status !== 'ready' || !s2CanRegister(s2Read.state.data, s2Chosen)
+  }, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0438\u0442\u0438 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u044E"))) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "erp-confirm"
+  }, /*#__PURE__*/React.createElement("h3", null, "\u041D\u0430\u043C\u0456\u0440 \u0440\u0435\u0454\u0441\u0442\u0440\u0430\u0446\u0456\u0457 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u0435\u043D\u043E"), /*#__PURE__*/React.createElement(SupplierInvoiceReadSummary, {
+    value: proposal.ui_verified_read,
+    onDocument: setS2Doc
+  }), /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442 \u2116", proposal.payload.document_id, "; \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044F \u2116", proposal.payload.purchase_id, "; \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043B\u044C\u043D\u0438\u043A \u2116", proposal.payload.supplier_id, "; \u043D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0430 \u2116", proposal.payload.item_id, "."), /*#__PURE__*/React.createElement("p", null, "SHA-256: ", proposal.payload.source_sha256), /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F ", proposal.id, "; \u0447\u0438\u043D\u043D\u0435 \u0434\u043E ", proposal.expires_at, "."), /*#__PURE__*/React.createElement("p", null, "\u0411\u0443\u0434\u0435 \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043E \u0440\u0435\u0454\u0441\u0442\u0440\u0430\u0446\u0456\u044E \u0430\u0431\u043E \u043F\u043E\u0432\u0435\u0440\u043D\u0443\u0442\u043E \u043A\u0432\u0438\u0442\u0430\u043D\u0446\u0456\u044E \u0442\u043E\u0433\u043E \u0441\u0430\u043C\u043E\u0433\u043E \u0432\u0436\u0435 \u0437\u0430\u0440\u0435\u0454\u0441\u0442\u0440\u043E\u0432\u0430\u043D\u043E\u0433\u043E \u0440\u0430\u0445\u0443\u043D\u043A\u0443. \u0414\u0436\u0435\u0440\u0435\u043B\u0430 \u0439 \u043F\u0440\u0430\u0432\u0430 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u044F\u044E\u0442\u044C\u0441\u044F \u0441\u0435\u0440\u0432\u0435\u0440\u043E\u043C \u043F\u043E\u0432\u0442\u043E\u0440\u043D\u043E.")), error && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, error), /*#__PURE__*/React.createElement("div", {
+    className: "actions"
+  }, /*#__PURE__*/React.createElement(Button, {
+    disabled: busy,
+    onClick: () => setProposal(null)
+  }, "\u041D\u0430\u0437\u0430\u0434"), /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    disabled: busy,
+    onClick: confirmAction
+  }, "\u041F\u043E\u0433\u043E\u0434\u0438\u0442\u0438 \u0440\u0435\u0454\u0441\u0442\u0440\u0430\u0446\u0456\u044E"))), s2Doc && /*#__PURE__*/React.createElement(DocViewer, {
+    id: s2Doc,
+    onClose: () => setS2Doc(null)
+  }));
   return /*#__PURE__*/React.createElement("dialog", {
     ref: ref,
     className: "bos-dialog erp-dialog",
@@ -16794,9 +17157,12 @@ function ERPWorkspace({
   }, error), notice && /*#__PURE__*/React.createElement("p", {
     className: "erp-notice",
     role: "status"
-  }, notice), lastReceipt && /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u0424\u0430\u043A\u0442\u0438\u0447\u043D\u0438\u0439 \u0432\u043F\u043B\u0438\u0432 \u043E\u0441\u0442\u0430\u043D\u043D\u044C\u043E\u0457 \u0434\u0456\u0457"), /*#__PURE__*/React.createElement(ImpactTable, {
+  }, notice), lastReceipt && /*#__PURE__*/React.createElement(Card, null, lastReceipt.action === 'erp_register_supplier_invoice' ? /*#__PURE__*/React.createElement(SupplierInvoiceReceipt, {
+    receipt: lastReceipt,
+    data: data
+  }) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h3", null, "\u0424\u0430\u043A\u0442\u0438\u0447\u043D\u0438\u0439 \u0432\u043F\u043B\u0438\u0432 \u043E\u0441\u0442\u0430\u043D\u043D\u044C\u043E\u0457 \u0434\u0456\u0457"), /*#__PURE__*/React.createElement(ImpactTable, {
     changes: lastReceipt.impact
-  }), /*#__PURE__*/React.createElement(Button, {
+  })), /*#__PURE__*/React.createElement(Button, {
     onClick: () => setLastReceipt(null)
   }, "\u041F\u0440\u0438\u0445\u043E\u0432\u0430\u0442\u0438")), content, /*#__PURE__*/React.createElement(B03Ledger, {
     view: view,
@@ -16830,9 +17196,9 @@ function ERPWorkspace({
     recovery: action.recovery,
     data: data,
     onClose: () => setAction(null),
-    onDone: r => {
-      setLastReceipt(r);
-      setNotice('Операцію збережено. Запис журналу №' + r.erp_event_id + (r.note ? ' · ' + r.note : ''));
+    onDone: (r, context) => {
+      setLastReceipt(s2ReceiptContext(r, context));
+      setNotice(r.action === 'erp_register_supplier_invoice' ? 'Квитанцію реєстрації отримано; поточні джерела перечитуються окремо.' : 'Операцію збережено. Запис журналу №' + r.erp_event_id + (r.note ? ' · ' + r.note : ''));
       refresh();
       refetchTasks?.();
     }
@@ -17280,7 +17646,7 @@ function flowVerify(value, schema, id, revision, target = null) {
   }
   return value;
 }
-function useERPProjection(path, verify) {
+function useERPProjection(path, verify, ownerCurrent = null) {
   const context = (path || '') + ':' + c03Scope(),
     [state, setState] = useState({
       context,
@@ -17309,7 +17675,7 @@ function useERPProjection(path, verify) {
     const ticket = sequence.current,
       origin = context,
       revision = window.BOS_RUNTIME?.access_revision;
-    if (!path) {
+    if (!path || ownerCurrent && !ownerCurrent()) {
       setState({
         context,
         status: 'idle',
@@ -17324,7 +17690,7 @@ function useERPProjection(path, verify) {
     const abort = new AbortController();
     controller.current = abort;
     const timer = setTimeout(() => abort.abort(), 30000);
-    const valid = () => ticket === sequence.current && current.current === origin && path + ':' + c03Scope() === origin;
+    const valid = () => ticket === sequence.current && current.current === origin && path + ':' + c03Scope() === origin && (!ownerCurrent || ownerCurrent());
     setState({
       context,
       status: 'loading',
@@ -17336,7 +17702,7 @@ function useERPProjection(path, verify) {
         signal: abort.signal
       });
       if (!valid()) return;
-      if ([401, 403, 404].includes(response.status)) {
+      if ([401, 403, 404].includes(response.status) || response.headers.get('X-BoS-Identity') === 'denied') {
         invalidate('denied');
         return;
       }
@@ -17352,11 +17718,14 @@ function useERPProjection(path, verify) {
         invalidate('denied');
         return;
       }
+      const verified = verify(payload, revision);
       setState({
         context,
         status: 'ready',
-        data: verify(payload, revision)
+        data: verified,
+        readTicket: ticket
       });
+      return verified;
     } catch (e) {
       if (valid()) setState({
         context,
@@ -17386,7 +17755,9 @@ function useERPProjection(path, verify) {
       status: 'idle',
       data: null
     },
-    refresh
+    refresh,
+    invalidate,
+    isCurrent: () => state.status === 'ready' && state.context === context && state.readTicket === sequence.current && current.current === context && path + ':' + c03Scope() === context && (!ownerCurrent || ownerCurrent())
   };
 }
 function FlowReadStatus({
@@ -17743,11 +18114,23 @@ const DOCUMENT_MATCH_ISSUES = {
 };
 const DOCUMENT_MATCH_FIELDS = [['supplier_edrpou', 'Код постачальника'], ['invoice_number', 'Номер рахунку'], ['invoice_date', 'Дата рахунку'], ['currency', 'Валюта'], ['tax_basis', 'Податкова основа'], ['total', 'Сума рахунку']];
 const DOCUMENT_MATCH_LINE = [['item_code', 'Код номенклатури'], ['revision', 'Версія'], ['unit', 'Одиниця'], ['quantity', 'Кількість'], ['unit_price', 'Ціна одиниці'], ['line_total', 'Сума рядка']];
-function documentMatchVerify(value, purchaseId, documentId, revision) {
+function documentMatchVerify(value, purchaseId, documentId, revision, selection = null) {
   const draft = value?.draft,
     pk = n => Number.isSafeInteger(n) && n > 0;
   if (bosRole() !== 'ceo' || value?.schema !== 'bos.document-match-read.v1' || value.purchase_id !== purchaseId || value.document_id !== documentId || value.access_revision !== revision || typeof value.generated_at !== 'string' || draft?.schema !== 'bos.document-match.v1' || draft.provider !== 'mock.synthetic-invoice.v1' || draft.operation_proposal !== null || !Array.isArray(draft.exceptions) || !['accept_draft', 'needs_information', 'reject_draft'].includes(draft.decision)) throw Error('document_match_context');
   if (draft.source !== null && (draft.source?.document_id !== documentId || typeof draft.source?.sha256 !== 'string' || !/^[a-f0-9]{64}$/.test(draft.source.sha256))) throw Error('document_match_source');
+  const registration = value.supplier_invoice_registration;
+  if (!registration || !['unregistered', 'matched', 'requires_revalidation'].includes(registration.status) || !Array.isArray(registration.items) || registration.items.length > 1 || registration.status === 'unregistered' !== (registration.items.length === 0)) throw Error('document_match_registration');
+  const ids = rows => Array.isArray(rows) && rows.every(pk) && new Set(rows).size === rows.length;
+  for (const row of registration.items) {
+    const date = typeof row?.invoice_date === 'string' ? Date.parse(row.invoice_date + 'T00:00:00Z') : NaN;
+    if (!row || !['id', 'supplier_id', 'purchase_id', 'document_id'].every(key => pk(row[key])) || row.purchase_id !== purchaseId || !['registered', 'requires_revalidation'].includes(row.status) || registration.status === 'matched' !== (row.status === 'registered') || typeof row.invoice_number !== 'string' || !row.invoice_number.trim() || row.invoice_number.length > 4000 || !/^\d{4}-\d{2}-\d{2}$/.test(row.invoice_date) || !Number.isFinite(date) || new Date(date).toISOString().slice(0, 10) !== row.invoice_date || typeof row.amount !== 'string' || !/^(?:0|[1-9]\d{0,12})\.\d{2}$/.test(row.amount) || !['UAH', 'EUR', 'USD'].includes(row.currency) || !ids(row.receipt_ids) || !ids(row.return_ids)) throw Error('document_match_registration_row');
+  }
+  if (draft.matches !== null) {
+    const m = draft.matches;
+    if (!m || !ids(m.receipt_ids) || !ids(m.supplier_candidate_ids) || !ids(m.item_candidate_ids) || !['supplier_id', 'item_id', 'purchase_id'].every(key => m[key] === null || pk(m[key])) || m.purchase_id !== null && m.purchase_id !== purchaseId) throw Error('document_match_matches');
+  }
+  if (selection && draft.decision === 'accept_draft' && (!draft.matches || draft.matches.purchase_id !== selection.purchase_id || draft.matches.supplier_id !== selection.supplier_id || draft.matches.item_id !== selection.item_id)) throw Error('document_match_selection');
   if (draft.fields !== null) {
     if (!draft.source || !Array.isArray(draft.fields.lines) || draft.fields.lines.length !== 1) throw Error('document_match_fields');
     for (const claim of [...DOCUMENT_MATCH_FIELDS.map(([key]) => draft.fields[key]), ...DOCUMENT_MATCH_LINE.map(([key]) => draft.fields.lines[0][key])]) {
@@ -17760,21 +18143,41 @@ function documentMatchVerify(value, purchaseId, documentId, revision) {
 function PurchaseDocumentMatch({
   purchase,
   data,
-  onDocument
+  onDocument,
+  onAction,
+  readOnly = false,
+  initialSelection = null,
+  onDenied,
+  readCurrent = null
 }) {
-  const [selection, setSelection] = useState({
+  const initial = s2Selection(initialSelection),
+    seed = initial?.purchase_id === purchase.id ? {
+      document_id: String(initial.document_id),
+      supplier_id: String(initial.supplier_id),
+      item_id: String(initial.item_id)
+    } : null;
+  const [selection, setSelection] = useState(seed || {
       document_id: '',
       supplier_id: '',
       item_id: ''
     }),
-    [submitted, setSubmitted] = useState(null);
+    [submitted, setSubmitted] = useState(seed);
   const path = submitted ? 'purchases/' + purchase.id + '/document-match/?' + Object.entries(submitted).filter(([, value]) => value !== '').map(([key, value]) => key + '=' + encodeURIComponent(value)).join('&') : null;
-  const {
+  const explicit = s2Selection({
+      purchase_id: purchase.id,
+      ...submitted
+    }),
+    projection = useERPProjection(path, (value, revision) => documentMatchVerify(value, purchase.id, Number(submitted.document_id), revision, explicit), readCurrent),
+    {
       state,
       refresh
-    } = useERPProjection(path, (value, revision) => documentMatchVerify(value, purchase.id, Number(submitted.document_id), revision)),
+    } = projection,
     draft = state.data?.draft;
+  useEffect(() => {
+    if (state.status === 'denied') onDenied?.();
+  }, [state.status]);
   function change(key, value) {
+    projection.invalidate('idle');
     setSubmitted(null);
     setSelection(old => ({
       ...old,
@@ -17801,6 +18204,18 @@ function PurchaseDocumentMatch({
   }, /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, label, ":"), " ", value.value), /*#__PURE__*/React.createElement("details", null, /*#__PURE__*/React.createElement("summary", null, "\u0414\u0436\u0435\u0440\u0435\u043B\u043E \u043F\u043E\u043B\u044F \xAB", label, "\xBB"), /*#__PURE__*/React.createElement("p", null, value.evidence.source, " \xB7 \u0444\u0440\u0430\u0433\u043C\u0435\u043D\u0442 ", value.evidence.start, "\u2013", value.evidence.end), /*#__PURE__*/React.createElement("blockquote", null, value.evidence.quote), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
   }, "SHA-256: ", value.evidence.source_sha256)));
+  const canRegister = !readOnly && bosCanAction('register_supplier_invoice') && state.status === 'ready' && projection.isCurrent() && s2CanRegister(state.data, explicit);
+  const register = () => {
+    if (readOnly || !bosCanAction('register_supplier_invoice') || !projection.isCurrent()) return;
+    try {
+      const intent = s2IntentFromRead(state.data, explicit);
+      const {
+        action,
+        ...preset
+      } = intent;
+      onAction?.('register_supplier_invoice', preset);
+    } catch {/* Fresh read is required; no stale intent is handed off. */}
+  };
   return /*#__PURE__*/React.createElement("section", {
     className: "bos-order-trace bos-readable-facts",
     "aria-label": "\u0417\u0456\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u043D\u044F \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456"
@@ -17830,7 +18245,13 @@ function PurchaseDocumentMatch({
     key: code,
     role: "status",
     className: "bos-readable-facts__issue"
-  }, DOCUMENT_MATCH_ISSUES[code] || 'Потрібна ручна перевірка джерел: ' + code)), draft.source && /*#__PURE__*/React.createElement("p", null, draft.source.code, " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", draft.source.revision, " \xB7 ", /*#__PURE__*/React.createElement(Button, {
+  }, DOCUMENT_MATCH_ISSUES[code] || 'Потрібна ручна перевірка джерел: ' + code)), /*#__PURE__*/React.createElement(SupplierInvoiceRegistrationFacts, {
+    registration: state.data.supplier_invoice_registration,
+    onDocument: onDocument
+  }), canRegister && /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    onClick: register
+  }, state.data.supplier_invoice_registration.status === 'matched' ? 'Перевірити цей самий зареєстрований рахунок' : 'Зареєструвати рахунок постачальника'), draft.source && /*#__PURE__*/React.createElement("p", null, draft.source.code, " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", draft.source.revision, " \xB7 ", /*#__PURE__*/React.createElement(Button, {
     onClick: () => onDocument(draft.source.document_id)
   }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u043E\u0440\u0438\u0433\u0456\u043D\u0430\u043B \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430"))), /*#__PURE__*/React.createElement("div", {
     className: "bos-readable-facts__sources"
@@ -18112,7 +18533,9 @@ function BoSInspector({
         key: id + ':' + c03Scope(),
         purchase: r,
         data: data,
-        onDocument: setDoc
+        onDocument: setDoc,
+        onAction: onAction,
+        readOnly: readOnly
       }), acts([['receive', {
         purchase_id: id,
         quantity: b03OpenPurchase(r),
@@ -18617,23 +19040,26 @@ function WorkpointsPanel({
       setAction(null);
       if (action.scope === bosHttpScope() && action.opener?.isConnected && !action.opener.disabled) action.opener.focus();
     },
-    onDone: async r => {
+    onDone: async (r, context) => {
       const scope = bosHttpScope();
       setAction(null);
       await refresh();
       if (alive.current && scope === bosHttpScope()) {
         setReceipt({
           scope,
-          value: r
+          value: s2ReceiptContext(r, context)
         });
         refetchTasks?.();
       }
     }
-  }), receipt && receipt.scope === bosHttpScope() && /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043E\u0457 \u0434\u0456\u0457"), /*#__PURE__*/React.createElement("p", {
+  }), receipt && receipt.scope === bosHttpScope() && /*#__PURE__*/React.createElement(Card, null, receipt.value.action === 'erp_register_supplier_invoice' ? /*#__PURE__*/React.createElement(SupplierInvoiceReceipt, {
+    receipt: receipt.value,
+    data: data
+  }) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h3", null, "\u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043E\u0457 \u0434\u0456\u0457"), /*#__PURE__*/React.createElement("p", {
     role: "status"
   }, "\u041E\u043F\u0435\u0440\u0430\u0446\u0456\u044E \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043E. \u0414\u0430\u043D\u0456 \u0442\u043E\u0447\u043A\u0438 \u0432\u0438\u0449\u0435 \u043F\u043E\u043A\u0430\u0437\u0443\u044E\u0442\u044C\u0441\u044F \u043B\u0438\u0448\u0435 \u043F\u0456\u0441\u043B\u044F \u0443\u0441\u043F\u0456\u0448\u043D\u043E\u0433\u043E \u043F\u043E\u0432\u0442\u043E\u0440\u043D\u043E\u0433\u043E \u0447\u0438\u0442\u0430\u043D\u043D\u044F."), /*#__PURE__*/React.createElement(ImpactTable, {
     changes: receipt.value.impact
-  })));
+  }))));
 }
 function BoSHome({
   onNavigate,
@@ -18719,13 +19145,14 @@ function BoSHome({
   }, "\u042F\u043A \u043F\u0440\u0430\u0446\u044E\u0454 BoS"))), error && /*#__PURE__*/React.createElement("p", {
     role: "alert",
     className: "erp-error"
-  }, error), receipt && /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("div", {
-    className: "erp-row"
-  }, /*#__PURE__*/React.createElement("h3", null, "\u041E\u043F\u0435\u0440\u0430\u0446\u0456\u044E \u0432\u0438\u043A\u043E\u043D\u0430\u043D\u043E \xB7 \u0432\u043F\u043B\u0438\u0432 \u043D\u0430 \u0437\u0430\u043F\u0438\u0441\u0438"), /*#__PURE__*/React.createElement(Button, {
+  }, error), receipt && /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement(Button, {
     onClick: () => setReceipt(null)
-  }, "\u041F\u0440\u0438\u0445\u043E\u0432\u0430\u0442\u0438")), /*#__PURE__*/React.createElement(ImpactTable, {
+  }, "\u041F\u0440\u0438\u0445\u043E\u0432\u0430\u0442\u0438"), receipt.action === 'erp_register_supplier_invoice' ? /*#__PURE__*/React.createElement(SupplierInvoiceReceipt, {
+    receipt: receipt,
+    data: data
+  }) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h3", null, "\u041E\u043F\u0435\u0440\u0430\u0446\u0456\u044E \u0432\u0438\u043A\u043E\u043D\u0430\u043D\u043E \xB7 \u0432\u043F\u043B\u0438\u0432 \u043D\u0430 \u0437\u0430\u043F\u0438\u0441\u0438"), /*#__PURE__*/React.createElement(ImpactTable, {
     changes: receipt.impact
-  })), /*#__PURE__*/React.createElement(WorkpointsPanel, {
+  }))), /*#__PURE__*/React.createElement(WorkpointsPanel, {
     onNavigate: onNavigate,
     refetchTasks: refetchTasks
   }), /*#__PURE__*/React.createElement(HttpObservations, null), /*#__PURE__*/React.createElement("h2", null, "\u041E\u0433\u043B\u044F\u0434 \u0443\u0441\u0456\u0445 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u043A\u043E\u043C\u043F\u0430\u043D\u0456\u0457"), !focus && financial && /*#__PURE__*/React.createElement("div", {
@@ -18838,8 +19265,8 @@ function BoSHome({
     recovery: action.recovery,
     data: data,
     onClose: () => setAction(null),
-    onDone: r => {
-      setReceipt(r);
+    onDone: (r, context) => {
+      setReceipt(s2ReceiptContext(r, context));
       refresh();
       refetchTasks?.();
     }
