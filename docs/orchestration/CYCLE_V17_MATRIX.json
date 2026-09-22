@@ -1,0 +1,1462 @@
+{
+  "schema": "bos.v17.closeout.matrix.v1",
+  "generated_utc": "2026-09-21T21:37:47.276476+00:00",
+  "source": {
+    "product_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+    "runtime_sha256": "77e8ca05b58efc99d47ce8dd2887074b3c93ba6eaff863a24307ae0e89dc622a",
+    "app_js_sha256": "4b2918a018cf2499a4aa2ea8ca598c7abfd17fd74379ab4236250723a5390263",
+    "runtime_files": 426,
+    "local_branch": "codex/network-composition-20260920",
+    "remote_branch": "setup/bos-gpt-orchestration-20260920",
+    "pr": "https://github.com/vladduk-A-W-F/BOS/pull/1",
+    "documentation_commit": "The Git commit containing these documents; exact pushed full SHA is recorded in the external final delivery receipt.",
+    "main_merge": false
+  },
+  "phase": "FREEZE_FOR_OWNER_REVIEW",
+  "scope": "Current cycle manual review; not final project acceptance",
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "MVP": false,
+  "membership_ui3_overall": "FAIL",
+  "private_v5": "STATIC_ACCEPT_ONLY_NOT_APPLIED_BEHAVIOR_NOT_RUN",
+  "s2_acceptance": "Scoped backend/control/service evidence only; no full current UI/runtime product acceptance.",
+  "counts": {
+    "READY_SCOPED": 24,
+    "PARTIAL": 6,
+    "BLOCKED": 4,
+    "NOT_STARTED": 1
+  },
+  "cards": [
+    {
+      "id": "P10-003",
+      "title": "P06-F02: backend-aware isolation guard",
+      "owner": "bos_test_ci",
+      "historical_status": "ACCEPT_SCOPED",
+      "closeout_status": "READY_SCOPED",
+      "completed": "Исправлен backend-aware guard изоляции InitialImportFixture; исторический scoped SQLite/PG16 PASS.",
+      "remaining": "Полный актуальный P06 не принят; исходную БД не использовать как тестовую.",
+      "historical_evidence": "docs/orchestration/BATCH_01_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/BATCH_01_UA.md",
+        "sha256": "cd656d2bd7dcf63770e167f08fd73c10660a264c5186367e226f8d7a61cc0b9c",
+        "bytes": 9585
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "PLAN-N1",
+      "title": "Звірити max_length та валідацію фактичних входів",
+      "owner": "bos_diagnostician",
+      "historical_status": "ACCEPT_SCOPED_REQUEST_SHIP",
+      "closeout_status": "PARTIAL",
+      "completed": "Проверены и исправлены входы REQUEST/SHIP относительно max_length.",
+      "remaining": "Остальные фактические входы требуют отдельного завершения карты валидации.",
+      "historical_evidence": "docs/orchestration/BATCH_01_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/BATCH_01_UA.md",
+        "sha256": "cd656d2bd7dcf63770e167f08fd73c10660a264c5186367e226f8d7a61cc0b9c",
+        "bytes": 9585
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "PLAN-F03",
+      "title": "Валідні invoice-коди у concurrency fixtures",
+      "owner": "bos_test_ci",
+      "historical_status": "ACCEPT_SCOPED",
+      "closeout_status": "READY_SCOPED",
+      "completed": "В concurrency fixtures разделены валидные invoice-коды и негативные проверки длины.",
+      "remaining": "Полная конкурентная проверка всех денежных и складских действий остаётся открыта.",
+      "historical_evidence": "docs/orchestration/BATCH_01_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/BATCH_01_UA.md",
+        "sha256": "cd656d2bd7dcf63770e167f08fd73c10660a264c5186367e226f8d7a61cc0b9c",
+        "bytes": 9585
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "PLAN-F06",
+      "title": "Повнота E2E evidence та SHA-індекс",
+      "owner": "bos_test_ci",
+      "historical_status": "ACCEPT_SCOPED_UNIT_ONLY",
+      "closeout_status": "READY_SCOPED",
+      "completed": "Completeness check и SHA-индекс E2E artifacts приняты на unit-проверках.",
+      "remaining": "Полный E2E с новым источником и полным архивом не выполнен.",
+      "historical_evidence": "docs/orchestration/BATCH_01_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/BATCH_01_UA.md",
+        "sha256": "cd656d2bd7dcf63770e167f08fd73c10660a264c5186367e226f8d7a61cc0b9c",
+        "bytes": 9585
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "PLAN-TIME",
+      "title": "Причини тайм-аутів P06-F04/F05",
+      "owner": "bos_diagnostician",
+      "historical_status": "BOUNDED_DIAGNOSTICS_COMPLETE_CAUSES_OPEN",
+      "closeout_status": "BLOCKED",
+      "completed": "Ограниченная диагностика F04/F05 выполнена, исходные receipts сохранены.",
+      "remaining": "Причина тайм-аутов не доказана; runtime fix не применён. Исчерпанные suites не повторять автоматически.",
+      "historical_evidence": "docs/orchestration/PLAN_TIME_RESULTS_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/PLAN_TIME_RESULTS_UA.md",
+        "sha256": "874229cb72c239b4a27b08b615e6612792311a922a74d48e3c967247c4a31a5e",
+        "bytes": 8641
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "PLAN-N2",
+      "title": "Замір fingerprint та ADR конкурентності",
+      "owner": "bos_diagnostician",
+      "historical_status": "FIRST_ACTION_IMPLEMENTED_SCOPED",
+      "closeout_status": "PARTIAL",
+      "completed": "Измерен глобальный fingerprint; адресная зависимость реализована для erp_adjust.",
+      "remaining": "Остальные действия сохраняют global fallback; механизм не считается повсеместно внедрённым.",
+      "historical_evidence": "docs/orchestration/BATCH_02_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/BATCH_02_UA.md",
+        "sha256": "6d8f28ed5d36e7f09ec003c7c3336e1eb0360821016a636ccc7bfffc644aacc9",
+        "bytes": 4609
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "PLAN-SOURCE",
+      "title": "P04-F01: міжплатформний source SHA",
+      "owner": "bos_test_ci",
+      "historical_status": "ACCEPT_SCOPED_NATIVE_WINDOWS_RUNTIME_SHA",
+      "closeout_status": "READY_SCOPED",
+      "completed": "Межплатформный runtime digest и native Windows proof приняты в указанном scope.",
+      "remaining": "Не заменяет полную проверку чистой Windows-установки.",
+      "historical_evidence": "docs/orchestration/WINDOWS_SOURCE_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/WINDOWS_SOURCE_UA.md",
+        "sha256": "968daadc01550674b70a6577b1b850b17f6bff01319a79ebc933fed802502385",
+        "bytes": 5967
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "PLAN-LINKS",
+      "title": "Gap-map моделі пов’язаних процесів",
+      "owner": "bos_architect",
+      "historical_status": "NETWORK_COMPOSITION_ACCEPTED_SCOPED_OTHER_LINKAGE_GAPS_OPEN",
+      "closeout_status": "PARTIAL",
+      "completed": "Сетевая композиция, trace, S2 registration и связанная synthetic service-цепочка приняты в ограниченном scope.",
+      "remaining": "Остаются общий браузерный маршрут, другие роли, завершение Task с результатом и отдельный restart/reopen.",
+      "historical_evidence": "docs/orchestration/NETWORK_COMPOSITION_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/NETWORK_COMPOSITION_UA.md",
+        "sha256": "b3e943e449f7fb47d019f9d200c1a57a33c4864a84f45d1e25f3f5fc1e89105a",
+        "bytes": 12820
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "PLAN-UX",
+      "title": "Сценарії, комунікація та джерела показників",
+      "owner": "bos_ux",
+      "historical_status": "ACCEPT_SCOPED_NINE_CONTEXTS_ACROSS_ACTUAL5_AND6_OTHER_UX_GAPS_OPEN",
+      "closeout_status": "PARTIAL",
+      "completed": "Ранее приняты девять UI-контекстов; добавлены links, compact menu, manual KPI и department settings с controlled JSX checks.",
+      "remaining": "Общий текущий UXD-01–08, размеры, native 200%, роли и 28 наблюдений не приняты полностью.",
+      "historical_evidence": "docs/orchestration/NETWORK_COMPOSITION_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/NETWORK_COMPOSITION_UA.md",
+        "sha256": "b3e943e449f7fb47d019f9d200c1a57a33c4864a84f45d1e25f3f5fc1e89105a",
+        "bytes": 12820
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "PLAN-GPT",
+      "title": "Специфікація GPT adapter та рольових evals",
+      "owner": "bos_architect",
+      "historical_status": "CONTRACT_PREPARED_API_OFF",
+      "closeout_status": "PARTIAL",
+      "completed": "Подготовлен контракт adapter/рольовых evals; продуктовый API выключен.",
+      "remaining": "Нужны разрешённые поля, модель, бюджет и реализация с проверкой прав; не запускать до новых указаний.",
+      "historical_evidence": "docs/orchestration/BATCH_01_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/BATCH_01_UA.md",
+        "sha256": "cd656d2bd7dcf63770e167f08fd73c10660a264c5186367e226f8d7a61cc0b9c",
+        "bytes": 9585
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "PLAN-ACCEPT",
+      "title": "Повне технічне приймання P19/P20",
+      "owner": "bos_readiness_auditor",
+      "historical_status": "BLOCKED_HISTORICAL_LIMITS_AND_PRODUCT_GAPS",
+      "closeout_status": "BLOCKED",
+      "completed": "Собраны scoped evidence и незакрытые условия всех 11 gates.",
+      "remaining": "Полное техническое принятие отсутствует; P05/A09/A10 и старые A11 границы сохраняются.",
+      "historical_evidence": "docs/orchestration/BATCH_01_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/BATCH_01_UA.md",
+        "sha256": "cd656d2bd7dcf63770e167f08fd73c10660a264c5186367e226f8d7a61cc0b9c",
+        "bytes": 9585
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "PLAN-PILOT",
+      "title": "Паспорт пілота та умови P22–P24",
+      "owner": "bos_pilot_pack",
+      "historical_status": "PASSPORT_PREPARED_OWNER_INPUT_PENDING",
+      "closeout_status": "BLOCKED",
+      "completed": "Паспорт пилота подготовлен.",
+      "remaining": "Нужны выбранная компания, сценарий, данные, критерии и отдельное разрешение владельца после технических условий.",
+      "historical_evidence": "docs/orchestration/BATCH_01_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/BATCH_01_UA.md",
+        "sha256": "cd656d2bd7dcf63770e167f08fd73c10660a264c5186367e226f8d7a61cc0b9c",
+        "bytes": 9585
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "PLAN-LINKS-READ",
+      "title": "Реалізувати серверний trace одного замовлення",
+      "owner": "bos_implementer",
+      "historical_status": "ACCEPT_SCOPED_SQLITE_PG16",
+      "closeout_status": "READY_SCOPED",
+      "completed": "Серверный trace заказа принят scoped на SQLite и PostgreSQL 16.",
+      "remaining": "Исторический scope не подтверждает все новые браузерные пути и роли.",
+      "historical_evidence": "docs/orchestration/BATCH_02_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/BATCH_02_UA.md",
+        "sha256": "6d8f28ed5d36e7f09ec003c7c3336e1eb0360821016a636ccc7bfffc644aacc9",
+        "bytes": 4609
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "PLAN-UX-TRACE",
+      "title": "Додати джерела виконання в чинний inspector",
+      "owner": "bos_ux",
+      "historical_status": "ACCEPT_SCOPED_COMPONENT_NO_BROWSER",
+      "closeout_status": "READY_SCOPED",
+      "completed": "Источники исполнения добавлены в inspector; component acceptance сохранён.",
+      "remaining": "Полная текущая browser acceptance для всех связей не выполнена.",
+      "historical_evidence": "docs/orchestration/BATCH_02_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/BATCH_02_UA.md",
+        "sha256": "6d8f28ed5d36e7f09ec003c7c3336e1eb0360821016a636ccc7bfffc644aacc9",
+        "bytes": 4609
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "PLAN-N2-ADJUST",
+      "title": "Адресна перевірка погодження erp_adjust",
+      "owner": "bos_implementer",
+      "historical_status": "ACCEPT_SCOPED_SQLITE_PG16",
+      "closeout_status": "READY_SCOPED",
+      "completed": "Адресное согласование erp_adjust принято на SQLite/PG16, включая отдельные реальные concurrency cases.",
+      "remaining": "Не распространять результат на остальные command writers.",
+      "historical_evidence": "docs/orchestration/BATCH_02_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/BATCH_02_UA.md",
+        "sha256": "6d8f28ed5d36e7f09ec003c7c3336e1eb0360821016a636ccc7bfffc644aacc9",
+        "bytes": 4609
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "PLAN-SAAS",
+      "title": "Пакет SaaS з ізоляцією компаній та onboarding",
+      "owner": "bos_architect",
+      "historical_status": "PACKAGED_NOT_PRODUCTION_READY",
+      "closeout_status": "PARTIAL",
+      "completed": "Подготовлен пакет отдельной установки на компанию и onboarding.",
+      "remaining": "Production install, TLS, upgrade/rollback и эксплуатационная готовность не приняты.",
+      "historical_evidence": "docs/orchestration/BATCH_03_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/BATCH_03_UA.md",
+        "sha256": "fbcd0b8c19e5b5a23446a209b26182d8d428a329b3c1d33b6ccb00d9f87d577c",
+        "bytes": 1430
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "PLAN-LANDING",
+      "title": "Лендинг готового ядра та шлях до демонстрації",
+      "owner": "bos_ux",
+      "historical_status": "PUBLISHED_ACCEPT_SCOPED_LANDING_NAVIGATION",
+      "closeout_status": "READY_SCOPED",
+      "completed": "Исторически опубликован Sites landing; принято только landing/navigation.",
+      "remaining": "Это отдельный Site. Его версия не обновлялась текущим Django closeout; не считать его адресом новой ERP.",
+      "historical_evidence": "docs/orchestration/BATCH_04_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/BATCH_04_UA.md",
+        "sha256": "13e7c5dd52b87fe66e2d31742cdbd7f8c421f23353032c935818213b81fec914",
+        "bytes": 3721
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "PLAN-CONNECTORS",
+      "title": "Контракти підключення систем клієнтів",
+      "owner": "bos_architect",
+      "historical_status": "PLANNED",
+      "closeout_status": "NOT_STARTED",
+      "completed": "Есть план контрактов систем клиентов.",
+      "remaining": "Реализация коннекторов не начата; нужны реальные согласованные системы и данные после новых указаний.",
+      "historical_evidence": null,
+      "historical_evidence_pin": null,
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "PLAN-SOURCE-WINDOWS",
+      "title": "Native Windows source SHA proof for the current runtime",
+      "owner": "bos_test_ci",
+      "historical_status": "ACCEPT_SCOPED_NATIVE_WINDOWS_SOURCE",
+      "closeout_status": "READY_SCOPED",
+      "completed": "Native Windows source SHA proof сохранён с точным историческим источником.",
+      "remaining": "Не заменяет gate 11 и нынешние проверки приложения.",
+      "historical_evidence": "docs/orchestration/evidence/windows-source/report.json",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/evidence/windows-source/report.json",
+        "sha256": "1ca2997b71b593a58973ac2fd0cbfab410ce07fb47e5d15aa1c589431014e77c",
+        "bytes": 1759
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "FRONTEND-GLOBALS",
+      "title": "Native browser globals у lexical checker",
+      "owner": "bos_implementer",
+      "historical_status": "ACCEPTED_SCOPED",
+      "closeout_status": "READY_SCOPED",
+      "completed": "Native browser globals учтены lexical checker.",
+      "remaining": "Это проверка checker, не full browser acceptance.",
+      "historical_evidence": "docs/orchestration/VERTICAL_UA_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/VERTICAL_UA_UA.md",
+        "sha256": "a8d4748df13f1febcc00b7bfc0bcafa670c0e59c0afec73d9e7c6ec55d33ea60",
+        "bytes": 10544
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "BOOTSTRAP-OWNER",
+      "title": "Перший керівник порожньої установки",
+      "owner": "bos_implementer",
+      "historical_status": "ACCEPT_SCOPED",
+      "closeout_status": "READY_SCOPED",
+      "completed": "Создание первого CEO пустой установки принято scoped SQLite/PG16.",
+      "remaining": "При обновлении существующего review-стенда bootstrap и seed не повторяются.",
+      "historical_evidence": "docs/orchestration/VERTICAL_UA_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/VERTICAL_UA_UA.md",
+        "sha256": "a8d4748df13f1febcc00b7bfc0bcafa670c0e59c0afec73d9e7c6ec55d33ea60",
+        "bytes": 10544
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "VERTICAL-UA-DATA",
+      "title": "Філія, склад, замовлення та джерела UAH",
+      "owner": "bos_implementer",
+      "historical_status": "ACCEPTED_SCOPED",
+      "closeout_status": "READY_SCOPED",
+      "completed": "Филиал, склад, заказ, UAH и Policy sources реализованы и scoped проверены.",
+      "remaining": "Новые серверные изменения имеют отдельные доказательства; полный текущий role sweep открыт.",
+      "historical_evidence": "docs/orchestration/VERTICAL_UA_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/VERTICAL_UA_UA.md",
+        "sha256": "a8d4748df13f1febcc00b7bfc0bcafa670c0e59c0afec73d9e7c6ec55d33ea60",
+        "bytes": 10544
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "VERTICAL-UA-UI",
+      "title": "Робочі точки в чинному ERP UI",
+      "owner": "bos_ux",
+      "historical_status": "ACCEPT_SCOPED_CONTROLLED_UI",
+      "closeout_status": "READY_SCOPED",
+      "completed": "Рабочие точки встроены в существующий ERP UI; controlled UI acceptance сохранён.",
+      "remaining": "Текущий four-route smoke не заменяет все responsive/role/business проверки.",
+      "historical_evidence": "docs/orchestration/VERTICAL_UA_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/VERTICAL_UA_UA.md",
+        "sha256": "a8d4748df13f1febcc00b7bfc0bcafa670c0e59c0afec73d9e7c6ec55d33ea60",
+        "bytes": 10544
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "UI-LOCAL-RUNNER",
+      "title": "Новий ізольований локальний browser runner",
+      "owner": "bos_test_ci",
+      "historical_status": "ACCEPT_SCOPED_GATE10_EXACT_646D3B8",
+      "closeout_status": "READY_SCOPED",
+      "completed": "Собственный локальный browser runner ранее дал 7/7 на точном 646d3b8.",
+      "remaining": "Этот PASS относится к старому источнику; новый smoke учитывается отдельно.",
+      "historical_evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/CONTINUATION_20260920_UA.md",
+        "sha256": "cf27837ad9cb4cb25a222481661861e54cdfc1cf270d585a6881ff24a8fb45d6",
+        "bytes": 16093
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "LOCAL-GATE1-4",
+      "title": "Порожні міграції й актуальний access sweep",
+      "owner": "bos_test_ci",
+      "historical_status": "INCOMPLETE_NO_CURRENT_ACCEPTANCE",
+      "closeout_status": "BLOCKED",
+      "completed": "Историческая PG миграция и статический каталог маршрутов сохранены.",
+      "remaining": "SQLite original exit не установлен; current access sweep прерван без receipt; full gates 1/4 не приняты.",
+      "historical_evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/CONTINUATION_20260920_UA.md",
+        "sha256": "cf27837ad9cb4cb25a222481661861e54cdfc1cf270d585a6881ff24a8fb45d6",
+        "bytes": 16093
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "S1-CONFIRM-RECOVERY",
+      "title": "Збереження ID погодження та квитанції",
+      "owner": "bos_ux",
+      "historical_status": "ACCEPT_SCOPED_RECORDED_BY_COORDINATOR",
+      "closeout_status": "READY_SCOPED",
+      "completed": "Сохранение proposal ID и квитанции реализовано и принято в исходном bounded scope.",
+      "remaining": "Полная цепочка заказа, роли, reload/restart и concurrency остаются частичными.",
+      "historical_evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/CONTINUATION_20260920_UA.md",
+        "sha256": "cf27837ad9cb4cb25a222481661861e54cdfc1cf270d585a6881ff24a8fb45d6",
+        "bytes": 16093
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "PLAN-DOC-MATCH-CONTRACT",
+      "title": "Pure mock-контракт документа",
+      "owner": "bos_implementer",
+      "historical_status": "ACCEPT_SCOPED_MOCK_CONTRACT_RECORDED",
+      "closeout_status": "READY_SCOPED",
+      "completed": "Pure mock-контракт документа принят; позднее добавлена реальная серверная registration.",
+      "remaining": "Поддерживаются согласованные synthetic bytes; OCR и произвольные документы не подтверждены.",
+      "historical_evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/CONTINUATION_20260920_UA.md",
+        "sha256": "cf27837ad9cb4cb25a222481661861e54cdfc1cf270d585a6881ff24a8fb45d6",
+        "bytes": 16093
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "SUPPLY-OPTIONS-READ",
+      "title": "Дозволені джерела забезпечення",
+      "owner": "bos_implementer",
+      "historical_status": "ACCEPT_SCOPED_SQLITE12",
+      "closeout_status": "READY_SCOPED",
+      "completed": "Чтение разрешённых источников обеспечения принято SQLite12.",
+      "remaining": "Полный negative role sweep и linked browser flow остаются открыты.",
+      "historical_evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/CONTINUATION_20260920_UA.md",
+        "sha256": "cf27837ad9cb4cb25a222481661861e54cdfc1cf270d585a6881ff24a8fb45d6",
+        "bytes": 16093
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "FLOW-ORDER-SETTLEMENT",
+      "title": "Фінансові джерела конкретного замовлення",
+      "owner": "bos_implementer",
+      "historical_status": "ACCEPT_SCOPED_REFERENCE_FIX",
+      "closeout_status": "READY_SCOPED",
+      "completed": "Исправлены ссылки финансовых источников заказа; service chain подтверждает 300/120/180 UAH.",
+      "remaining": "Платёж — локальная учётная запись; банковская интеграция и полный browser flow не заявляются.",
+      "historical_evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/CONTINUATION_20260920_UA.md",
+        "sha256": "cf27837ad9cb4cb25a222481661861e54cdfc1cf270d585a6881ff24a8fb45d6",
+        "bytes": 16093
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "DOC-MATCH-SERVER",
+      "title": "Перевірені байти й Policy для mock-сверки",
+      "owner": "bos_implementer",
+      "historical_status": "ACCEPT_SCOPED_RECORDED_BY_COORDINATOR",
+      "closeout_status": "READY_SCOPED",
+      "completed": "Проверка байтов документа и Policy реализована; registration backend отдельно принят 11 targeted checks.",
+      "remaining": "Обычные неподдержанные документы не превращать в успешное распознавание.",
+      "historical_evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/CONTINUATION_20260920_UA.md",
+        "sha256": "cf27837ad9cb4cb25a222481661861e54cdfc1cf270d585a6881ff24a8fb45d6",
+        "bytes": 16093
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "FLOW-READ-UI",
+      "title": "Маршрути й UI забезпечення та розрахунків",
+      "owner": "bos_ux",
+      "historical_status": "ACCEPT_SCOPED_RECORDED_BY_COORDINATOR",
+      "closeout_status": "READY_SCOPED",
+      "completed": "Маршруты обеспечения и расчётов и источники доступны в принятом bounded UI scope.",
+      "remaining": "Проверка всех текущих связей, ролей и возврата контекста не завершена.",
+      "historical_evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/CONTINUATION_20260920_UA.md",
+        "sha256": "cf27837ad9cb4cb25a222481661861e54cdfc1cf270d585a6881ff24a8fb45d6",
+        "bytes": 16093
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "LOCAL-REVIEW-SUPPORT",
+      "title": "Керовані процеси локального synthetic-стенда",
+      "owner": "bos_test_ci",
+      "historical_status": "ACCEPT_SCOPED_SUPPORT_ONLY",
+      "closeout_status": "READY_SCOPED",
+      "completed": "Lifecycle support принят отдельно: process ownership, synthetic review data и локальный вход.",
+      "remaining": "Новый результат обновления/запуска указывается отдельно; support acceptance не равна deployment acceptance.",
+      "historical_evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/CONTINUATION_20260920_UA.md",
+        "sha256": "cf27837ad9cb4cb25a222481661861e54cdfc1cf270d585a6881ff24a8fb45d6",
+        "bytes": 16093
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "DOC-MATCH-READ-UI",
+      "title": "Явне зіставлення та оригінальні докази",
+      "owner": "bos_ux",
+      "historical_status": "ACCEPT_SCOPED_DOC_READ_UI",
+      "closeout_status": "READY_SCOPED",
+      "completed": "Явное сопоставление и исходные evidence реализованы; S2 command UI позднее принят controlled10.",
+      "remaining": "Общий текущий browser S2 и multi-role acceptance не выполнены.",
+      "historical_evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/CONTINUATION_20260920_UA.md",
+        "sha256": "cf27837ad9cb4cb25a222481661861e54cdfc1cf270d585a6881ff24a8fb45d6",
+        "bytes": 16093
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "FLOW-BROWSER-HELPER",
+      "title": "Оракул трьох обмежених browser-кроків",
+      "owner": "bos_test_ci",
+      "historical_status": "ACCEPT_SCOPED_HELPER_ONLY",
+      "closeout_status": "READY_SCOPED",
+      "completed": "Подготовлен и scoped принят oracle трёх ограниченных браузерных шагов.",
+      "remaining": "Helper сам по себе не подтверждает исполнение сценария.",
+      "historical_evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/CONTINUATION_20260920_UA.md",
+        "sha256": "cf27837ad9cb4cb25a222481661861e54cdfc1cf270d585a6881ff24a8fb45d6",
+        "bytes": 16093
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    },
+    {
+      "id": "WORKPOINT-DIALOG-FOCUS",
+      "title": "Повернення фокуса до чинного opener",
+      "owner": "bos_ux",
+      "historical_status": "ACCEPT_SCOPED_FOCUS_AND_ACTUAL_BROWSER",
+      "closeout_status": "READY_SCOPED",
+      "completed": "Возврат фокуса к актуальному opener исправлен и ранее проверен реальным браузером.",
+      "remaining": "Исторический browser PASS не заменяет full current-source keyboard/layout проверку.",
+      "historical_evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "historical_evidence_pin": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920/docs/orchestration/CONTINUATION_20260920_UA.md",
+        "sha256": "cf27837ad9cb4cb25a222481661861e54cdfc1cf270d585a6881ff24a8fb45d6",
+        "bytes": 16093
+      },
+      "current_coverage": "Historical scoped acceptance retained; no new full suite acceptance asserted.",
+      "resume": "Only after new owner instruction; not an automatic queue."
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "S1",
+      "name": "Заказ → обеспечение → отгрузка → расчёты",
+      "status": "PARTIAL",
+      "completed": "Synthetic service chain: reserve/ship 3.000; invoice 300.00, paid 120.00, debt 180.00 UAH; references and history retained.",
+      "remaining": "Текущий общий UI, не-CEO роли, отрицательные случаи, отдельный restart/reopen и complete Task actual result.",
+      "evidence_keys": [
+        "linked",
+        "reuse",
+        "ui_links"
+      ]
+    },
+    {
+      "id": "S2",
+      "name": "Документ поставщика → сопоставление → регистрация",
+      "status": "PARTIAL",
+      "completed": "Registration backend 11 targeted PASS; command UI controlled10 PASS; service chain registration 60.00 UAH linked to receipt, quality stays pending.",
+      "remaining": "Browser путь целиком и роли не приняты; arbitrary OCR, supplier payable/payment posting не реализованы этим scope.",
+      "evidence_keys": [
+        "s2_backend",
+        "s2_targeted",
+        "s2_ui_review",
+        "linked"
+      ]
+    },
+    {
+      "id": "S3",
+      "name": "Дефицит → закупка/перемещение → приёмка → качество",
+      "status": "PARTIAL",
+      "completed": "Принята synthetic purchase→receipt→registration→quality→reserve→ship цепочка и ранее bounded transfer UI.",
+      "remaining": "Полная current browser цепочка, альтернативные пути, реальные права всех ролей и restart не подтверждены.",
+      "evidence_keys": [
+        "linked",
+        "reuse",
+        "actual6"
+      ]
+    }
+  ],
+  "uxd": [
+    {
+      "id": "UXD-01",
+      "name": "Понятные показатели",
+      "status": "PARTIAL",
+      "completed": "Manual N/100, unmeasured/loading/error/denied neutral states приняты controlled8.",
+      "remaining": "Не все dashboard метрики имеют подтверждённые формулу, период, источник и актуальность.",
+      "evidence_keys": [
+        "kpi"
+      ]
+    },
+    {
+      "id": "UXD-02",
+      "name": "Показатель → список → запись → источник → назад",
+      "status": "PARTIAL",
+      "completed": "Trace и UI-links controlled12; существующий inspector источников.",
+      "remaining": "Общий текущий browser маршрут с фильтрами и возвратом контекста открыт.",
+      "evidence_keys": [
+        "ui_links",
+        "linked"
+      ]
+    },
+    {
+      "id": "UXD-03",
+      "name": "Рабочая очередь отдела",
+      "status": "PARTIAL",
+      "completed": "Базовый Task/department backend есть; новая private queue controlled8 подготовлена.",
+      "remaining": "Новая queue не интегрирована; нет принятого полного пользовательского пути owner/deadline/priority/source.",
+      "evidence_keys": [
+        "task_queue",
+        "linked"
+      ]
+    },
+    {
+      "id": "UXD-04",
+      "name": "Передача и результат одной задачи",
+      "status": "PARTIAL",
+      "completed": "Service chain сохраняет same Task/source/branch/history при handoff.",
+      "remaining": "Оба проверенных actor — CEO; actual result пуст; получатель process/done с результатом в общем UI не проверен.",
+      "evidence_keys": [
+        "linked"
+      ]
+    },
+    {
+      "id": "UXD-05",
+      "name": "Компактная навигация",
+      "status": "PARTIAL",
+      "completed": "Menu controlled8 принят, menu интегрирован в 37fb57 и сохранён в 207c.",
+      "remaining": "Полное real layout/keyboard/200% покрытие нового меню отсутствует.",
+      "evidence_keys": [
+        "menu",
+        "source"
+      ]
+    },
+    {
+      "id": "UXD-06",
+      "name": "Читаемость и доступность",
+      "status": "PARTIAL",
+      "completed": "Исторический scoped browser 646d3b8: 390/768/1440,200%,keyboard/Escape.",
+      "remaining": "На 207c полного повторного gate10 нет; read-only smoke ограничен 1440 и 4 основными маршрутами.",
+      "evidence_keys": [
+        "source"
+      ]
+    },
+    {
+      "id": "UXD-07",
+      "name": "Загрузка, ошибки, права, stale и повторные клики",
+      "status": "PARTIAL",
+      "completed": "Controlled cases KPI/menu/SDC и прежних команд покрывают отдельные состояния.",
+      "remaining": "UI8 actual3 FAIL: retained preview handler создаёт вторую proposal. Private v5 guard static accepted, behavior NOT_RUN; full 28 наблюдений/5 roles NOT_RUN.",
+      "evidence_keys": [
+        "ui3",
+        "v5",
+        "kpi",
+        "source"
+      ]
+    },
+    {
+      "id": "UXD-08",
+      "name": "Одинаковые факты, роли, суммы и подтверждение",
+      "status": "PARTIAL",
+      "completed": "Точные UAH service facts и scoped preview/confirm сохранены; UI controlled checks приняты по модулям.",
+      "remaining": "Полное multi-role consistency/current HTTP/restart/concurrency не доказано.",
+      "evidence_keys": [
+        "linked",
+        "reuse"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "id": 1,
+      "requirement": "Міграції на порожніх SQLite і PostgreSQL",
+      "evidence_limit": "Historical e66af PG16 fresh migration exit0; SQLite original exit unknown after observer cleanup error. Current frozen candidate not rerun.",
+      "historical_status": "INCOMPLETE_CURRENT_CANDIDATE",
+      "status": "NOT_ACCEPTED_CURRENT_207C",
+      "current_note": "No full gate rerun. Local review update/smoke do not close this gate."
+    },
+    {
+      "id": 2,
+      "requirement": "151 функціональна + 5 launcher + решта тестів на обох СУБД",
+      "evidence_limit": "Scoped new tests and historical CI do not replace both-DB acceptance. PG new-read preflight made0 test attempts: port55439 unavailable and SQLite-only fixture guard. Separate fixture correction has2 SQLite PASS; not PG PASS.",
+      "historical_status": "NOT_ACCEPTED_CURRENT_CANDIDATE",
+      "status": "BLOCKED_OR_INCOMPLETE_NO_AUTOMATIC_REPEAT",
+      "current_note": "No full gate rerun. Local review update/smoke do not close this gate."
+    },
+    {
+      "id": 3,
+      "requirement": "П’ять інваріантів, мінімум 1000 випадкових прогонів кожний",
+      "evidence_limit": "Five invariants x1000 not established for this candidate.",
+      "historical_status": "NOT_ACCEPTED_CURRENT_CANDIDATE",
+      "status": "BLOCKED_OR_INCOMPLETE_NO_AUTOMATIC_REPEAT",
+      "current_note": "No full gate rerun. Local review update/smoke do not close this gate."
+    },
+    {
+      "id": 4,
+      "requirement": "Права всіх ролей на всіх API/admin та всіх поверхнях даних",
+      "evidence_limit": "Old fixture failed after an actual HTTP422 but before route sweep; current-environment/access-current-1 has checks=[] and no final receipt. Catalogue195/required95 is static, not all-role execution.",
+      "historical_status": "INCOMPLETE",
+      "status": "NOT_ACCEPTED_CURRENT_207C",
+      "current_note": "No full gate rerun. Local review update/smoke do not close this gate."
+    },
+    {
+      "id": 5,
+      "requirement": "Два одночасні виклики кожної грошової та складської дії",
+      "evidence_limit": "Historical concurrency evidence has older source identity; UI same-ID replay and mocked oracles are not all writers concurrently.",
+      "historical_status": "NOT_ACCEPTED_CURRENT_CANDIDATE",
+      "status": "BLOCKED_OR_INCOMPLETE_NO_AUTOMATIC_REPEAT",
+      "current_note": "No full gate rerun. Local review update/smoke do not close this gate."
+    },
+    {
+      "id": 6,
+      "requirement": "Наскрізний процес на чистій базі, звірка до копійки",
+      "evidence_limit": "Attempt5 separately accepted transfer/payment UI preview-confirm and same-proposal browser HTTP replay, plus ordinary-document unsupported/no-writes. These3 bounded flows do not establish full business E2E. Exhausted preset not retried.",
+      "historical_status": "NOT_ACCEPTED_CURRENT_CANDIDATE",
+      "status": "BLOCKED_OR_INCOMPLETE_NO_AUTOMATIC_REPEAT",
+      "current_note": "No full gate rerun. Local review update/smoke do not close this gate."
+    },
+    {
+      "id": 7,
+      "requirement": "Backup/restore у чисту установку: кількості, суми, версії, SHA",
+      "evidence_limit": "Read-only prerequisite review completed at530043a. Usable Linux amd64 runner, compatible offline wheels, pinned Caddy and OpenSSL remain unproven. Same-N restore NOT RUN; no install/upgrade authority inferred.",
+      "historical_status": "NOT_RUN_PREREQUISITES_UNPROVEN",
+      "status": "NOT_ACCEPTED_CURRENT_207C",
+      "current_note": "No full gate rerun. Local review update/smoke do not close this gate."
+    },
+    {
+      "id": 8,
+      "requirement": "Чиста виробнича установка: TLS, cookies, proxy, health, logs",
+      "evidence_limit": "Production install/TLS/cookies/proxy/logs not accepted. A09 exact13MiB retry remains forbidden.",
+      "historical_status": "NOT_ACCEPTED_BLOCKED_REPEAT",
+      "status": "BLOCKED_OR_INCOMPLETE_NO_AUTOMATIC_REPEAT",
+      "current_note": "No full gate rerun. Local review update/smoke do not close this gate."
+    },
+    {
+      "id": 9,
+      "requirement": "Оновлення N → N+1 та відновлення N після rollback",
+      "evidence_limit": "A10 activation/upgrade/rollback restriction remains; no new run.",
+      "historical_status": "NOT_ACCEPTED_BLOCKED_REPEAT",
+      "status": "BLOCKED_OR_INCOMPLETE_NO_AUTOMATIC_REPEAT",
+      "current_note": "No full gate rerun. Local review update/smoke do not close this gate."
+    },
+    {
+      "id": 10,
+      "requirement": "Браузер: 390/768/1440, 200%, клавіатура, Escape, мережа",
+      "evidence_limit": "Independent root accepted actual attempt5: exit0,7of7 at646d3b80597e087a1ada14221024ec40588996f0/source98b011a583c7803d88c888070a3412789559919ecb5692ef34f5e8ad59b5072a.26 artifacts hash/length verified. Exact child8084/launcher12712 exited; source/DB unchanged. Attempt4 focus FAIL at530043a preserved. Does not cover PR2 or future merge.",
+      "historical_status": "ACCEPT_SCOPED_EXACT_646D3B8",
+      "status": "NOT_ACCEPTED_CURRENT_207C",
+      "current_note": "No full gate rerun. Local review update/smoke do not close this gate."
+    },
+    {
+      "id": 11,
+      "requirement": "Чиста Windows / Python 3.12: критерії 1–3 і 6",
+      "evidence_limit": "Windows source/stdlib proofs and Python3.12 runtime do not establish fresh Windows criteria1-3 and6.",
+      "historical_status": "NOT_ACCEPTED_CURRENT_CANDIDATE",
+      "status": "NOT_ACCEPTED_CURRENT_207C",
+      "current_note": "No full gate rerun. Local review update/smoke do not close this gate."
+    }
+  ],
+  "checks": [
+    {
+      "name": "S2 backend targeted",
+      "result": "PASS_SCOPED",
+      "attempt": 4,
+      "pass": 11,
+      "prior_failures": 3,
+      "evidence_keys": [
+        "s2_targeted",
+        "s2_backend"
+      ]
+    },
+    {
+      "name": "S2 command UI controlled",
+      "result": "PASS_SCOPED",
+      "attempt": 3,
+      "pass": 10,
+      "history": "attempt1 3 PASS/1 FAIL/6 NOT_RUN; attempt2 4/1/5 retained",
+      "evidence_keys": [
+        "s2_ui_review"
+      ]
+    },
+    {
+      "name": "UI links controlled",
+      "result": "PASS_SCOPED",
+      "attempt": 2,
+      "pass": 12,
+      "history": "attempt1 0 PASS/1 FAIL/11 NOT_RUN retained",
+      "evidence_keys": [
+        "ui_links"
+      ]
+    },
+    {
+      "name": "Linked synthetic service chain",
+      "result": "PASS_SCOPED",
+      "attempt": 2,
+      "steps": 10,
+      "confirmed_transitions": 12,
+      "history": "First launcher failure retained. No real HTTP/browser, both reopen actors CEO; no Task actual result.",
+      "evidence_keys": [
+        "linked",
+        "reuse"
+      ]
+    },
+    {
+      "name": "Compact menu controlled",
+      "result": "PASS_SCOPED",
+      "attempt": 3,
+      "pass": 8,
+      "history": "Two prior FAIL retained; real DOM/layout not proven",
+      "evidence_keys": [
+        "menu"
+      ]
+    },
+    {
+      "name": "Manual/unmeasured KPI controlled",
+      "result": "PASS_SCOPED",
+      "attempt": 2,
+      "pass": 8,
+      "history": "First 0 PASS/1 FAIL/7 NOT_RUN retained",
+      "evidence_keys": [
+        "kpi"
+      ]
+    },
+    {
+      "name": "SDC department settings controlled",
+      "result": "PASS_SCOPED",
+      "attempt": 1,
+      "pass": 10,
+      "not_run": "SDC11 real DOM",
+      "evidence_keys": [
+        "source"
+      ]
+    },
+    {
+      "name": "Private Task queue controlled",
+      "result": "PASS_SCOPED_PRIVATE_NOT_APPLIED",
+      "attempt": 1,
+      "pass": 8,
+      "evidence_keys": [
+        "task_queue"
+      ]
+    },
+    {
+      "name": "Private membership UI",
+      "result": "FAIL",
+      "attempt": 3,
+      "pass": 7,
+      "fail": 1,
+      "not_run": 0,
+      "history": "Actual1 transform failure: 0/0/8; actual2 missing extracted SegmentedControl: 0/1/7; metadata refusals2 do not reset actual3.",
+      "evidence_keys": [
+        "ui3"
+      ]
+    },
+    {
+      "name": "Private membership v5 owner guard",
+      "result": "STATIC_ACCEPT_BEHAVIOR_NOT_RUN",
+      "new_target_invocations": 0,
+      "integrated": false,
+      "evidence_keys": [
+        "v5"
+      ]
+    },
+    {
+      "name": "SDC accepted build/package",
+      "result": "BUILD_EXIT0_WITH_CAPTURE_LIMITS",
+      "build_count": 1,
+      "exits": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "limitations": "Functions ReferenceError preserved; HOST_CAPTURE_COMPLETE/HOST_MANIFEST absent; exact full capture compliance false. No new build needed for unchanged runtime.",
+      "evidence_keys": [
+        "source"
+      ]
+    },
+    {
+      "name": "Historical browser focus/responsive",
+      "result": "PASS_SCOPED_646D3B8",
+      "pass": 7,
+      "source": "646d3b80597e087a1ada14221024ec40588996f0",
+      "limits": "Not 207c full gate10"
+    },
+    {
+      "name": "Historical network browser read-only actual6",
+      "result": "PASS_SCOPED",
+      "pass": 4,
+      "history": "Earlier actual1–5 failure history retained, bounded actual5 subscopes accepted separately",
+      "evidence_keys": [
+        "actual6"
+      ]
+    },
+    {
+      "name": "Full current MVP UI/roles/restart protocol",
+      "result": "NOT_RUN",
+      "groups": 12,
+      "observations": 28,
+      "roles": 5,
+      "limits": "Prepared scripts/fixtures are not execution or MVP PASS"
+    },
+    {
+      "name": "Current review runtime update",
+      "result": "HISTORICAL_UPDATE_ACCEPTED_LATER_OUTAGE_RECOVERY_OWNED_BY_CONTROLLER",
+      "details": {
+        "status": "HISTORICAL_UPDATE_ACCEPTED_LATER_OUTAGE_RECOVERY_OWNED_BY_CONTROLLER",
+        "running": false,
+        "url": "http://127.0.0.1:8876/",
+        "attempt": 2,
+        "migration_count": 6,
+        "seed_count": 0,
+        "build_count": 0,
+        "business_rows_preserved_at_update": 230,
+        "business_tables_preserved_at_update": 53,
+        "preservation_note": "Old-column projections verified at update; later owner activity and ordinary login are not claimed byte-unchanged.",
+        "history": "Actual1 update FAIL before migration; actual2 update PASS with preservation. Smoke3 PASS at20:53UTC. Later outage reported21:18:53UTC, confirmed21:27:13UTC after Codex restart; exact termination event unavailable. Controller restores same207c source/data separately without seed/migrate/build.",
+        "evidence_keys": [
+          "runtime_acceptance",
+          "runtime_review",
+          "runtime_outcome",
+          "runtime_first_failure",
+          "availability_outage"
+        ],
+        "availability_as_of_utc": "2026-09-21T21:27:13.1597409Z",
+        "availability_basis": "False denotes only the saved outage observation at the exact timestamp. It is not a new current liveness probe. Controller owns restoration; latest serving state, new process identities and HTTPS URL are in the external final delivery.",
+        "recovery_owner": "controller 01a0bf0f-a9e4-7631-87e1-bb1aed03f174",
+        "last_successful_smoke_at_utc": "2026-09-21T20:53:00.262288+00:00"
+      },
+      "evidence_keys": [
+        "runtime_acceptance",
+        "runtime_review",
+        "runtime_outcome",
+        "runtime_first_failure",
+        "availability_outage"
+      ]
+    },
+    {
+      "name": "Current review browser smoke",
+      "result": "PASS_SCOPED_4_OF_4_HISTORICAL_AT_2053UTC",
+      "details": {
+        "status": "PASS_SCOPED_4_OF_4_HISTORICAL_AT_2053UTC",
+        "attempt": 3,
+        "PASS": 4,
+        "FAIL": 0,
+        "NOT_RUN": 0,
+        "routes": [
+          "workpoints",
+          "orders",
+          "procurement",
+          "network"
+        ],
+        "scope": "Four read routes at1440x1000 and20:53UTC, normal owner login, source207c and app hash. Orders acceptance is visible sales heading plus authenticated snapshot; not all per-order next actions. No business POST. This does not establish availability after the later outage.",
+        "history": "Actual1 FAIL0/0/4: missing post-login wait. Actual2 FAIL0/1/3: route assertion before loading completed. Both preserved; v3 unexecuted locator HOLD corrected in v3a.",
+        "console": "One expected startup401 for unauthenticated /api/auth/me/. No page errors, request failures or blocked business requests; no blanket clean-console claim.",
+        "cleanup": "At20:53UTC owned browser/profile cleanup completed and server handles were running. Later outage supersedes present-liveness assumptions.",
+        "foreign_actual_review": "Independent historical smoke acceptance is in smoke_actual_review. Its docs HOLD concerns the superseded33-file availability wording; successor acceptance is recorded by exact root integration approval.",
+        "evidence_keys": [
+          "browser_receipt",
+          "browser_outer",
+          "browser_host",
+          "browser_preparation_review",
+          "browser_first_failure",
+          "browser_second_failure",
+          "smoke_actual_review"
+        ]
+      },
+      "evidence_keys": [
+        "browser_receipt",
+        "browser_outer",
+        "browser_host",
+        "browser_preparation_review",
+        "browser_first_failure",
+        "browser_second_failure",
+        "smoke_actual_review"
+      ]
+    },
+    {
+      "name": "Final-head remote CI",
+      "result": "PENDING_POST_PUSH_OBSERVATION",
+      "details": {
+        "status": "PENDING_POST_PUSH_OBSERVATION",
+        "as_of": "Private docs preparation before its ordinary commit/push. Exact final-head runs/jobs are recorded in external final delivery and PR.",
+        "forced_full_suites": false,
+        "skipped_is_pass": false,
+        "automatic_reruns": false
+      }
+    }
+  ],
+  "issues": [
+    {
+      "id": "V17-01",
+      "priority": "P2",
+      "function": "Private employee membership preview",
+      "state": "OPEN_PRIVATE_NOT_PUBLISHED",
+      "reproduce": [
+        "Open private combined MembershipDialog.",
+        "Create preview successfully.",
+        "Invoke retained prior form-submit handler with unchanged intent/facts.",
+        "Observe second mocked preview proposal (2 instead of 1)."
+      ],
+      "impact": "Blocks private union acceptance; duplicate committed Employee mutation not established.",
+      "remaining": "Private v5 adds current-owner proposal guard. Static accepted, behavior NOT_RUN, shared apply0."
+    },
+    {
+      "id": "V17-02",
+      "priority": "P1",
+      "function": "Full linked business/role/restart acceptance",
+      "state": "OPEN_ACCEPTANCE_GAP",
+      "reproduce": [
+        "Follow S1/S2/S3 end to end through current UI as distinct non-CEO roles.",
+        "Verify persisted amounts/source refs and Task actual result after separate server reopen."
+      ],
+      "impact": "No complete evidence for this path on published source; not an observed data-loss claim.",
+      "remaining": "Use frozen protocol only after future owner instruction; no automatic execution."
+    },
+    {
+      "id": "V17-03",
+      "priority": "P2",
+      "function": "P06-F04/F05 timeout causes",
+      "state": "OPEN_DIAGNOSTIC",
+      "reproduce": [
+        "Refer to original P06 failed runs and PLAN_TIME_RESULTS_UA.md."
+      ],
+      "impact": "Root cause unresolved; no runtime fix proven.",
+      "remaining": "Bounded future diagnosis subject to P05 history; do not launch full retry to reproduce."
+    },
+    {
+      "id": "V17-04",
+      "priority": "P2",
+      "function": "Department work queue and Task completion",
+      "state": "PARTIAL_IMPLEMENTATION",
+      "reproduce": [
+        "Follow existing same-Task handoff in synthetic chain.",
+        "Inspect actual_task_result: empty; process/done was not demonstrated."
+      ],
+      "impact": "New queue and membership union remain private; full department work cycle is not accepted.",
+      "remaining": "Apply only future accepted union and prove actual result/rights/current UI."
+    },
+    {
+      "id": "V17-05",
+      "priority": "P3",
+      "function": "Historical build/process evidence",
+      "state": "KNOWN_EVIDENCE_LIMIT",
+      "reproduce": [
+        "Inspect accepted SDC source package build capture records."
+      ],
+      "impact": "Successful build exits and archive bytes are accepted; exact capture protocol completeness is false.",
+      "remaining": "Keep disclosed original gaps; no retroactive receipt fabrication or repeat just for a cleaner report."
+    },
+    {
+      "id": "V17-06",
+      "priority": "P1",
+      "function": "Availability after Codex restart",
+      "state": "RECOVERY_DELEGATED_AT_SNAPSHOT",
+      "reproduce": [
+        "Original temporary URL returned Error1033 after Codex restart.",
+        "Saved outage observation21:27UTC has no old serving PIDs or listeners."
+      ],
+      "impact": "Historical four-route PASS does not prove present availability. Parent-lifetime coupling is inferred, exact termination event unavailable.",
+      "remaining": "Controller restores same app/data through serving processes independent of Codex; final external delivery records checked URL and outcome. Do not rebuild, seed or replay UI suites."
+    }
+  ],
+  "evidence": {
+    "source": {
+      "path": "D:/3/BOSDev/reports/root/NETWORK-SDC-207C742-COMMITTED-SOURCE-PACKAGE-ACCEPTED-20260921.json",
+      "sha256": "a417e4de7c56ca2b8aaf5f354b235b86eeb839d99dc0a70b93f659ff732969a3",
+      "bytes": 5585,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/source.json"
+    },
+    "s2_targeted": {
+      "path": "D:/3/BOSDev/reports/root/S2-TARGETED-ACCEPTED-AND-INTEGRATION-APPROVED-20260921.json",
+      "sha256": "8d9916f465d23577f0449e62ef6f903dc3f282706b72a4110ff2967402ed3883",
+      "bytes": 4667,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/s2_targeted.json"
+    },
+    "s2_backend": {
+      "path": "D:/3/BOSDev/reports/root/S2-BACKEND-INTEGRATION-ACCEPTED-20260921.json",
+      "sha256": "cf2598dff76ae8627efa44b1f29b6be1dfa7101ab86e6e95f3b81e081f33310a",
+      "bytes": 2617,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/s2_backend.json"
+    },
+    "s2_ui_review": {
+      "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/s2-command-ui-controlled-attempt3-independent-review/REVIEW.json",
+      "sha256": "39950f12b7c3da94b75731bb89c74667ecb1f4d1d4fb23ee418d39b611356620",
+      "bytes": 6846,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/s2_ui_review.json"
+    },
+    "ui_links": {
+      "path": "D:/3/BOSDev/reports/root/UI-LINKS-01-INTEGRATION-ACCEPTED-20260921.json",
+      "sha256": "e6767cb6dee614b9305da8b8b3ca7606f96325bc767f6d29e97cdf025d5b3f8e",
+      "bytes": 3402,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/ui_links.json"
+    },
+    "linked": {
+      "path": "D:/3/BOSDev/reports/root/LINKED-LOADER-V5-SECOND-SYNTHETIC-CHAIN-ACCEPTED-20260921.json",
+      "sha256": "a6923b28d39e43590dff31cea9877802e74640318719df891c14e98df2e33368",
+      "bytes": 8603,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/linked.json"
+    },
+    "reuse": {
+      "path": "D:/3/BOSDev/reports/root/SERVER-SOURCE-REUSE-AND-MVP-REMAINING-MAP-ACCEPTED-20260921.json",
+      "sha256": "c71b6a1af0d20a111f1840077ff4e26948d3dac7d9796c78d001f046e2381f92",
+      "bytes": 3466,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/reuse.json"
+    },
+    "menu": {
+      "path": "D:/3/BOSDev/reports/root/MENU-V4-SOURCE-AND-MENU8-ACCEPTED-20260921.json",
+      "sha256": "7f378baaa2f5372d1d705dcda0c914cd8183786804eae4d30fe863ce741adc07",
+      "bytes": 2735,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/menu.json"
+    },
+    "kpi": {
+      "path": "D:/3/BOSDev/reports/root/KPI-SECOND-CONTROLLED8-ACCEPTED-20260921.json",
+      "sha256": "30d78ffe9cfa3e3ccbb86b5300bc3b5826050ff252a84d5b0b3762f3e3bab442",
+      "bytes": 3997,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/kpi.json"
+    },
+    "task_queue": {
+      "path": "D:/3/BOSDev/reports/root/DEPARTMENT-TASK-QUEUE-FIRST-CONTROLLED8-ACCEPTED-20260921.json",
+      "sha256": "c51410325669291e01b3068975bc0c2578316973089aa1cc9ddfc0bb8d610e3f",
+      "bytes": 3369,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/task_queue.json"
+    },
+    "actual6": {
+      "path": "D:/3/BOSDev/reports/root/ACTUAL6-READONLY-ACCEPTED-20260921.json",
+      "sha256": "8001b65507ddf515adabe8386b5d9ef4e3f0d2e29c397c2c9f0df30626e6afd8",
+      "bytes": 1830,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/actual6.json"
+    },
+    "ui3": {
+      "path": "D:/3/BOSDev/reports/root/EMPLOYEE-MEMBERSHIP-UI-THIRD-FAILURE-CAPTURE-ACCEPTED-20260921.json",
+      "sha256": "c00a00b493a0772a4dcdd9b4af5072afb8b8eca11a4191329b9f4fc92469b713",
+      "bytes": 2734,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/ui3.json"
+    },
+    "v5": {
+      "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/membership-ui-v5-preview-owner-root-independent-review-20260921/REVIEW.json",
+      "sha256": "13f1d42e633dcab198487676f1b75c1e0486778520aef931bd8f19fa51202083",
+      "bytes": 2883,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/v5.json"
+    },
+    "owner": {
+      "path": "D:/3/BOSDev/evidence/mvp-20260920/OWNER_V17_CLOSEOUT_VERBATIM_20260921.md",
+      "sha256": "e1095a9e0def5c38644009fa223824418260d59885f13bccdb1fc3706be0ae70",
+      "bytes": 4579,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/owner.md"
+    },
+    "contract": {
+      "path": "D:/3/BOSDev/plans/CYCLE_CLOSEOUT_MANUAL_REVIEW_20260921_RU.md",
+      "sha256": "9ed1b30bdc1e5ab467c9883a631e1af02781347dc1798c4bb8ce3366a51c22d4",
+      "bytes": 7953,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/contract.md"
+    },
+    "runtime_acceptance": {
+      "path": "D:/3/BOSDev/reports/root/CYCLE-V17-REVIEW-RUNTIME-ACCEPTED-20260921.json",
+      "sha256": "5209934e6afca62654d93fe1cf44763f7d02784f6b05e930dd5cddcd39ee48d6",
+      "bytes": 4765,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/runtime_acceptance.json"
+    },
+    "runtime_review": {
+      "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/cycle-v17-review-update-actual2-independent-review-20260921/REVIEW.json",
+      "sha256": "690fbf7e27bf225911d7fd15dd2b4e8803a4ec871901f41fd3620df59bb2f321",
+      "bytes": 6645,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/runtime_review.json"
+    },
+    "runtime_outcome": {
+      "path": "D:/3/BOSDev/handoffs/cycle-v17-review-runtime-update-preparation-20260921/bound207c-update2/execution-attempt-2/OUTCOME.json",
+      "sha256": "236a4b270ed5ac0c684935a2e730b4be8fbe7d42a29c5fbf8a51366dee7fd3f6",
+      "bytes": 624,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/runtime_outcome.json"
+    },
+    "runtime_first_failure": {
+      "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/cycle-v17-review-update-actual1-independent-review-20260921/REVIEW.json",
+      "sha256": "9b559bffdd693f3eaba7bf51c91cdb65cb341e744f0ef4656b0593cd443c7f8c",
+      "bytes": 3898,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/runtime_first_failure.json"
+    },
+    "browser_receipt": {
+      "path": "D:/3/BOSDev/handoffs/cycle-v17-owner-review-browser-smoke-preparation-20260921/correction-v3a/execution-attempt-3/receipt.json",
+      "sha256": "6af4e6f9456be7cc4d1251941d5a3362e42872d71e38288a137a921e6741a0df",
+      "bytes": 11652,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/browser_receipt.json"
+    },
+    "browser_outer": {
+      "path": "D:/3/BOSDev/handoffs/cycle-v17-owner-review-browser-smoke-preparation-20260921/correction-v3a/outer-capture/execution-attempt-3/OUTER_RESULT.json",
+      "sha256": "320fdf061cb7d2b90d8ecd50d0cbe2f638df40d6b4c5994c4cfc439ab64873c4",
+      "bytes": 2153,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/browser_outer.json"
+    },
+    "browser_host": {
+      "path": "D:/3/BOSDev/handoffs/cycle-v17-owner-review-browser-smoke-preparation-20260921/correction-v3a/outer-capture/original-host-attempt-3/summary.json",
+      "sha256": "bfd371f1bcc128d8f2d0c56f06352cb6a205f01b5030772be2672fe46838aea7",
+      "bytes": 169,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/browser_host.json"
+    },
+    "browser_preparation_review": {
+      "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/cycle-v17-owner-smoke-actual2-independent-review-20260921/correction-v3a-review/REVIEW.json",
+      "sha256": "a8774cd85aa9eedba678910d873616fb76914c541ee4af3c52d23dee52591870",
+      "bytes": 3235,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/browser_preparation_review.json"
+    },
+    "browser_first_failure": {
+      "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/cycle-v17-owner-smoke-actual1-independent-review-20260921/REVIEW.json",
+      "sha256": "25255e22258943906df9524245cdb900bb8fbd2d045a29b0bcac1cdc7067a6ee",
+      "bytes": 3514,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/browser_first_failure.json"
+    },
+    "browser_second_failure": {
+      "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/cycle-v17-owner-smoke-actual2-independent-review-20260921/REVIEW.json",
+      "sha256": "c2539f69ec03562f6ab1b468662480570bf434ed582fb0c3a83349f859d5f070",
+      "bytes": 2099,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/browser_second_failure.json"
+    },
+    "online_owner_request": {
+      "path": "D:/3/BOSDev/reports/observer_closeout/OWNER_TEMP_ONLINE_ACCESS_20260921.json",
+      "sha256": "cd071d9d08ca346b40ccab7155b8a397d087f0bd5541ecfc597feeb87434f69d",
+      "bytes": 1325,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/online_owner_request.json"
+    },
+    "availability_outage": {
+      "path": "D:/3/BOSDev/online-review/20260921/OUTAGE_20260921_2118.json",
+      "sha256": "3d7564472ac00b5dd472710d93d14c5bc748b6f2c35b01f9b8ea8174d8fa501b",
+      "bytes": 854,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/availability_outage.json"
+    },
+    "smoke_actual_review": {
+      "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/cycle-v17-final-factual-docs-independent-review-20260921/resumed-review/REVIEW_CHECKPOINT.json",
+      "sha256": "09b1b7b47f3ad3695101aca46fda1cd2e39c0e2ffbc905315dbf42023ff2a05c",
+      "bytes": 9088,
+      "portable_copy": "docs/orchestration/evidence/closeout-v17/smoke_actual_review.json"
+    }
+  },
+  "publication": {
+    "phase": "FREEZE_FOR_OWNER_REVIEW",
+    "runtime": {
+      "status": "HISTORICAL_UPDATE_ACCEPTED_LATER_OUTAGE_RECOVERY_OWNED_BY_CONTROLLER",
+      "running": false,
+      "url": "http://127.0.0.1:8876/",
+      "attempt": 2,
+      "migration_count": 6,
+      "seed_count": 0,
+      "build_count": 0,
+      "business_rows_preserved_at_update": 230,
+      "business_tables_preserved_at_update": 53,
+      "preservation_note": "Old-column projections verified at update; later owner activity and ordinary login are not claimed byte-unchanged.",
+      "history": "Actual1 update FAIL before migration; actual2 update PASS with preservation. Smoke3 PASS at20:53UTC. Later outage reported21:18:53UTC, confirmed21:27:13UTC after Codex restart; exact termination event unavailable. Controller restores same207c source/data separately without seed/migrate/build.",
+      "evidence_keys": [
+        "runtime_acceptance",
+        "runtime_review",
+        "runtime_outcome",
+        "runtime_first_failure",
+        "availability_outage"
+      ],
+      "availability_as_of_utc": "2026-09-21T21:27:13.1597409Z",
+      "availability_basis": "False denotes only the saved outage observation at the exact timestamp. It is not a new current liveness probe. Controller owns restoration; latest serving state, new process identities and HTTPS URL are in the external final delivery.",
+      "recovery_owner": "controller 01a0bf0f-a9e4-7631-87e1-bb1aed03f174",
+      "last_successful_smoke_at_utc": "2026-09-21T20:53:00.262288+00:00"
+    },
+    "browser": {
+      "status": "PASS_SCOPED_4_OF_4_HISTORICAL_AT_2053UTC",
+      "attempt": 3,
+      "PASS": 4,
+      "FAIL": 0,
+      "NOT_RUN": 0,
+      "routes": [
+        "workpoints",
+        "orders",
+        "procurement",
+        "network"
+      ],
+      "scope": "Four read routes at1440x1000 and20:53UTC, normal owner login, source207c and app hash. Orders acceptance is visible sales heading plus authenticated snapshot; not all per-order next actions. No business POST. This does not establish availability after the later outage.",
+      "history": "Actual1 FAIL0/0/4: missing post-login wait. Actual2 FAIL0/1/3: route assertion before loading completed. Both preserved; v3 unexecuted locator HOLD corrected in v3a.",
+      "console": "One expected startup401 for unauthenticated /api/auth/me/. No page errors, request failures or blocked business requests; no blanket clean-console claim.",
+      "cleanup": "At20:53UTC owned browser/profile cleanup completed and server handles were running. Later outage supersedes present-liveness assumptions.",
+      "foreign_actual_review": "Independent historical smoke acceptance is in smoke_actual_review. Its docs HOLD concerns the superseded33-file availability wording; successor acceptance is recorded by exact root integration approval.",
+      "evidence_keys": [
+        "browser_receipt",
+        "browser_outer",
+        "browser_host",
+        "browser_preparation_review",
+        "browser_first_failure",
+        "browser_second_failure",
+        "smoke_actual_review"
+      ]
+    },
+    "ci": {
+      "status": "PENDING_POST_PUSH_OBSERVATION",
+      "as_of": "Private docs preparation before its ordinary commit/push. Exact final-head runs/jobs are recorded in external final delivery and PR.",
+      "forced_full_suites": false,
+      "skipped_is_pass": false,
+      "automatic_reruns": false
+    },
+    "online_access": {
+      "status": "PRIOR_TEMP_URL_OUTAGE_RESTORATION_PENDING_CONTROLLER_RECEIPT",
+      "scope": "Owner requested temporary HTTPS and then restoration after Error1033. Old URL is retired; final checked URL or blocker is recorded externally. Product source/data remain207c; controller owns persistent serving processes."
+    },
+    "extra_evidence": {
+      "runtime_acceptance": {
+        "path": "D:/3/BOSDev/reports/root/CYCLE-V17-REVIEW-RUNTIME-ACCEPTED-20260921.json",
+        "sha256": "5209934e6afca62654d93fe1cf44763f7d02784f6b05e930dd5cddcd39ee48d6",
+        "bytes": 4765
+      },
+      "runtime_review": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/cycle-v17-review-update-actual2-independent-review-20260921/REVIEW.json",
+        "sha256": "690fbf7e27bf225911d7fd15dd2b4e8803a4ec871901f41fd3620df59bb2f321",
+        "bytes": 6645
+      },
+      "runtime_outcome": {
+        "path": "D:/3/BOSDev/handoffs/cycle-v17-review-runtime-update-preparation-20260921/bound207c-update2/execution-attempt-2/OUTCOME.json",
+        "sha256": "236a4b270ed5ac0c684935a2e730b4be8fbe7d42a29c5fbf8a51366dee7fd3f6",
+        "bytes": 624
+      },
+      "runtime_first_failure": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/cycle-v17-review-update-actual1-independent-review-20260921/REVIEW.json",
+        "sha256": "9b559bffdd693f3eaba7bf51c91cdb65cb341e744f0ef4656b0593cd443c7f8c",
+        "bytes": 3898
+      },
+      "browser_receipt": {
+        "path": "D:/3/BOSDev/handoffs/cycle-v17-owner-review-browser-smoke-preparation-20260921/correction-v3a/execution-attempt-3/receipt.json",
+        "sha256": "6af4e6f9456be7cc4d1251941d5a3362e42872d71e38288a137a921e6741a0df",
+        "bytes": 11652
+      },
+      "browser_outer": {
+        "path": "D:/3/BOSDev/handoffs/cycle-v17-owner-review-browser-smoke-preparation-20260921/correction-v3a/outer-capture/execution-attempt-3/OUTER_RESULT.json",
+        "sha256": "320fdf061cb7d2b90d8ecd50d0cbe2f638df40d6b4c5994c4cfc439ab64873c4",
+        "bytes": 2153
+      },
+      "browser_host": {
+        "path": "D:/3/BOSDev/handoffs/cycle-v17-owner-review-browser-smoke-preparation-20260921/correction-v3a/outer-capture/original-host-attempt-3/summary.json",
+        "sha256": "bfd371f1bcc128d8f2d0c56f06352cb6a205f01b5030772be2672fe46838aea7",
+        "bytes": 169
+      },
+      "browser_preparation_review": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/cycle-v17-owner-smoke-actual2-independent-review-20260921/correction-v3a-review/REVIEW.json",
+        "sha256": "a8774cd85aa9eedba678910d873616fb76914c541ee4af3c52d23dee52591870",
+        "bytes": 3235
+      },
+      "browser_first_failure": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/cycle-v17-owner-smoke-actual1-independent-review-20260921/REVIEW.json",
+        "sha256": "25255e22258943906df9524245cdb900bb8fbd2d045a29b0bcac1cdc7067a6ee",
+        "bytes": 3514
+      },
+      "browser_second_failure": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/cycle-v17-owner-smoke-actual2-independent-review-20260921/REVIEW.json",
+        "sha256": "c2539f69ec03562f6ab1b468662480570bf434ed582fb0c3a83349f859d5f070",
+        "bytes": 2099
+      },
+      "online_owner_request": {
+        "path": "D:/3/BOSDev/reports/observer_closeout/OWNER_TEMP_ONLINE_ACCESS_20260921.json",
+        "sha256": "cd071d9d08ca346b40ccab7155b8a397d087f0bd5541ecfc597feeb87434f69d",
+        "bytes": 1325
+      },
+      "availability_outage": {
+        "path": "D:/3/BOSDev/online-review/20260921/OUTAGE_20260921_2118.json",
+        "sha256": "3d7564472ac00b5dd472710d93d14c5bc748b6f2c35b01f9b8ea8174d8fa501b",
+        "bytes": 854
+      },
+      "smoke_actual_review": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/cycle-v17-final-factual-docs-independent-review-20260921/resumed-review/REVIEW_CHECKPOINT.json",
+        "sha256": "09b1b7b47f3ad3695101aca46fda1cd2e39c0e2ffbc905315dbf42023ff2a05c",
+        "bytes": 9088
+      }
+    },
+    "extra_issues": [
+      {
+        "id": "V17-06",
+        "priority": "P1",
+        "function": "Availability after Codex restart",
+        "state": "RECOVERY_DELEGATED_AT_SNAPSHOT",
+        "reproduce": [
+          "Original temporary URL returned Error1033 after Codex restart.",
+          "Saved outage observation21:27UTC has no old serving PIDs or listeners."
+        ],
+        "impact": "Historical four-route PASS does not prove present availability. Parent-lifetime coupling is inferred, exact termination event unavailable.",
+        "remaining": "Controller restores same app/data through serving processes independent of Codex; final external delivery records checked URL and outcome. Do not rebuild, seed or replay UI suites."
+      }
+    ],
+    "final_delivery_authority": "This committed document is an immutable factual snapshot. Current serving availability, exact pushed head/CI and confirmed freeze are completed in the dated external final report and PR."
+  },
+  "freeze": "After publication and report: no development, agents or automation changes until new owner instruction; keep review app/data available."
+}

@@ -112,7 +112,7 @@ function bosStorageKey(key) {
 }
 function bosCanAction(action) {
   if (!bosCan('write')) return false;
-  if (['opening', 'payment', 'apply_change', 'resolve_job', 'adjust', 'import_batch', 'credit_invoice', 'reverse_credit', 'confirm_supplier_claim'].includes(action)) return bosRole() === 'ceo';
+  if (['opening', 'payment', 'apply_change', 'resolve_job', 'adjust', 'import_batch', 'credit_invoice', 'reverse_credit', 'confirm_supplier_claim', 'hold_payment', 'release_payment', 'location_update', 'order_network', 'purchase_network', 'register_supplier_invoice'].includes(action)) return bosRole() === 'ceo';
   if (['attach', 'change'].includes(action) && !bosCan('view_documents')) return false;
   if (['quality', 'operator'].includes(action) && bosRole() !== 'ceo' && !window.BOS_RUNTIME?.employee_id) return false;
   return true;
@@ -273,6 +273,10 @@ const NAV = [{
   label: 'ERP',
   iconKey: 'contracts',
   subs: [{
+    id: 'network',
+    label: 'Мережа та операції',
+    iconKey: 'dashboard'
+  }, {
     id: 'overview',
     label: 'Огляд виконання',
     iconKey: 'dashboard'
@@ -1784,16 +1788,159 @@ function NavBar({
     avatarColor,
     position
   } = settings.profile;
-  // Dropdown, закреплённый КЛИКОМ (id раздела или null). Hover-открытие работает чисто через CSS.
-  // Клик критичен для планшета (там нет hover) — меню держится открытым до выбора или клика вне.
   const [pinnedDrop, setPinnedDrop] = useState(null);
-
-  // Любой клик вне навигации закрывает закреплённый dropdown
+  const [ownerVersion, setOwnerVersion] = useState(0);
+  const navRoot = useRef(null),
+    mobileNav = useRef(null),
+    triggerRefs = useRef({}),
+    focusTimer = useRef(null),
+    focusFrame = useRef(null),
+    focusGeneration = useRef(0),
+    ownerEpoch = useRef(0),
+    openRef = useRef(null),
+    openOwner = useRef(null),
+    navRef = useRef(nav),
+    alive = useRef(true),
+    navigationScope = bosHttpScope();
+  navRef.current = nav;
+  openRef.current = pinnedDrop;
+  const cancelPendingFocus = () => {
+    focusGeneration.current++;
+    if (focusTimer.current !== null) {
+      window.clearTimeout(focusTimer.current);
+      focusTimer.current = null;
+    }
+    if (focusFrame.current !== null) {
+      window.cancelAnimationFrame(focusFrame.current);
+      focusFrame.current = null;
+    }
+  };
+  const mobileMode = () => window.matchMedia?.('(max-width: 1200px)').matches === true;
+  const captureOwner = () => ({
+    scope: bosHttpScope(),
+    epoch: ownerEpoch.current,
+    version: ownerVersion,
+    route: {
+      section: navRef.current.section,
+      sub: navRef.current.sub || null
+    },
+    mobile: mobileMode()
+  });
+  const ownsCurrent = owner => alive.current && owner.epoch === ownerEpoch.current && owner.version === ownerVersion && owner.scope === bosHttpScope() && owner.mobile === mobileMode() && navRef.current.section === owner.route.section && (navRef.current.sub || null) === owner.route.sub;
+  const routeIsAllowed = (section, sub) => bosNavigation().some(item => item.id === section && bosCanView(section, sub) && (sub == null || item.subs.some(itemSub => itemSub.id === sub)));
+  const modalOwnsFocus = () => {
+    const modal = document.querySelector('dialog[open]');
+    return !!(modal?.isConnected && modal.open);
+  };
+  const isVisible = node => !!(node?.isConnected && !node.disabled && node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden');
+  const setOpenDisclosure = (id, owner = null) => {
+    openRef.current = id;
+    openOwner.current = id ? owner : null;
+    setPinnedDrop(id);
+  };
+  const focusCurrentContent = () => {
+    const main = document.querySelector('main[data-bos-main]');
+    if (!modalOwnsFocus() && main?.isConnected) main.focus?.();
+  };
+  const focusTrigger = id => {
+    const trigger = triggerRefs.current[id];
+    if (modalOwnsFocus()) return;
+    if (isVisible(trigger)) {
+      trigger.focus();
+      return;
+    }
+    if (isVisible(mobileNav.current)) {
+      mobileNav.current.focus();
+      return;
+    }
+    focusCurrentContent();
+  };
+  const closeDisclosure = (id, returnFocus, owner) => {
+    if (!ownsCurrent(owner) || openOwner.current !== owner) return;
+    cancelPendingFocus();
+    if (openRef.current === id) setOpenDisclosure(null);
+    if (returnFocus) {
+      const generation = focusGeneration.current;
+      focusTimer.current = window.setTimeout(() => {
+        focusTimer.current = null;
+        if (generation === focusGeneration.current && ownsCurrent(owner)) focusTrigger(id);
+      }, 0);
+    }
+  };
+  const commitLeaf = (section, sub, returnCurrentFocus, owner) => {
+    const target = {
+      section,
+      sub: sub || null
+    };
+    cancelPendingFocus();
+    if (!ownsCurrent(owner) || !routeIsAllowed(target.section, target.sub)) return;
+    if (owner.route.section === target.section && owner.route.sub === target.sub) {
+      if (openRef.current === section) closeDisclosure(section, returnCurrentFocus, owner);
+      return;
+    }
+    setOpenDisclosure(null);
+    if (!ownsCurrent(owner) || !routeIsAllowed(target.section, target.sub)) return;
+    setNav(target);
+    const generation = focusGeneration.current;
+    focusTimer.current = window.setTimeout(() => {
+      focusTimer.current = null;
+      const targetIsCurrent = navRef.current.section === target.section && (navRef.current.sub || null) === target.sub;
+      if (generation === focusGeneration.current && alive.current && owner.epoch === ownerEpoch.current && owner.version === ownerVersion && owner.scope === bosHttpScope() && owner.mobile === mobileMode() && targetIsCurrent && routeIsAllowed(target.section, target.sub)) focusCurrentContent();
+    }, 0);
+  };
+  const closeAfterFocusLeaves = (event, owner) => {
+    const openId = openRef.current;
+    if (!openId) return;
+    const next = event.relatedTarget,
+      trigger = triggerRefs.current[openId],
+      disclosure = document.getElementById('bos-nav-disclosure-' + openId);
+    if (next && (trigger?.contains(next) || disclosure?.contains(next))) return;
+    if (!ownsCurrent(owner) || openOwner.current !== owner) return;
+    const generation = focusGeneration.current;
+    if (focusFrame.current !== null) window.cancelAnimationFrame(focusFrame.current);
+    focusFrame.current = window.requestAnimationFrame(() => {
+      focusFrame.current = null;
+      const active = document.activeElement,
+        currentTrigger = triggerRefs.current[openId],
+        currentDisclosure = document.getElementById('bos-nav-disclosure-' + openId);
+      if (generation === focusGeneration.current && ownsCurrent(owner) && openRef.current === openId && openOwner.current === owner && !(currentTrigger?.contains(active) || currentDisclosure?.contains(active))) setOpenDisclosure(null);
+    });
+  };
   useEffect(() => {
-    const close = () => setPinnedDrop(null);
-    document.addEventListener('click', close);
-    return () => document.removeEventListener('click', close);
+    alive.current = true;
+    const close = event => {
+      if (!navRoot.current?.contains(event.target)) {
+        cancelPendingFocus();
+        setOpenDisclosure(null);
+      }
+    };
+    const invalidate = () => {
+      ownerEpoch.current++;
+      cancelPendingFocus();
+      setOpenDisclosure(null);
+      setOwnerVersion(version => version + 1);
+    };
+    const media = window.matchMedia?.('(max-width: 1200px)');
+    document.addEventListener('pointerdown', close);
+    window.addEventListener('bos:session-ended', invalidate);
+    window.addEventListener('bos:data-changed', invalidate);
+    media?.addEventListener?.('change', invalidate);
+    return () => {
+      alive.current = false;
+      ownerEpoch.current++;
+      document.removeEventListener('pointerdown', close);
+      window.removeEventListener('bos:session-ended', invalidate);
+      window.removeEventListener('bos:data-changed', invalidate);
+      media?.removeEventListener?.('change', invalidate);
+      cancelPendingFocus();
+    };
   }, []);
+  useEffect(() => {
+    cancelPendingFocus();
+    setOpenDisclosure(null);
+  }, [navigationScope]);
+  const renderOwner = captureOwner(),
+    focusOwner = openOwner.current || renderOwner;
   const bellIcon = /*#__PURE__*/React.createElement("svg", {
     width: "18",
     height: "18",
@@ -1871,15 +2018,13 @@ function NavBar({
       marginTop: 1
     }
   }, "\u041F\u043E\u043C\u0456\u0447\u043D\u0438\u043A \u041A\u0435\u0440\u0456\u0432\u043D\u0438\u043A\u0430"))), /*#__PURE__*/React.createElement("select", {
+    ref: mobileNav,
     className: "bos-mobile-nav",
     "aria-label": "\u0420\u043E\u0437\u0434\u0456\u043B \u0441\u0438\u0441\u0442\u0435\u043C\u0438",
     value: nav.section + ':' + (nav.sub || ''),
     onChange: e => {
       const [section, sub] = e.target.value.split(':');
-      setNav({
-        section,
-        sub: sub || null
-      });
+      commitLeaf(section, sub || null, false, renderOwner);
     }
   }, bosNavigation().map(n => /*#__PURE__*/React.createElement("optgroup", {
     key: n.id,
@@ -1890,6 +2035,8 @@ function NavBar({
     key: x.id,
     value: n.id + ':' + x.id
   }, x.label))))), /*#__PURE__*/React.createElement("div", {
+    ref: navRoot,
+    onBlur: event => closeAfterFocusLeaves(event, focusOwner),
     className: "bos-nav-cluster",
     style: {
       position: 'absolute',
@@ -1902,74 +2049,66 @@ function NavBar({
   }, bosNavigation().map(n => {
     const isActive = nav.section === n.id;
     const hasSubs = n.subs.length > 0;
+    const disclosureOwner = pinnedDrop === n.id ? openOwner.current : renderOwner;
     // HR имеет badge с кол-вом активных доручень (фиксированная цифра-заглушка, как в старом Sidebar)
     const badge = n.id === 'hr' ? tasks.filter(t => !t.archived && t.status !== 'done').length : null;
     // AI имеет онлайн-индикатор (зелёная точка)
     const onlineDot = n.id === 'ai' && aiConfigured;
-    return (
-      /*#__PURE__*/
-      // Наведение на другой пункт закрывает чужой закреплённый dropdown — иначе видно два меню сразу
-      React.createElement("div", {
-        key: n.id,
-        className: "nav-slot",
-        onMouseEnter: () => setPinnedDrop(p => p === n.id ? p : null)
-      }, /*#__PURE__*/React.createElement("div", {
-        className: 'nav-pill' + (isActive ? ' active' : ''),
-        role: "button",
-        tabIndex: 0,
-        onClick: e => {
-          e.stopPropagation(); // иначе document-обработчик тут же закроет только что открытый dropdown
-          setNav({
-            section: n.id,
-            sub: n.subs[0]?.id || null
-          });
-          setPinnedDrop(hasSubs ? pinnedDrop === n.id ? null : n.id : null);
-        },
-        onKeyDown: e => onKey(e, () => {
-          setNav({
-            section: n.id,
-            sub: n.subs[0]?.id || null
-          });
-          setPinnedDrop(hasSubs ? pinnedDrop === n.id ? null : n.id : null);
-        })
-      }, /*#__PURE__*/React.createElement("span", {
-        className: "nav-pill-icon"
-      }, ICONS[n.iconKey] || null), /*#__PURE__*/React.createElement("span", {
-        className: "nav-pill-label"
-      }, n.label)), badge !== null && /*#__PURE__*/React.createElement("span", {
-        className: "nav-badge"
-      }, badge), onlineDot && /*#__PURE__*/React.createElement("span", {
-        className: "nav-dot"
-      }), hasSubs && /*#__PURE__*/React.createElement("div", {
-        className: 'nav-dropdown' + (pinnedDrop === n.id ? ' open' : ''),
-        onClick: e => e.stopPropagation()
-      }, n.subs.map(s => /*#__PURE__*/React.createElement("div", {
-        key: s.id,
-        className: 'nav-drop-item' + (nav.section === n.id && nav.sub === s.id ? ' active' : ''),
-        role: "button",
-        tabIndex: 0,
-        onClick: () => {
-          setNav({
-            section: n.id,
-            sub: s.id
-          });
-          setPinnedDrop(null);
-        },
-        onKeyDown: e => onKey(e, () => {
-          setNav({
-            section: n.id,
-            sub: s.id
-          });
-          setPinnedDrop(null);
-        })
-      }, /*#__PURE__*/React.createElement("span", {
-        style: {
-          display: 'flex',
-          alignItems: 'center',
-          width: 14
+    return /*#__PURE__*/React.createElement("div", {
+      key: n.id,
+      className: "nav-slot"
+    }, /*#__PURE__*/React.createElement("button", {
+      ref: node => {
+        if (node) triggerRefs.current[n.id] = node;else delete triggerRefs.current[n.id];
+      },
+      className: 'nav-pill' + (isActive ? ' active' : ''),
+      type: "button",
+      "aria-expanded": hasSubs ? pinnedDrop === n.id : undefined,
+      "aria-controls": hasSubs ? 'bos-nav-disclosure-' + n.id : undefined,
+      onClick: () => {
+        if (!ownsCurrent(renderOwner)) return;
+        if (hasSubs) {
+          cancelPendingFocus();
+          setOpenDisclosure(openRef.current === n.id ? null : n.id, openRef.current === n.id ? null : renderOwner);
+        } else commitLeaf(n.id, null, true, renderOwner);
+      },
+      onKeyDown: e => {
+        if (e.key === 'Escape' && hasSubs && pinnedDrop === n.id) {
+          e.preventDefault();
+          closeDisclosure(n.id, true, disclosureOwner);
         }
-      }, ICONS[s.iconKey] || null), /*#__PURE__*/React.createElement("span", null, s.label)))))
-    );
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "nav-pill-icon"
+    }, ICONS[n.iconKey] || null), /*#__PURE__*/React.createElement("span", {
+      className: "nav-pill-label"
+    }, n.label)), badge !== null && /*#__PURE__*/React.createElement("span", {
+      className: "nav-badge"
+    }, badge), onlineDot && /*#__PURE__*/React.createElement("span", {
+      className: "nav-dot"
+    }), hasSubs && /*#__PURE__*/React.createElement("div", {
+      id: 'bos-nav-disclosure-' + n.id,
+      className: 'nav-dropdown' + (pinnedDrop === n.id ? ' open' : ''),
+      hidden: pinnedDrop !== n.id,
+      onKeyDown: e => {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          closeDisclosure(n.id, true, disclosureOwner);
+        }
+      }
+    }, n.subs.map(s => /*#__PURE__*/React.createElement("button", {
+      key: s.id,
+      type: "button",
+      className: 'nav-drop-item' + (nav.section === n.id && nav.sub === s.id ? ' active' : ''),
+      "aria-current": nav.section === n.id && nav.sub === s.id ? 'page' : undefined,
+      onClick: () => commitLeaf(n.id, s.id, true, disclosureOwner)
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        width: 14
+      }
+    }, ICONS[s.iconKey] || null), /*#__PURE__*/React.createElement("span", null, s.label)))));
   })), /*#__PURE__*/React.createElement("div", {
     style: {
       marginLeft: 'auto',
@@ -7484,216 +7623,347 @@ function Tasks({
   error,
   refetchTasks
 }) {
-  const [filter, setFilter] = useState('all'),
+  const scope = c01Scope(),
+    owner = useRef({
+      alive: true,
+      generation: 0,
+      scope,
+      controllers: new Set(),
+      context: '',
+      dialogKey: null
+    }),
+    heading = useRef(null),
+    opener = useRef(null),
+    serial = useRef(0);
+  const [department, setDepartment] = useState(''),
+    [tab, setTab] = useState('active'),
+    [filter, setFilter] = useState('all'),
     [search, setSearch] = useState(''),
     [sortBy, setSortBy] = useState('priority'),
-    [tab, setTab] = useState('active'),
+    [deadlineFrom, setDeadlineFrom] = useState(''),
+    [deadlineTo, setDeadlineTo] = useState(''),
+    [view, setView] = useState({
+      status: 'loading',
+      data: null,
+      error: ''
+    }),
     [dialog, setDialog] = useState(null),
-    [archive, setArchive] = useState([]),
-    [archiveError, setArchiveError] = useState(''),
-    [archiveLoading, setArchiveLoading] = useState(false);
-  const sequence = useRef(0),
-    archiveAbort = useRef(null),
-    live = useRef(true);
-  useEffect(() => () => {
-    live.current = false;
-    archiveAbort.current?.abort();
-  }, []);
+    [notice, setNotice] = useState('');
+  const context = JSON.stringify([department, tab]),
+    data = owner.current.alive && owner.current.scope === scope && owner.current.context === context ? view.data : null;
   useEffect(() => {
-    if (tab === 'archive') loadArchive();
+    const o = owner.current;
+    o.alive = true;
+    o.scope = scope;
+    o.context = context;
+    readList();
+    const ended = () => {
+        c01Cancel(o);
+        o.loading = false;
+        o.data = null;
+        o.dialogKey = null;
+        setDialog(null);
+        setView({
+          status: 'denied',
+          data: null,
+          error: 'Сесія або права змінилися. Доступні факти очищено.'
+        });
+        setNotice('');
+      },
+      changed = () => {
+        c01Cancel(o);
+        o.loading = false;
+        o.data = null;
+        setView({
+          status: 'stale',
+          data: null,
+          error: 'Дані змінилися. Оновіть список доступних доручень.'
+        });
+        setNotice('');
+      };
+    window.addEventListener('bos:session-ended', ended);
+    window.addEventListener('bos:data-changed', changed);
     return () => {
-      archiveAbort.current?.abort();
-      sequence.current++;
+      o.alive = false;
+      o.loading = false;
+      c01Cancel(o);
+      window.removeEventListener('bos:session-ended', ended);
+      window.removeEventListener('bos:data-changed', changed);
     };
-  }, [tab]);
-  async function loadArchive() {
-    const n = ++sequence.current;
-    archiveAbort.current?.abort();
-    const controller = new AbortController();
-    archiveAbort.current = controller;
-    setArchiveLoading(true);
-    setArchiveError('');
+  }, [scope, context]);
+  async function readList(result = null) {
+    const o = owner.current;
+    if (!o.alive || o.scope !== c01Scope() || o.context !== context) return;
+    if (o.loading) return;
+    o.loading = true;
+    c01Cancel(o);
+    o.data = null;
+    const t = {
+        generation: o.generation,
+        scope: o.scope
+      },
+      selected = department;
+    setView({
+      status: 'loading',
+      data: null,
+      error: ''
+    });
     try {
-      const r = await fetch('/api/tasks/?archived=true', {
-          signal: controller.signal
-        }),
-        body = await r.json();
-      if (!live.current || n !== sequence.current) return;
-      if (!r.ok || !Array.isArray(body)) throw Error(body.error || 'Архів недоступний.');
-      setArchive(body);
+      const query = new URLSearchParams({
+        archived: tab === 'archive' ? 'true' : 'false'
+      });
+      if (selected) query.set('department_id', String(c01InputId(selected)));
+      const [rows, tree, employees, clock] = await Promise.all([c01Read(o, t, '/api/tasks/?' + query.toString()), c01Read(o, t, '/api/branches/'), c01Read(o, t, '/api/employees/'), c01Read(o, t, '/api/operations/status/')]);
+      const departments = c01Departments(tree);
+      if (!c01Rows(rows) || !rows.every(c01TaskShape) || !c01Rows(employees) || employees.some(e => typeof e.full_name !== 'string') || !c01Date(clock.as_of) || clock.access_revision !== window.BOS_RUNTIME?.access_revision) throw Error('Не отримано повного доступного списку та серверної дати.');
+      if (selected && !departments.some(d => d.id === Number(selected))) throw Object.assign(Error('Обраний відділ зараз недоступний.'), {
+        denied: true
+      });
+      if (!c01Current(o, t) || o.context !== context) return;
+      const next = {
+        rows,
+        departments,
+        employees,
+        as_of: clock.as_of,
+        department: selected,
+        context
+      };
+      o.data = next;
+      setView({
+        status: 'fresh',
+        data: next,
+        error: ''
+      });
+      if (result?.task_id) setNotice(rows.some(r => r.id === result.task_id) ? 'Список перечитано після погодження. Поточне доручення доступне за цими фільтрами.' : 'Список перечитано після погодження. Доручення більше не входить до доступного списку цього відділу або архівного фільтра; це не видалення історії.');
     } catch (e) {
-      if (live.current && n === sequence.current) {
-        setArchive([]);
-        setArchiveError(e.name === 'AbortError' ? 'Читання архіву не завершилося.' : e.message);
+      if (c01Current(o, t)) {
+        o.data = null;
+        setView({
+          status: e.denied ? 'denied' : 'error',
+          data: null,
+          error: e.name === 'AbortError' ? 'Читання не завершилося. Оновіть список явно.' : e.message
+        });
       }
     } finally {
-      if (live.current && n === sequence.current) setArchiveLoading(false);
+      if (c01Current(o, t)) o.loading = false;
     }
   }
-  function open(task, mode = 'edit', preset = {}) {
+  function changeContext(key, value) {
+    const o = owner.current;
+    c01Cancel(o);
+    o.loading = false;
+    o.data = null;
+    o.context = 'CHANGING';
+    o.dialogKey = null;
+    setDialog(null);
+    setNotice('');
+    setView({
+      status: 'loading',
+      data: null,
+      error: ''
+    });
+    if (key === 'department') setDepartment(value);else {
+      setTab(value);
+      setFilter('all');
+    }
+  }
+  function open(task, mode = 'view', preset = {}) {
+    const o = owner.current;
+    if (!o.alive || o.scope !== scope || c01Scope() !== scope || view.status !== 'fresh' || o.data !== data || o.context !== context || task && !data.rows.some(t => t === task)) return;
+    opener.current = {
+      node: document.activeElement,
+      scroll: window.scrollY,
+      scope
+    };
+    const key = ++serial.current;
+    o.dialogKey = key;
     setDialog({
-      taskId: task?.id || null,
+      taskId: task?.id ?? null,
       mode,
       preset,
-      key: (task?.id || 'new') + ':' + mode + ':' + Date.now()
+      key,
+      scope
     });
   }
-  function refresh() {
-    refetchTasks();
-    if (tab === 'archive') loadArchive();
+  function closeDialog(key) {
+    if (owner.current.dialogKey !== key) return;
+    owner.current.dialogKey = null;
+    setDialog(null);
+    const previous = opener.current;
+    if (previous?.scope !== c01Scope()) return;
+    const node = previous.node;
+    if (node?.isConnected && !node.disabled) node.focus();else heading.current?.focus();
+    window.scrollTo?.(0, previous.scroll);
   }
-  const rows = tab === 'archive' ? archive : tasks.filter(t => !t.archived),
-    counts = {
-      all: rows.length,
-      active: 0,
-      process: 0,
-      done: 0,
-      overdue: 0
+  function recovered(entry) {
+    const o = owner.current;
+    if (!o.alive || c01Scope() !== scope || entry.user_id !== window.BOS_RUNTIME?.user_id) return;
+    opener.current = {
+      node: document.activeElement,
+      scroll: window.scrollY,
+      scope
     };
-  rows.forEach(t => {
-    const k = c01TaskSegment(t);
-    if (k in counts) counts[k]++;
-  });
-  const term = search.trim().toLowerCase(),
+    const key = ++serial.current;
+    o.dialogKey = key;
+    setDialog({
+      key,
+      recovery: entry,
+      scope
+    });
+  }
+  function after(result, key) {
+    if (!owner.current.alive || c01Scope() !== scope || owner.current.dialogKey !== key) return;
+    readList(result);
+    refetchTasks?.();
+  }
+  const term = search.trim().toLocaleLowerCase('uk-UA'),
     priorityOrder = {
       high: 0,
       medium: 1,
       low: 2
-    };
-  const filtered = rows.filter(t => tab === 'archive' || filter === 'all' || c01TaskSegment(t) === filter).filter(t => !term || [t.title, c01Assignee(t), t.category, t.order_code].some(s => (s || '').toLowerCase().includes(term))).sort((a, b) => sortBy === 'priority' ? (priorityOrder[a.priority] ?? 3) - (priorityOrder[b.priority] ?? 3) : (a.deadline || '9999').localeCompare(b.deadline || '9999'));
-  const pageError = tab === 'archive' ? archiveError : error,
-    pageLoading = tab === 'archive' ? archiveLoading : loading;
+    },
+    rows = data?.rows || [],
+    filtered = rows.filter(t => tab === 'archive' || filter === 'all' || c01TaskSegment(t) === filter).filter(t => !term || [t.title, c01Assignee(t), t.category, t.order_code].some(s => String(s || '').toLocaleLowerCase('uk-UA').includes(term))).filter(t => (!deadlineFrom || t.deadline && t.deadline >= deadlineFrom) && (!deadlineTo || t.deadline && t.deadline <= deadlineTo)).sort((a, b) => sortBy === 'priority' ? (priorityOrder[a.priority] ?? 3) - (priorityOrder[b.priority] ?? 3) : (a.deadline || '9999').localeCompare(b.deadline || '9999'));
+  const ownEmployee = data?.employees.find(e => e.id === window.BOS_RUNTIME?.employee_id),
+    ownDepartment = data?.departments.find(d => d.id === ownEmployee?.branch),
+    selectedDepartment = data?.departments.find(d => String(d.id) === department),
+    fresh = view.status === 'fresh' && !!data;
   return /*#__PURE__*/React.createElement("div", {
     style: {
-      padding: 24
+      padding: 'clamp(12px,3vw,24px)',
+      minWidth: 0,
+      overflowWrap: 'anywhere'
     }
   }, /*#__PURE__*/React.createElement("div", {
     className: "erp-row"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", null, "\u0414\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u043A\u043E\u043C\u0430\u043D\u0434\u0456"), /*#__PURE__*/React.createElement("p", {
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
+    ref: heading,
+    tabIndex: -1
+  }, "\u0414\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u0432\u0456\u0434\u0434\u0456\u043B\u0443"), data && /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
-  }, tab === 'archive' ? rows.length + ' в архіві' : rows.length + ' у робочому списку · ' + counts.overdue + ' прострочено')), /*#__PURE__*/React.createElement("div", {
+  }, selectedDepartment ? selectedDepartment.name + ' · ID ' + selectedDepartment.id : 'Усі доступні доручення', " \xB7 \u0441\u0435\u0440\u0432\u0435\u0440\u043D\u0430 \u0434\u0430\u0442\u0430 ", /*#__PURE__*/React.createElement("time", {
+    dateTime: data.as_of
+  }, data.as_of), " \xB7 \u043F\u043E\u043A\u0430\u0437\u0430\u043D\u043E ", filtered.length, " \u0456\u0437 ", rows.length, " \u043F\u0440\u043E\u0447\u0438\u0442\u0430\u043D\u0438\u0445 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432.")), /*#__PURE__*/React.createElement("div", {
     className: "erp-actions"
   }, /*#__PURE__*/React.createElement(Button, {
-    onClick: refresh
+    disabled: view.status === 'loading',
+    onClick: () => readList()
   }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438"), bosCan('write') && /*#__PURE__*/React.createElement(Button, {
+    disabled: !fresh,
     variant: "primary",
     onClick: () => open(null, 'create')
-  }, "+ \u041D\u043E\u0432\u0435 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F"))), /*#__PURE__*/React.createElement("div", {
-    className: "erp-row"
-  }, /*#__PURE__*/React.createElement(SegmentedControl, {
-    value: tab,
-    onChange: value => {
-      setTab(value);
-      setFilter('all');
-    },
-    options: [{
-      key: 'active',
-      label: 'Робочі доручення'
-    }, {
-      key: 'archive',
-      label: 'Архів'
-    }]
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "erp-actions"
-  }, /*#__PURE__*/React.createElement(Input, {
-    "aria-label": "\u041F\u043E\u0448\u0443\u043A \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u044C",
-    placeholder: "\u041D\u0430\u0437\u0432\u0430, \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u0430\u043B\u044C\u043D\u0438\u0439, \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F\u2026",
+  }, "+ \u041D\u043E\u0432\u0435 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F"))), data && /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, ownDepartment ? 'Ваш формальний відділ: ' + ownDepartment.name + ' · №' + ownDepartment.id : 'Ваш формальний відділ не визначено. Доступні доручення залишаються за чинними правами.', " \u0412\u0456\u0434\u0434\u0456\u043B \u0432\u0438\u043A\u043E\u043D\u0430\u0432\u0446\u044F \u043D\u0435 \u0437\u043C\u0456\u043D\u044E\u0454 \u043F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0443 \u0431\u0456\u0437\u043D\u0435\u0441-\u0444\u0456\u043B\u0456\u044E Task."), /*#__PURE__*/React.createElement("div", {
+    className: "erp-form"
+  }, /*#__PURE__*/React.createElement("label", null, "\u0412\u0456\u0434\u0434\u0456\u043B", /*#__PURE__*/React.createElement(Select, {
+    value: department,
+    disabled: !data && view.status === 'loading',
+    onChange: e => changeContext('department', e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "\u0423\u0441\u0456 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456"), department && !data?.departments.some(d => String(d.id) === department) && /*#__PURE__*/React.createElement("option", {
+    value: department
+  }, "\u041E\u0431\u0440\u0430\u043D\u0438\u0439 ID ", department), data?.departments.map(d => /*#__PURE__*/React.createElement("option", {
+    key: d.id,
+    value: d.id
+  }, d.name, " \xB7 ID ", d.id)))), /*#__PURE__*/React.createElement("label", null, "\u041F\u043E\u0448\u0443\u043A", /*#__PURE__*/React.createElement(Input, {
     value: search,
+    placeholder: "\u041D\u0430\u0437\u0432\u0430, \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u0430\u043B\u044C\u043D\u0438\u0439, \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F\u2026",
     onChange: e => setSearch(e.target.value)
-  }), /*#__PURE__*/React.createElement(Select, {
-    "aria-label": "\u0421\u043E\u0440\u0442\u0443\u0432\u0430\u043D\u043D\u044F \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u044C",
+  }))), /*#__PURE__*/React.createElement("details", null, /*#__PURE__*/React.createElement("summary", null, "\u0424\u0456\u043B\u044C\u0442\u0440\u0438 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u044C"), /*#__PURE__*/React.createElement("div", {
+    className: "erp-form"
+  }, /*#__PURE__*/React.createElement("label", null, "\u0421\u043F\u0438\u0441\u043E\u043A", /*#__PURE__*/React.createElement(Select, {
+    value: tab,
+    onChange: e => changeContext('tab', e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: "active"
+  }, "\u0420\u043E\u0431\u043E\u0447\u0456 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("option", {
+    value: "archive"
+  }, "\u0410\u0440\u0445\u0456\u0432"))), /*#__PURE__*/React.createElement("label", null, "\u0421\u0442\u0430\u043D", /*#__PURE__*/React.createElement(Select, {
+    value: filter,
+    onChange: e => setFilter(e.target.value)
+  }, [['all', 'Усі'], ['active', 'Вхідні — відкриті призначення'], ['process', 'У роботі'], ['done', 'Виконані'], ['overdue', 'Прострочені']].map(([key, label]) => /*#__PURE__*/React.createElement("option", {
+    key: key,
+    value: key
+  }, label)))), /*#__PURE__*/React.createElement("label", null, "\u0421\u043E\u0440\u0442\u0443\u0432\u0430\u043D\u043D\u044F", /*#__PURE__*/React.createElement(Select, {
     value: sortBy,
     onChange: e => setSortBy(e.target.value)
   }, /*#__PURE__*/React.createElement("option", {
     value: "priority"
   }, "\u0417\u0430 \u043F\u0440\u0456\u043E\u0440\u0438\u0442\u0435\u0442\u043E\u043C"), /*#__PURE__*/React.createElement("option", {
     value: "deadline"
-  }, "\u0417\u0430 \u0442\u0435\u0440\u043C\u0456\u043D\u043E\u043C")))), tab === 'active' && /*#__PURE__*/React.createElement(SegmentedControl, {
-    value: filter,
-    onChange: setFilter,
-    options: [['all', 'Усі'], ['active', 'Відкриті'], ['process', 'У роботі'], ['done', 'Виконані'], ['overdue', 'Прострочені']].map(([key, label]) => ({
-      key,
-      label: label + ' · ' + counts[key]
-    }))
-  }), pageError && /*#__PURE__*/React.createElement("p", {
+  }, "\u0417\u0430 \u0441\u0442\u0440\u043E\u043A\u043E\u043C"))), /*#__PURE__*/React.createElement("label", null, "\u0421\u0442\u0440\u043E\u043A \u0432\u0456\u0434", /*#__PURE__*/React.createElement(Input, {
+    type: "date",
+    value: deadlineFrom,
+    onChange: e => setDeadlineFrom(e.target.value)
+  })), /*#__PURE__*/React.createElement("label", null, "\u0421\u0442\u0440\u043E\u043A \u0434\u043E", /*#__PURE__*/React.createElement(Input, {
+    type: "date",
+    value: deadlineTo,
+    onChange: e => setDeadlineTo(e.target.value)
+  }))), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0414\u0456\u0430\u043F\u0430\u0437\u043E\u043D \u0441\u0442\u0440\u043E\u043A\u0456\u0432 \u0454 \u0444\u0456\u043B\u044C\u0442\u0440\u043E\u043C \u043F\u043E\u0442\u043E\u0447\u043D\u043E\u0433\u043E \u0447\u0438\u0442\u0430\u043D\u043D\u044F, \u0430 \u043D\u0435 \u0456\u0441\u0442\u043E\u0440\u0438\u0447\u043D\u0438\u043C \u043F\u0435\u0440\u0456\u043E\u0434\u043E\u043C. \xAB\u0412\u0445\u0456\u0434\u043D\u0456\xBB \u043D\u0435 \u043E\u0437\u043D\u0430\u0447\u0430\u0454 \u043E\u0441\u043E\u0431\u0438\u0441\u0442\u0435 \u043F\u0440\u0438\u0439\u043D\u044F\u0442\u0442\u044F."), /*#__PURE__*/React.createElement(Button, {
+    onClick: () => {
+      setSearch('');
+      setFilter('all');
+      setDeadlineFrom('');
+      setDeadlineTo('');
+    }
+  }, "\u0421\u043A\u0438\u043D\u0443\u0442\u0438 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u0456 \u0444\u0456\u043B\u044C\u0442\u0440\u0438")), view.status === 'loading' && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0427\u0438\u0442\u0430\u0454\u043C\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F\u2026"), view.error && /*#__PURE__*/React.createElement("p", {
     className: "erp-error",
     role: "alert"
-  }, pageError, " ", /*#__PURE__*/React.createElement(Button, {
-    onClick: refresh
-  }, "\u0421\u043F\u0440\u043E\u0431\u0443\u0432\u0430\u0442\u0438 \u0437\u043D\u043E\u0432\u0443")), pageLoading && /*#__PURE__*/React.createElement("p", {
+  }, view.error), notice && /*#__PURE__*/React.createElement("p", {
     role: "status"
-  }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0443\u0454\u043C\u043E \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F\u2026"), tab === 'archive' && /*#__PURE__*/React.createElement("p", {
-    className: "op-muted"
-  }, "\u0410\u0440\u0445\u0456\u0432\u043D\u0456 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u0437\u0431\u0435\u0440\u0456\u0433\u0430\u044E\u0442\u044C \u0434\u0436\u0435\u0440\u0435\u043B\u0430, \u0441\u0442\u0430\u0442\u0443\u0441, \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u0442\u0430 \u0456\u0441\u0442\u043E\u0440\u0456\u044E. \u0412\u0456\u0434\u043D\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u043E\u043A\u0440\u0435\u043C\u043E \u043F\u043E\u0433\u043E\u0434\u0436\u0443\u0454\u0442\u044C\u0441\u044F."), /*#__PURE__*/React.createElement("div", {
-    className: "op-table c01-task-table"
-  }, /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, ['Доручення', 'Відповідальний', 'Термін', 'Пріоритет', 'Статус', 'Дії'].map(h => /*#__PURE__*/React.createElement("th", {
-    key: h
-  }, h)))), /*#__PURE__*/React.createElement("tbody", null, filtered.map(t => /*#__PURE__*/React.createElement("tr", {
-    key: t.id
-  }, /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement(BoSLink, {
+  }, notice), fresh && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,300px),1fr))',
+      gap: 12
+    }
+  }, filtered.map(t => /*#__PURE__*/React.createElement("article", {
+    key: t.id,
+    className: "c01-current",
+    style: {
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement("h3", null, /*#__PURE__*/React.createElement(BoSLink, {
     onClick: () => open(t, 'view')
-  }, t.title), /*#__PURE__*/React.createElement("p", {
-    className: "op-muted"
-  }, "\u2116", t.id, " \xB7 ", t.category || 'Без категорії', t.order_code ? ' · ' + t.order_code : '')), /*#__PURE__*/React.createElement("td", null, c01Assignee(t) || 'Історично не призначено', t.assignee_id && /*#__PURE__*/React.createElement("p", {
-    className: "op-muted"
-  }, "ID ", t.assignee_id)), /*#__PURE__*/React.createElement("td", null, t.deadline || 'Без терміну', t.is_overdue && /*#__PURE__*/React.createElement("p", {
-    className: "erp-error"
-  }, "\u041F\u0440\u043E\u0441\u0442\u0440\u043E\u0447\u0435\u043D\u043E")), /*#__PURE__*/React.createElement("td", null, bosCan('write') && !t.archived ? /*#__PURE__*/React.createElement(PillSelect, {
-    value: t.priority || '',
-    color: priorityMeta(t.priority).color,
-    onChange: e => open(t, 'edit', {
-      priority: e.target.value || null
-    }),
-    options: [{
-      value: 'high',
-      label: 'Високий'
-    }, {
-      value: 'medium',
-      label: 'Середній'
-    }, {
-      value: 'low',
-      label: 'Низький'
-    }, {
-      value: '',
-      label: 'Без пріоритету'
-    }]
-  }) : {
+  }, t.title)), /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u2116", t.id, " \xB7 ", t.category || 'Без категорії'), /*#__PURE__*/React.createElement("p", null, c01Assignee(t) || 'Історично не призначено', t.assignee_id ? ' · співробітник №' + t.assignee_id : ''), /*#__PURE__*/React.createElement("p", null, "\u0421\u0442\u0440\u043E\u043A: ", t.deadline || 'Не задано', " \xB7 ", C01_STATUS[t.status] || t.status, t.is_overdue ? ' · Прострочено' : ''), /*#__PURE__*/React.createElement("p", null, "\u041F\u0440\u0456\u043E\u0440\u0438\u0442\u0435\u0442: ", {
     high: 'Високий',
     medium: 'Середній',
     low: 'Низький'
-  }[t.priority] || 'Без пріоритету'), /*#__PURE__*/React.createElement("td", null, bosCan('write') && !t.archived ? /*#__PURE__*/React.createElement(PillSelect, {
-    value: t.status,
-    color: t.is_overdue ? T.red : t.status === 'done' ? T.primary : T.text,
-    onChange: e => open(t, 'edit', {
-      status: e.target.value
-    }),
-    options: [...(!['active', 'process', 'done'].includes(t.status) ? [{
-      value: t.status,
-      label: C01_STATUS[t.status] || t.status
-    }] : []), ...['active', 'process', 'done'].map(s => ({
-      value: s,
-      label: C01_STATUS[s]
-    }))]
-  }) : C01_STATUS[t.status] || t.status), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("div", {
+  }[t.priority] || 'Без пріоритету', ". \u041F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0430 \u0444\u0456\u043B\u0456\u044F: ", t.branch_name || 'Не визначено', "."), /*#__PURE__*/React.createElement("div", {
     className: "erp-actions"
   }, /*#__PURE__*/React.createElement(Button, {
     onClick: () => open(t, 'view')
-  }, "\u0406\u0441\u0442\u043E\u0440\u0456\u044F"), bosCan('write') && (t.archived ? /*#__PURE__*/React.createElement(Button, {
+  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F"), c01CanHandoff(t) && /*#__PURE__*/React.createElement(Button, {
+    onClick: () => open(t, 'handoff')
+  }, "\u041F\u0435\u0440\u0435\u0434\u0430\u0442\u0438 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F"), bosCan('write') && (t.archived ? /*#__PURE__*/React.createElement(Button, {
     onClick: () => open(t, 'restore')
   }, "\u0412\u0456\u0434\u043D\u043E\u0432\u0438\u0442\u0438") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Button, {
-    onClick: () => open(t)
+    onClick: () => open(t, 'edit')
   }, "\u0420\u0435\u0434\u0430\u0433\u0443\u0432\u0430\u0442\u0438"), /*#__PURE__*/React.createElement(Button, {
     onClick: () => open(t, 'archive')
-  }, "\u0410\u0440\u0445\u0456\u0432\u0443\u0432\u0430\u0442\u0438"))))))))), !filtered.length && !pageLoading && /*#__PURE__*/React.createElement("p", {
-    className: "op-muted"
-  }, search ? 'Нічого не знайдено за цим пошуком.' : tab === 'archive' ? 'Архівних доручень немає.' : 'Доручень у цьому списку немає.')), dialog && /*#__PURE__*/React.createElement(ControlledTask, {
+  }, "\u0410\u0440\u0445\u0456\u0432\u0443\u0432\u0430\u0442\u0438"))))))), fresh && !filtered.length && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0417\u0430 \u0446\u0438\u043C\u0438 \u0444\u0456\u043B\u044C\u0442\u0440\u0430\u043C\u0438 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u044C \u043D\u0435\u043C\u0430\u0454. \u0426\u0435 \u043D\u0435 \u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043D\u044F \u043F\u0440\u043E \u043F\u0440\u0438\u0445\u043E\u0432\u0430\u043D\u0456 \u0437\u0430\u043F\u0438\u0441\u0438."), /*#__PURE__*/React.createElement(C01PendingLauncher, {
+    key: scope,
+    onRecover: recovered
+  }), dialog && /*#__PURE__*/React.createElement(ControlledTask, {
     key: dialog.key,
     taskId: dialog.taskId,
     mode: dialog.mode,
     preset: dialog.preset,
-    onClose: () => setDialog(null),
-    onDone: refresh
+    recovery: dialog.recovery,
+    onClose: () => closeDialog(dialog.key),
+    onDone: r => after(r, dialog.key)
   }));
+}
+function manualKpiValue(value) {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0 && value <= 100 ? value : null;
 }
 function Employees({
   employees,
@@ -7818,7 +8088,7 @@ function Employees({
   const byDept = deptFilter === 'all' ? employees : employees.filter(e => e.dept === deptFilter);
   const bySearch = search.trim() ? byDept.filter(e => (e.name || '').toLowerCase().includes(search.toLowerCase()) || (e.role || '').toLowerCase().includes(search.toLowerCase()) || (e.email || '').toLowerCase().includes(search.toLowerCase())) : byDept;
   const filtered = [...bySearch].sort((a, b) => {
-    if (sortBy === 'kpi') return (b.kpi || 0) - (a.kpi || 0);
+    if (sortBy === 'kpi') return (manualKpiValue(b.kpi) ?? -1) - (manualKpiValue(a.kpi) ?? -1);
     if (sortBy === 'birthday') return daysUntil(a.birthday) - daysUntil(b.birthday);
     return (a.name || '').localeCompare(b.name || '');
   });
@@ -8114,27 +8384,37 @@ function Employees({
       color: T.textMuted,
       fontSize: 12
     }
-  }, e.dept || '—'), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, e.dept || '—'), /*#__PURE__*/React.createElement("div", null, loading ? /*#__PURE__*/React.createElement("div", {
     style: {
-      color: kpiColor(e.kpi || 0),
+      color: T.textMuted,
+      fontSize: 11,
+      lineHeight: 1.35
+    }
+  }, "\u041E\u043D\u043E\u0432\u043B\u044E\u0454\u043C\u043E \u0440\u0443\u0447\u043D\u0438\u0439 \u0431\u0430\u043B\u2026") : error ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: T.textMuted,
+      fontSize: 11,
+      lineHeight: 1.35
+    }
+  }, "\u0420\u0443\u0447\u043D\u0438\u0439 \u0431\u0430\u043B \u043F\u043E\u0442\u0440\u0435\u0431\u0443\u0454 \u043F\u043E\u0432\u0442\u043E\u0440\u043D\u043E\u0433\u043E \u0447\u0438\u0442\u0430\u043D\u043D\u044F") : manualKpiValue(e.kpi) !== null ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: T.text,
       fontSize: 14,
-      fontWeight: 700,
-      marginBottom: 3
+      fontWeight: 700
     }
-  }, e.kpi || 0, "%"), /*#__PURE__*/React.createElement("div", {
+  }, manualKpiValue(e.kpi), "/100"), /*#__PURE__*/React.createElement("div", {
     style: {
-      background: T.surfaceHover,
-      borderRadius: 4,
-      height: 4,
-      overflow: 'hidden'
+      color: T.textMuted,
+      fontSize: 10,
+      marginTop: 3
     }
-  }, /*#__PURE__*/React.createElement("div", {
+  }, "\u0420\u0443\u0447\u043D\u0438\u0439 \u0431\u0430\u043B")) : /*#__PURE__*/React.createElement("div", {
     style: {
-      background: kpiColor(e.kpi || 0),
-      height: '100%',
-      width: (e.kpi || 0) + '%'
+      color: T.textMuted,
+      fontSize: 11,
+      lineHeight: 1.35
     }
-  }))), /*#__PURE__*/React.createElement("div", {
+  }, "\u0420\u0443\u0447\u043D\u0438\u0439 \u0431\u0430\u043B \u043D\u0435 \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043E")), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       flexDirection: 'column'
@@ -8334,17 +8614,56 @@ function Birthdays({
   }, "\u041D\u0435\u043C\u0430\u0454 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A\u0456\u0432")));
 }
 function KPI({
-  employees
+  employees,
+  loading,
+  error,
+  refetchEmployees,
+  denied = false
 }) {
-  // Сортировка по убыванию KPI — лучшие сверху
-  const sorted = [...employees].sort((a, b) => (b.kpi || 0) - (a.kpi || 0));
-
-  // Цвет KPI по порогам (тот же что в Employees таблице)
-  const kpiColor = k => k >= 90 ? T.primary : k >= 80 ? T.yellow : T.red;
-  const kpiLabel = k => k >= 90 ? 'Відмінно' : k >= 80 ? 'Добре' : 'Потребує уваги';
-
-  // Среднее значение по команде
-  const avg = employees.length > 0 ? Math.round(employees.reduce((s, e) => s + (e.kpi || 0), 0) / employees.length) : 0;
+  const entries = [...employees].map(employee => ({
+    employee,
+    score: manualKpiValue(employee.kpi)
+  })).sort((a, b) => (a.employee.name || '').localeCompare(b.employee.name || ''));
+  const measured = entries.filter(entry => entry.score !== null).length;
+  const heading = /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
+    style: {
+      color: T.text,
+      margin: 0,
+      fontSize: 22,
+      fontWeight: 700
+    }
+  }, "KPI \u043F\u0440\u0430\u0446\u0456\u0432\u043D\u0438\u043A\u0456\u0432"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      color: T.textMuted,
+      fontSize: 13,
+      margin: '6px 0 0'
+    }
+  }, "\u0420\u0443\u0447\u043D\u0456 \u0431\u0430\u043B\u0438 \u0437 \u0447\u0438\u043D\u043D\u0438\u0445 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432; \u043F\u0435\u0440\u0456\u043E\u0434 \u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u043E \u0432\u0438\u043C\u0456\u0440\u044E\u0432\u0430\u043D\u043D\u044F \u043D\u0435 \u043D\u0430\u0434\u0430\u043D\u0456."));
+  const state = (message, action) => /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: 24
+    }
+  }, heading, /*#__PURE__*/React.createElement(Card, {
+    pad: 20,
+    style: {
+      marginTop: 18
+    }
+  }, /*#__PURE__*/React.createElement("p", {
+    style: {
+      color: T.textMuted,
+      margin: 0,
+      lineHeight: 1.5
+    }
+  }, message), action && /*#__PURE__*/React.createElement(Button, {
+    onClick: action,
+    style: {
+      marginTop: 14
+    }
+  }, "\u0421\u043F\u0440\u043E\u0431\u0443\u0432\u0430\u0442\u0438 \u0437\u043D\u043E\u0432\u0443")));
+  if (denied) return state('Показники KPI недоступні для поточного облікового запису.');
+  if (loading) return state('Завантажуємо доступні ручні бали. Попередні показники не показуються як актуальні.');
+  if (error) return state('Не вдалося прочитати ручні бали: ' + error, refetchEmployees);
+  if (!employees.length) return state('Немає доступних записів співробітників для відображення KPI.');
   return /*#__PURE__*/React.createElement("div", {
     style: {
       padding: 24
@@ -8353,137 +8672,114 @@ function KPI({
     style: {
       display: 'flex',
       justifyContent: 'space-between',
-      alignItems: 'flex-end',
+      alignItems: 'flex-start',
       marginBottom: 18,
       flexWrap: 'wrap',
       gap: 12
     }
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
-    style: {
-      color: T.text,
-      margin: 0,
-      fontSize: 22,
-      fontWeight: 700
-    }
-  }, "KPI \u041F\u0440\u0430\u0446\u0456\u0432\u043D\u0438\u043A\u0456\u0432"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      color: T.textMuted,
-      fontSize: 12,
-      marginTop: 4
-    }
-  }, employees.length, " \u043E\u0441\u0456\u0431 \xB7 \u0441\u0435\u0440\u0435\u0434\u043D\u0456\u0439 ", avg, "%")), /*#__PURE__*/React.createElement(Card, {
+  }, heading, /*#__PURE__*/React.createElement(Card, {
     pad: "10px 16px",
     style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 12
+      maxWidth: 340
     }
-  }, /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
       color: T.textMuted,
       fontSize: 11,
       textTransform: 'uppercase',
       letterSpacing: '0.05em'
     }
-  }, "\u041A\u043E\u043C\u0430\u043D\u0434\u0430"), /*#__PURE__*/React.createElement("span", {
+  }, "\u041E\u0445\u043E\u043F\u043B\u0435\u043D\u043D\u044F \u0440\u0443\u0447\u043D\u0438\u043C\u0438 \u0431\u0430\u043B\u0430\u043C\u0438"), /*#__PURE__*/React.createElement("div", {
     style: {
-      color: kpiColor(avg),
-      fontSize: 24,
-      fontWeight: 700
+      color: T.text,
+      fontSize: 20,
+      fontWeight: 700,
+      marginTop: 4
     }
-  }, avg, "%"))), /*#__PURE__*/React.createElement("div", {
+  }, measured, " \u0437 ", entries.length, " \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: T.textMuted,
+      fontSize: 12,
+      marginTop: 4
+    }
+  }, "\u0414\u0430\u043D\u0438\u0445 \u0434\u043B\u044F \u043E\u0446\u0456\u043D\u043A\u0438 \u043A\u043E\u043C\u0430\u043D\u0434\u0438 \u043D\u0435\u043C\u0430\u0454."))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(2, 1fr)',
+      gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))',
       gap: 12
     }
-  }, sorted.map(e => {
-    const k = e.kpi || 0;
-    const color = kpiColor(k);
-    return /*#__PURE__*/React.createElement(Card, {
-      key: e.id,
-      pad: 16
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-        marginBottom: 14
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        width: 40,
-        height: 40,
-        borderRadius: '50%',
-        background: T.primaryGlow,
-        color: T.primary,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: 12,
-        fontWeight: 700,
-        flexShrink: 0
-      }
-    }, genAvatar(e.name)), /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: 1,
-        minWidth: 0
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        color: T.text,
-        fontWeight: 600,
-        fontSize: 13
-      }
-    }, e.name, " ", e.archived_at && /*#__PURE__*/React.createElement(Badge, {
-      tone: "neutral"
-    }, "\u0410\u0440\u0445\u0456\u0432")), /*#__PURE__*/React.createElement("div", {
-      style: {
-        color: T.textMuted,
-        fontSize: 11
-      }
-    }, e.dept || '—')), /*#__PURE__*/React.createElement("div", {
-      style: {
-        textAlign: 'right'
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        color: color,
-        fontSize: 22,
-        fontWeight: 700,
-        lineHeight: 1
-      }
-    }, k, "%"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        color: color,
-        fontSize: 10,
-        fontWeight: 600,
-        marginTop: 3
-      }
-    }, kpiLabel(k)))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        background: T.surfaceHover,
-        borderRadius: 4,
-        height: 6,
-        overflow: 'hidden'
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        background: color,
-        height: '100%',
-        width: k + '%',
-        transition: 'width 0.3s'
-      }
-    })));
-  }), employees.length === 0 && /*#__PURE__*/React.createElement("div", {
+  }, entries.map(({
+    employee,
+    score
+  }) => /*#__PURE__*/React.createElement(Card, {
+    key: employee.id,
+    pad: 16
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
-      gridColumn: 'span 2',
-      padding: 40,
-      textAlign: 'center',
-      color: T.textMuted,
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 40,
+      height: 40,
+      borderRadius: '50%',
+      background: T.primaryGlow,
+      color: T.primary,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: 12,
+      fontWeight: 700,
+      flexShrink: 0
+    }
+  }, genAvatar(employee.name)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: T.text,
+      fontWeight: 600,
       fontSize: 13
     }
-  }, "\u041D\u0435\u043C\u0430\u0454 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A\u0456\u0432")));
+  }, employee.name, " ", employee.archived_at && /*#__PURE__*/React.createElement(Badge, {
+    tone: "neutral"
+  }, "\u0410\u0440\u0445\u0456\u0432")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: T.textMuted,
+      fontSize: 11
+    }
+  }, employee.dept || '—'))), score !== null ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 16
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: T.text,
+      fontSize: 22,
+      fontWeight: 700
+    }
+  }, score, "/100"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: T.textMuted,
+      fontSize: 11,
+      marginTop: 3
+    }
+  }, "\u0420\u0443\u0447\u043D\u0438\u0439 \u0431\u0430\u043B")) : /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 16,
+      color: T.textMuted,
+      fontSize: 13,
+      lineHeight: 1.45
+    }
+  }, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: T.text
+    }
+  }, "\u0420\u0443\u0447\u043D\u0438\u0439 \u0431\u0430\u043B \u043D\u0435 \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043E"), /*#__PURE__*/React.createElement("br", null), "\u0417\u043D\u0430\u0447\u0435\u043D\u043D\u044F 0 \u0430\u0431\u043E \u0432\u0456\u0434\u0441\u0443\u0442\u043D\u0454; \u0447\u0438\u043D\u043D\u0438\u0439 DTO \u043D\u0435 \u0432\u0456\u0434\u0440\u0456\u0437\u043D\u044F\u0454 default \u0432\u0456\u0434 \u0432\u043D\u0435\u0441\u0435\u043D\u043E\u0433\u043E \u043D\u0443\u043B\u044F.")))));
 }
 function Schedule() {
   const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
@@ -9679,6 +9975,454 @@ function Dictaphone() {
     }
   }, result)));
 }
+function sdcCatalogScope() {
+  const r = window.BOS_RUNTIME;
+  if (!r || !Number.isSafeInteger(r.user_id) || r.user_id <= 0 || !['ceo', 'manager', 'observer'].includes(r.role) || !['working', 'demo'].includes(r.mode) || typeof r.access_revision !== 'string' || !r.access_revision) return '';
+  return JSON.stringify([r.user_id, r.employee_id ?? null, r.mode, r.role, r.access_revision, Object.entries(r.capabilities || {}).sort()]);
+}
+function sdcCatalogProjection(tree, people) {
+  const object = v => v !== null && typeof v === 'object' && !Array.isArray(v),
+    id = v => Number.isSafeInteger(v) && v > 0;
+  const types = ['headquarters', 'department', 'regional', 'mobile', 'foreign'];
+  if (!Array.isArray(tree) || !Array.isArray(people)) throw Error('CATALOG_FORMAT');
+  const nodes = [],
+    seen = new Set(),
+    pending = [...tree];
+  for (let i = 0; i < pending.length; i++) {
+    const n = pending[i];
+    if (!object(n) || !id(n.id) || seen.has(n.id) || typeof n.name !== 'string' || typeof n.code !== 'string' || !types.includes(n.type) || !Array.isArray(n.children)) throw Error('CATALOG_FORMAT');
+    seen.add(n.id);
+    nodes.push({
+      id: n.id,
+      name: n.name,
+      code: n.code,
+      type: n.type
+    });
+    for (const child of n.children) pending.push(child);
+  }
+  const employees = [],
+    employeeIds = new Set();
+  for (const p of people) {
+    if (!object(p) || !id(p.id) || employeeIds.has(p.id) || typeof p.full_name !== 'string' || typeof p.role !== 'string' || typeof p.department !== 'string' || !(p.branch === null || id(p.branch)) || !(p.archived_at === null || typeof p.archived_at === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(p.archived_at) && Number.isFinite(Date.parse(p.archived_at)))) throw Error('CATALOG_FORMAT');
+    employeeIds.add(p.id);
+    employees.push({
+      id: p.id,
+      name: p.full_name,
+      role: p.role,
+      legacyDepartment: p.department,
+      branch: p.branch,
+      archived: p.archived_at !== null
+    });
+  }
+  return {
+    nodes,
+    employees
+  };
+}
+async function sdcCatalogRead(url, ticket, current) {
+  if (!current(ticket)) throw Object.assign(Error('CATALOG_OBSOLETE'), {
+    catalogStatus: 'obsolete'
+  });
+  const response = await fetch(url, {
+    method: 'GET',
+    credentials: 'same-origin',
+    cache: 'no-store',
+    signal: ticket.controller.signal
+  });
+  if (!current(ticket)) throw Object.assign(Error('CATALOG_OBSOLETE'), {
+    catalogStatus: 'obsolete'
+  });
+  const access = response.headers.get('X-BoS-Access');
+  if (response.status === 401 || response.headers.get('X-BoS-Identity') === 'denied' || access !== ticket.revision) throw Object.assign(Error('CATALOG_ACCESS'), {
+    catalogStatus: 'denied',
+    lock: true
+  });
+  if (response.status === 403) throw Object.assign(Error('CATALOG_DENIED'), {
+    catalogStatus: 'denied'
+  });
+  if ([404, 409].includes(response.status)) throw Object.assign(Error('CATALOG_CHANGED'), {
+    catalogStatus: 'stale'
+  });
+  if (!response.ok) throw Error('CATALOG_HTTP');
+  const body = await response.json();
+  if (!current(ticket)) throw Object.assign(Error('CATALOG_OBSOLETE'), {
+    catalogStatus: 'obsolete'
+  });
+  return body;
+}
+function SettingsDepartmentCatalog({
+  legacyDepartments,
+  onLegacyChange
+}) {
+  const scope = sdcCatalogScope(),
+    [view, setView] = useState({
+      scope: '',
+      status: 'initial',
+      data: null,
+      at: null,
+      error: ''
+    }),
+    [newLocal, setNewLocal] = useState('');
+  const life = useRef({
+    alive: false,
+    scope: '',
+    epoch: 0,
+    pending: null,
+    view: null,
+    blocked: false,
+    legacy: legacyDepartments
+  });
+  life.current.legacy = legacyDepartments;
+  function publish(next) {
+    life.current.view = next;
+    setView(next);
+  }
+  function cancel() {
+    const l = life.current;
+    l.epoch++;
+    if (l.pending) {
+      clearTimeout(l.pending.timer);
+      l.pending.controller.abort();
+      l.pending = null;
+    }
+  }
+  function erase(status, message, lock = false) {
+    const l = life.current,
+      at = status === 'stale' ? l.view?.at || null : null;
+    cancel();
+    l.blocked = l.blocked || lock;
+    publish({
+      scope: l.scope,
+      status,
+      data: null,
+      at,
+      error: message
+    });
+    setNewLocal('');
+  }
+  function current(ticket) {
+    const l = life.current;
+    if (!l.alive || l.epoch !== ticket.epoch || l.scope !== ticket.scope || l.blocked) return false;
+    if (sdcCatalogScope() !== ticket.scope) {
+      erase('denied', 'Обліковий запис або доступ змінився. Відкрийте каталог у чинній сесії.', true);
+      return false;
+    }
+    return true;
+  }
+  async function readCatalog() {
+    const l = life.current;
+    if (!l.alive || l.blocked || l.pending) return;
+    if (!scope || l.scope !== scope || sdcCatalogScope() !== scope) {
+      erase('denied', 'Каталог потребує чинної сесії та підтвердженого доступу.', true);
+      return;
+    }
+    const previousAt = l.view?.at || null;
+    cancel();
+    const ticket = {
+      scope,
+      epoch: l.epoch,
+      revision: window.BOS_RUNTIME.access_revision,
+      controller: new AbortController(),
+      timer: null
+    };
+    l.pending = ticket;
+    publish({
+      scope,
+      status: previousAt ? 'refreshing' : 'loading',
+      data: null,
+      at: previousAt,
+      error: ''
+    });
+    ticket.timer = setTimeout(() => {
+      if (!current(ticket)) return;
+      cancel();
+      publish({
+        scope,
+        status: previousAt ? 'stale' : 'error',
+        data: null,
+        at: previousAt,
+        error: 'Читання не завершилося вчасно. Оновіть каталог вручну.'
+      });
+    }, 30000);
+    try {
+      const [tree, people] = await Promise.all([sdcCatalogRead('/api/branches/', ticket, current), sdcCatalogRead('/api/employees/', ticket, current)]);
+      if (!current(ticket)) return;
+      const data = sdcCatalogProjection(tree, people);
+      if (!current(ticket)) return;
+      publish({
+        scope,
+        status: data.nodes.length === 0 && data.employees.length === 0 ? 'empty' : 'fresh',
+        data,
+        at: new Date().toISOString(),
+        error: ''
+      });
+    } catch (error) {
+      if (!current(ticket)) return;
+      const denied = error.catalogStatus === 'denied',
+        changed = error.catalogStatus === 'stale';
+      cancel();
+      if (error.lock) l.blocked = true;
+      publish({
+        scope,
+        status: denied ? 'denied' : changed || previousAt ? 'stale' : 'error',
+        data: null,
+        at: denied ? null : previousAt,
+        error: denied ? 'Доступ до каталогу не підтверджено. Перевірте сесію та права.' : changed ? 'Дані каталогу змінилися або недоступні. Оновіть читання вручну.' : 'Не отримано два повні читання у підтримуваному форматі. Оновіть каталог вручну.'
+      });
+    } finally {
+      clearTimeout(ticket.timer);
+      if (l.pending === ticket) l.pending = null;
+    }
+  }
+  useEffect(() => {
+    const l = life.current;
+    l.alive = true;
+    l.scope = scope;
+    l.blocked = false;
+    cancel();
+    publish({
+      scope,
+      status: 'initial',
+      data: null,
+      at: null,
+      error: ''
+    });
+    setNewLocal('');
+    const ended = () => erase('denied', 'Сесію або доступ змінено. Попередній каталог приховано.', true);
+    const changed = () => {
+      if (sdcCatalogScope() !== l.scope) ended();else erase('stale', 'Є зміни даних. Попередні записи приховано; оновіть каталог вручну.');
+    };
+    window.addEventListener('bos:session-ended', ended);
+    window.addEventListener('bos:data-changed', changed);
+    if (scope) readCatalog();else erase('denied', 'Каталог потребує чинної сесії та підтвердженого доступу.', true);
+    return () => {
+      l.alive = false;
+      cancel();
+      l.view = null;
+      window.removeEventListener('bos:session-ended', ended);
+      window.removeEventListener('bos:data-changed', changed);
+    };
+  }, [scope]);
+  const renderedEpoch = life.current.epoch,
+    contextOk = !!scope && view.scope === scope && sdcCatalogScope() === scope && !life.current.blocked;
+  const data = contextOk && life.current.view === view ? view.data : null,
+    status = contextOk ? view.status : 'denied',
+    busy = ['initial', 'loading', 'refreshing'].includes(status);
+  function ownsRender() {
+    const l = life.current;
+    if (l.alive && l.scope === scope && sdcCatalogScope() !== scope) {
+      erase('denied', 'Обліковий запис або доступ змінився. Попередній каталог приховано.', true);
+      return false;
+    }
+    return l.alive && !l.blocked && l.scope === scope && sdcCatalogScope() === scope && l.epoch === renderedEpoch;
+  }
+  function refresh() {
+    if (ownsRender()) readCatalog();
+  }
+  const legacyValid = Array.isArray(legacyDepartments) && legacyDepartments.every(d => typeof d === 'string');
+  function addLocal() {
+    if (!ownsRender() || !legacyValid || life.current.legacy !== legacyDepartments || !newLocal.trim()) return;
+    onLegacyChange([...legacyDepartments, newLocal.trim()]);
+    setNewLocal('');
+  }
+  function removeLocal(index) {
+    if (!ownsRender() || !legacyValid || life.current.legacy !== legacyDepartments) return;
+    onLegacyChange(legacyDepartments.filter((_, i) => i !== index));
+  }
+  const types = {
+    headquarters: 'центральний офіс',
+    department: 'відділ',
+    regional: 'регіональний філіал',
+    mobile: 'мобільний офіс',
+    foreign: 'іноземний філіал'
+  };
+  const departments = data ? data.nodes.filter(n => n.type === 'department') : [],
+    otherNodes = data ? data.nodes.filter(n => n.type !== 'department') : [];
+  const byId = new Map(data ? data.nodes.map(n => [n.id, n]) : []),
+    outside = data ? data.employees.filter(e => !byId.has(e.branch) || byId.get(e.branch).type !== 'department') : [];
+  function person(e) {
+    return /*#__PURE__*/React.createElement("li", {
+      key: e.id,
+      style: {
+        marginBottom: 8
+      }
+    }, /*#__PURE__*/React.createElement("strong", null, e.name || 'Ім’я не надано'), " \xB7 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A \u2116", e.id, " \xB7 ", e.archived ? 'Архівний запис' : 'Активний запис', e.role && /*#__PURE__*/React.createElement("span", null, " \xB7 ", e.role), e.legacyDepartment && /*#__PURE__*/React.createElement("div", {
+      className: "op-muted"
+    }, "\u0406\u0441\u0442\u043E\u0440\u0438\u0447\u043D\u0430 \u0442\u0435\u043A\u0441\u0442\u043E\u0432\u0430 \u043C\u0456\u0442\u043A\u0430: ", e.legacyDepartment, ". \u0412\u043E\u043D\u0430 \u043D\u0435 \u0432\u0438\u0437\u043D\u0430\u0447\u0430\u0454 \u043D\u0430\u043B\u0435\u0436\u043D\u0456\u0441\u0442\u044C \u0434\u043E \u0432\u0456\u0434\u0434\u0456\u043B\u0443."));
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 16,
+      minWidth: 0,
+      overflowWrap: 'anywhere'
+    }
+  }, /*#__PURE__*/React.createElement("section", {
+    "aria-label": "\u0421\u0435\u0440\u0432\u0435\u0440\u043D\u0438\u0439 \u043A\u0430\u0442\u0430\u043B\u043E\u0433 \u0432\u0456\u0434\u0434\u0456\u043B\u0456\u0432",
+    "aria-busy": busy,
+    style: cardS({
+      padding: 16,
+      minWidth: 0
+    })
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: 10,
+      justifyContent: 'space-between',
+      alignItems: 'center'
+    }
+  }, /*#__PURE__*/React.createElement("h3", {
+    style: {
+      color: T.text,
+      margin: 0,
+      fontSize: 16
+    }
+  }, "\u0412\u0456\u0434\u0434\u0456\u043B\u0438 \u0442\u0430 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A\u0438"), /*#__PURE__*/React.createElement(Button, {
+    onClick: refresh,
+    disabled: busy || !contextOk,
+    style: {
+      whiteSpace: 'normal',
+      maxWidth: '100%'
+    }
+  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433")), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0421\u0435\u0440\u0432\u0435\u0440\u043D\u0456 \u0432\u0456\u0434\u0434\u0456\u043B\u0438 \u043C\u0430\u044E\u0442\u044C \u0432\u043B\u0430\u0441\u043D\u0456 ID. \u041D\u0430\u043B\u0435\u0436\u043D\u0456\u0441\u0442\u044C \u0432\u0438\u0437\u043D\u0430\u0447\u0430\u0454 \u043B\u0438\u0448\u0435 \u043F\u0440\u0438\u0432\u2019\u044F\u0437\u043A\u0430 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A\u0430 \u0434\u043E ID \u0432\u0456\u0434\u0434\u0456\u043B\u0443 \u2014 \u043D\u0435 \u043E\u0434\u043D\u0430\u043A\u043E\u0432\u0430 \u043D\u0430\u0437\u0432\u0430 \u0456 \u043D\u0435 \u0431\u0430\u0442\u044C\u043A\u0456\u0432\u0441\u044C\u043A\u0438\u0439 \u0432\u0443\u0437\u043E\u043B."), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u043B\u0438\u0448\u0435 \u043E\u0442\u0440\u0438\u043C\u0430\u043D\u0456 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0437\u0430\u043F\u0438\u0441\u0438. \u0426\u0435 \u043D\u0435 \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043D\u044F \u043F\u043E\u0432\u043D\u043E\u0433\u043E \u0448\u0442\u0430\u0442\u0443, \u0447\u0438\u0441\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u0456 \u0432\u0441\u044C\u043E\u0433\u043E \u0432\u0456\u0434\u0434\u0456\u043B\u0443 \u0447\u0438 \u0439\u043E\u0433\u043E KPI. \u0421\u043F\u0438\u0441\u043A\u0438 \u0447\u0438\u0442\u0430\u044E\u0442\u044C\u0441\u044F \u043E\u043A\u0440\u0435\u043C\u043E, \u0430 \u043D\u0435 \u044F\u043A \u0454\u0434\u0438\u043D\u0438\u0439 \u043A\u0430\u0434\u0440\u043E\u0432\u0438\u0439 \u0437\u0440\u0456\u0437."), busy && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, status === 'refreshing' ? 'Оновлюємо каталог…' : 'Завантаження каталогу…'), status === 'empty' && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0427\u0438\u0442\u0430\u043D\u043D\u044F \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u043E. \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0432\u0443\u0437\u043B\u0456\u0432 \u0456 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A\u0456\u0432 \u043D\u0435\u043C\u0430\u0454."), status === 'fresh' && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u041A\u0430\u0442\u0430\u043B\u043E\u0433 \u043F\u0440\u043E\u0447\u0438\u0442\u0430\u043D\u043E. \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0437\u0430\u043F\u0438\u0441\u0438 \u043D\u0430\u0432\u0435\u0434\u0435\u043D\u043E \u043D\u0438\u0436\u0447\u0435."), ['denied', 'error', 'stale'].includes(status) && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, contextOk ? view.error || 'Оновіть каталог вручну.' : view.error || 'Каталог приховано: сесія або доступ потребують перевірки.'), contextOk && view.at && /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, data ? 'Успішне читання в цьому вікні' : 'Попереднє успішне читання в цьому вікні', ": ", /*#__PURE__*/React.createElement("time", {
+    dateTime: view.at
+  }, new Date(view.at).toLocaleString('uk-UA', {
+    timeZoneName: 'short'
+  })), ". \u0426\u0435 \u0447\u0430\u0441 \u0447\u0438\u0442\u0430\u043D\u043D\u044F, \u043D\u0435 \u0434\u0430\u0442\u0430 \u043A\u0430\u0434\u0440\u043E\u0432\u043E\u0433\u043E \u0437\u0440\u0456\u0437\u0443."), data && /*#__PURE__*/React.createElement("div", null, departments.length === 0 ? /*#__PURE__*/React.createElement("p", null, "\u0421\u0435\u0440\u0435\u0434 \u043E\u0442\u0440\u0438\u043C\u0430\u043D\u0438\u0445 \u0432\u0443\u0437\u043B\u0456\u0432 \u043D\u0435\u043C\u0430\u0454 \u0432\u0456\u0434\u0434\u0456\u043B\u0456\u0432.") : departments.map(department => {
+    const members = data.employees.filter(e => e.branch === department.id),
+      active = members.filter(e => !e.archived),
+      archived = members.filter(e => e.archived);
+    return /*#__PURE__*/React.createElement("section", {
+      key: department.id,
+      "aria-label": 'Відділ №' + department.id,
+      style: {
+        borderTop: '1px solid ' + T.border,
+        paddingTop: 12,
+        marginTop: 12
+      }
+    }, /*#__PURE__*/React.createElement("h4", {
+      style: {
+        margin: '0 0 8px'
+      }
+    }, department.name || 'Назву не надано', " \xB7 \u0432\u0456\u0434\u0434\u0456\u043B \u2116", department.id), /*#__PURE__*/React.createElement("p", {
+      className: "op-muted"
+    }, "\u041A\u043E\u0434: ", department.code || 'не надано', ". \u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0430\u043A\u0442\u0438\u0432\u043D\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432: ", active.length, "; \u0430\u0440\u0445\u0456\u0432\u043D\u0438\u0445: ", archived.length, "."), /*#__PURE__*/React.createElement("h5", null, "\u0410\u043A\u0442\u0438\u0432\u043D\u0456 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A\u0438"), active.length ? /*#__PURE__*/React.createElement("ul", {
+      style: {
+        paddingLeft: 20
+      }
+    }, active.map(person)) : /*#__PURE__*/React.createElement("p", null, "\u0410\u043A\u0442\u0438\u0432\u043D\u0438\u0445 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A\u0456\u0432 \u0441\u0435\u0440\u0435\u0434 \u043E\u0442\u0440\u0438\u043C\u0430\u043D\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u043D\u0435 \u043F\u043E\u043A\u0430\u0437\u0430\u043D\u043E."), archived.length > 0 && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h5", null, "\u0410\u0440\u0445\u0456\u0432\u043D\u0456 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A\u0438"), /*#__PURE__*/React.createElement("ul", {
+      style: {
+        paddingLeft: 20
+      }
+    }, archived.map(person))));
+  }), outside.length > 0 && /*#__PURE__*/React.createElement("section", {
+    style: {
+      borderTop: '1px solid ' + T.border,
+      paddingTop: 12,
+      marginTop: 12
+    }
+  }, /*#__PURE__*/React.createElement("h4", null, "\u0421\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A\u0438 \u043F\u043E\u0437\u0430 \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u0438\u043C \u0432\u0456\u0434\u0434\u0456\u043B\u043E\u043C"), /*#__PURE__*/React.createElement("ul", {
+    style: {
+      paddingLeft: 20
+    }
+  }, outside.map(e => /*#__PURE__*/React.createElement("li", {
+    key: e.id,
+    style: {
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement("strong", null, e.name || 'Ім’я не надано'), " \xB7 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A \u2116", e.id, " \xB7 ", e.archived ? 'Архівний запис' : 'Активний запис', /*#__PURE__*/React.createElement("div", null, e.branch === null ? 'Прив’язку до вузла не задано.' : byId.has(e.branch) ? 'Прив’язано до вузла №' + e.branch + ' «' + byId.get(e.branch).name + '»; тип: ' + types[byId.get(e.branch).type] + ', це не відділ.' : 'Вузол №' + e.branch + ' відсутній у доступному каталозі. Тип і належність до відділу не підтверджено.'), e.legacyDepartment && /*#__PURE__*/React.createElement("div", {
+    className: "op-muted"
+  }, "\u0406\u0441\u0442\u043E\u0440\u0438\u0447\u043D\u0430 \u0442\u0435\u043A\u0441\u0442\u043E\u0432\u0430 \u043C\u0456\u0442\u043A\u0430: ", e.legacyDepartment, ". \u0412\u043E\u043D\u0430 \u043D\u0435 \u0454 \u043F\u0440\u0438\u0432\u2019\u044F\u0437\u043A\u043E\u044E \u0434\u043E \u0432\u0456\u0434\u0434\u0456\u043B\u0443."))))), otherNodes.length > 0 && /*#__PURE__*/React.createElement("details", {
+    style: {
+      marginTop: 14
+    }
+  }, /*#__PURE__*/React.createElement("summary", null, "\u0406\u043D\u0448\u0456 \u0432\u0443\u0437\u043B\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0443 \u2014 \u043D\u0435 \u0432\u0456\u0434\u0434\u0456\u043B\u0438"), /*#__PURE__*/React.createElement("ul", {
+    style: {
+      paddingLeft: 20
+    }
+  }, otherNodes.map(n => /*#__PURE__*/React.createElement("li", {
+    key: n.id
+  }, n.name || 'Назву не надано', " \xB7 \u0432\u0443\u0437\u043E\u043B \u2116", n.id, " \xB7 ", types[n.type], " \xB7 \u043A\u043E\u0434 ", n.code || 'не надано')))))), /*#__PURE__*/React.createElement("section", {
+    "aria-label": "\u041B\u043E\u043A\u0430\u043B\u044C\u043D\u0456 \u0456\u0441\u0442\u043E\u0440\u0438\u0447\u043D\u0456 \u043D\u0430\u0437\u0432\u0438 \u0432\u0456\u0434\u0434\u0456\u043B\u0456\u0432",
+    style: cardS({
+      padding: 16,
+      minWidth: 0
+    })
+  }, /*#__PURE__*/React.createElement("h3", {
+    style: {
+      margin: '0 0 8px',
+      fontSize: 14
+    }
+  }, "\u041B\u043E\u043A\u0430\u043B\u044C\u043D\u0456 \u0456\u0441\u0442\u043E\u0440\u0438\u0447\u043D\u0456 \u043D\u0430\u0437\u0432\u0438 (legacy)"), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0426\u0456 \u0440\u044F\u0434\u043A\u0438 \u0437\u0431\u0435\u0440\u0456\u0433\u0430\u044E\u0442\u044C\u0441\u044F \u043B\u0438\u0448\u0435 \u0432 \u043D\u0430\u043B\u0430\u0448\u0442\u0443\u0432\u0430\u043D\u043D\u044F\u0445 \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0430. \u0414\u043E\u0434\u0430\u0432\u0430\u043D\u043D\u044F \u0430\u0431\u043E \u043F\u0440\u0438\u0431\u0438\u0440\u0430\u043D\u043D\u044F \u043D\u0430\u0437\u0432\u0438 \u043D\u0435 \u0441\u0442\u0432\u043E\u0440\u044E\u0454 \u0439 \u043D\u0435 \u0432\u0438\u0434\u0430\u043B\u044F\u0454 \u0441\u0435\u0440\u0432\u0435\u0440\u043D\u0438\u0439 \u0432\u0456\u0434\u0434\u0456\u043B \u0442\u0430 \u043D\u0435 \u0437\u043C\u0456\u043D\u044E\u0454 \u043F\u0440\u0438\u0432\u2019\u044F\u0437\u043A\u0443 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A\u0456\u0432. \u041F\u043E\u043F\u0435\u0440\u0435\u0434\u043D\u0456 \u043D\u0430\u0437\u0432\u0438 \u043D\u0435 \u043F\u0435\u0440\u0435\u043D\u043E\u0441\u044F\u0442\u044C\u0441\u044F \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u043D\u043E."), contextOk && legacyValid ? /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: 8,
+      marginBottom: 12
+    }
+  }, /*#__PURE__*/React.createElement("label", {
+    style: {
+      flex: '1 1 180px',
+      minWidth: 0
+    }
+  }, "\u041D\u043E\u0432\u0430 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u0430 \u043D\u0430\u0437\u0432\u0430", /*#__PURE__*/React.createElement(Input, {
+    value: newLocal,
+    onChange: e => {
+      if (ownsRender()) setNewLocal(e.target.value);
+    },
+    placeholder: "\u041B\u0438\u0448\u0435 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u0430 \u0442\u0435\u043A\u0441\u0442\u043E\u0432\u0430 \u043D\u0430\u0437\u0432\u0430",
+    style: {
+      width: '100%',
+      minWidth: 0,
+      boxSizing: 'border-box'
+    }
+  })), /*#__PURE__*/React.createElement(Button, {
+    onClick: addLocal,
+    disabled: !newLocal.trim(),
+    style: {
+      whiteSpace: 'normal',
+      maxWidth: '100%'
+    }
+  }, "\u0414\u043E\u0434\u0430\u0442\u0438 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u0443 \u043D\u0430\u0437\u0432\u0443")), legacyDepartments.length ? /*#__PURE__*/React.createElement("ul", {
+    style: {
+      paddingLeft: 20
+    }
+  }, legacyDepartments.map((name, index) => /*#__PURE__*/React.createElement("li", {
+    key: index,
+    style: {
+      marginBottom: 8
+    }
+  }, /*#__PURE__*/React.createElement("span", null, name || 'Порожня локальна назва'), ' ', /*#__PURE__*/React.createElement(Button, {
+    variant: "subtle",
+    onClick: () => removeLocal(index),
+    "aria-label": 'Прибрати локальну назву ' + name,
+    style: {
+      whiteSpace: 'normal',
+      maxWidth: '100%'
+    }
+  }, "\u041F\u0440\u0438\u0431\u0440\u0430\u0442\u0438 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u0443 \u043D\u0430\u0437\u0432\u0443")))) : /*#__PURE__*/React.createElement("p", null, "\u041B\u043E\u043A\u0430\u043B\u044C\u043D\u0438\u0445 \u043D\u0430\u0437\u0432 \u043D\u0435\u043C\u0430\u0454.")) : /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, contextOk ? 'Локальний список має непідтримуваний формат. Його збережено без змін.' : 'Локальні назви приховано до підтвердження поточного контексту.')));
+}
 function Settings({
   settings,
   setSettings,
@@ -9732,7 +10476,6 @@ function Settings({
     l: 'Дані',
     ic: '📊'
   }];
-  const [newD, setNewD] = useState('');
   return /*#__PURE__*/React.createElement("div", {
     style: {
       padding: 24
@@ -9973,77 +10716,10 @@ function Settings({
     }
   }, e.dept)), bosCan('hr_private') && /*#__PURE__*/React.createElement(Badge, {
     tone: "neutral"
-  }, e.kpi, "%")))), tab === 'departments' && /*#__PURE__*/React.createElement("div", {
-    style: cardS({
-      padding: 22
-    })
-  }, /*#__PURE__*/React.createElement("h3", {
-    style: {
-      color: T.text,
-      margin: '0 0 14px',
-      fontSize: 14,
-      fontWeight: 600
-    }
-  }, "\u0412\u0456\u0434\u0434\u0456\u043B\u0438 \u043F\u0456\u0434\u043F\u0440\u0438\u0454\u043C\u0441\u0442\u0432\u0430"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 9,
-      marginBottom: 16
-    }
-  }, /*#__PURE__*/React.createElement(Input, {
-    value: newD,
-    onChange: e => setNewD(e.target.value),
-    onKeyDown: e => {
-      if (e.key === 'Enter' && newD.trim()) {
-        upd('departments', [...settings.departments, newD.trim()]);
-        setNewD('');
-      }
-    },
-    placeholder: "\u041D\u043E\u0432\u0438\u0439 \u0432\u0456\u0434\u0434\u0456\u043B",
-    style: {
-      flex: 1
-    }
-  }), /*#__PURE__*/React.createElement(Button, {
-    variant: "primary",
-    onClick: () => {
-      if (!newD.trim()) return;
-      upd('departments', [...settings.departments, newD.trim()]);
-      setNewD('');
-    },
-    style: {
-      fontSize: 12,
-      padding: '10px 14px'
-    }
-  }, "+ \u0414\u043E\u0434\u0430\u0442\u0438")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: 7
-    }
-  }, settings.departments.map(d => /*#__PURE__*/React.createElement("div", {
-    key: d,
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 7,
-      background: T.primaryGlow,
-      border: '1px solid ' + T.primary + '55',
-      borderRadius: T.radMd,
-      padding: '5px 13px'
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: T.text,
-      fontSize: 12
-    }
-  }, d), /*#__PURE__*/React.createElement("span", {
-    onClick: () => upd('departments', settings.departments.filter(x => x !== d)),
-    style: {
-      color: T.red,
-      cursor: 'pointer',
-      fontSize: 13
-    }
-  }, "\u2715"))))), tab === 'industry' && /*#__PURE__*/React.createElement("div", {
+  }, e.kpi, "%")))), tab === 'departments' && /*#__PURE__*/React.createElement(SettingsDepartmentCatalog, {
+    legacyDepartments: settings.departments,
+    onLegacyChange: value => upd('departments', value)
+  }), tab === 'industry' && /*#__PURE__*/React.createElement("div", {
     style: cardS({
       padding: 22
     })
@@ -11174,6 +11850,7 @@ const C01_STATUS = {
   overdue: 'Історичний статус: прострочене'
 };
 const C01_TRANSITIONS = {
+  handoff: 'Передано виконавцю',
   create: 'Створено',
   update: 'Змінено',
   archive: 'Архівовано',
@@ -11204,6 +11881,7 @@ function c01Text(value, label, min, max, trim = false) {
   return text;
 }
 function c01TaskPayload(value) {
+  if (value?.action === 'handoff_task') return c01HandoffPayload(value);
   if (!value || Array.isArray(value) || typeof value !== 'object' || !['create_task', 'update_task'].includes(value.action)) throw Error('Підтримуються create_task та update_task.');
   const create = value.action === 'create_task',
     keys = create ? ['action', 'title', 'assignee_id', 'deadline', 'category', 'priority', 'order_id', 'request_code'] : ['action', 'task_id', 'reason', ...C01_FIELDS];
@@ -11341,7 +12019,7 @@ function c01PendingRead() {
     throw Error('Не вдалося прочитати ідентифікатори погоджень. Їх не видалено.');
   }
   const user = window.BOS_RUNTIME?.user_id;
-  if (!Array.isArray(rows) || rows.some(e => !e || !c01UUID(e.proposal_id) || !['create_task', 'update_task'].includes(e.action) || e.user_id !== user || !c01Id(e.user_id) || e.task_id !== null && !c01Id(e.task_id))) throw Error('Збережені ідентифікатори мають невідомий формат. Дані не видалено.');
+  if (!Array.isArray(rows) || rows.some(e => !e || !c01UUID(e.proposal_id) || !['create_task', 'update_task', 'handoff_task'].includes(e.action) || e.user_id !== user || !c01Id(e.user_id) || e.task_id !== null && !c01Id(e.task_id) || e.action === 'handoff_task' && !c01Id(e.task_id))) throw Error('Збережені ідентифікатори мають невідомий формат. Дані не видалено.');
   return rows.map(({
     proposal_id,
     action,
@@ -11355,7 +12033,7 @@ function c01PendingRead() {
   }));
 }
 function c01PendingSave(entry) {
-  if (!c01Id(window.BOS_RUNTIME?.user_id) || entry.user_id !== window.BOS_RUNTIME.user_id || !c01UUID(entry.proposal_id)) throw Error('Не підтверджено обліковий запис або ідентифікатор погодження.');
+  if (!c01Id(window.BOS_RUNTIME?.user_id) || entry.user_id !== window.BOS_RUNTIME.user_id || !c01UUID(entry.proposal_id) || !['create_task', 'update_task', 'handoff_task'].includes(entry.action) || entry.action === 'handoff_task' && !c01Id(entry.task_id)) throw Error('Не підтверджено обліковий запис або ідентифікатор погодження.');
   const rows = c01PendingRead();
   if (!rows.some(r => r.proposal_id === entry.proposal_id)) rows.push({
     proposal_id: entry.proposal_id,
@@ -11373,6 +12051,348 @@ function c01PendingRemove(id) {
 function c01Terminal(status, body) {
   return status === 409 && ['proposal_stale', 'proposal_expired'].includes(body?.code);
 }
+// TASK_DEPARTMENT_HELPERS_BEGIN
+function c01Scope() {
+  const r = window.BOS_RUNTIME || {};
+  return JSON.stringify([r.user_id, r.mode, r.role, r.employee_id, r.access_revision, Object.entries(r.capabilities || {}).sort()]);
+}
+function c01Object(v) {
+  return !!v && typeof v === 'object' && !Array.isArray(v);
+}
+function c01Display(v) {
+  return v === null || v === undefined || ['string', 'number', 'boolean'].includes(typeof v);
+}
+function c01Rows(v) {
+  return Array.isArray(v) && v.every(r => c01Object(r) && c01Id(r.id)) && new Set(v.map(r => r.id)).size === v.length;
+}
+function c01Departments(tree) {
+  const out = [],
+    seen = new Set();
+  function visit(rows) {
+    if (!Array.isArray(rows)) throw Error('Неповна структура відділів.');
+    for (const row of rows) {
+      if (!c01Object(row) || !c01Id(row.id) || seen.has(row.id) || typeof row.name !== 'string' || typeof row.type !== 'string') throw Error('Неповна структура відділів.');
+      seen.add(row.id);
+      if (row.type === 'department') out.push({
+        id: row.id,
+        name: row.name
+      });
+      if (row.children !== undefined) visit(row.children);
+    }
+  }
+  visit(tree);
+  return out;
+}
+function c01SourceRefs(refs) {
+  return Array.isArray(refs) && refs.every(r => c01Object(r) && Object.keys(r).length === 1 && (c01Id(r.order_id) || typeof r.request_code === 'string' && r.request_code.trim().length > 0));
+}
+function c01HandoffShape(h) {
+  return c01Object(h) && h.schema === 'bos.task-handoff.v1' && ['sent', 'superseded'].includes(h.state) && c01Object(h.recipient) && c01Id(h.recipient.employee_id) && c01Id(h.recipient.user_id) && ['ceo', 'manager'].includes(h.recipient.role) && c01Object(h.recipient.department) && c01Id(h.recipient.department.id) && typeof h.recipient.department.name === 'string' && c01Object(h.sender) && c01Id(h.sender.user_id) && c01Display(h.sender.employee_id) && c01Object(h.sender.department) && c01Display(h.sender.department.name) && c01Object(h.previous_assignee) && c01Display(h.previous_assignee.employee_id) && typeof h.expected_result === 'string' && c01Date(h.deadline) && c01Date(h.as_of) && c01SourceRefs(h.source_refs);
+}
+function c01TaskShape(t) {
+  return c01Object(t) && c01Id(t.id) && typeof t.title === 'string' && typeof t.status === 'string' && typeof t.archived === 'boolean' && typeof t.is_overdue === 'boolean' && ['assignee', 'assignee_name', 'category', 'branch_name', 'order_code', 'result', 'priority'].every(k => c01Display(t[k])) && (t.assignee_id === null || c01Id(t.assignee_id)) && (t.order_id === null || c01Id(t.order_id)) && (t.deadline === null || c01Date(t.deadline)) && (t.handoff === null || t.handoff === undefined || c01HandoffShape(t.handoff) && typeof t.handoff.current === 'boolean');
+}
+function c01TaskChanges(rows, id) {
+  const value = v => c01Display(v) || c01Object(v) && ['name', 'code', 'id'].every(k => c01Display(v[k]));
+  return Array.isArray(rows) && rows.every(r => c01Object(r) && r.kind === 'tasks' && c01Id(r.id) && (id === undefined || r.id === id) && typeof r.field === 'string' && typeof r.label === 'string' && c01Display(r.code) && value(r.before) && value(r.after));
+}
+function c01HandoffChanges(rows, id, previous, recipient, deadline, beforeTask = null) {
+  if (!c01TaskChanges(rows, id) || previous !== null && !c01Id(previous) || !c01Id(recipient) || previous === recipient || !c01Date(deadline)) return false;
+  const fields = new Map();
+  for (const row of rows) {
+    if (!['assignee_id', 'deadline', 'status'].includes(row.field) || fields.has(row.field)) return false;
+    fields.set(row.field, row);
+  }
+  const assignee = fields.get('assignee_id'),
+    due = fields.get('deadline'),
+    status = fields.get('status');
+  if (!assignee || assignee.before !== previous || assignee.after !== recipient) return false;
+  if (due && (due.before !== null && !c01Date(due.before) || due.after !== deadline || due.before === due.after)) return false;
+  if (status && (status.before !== 'process' || status.after !== 'active')) return false;
+  if (beforeTask) {
+    if (beforeTask.id !== id || beforeTask.assignee_id !== previous || beforeTask.deadline !== null && !c01Date(beforeTask.deadline) || !['active', 'process'].includes(beforeTask.status)) return false;
+    if (beforeTask.deadline !== deadline !== !!due || due && due.before !== beforeTask.deadline || beforeTask.status !== 'active' !== !!status || status && status.before !== beforeTask.status) return false;
+  }
+  return true;
+}
+function c01HistoryShape(v, id) {
+  return c01Object(v) && v.task_id === id && Array.isArray(v.items) && v.items.every(x => c01Object(x) && c01UUID(x.id) && typeof x.created_at === 'string' && c01TaskChanges(x.changes, id) && c01Display(x.reason) && (x.handoff == null || c01HandoffShape(x.handoff))) && (v.next_cursor === null || typeof v.next_cursor === 'string');
+}
+function c01GatherSources(task, items = []) {
+  const out = [];
+  function add(refs) {
+    if (!c01SourceRefs(refs)) return;
+    for (const ref of refs) if (!out.some(r => JSON.stringify(r) === JSON.stringify(ref))) out.push(ref);
+  }
+  if (c01Id(task?.order_id)) add([{
+    order_id: task.order_id
+  }]);
+  add(task?.handoff?.source_refs);
+  for (const item of items) {
+    add(item.handoff?.source_refs);
+    add(item.before?.history_refs);
+    add(item.after?.history_refs);
+    for (const s of [item.before, item.after]) {
+      if (c01Id(s?.order_id)) add([{
+        order_id: s.order_id
+      }]);
+      if (typeof s?.request_code === 'string' && s.request_code) add([{
+        request_code: s.request_code
+      }]);
+    }
+  }
+  return out;
+}
+function c01CanHandoff(task) {
+  return !!task && !task.archived && task.status !== 'done' && bosCan('write') && (bosRole() === 'ceo' || bosRole() === 'manager' && c01Id(window.BOS_RUNTIME?.employee_id) && task.assignee_id === window.BOS_RUNTIME.employee_id);
+}
+function c01HandoffPayload(value, asOf) {
+  const keys = ['action', 'task_id', 'assignee_id', 'expected_result', 'deadline', 'reason'];
+  if (!c01Object(value) || Object.keys(value).length !== 6 || keys.some(k => !c01Own(value, k)) || value.action !== 'handoff_task' || !c01Id(value.task_id) || !c01Id(value.assignee_id)) throw Error('Передавання потребує рівно шість визначених полів і фактичні ID.');
+  const p = {
+    ...value,
+    expected_result: c01Text(value.expected_result, 'Очікуваний результат', 3, 2000, true),
+    reason: c01Text(value.reason, 'Причина', 3, 1000, true)
+  };
+  if (!c01Date(p.deadline) || asOf !== undefined && (!c01Date(asOf) || p.deadline < asOf)) throw Error('Строк має бути не раніше серверної дати зрізу.');
+  return p;
+}
+function c01SamePayload(a, b) {
+  return c01Object(a) && c01Object(b) && Object.keys(a).length === Object.keys(b).length && Object.keys(a).every(k => c01Own(b, k) && a[k] === b[k]);
+}
+function c01Current(owner, ticket) {
+  return owner.alive && owner.generation === ticket.generation && owner.scope === ticket.scope && c01Scope() === ticket.scope;
+}
+function c01Cancel(owner) {
+  owner.generation++;
+  for (const c of owner.controllers) c.abort();
+  owner.controllers.clear();
+}
+async function c01Read(owner, ticket, url, options = {}) {
+  if (!c01Current(owner, ticket)) throw Object.assign(Error('Попередній контекст закрито.'), {
+    obsolete: true
+  });
+  const controller = new AbortController();
+  owner.controllers.add(controller);
+  const timer = setTimeout(() => controller.abort(), 30000);
+  try {
+    const r = await fetch(url, {
+      cache: 'no-store',
+      ...options,
+      signal: controller.signal
+    });
+    if (!c01Current(owner, ticket)) throw Object.assign(Error('Попередній контекст закрито.'), {
+      obsolete: true
+    });
+    const revision = window.BOS_RUNTIME?.access_revision;
+    if (r.headers.get('X-BoS-Identity') === 'denied' || !revision || r.headers.get('X-BoS-Access') !== revision) throw Object.assign(Error('Права або сесія змінилися. Закрийте картку й перевірте доступ.'), {
+      denied: true,
+      status: r.status
+    });
+    const denied = [401, 403, 404, 409].includes(r.status);
+    let body;
+    try {
+      body = await r.json();
+    } catch {
+      if (!c01Current(owner, ticket)) throw Object.assign(Error('Попередній контекст закрито.'), {
+        obsolete: true
+      });
+      throw Object.assign(Error(denied ? 'Дані або права змінилися. Оновіть доступні джерела.' : 'Сервер повернув нечитабельну відповідь. Оновіть дані явно.'), {
+        denied,
+        status: r.status,
+        terminal: false
+      });
+    }
+    if (!c01Current(owner, ticket)) throw Object.assign(Error('Попередній контекст закрито.'), {
+      obsolete: true
+    });
+    if (!r.ok) throw Object.assign(Error(denied ? 'Дані або права змінилися. Оновіть доступні джерела.' : 'Не вдалося перевірити запит. Оновіть дані або виправте форму.'), {
+      denied,
+      status: r.status,
+      terminal: c01Terminal(r.status, body)
+    });
+    return body;
+  } finally {
+    clearTimeout(timer);
+    owner.controllers.delete(controller);
+  }
+}
+function C01HandoffFacts({
+  handoff,
+  historical = false
+}) {
+  if (!handoff) return null;
+  if (!c01HandoffShape(handoff)) return /*#__PURE__*/React.createElement("p", {
+    className: "erp-error"
+  }, "\u041F\u0440\u043E\u0454\u043A\u0446\u0456\u044F \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0456 \u043C\u0430\u0454 \u043D\u0435\u043F\u043E\u0432\u043D\u0438\u0439 \u0444\u043E\u0440\u043C\u0430\u0442. \u041F\u0435\u0440\u0435\u0447\u0438\u0442\u0430\u0439\u0442\u0435 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F.");
+  return /*#__PURE__*/React.createElement("section", {
+    className: "c01-current",
+    style: {
+      overflowWrap: 'anywhere'
+    }
+  }, /*#__PURE__*/React.createElement("h4", null, historical ? 'Історична передача' : handoff.current ? 'Очікуваний результат поточного призначення' : 'Очікуваний результат попереднього призначення'), /*#__PURE__*/React.createElement("p", {
+    className: "c01-text"
+  }, handoff.expected_result), /*#__PURE__*/React.createElement("p", null, "\u041E\u0442\u0440\u0438\u043C\u0443\u0432\u0430\u0447: \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A \u2116", handoff.recipient.employee_id, " \xB7 ", handoff.recipient.department.name, " \xB7 \u0432\u0456\u0434\u0434\u0456\u043B \u2116", handoff.recipient.department.id, "."), /*#__PURE__*/React.createElement("p", null, "\u0421\u0442\u0440\u043E\u043A: ", handoff.deadline, ". \u041F\u0435\u0440\u0435\u0434\u0430\u0432 \u043A\u043E\u0440\u0438\u0441\u0442\u0443\u0432\u0430\u0447 \u2116", handoff.sender.user_id, handoff.sender.employee_id ? ' · співробітник №' + handoff.sender.employee_id : '', "."), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, !historical && !handoff.current ? 'Попереднє призначення більше не застосовується. ' : '', "\u041F\u0435\u0440\u0435\u0434\u0430\u0447\u0430 \u0454 \u043F\u0440\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u043D\u044F\u043C, \u0430 \u043D\u0435 \u043E\u0441\u043E\u0431\u0438\u0441\u0442\u0438\u043C \u043F\u0440\u0438\u0439\u043D\u044F\u0442\u0442\u044F\u043C. \u0424\u0430\u043A\u0442\u0438\u0447\u043D\u0438\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 Task \u0437\u0431\u0435\u0440\u0456\u0433\u0430\u0454\u0442\u044C\u0441\u044F \u043E\u043A\u0440\u0435\u043C\u043E."));
+}
+function C01TaskSource({
+  taskId,
+  source,
+  onClose,
+  onDenied
+}) {
+  const owner = useRef({
+      alive: true,
+      generation: 0,
+      scope: c01Scope(),
+      controllers: new Set()
+    }),
+    [data, setData] = useState(null),
+    [documentData, setDocumentData] = useState(null),
+    [error, setError] = useState(''),
+    [busy, setBusy] = useState(false),
+    title = useRef(null);
+  const identity = JSON.stringify([taskId, source, c01Scope()]);
+  useEffect(() => {
+    const o = owner.current;
+    o.alive = true;
+    o.scope = c01Scope();
+    readSource();
+    const clear = () => {
+      c01Cancel(o);
+      setData(null);
+      setDocumentData(null);
+      setBusy(false);
+      setError('Джерела змінилися. Закрийте цей перегляд і відкрийте їх після оновлення.');
+    };
+    window.addEventListener('bos:session-ended', clear);
+    window.addEventListener('bos:data-changed', clear);
+    return () => {
+      o.alive = false;
+      c01Cancel(o);
+      window.removeEventListener('bos:session-ended', clear);
+      window.removeEventListener('bos:data-changed', clear);
+    };
+  }, [identity]);
+  async function readSource() {
+    const o = owner.current;
+    c01Cancel(o);
+    const t = {
+      generation: o.generation,
+      scope: o.scope
+    };
+    setData(null);
+    setDocumentData(null);
+    setError('');
+    setBusy(true);
+    try {
+      if (!c01Id(taskId)) throw Object.assign(Error('Потрібен фактичний ID доручення.'), {
+        denied: true
+      });
+      const [task, h] = await Promise.all([c01Read(o, t, '/api/tasks/' + taskId + '/'), c01Read(o, t, '/api/tasks/' + taskId + '/history/?limit=50')]);
+      if (!c01TaskShape(task) || task.id !== taskId || !c01HistoryShape(h, taskId) || !c01GatherSources(task, h.items).some(r => JSON.stringify(r) === JSON.stringify(source))) throw Object.assign(Error('Це джерело більше не підтверджене доступним дорученням.'), {
+        denied: true
+      });
+      let result;
+      if (c01Id(source.order_id)) {
+        const s = await c01Read(o, t, '/api/erp/snapshot/');
+        if (!Array.isArray(s.orders) || !c01Date(s.as_of)) throw Error('Неповне читання замовлень.');
+        const row = s.orders.find(r => r.id === source.order_id);
+        if (!row || typeof row.code !== 'string' || !['status', 'due_date'].every(k => c01Display(row[k]))) throw Object.assign(Error('Замовлення зараз недоступне.'), {
+          denied: true
+        });
+        result = {
+          kind: 'order',
+          row,
+          as_of: s.as_of
+        };
+      } else {
+        const s = await c01Read(o, t, '/api/operations/compare/?code=' + encodeURIComponent(source.request_code));
+        const r = s.request;
+        if (!c01Object(r) || r.code !== source.request_code || !c01Id(r.document_id) || !c01Date(s.as_of) || !['part', 'revision', 'quantity', 'unit', 'required_by', 'owner'].every(k => c01Display(r[k]))) throw Error('Не отримано підтвердженої заявки та її джерела.');
+        result = {
+          kind: 'request',
+          row: r,
+          as_of: s.as_of
+        };
+      }
+      if (!c01Current(o, t)) return;
+      setData(result);
+      title.current?.focus();
+    } catch (e) {
+      if (c01Current(o, t)) {
+        setData(null);
+        setError(e.message);
+        if (e.denied) onDenied?.();
+      }
+    } finally {
+      if (c01Current(o, t)) setBusy(false);
+    }
+  }
+  async function readDocument() {
+    const o = owner.current,
+      t = {
+        generation: o.generation,
+        scope: o.scope
+      },
+      id = data?.row.document_id;
+    if (busy || !c01Id(id)) return;
+    setBusy(true);
+    setDocumentData(null);
+    setError('');
+    try {
+      const d = await c01Read(o, t, '/api/operations/documents/' + id + '/');
+      if (d.id !== id || typeof d.title !== 'string' || typeof d.code !== 'string' || !c01Display(d.revision) || !c01Display(d.checksum) || typeof d.current !== 'boolean' || !Array.isArray(d.sections) || d.sections.some(s => !c01Object(s) || typeof s.source !== 'string' || typeof s.text !== 'string')) throw Error('Документ має неповний формат.');
+      if (c01Current(o, t)) setDocumentData(d);
+    } catch (e) {
+      if (c01Current(o, t)) {
+        setData(null);
+        setDocumentData(null);
+        setError(e.message);
+        if (e.denied) onDenied?.();
+      }
+    } finally {
+      if (c01Current(o, t)) setBusy(false);
+    }
+  }
+  return /*#__PURE__*/React.createElement("section", {
+    className: "c01-current",
+    "aria-label": "\u0414\u0436\u0435\u0440\u0435\u043B\u043E \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F",
+    style: {
+      overflowWrap: 'anywhere'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "erp-row"
+  }, /*#__PURE__*/React.createElement("h4", {
+    ref: title,
+    tabIndex: -1
+  }, "\u0414\u0436\u0435\u0440\u0435\u043B\u043E \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement(Button, {
+    onClick: () => {
+      owner.current.alive = false;
+      c01Cancel(owner.current);
+      onClose();
+    }
+  }, "\u041F\u043E\u0432\u0435\u0440\u043D\u0443\u0442\u0438\u0441\u044F \u0434\u043E \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F")), busy && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0427\u0438\u0442\u0430\u0454\u043C\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0435 \u0434\u0436\u0435\u0440\u0435\u043B\u043E\u2026"), error && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, error), data && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, "\u0421\u0435\u0440\u0432\u0435\u0440\u043D\u0430 \u0434\u0430\u0442\u0430: ", data.as_of), data.kind === 'order' ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("strong", null, data.row.code, " \xB7 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u2116", data.row.id), /*#__PURE__*/React.createElement("p", null, "\u0421\u0442\u0430\u0442\u0443\u0441: ", data.row.status || 'Не надано', " \xB7 \u0441\u0442\u0440\u043E\u043A: ", data.row.due_date || 'Не надано')) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("strong", null, "\u0417\u0430\u044F\u0432\u043A\u0430 ", data.row.code, " \xB7 ", data.row.part), /*#__PURE__*/React.createElement("p", null, data.row.quantity, " ", data.row.unit, " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", data.row.revision, " \xB7 \u043F\u043E\u0442\u0440\u0456\u0431\u043D\u043E \u0434\u043E ", data.row.required_by || 'Не надано'), /*#__PURE__*/React.createElement("p", null, "\u0412\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u0430\u043B\u044C\u043D\u0438\u0439: ", data.row.owner || 'Не надано'), /*#__PURE__*/React.createElement(Button, {
+    disabled: busy,
+    onClick: readDocument
+  }, "\u041F\u0440\u043E\u0447\u0438\u0442\u0430\u0442\u0438 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442-\u0434\u0436\u0435\u0440\u0435\u043B\u043E \u2116", data.row.document_id))), documentData && /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("h5", null, documentData.title), /*#__PURE__*/React.createElement("p", null, documentData.code, " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", documentData.revision, documentData.current ? '' : ' · не остання версія'), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0412\u0456\u0434\u0431\u0438\u0442\u043E\u043A \u0434\u0436\u0435\u0440\u0435\u043B\u0430: ", documentData.checksum || 'Не надано'), bosCan('download_documents') && /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("a", {
+    href: '/api/operations/documents/' + documentData.id + '/download/'
+  }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0438\u0442\u0438 \u043E\u0440\u0438\u0433\u0456\u043D\u0430\u043B \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430 \u2116", documentData.id)), documentData.sections.map((s, i) => /*#__PURE__*/React.createElement("div", {
+    key: i
+  }, /*#__PURE__*/React.createElement("strong", null, s.source), /*#__PURE__*/React.createElement("p", {
+    className: "c01-text"
+  }, s.text)))));
+}
+// TASK_DEPARTMENT_HELPERS_END
+
 // C01_HELPERS_END
 function C01Impact({
   changes = []
@@ -11416,11 +12436,578 @@ function C01PendingLauncher({
   }, "\u041B\u0438\u0448\u0435 \u0456\u0434\u0435\u043D\u0442\u0438\u0444\u0456\u043A\u0430\u0442\u043E\u0440\u0438 \u0432 \u043F\u043E\u0442\u043E\u0447\u043D\u0456\u0439 \u0432\u043A\u043B\u0430\u0434\u0446\u0456. \u0422\u0435\u043A\u0441\u0442 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u044C \u0456 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u0456\u0432 \u0442\u0443\u0442 \u043D\u0435 \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043E."), rows.map(r => /*#__PURE__*/React.createElement("div", {
     className: "erp-row",
     key: r.proposal_id
-  }, /*#__PURE__*/React.createElement("span", null, r.action === 'create_task' ? 'Створення доручення' : 'Зміна доручення №' + r.task_id, " \xB7 ", r.proposal_id), /*#__PURE__*/React.createElement(Button, {
+  }, /*#__PURE__*/React.createElement("span", null, r.action === 'create_task' ? 'Створення доручення' : r.action === 'handoff_task' ? 'Передача доручення №' + r.task_id : 'Зміна доручення №' + r.task_id, " \xB7 ", r.proposal_id), /*#__PURE__*/React.createElement(Button, {
     onClick: () => onRecover(r)
   }, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0438\u0442\u0438 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442")))) : null;
 }
-function ControlledTask({
+function C01Handoff({
+  taskId,
+  recovery = null,
+  importPayload = null,
+  onDone,
+  onClose
+}) {
+  const target = taskId || recovery?.task_id,
+    scope = c01Scope(),
+    dialog = useRef(null),
+    heading = useRef(null),
+    opener = useRef(null),
+    owner = useRef({
+      alive: true,
+      generation: 0,
+      scope,
+      controllers: new Set(),
+      lock: '',
+      pending: recovery,
+      receipt: null,
+      proposal: null
+    });
+  const [read, setRead] = useState(null),
+    [busy, setBusy] = useState(''),
+    [error, setError] = useState(''),
+    [values, setValues] = useState({
+      assignee_id: '',
+      expected_result: '',
+      deadline: '',
+      reason: ''
+    }),
+    [search, setSearch] = useState(''),
+    [proposal, setProposal] = useState(null),
+    [pending, setPending] = useState(recovery),
+    [outcome, setOutcome] = useState(null),
+    [receipt, setReceipt] = useState(null),
+    [source, setSource] = useState(null),
+    [historyOpen, setHistoryOpen] = useState(false);
+  useEffect(() => {
+    const o = owner.current;
+    o.alive = true;
+    o.scope = scope;
+    opener.current = document.activeElement;
+    dialog.current.showModal();
+    heading.current?.focus();
+    if (!recovery) refresh();
+    const ended = () => invalidate(true),
+      changed = () => {
+        if (o.lock === 'confirm') return;
+        invalidate(false);
+      };
+    window.addEventListener('bos:session-ended', ended);
+    window.addEventListener('bos:data-changed', changed);
+    return () => {
+      o.alive = false;
+      c01Cancel(o);
+      window.removeEventListener('bos:session-ended', ended);
+      window.removeEventListener('bos:data-changed', changed);
+    };
+  }, [target, scope]);
+  function revokeProposal() {
+    owner.current.proposal = null;
+    setProposal(null);
+  }
+  function invalidate(denied) {
+    const o = owner.current;
+    c01Cancel(o);
+    o.lock = '';
+    setBusy('');
+    setRead(null);
+    setSource(null);
+    revokeProposal();
+    setOutcome(null);
+    setReceipt(null);
+    o.receipt = null;
+    setValues({
+      assignee_id: '',
+      expected_result: '',
+      deadline: '',
+      reason: ''
+    });
+    setSearch('');
+    setHistoryOpen(false);
+    setError(denied ? 'Доступ або сесія змінилися. Закрийте картку й перевірте поточний доступ.' : 'Дані змінилися. Оновіть доручення перед наступною дією.');
+  }
+  function start(kind) {
+    const o = owner.current;
+    if (o.lock || !o.alive || o.scope !== c01Scope()) return null;
+    revokeProposal();
+    c01Cancel(o);
+    o.lock = kind;
+    setBusy(kind);
+    setError('');
+    return {
+      generation: o.generation,
+      scope: o.scope
+    };
+  }
+  function finish(t) {
+    const o = owner.current;
+    if (c01Current(o, t)) {
+      o.lock = '';
+      setBusy('');
+    }
+  }
+  function failed(e, t) {
+    if (!c01Current(owner.current, t)) return;
+    setRead(null);
+    setSource(null);
+    revokeProposal();
+    setOutcome(null);
+    setValues({
+      assignee_id: '',
+      expected_result: '',
+      deadline: '',
+      reason: ''
+    });
+    setSearch('');
+    if (e.denied) {
+      setReceipt(null);
+      owner.current.receipt = null;
+    }
+    setError(e.name === 'AbortError' ? 'Читання не завершилося. Оновіть доручення явно.' : e.message);
+  }
+  async function readFresh(t) {
+    const o = owner.current;
+    if (!c01Id(target)) throw Error('Потрібен фактичний ID доручення.');
+    const [task, employees, tree, clock, history] = await Promise.all([c01Read(o, t, '/api/tasks/' + target + '/'), c01Read(o, t, '/api/employees/'), c01Read(o, t, '/api/branches/'), c01Read(o, t, '/api/operations/status/'), c01Read(o, t, '/api/tasks/' + target + '/history/?limit=50')]);
+    const departments = c01Departments(tree);
+    if (!c01TaskShape(task) || task.id !== target || !c01Rows(employees) || employees.some(e => typeof e.full_name !== 'string' || !c01Display(e.branch_name)) || !c01Date(clock.as_of) || clock.access_revision !== window.BOS_RUNTIME?.access_revision || !c01HistoryShape(history, target)) throw Error('Неповний формат поточного доручення або довідників.');
+    return {
+      task,
+      employees,
+      departments,
+      as_of: clock.as_of,
+      history,
+      sources: c01GatherSources(task, history.items)
+    };
+  }
+  async function refresh() {
+    const t = start('read');
+    if (!t) return;
+    setRead(null);
+    setSource(null);
+    revokeProposal();
+    setOutcome(null);
+    try {
+      const next = await readFresh(t);
+      if (!c01Current(owner.current, t)) return;
+      if (!owner.current.seeded && importPayload) {
+        const seed = c01HandoffPayload(importPayload, next.as_of);
+        if (seed.task_id !== target) throw Error('Імпорт стосується іншого доручення.');
+        setValues({
+          assignee_id: seed.assignee_id,
+          expected_result: seed.expected_result,
+          deadline: seed.deadline,
+          reason: seed.reason
+        });
+      } else setValues(v => ({
+        ...v,
+        deadline: v.deadline || next.as_of
+      }));
+      owner.current.seeded = true;
+      setRead(next);
+      heading.current?.focus();
+    } catch (e) {
+      failed(e, t);
+    } finally {
+      finish(t);
+    }
+  }
+  function change(key, value) {
+    if (owner.current.lock || pending || receipt || !read) return;
+    setValues(v => ({
+      ...v,
+      [key]: value
+    }));
+    revokeProposal();
+    setError('');
+  }
+  function recipientAllowed(next, id) {
+    const row = next.employees.find(e => e.id === id);
+    return !!row && !row.archived_at && row.id !== next.task.assignee_id && next.departments.some(d => d.id === row.branch);
+  }
+  function payload() {
+    return c01HandoffPayload({
+      action: 'handoff_task',
+      task_id: target,
+      assignee_id: c01InputId(values.assignee_id),
+      expected_result: values.expected_result,
+      deadline: values.deadline,
+      reason: values.reason
+    }, read?.as_of);
+  }
+  async function preview(event) {
+    event?.preventDefault();
+    if (pending || receipt || !read || !c01CanHandoff(read.task)) return;
+    let intent;
+    try {
+      intent = payload();
+      if (!recipientAllowed(read, intent.assignee_id)) throw Error('Оберіть іншого активного співробітника з явним відділом.');
+    } catch (e) {
+      setError(e.message);
+      return;
+    }
+    const t = start('preview');
+    if (!t) return;
+    revokeProposal();
+    setSource(null);
+    try {
+      const next = await readFresh(t);
+      if (!c01Current(owner.current, t)) return;
+      if (!c01CanHandoff(next.task) || !recipientAllowed(next, intent.assignee_id) || !next.sources.length) throw Error('Передача недоступна для поточного доручення, отримувача або джерел.');
+      c01HandoffPayload(intent, next.as_of);
+      setRead(next);
+      const result = await c01Read(owner.current, t, '/api/operations/preview/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(intent)
+      });
+      if (!c01UUID(result.id) || !c01SamePayload(result.payload, intent) || !Number.isFinite(Date.parse(result.expires_at)) || Date.parse(result.expires_at) <= Date.now() || result.effect?.entity !== 'task' || result.effect.task_id !== target || result.effect.operation !== 'handoff' || !c01HandoffChanges(result.impact, target, next.task.assignee_id, intent.assignee_id, intent.deadline, next.task)) throw Error('Не отримано точного чинного погодження цієї передачі.');
+      if (c01Current(owner.current, t)) {
+        const verified = {
+          ...result,
+          ui_intent: intent,
+          ui_read: next,
+          ui_scope: t.scope,
+          ui_generation: t.generation
+        };
+        owner.current.proposal = verified;
+        setProposal(verified);
+        heading.current?.focus();
+      }
+    } catch (e) {
+      failed(e, t);
+    } finally {
+      finish(t);
+    }
+  }
+  function receiptValid(result, entry, intent = null, beforeTask = null) {
+    return result?.state === 'succeeded' && result.action === 'handoff_task' && result.task_id === target && entry.task_id === target && c01UUID(result.audit_id) && c01HandoffShape(result.handoff) && result.handoff.state === 'sent' && result.handoff.source_refs.length > 0 && (!intent || result.handoff.recipient.employee_id === intent.assignee_id && result.handoff.expected_result === intent.expected_result && result.handoff.deadline === intent.deadline) && c01HandoffChanges(result.impact, target, result.handoff.previous_assignee.employee_id, result.handoff.recipient.employee_id, result.handoff.deadline, beforeTask);
+  }
+  async function accepted(result, entry, t, intent = null, beforeTask = null) {
+    if (!receiptValid(result, entry, intent, beforeTask)) throw Error('Не отримано квитанції саме цієї передачі. Ідентифікатор збережено.');
+    if (!c01Current(owner.current, t)) return;
+    owner.current.receipt = result;
+    owner.current.pending = null;
+    setReceipt(result);
+    setPending(null);
+    revokeProposal();
+    setOutcome(null);
+    setRead(null);
+    setSource(null);
+    setValues({
+      assignee_id: '',
+      expected_result: '',
+      deadline: '',
+      reason: ''
+    });
+    try {
+      c01PendingRemove(entry.proposal_id);
+    } catch {
+      setError('Передачу записано, але локальний ID не вдалося прибрати. Перевірка того самого ID безпечна.');
+    }
+    try {
+      onDone?.(result);
+    } catch {
+      setError('Передачу записано. Оновіть список вручну.');
+    }
+    heading.current?.focus();
+    try {
+      const next = await readFresh(t);
+      if (c01Current(owner.current, t)) setRead(next);
+    } catch (e) {
+      failed(e, t);
+      if (c01Current(owner.current, t) && !e.denied) setError('Квитанцію отримано, але поточне доручення й історію не прочитано. Оновіть явно.');
+    }
+  }
+  async function confirm() {
+    if (!owner.current.alive || owner.current.scope !== c01Scope() || owner.current.lock || receipt || !bosCan('write')) return;
+    let entry = pending;
+    const intent = entry ? null : proposal?.ui_intent,
+      beforeTask = entry ? null : proposal?.ui_read.task;
+    if (entry) {
+      if (outcome?.same_session !== true || outcome.proposal_id !== entry.proposal_id) return;
+    } else {
+      if (!proposal || owner.current.proposal !== proposal || proposal.ui_scope !== scope || proposal.ui_generation !== owner.current.generation || proposal.ui_read !== read || !c01CanHandoff(read?.task)) return;
+      try {
+        if (!c01SamePayload(payload(), proposal.ui_intent) || Date.parse(proposal.expires_at) <= Date.now()) throw Error('Погодження втратило чинність. Оновіть і явно підготуйте новий перегляд.');
+      } catch (e) {
+        revokeProposal();
+        setError(e.message);
+        return;
+      }
+      entry = {
+        proposal_id: proposal.id,
+        action: 'handoff_task',
+        task_id: target,
+        user_id: window.BOS_RUNTIME?.user_id
+      };
+    }
+    try {
+      c01PendingSave(entry);
+    } catch {
+      setError('Погодження не надіслано: не вдалося надійно зберегти його ID.');
+      return;
+    }
+    const t = start('confirm');
+    if (!t) return;
+    owner.current.pending = entry;
+    setPending(entry);
+    setOutcome(null);
+    revokeProposal();
+    try {
+      const result = await c01Read(owner.current, t, '/api/operations/confirm/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          proposal_id: entry.proposal_id,
+          confirmed: true
+        })
+      });
+      await accepted(result, entry, t, intent, beforeTask);
+    } catch (e) {
+      if (!c01Current(owner.current, t)) return;
+      failed(e, t);
+      if (e.terminal) {
+        try {
+          c01PendingRemove(entry.proposal_id);
+          owner.current.pending = null;
+          setPending(null);
+        } catch {}
+        setError('Сервер підтвердив відмову без застосування. Оновіть доручення перед новим явним переглядом.');
+      } else setError(e.denied ? 'Результат або джерела зараз недоступні. ID збережено; автоматичного нового погодження немає.' : 'Результат погодження невідомий. Перевірте результат або повторіть те саме погодження.');
+    } finally {
+      finish(t);
+    }
+  }
+  async function recover() {
+    const entry = pending;
+    if (!entry || entry.user_id !== window.BOS_RUNTIME?.user_id || entry.task_id !== target || entry.action !== 'handoff_task' || !c01UUID(entry.proposal_id)) return;
+    const t = start('recovery');
+    if (!t) return;
+    setRead(null);
+    setSource(null);
+    setOutcome(null);
+    try {
+      const result = await c01Read(owner.current, t, '/api/operations/task-proposals/' + entry.proposal_id + '/');
+      if (result.proposal_id !== entry.proposal_id || result.action !== 'handoff_task' || typeof result.same_session !== 'boolean' || !['pending', 'expired', 'unknown', 'succeeded'].includes(result.state) || !Number.isFinite(Date.parse(result.expires_at))) throw Error('Не отримано статус саме цього погодження.');
+      if (result.state === 'succeeded') await accepted(result.receipt, entry, t);else {
+        setOutcome(result);
+        setError(result.same_session ? 'Збереженого успіху поки немає. Можна повторити лише те саме погодження.' : 'Початкова сесія недоступна. Доступна лише перевірка збереженого результату.');
+      }
+    } catch (e) {
+      failed(e, t);
+    } finally {
+      finish(t);
+    }
+  }
+  function close() {
+    if (owner.current.lock === 'confirm') return;
+    owner.current.alive = false;
+    c01Cancel(owner.current);
+    dialog.current.close();
+  }
+  function closed() {
+    owner.current.alive = false;
+    c01Cancel(owner.current);
+    onClose?.();
+    const node = opener.current;
+    if (node?.isConnected && !node.disabled) node.focus();
+  }
+  const employees = read ? read.employees.filter(e => recipientAllowed(read, e.id)) : [],
+    term = search.trim().toLocaleLowerCase('uk-UA'),
+    candidates = employees.filter(e => !term || c01EmployeeLabel(e).toLocaleLowerCase('uk-UA').includes(term)),
+    chosen = read?.employees.find(e => e.id === Number(values.assignee_id));
+  const previewEmployee = proposal?.ui_read.employees.find(e => e.id === proposal.payload.assignee_id),
+    previewDepartment = proposal?.ui_read.departments.find(d => d.id === previewEmployee?.branch);
+  return /*#__PURE__*/React.createElement("dialog", {
+    ref: dialog,
+    className: "bos-dialog c01-dialog",
+    style: {
+      width: 'min(900px,95vw)',
+      maxHeight: '90vh',
+      overflow: 'auto',
+      overflowWrap: 'anywhere'
+    },
+    "aria-labelledby": "c01-handoff-title",
+    onClose: closed,
+    onCancel: e => {
+      if (owner.current.lock === 'confirm') e.preventDefault();else {
+        owner.current.alive = false;
+        c01Cancel(owner.current);
+      }
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "erp-row"
+  }, /*#__PURE__*/React.createElement("h2", {
+    id: "c01-handoff-title",
+    ref: heading,
+    tabIndex: -1
+  }, receipt ? 'Квитанція передачі' : pending ? 'Перевірка передачі' : 'Передати доручення №' + target), /*#__PURE__*/React.createElement(Button, {
+    disabled: busy === 'confirm',
+    onClick: close
+  }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438")), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0422\u0435 \u0441\u0430\u043C\u0435 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F, \u0456\u043D\u0448\u0438\u0439 \u0432\u0438\u043A\u043E\u043D\u0430\u0432\u0435\u0446\u044C. \u041F\u0435\u0440\u0435\u0434\u0430\u0447\u0430 \u043D\u0435 \u0454 \u043E\u0441\u043E\u0431\u0438\u0441\u0442\u0438\u043C \u043F\u0440\u0438\u0439\u043D\u044F\u0442\u0442\u044F\u043C \u0456 \u043D\u0435 \u0437\u043C\u0456\u043D\u044E\u0454 \u0444\u0430\u043A\u0442\u0438\u0447\u043D\u0438\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u0447\u0438 \u043F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0443 \u0431\u0456\u0437\u043D\u0435\u0441-\u0444\u0456\u043B\u0456\u044E."), busy && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, busy === 'confirm' ? 'Погоджуємо передачу…' : 'Перевіряємо доступні дані…'), error && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, error), receipt && /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("h3", null, "\u0406\u0441\u0442\u043E\u0440\u0438\u0447\u043D\u0438\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0414\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u2116", receipt.task_id, " \u043F\u0435\u0440\u0435\u0434\u0430\u043D\u043E \u0432\u0438\u043A\u043E\u043D\u0430\u0432\u0446\u044E. \u041F\u043E\u0434\u0456\u044F ", receipt.audit_id, "."), /*#__PURE__*/React.createElement(C01HandoffFacts, {
+    handoff: receipt.handoff,
+    historical: true
+  }), /*#__PURE__*/React.createElement(C01Impact, {
+    changes: receipt.impact
+  }), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041A\u0432\u0438\u0442\u0430\u043D\u0446\u0456\u044F \u043D\u0435 \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0443\u0454 \u043F\u043E\u0442\u043E\u0447\u043D\u0438\u0439 \u0441\u0442\u0430\u043D \u043F\u0456\u0441\u043B\u044F \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0437\u043C\u0456\u043D.")), pending ? /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("h3", null, "ID \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("p", {
+    className: "c01-text"
+  }, pending.proposal_id), /*#__PURE__*/React.createElement("p", null, "\u0417\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043E \u043B\u0438\u0448\u0435 ID, \u0434\u0456\u044E, Task ID \u0456 \u043A\u043E\u0440\u0438\u0441\u0442\u0443\u0432\u0430\u0447\u0430. \u0422\u0435\u043A\u0441\u0442\u0438 \u0444\u043E\u0440\u043C\u0438 \u0442\u0430 \u0434\u0436\u0435\u0440\u0435\u043B \u043D\u0435 \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043E."), /*#__PURE__*/React.createElement("div", {
+    className: "actions"
+  }, /*#__PURE__*/React.createElement(Button, {
+    disabled: !!busy,
+    onClick: recover
+  }, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0438\u0442\u0438 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442"), outcome?.same_session === true && /*#__PURE__*/React.createElement(Button, {
+    disabled: !!busy || !bosCan('write'),
+    onClick: confirm
+  }, "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0438 \u0442\u0435 \u0441\u0430\u043C\u0435 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F"))) : /*#__PURE__*/React.createElement(Button, {
+    disabled: !!busy,
+    onClick: refresh
+  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u0442\u0430 \u0434\u0436\u0435\u0440\u0435\u043B\u0430"), read && /*#__PURE__*/React.createElement("section", {
+    className: "c01-current"
+  }, /*#__PURE__*/React.createElement("h3", null, read.task.title, " \xB7 \u2116", read.task.id), /*#__PURE__*/React.createElement("p", null, "\u0421\u0435\u0440\u0432\u0435\u0440\u043D\u0430 \u0434\u0430\u0442\u0430: ", /*#__PURE__*/React.createElement("time", {
+    dateTime: read.as_of
+  }, read.as_of), ". \u041F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0430 \u0431\u0456\u0437\u043D\u0435\u0441-\u0444\u0456\u043B\u0456\u044F: ", read.task.branch_name || 'Не визначено', read.task.branch ? ' · №' + read.task.branch : '', "."), /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0442\u043E\u0447\u043D\u0438\u0439 \u0432\u0438\u043A\u043E\u043D\u0430\u0432\u0435\u0446\u044C: ", c01Assignee(read.task) || 'Не визначено', read.task.assignee_id ? ' · №' + read.task.assignee_id : '', ". \u0421\u0442\u0430\u0442\u0443\u0441: ", C01_STATUS[read.task.status] || read.task.status, "."), /*#__PURE__*/React.createElement(C01HandoffFacts, {
+    handoff: read.task.handoff
+  }), /*#__PURE__*/React.createElement("h4", null, "\u0424\u0430\u043A\u0442\u0438\u0447\u043D\u0438\u0439 / \u043F\u043E\u043F\u0435\u0440\u0435\u0434\u043D\u0456\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 Task"), /*#__PURE__*/React.createElement("p", {
+    className: "c01-text"
+  }, read.task.result === null ? 'Історично не записано' : read.task.result || 'Ще не записано'), /*#__PURE__*/React.createElement("h4", null, "\u041F\u043E\u0442\u043E\u0447\u043D\u0435 \u0442\u0430 \u0456\u0441\u0442\u043E\u0440\u0438\u0447\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430"), /*#__PURE__*/React.createElement("div", {
+    className: "erp-actions"
+  }, read.sources.map(r => /*#__PURE__*/React.createElement(Button, {
+    key: JSON.stringify(r),
+    disabled: !!busy,
+    onClick: () => setSource(r)
+  }, r.order_id ? 'Відкрити замовлення №' + r.order_id : 'Відкрити заявку ' + r.request_code))), !read.sources.length && /*#__PURE__*/React.createElement("p", null, "\u041D\u0435 \u043E\u0442\u0440\u0438\u043C\u0430\u043D\u043E \u0434\u0436\u0435\u0440\u0435\u043B \u0434\u043B\u044F \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0456."), source && /*#__PURE__*/React.createElement(C01TaskSource, {
+    key: JSON.stringify(source) + owner.current.generation,
+    taskId: target,
+    source: source,
+    onClose: () => setSource(null),
+    onDenied: () => invalidate(true)
+  })), proposal && !pending && !receipt && /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("h3", null, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0442\u0435 \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0443"), /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u2116", target, ": ", proposal.ui_read.task.title), /*#__PURE__*/React.createElement("p", null, "\u0412\u0456\u0434 ", c01Assignee(proposal.ui_read.task) || 'Історично не призначено', " \u0434\u043E ", previewEmployee?.full_name, " \xB7 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A \u2116", proposal.payload.assignee_id, " \xB7 ", previewDepartment?.name, " \xB7 \u0432\u0456\u0434\u0434\u0456\u043B \u2116", previewDepartment?.id, "."), /*#__PURE__*/React.createElement("h4", null, "\u041E\u0447\u0456\u043A\u0443\u0432\u0430\u043D\u0438\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442"), /*#__PURE__*/React.createElement("p", {
+    className: "c01-text"
+  }, proposal.payload.expected_result), /*#__PURE__*/React.createElement("p", null, "\u0421\u0442\u0440\u043E\u043A: ", proposal.payload.deadline), /*#__PURE__*/React.createElement("p", {
+    className: "c01-text"
+  }, "\u041F\u0440\u0438\u0447\u0438\u043D\u0430: ", proposal.payload.reason), /*#__PURE__*/React.createElement(C01Impact, {
+    changes: proposal.impact
+  }), /*#__PURE__*/React.createElement("p", null, "\u0427\u0438\u043D\u043D\u0435 \u0434\u043E ", new Date(proposal.expires_at).toLocaleString('uk-UA'), "."), /*#__PURE__*/React.createElement("div", {
+    className: "actions"
+  }, /*#__PURE__*/React.createElement(Button, {
+    disabled: !!busy,
+    onClick: () => {
+      if (!owner.current.lock) revokeProposal();
+    }
+  }, "\u0414\u043E \u0444\u043E\u0440\u043C\u0438"), /*#__PURE__*/React.createElement(Button, {
+    disabled: !!busy,
+    variant: "primary",
+    onClick: confirm
+  }, "\u041F\u043E\u0433\u043E\u0434\u0438\u0442\u0438 \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0443"))), read && !proposal && !pending && !receipt && (c01CanHandoff(read.task) ? /*#__PURE__*/React.createElement("form", {
+    onSubmit: preview
+  }, /*#__PURE__*/React.createElement("fieldset", {
+    className: "b03-fieldset",
+    disabled: !!busy
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "erp-form"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "c01-wide"
+  }, "\u041F\u043E\u0448\u0443\u043A \u043E\u0442\u0440\u0438\u043C\u0443\u0432\u0430\u0447\u0430", /*#__PURE__*/React.createElement(Input, {
+    value: search,
+    onChange: e => setSearch(e.target.value),
+    placeholder: "\u0406\u043C\u2019\u044F, \u043F\u043E\u0441\u0430\u0434\u0430, \u0432\u0456\u0434\u0434\u0456\u043B \u0430\u0431\u043E ID"
+  })), /*#__PURE__*/React.createElement("label", {
+    className: "c01-wide"
+  }, "\u041E\u0442\u0440\u0438\u043C\u0443\u0432\u0430\u0447", /*#__PURE__*/React.createElement(Select, {
+    required: true,
+    value: values.assignee_id,
+    onChange: e => change('assignee_id', e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "\u041E\u0431\u0435\u0440\u0456\u0442\u044C \u0456\u043D\u0448\u043E\u0433\u043E \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A\u0430"), chosen && !candidates.some(e => e.id === chosen.id) && /*#__PURE__*/React.createElement("option", {
+    value: chosen.id
+  }, c01EmployeeLabel(chosen)), candidates.map(e => /*#__PURE__*/React.createElement("option", {
+    key: e.id,
+    value: e.id
+  }, c01EmployeeLabel(e))))), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted c01-wide"
+  }, "\u0421\u043F\u0438\u0441\u043E\u043A \u043F\u043E\u043A\u0430\u0437\u0443\u0454 \u0430\u043A\u0442\u0438\u0432\u043D\u0438\u0445 \u0441\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A\u0456\u0432 \u0456\u0437 \u044F\u0432\u043D\u0438\u043C \u0432\u0456\u0434\u0434\u0456\u043B\u043E\u043C. \u041F\u0440\u0438\u0434\u0430\u0442\u043D\u0456\u0441\u0442\u044C \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u043E\u0433\u043E User, \u0440\u043E\u043B\u044C \u0456 \u0434\u043E\u0441\u0442\u0443\u043F \u0434\u043E \u0432\u0441\u0456\u0445 \u0434\u0436\u0435\u0440\u0435\u043B \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u0438\u0442\u044C \u0441\u0435\u0440\u0432\u0435\u0440."), /*#__PURE__*/React.createElement("label", {
+    className: "c01-wide"
+  }, "\u041E\u0447\u0456\u043A\u0443\u0432\u0430\u043D\u0438\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442", /*#__PURE__*/React.createElement("textarea", {
+    required: true,
+    minLength: 3,
+    maxLength: 2000,
+    className: "c01-textarea",
+    value: values.expected_result,
+    onChange: e => change('expected_result', e.target.value)
+  })), /*#__PURE__*/React.createElement("label", null, "\u0421\u0442\u0440\u043E\u043A", /*#__PURE__*/React.createElement(Input, {
+    type: "date",
+    required: true,
+    min: read.as_of,
+    value: values.deadline,
+    onChange: e => change('deadline', e.target.value)
+  })), /*#__PURE__*/React.createElement("label", {
+    className: "c01-wide"
+  }, "\u041F\u0440\u0438\u0447\u0438\u043D\u0430 \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0456", /*#__PURE__*/React.createElement("textarea", {
+    required: true,
+    minLength: 3,
+    maxLength: 1000,
+    className: "c01-textarea",
+    value: values.reason,
+    onChange: e => change('reason', e.target.value)
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "actions"
+  }, /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    type: "submit",
+    disabled: !read.sources.length
+  }, "\u041F\u0435\u0440\u0435\u0433\u043B\u044F\u043D\u0443\u0442\u0438 \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0443")))) : /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u041F\u0435\u0440\u0435\u0434\u0430\u0447\u0430 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0430 \u0437\u0430 \u043F\u043E\u0442\u043E\u0447\u043D\u0438\u043C\u0438 \u043F\u0440\u0430\u0432\u0430\u043C\u0438 \u0430\u0431\u043E \u0441\u0442\u0430\u043D\u043E\u043C \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F.")), read && /*#__PURE__*/React.createElement("details", {
+    open: historyOpen,
+    onToggle: e => setHistoryOpen(e.currentTarget.open)
+  }, /*#__PURE__*/React.createElement("summary", null, "\u0406\u0441\u0442\u043E\u0440\u0456\u044F \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F"), read.history.items.map(item => /*#__PURE__*/React.createElement("article", {
+    className: "c01-history",
+    key: item.id
+  }, /*#__PURE__*/React.createElement("h4", null, C01_TRANSITIONS[item.transition] || 'Історична подія', " \xB7 ", item.created_at), /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0434\u0456\u044F ", item.id), item.reason && /*#__PURE__*/React.createElement("p", {
+    className: "c01-text"
+  }, item.reason), item.handoff && /*#__PURE__*/React.createElement(C01HandoffFacts, {
+    handoff: item.handoff,
+    historical: true
+  }), /*#__PURE__*/React.createElement(C01Impact, {
+    changes: item.changes
+  }))), !read.history.items.length && /*#__PURE__*/React.createElement("p", null, "\u0417\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u0438\u0445 \u043F\u043E\u0434\u0456\u0439 \u043D\u0435\u043C\u0430\u0454."), read.history.next_cursor && /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u043E\u0441\u0442\u0430\u043D\u043D\u0456 50 \u043F\u043E\u0434\u0456\u0439. \u041F\u043E\u0432\u043D\u0430 \u0456\u0441\u0442\u043E\u0440\u0456\u044F \u0437 \u043F\u0430\u0433\u0456\u043D\u0430\u0446\u0456\u0454\u044E \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0430 \u0443 \u0437\u0432\u0438\u0447\u0430\u0439\u043D\u0456\u0439 \u043A\u0430\u0440\u0442\u0446\u0456 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F; \u0441\u0435\u0440\u0432\u0435\u0440 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u044F\u0454 \u0432\u0441\u0456 \u043D\u0430\u043A\u043E\u043F\u0438\u0447\u0435\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430.")));
+}
+function ControlledTask(props) {
+  const [handoff, setHandoff] = useState(false);
+  const explicit = props.mode === 'handoff' || props.recovery?.action === 'handoff_task' || props.importPayload?.action === 'handoff_task';
+  return handoff || explicit ? /*#__PURE__*/React.createElement(C01Handoff, {
+    key: (props.taskId || props.recovery?.task_id || props.importPayload?.task_id) + ':' + c01Scope(),
+    taskId: props.taskId || props.importPayload?.task_id,
+    recovery: props.recovery,
+    importPayload: props.importPayload,
+    onDone: props.onDone,
+    onClose: props.onClose
+  }) : /*#__PURE__*/React.createElement(C01TaskLegacy, _extends({
+    key: JSON.stringify([props.taskId, props.mode, props.recovery?.proposal_id, props.importPayload, c01Scope()])
+  }, props, {
+    onHandoff: () => setHandoff(true)
+  }));
+}
+function C01TaskLegacy({
   taskId = null,
   mode = 'create',
   preset = {},
@@ -11429,7 +13016,8 @@ function ControlledTask({
   onDone,
   onClose,
   importPayload,
-  recovery = null
+  recovery = null,
+  onHandoff
 }) {
   const imported = importPayload || {},
     seed = {
@@ -11465,7 +13053,8 @@ function ControlledTask({
     [historyCursor, setHistoryCursor] = useState(null),
     [historyLoaded, setHistoryLoaded] = useState(false),
     [orderOpen, setOrderOpen] = useState(false),
-    [scopeDenied, setScopeDenied] = useState(false);
+    [scopeDenied, setScopeDenied] = useState(false),
+    [taskSource, setTaskSource] = useState(null);
   const writable = bosCan('write'),
     archiveMode = ['archive', 'restore'].includes(initialMode),
     canEdit = writable && initialMode !== 'view' && (!task?.archived || initialMode === 'restore');
@@ -11510,6 +13099,7 @@ function ControlledTask({
     ref.current.close();
   }
   function denyScope() {
+    setTaskSource(null);
     setTask(null);
     setHistory([]);
     setHistoryCursor(null);
@@ -11746,7 +13336,7 @@ function ControlledTask({
       const [r, related] = await Promise.all([request('/api/tasks/' + id + '/'), request('/api/erp/snapshot/')]);
       if (!alive.current) return;
       for (const response of [r, related]) if (!response.ok) {
-        if ([403, 404].includes(response.status)) denyScope();
+        if ([401, 403, 404].includes(response.status)) denyScope();
         throw Error(response.body.error || 'Поточне доручення або джерела недоступні.');
       }
       if (r.body.id !== id || !Array.isArray(related.body.orders)) throw Error('Не отримано актуального доручення з джерелами.');
@@ -11813,7 +13403,26 @@ function ControlledTask({
     className: "op-muted"
   }, "\u0414\u0436\u0435\u0440\u0435\u043B\u043E: \u043F\u043E\u0442\u043E\u0447\u043D\u0438\u0439 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0439 \u0437\u0430\u043F\u0438\u0441 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u043F\u0440\u043E\u0434\u0430\u0436\u0443. \u0412\u0438\u043A\u043E\u043D\u0430\u043D\u043D\u044F \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u043D\u0435 \u043F\u0440\u043E\u0432\u043E\u0434\u0438\u0442\u044C \u0432\u0456\u0434\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F \u0430\u0431\u043E \u043E\u043F\u043B\u0430\u0442\u0443."))) : /*#__PURE__*/React.createElement("p", {
     className: "erp-error"
-  }, "\u0417\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u0437\u0430\u0440\u0430\u0437 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0435. \u041E\u043D\u043E\u0432\u0456\u0442\u044C \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430."))), /*#__PURE__*/React.createElement("h4", null, currentResultLabel), /*#__PURE__*/React.createElement("p", {
+  }, "\u0417\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u0437\u0430\u0440\u0430\u0437 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0435. \u041E\u043D\u043E\u0432\u0456\u0442\u044C \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430."))), /*#__PURE__*/React.createElement(C01HandoffFacts, {
+    handoff: task.handoff
+  }), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0430 \u0431\u0456\u0437\u043D\u0435\u0441-\u0444\u0456\u043B\u0456\u044F: ", task.branch_name || 'Не визначено', ". \u0412\u0456\u0434\u0434\u0456\u043B \u0432\u0438\u043A\u043E\u043D\u0430\u0432\u0446\u044F \u0454 \u043E\u043A\u0440\u0435\u043C\u0438\u043C \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442\u043E\u043C."), onHandoff && c01CanHandoff(task) && /*#__PURE__*/React.createElement(Button, {
+    disabled: !!busy || !!pending || !!receipt,
+    onClick: onHandoff
+  }, "\u041F\u0435\u0440\u0435\u0434\u0430\u0442\u0438 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("h4", null, "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u043F\u043E\u0442\u043E\u0447\u043D\u0456 \u0442\u0430 \u0456\u0441\u0442\u043E\u0440\u0438\u0447\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430"), /*#__PURE__*/React.createElement("div", {
+    className: "erp-actions"
+  }, c01GatherSources(task, history).map(source => /*#__PURE__*/React.createElement(Button, {
+    key: JSON.stringify(source),
+    disabled: !!busy,
+    onClick: () => setTaskSource(source)
+  }, source.order_id ? 'Відкрити джерело — замовлення №' + source.order_id : 'Відкрити джерело — заявка ' + source.request_code))), taskSource && /*#__PURE__*/React.createElement(C01TaskSource, {
+    key: JSON.stringify(taskSource),
+    taskId: task.id,
+    source: taskSource,
+    onClose: () => setTaskSource(null),
+    onDenied: denyScope
+  }), /*#__PURE__*/React.createElement("h4", null, currentResultLabel), /*#__PURE__*/React.createElement("p", {
     className: "c01-text"
   }, task.result === null ? 'Історичний результат не був записаний.' : task.result || 'Результат ще не записаний.'), task.status !== 'done' && task.result_recorded && /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
@@ -12013,7 +13622,10 @@ function ControlledTask({
     observer: 'Спостерігач'
   }[item.actor.role] || item.actor.role) : ''), item.reason && /*#__PURE__*/React.createElement("p", {
     className: "c01-text"
-  }, item.reason), item.legacy ? /*#__PURE__*/React.createElement("p", {
+  }, item.reason), item.handoff && /*#__PURE__*/React.createElement(C01HandoffFacts, {
+    handoff: item.handoff,
+    historical: true
+  }), item.legacy ? /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
   }, item.note || 'Структурований diff раніше не збережено.') : /*#__PURE__*/React.createElement(C01Impact, {
     changes: item.changes
@@ -12041,7 +13653,7 @@ function ProcurementEntry({
     revision: 'A',
     quantity: 1,
     unit: 'шт.',
-    currency: 'EUR',
+    currency: 'UAH',
     required_by: '',
     owner_id: '',
     document_id: '',
@@ -12315,8 +13927,8 @@ function Procurement({
       setPurchaseBusy(false);
     }
   }
-  async function afterPurchase(result) {
-    setPurchaseReceipt(result);
+  async function afterPurchase(result, context) {
+    setPurchaseReceipt(s2ReceiptContext(result, context));
     setError('');
     try {
       const fresh = await erpFetch('snapshot/');
@@ -12458,7 +14070,10 @@ function Procurement({
     style: {
       color: T.green
     }
-  }, "\u0417\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043E \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u2116", receipt.task_id, ". \u0412\u043E\u043D\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0435 \u0432 HR \u0442\u0430 \u0436\u0443\u0440\u043D\u0430\u043B\u0456 \u0434\u0456\u0439."), purchaseReceipt && /*#__PURE__*/React.createElement("section", {
+  }, "\u0417\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043E \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u2116", receipt.task_id, ". \u0412\u043E\u043D\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0435 \u0432 HR \u0442\u0430 \u0436\u0443\u0440\u043D\u0430\u043B\u0456 \u0434\u0456\u0439."), purchaseReceipt?.action === 'erp_register_supplier_invoice' ? /*#__PURE__*/React.createElement(SupplierInvoiceReceipt, {
+    receipt: purchaseReceipt,
+    data: erpData
+  }) : purchaseReceipt && /*#__PURE__*/React.createElement("section", {
     className: "bos-next",
     "aria-label": "\u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", null, "\u041E\u043F\u0435\u0440\u0430\u0446\u0456\u044E \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043E"), /*#__PURE__*/React.createElement(ImpactTable, {
@@ -12666,7 +14281,8 @@ function OperationsAssistant({
     [raw, setRaw] = useState(''),
     [error, setError] = useState(''),
     [erpAction, setErpAction] = useState(null),
-    [statementAction, setStatementAction] = useState(null);
+    [statementAction, setStatementAction] = useState(null),
+    [supplierReceipt, setSupplierReceipt] = useState(null);
   useEffect(() => {
     const clear = () => setMessages([]);
     window.addEventListener('boss:clear-chat', clear);
@@ -12694,6 +14310,7 @@ function OperationsAssistant({
         if (!def && !correction) throw Error('Невідома ERP-дія.');
         if (!bosCanAction(type) || correction && b03Financial(type) && bosRole() !== 'ceo') throw Error('Ця дія недоступна вашому обліковому запису.');
         let preset = value;
+        if (type === 'register_supplier_invoice' && !s2ExactIntent(value)) throw Error('Потрібні рівно шість полів наміру з явними дійсними ID та SHA-256.');
         if (correction) {
           preset = b03ImportedAction(value);
         } else {
@@ -12843,9 +14460,9 @@ function OperationsAssistant({
     preset: erpAction.preset,
     data: erpAction.data,
     onClose: () => setErpAction(null),
-    onDone: r => {
+    onDone: (r, context) => {
       refetchTasks?.();
-      setMessages(m => [...m, {
+      if (r.action === 'erp_register_supplier_invoice') setSupplierReceipt(s2ReceiptContext(r, context));else setMessages(m => [...m, {
         role: 'assistant',
         text: 'ERP-операцію виконано. Запис журналу №' + r.erp_event_id + (r.note ? ' · ' + r.note : '')
       }]);
@@ -12863,6 +14480,8 @@ function OperationsAssistant({
         text: 'Збережено доручення №' + r.task_id + '. Результат додано до журналу.'
       }]);
     }
+  }), supplierReceipt && /*#__PURE__*/React.createElement(SupplierInvoiceReceipt, {
+    receipt: supplierReceipt
   }), doc && /*#__PURE__*/React.createElement(DocViewer, {
     id: doc,
     onClose: () => setDoc(null)
@@ -12977,17 +14596,25 @@ async function erpFetch(path, data) {
   return d;
 }
 const ERP_ACTIONS = {
+  register_supplier_invoice: ['Зареєструвати рахунок постачальника', [['document_id', 'Документ', 'documents'], ['purchase_id', 'Закупівля', 'purchases'], ['supplier_id', 'Постачальник', 'suppliers'], ['item_id', 'Номенклатура', 'items'], ['source_sha256', 'SHA-256 джерела']]],
   item: ['Нова номенклатура', [['code', 'Код'], ['name', 'Назва'], ['unit', 'Одиниця'], ['kind', 'Тип', 'enum:product,material,component'], ['method', 'Спосіб виконання', 'enum:buy,make,subcontract'], ['revision', 'Версія'], ['currency', 'Валюта', 'enum:UAH,EUR,USD'], ['material', 'Матеріал'], ['document_id', 'Креслення', 'documents?'], ['external_codes', 'Зовнішні коди', 'codes'], ['required_documents', 'Обов’язкові документи', 'tags'], ['minimum', 'Мінімальний запас', 'number'], ['lead_days', 'Строк закупівлі, днів', 'integer'], ['planned_cost', 'Планова собівартість одиниці', 'money'], ['bom', 'Склад виробу', 'bom'], ['routing', 'Маршрут операцій', 'routing']]],
-  location: ['Нове місце зберігання', [['branch_id', 'Філія / робоча точка', 'branches?'], ['code', 'Код'], ['name', 'Назва / комірка'], ['kind', 'Тип', 'enum:warehouse,production,supplier'], ['supplier_id', 'Підрядник', 'suppliers?']]],
-  order: ['Нова пропозиція клієнту', [['branch_id', 'Філія / робоча точка', 'branches?'], ['code', 'Номер'], ['customer_id', 'Клієнт', 'customers'], ['owner_id', 'Відповідальний', 'employees'], ['due_date', 'Бажана дата поставки', 'date'], ['currency', 'Валюта', 'enum:UAH,EUR,USD'], ['lines', 'Позиції', 'lines'], ['notes', 'Примітка']]],
+  location: ['Нове місце зберігання', [['code', 'Код'], ['name', 'Назва / комірка'], ['kind', 'Тип', 'enum:warehouse,production,supplier'], ['supplier_id', 'Підрядник', 'suppliers?'], ['branch_id', 'Філія', 'branches?'], ['address', 'Адреса', 'text?'], ['lat', 'Широта WGS84', 'coordinate?'], ['lng', 'Довгота WGS84', 'coordinate?']]],
+  location_update: ['Реквізити точки', [['location_id', 'Точка мережі', 'locations'], ['branch_id', 'Філія', 'branches?'], ['address', 'Адреса', 'text?'], ['lat', 'Широта WGS84', 'coordinate?'], ['lng', 'Довгота WGS84', 'coordinate?'], ['reason', 'Причина зміни']]],
+  order_network: ['Реквізити виконання продажу', [['order_id', 'Замовлення', 'orders'], ['fulfillment_location_id', 'Точка виконання', 'locations?'], ['destination_country', 'Країна призначення (ISO 2)', 'text?'], ['reason', 'Причина зміни']]],
+  purchase_network: ['Реквізити постачання', [['purchase_id', 'Закупівля', 'purchases'], ['destination_id', 'Точка приймання', 'locations?'], ['origin_country', 'Країна походження (ISO 2)', 'text?'], ['reason', 'Причина зміни']]],
+  transfer_dispatch: ['Відправити між точками', [['lot_id', 'Партія', 'lots'], ['quantity', 'Кількість', 'number'], ['location_id', 'Точка призначення', 'locations'], ['code', 'Номер переміщення'], ['due_date', 'Очікуємо до', 'date?'], ['reason', 'Підстава']]],
+  transfer_receive: ['Прийняти переміщення', [['transfer_id', 'Переміщення в дорозі', 'transfers'], ['code', 'Код прийнятої партії'], ['reason', 'Підстава приймання']]],
+  hold_payment: ['Утримати суму рахунку', [['invoice_id', 'Рахунок', 'invoices'], ['amount', 'Сума утримання у валюті рахунку', 'money'], ['code', 'Номер утримання'], ['reason', 'Умови / підстава утримання']]],
+  release_payment: ['Зняти утримання', [['retention_id', 'Чинне утримання', 'retentions'], ['reason', 'Підстава зняття']]],
+  order: ['Нова пропозиція клієнту', [['branch_id', 'Організаційна філія', 'branches?'], ['code', 'Номер'], ['customer_id', 'Клієнт', 'customers'], ['owner_id', 'Відповідальний', 'employees'], ['due_date', 'Бажана дата поставки', 'date'], ['currency', 'Валюта', 'enum:UAH,EUR,USD'], ['fulfillment_location_id', 'Точка виконання', 'locations?'], ['destination_country', 'Країна призначення (ISO 2)', 'text?'], ['lines', 'Позиції', 'lines'], ['notes', 'Примітка']]],
   confirm_order: ['Підтвердити замовлення', [['order_id', 'Замовлення', 'orders']]],
   opening: ['Ввести початкову партію', [['code', 'Код партії'], ['item_id', 'Номенклатура', 'items'], ['location_id', 'Місце', 'locations'], ['quantity', 'Кількість', 'number'], ['unit_cost', 'Собівартість одиниці', 'money'], ['currency', 'Валюта', 'enum:UAH,EUR,USD'], ['revision', 'Версія'], ['documents', 'Документи партії', 'documents_map'], ['reason', 'Підстава']]],
-  purchase: ['Замовлення постачальнику', [['code', 'Номер'], ['item_id', 'Номенклатура', 'items'], ['supplier_id', 'Постачальник', 'suppliers'], ['quantity', 'Кількість', 'number'], ['price', 'Ціна одиниці', 'money'], ['extras', 'Разові витрати й доставка', 'money'], ['currency', 'Валюта', 'enum:UAH,EUR,USD'], ['due_date', 'Очікувана дата', 'date'], ['revision', 'Версія'], ['production_id', 'Пов’язана виробнича робота', 'jobs?'], ['request_id', 'Вихідна закупівельна заявка', 'requests?'], ['quote_id', 'Пропозиція постачальника', 'integer?'], ['supplier_confirmation', 'Джерело підтвердження кількості, ціни та дати', 'text?'], ['direct_reason', 'Підстава прямої закупівлі', 'text?']]],
+  purchase: ['Замовлення постачальнику', [['code', 'Номер'], ['item_id', 'Номенклатура', 'items'], ['supplier_id', 'Постачальник', 'suppliers'], ['quantity', 'Кількість', 'number'], ['price', 'Ціна одиниці', 'money'], ['extras', 'Разові витрати й доставка', 'money'], ['currency', 'Валюта', 'enum:UAH,EUR,USD'], ['due_date', 'Очікувана дата', 'date'], ['destination_id', 'Точка приймання', 'locations?'], ['origin_country', 'Країна походження (ISO 2)', 'text?'], ['revision', 'Версія'], ['production_id', 'Пов’язана виробнича робота', 'jobs?'], ['request_id', 'Вихідна закупівельна заявка', 'requests?'], ['quote_id', 'Пропозиція постачальника', 'integer?'], ['supplier_confirmation', 'Джерело підтвердження кількості, ціни та дати', 'text?'], ['direct_reason', 'Підстава прямої закупівлі', 'text?']]],
   receive: ['Прийняти поставку', [['purchase_id', 'Замовлення', 'purchases'], ['code', 'Нова партія'], ['location_id', 'Місце приймання', 'locations'], ['quantity', 'Отримана кількість', 'number'], ['documents', 'Документи партії', 'documents_map']]],
   job: ['Виробнича робота', [['code', 'Номер'], ['item_id', 'Виріб', 'items'], ['quantity', 'Кількість', 'number'], ['location_id', 'Дільниця або підрядник', 'locations'], ['owner_id', 'Відповідальний', 'employees'], ['due_date', 'План завершення', 'date'], ['line_id', 'Позиція продажу', 'sales_lines?']]],
   reserve: ['Зарезервувати партію', [['lot_id', 'Партія', 'lots'], ['quantity', 'Кількість', 'number'], ['line_id', 'Для продажу', 'sales_lines?'], ['production_id', 'Або для виробництва', 'jobs?']]],
   release: ['Звільнити резерв', [['reservation_id', 'Резерв', 'reservations'], ['quantity', 'Кількість', 'number']]],
-  transfer: ['Перемістити матеріал', [['lot_id', 'Вихідна партія', 'lots'], ['quantity', 'Кількість', 'number'], ['location_id', 'Куди', 'locations'], ['code', 'Код партії у новому місці'], ['reason', 'Підстава'], ['production_id', 'Пов’язана робота', 'jobs?']]],
+  transfer: ['Миттєво перемістити матеріал', [['lot_id', 'Вихідна партія', 'lots'], ['quantity', 'Кількість', 'number'], ['location_id', 'Куди', 'locations'], ['code', 'Код партії у новому місці'], ['reason', 'Підстава'], ['production_id', 'Пов’язана робота', 'jobs?']]],
   attach: ['Додати документ партії', [['lot_id', 'Партія', 'lots'], ['kind', 'Тип документа'], ['document_id', 'Документ', 'documents']]],
   quality: ['Зафіксувати перевірку якості', [['lot_id', 'Партія', 'lots'], ['result', 'Рішення', 'enum:approved,blocked,rework'], ['inspector_id', 'Перевірив', 'employees'], ['note', 'Підстава / результати вимірювань']]],
   start: ['Розпочати виробництво', [['production_id', 'Виробнича робота', 'jobs']]],
@@ -13036,6 +14663,228 @@ function ERPTable({
     }
   }, empty));
 }
+// Supplier-invoice intent and receipt UI. Read context stays in memory, never in pending storage.
+const S2_INTENT_KEYS = ['action', 'document_id', 'item_id', 'purchase_id', 'source_sha256', 'supplier_id'];
+function s2PositiveId(value) {
+  return Number.isSafeInteger(value) && value > 0;
+}
+function s2Selection(value) {
+  const result = {};
+  for (const key of ['document_id', 'purchase_id', 'supplier_id', 'item_id']) {
+    const raw = value?.[key];
+    if (typeof raw !== 'number' && (typeof raw !== 'string' || !/^[1-9]\d*$/.test(raw))) return null;
+    const id = Number(raw);
+    if (!s2PositiveId(id)) return null;
+    result[key] = id;
+  }
+  return result;
+}
+function s2ExactIntent(value) {
+  return !!value && !Array.isArray(value) && Object.keys(value).sort().join(',') === S2_INTENT_KEYS.join(',') && value.action === 'erp_register_supplier_invoice' && ['document_id', 'purchase_id', 'supplier_id', 'item_id'].every(key => s2PositiveId(value[key])) && typeof value.source_sha256 === 'string' && /^[a-f0-9]{64}$/.test(value.source_sha256);
+}
+function s2ReadPath(selection) {
+  return selection ? 'purchases/' + selection.purchase_id + '/document-match/?document_id=' + selection.document_id + '&supplier_id=' + selection.supplier_id + '&item_id=' + selection.item_id : null;
+}
+function s2IntentFromRead(value, selection) {
+  if (!selection) throw Error('Явно оберіть документ, закупівлю, постачальника й номенклатуру.');
+  documentMatchVerify(value, selection.purchase_id, selection.document_id, window.BOS_RUNTIME?.access_revision, selection);
+  const draft = value.draft,
+    m = draft.matches,
+    registration = value.supplier_invoice_registration;
+  if (draft.decision !== 'accept_draft' || draft.exceptions.length || !draft.fields || !draft.source || !m || !['unregistered', 'matched'].includes(registration.status) || m.purchase_id !== selection.purchase_id || m.supplier_id !== selection.supplier_id || m.item_id !== selection.item_id) throw Error('Поточне зіставлення не дозволяє реєстрацію. Оновіть і перевірте джерела.');
+  return {
+    action: 'erp_register_supplier_invoice',
+    ...selection,
+    source_sha256: draft.source.sha256
+  };
+}
+function s2CanRegister(value, selection) {
+  try {
+    s2IntentFromRead(value, selection);
+    return true;
+  } catch {
+    return false;
+  }
+}
+function s2ProposalMatches(value, intent) {
+  return typeof value?.id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value.id) && s2ExactIntent(value.payload) && S2_INTENT_KEYS.every(key => value.payload[key] === intent[key]) && typeof value.expires_at === 'string' && Number.isFinite(Date.parse(value.expires_at)) && Date.parse(value.expires_at) > Date.now();
+}
+function s2ReceiptContext(receipt, context) {
+  if (receipt?.action !== 'erp_register_supplier_invoice') return receipt;
+  const selection = s2Selection(context?.selection);
+  return selection && selection.purchase_id === receipt.purchase_id ? {
+    ...receipt,
+    ui_read_selection: selection
+  } : receipt;
+}
+function SupplierInvoiceRegistrationFacts({
+  registration,
+  onDocument
+}) {
+  if (!registration) return null;
+  if (registration.status === 'unregistered') return /*#__PURE__*/React.createElement("p", null, "\u0420\u0430\u0445\u0443\u043D\u043E\u043A \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043B\u044C\u043D\u0438\u043A\u0430 \u0449\u0435 \u043D\u0435 \u0437\u0430\u0440\u0435\u0454\u0441\u0442\u0440\u043E\u0432\u0430\u043D\u043E.");
+  const row = registration.items[0];
+  return /*#__PURE__*/React.createElement("section", {
+    "aria-label": "\u0417\u0430\u0440\u0435\u0454\u0441\u0442\u0440\u043E\u0432\u0430\u043D\u0438\u0439 \u0440\u0430\u0445\u0443\u043D\u043E\u043A \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043B\u044C\u043D\u0438\u043A\u0430"
+  }, /*#__PURE__*/React.createElement("h4", null, registration.status === 'matched' ? 'Рахунок постачальника зареєстровано' : 'Реєстрація потребує окремої перевірки', " \xB7 \u2116", row.id), registration.status === 'requires_revalidation' && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0414\u0436\u0435\u0440\u0435\u043B\u043E \u0430\u0431\u043E \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442 \u0437\u043C\u0456\u043D\u0438\u043B\u0438\u0441\u044F. \u0406\u0441\u0442\u043E\u0440\u0438\u0447\u043D\u0443 \u0440\u0435\u0454\u0441\u0442\u0440\u0430\u0446\u0456\u044E \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043E; \u043F\u043E\u0442\u0440\u0456\u0431\u043D\u0430 \u043E\u043A\u0440\u0435\u043C\u0430 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0430. \u041D\u043E\u0432\u0430 \u0440\u0435\u0454\u0441\u0442\u0440\u0430\u0446\u0456\u044F \u0442\u0430 \u0437\u0430\u043C\u0456\u043D\u0430 \u043F\u0440\u0438\u0439\u043D\u044F\u0442\u043E\u0433\u043E \u0434\u0436\u0435\u0440\u0435\u043B\u0430 \u0442\u0443\u0442 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456."), /*#__PURE__*/React.createElement("p", null, "\u0417\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044F \u2116", row.purchase_id, " \xB7 \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043B\u044C\u043D\u0438\u043A \u2116", row.supplier_id), /*#__PURE__*/React.createElement("p", null, "\u0420\u0430\u0445\u0443\u043D\u043E\u043A ", row.invoice_number, " \u0432\u0456\u0434 ", row.invoice_date, " \xB7 ", row.amount, " ", row.currency), /*#__PURE__*/React.createElement("p", null, "\u041F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F: ", row.receipt_ids.join(', ') || 'немає', "; \u043F\u043E\u0432\u0435\u0440\u043D\u0435\u043D\u043D\u044F: ", row.return_ids.join(', ') || 'немає', "."), /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    onClick: () => onDocument?.(row.document_id)
+  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u043F\u0440\u0438\u0439\u043D\u044F\u0442\u0438\u0439 \u043E\u0440\u0438\u0433\u0456\u043D\u0430\u043B \u2116", row.document_id));
+}
+function SupplierInvoiceReadSummary({
+  value,
+  onDocument
+}) {
+  if (!value) return null;
+  const draft = value.draft;
+  return /*#__PURE__*/React.createElement("section", {
+    "aria-label": "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0435\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430 \u0440\u0435\u0454\u0441\u0442\u0440\u0430\u0446\u0456\u0457"
+  }, /*#__PURE__*/React.createElement("h3", null, "\u041E\u0441\u0442\u0430\u043D\u043D\u0454 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u0435\u043D\u0435 \u0447\u0438\u0442\u0430\u043D\u043D\u044F \u0434\u0436\u0435\u0440\u0435\u043B"), /*#__PURE__*/React.createElement("p", null, "\u0426\u0435 \u043F\u0440\u043E\u0447\u0438\u0442\u0430\u043D\u0456 \u0440\u0435\u043A\u0432\u0456\u0437\u0438\u0442\u0438 \u0434\u0436\u0435\u0440\u0435\u043B\u0430, \u0430 \u043D\u0435 \u0432\u043F\u043B\u0438\u0432 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F \u043D\u0430 \u043E\u0431\u043B\u0456\u043A."), /*#__PURE__*/React.createElement("p", null, "\u0417\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044F \u2116", value.purchase_id, " \xB7 \u0432\u0438\u0431\u0440\u0430\u043D\u0438\u0439 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442 \u2116", value.document_id), draft.source && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, "SHA-256: ", draft.source.sha256), /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    onClick: () => onDocument?.(draft.source.document_id)
+  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u0432\u0438\u0431\u0440\u0430\u043D\u0438\u0439 \u043E\u0440\u0438\u0433\u0456\u043D\u0430\u043B")), draft.fields && /*#__PURE__*/React.createElement("p", null, "\u0420\u0430\u0445\u0443\u043D\u043E\u043A ", draft.fields.invoice_number.value, " \u0432\u0456\u0434 ", draft.fields.invoice_date.value, " \xB7 ", draft.fields.total.value, " ", draft.fields.currency.value), draft.exceptions.map(code => /*#__PURE__*/React.createElement("p", {
+    role: "status",
+    key: code
+  }, DOCUMENT_MATCH_ISSUES[code] || 'Потрібна окрема перевірка джерела.')), /*#__PURE__*/React.createElement(SupplierInvoiceRegistrationFacts, {
+    registration: value.supplier_invoice_registration,
+    onDocument: onDocument
+  }));
+}
+function SupplierInvoiceReceipt(props) {
+  const binding = useRef(null),
+    origin = useRef(c03Scope()),
+    selectionKey = JSON.stringify(s2Selection(props.selection === undefined ? props.receipt?.ui_read_selection : props.selection)),
+    scope = c03Scope();
+  // A newly delivered receipt has a new object identity even when replay returns
+  // identical wire fields. This boundary resets all source state in every host.
+  if (!binding.current || binding.current.receipt !== props.receipt || binding.current.selectionKey !== selectionKey) binding.current = {
+    receipt: props.receipt,
+    selectionKey,
+    generation: (binding.current?.generation || 0) + 1
+  };
+  const own = binding.current;
+  if (origin.current !== scope || bosRole() !== 'ceo') return /*#__PURE__*/React.createElement("p", {
+    role: "alert"
+  }, "\u041A\u0432\u0438\u0442\u0430\u043D\u0446\u0456\u044F \u0442\u0430 \u0434\u0436\u0435\u0440\u0435\u043B\u0430 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0434\u043B\u044F \u043F\u043E\u0442\u043E\u0447\u043D\u043E\u0433\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u0443.");
+  return /*#__PURE__*/React.createElement(SupplierInvoiceReceiptRead, _extends({
+    key: own.generation
+  }, props, {
+    receiptCurrent: () => binding.current === own && origin.current === c03Scope()
+  }));
+}
+function SupplierInvoiceReceiptRead({
+  receipt,
+  selection = receipt?.ui_read_selection,
+  data = null,
+  receiptCurrent
+}) {
+  const chosen = s2Selection(selection),
+    initial = chosen?.purchase_id === receipt.purchase_id ? chosen : null,
+    scope = c03Scope(),
+    origin = useRef(scope),
+    alive = useRef(true),
+    sequence = useRef(0),
+    controller = useRef(null);
+  const [denied, setDenied] = useState(false),
+    [error, setError] = useState(''),
+    [busy, setBusy] = useState(false),
+    [opened, setOpened] = useState(!!initial),
+    [dataset, setDataset] = useState(data),
+    [doc, setDoc] = useState(null);
+  const current = () => alive.current && receiptCurrent() && origin.current === c03Scope() && bosRole() === 'ceo';
+  function deny() {
+    sequence.current++;
+    controller.current?.abort();
+    if (alive.current) {
+      setDenied(true);
+      setDataset(null);
+      setOpened(false);
+      setDoc(null);
+      setError('Поточні джерела недоступні для цього доступу.');
+    }
+  }
+  useEffect(() => {
+    alive.current = true;
+    window.addEventListener('bos:session-ended', deny);
+    return () => {
+      alive.current = false;
+      sequence.current++;
+      controller.current?.abort();
+      window.removeEventListener('bos:session-ended', deny);
+    };
+  }, []);
+  async function openPurchase() {
+    if (busy || !current()) return;
+    const ticket = ++sequence.current,
+      revision = window.BOS_RUNTIME?.access_revision,
+      abort = new AbortController();
+    controller.current = abort;
+    const timer = setTimeout(() => abort.abort(), 30000);
+    setBusy(true);
+    setError('');
+    try {
+      const response = await fetch('/api/erp/snapshot/', {
+        cache: 'no-store',
+        signal: abort.signal
+      });
+      if (!current() || ticket !== sequence.current) return;
+      if ([401, 403].includes(response.status) || response.headers.get('X-BoS-Identity') === 'denied' || response.headers.get('X-BoS-Access') && response.headers.get('X-BoS-Access') !== revision) {
+        deny();
+        return;
+      }
+      if (!response.ok) throw Error('source');
+      const fresh = await response.json();
+      if (!current() || ticket !== sequence.current) return;
+      if (!fresh || !['purchases', 'documents', 'partners', 'items'].every(key => Array.isArray(fresh[key])) || !fresh.purchases.some(row => row && row.id === receipt.purchase_id)) throw Error('source');
+      setDataset(fresh);
+      setOpened(true);
+    } catch {
+      if (current() && ticket === sequence.current) setError('Закупівля або її джерела недоступні. Оновіть дані з поточним доступом.');
+    } finally {
+      clearTimeout(timer);
+      if (current() && ticket === sequence.current) setBusy(false);
+      if (controller.current === abort) controller.current = null;
+    }
+  }
+  if (denied || origin.current !== scope || bosRole() !== 'ceo') return /*#__PURE__*/React.createElement("p", {
+    role: "alert"
+  }, "\u041A\u0432\u0438\u0442\u0430\u043D\u0446\u0456\u044F \u0442\u0430 \u0434\u0436\u0435\u0440\u0435\u043B\u0430 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0434\u043B\u044F \u043F\u043E\u0442\u043E\u0447\u043D\u043E\u0433\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u0443.");
+  const readData = dataset || {
+      purchases: [],
+      documents: [],
+      partners: [],
+      items: []
+    },
+    purchase = readData.purchases?.find(row => row.id === receipt.purchase_id) || {
+      id: receipt.purchase_id,
+      code: '№' + receipt.purchase_id
+    };
+  return /*#__PURE__*/React.createElement("section", {
+    "aria-label": "\u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u0440\u0435\u0454\u0441\u0442\u0440\u0430\u0446\u0456\u0457 \u0440\u0430\u0445\u0443\u043D\u043A\u0443 \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043B\u044C\u043D\u0438\u043A\u0430"
+  }, /*#__PURE__*/React.createElement("h3", null, receipt.replayed ? 'Цей рахунок уже зареєстровано' : 'Реєстрацію рахунку підтверджено', " \xB7 \u2116", receipt.supplier_invoice_registration_id), /*#__PURE__*/React.createElement("p", null, "\u0417\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044F \u2116", receipt.purchase_id, ". \u041E\u0442\u0440\u0438\u043C\u0430\u043D\u043E \u043A\u0432\u0438\u0442\u0430\u043D\u0446\u0456\u044E \u0441\u0430\u043C\u0435 \u0446\u044C\u043E\u0433\u043E \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F."), receipt.erp_event_id && /*#__PURE__*/React.createElement("p", null, "\u0417\u0430\u043F\u0438\u0441 \u0436\u0443\u0440\u043D\u0430\u043B\u0443 \u2116", receipt.erp_event_id, "."), /*#__PURE__*/React.createElement("p", null, "\u041A\u0432\u0438\u0442\u0430\u043D\u0446\u0456\u044F \u0444\u0456\u043A\u0441\u0443\u0454 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F. \u041F\u043E\u0442\u043E\u0447\u043D\u0430 \u043F\u0440\u0438\u0434\u0430\u0442\u043D\u0456\u0441\u0442\u044C \u0434\u0436\u0435\u0440\u0435\u043B \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u044F\u0454\u0442\u044C\u0441\u044F \u043E\u043A\u0440\u0435\u043C\u0438\u043C \u0447\u0438\u0442\u0430\u043D\u043D\u044F\u043C \u043D\u0438\u0436\u0447\u0435; \u043F\u043E\u0432\u0442\u043E\u0440 \u043A\u0432\u0438\u0442\u0430\u043D\u0446\u0456\u0457 \u043D\u0435 \u043E\u0437\u043D\u0430\u0447\u0430\u0454 \u0441\u0442\u0432\u043E\u0440\u0435\u043D\u043D\u044F \u043D\u043E\u0432\u043E\u0433\u043E \u0437\u0430\u043F\u0438\u0441\u0443."), /*#__PURE__*/React.createElement(Button, {
+    disabled: busy,
+    onClick: openPurchase
+  }, busy ? 'Перечитуємо закупівлю…' : 'Відкрити закупівлю та джерела'), error && /*#__PURE__*/React.createElement("p", {
+    role: "alert"
+  }, error), opened && /*#__PURE__*/React.createElement(PurchaseDocumentMatch, {
+    key: receipt.supplier_invoice_registration_id + ':' + scope,
+    purchase: purchase,
+    data: readData,
+    onDocument: id => {
+      if (current()) setDoc(id);
+    },
+    readOnly: true,
+    initialSelection: initial,
+    onDenied: deny,
+    readCurrent: current
+  }), doc && /*#__PURE__*/React.createElement(DocViewer, {
+    id: doc,
+    onClose: () => setDoc(null)
+  }));
+}
+
 // Ordinary ERP confirmations retain only IDs in this tab; the server owns identity and replay.
 const ERP_PENDING_PREFIX = 'bos:erp-confirm:';
 function erpPendingToken() {
@@ -13084,7 +14933,15 @@ function erpPendingRemove(binding, id) {
   erpPendingWrite(binding, erpPendingRead(binding).filter(r => r.proposal_id !== id));
 }
 function erpConfirmationReceipt(action, value, payload) {
+  if (action === 'register_supplier_invoice') return value?.state === 'succeeded' && value.action === 'erp_register_supplier_invoice' && Number.isSafeInteger(value.supplier_invoice_registration_id) && value.supplier_invoice_registration_id > 0 && Number.isSafeInteger(value.purchase_id) && value.purchase_id > 0 && value.invoice_matching_status === 'matched' && typeof value.replayed === 'boolean' && (value.replayed || s2PositiveId(value.erp_event_id)) && (!Object.prototype.hasOwnProperty.call(value, 'erp_event_id') || s2PositiveId(value.erp_event_id)) && (!payload || payload.purchase_id === value.purchase_id);
   const fields = {
+      location_update: 'location_id',
+      order_network: 'order_id',
+      purchase_network: 'purchase_id',
+      transfer_dispatch: 'transfer_id',
+      transfer_receive: 'transfer_id',
+      hold_payment: 'retention_id',
+      release_payment: 'retention_id',
       item: 'item_id',
       location: 'location_id',
       order: 'order_id',
@@ -13115,6 +14972,12 @@ function erpConfirmationReceipt(action, value, payload) {
     field = fields[action];
   if (!field || value?.state !== 'succeeded' || !Number.isSafeInteger(value.erp_event_id) || value.erp_event_id <= 0 || !Number.isSafeInteger(value[field]) || value[field] <= 0 || !Array.isArray(value.impact)) return false;
   const same = {
+    location_update: 'location_id',
+    order_network: 'order_id',
+    purchase_network: 'purchase_id',
+    transfer_receive: 'transfer_id',
+    release_payment: 'retention_id',
+    hold_payment: 'invoice_id',
     confirm_order: 'order_id',
     release: 'reservation_id',
     attach: 'lot_id',
@@ -13248,8 +15111,30 @@ function ERPActionDialog({
     received = useRef(false),
     invalid = useRef(false),
     binding = useRef(null);
+  const isS2 = action === 'register_supplier_invoice',
+    s2Chosen = s2Selection(values),
+    s2Sequence = useRef(0),
+    [s2Doc, setS2Doc] = useState(null);
+  const s2Context = JSON.stringify(s2Selection(preset)),
+    s2Origin = useRef(s2Context);
+  const s2Read = useERPProjection(isS2 && bosCanAction(action) && !recovery && !received.current ? s2ReadPath(s2Chosen) : null, (value, revision) => documentMatchVerify(value, s2Chosen.purchase_id, s2Chosen.document_id, revision, s2Chosen));
+  useEffect(() => {
+    if (!isS2) return;
+    const changed = () => {
+      s2Sequence.current++;
+      if (alive.current && !sent.current && !received.current) {
+        setProposal(null);
+        setError('Дані змінилися. Оновіть джерела перед новим переглядом.');
+      }
+    };
+    window.addEventListener('bos:data-changed', changed);
+    return () => window.removeEventListener('bos:data-changed', changed);
+  }, [isS2]);
+  useEffect(() => {
+    if (isS2 && (s2Read.state.status === 'denied' || s2Context !== s2Origin.current)) deny();
+  }, [isS2, s2Read.state.status, s2Context]);
   function current() {
-    return alive.current && !invalid.current && origin.current === bosHttpScope() && token.current === erpPendingToken() && bosCanAction(action);
+    return alive.current && !invalid.current && origin.current === bosHttpScope() && token.current === erpPendingToken() && bosCanAction(action) && (!isS2 || s2Context === s2Origin.current);
   }
   function deny() {
     invalid.current = true;
@@ -13260,6 +15145,7 @@ function ERPActionDialog({
       setPending(null);
       setReceipt(null);
       setValues({});
+      setS2Doc(null);
       setError('Сесію або дозвіл змінено. Закрийте діалог і перевірте поточний доступ.');
     }
   }
@@ -13326,6 +15212,14 @@ function ERPActionDialog({
     onConfirmPending?.(true);
   }
   function options(type) {
+    if (type === 'transfers') return (data.transfers || []).filter(x => x.status === 'in_transit').map(x => ({
+      value: x.id,
+      label: x.code + ' · ' + x.quantity
+    }));
+    if (type === 'retentions') return (data.retentions || []).filter(x => x.status === 'held').map(x => ({
+      value: x.id,
+      label: x.code
+    }));
     if (action === 'purchase' && type === 'items' && purchaseContext) {
       const r = purchaseContext.request;
       return data.items.filter(x => x.unit === r.unit && x.revision === r.revision && (x.document_id === r.document_id || x.code === r.part)).map(x => ({
@@ -13575,7 +15469,7 @@ function ERPActionDialog({
       key: x,
       value: x
     }, ERP_LABELS[x] || x))));
-    if (['branches', 'items', 'locations', 'suppliers', 'customers', 'employees', 'documents', 'orders', 'sales_lines', 'jobs', 'lots', 'purchases', 'reservations', 'invoices', 'changes', 'requests'].includes(base)) return /*#__PURE__*/React.createElement("label", {
+    if (['branches', 'items', 'locations', 'suppliers', 'customers', 'employees', 'documents', 'orders', 'sales_lines', 'jobs', 'lots', 'purchases', 'reservations', 'invoices', 'changes', 'requests', 'transfers', 'retentions'].includes(base)) return /*#__PURE__*/React.createElement("label", {
       key: key
     }, label, optional ? ' · необов’язково' : '', /*#__PURE__*/React.createElement(Select, {
       required: !optional,
@@ -13587,14 +15481,14 @@ function ERPActionDialog({
       key: x.value,
       value: x.value
     }, x.label))));
-    const numeric = ['number', 'integer', 'money', 'signed'].includes(type);
+    const numeric = ['number', 'integer', 'money', 'signed', 'coordinate'].includes(base);
     return /*#__PURE__*/React.createElement("label", {
       key: key
-    }, label, /*#__PURE__*/React.createElement(Input, {
-      type: numeric ? 'number' : type === 'date' ? 'date' : 'text',
-      step: type === 'integer' ? '1' : type === 'money' ? '0.01' : '0.001',
-      min: numeric && type !== 'signed' ? '0' : undefined,
-      required: !['material', 'notes', 'note', 'reason'].includes(key),
+    }, label, optional ? ' · необов’язково' : '', /*#__PURE__*/React.createElement(Input, {
+      type: numeric ? 'number' : base === 'date' ? 'date' : 'text',
+      step: base === 'integer' ? '1' : base === 'money' ? '0.01' : base === 'coordinate' ? '0.000001' : '0.001',
+      min: numeric && !['signed', 'coordinate'].includes(base) ? '0' : undefined,
+      required: !optional && !['material', 'notes', 'note'].includes(key) && (key !== 'reason' || ['location_update', 'order_network', 'purchase_network', 'transfer_dispatch', 'transfer_receive', 'hold_payment', 'release_payment'].includes(action)),
       value: value ?? '',
       maxLength: ['code', 'reference', 'revision', 'target_revision'].includes(key) ? 60 : 1000,
       onChange: e => change(key, e.target.value)
@@ -13623,19 +15517,55 @@ function ERPActionDialog({
         setError('Спершу перевірте незавершене погодження цієї дії. Новий перегляд не створено.');
         return;
       }
-      const payload = {
-        action: 'erp_' + action
-      };
-      for (const [k,, type = 'text'] of definition[1]) {
-        const v = values[k];
-        if (type.endsWith('?') && (v === '' || v == null)) continue;
-        payload[k] = type === 'tags' ? Array.isArray(v) ? v : String(v).split(',').map(x => x.trim()).filter(Boolean) : k.endsWith('_id') || type === 'integer' ? Number(v) : v;
+      let payload,
+        s2Fresh = null;
+      const s2Ticket = s2Sequence.current;
+      if (isS2) {
+        s2Fresh = await s2Read.refresh();
+        if (!current()) {
+          deny();
+          return;
+        }
+        if (!s2Fresh || s2Ticket !== s2Sequence.current) throw Error('Не отримано поточного зіставлення. Оновіть джерела.');
+        payload = s2IntentFromRead(s2Fresh, s2Chosen);
+      } else {
+        payload = {
+          action: 'erp_' + action
+        };
+        for (const [k,, type = 'text'] of definition[1]) {
+          const v = values[k];
+          if ((action === 'location_update' && ['branch_id', 'lat', 'lng'].includes(k) || action === 'order_network' && k === 'fulfillment_location_id' || action === 'purchase_network' && k === 'destination_id') && (v === '' || v == null)) {
+            payload[k] = null;
+            continue;
+          }
+          if (action === 'location_update' && k === 'address') {
+            payload[k] = String(v || '');
+            continue;
+          }
+          if (['order_network', 'purchase_network'].includes(action) && ['destination_country', 'origin_country'].includes(k)) {
+            payload[k] = String(v || '').trim().toUpperCase();
+            continue;
+          }
+          if (type.endsWith('?') && (v === '' || v == null)) continue;
+          payload[k] = type === 'tags' ? Array.isArray(v) ? v : String(v).split(',').map(x => x.trim()).filter(Boolean) : k.endsWith('_id') || type === 'integer' ? Number(v) : v;
+        }
       }
-      const r = await request('/api/erp/preview/', payload);
+      const r = await request(action === 'register_supplier_invoice' ? '/api/operations/preview/' : '/api/erp/preview/', payload);
       if (!r) return;
-      if (!r.ok) throw Error(r.body?.error || 'Перевірка не пройдена.');
-      if (typeof r.body?.id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(r.body.id) || r.body.payload?.action !== payload.action || !r.body.effect || !Array.isArray(r.body.impact)) throw Error('Не отримано узгодженого перегляду операції.');
-      setProposal(r.body);
+      if (!r.ok) {
+        if (isS2) {
+          s2Read.invalidate(r.status === 409 ? 'changed' : 'error');
+          setProposal(null);
+          throw Error('Реєстрацію не погоджено. Оновіть і перевірте поточні джерела.');
+        }
+        throw Error(r.body?.error || 'Перевірка не пройдена.');
+      }
+      if (isS2 ? s2Ticket !== s2Sequence.current || !s2ProposalMatches(r.body, payload) : typeof r.body?.id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(r.body.id) || r.body.payload?.action !== payload.action || !r.body.effect || !Array.isArray(r.body.impact)) throw Error('Не отримано узгодженого перегляду операції.');
+      setProposal(isS2 ? {
+        ...r.body,
+        ui_verified_read: s2Fresh,
+        ui_read_generation: s2Ticket
+      } : r.body);
     } catch (e) {
       if (alive.current) {
         if (!current()) deny();else setError(e.message);
@@ -13645,8 +15575,16 @@ function ERPActionDialog({
       if (alive.current) setBusy(false);
     }
   }
+  function s2ConfirmCurrent() {
+    if (!isS2 || pending) return true;
+    if (proposal?.ui_read_generation === s2Sequence.current && Date.parse(proposal.expires_at) > Date.now()) return true;
+    setProposal(null);
+    s2Read.invalidate('changed');
+    setError('Джерела або строк погодження змінилися. Оновіть джерела перед новим переглядом.');
+    return false;
+  }
   async function confirmAction() {
-    if (lock.current || received.current || !pending && !proposal?.id) return;
+    if (lock.current || received.current || !pending && !proposal?.id || !s2ConfirmCurrent()) return;
     if (!current()) {
       deny();
       return;
@@ -13663,6 +15601,7 @@ function ERPActionDialog({
         return;
       }
       binding.current = key;
+      if (!s2ConfirmCurrent()) return;
       const entry = pending || {
         proposal_id: proposal.id,
         action
@@ -13707,7 +15646,9 @@ function ERPActionDialog({
         setError('Операцію виконано. Не вдалося прибрати ідентифікатор зі списку вкладки; його повтор не створить новий запис.');
       }
       try {
-        await onDone?.(r.body);
+        await onDone?.(r.body, isS2 ? {
+          selection: s2Chosen
+        } : null);
       } catch {
         if (current()) setError('Операцію виконано, але пов’язаний екран не оновився. Оновіть дані; повторювати дію не потрібно.');
       }
@@ -13732,6 +15673,20 @@ function ERPActionDialog({
   }, /*#__PURE__*/React.createElement("h2", null, "\u041F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0435"), /*#__PURE__*/React.createElement("p", {
     role: "alert"
   }, "\u0421\u0435\u0441\u0456\u044E \u0430\u0431\u043E \u0434\u043E\u0437\u0432\u0456\u043B \u0437\u043C\u0456\u043D\u0435\u043D\u043E. \u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0442\u0435 \u043F\u043E\u0442\u043E\u0447\u043D\u0438\u0439 \u0434\u043E\u0441\u0442\u0443\u043F."), /*#__PURE__*/React.createElement(Button, {
+    onClick: close
+  }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438"));
+  if (receipt && isS2) return /*#__PURE__*/React.createElement("dialog", {
+    ref: ref,
+    className: "bos-dialog erp-dialog",
+    onClose: onClose
+  }, /*#__PURE__*/React.createElement(SupplierInvoiceReceipt, {
+    receipt: receipt,
+    selection: s2Chosen,
+    data: data
+  }), error && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, error), /*#__PURE__*/React.createElement(Button, {
     onClick: close
   }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438"));
   if (receipt) return /*#__PURE__*/React.createElement("dialog", {
@@ -13770,6 +15725,66 @@ function ERPActionDialog({
     disabled: busy,
     onClick: confirmAction
   }, busy ? 'Чекаємо квитанцію…' : 'Повторити це саме погодження')));
+  if (isS2) return /*#__PURE__*/React.createElement("dialog", {
+    ref: ref,
+    className: "bos-dialog erp-dialog",
+    onClose: onClose,
+    onCancel: event => {
+      if (busy) event.preventDefault();
+    }
+  }, /*#__PURE__*/React.createElement("h2", null, definition[0]), /*#__PURE__*/React.createElement("p", null, "\u0417\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043D\u044F \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u0435\u043D\u043E\u0433\u043E \u0440\u0430\u0445\u0443\u043D\u043A\u0443 \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043B\u044C\u043D\u0438\u043A\u0430 \u0434\u043B\u044F \u0432\u0438\u0431\u0440\u0430\u043D\u043E\u0457 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456. \u0426\u0435 \u043D\u0435 \u0437\u0430\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043D\u044F \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430, \u043D\u0435 \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F \u0442\u043E\u0432\u0430\u0440\u0443, \u043D\u0435 \u043E\u043F\u043B\u0430\u0442\u0430 \u0456 \u043D\u0435 \u0431\u0443\u0445\u0433\u0430\u043B\u0442\u0435\u0440\u0441\u044C\u043A\u0430 \u043F\u0440\u043E\u0432\u043E\u0434\u043A\u0430."), !proposal ? /*#__PURE__*/React.createElement("form", {
+    onSubmit: preview
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "erp-form"
+  }, definition[1].map(([key, label, type]) => /*#__PURE__*/React.createElement("label", {
+    key: key
+  }, label, /*#__PURE__*/React.createElement(Input, {
+    readOnly: true,
+    value: key === 'source_sha256' ? s2Read.state.data?.draft.source?.sha256 || 'Ще не перевірено' : s2Chosen?.[key] ?? 'Не обрано'
+  })))), /*#__PURE__*/React.createElement(FlowReadStatus, {
+    state: s2Read.state
+  }), /*#__PURE__*/React.createElement(SupplierInvoiceReadSummary, {
+    value: s2Read.state.data,
+    onDocument: setS2Doc
+  }), !s2Chosen && /*#__PURE__*/React.createElement("p", {
+    role: "alert"
+  }, "\u041F\u043E\u0432\u0435\u0440\u043D\u0456\u0442\u044C\u0441\u044F \u0434\u043E \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456 \u0442\u0430 \u044F\u0432\u043D\u043E \u043E\u0431\u0435\u0440\u0456\u0442\u044C \u0443\u0441\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430."), error && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, error), /*#__PURE__*/React.createElement("div", {
+    className: "actions"
+  }, /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    disabled: busy,
+    onClick: close
+  }, "\u0421\u043A\u0430\u0441\u0443\u0432\u0430\u0442\u0438"), /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    disabled: busy || !s2Chosen || s2Read.state.status === 'loading',
+    onClick: () => s2Read.refresh()
+  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438 \u0434\u0436\u0435\u0440\u0435\u043B\u0430"), /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    disabled: busy || s2Read.state.status !== 'ready' || !s2CanRegister(s2Read.state.data, s2Chosen)
+  }, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0438\u0442\u0438 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u044E"))) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "erp-confirm"
+  }, /*#__PURE__*/React.createElement("h3", null, "\u041D\u0430\u043C\u0456\u0440 \u0440\u0435\u0454\u0441\u0442\u0440\u0430\u0446\u0456\u0457 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u0435\u043D\u043E"), /*#__PURE__*/React.createElement(SupplierInvoiceReadSummary, {
+    value: proposal.ui_verified_read,
+    onDocument: setS2Doc
+  }), /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442 \u2116", proposal.payload.document_id, "; \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044F \u2116", proposal.payload.purchase_id, "; \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043B\u044C\u043D\u0438\u043A \u2116", proposal.payload.supplier_id, "; \u043D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0430 \u2116", proposal.payload.item_id, "."), /*#__PURE__*/React.createElement("p", null, "SHA-256: ", proposal.payload.source_sha256), /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F ", proposal.id, "; \u0447\u0438\u043D\u043D\u0435 \u0434\u043E ", proposal.expires_at, "."), /*#__PURE__*/React.createElement("p", null, "\u0411\u0443\u0434\u0435 \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043E \u0440\u0435\u0454\u0441\u0442\u0440\u0430\u0446\u0456\u044E \u0430\u0431\u043E \u043F\u043E\u0432\u0435\u0440\u043D\u0443\u0442\u043E \u043A\u0432\u0438\u0442\u0430\u043D\u0446\u0456\u044E \u0442\u043E\u0433\u043E \u0441\u0430\u043C\u043E\u0433\u043E \u0432\u0436\u0435 \u0437\u0430\u0440\u0435\u0454\u0441\u0442\u0440\u043E\u0432\u0430\u043D\u043E\u0433\u043E \u0440\u0430\u0445\u0443\u043D\u043A\u0443. \u0414\u0436\u0435\u0440\u0435\u043B\u0430 \u0439 \u043F\u0440\u0430\u0432\u0430 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u044F\u044E\u0442\u044C\u0441\u044F \u0441\u0435\u0440\u0432\u0435\u0440\u043E\u043C \u043F\u043E\u0432\u0442\u043E\u0440\u043D\u043E.")), error && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, error), /*#__PURE__*/React.createElement("div", {
+    className: "actions"
+  }, /*#__PURE__*/React.createElement(Button, {
+    disabled: busy,
+    onClick: () => setProposal(null)
+  }, "\u041D\u0430\u0437\u0430\u0434"), /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    disabled: busy,
+    onClick: confirmAction
+  }, "\u041F\u043E\u0433\u043E\u0434\u0438\u0442\u0438 \u0440\u0435\u0454\u0441\u0442\u0440\u0430\u0446\u0456\u044E"))), s2Doc && /*#__PURE__*/React.createElement(DocViewer, {
+    id: s2Doc,
+    onClose: () => setS2Doc(null)
+  }));
   return /*#__PURE__*/React.createElement("dialog", {
     ref: ref,
     className: "bos-dialog erp-dialog",
@@ -14683,7 +16698,7 @@ function CorrectionActionDialog({
       credit_id: '',
       claim_id: '',
       amount: '',
-      currency: 'EUR',
+      currency: 'UAH',
       ...preset
     }));
   const [proposal, setProposal] = useState(recovery ? {
@@ -15390,6 +17405,966 @@ function B03Ledger({
     columns: [["Документ", 'code'], ["Тип", r => r.kind === 'credit' ? 'Кредит' : 'Сторно'], ["Рахунок", r => data.invoices.find(i => i.invoice_id === r.invoice_id)?.code || '№' + r.invoice_id], ["Сума", r => b03Amount(r.total, r.currency)], ["Дата", r => erpDate(r.business_date)]]
   })));
 }
+
+// NETWORK_WORKSPACE_BEGIN
+const NETWORK_TABLES = [['points', 'Точки'], ['lots', 'Склад'], ['purchases', 'Постачання / імпорт'], ['orders', 'Продажі / експорт'], ['transfers', 'У дорозі'], ['jobs', 'Виробництво'], ['invoices', 'Рахунки'], ['retentions', 'Утримання']];
+const networkMoney = (value, currency) => value == null ? 'Недоступно' : new Intl.NumberFormat('uk-UA', {
+  style: 'currency',
+  currency: currency || 'UAH',
+  maximumFractionDigits: 2
+}).format(Number(value));
+function networkEquivalent(value, rate) {
+  if (typeof rate !== 'string' || !/^\d{1,6}(?:\.\d{1,6})?$/.test(rate) || !Number.isFinite(Number(rate)) || Number(rate) <= 0 || value == null || !Number.isFinite(Number(value))) return null;
+  return Number(value) / Number(rate);
+}
+function networkQuery(branch, point, currency, table) {
+  const q = new URLSearchParams({
+    currency
+  });
+  if (branch) q.set('branch_id', branch);
+  if (point) q.set('location_id', point);
+  if (table) q.set('table', table);
+  return q.toString();
+}
+function networkProject(lat, lng) {
+  const m = window.BOS_NETWORK_MAP;
+  if (!m || lat == null || lng == null || !Number.isFinite(Number(lat)) || !Number.isFinite(Number(lng)) || Math.abs(Number(lat)) >= 90 || Math.abs(Number(lng)) > 180) return null;
+  const rad = Math.PI / 180;
+  return [m.translate[0] + m.scale * Number(lng) * rad, m.translate[1] - m.scale * Math.log(Math.tan(Math.PI / 4 + Number(lat) * rad / 2))];
+}
+function networkClusters(points) {
+  const buckets = new Map();
+  for (const p of points) {
+    const xy = networkProject(p.map_lat, p.map_lng);
+    if (!xy || xy[0] < 0 || xy[0] > 960 || xy[1] < 0 || xy[1] > 570) continue;
+    const key = Number(p.map_lat).toFixed(4) + ':' + Number(p.map_lng).toFixed(4);
+    if (!buckets.has(key)) buckets.set(key, {
+      key,
+      xy,
+      points: []
+    });
+    buckets.get(key).points.push(p);
+  }
+  return [...buckets.values()];
+}
+function NetworkMap({
+  points,
+  locations,
+  transfers,
+  selected,
+  onPoint
+}) {
+  const [cluster, setCluster] = useState(null),
+    map = window.BOS_NETWORK_MAP,
+    clusters = networkClusters(points),
+    current = clusters.find(x => x.key === cluster);
+  useEffect(() => setCluster(null), [selected, points]);
+  const outside = points.filter(p => {
+    const xy = networkProject(p.map_lat, p.map_lng);
+    return !xy || xy[0] < 0 || xy[0] > 960 || xy[1] < 0 || xy[1] > 570;
+  }).length;
+  if (!map) return /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, "\u0413\u0435\u043E\u0433\u0440\u0430\u0444\u0456\u0447\u043D\u0443 \u043E\u0441\u043D\u043E\u0432\u0443 \u043D\u0435 \u0437\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043E. \u0414\u0430\u043D\u0456 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0432 \u0442\u0430\u0431\u043B\u0438\u0446\u044F\u0445.");
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "network-map",
+    "aria-label": "\u0422\u043E\u0447\u043A\u0438 \u043C\u0435\u0440\u0435\u0436\u0456 \u043D\u0430 \u043A\u0430\u0440\u0442\u0456 \u0423\u043A\u0440\u0430\u0457\u043D\u0438"
+  }, /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 960 570",
+    role: "img",
+    "aria-label": "\u0413\u0435\u043E\u0433\u0440\u0430\u0444\u0456\u0447\u043D\u0456 \u043C\u0435\u0436\u0456 \u0423\u043A\u0440\u0430\u0457\u043D\u0438 \u0442\u0430 \u043D\u0430\u043F\u0440\u044F\u043C\u043A\u0438 \u0432\u0456\u0434\u043A\u0440\u0438\u0442\u0438\u0445 \u043F\u0435\u0440\u0435\u043C\u0456\u0449\u0435\u043D\u044C"
+  }, /*#__PURE__*/React.createElement("g", {
+    className: "network-regions"
+  }, map.paths.map(r => /*#__PURE__*/React.createElement("path", {
+    key: r.code,
+    d: r.d
+  }, /*#__PURE__*/React.createElement("title", null, r.name)))), /*#__PURE__*/React.createElement("g", {
+    className: "network-routes"
+  }, transfers.filter(t => t.status === 'in_transit').map(t => {
+    const a = locations.find(p => p.id === t.source_location_id),
+      b = locations.find(p => p.id === t.destination_id),
+      p = networkProject(a?.map_lat, a?.map_lng),
+      q = networkProject(b?.map_lat, b?.map_lng);
+    if (!p || !q) return null;
+    return /*#__PURE__*/React.createElement("path", {
+      key: t.id,
+      d: 'M' + p[0] + ',' + p[1] + ' Q' + (p[0] + q[0]) / 2 + ',' + ((p[1] + q[1]) / 2 - 25) + ' ' + q[0] + ',' + q[1]
+    }, /*#__PURE__*/React.createElement("title", null, t.code, ": ", t.source_location_name, " \u2192 ", t.destination_name));
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "network-map-points"
+  }, clusters.map(c => /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: 'network-pin' + (c.points.some(p => String(p.id) === String(selected)) ? ' selected' : ''),
+    key: c.key,
+    style: {
+      left: c.xy[0] / 960 * 100 + '%',
+      top: c.xy[1] / 570 * 100 + '%'
+    },
+    "aria-label": c.points.map(p => p.name).join(', '),
+    "aria-pressed": c.points.some(p => String(p.id) === String(selected)),
+    onClick: () => {
+      if (c.points.length === 1) onPoint(String(c.points[0].id));else setCluster(c.key);
+    }
+  }, /*#__PURE__*/React.createElement("span", null, c.points.length > 1 ? c.points.length : '•'), /*#__PURE__*/React.createElement("small", null, c.points[0].branch_name || c.points[0].name)))), /*#__PURE__*/React.createElement("span", {
+    className: "network-map-label"
+  }, "\u0423\u041A\u0420\u0410\u0407\u041D\u0410")), current && /*#__PURE__*/React.createElement("div", {
+    className: "network-cluster",
+    "aria-live": "polite"
+  }, /*#__PURE__*/React.createElement("strong", null, "\u041E\u0431\u0435\u0440\u0456\u0442\u044C \u0442\u043E\u0447\u043A\u0443 \u0432 \u0446\u044C\u043E\u043C\u0443 \u043C\u0456\u0441\u0446\u0456"), /*#__PURE__*/React.createElement("div", {
+    className: "erp-actions"
+  }, current.points.map(p => /*#__PURE__*/React.createElement(Button, {
+    key: p.id,
+    onClick: () => onPoint(String(p.id))
+  }, p.code, " \xB7 ", p.name)), /*#__PURE__*/React.createElement(Button, {
+    onClick: () => setCluster(null)
+  }, "\u0417\u0433\u043E\u0440\u043D\u0443\u0442\u0438"))), /*#__PURE__*/React.createElement("p", {
+    className: "network-map-note"
+  }, "\u041D\u0430\u043F\u0440\u044F\u043C\u043A\u0438 \u043F\u0435\u0440\u0435\u043C\u0456\u0449\u0435\u043D\u044C \u0441\u0445\u0435\u043C\u0430\u0442\u0438\u0447\u043D\u0456. ", points.some(p => p.coordinate_basis === 'branch') ? 'Для точок без власних координат використано центр філії. ' : '', outside ? outside + ' точок без координат у межах карти; вони залишаються в таблиці. ' : '', /*#__PURE__*/React.createElement("a", {
+    href: map.sourceUrl,
+    target: "_blank",
+    rel: "noreferrer"
+  }, "\u041C\u0435\u0436\u0456: ", map.source), ", ", map.license, "."));
+}
+function NetworkDocuments({
+  network,
+  onNavigate,
+  onDocument
+}) {
+  const docs = network.documents || [],
+    canDocs = bosCan('view_documents');
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "network-overview"
+  }, /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u041F\u0430\u043A\u0435\u0442\u0438 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0456\u0432"), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0414\u0436\u0435\u0440\u0435\u043B\u0430 \u0434\u043B\u044F \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u0435\u043B\u044C, \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F \u0442\u0430 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0438 \u044F\u043A\u043E\u0441\u0442\u0456. \u0414\u043E\u0441\u0442\u0443\u043F \u0432\u0438\u0437\u043D\u0430\u0447\u0430\u0454\u0442\u044C\u0441\u044F \u0432\u0430\u0448\u0438\u043C \u043E\u0431\u043B\u0456\u043A\u043E\u0432\u0438\u043C \u0437\u0430\u043F\u0438\u0441\u043E\u043C."), canDocs ? /*#__PURE__*/React.createElement(ERPTable, {
+    rows: docs,
+    empty: "\u0423 \u0446\u044C\u043E\u043C\u0443 \u0432\u0456\u0434\u0431\u043E\u0440\u0456 \u043D\u0435\u043C\u0430\u0454 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0456\u0432.",
+    columns: [["Документ", r => /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("strong", null, r.code), /*#__PURE__*/React.createElement("div", null, r.title))], ["Версія", 'revision'], ["Тип", r => r.document_type || 'Документ'], ["Доступ", r => ({
+      operational: 'Операційний',
+      management: 'Управлінський',
+      ceo: 'Лише керівник'
+    })[r.access_level] || r.access_level || 'За правами облікового запису'], ["Перевірка", r => OP_STATUS[r.status] || r.status], ["Пакет / зв’язки", r => /*#__PURE__*/React.createElement(React.Fragment, null, (r.groups || []).map(g => /*#__PURE__*/React.createElement("div", {
+      key: g.kind + ':' + g.id
+    }, g.code)), /*#__PURE__*/React.createElement("small", null, Object.values(r.linked_counts || {}).reduce((n, x) => n + Number(x || 0), 0), " \u0437\u0432\u2019\u044F\u0437\u043A\u0456\u0432"))], ["Дія", r => /*#__PURE__*/React.createElement(Button, {
+      onClick: () => onDocument(r.id)
+    }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442")]]
+  }) : /*#__PURE__*/React.createElement("p", null, "\u041F\u0435\u0440\u0435\u0433\u043B\u044F\u0434 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0456\u0432 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0439 \u0432\u0430\u0448\u043E\u043C\u0443 \u043E\u0431\u043B\u0456\u043A\u043E\u0432\u043E\u043C\u0443 \u0437\u0430\u043F\u0438\u0441\u0443.")), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u0417\u0456\u0441\u0442\u0430\u0432\u0438\u0442\u0438 \u0439 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u0438\u0442\u0438"), /*#__PURE__*/React.createElement("div", {
+    className: "network-links"
+  }, (network.workflow?.reconciliations || []).filter(r => r.next_action && bosCanView(r.next_action.section, r.next_action.sub)).map(r => /*#__PURE__*/React.createElement(Button, {
+    key: r.id,
+    onClick: () => onNavigate(r.next_action.section, r.next_action.sub)
+  }, r.title, r.count == null ? '' : ' · ' + r.count)), /*#__PURE__*/React.createElement(Button, {
+    onClick: () => onNavigate('finance', 'procurement')
+  }, "\u041F\u043E\u0440\u0456\u0432\u043D\u044F\u0442\u0438 \u0432\u0438\u043C\u043E\u0433\u0438 \u0442\u0430 \u043F\u0440\u043E\u043F\u043E\u0437\u0438\u0446\u0456\u0457"), /*#__PURE__*/React.createElement(Button, {
+    onClick: () => onNavigate('erp', 'quality')
+  }, "\u041A\u043E\u043C\u043F\u043B\u0435\u043A\u0442\u043D\u0456\u0441\u0442\u044C \u0456 \u044F\u043A\u0456\u0441\u0442\u044C \u043F\u0430\u0440\u0442\u0456\u0439"), bosRole() === 'ceo' && /*#__PURE__*/React.createElement(Button, {
+    onClick: () => onNavigate('finance', 'bank')
+  }, "\u0417\u0432\u0456\u0440\u043A\u0430 \u0431\u0430\u043D\u043A\u0456\u0432\u0441\u044C\u043A\u0438\u0445 \u0432\u0438\u043F\u0438\u0441\u043E\u043A"), canDocs && /*#__PURE__*/React.createElement(Button, {
+    onClick: () => onNavigate('organizer', 'documents')
+  }, "\u0420\u0435\u0454\u0441\u0442\u0440 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0456\u0432")), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u0437\u0432\u0456\u0440\u043A\u0438 \u0439 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0438 \u0437\u0430\u043B\u0438\u0448\u0430\u044E\u0442\u044C\u0441\u044F \u0443 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u0438\u0445 \u043A\u0430\u0440\u0442\u043A\u0430\u0445. \u0421\u0430\u043C \u043F\u0435\u0440\u0435\u0445\u0456\u0434 \u043D\u0435 \u043F\u043E\u0433\u043E\u0434\u0436\u0443\u0454 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0439."))));
+}
+function NetworkWorkflow({
+  network,
+  onNavigate,
+  onDocument,
+  onSelect
+}) {
+  const requests = network.workflow?.requests || [],
+    stageLabel = {
+      review: 'Перевірка вимог',
+      sourcing: 'Пошук пропозицій',
+      quoted: 'Порівняння',
+      ordered: 'Замовлено',
+      receiving: 'Приймання',
+      received: 'Прийнято'
+    };
+  const late = kind => (network.rows[kind] || []).filter(r => r.due_date && String(r.due_date).slice(0, 10) < String(network.as_of).slice(0, 10) && !['done', 'received', 'closed_cancelled'].includes(r.effective_status || r.status));
+  const overdue = [...late('purchases').filter(r => b03Positive(b03OpenPurchase(r))).map(r => ({
+    ...r,
+    kind: 'purchases',
+    typeLabel: 'Постачання'
+  })), ...late('orders').filter(r => Number(r.open_line_count) > 0).map(r => ({
+    ...r,
+    kind: 'orders',
+    typeLabel: 'Продаж'
+  })), ...late('jobs').map(r => ({
+    ...r,
+    kind: 'jobs',
+    typeLabel: 'Виробництво'
+  }))];
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "network-workflow-metrics"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "\u0417\u0430\u044F\u0432\u043E\u043A \u0443 \u0432\u0456\u0434\u0431\u043E\u0440\u0456"), /*#__PURE__*/React.createElement("strong", null, network.workflow?.metrics?.request_count ?? requests.length)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "\u0421\u0442\u0440\u043E\u043A \u0437\u0430\u044F\u0432\u043A\u0438 \u043C\u0438\u043D\u0443\u0432"), /*#__PURE__*/React.createElement("strong", null, network.workflow?.metrics?.overdue_count ?? '—')), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "\u0412\u0438\u043C\u0456\u0440\u044F\u043D\u0438\u0445 \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u0438\u0445 \u0437\u0430\u044F\u0432\u043E\u043A"), /*#__PURE__*/React.createElement("strong", null, network.workflow?.metrics?.timed_request_count ?? '—')), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "\u041C\u0435\u0434\u0456\u0430\u043D\u043D\u0438\u0439 \u0446\u0438\u043A\u043B"), /*#__PURE__*/React.createElement("strong", null, network.workflow?.metrics?.median_processing_hours == null ? 'Недостатньо даних' : erpNum(network.workflow.metrics.median_processing_hours) + ' год.'))), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u0412\u0456\u0434 \u0437\u0430\u044F\u0432\u043A\u0438 \u0434\u043E \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0415\u0442\u0430\u043F\u0438 \u0432\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u0456 \u0437\u0430 \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0438\u043C\u0438 \u0437\u0430\u044F\u0432\u043A\u0430\u043C\u0438, \u043F\u0440\u043E\u043F\u043E\u0437\u0438\u0446\u0456\u044F\u043C\u0438 \u0442\u0430 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044F\u043C\u0438. \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0439 \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u0438\u0439 \u043A\u0440\u043E\u043A \u0432\u0456\u0434\u043A\u0440\u0438\u0432\u0430\u0454 \u0440\u043E\u0431\u043E\u0447\u0438\u0439 \u0440\u043E\u0437\u0434\u0456\u043B."), /*#__PURE__*/React.createElement(ERPTable, {
+    rows: requests,
+    empty: "\u0417\u0430\u044F\u0432\u043E\u043A \u0443 \u043F\u043E\u0442\u043E\u0447\u043D\u043E\u043C\u0443 \u0432\u0456\u0434\u0431\u043E\u0440\u0456 \u043D\u0435\u043C\u0430\u0454.",
+    columns: [["Заявка", r => /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("strong", null, r.code), /*#__PURE__*/React.createElement("div", null, r.part))], ["Відповідальний", 'owner_name'], ["Потрібно до", r => erpDate(r.required_by)], ["Етап", r => /*#__PURE__*/React.createElement("details", {
+      className: "network-step-details"
+    }, /*#__PURE__*/React.createElement("summary", null, r.stage_label || stageLabel[r.stage] || 'Потребує перевірки'), /*#__PURE__*/React.createElement("ol", null, (r.steps || []).map(step => /*#__PURE__*/React.createElement("li", {
+      key: step.stage
+    }, /*#__PURE__*/React.createElement("strong", null, step.label, ": ", step.count ?? '—'), step.at && /*#__PURE__*/React.createElement("div", null, erpDate(step.at)), step.refs?.map(ref => /*#__PURE__*/React.createElement("div", {
+      key: ref.id
+    }, ref.code))))))], ["Пропозиції / закупівлі", r => (r.quote_count ?? 0) + ' / ' + (r.purchase_count ?? 0)], ["Вік заявки", r => r.age_days == null ? 'Недостатньо часових даних' : r.age_days + ' дн.'], ["Наступний крок", r => /*#__PURE__*/React.createElement("div", {
+      className: "erp-actions"
+    }, /*#__PURE__*/React.createElement(Button, {
+      onClick: () => onNavigate(r.next_action?.section || 'finance', r.next_action?.sub || 'procurement')
+    }, r.next_action?.label || 'Відкрити закупівлі'), r.document_id && bosCan('view_documents') && /*#__PURE__*/React.createElement(Button, {
+      onClick: () => onDocument(r.document_id)
+    }, "\u0414\u0436\u0435\u0440\u0435\u043B\u043E"))]]
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "network-comparison"
+  }, /*#__PURE__*/React.createElement("h4", null, "\u0417\u043C\u0456\u043D\u0430 \u0444\u0430\u043A\u0442\u0438\u0447\u043D\u043E\u0433\u043E \u0447\u0430\u0441\u0443 \u043E\u0431\u0440\u043E\u0431\u043A\u0438"), network.workflow?.comparison?.available ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043F\u0435\u0440\u0435\u0434\u043D\u0456\u0439 \u043F\u0435\u0440\u0456\u043E\u0434: ", erpDate(network.workflow.comparison.baseline?.start), " \u2014 ", erpDate(network.workflow.comparison.baseline?.end), " \xB7 ", network.workflow.comparison.baseline?.sample_size, " \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u044C \xB7 \u043C\u0435\u0434\u0456\u0430\u043D\u0430 ", erpNum(network.workflow.comparison.baseline?.median_hours), " \u0433\u043E\u0434."), /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0442\u043E\u0447\u043D\u0438\u0439 \u043F\u0435\u0440\u0456\u043E\u0434: ", erpDate(network.workflow.comparison.recent?.start), " \u2014 ", erpDate(network.workflow.comparison.recent?.end), " \xB7 ", network.workflow.comparison.recent?.sample_size, " \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u044C \xB7 \u043C\u0435\u0434\u0456\u0430\u043D\u0430 ", erpNum(network.workflow.comparison.recent?.median_hours), " \u0433\u043E\u0434."), /*#__PURE__*/React.createElement("p", null, Number(network.workflow.comparison.change_percent) >= 0 ? 'Спостережуване скорочення' : 'Спостережуване збільшення', ": ", erpNum(Math.abs(Number(network.workflow.comparison.change_percent))), "%. \u0421\u0430\u043C\u0435 \u043F\u043E\u0440\u0456\u0432\u043D\u044F\u043D\u043D\u044F \u043D\u0435 \u0434\u043E\u0432\u043E\u0434\u0438\u0442\u044C \u0432\u043F\u043B\u0438\u0432 \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0437\u0430\u0446\u0456\u0457.")) : /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, network.workflow?.comparison?.reason || 'Недостатньо порівнюваних часових даних.'), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0412\u0438\u043A\u043E\u0440\u0438\u0441\u0442\u0430\u043D\u0456 \u043B\u0438\u0448\u0435 \u0444\u0430\u043A\u0442\u0438\u0447\u043D\u0456 \u0434\u0430\u0442\u0438. \u0412\u0456\u0434\u0441\u0443\u0442\u043D\u0456 \u0434\u0430\u043D\u0456 \u043D\u0435 \u043F\u0440\u0438\u0440\u0456\u0432\u043D\u044E\u044E\u0442\u044C\u0441\u044F \u0434\u043E \u043D\u0443\u043B\u044F."))), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u0421\u0442\u0440\u043E\u043A \u043C\u0438\u043D\u0443\u0432 \xB7 \u043F\u043E\u0442\u0440\u0456\u0431\u043D\u0430 \u0434\u0456\u044F"), /*#__PURE__*/React.createElement(ERPTable, {
+    rows: overdue,
+    empty: "\u0417\u0430 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u043C\u0438 \u0434\u0430\u043D\u0438\u043C\u0438 \u043F\u0440\u043E\u0441\u0442\u0440\u043E\u0447\u0435\u043D\u0438\u0445 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0439 \u0443 \u0446\u044C\u043E\u043C\u0443 \u0432\u0456\u0434\u0431\u043E\u0440\u0456 \u043D\u0435\u043C\u0430\u0454.",
+    onRow: r => onSelect({
+      kind: r.kind,
+      id: r.id
+    }),
+    columns: [["Операція", 'typeLabel'], ["Документ", 'code'], ["Строк", r => erpDate(r.due_date)], ["Стан", r => ERP_LABELS[r.effective_status || r.status] || r.status]]
+  })));
+}
+// CORE_MODULE_VIEWS_BEGIN
+const MODULE_ROW_PATHS = new Set(['rows.points', 'rows.lots', 'rows.purchases', 'rows.orders', 'rows.jobs', 'rows.transfers', 'rows.invoices', 'rows.retentions']);
+function moduleCatalogValid(value) {
+  if (value?.schema !== 'bos.modules.v1' || value.data?.endpoint !== '/api/erp/network/' || !Array.isArray(value.models) || !Array.isArray(value.views) || !Array.isArray(value.actions) || !Array.isArray(value.modules) || !value.permissions) return false;
+  if (!['control', 'flow', 'network', 'focus'].every(id => value.views.some(v => v.id === id))) return false;
+  return value.models.every(m => typeof m.id === 'string' && MODULE_ROW_PATHS.has(m.source?.rows) && m.source.rows === 'rows.' + m.id && Array.isArray(m.columns) && m.columns.every(c => typeof c.key === 'string' && typeof c.label === 'string') && ['id', 'invoice_id'].includes(m.key));
+}
+async function moduleFetchCatalog(signal) {
+  const response = await fetch('/api/erp/modules/', {
+    signal
+  });
+  const body = await response.json();
+  if (!response.ok) throw Error(body.error || 'Реєстр модулів недоступний.');
+  if (!moduleCatalogValid(body)) throw Error('Сервер повернув невідому структуру модулів.');
+  return body;
+}
+function modulePositive(value) {
+  return typeof value === 'string' && /^\d+(?:\.\d+)?$/.test(value) && /[1-9]/.test(value);
+}
+function moduleMoney(value, currency) {
+  if (typeof value !== 'string' || !/^\d+(?:\.\d{1,2})?$/.test(value)) return 'Недоступно';
+  const [whole, fraction = ''] = value.split('.');
+  return whole.replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0') + ',' + fraction.padEnd(2, '0') + '\u00a0' + (currency === 'UAH' ? 'грн' : currency || 'UAH');
+}
+function moduleRows(network, model, query = '') {
+  if (!model || !MODULE_ROW_PATHS.has(model.source?.rows)) return [];
+  const rows = network?.rows?.[model.id];
+  if (!Array.isArray(rows)) return [];
+  const needle = query.trim().toLocaleLowerCase('uk-UA');
+  return needle ? rows.filter(row => model.columns.some(c => {
+    const v = row[c.key];
+    return ['string', 'number'].includes(typeof v) && String(v).toLocaleLowerCase('uk-UA').includes(needle);
+  })) : rows;
+}
+function moduleLanes(model, rows) {
+  const lanes = new Map();
+  for (const row of rows) {
+    const value = model.status_field && row[model.status_field] != null ? String(row[model.status_field]) : '__unset';
+    if (!lanes.has(value)) lanes.set(value, []);
+    lanes.get(value).push(row);
+  }
+  return [...lanes].sort(([a], [b]) => a.localeCompare(b, 'uk')).map(([id, items]) => ({
+    id,
+    label: id === '__unset' ? 'Без окремого стану' : ERP_LABELS[id] || {
+      in_transit: 'У дорозі',
+      held: 'Утримано',
+      released: 'Знято'
+    }[id] || id,
+    rows: items
+  }));
+}
+function moduleReasons(model, row, asOf) {
+  const reasons = [];
+  let priority = 9;
+  const moneyVisible = key => model.columns.some(c => c.key === key && (c.finance || c.type === 'money'));
+  const add = (text, rank) => {
+    reasons.push(text);
+    priority = Math.min(priority, rank);
+  };
+  const late = typeof row.due_date === 'string' && /^\d{4}-\d{2}-\d{2}/.test(row.due_date) && row.due_date.slice(0, 10) < String(asOf).slice(0, 10);
+  const open = model.id === 'purchases' ? modulePositive(row.open_quantity) : model.id === 'orders' ? Number.isInteger(row.open_line_count) && row.open_line_count > 0 : model.id === 'jobs' ? !['done', 'closed_cancelled'].includes(row.status) : model.id === 'transfers' ? row.status === 'in_transit' : model.id === 'invoices' && (moneyVisible('receivable') || moneyVisible('open')) ? modulePositive(row.receivable ?? row.open) : false;
+  if (late && open) add('Строк минув: ' + erpDate(row.due_date), 1);
+  if (model.id === 'lots' && ['blocked', 'rework', 'pending'].includes(row.quality)) add('Якість: ' + (ERP_LABELS[row.quality] || row.quality), 2);
+  if (model.id === 'lots' && Array.isArray(row.missing_documents) && row.missing_documents.length) add('Бракує документів: ' + row.missing_documents.join(', '), 2);
+  if (model.id === 'jobs' && row.needs_review === true) add('Потрібен перегляд змін перед продовженням виробництва', 2);
+  if (model.id === 'transfers' && row.status === 'in_transit') add('Відправлено; очікує фактичного приймання', 3);
+  if (model.id === 'retentions' && row.status === 'held') add('Діє утримання ' + moduleMoney(row.amount, row.currency), 3);
+  if (model.id === 'invoices' && moneyVisible('retained') && modulePositive(row.retained)) add('У складі боргу утримано ' + moduleMoney(row.retained, row.currency), 3);
+  if (model.id === 'invoices' && moneyVisible('collectible') && modulePositive(row.collectible)) add('Доступно до оплати ' + moduleMoney(row.collectible, row.currency), 4);
+  return {
+    row,
+    reasons,
+    priority
+  };
+}
+function moduleInbox(model, rows, asOf) {
+  return rows.map(row => moduleReasons(model, row, asOf)).filter(x => x.reasons.length).sort((a, b) => a.priority - b.priority || String(a.row.due_date || '9999').localeCompare(String(b.row.due_date || '9999')) || String(a.row[model.key]).localeCompare(String(b.row[model.key]), 'uk', {
+    numeric: true
+  }));
+}
+function moduleMapRows(network, model, rows) {
+  const ids = new Set();
+  const add = value => {
+    if (value != null) ids.add(String(value));
+  };
+  for (const row of rows) {
+    if (model.id === 'points') add(row.id);else if (model.id === 'transfers') {
+      add(row.source_location_id);
+      add(row.destination_id);
+    } else if (model.id === 'retentions') {
+      const invoice = (network.rows.invoices || []).find(i => i.invoice_id === row.invoice_id);
+      add(invoice?.location_id);
+    } else add(row.location_id);
+  }
+  return {
+    points: (network.locations || []).filter(p => ids.has(String(p.id))),
+    transfers: model.id === 'transfers' ? rows : []
+  };
+}
+function modulePointSelection(locations, currentBranch, value) {
+  if (!value) return {
+    branch: currentBranch,
+    point: ''
+  };
+  const selected = locations.find(point => String(point.id) === String(value));
+  if (!selected) return {
+    branch: currentBranch,
+    point: ''
+  };
+  const owner = selected.branch_id == null ? 'unassigned' : String(selected.branch_id);
+  return {
+    branch: currentBranch && currentBranch !== owner ? owner : currentBranch,
+    point: String(selected.id)
+  };
+}
+function moduleFinanceAllowed(catalog, network) {
+  return catalog.permissions.finance === true && network.capabilities?.finance === true && bosCan('finance');
+}
+function moduleActionVisible(action, catalog, network) {
+  return !['opening', 'invoice', 'payment', 'hold_payment', 'release_payment'].includes(action) || moduleFinanceAllowed(catalog, network);
+}
+function moduleActionEligible(action, row) {
+  if (action === 'transfer_dispatch') return modulePositive(row.available);
+  if (action === 'transfer_receive') return row.status === 'in_transit';
+  if (action === 'payment' || action === 'hold_payment') return modulePositive(row.collectible);
+  if (action === 'release_payment') return row.status === 'held';
+  if (action === 'receive' || action === 'postpone') return modulePositive(row.open_quantity);
+  if (action === 'start') return row.status === 'planned' && !row.needs_review;
+  if (action === 'finish') return row.status === 'running' && !row.needs_review;
+  if (action === 'operator') return row.status === 'running' && !row.needs_review;
+  if (action === 'postpone_job') return !['done', 'closed_cancelled'].includes(row.status);
+  if (action === 'confirm_order') return row.status === 'quote';
+  if (action === 'invoice') return row.status === 'confirmed';
+  return ['location_update', 'purchase_network', 'order_network', 'quality', 'attach'].includes(action);
+}
+function moduleActionPreset(action, row, descriptor) {
+  const preset = {};
+  for (const [name, field] of Object.entries(descriptor.presets || {})) {
+    if (typeof field === 'string' && Object.prototype.hasOwnProperty.call(row, field)) preset[name] = row[field];
+  }
+  if (action === 'transfer_dispatch') preset.quantity = row.available;
+  if (action === 'receive') {
+    preset.quantity = row.open_quantity;
+    preset.location_id = row.destination_id || '';
+  }
+  if (action === 'payment') preset.amount = row.collectible;
+  if (action === 'postpone' || action === 'postpone_job') preset.due_date = row.due_date;
+  if (action === 'location_update') Object.assign(preset, {
+    branch_id: row.branch_id ?? '',
+    lat: row.lat ?? '',
+    lng: row.lng ?? '',
+    address: row.address || ''
+  });
+  return preset;
+}
+function moduleCell(column, row, currency) {
+  const value = row[column.key];
+  if (value == null) return '—';
+  if (column.type === 'money') return /*#__PURE__*/React.createElement("span", {
+    className: "network-registry-money"
+  }, moduleMoney(value, row.currency || currency));
+  if (['date', 'datetime'].includes(column.type)) return erpDate(value);
+  if (['process', 'kind', 'status', 'quality', 'effective_status', 'coordinate_basis'].includes(column.key)) return ERP_LABELS[value] || {
+    import: 'Імпорт',
+    purchase: 'Закупівля',
+    sale: 'Продаж',
+    export: 'Експорт',
+    point: 'Координати точки',
+    branch: 'Центр філії',
+    missing: 'Не задано',
+    in_transit: 'У дорозі',
+    held: 'Утримано',
+    released: 'Знято'
+  }[value] || String(value);
+  return ['string', 'number', 'boolean'].includes(typeof value) ? String(value) : 'Див. картку запису';
+}
+function ModuleRecordActions({
+  catalog,
+  network,
+  model,
+  row,
+  onAction
+}) {
+  if (!catalog.permissions.write || !network.capabilities?.write || !bosCan('write')) return null;
+  const ids = new Set(model.actions || []);
+  const actions = catalog.actions.filter(a => ids.has(a.id) && a.model === model.id && ERP_ACTIONS[a.ui_action] && bosCanAction(a.ui_action) && moduleActionVisible(a.ui_action, catalog, network) && moduleActionEligible(a.ui_action, row));
+  return /*#__PURE__*/React.createElement("div", {
+    className: "erp-actions"
+  }, actions.map(a => /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    key: a.id,
+    onClick: () => onAction(a.ui_action, moduleActionPreset(a.ui_action, row, a))
+  }, a.name)));
+}
+function ModuleRecordFacts({
+  model,
+  row,
+  currency
+}) {
+  return /*#__PURE__*/React.createElement("dl", {
+    className: "module-facts"
+  }, model.columns.filter(c => row[c.key] != null).map(c => /*#__PURE__*/React.createElement("div", {
+    key: c.key
+  }, /*#__PURE__*/React.createElement("dt", null, c.label), /*#__PURE__*/React.createElement("dd", null, moduleCell(c, row, currency)))));
+}
+function ModuleCreateActions({
+  catalog,
+  network,
+  model,
+  branch,
+  point,
+  currency,
+  onAction
+}) {
+  if (!catalog.permissions.write || !network.capabilities?.write || !bosCan('write')) return null;
+  const ids = new Set(model.actions || []),
+    actions = catalog.actions.filter(a => ids.has(a.id) && a.model === model.id && ['location', 'opening', 'purchase', 'order', 'job'].includes(a.ui_action) && ERP_ACTIONS[a.ui_action] && bosCanAction(a.ui_action) && moduleActionVisible(a.ui_action, catalog, network));
+  const preset = action => action === 'location' ? {
+    branch_id: branch === 'unassigned' ? '' : branch
+  } : action === 'purchase' ? {
+    currency,
+    destination_id: point || ''
+  } : action === 'order' ? {
+    currency,
+    fulfillment_location_id: point || ''
+  } : {
+    currency,
+    location_id: point || ''
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: "erp-actions"
+  }, actions.map(a => /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    key: a.id,
+    onClick: () => onAction(a.ui_action, preset(a.ui_action))
+  }, a.name)));
+}
+function CoreModuleSurface({
+  catalog,
+  network,
+  table,
+  onTable,
+  view,
+  onView,
+  search,
+  onSearch,
+  branch,
+  point,
+  currency,
+  onPoint,
+  onSelect,
+  onAction
+}) {
+  const [page, setPage] = useState(0),
+    [inline, setInline] = useState(null);
+  const inlineRef = useRef(null),
+    triggerRef = useRef(null);
+  const financial = moduleFinanceAllowed(catalog, network);
+  const moneyFields = new Set(['inventory_value', 'unit_cost', 'value', 'total_cost', 'amount', 'paid', 'open', 'price', 'extras', 'planned_cost', 'actual_cost', 'effective_credit', 'net_amount', 'receivable', 'customer_credit', 'retained', 'collectible']);
+  catalog = {
+    ...catalog,
+    models: catalog.models.filter(m => financial || m.id !== 'retentions').map(m => ({
+      ...m,
+      columns: m.columns.filter(c => financial || !(c.finance || c.type === 'money' || moneyFields.has(c.key)))
+    }))
+  };
+  const model = catalog.models.find(m => m.id === table),
+    rows = moduleRows(network, model, search),
+    pageCount = Math.max(1, Math.ceil(rows.length / 20)),
+    currentPage = Math.min(page, pageCount - 1);
+  useEffect(() => {
+    setPage(0);
+    setInline(null);
+  }, [table, search, branch, point, currency, network]);
+  useEffect(() => {
+    if (inline) inlineRef.current?.focus();
+  }, [inline]);
+  if (!model) return /*#__PURE__*/React.createElement("section", {
+    className: "module-views"
+  }, /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u041E\u0431\u0435\u0440\u0456\u0442\u044C \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0439 \u0440\u0435\u0454\u0441\u0442\u0440. \u041F\u043E\u043F\u0435\u0440\u0435\u0434\u043D\u0456\u0439 \u0440\u0435\u0454\u0441\u0442\u0440 \u043C\u043E\u0436\u0435 \u0431\u0443\u0442\u0438 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0439 \u0434\u043B\u044F \u043F\u043E\u0442\u043E\u0447\u043D\u043E\u0457 \u0440\u043E\u043B\u0456."), /*#__PURE__*/React.createElement("div", {
+    className: "network-tabs"
+  }, catalog.models.map(m => /*#__PURE__*/React.createElement(Button, {
+    key: m.id,
+    onClick: () => onTable(m.id)
+  }, m.name))));
+  const allowedViews = catalog.views.filter(v => ['control', 'flow', 'network', 'focus'].includes(v.id) && (model.views || []).includes(v.id)),
+    active = allowedViews.find(v => v.id === view)?.id || model.default_view || 'control';
+  const label = row => String(row[model.label_field] || row.code || row.name || '№' + row[model.key]);
+  const detail = row => {
+    if (['transfers', 'retentions'].includes(model.id)) {
+      triggerRef.current = typeof document === 'undefined' ? null : document.activeElement;
+      setInline(row[model.key]);
+    } else onSelect({
+      kind: model.id === 'points' ? 'locations' : model.id,
+      id: row[model.key]
+    });
+  };
+  const closeInline = () => {
+    setInline(null);
+    triggerRef.current?.focus?.();
+  };
+  const actionProps = row => ({
+    catalog,
+    network,
+    model,
+    row,
+    onAction
+  });
+  const card = row => /*#__PURE__*/React.createElement("article", {
+    key: row[model.key],
+    className: "module-record"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "module-record-title",
+    onClick: () => detail(row)
+  }, label(row), " ", /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\u2197")), row.item_name && /*#__PURE__*/React.createElement("p", null, row.item_name), row.customer_name && /*#__PURE__*/React.createElement("p", null, row.customer_name), row.location_name && /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, row.location_name), row.due_date && /*#__PURE__*/React.createElement("small", null, "\u0421\u0442\u0440\u043E\u043A: ", erpDate(row.due_date)), /*#__PURE__*/React.createElement(ModuleRecordActions, actionProps(row)));
+  const selected = rows.find(row => row[model.key] === inline),
+    mapped = moduleMapRows(network, model, rows),
+    inbox = moduleInbox(model, rows, network.as_of);
+  const columns = model.columns.map(c => [c.label, row => moduleCell(c, row, currency)]);
+  columns.push(['Дії', row => /*#__PURE__*/React.createElement(ModuleRecordActions, actionProps(row))]);
+  return /*#__PURE__*/React.createElement("section", {
+    className: "module-views",
+    "aria-label": "\u0412\u0438\u0434\u0438 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0439\u043D\u043E\u0433\u043E \u0440\u0435\u0454\u0441\u0442\u0440\u0443"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "module-toolbar"
+  }, /*#__PURE__*/React.createElement("label", null, "\u0420\u0435\u0454\u0441\u0442\u0440", /*#__PURE__*/React.createElement(Select, {
+    value: table,
+    onChange: e => onTable(e.target.value)
+  }, catalog.models.map(m => /*#__PURE__*/React.createElement("option", {
+    key: m.id,
+    value: m.id
+  }, m.name)))), /*#__PURE__*/React.createElement("label", null, "\u041F\u043E\u0448\u0443\u043A \u0443 \u0440\u0435\u0454\u0441\u0442\u0440\u0456", /*#__PURE__*/React.createElement(Input, {
+    type: "search",
+    value: search,
+    placeholder: "\u041A\u043E\u0434, \u043D\u0430\u0437\u0432\u0430, \u0442\u043E\u0447\u043A\u0430, \u0441\u0442\u0430\u043D\u2026",
+    onChange: e => onSearch(e.target.value)
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "erp-status",
+    "aria-live": "polite"
+  }, rows.length, " \u0437\u0430\u043F\u0438\u0441\u0456\u0432")), /*#__PURE__*/React.createElement("nav", {
+    className: "module-view-switch",
+    "aria-label": "\u0412\u0438\u0433\u043B\u044F\u0434 \u0442\u0438\u0445 \u0441\u0430\u043C\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432"
+  }, allowedViews.map(v => /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    key: v.id,
+    "aria-pressed": active === v.id,
+    onClick: () => onView(v.id)
+  }, v.name))), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted module-context"
+  }, model.name, " \xB7 ", currency, " \xB7 \u043F\u043E\u0442\u043E\u0447\u043D\u0456 \u0444\u0456\u043B\u0456\u044F \u0439 \u0442\u043E\u0447\u043A\u0430. \u0412\u0438\u0433\u043B\u044F\u0434 \u0437\u043C\u0456\u043D\u044E\u0454 \u0441\u043F\u043E\u0441\u0456\u0431 \u043F\u0435\u0440\u0435\u0433\u043B\u044F\u0434\u0443 \u0442\u0438\u0445 \u0441\u0430\u043C\u0438\u0445 \u0434\u0430\u043D\u0438\u0445."), /*#__PURE__*/React.createElement(ModuleCreateActions, {
+    catalog: catalog,
+    network: network,
+    model: model,
+    branch: branch,
+    point: point,
+    currency: currency,
+    onAction: onAction
+  }), catalog.permissions.export && network.capabilities?.export && bosCan('export_workspace') && (search.trim() ? /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041E\u0447\u0438\u0441\u0442\u0456\u0442\u044C \u043F\u043E\u0448\u0443\u043A \u0434\u043B\u044F CSV-\u0435\u043A\u0441\u043F\u043E\u0440\u0442\u0443 \u0432\u0441\u044C\u043E\u0433\u043E \u0441\u0435\u0440\u0432\u0435\u0440\u043D\u043E\u0433\u043E \u0432\u0456\u0434\u0431\u043E\u0440\u0443 \u0437\u0430 \u0444\u0456\u043B\u0456\u0454\u044E, \u0442\u043E\u0447\u043A\u043E\u044E \u0439 \u0432\u0430\u043B\u044E\u0442\u043E\u044E.") : /*#__PURE__*/React.createElement("a", {
+    className: "network-export",
+    href: '/api/erp/network/export/?' + networkQuery(branch, point, currency, model.id)
+  }, "\u0415\u043A\u0441\u043F\u043E\u0440\u0442 \u0446\u044C\u043E\u0433\u043E \u0432\u0456\u0434\u0431\u043E\u0440\u0443 \xB7 CSV")), active === 'control' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(ERPTable, {
+    columns: columns,
+    rows: rows.slice(currentPage * 20, currentPage * 20 + 20),
+    onRow: detail,
+    empty: "\u0423 \u0446\u044C\u043E\u043C\u0443 \u0432\u0456\u0434\u0431\u043E\u0440\u0456 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u043D\u0435\u043C\u0430\u0454."
+  }), /*#__PURE__*/React.createElement("nav", {
+    className: "module-pagination",
+    "aria-label": "\u0421\u0442\u043E\u0440\u0456\u043D\u043A\u0438 \u0440\u0435\u0454\u0441\u0442\u0440\u0443"
+  }, /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    disabled: currentPage === 0,
+    onClick: () => setPage(p => Math.max(0, p - 1))
+  }, "\u041D\u0430\u0437\u0430\u0434"), /*#__PURE__*/React.createElement("span", {
+    "aria-live": "polite"
+  }, "\u0421\u0442\u043E\u0440\u0456\u043D\u043A\u0430 ", currentPage + 1, " \u0437 ", pageCount), /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    disabled: currentPage + 1 >= pageCount,
+    onClick: () => setPage(p => p + 1)
+  }, "\u0414\u0430\u043B\u0456"))), active === 'flow' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041A\u043E\u043B\u043E\u043D\u043A\u0438 \u0432\u0456\u0434\u043E\u0431\u0440\u0430\u0436\u0430\u044E\u0442\u044C \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u0438\u0439 ", model.status_field === 'quality' ? 'стан якості' : 'стан запису', ". \u0417\u043C\u0456\u043D\u0438 \u0432\u0438\u043A\u043E\u043D\u0443\u044E\u0442\u044C\u0441\u044F \u0447\u0435\u0440\u0435\u0437 \u0434\u0456\u0457 \u0442\u0430 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F."), /*#__PURE__*/React.createElement("div", {
+    className: "module-kanban"
+  }, moduleLanes(model, rows).map(lane => /*#__PURE__*/React.createElement("section", {
+    key: lane.id,
+    className: "module-lane",
+    "aria-label": lane.label
+  }, /*#__PURE__*/React.createElement("h4", null, lane.label, " ", /*#__PURE__*/React.createElement("span", null, lane.rows.length)), lane.rows.map(card)))), !rows.length && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0423 \u0446\u044C\u043E\u043C\u0443 \u0432\u0456\u0434\u0431\u043E\u0440\u0456 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u043D\u0435\u043C\u0430\u0454.")), active === 'network' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041A\u0430\u0440\u0442\u0430 \u043F\u043E\u043A\u0430\u0437\u0443\u0454 \u0440\u0435\u0430\u043B\u044C\u043D\u0456 \u0442\u043E\u0447\u043A\u0438, \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0456 \u0437 \u0432\u0456\u0434\u0456\u0431\u0440\u0430\u043D\u0438\u043C\u0438 \u0437\u0430\u043F\u0438\u0441\u0430\u043C\u0438; \u043A\u043E\u0436\u0435\u043D \u0437\u0430\u043F\u0438\u0441 \u043D\u0435 \u0454 \u043E\u043A\u0440\u0435\u043C\u043E\u044E \u043A\u043E\u043E\u0440\u0434\u0438\u043D\u0430\u0442\u043E\u044E. ", model.id === 'transfers' ? 'Показані точки відправлення та призначення цих переміщень.' : ''), /*#__PURE__*/React.createElement(NetworkMap, {
+    points: mapped.points,
+    locations: network.locations || [],
+    transfers: mapped.transfers,
+    selected: point,
+    onPoint: onPoint
+  }), !mapped.points.length && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0423 \u0446\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u043D\u0435\u043C\u0430\u0454 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E\u0457 \u043F\u0440\u0438\u0432\u2019\u044F\u0437\u043A\u0438 \u0434\u043E \u0442\u043E\u0447\u043A\u0438. \u0412\u043E\u043D\u0438 \u0437\u0430\u043B\u0438\u0448\u0430\u044E\u0442\u044C\u0441\u044F \u0443 \u0440\u0435\u0454\u0441\u0442\u0440\u0456."), /*#__PURE__*/React.createElement("div", {
+    className: "module-map-records"
+  }, rows.map(card))), active === 'focus' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0427\u0435\u0440\u0433\u0430 \u0437\u0430 \u0444\u0430\u043A\u0442\u0438\u0447\u043D\u0438\u043C\u0438 \u0441\u0442\u0440\u043E\u043A\u0430\u043C\u0438, \u044F\u043A\u0456\u0441\u0442\u044E, \u0440\u0443\u0445\u043E\u043C \u0456 \u0440\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043A\u0430\u043C\u0438. \u041F\u0435\u0440\u0448\u0438\u043C\u0438 \u043F\u043E\u043A\u0430\u0437\u0430\u043D\u0456 \u043F\u0440\u043E\u0441\u0442\u0440\u043E\u0447\u0435\u043D\u0456 \u0437\u0430\u043F\u0438\u0441\u0438. \u0426\u0435 \u043F\u0440\u0430\u0432\u0438\u043B\u0430 \u0432\u0456\u0434\u0431\u043E\u0440\u0443, \u043D\u0435 \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u043D\u0435 \u0440\u0456\u0448\u0435\u043D\u043D\u044F AI."), /*#__PURE__*/React.createElement("div", {
+    className: "module-inbox"
+  }, inbox.map(({
+    row,
+    reasons
+  }) => /*#__PURE__*/React.createElement("details", {
+    key: row[model.key],
+    className: "module-inbox-item"
+  }, /*#__PURE__*/React.createElement("summary", null, /*#__PURE__*/React.createElement("strong", null, label(row)), /*#__PURE__*/React.createElement("span", null, reasons.join(' · '))), /*#__PURE__*/React.createElement(ModuleRecordFacts, {
+    model: model,
+    row: row,
+    currency: currency
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "erp-actions"
+  }, /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    onClick: () => detail(row)
+  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u043A\u0430\u0440\u0442\u043A\u0443"), /*#__PURE__*/React.createElement(ModuleRecordActions, actionProps(row)))))), !inbox.length && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0417\u0430 \u043F\u043E\u0442\u043E\u0447\u043D\u0438\u043C \u0432\u0456\u0434\u0431\u043E\u0440\u043E\u043C \u043D\u0435\u043C\u0430\u0454 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u0456\u0437 \u0446\u0438\u043C\u0438 \u043E\u0437\u043D\u0430\u043A\u0430\u043C\u0438 \u0443\u0432\u0430\u0433\u0438. \u0423\u0441\u0456 \u0437\u0430\u043F\u0438\u0441\u0438 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0443 \xAB\u041A\u043E\u043D\u0442\u0440\u043E\u043B\u0456\xBB.")), selected && /*#__PURE__*/React.createElement("section", {
+    className: "module-inline",
+    ref: inlineRef,
+    tabIndex: -1,
+    "aria-label": 'Деталі ' + label(selected),
+    onKeyDown: e => {
+      if (e.key === 'Escape') {
+        closeInline();
+      }
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "erp-row"
+  }, /*#__PURE__*/React.createElement("h4", null, label(selected)), /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    onClick: closeInline
+  }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438 \u0434\u0435\u0442\u0430\u043B\u0456")), /*#__PURE__*/React.createElement(ModuleRecordFacts, {
+    model: model,
+    row: selected,
+    currency: currency
+  }), /*#__PURE__*/React.createElement(ModuleRecordActions, actionProps(selected)), model.id === 'transfers' && selected.received_lot_id && /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    onClick: () => onSelect({
+      kind: 'lots',
+      id: selected.received_lot_id
+    })
+  }, "\u041F\u0440\u0438\u0439\u043D\u044F\u0442\u0430 \u043F\u0430\u0440\u0442\u0456\u044F"), model.id === 'retentions' && /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    onClick: () => onSelect({
+      kind: 'invoices',
+      id: selected.invoice_id
+    })
+  }, "\u041F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0438\u0439 \u0440\u0430\u0445\u0443\u043D\u043E\u043A")));
+}
+function CoreModuleWorkspace(props) {
+  const [catalog, setCatalog] = useState(null),
+    [error, setError] = useState(''),
+    [retry, setRetry] = useState(0);
+  const role = bosRole();
+  useEffect(() => {
+    let live = true;
+    const abort = new AbortController();
+    setCatalog(null);
+    setError('');
+    moduleFetchCatalog(abort.signal).then(value => {
+      if (live) setCatalog(value);
+    }).catch(e => {
+      if (live && e.name !== 'AbortError') setError(e.message);
+    });
+    return () => {
+      live = false;
+      abort.abort();
+    };
+  }, [role, retry]);
+  if (error) return /*#__PURE__*/React.createElement("section", {
+    "aria-label": "\u0420\u0435\u0454\u0441\u0442\u0440 \u043C\u043E\u0434\u0443\u043B\u0456\u0432"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "erp-error",
+    role: "alert"
+  }, error), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041E\u043F\u0435\u0440\u0430\u0446\u0456\u0439\u043D\u0456 \u0432\u0438\u0434\u0438 \u0432\u0456\u0434\u043A\u0440\u0438\u044E\u0442\u044C\u0441\u044F \u043F\u0456\u0441\u043B\u044F \u043E\u0442\u0440\u0438\u043C\u0430\u043D\u043D\u044F \u0447\u0438\u043D\u043D\u043E\u0433\u043E \u0441\u0435\u0440\u0432\u0435\u0440\u043D\u043E\u0433\u043E \u0440\u0435\u0454\u0441\u0442\u0440\u0443."), /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    onClick: () => setRetry(v => v + 1)
+  }, "\u0421\u043F\u0440\u043E\u0431\u0443\u0432\u0430\u0442\u0438 \u0449\u0435 \u0440\u0430\u0437"));
+  if (!catalog) return /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u043C\u043E\u0434\u0443\u043B\u0456\u0432\u2026");
+  return /*#__PURE__*/React.createElement(CoreModuleSurface, _extends({}, props, {
+    catalog: catalog
+  }));
+}
+// CORE_MODULE_VIEWS_END
+
+function ERPNetwork({
+  data,
+  onSelect,
+  onAction,
+  onNavigate,
+  onDocument
+}) {
+  const [branch, setBranch] = useState(''),
+    [point, setPoint] = useState(''),
+    [currency, setCurrency] = useState('UAH'),
+    [table, setTable] = useState('points'),
+    [network, setNetwork] = useState(null),
+    [error, setError] = useState(''),
+    [version, setVersion] = useState(0),
+    [loading, setLoading] = useState(true),
+    [converter, setConverter] = useState(false),
+    [referenceCurrency, setReferenceCurrency] = useState('EUR'),
+    [referenceRate, setReferenceRate] = useState(''),
+    [group, setGroup] = useState('overview'),
+    [moduleView, setModuleView] = useState('control'),
+    [moduleSearch, setModuleSearch] = useState('');
+  const request = useRef(0);
+  useEffect(() => {
+    const n = ++request.current;
+    let live = true;
+    const abort = new AbortController();
+    setLoading(true);
+    setNetwork(null);
+    setError('');
+    fetch('/api/erp/network/?' + networkQuery(branch, point, currency), {
+      signal: abort.signal
+    }).then(async r => {
+      const body = await r.json();
+      if (!r.ok) throw Error(body.error || 'Не вдалося завантажити мережу.');
+      if (body.schema !== 'bos.network.v1' || !Array.isArray(body.locations) || !Array.isArray(body.branches) || !body.rows) throw Error('Невідома відповідь мережі.');
+      return body;
+    }).then(body => {
+      if (live && n === request.current) setNetwork(body);
+    }).catch(e => {
+      if (live && e.name !== 'AbortError' && n === request.current) setError(e.message);
+    }).finally(() => {
+      if (live && n === request.current) setLoading(false);
+    });
+    return () => {
+      live = false;
+      abort.abort();
+    };
+  }, [branch, point, currency, data, version]);
+  const financial = bosCan('finance') && network?.capabilities?.finance === true,
+    write = bosCan('write') && network?.capabilities?.write === true,
+    rows = network?.rows || {},
+    metrics = network?.metrics || {},
+    branches = network?.branches || data.branches || [],
+    locations = network?.locations || data.locations || [];
+  const availablePoints = locations.filter(p => !branch || (branch === 'unassigned' ? p.branch_id == null : String(p.branch_id) === branch));
+  function chooseBranch(value) {
+    setBranch(value);
+    setPoint('');
+  }
+  function choosePoint(value) {
+    setPoint(value);
+    setTable('points');
+  }
+  function openRegister(value) {
+    setTable(value);
+    setGroup('operations');
+  }
+  function chooseWorkspacePoint(value) {
+    const next = modulePointSelection(locations, branch, value);
+    setBranch(next.branch);
+    setPoint(next.point);
+  }
+  const can = a => write && bosCanAction(a),
+    action = (a, p, label) => can(a) ? /*#__PURE__*/React.createElement(Button, {
+      onClick: () => onAction(a, p)
+    }, label || ERP_ACTIONS[a]?.[0]) : null;
+  const money = value => networkMoney(value, network?.currency || currency);
+  return /*#__PURE__*/React.createElement("section", {
+    className: "network-workspace",
+    "aria-label": "\u0423\u043F\u0440\u0430\u0432\u043B\u0456\u043D\u043D\u044F \u043C\u0435\u0440\u0435\u0436\u0435\u044E"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "network-heading"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
+    className: "network-eyebrow"
+  }, "\u0420\u041E\u0411\u041E\u0427\u0406 \u0414\u0410\u041D\u0406 BoS"), /*#__PURE__*/React.createElement("h3", null, "\u0412\u0456\u0434 \u0444\u0456\u043B\u0456\u0457 \u0434\u043E \u043A\u043E\u0436\u043D\u043E\u0457 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0457"), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0421\u043A\u043B\u0430\u0434, \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043D\u043D\u044F, \u043F\u0440\u043E\u0434\u0430\u0436\u0456 \u0439 \u0440\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043A\u0438 \u0437 \u043F\u043E\u0442\u043E\u0447\u043D\u043E\u0457 \u0431\u0430\u0437\u0438. \u0414\u0456\u044F \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442\u044C \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0443 \u0442\u0430 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F.")), /*#__PURE__*/React.createElement("span", {
+    className: "erp-status"
+  }, network?.data_mode === 'demo' ? 'Демонстраційна база' : 'Поточна база', " \xB7 ", network?.as_of ? erpDate(network.as_of) : '…')), /*#__PURE__*/React.createElement("nav", {
+    className: "network-groups",
+    "aria-label": "\u0420\u043E\u0431\u043E\u0447\u0456 \u0431\u043B\u043E\u043A\u0438 \u043C\u0435\u0440\u0435\u0436\u0456"
+  }, [['overview', 'Огляд'], ['operations', 'Операції'], ['documents', 'Документи й звірки'], ['control', 'Контроль строків']].map(([id, label]) => /*#__PURE__*/React.createElement(Button, {
+    key: id,
+    "aria-pressed": group === id,
+    onClick: () => setGroup(id)
+  }, label))), /*#__PURE__*/React.createElement("div", {
+    className: "network-filters"
+  }, /*#__PURE__*/React.createElement("label", null, "\u0424\u0456\u043B\u0456\u044F", /*#__PURE__*/React.createElement(Select, {
+    value: branch,
+    onChange: e => chooseBranch(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "\u0423\u0441\u044F \u043C\u0435\u0440\u0435\u0436\u0430"), branches.map(b => /*#__PURE__*/React.createElement("option", {
+    key: b.id,
+    value: b.id
+  }, b.name)), /*#__PURE__*/React.createElement("option", {
+    value: "unassigned"
+  }, "\u0411\u0435\u0437 \u043F\u0440\u0438\u0432\u2019\u044F\u0437\u043A\u0438 \u0434\u043E \u0444\u0456\u043B\u0456\u0457"))), /*#__PURE__*/React.createElement("label", null, "\u0420\u043E\u0431\u043E\u0447\u0430 \u0442\u043E\u0447\u043A\u0430", /*#__PURE__*/React.createElement(Select, {
+    value: point,
+    onChange: e => choosePoint(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "\u0423\u0441\u0456 \u0442\u043E\u0447\u043A\u0438 \u0444\u0456\u043B\u0456\u0457"), availablePoints.map(p => /*#__PURE__*/React.createElement("option", {
+    key: p.id,
+    value: p.id
+  }, p.code, " \xB7 ", p.name)))), /*#__PURE__*/React.createElement("span", {
+    className: "erp-status"
+  }, currency === 'UAH' ? 'Облік у гривні · UAH' : currency), /*#__PURE__*/React.createElement(Button, {
+    onClick: () => setVersion(v => v + 1)
+  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438 \u043C\u0435\u0440\u0435\u0436\u0443")), /*#__PURE__*/React.createElement("details", {
+    className: "network-options"
+  }, /*#__PURE__*/React.createElement("summary", null, "\u0414\u043E\u0434\u0430\u0442\u043A\u043E\u0432\u0456 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u0438 \xB7 \u0432\u0430\u043B\u044E\u0442\u0430 \u0442\u0430 \u0434\u043E\u0432\u0456\u0434\u043A\u043E\u0432\u0438\u0439 \u0435\u043A\u0432\u0456\u0432\u0430\u043B\u0435\u043D\u0442"), /*#__PURE__*/React.createElement("div", {
+    className: "network-options-grid"
+  }, /*#__PURE__*/React.createElement("label", null, "\u0412\u0430\u043B\u044E\u0442\u0430 \u043D\u0430\u044F\u0432\u043D\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432", /*#__PURE__*/React.createElement(Select, {
+    value: currency,
+    onChange: e => setCurrency(e.target.value)
+  }, ['UAH', 'EUR', 'USD'].map(c => /*#__PURE__*/React.createElement("option", {
+    key: c,
+    value: c
+  }, c === 'UAH' ? 'Гривня · UAH' : c)))), financial && currency === 'UAH' && /*#__PURE__*/React.createElement("label", {
+    className: "network-checkbox"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: converter,
+    onChange: e => setConverter(e.target.checked)
+  }), "\u041F\u043E\u043A\u0430\u0437\u0430\u0442\u0438 \u0434\u043E\u0432\u0456\u0434\u043A\u043E\u0432\u0438\u0439 \u0435\u043A\u0432\u0456\u0432\u0430\u043B\u0435\u043D\u0442")), financial && currency === 'UAH' && converter && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "network-options-grid"
+  }, /*#__PURE__*/React.createElement("label", null, "\u0412\u0430\u043B\u044E\u0442\u0430 \u0435\u043A\u0432\u0456\u0432\u0430\u043B\u0435\u043D\u0442\u0430", /*#__PURE__*/React.createElement(Select, {
+    value: referenceCurrency,
+    onChange: e => setReferenceCurrency(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", null, "EUR"), /*#__PURE__*/React.createElement("option", null, "USD"))), /*#__PURE__*/React.createElement("label", null, "\u0413\u0440\u0438\u0432\u0435\u043D\u044C \u0437\u0430 1 ", referenceCurrency, /*#__PURE__*/React.createElement(Input, {
+    inputMode: "decimal",
+    value: referenceRate,
+    placeholder: "\u0412\u0432\u0435\u0434\u0456\u0442\u044C \u043A\u0443\u0440\u0441",
+    onChange: e => setReferenceRate(e.target.value.replace(',', '.'))
+  }))), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0414\u043E\u0432\u0456\u0434\u043A\u043E\u0432\u0438\u0439 \u0435\u043A\u0432\u0456\u0432\u0430\u043B\u0435\u043D\u0442; \u043E\u0431\u043B\u0456\u043A \u0443 \u0433\u0440\u0438\u0432\u043D\u0456. \u041A\u0443\u0440\u0441 \u0432\u0432\u043E\u0434\u0438\u0442\u044C\u0441\u044F \u0432\u0440\u0443\u0447\u043D\u0443, \u043D\u0435 \u0454 \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u043D\u043E \u043E\u0442\u0440\u0438\u043C\u0430\u043D\u0438\u043C \u0447\u0438 \u043E\u0431\u043B\u0456\u043A\u043E\u0432\u0438\u043C. \u0417\u0430\u043F\u0438\u0441\u0438 \u0442\u0430 \u043F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u043D\u044F \u043D\u0435 \u0437\u043C\u0456\u043D\u044E\u044E\u0442\u044C\u0441\u044F."), networkEquivalent(metrics.inventory_value, referenceRate) == null ? /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0412\u043A\u0430\u0436\u0456\u0442\u044C \u0434\u043E\u0434\u0430\u0442\u043D\u0438\u0439 \u043A\u0443\u0440\u0441, \u0434\u043E 6 \u0437\u043D\u0430\u043A\u0456\u0432 \u043F\u0456\u0441\u043B\u044F \u043A\u0440\u0430\u043F\u043A\u0438.") : /*#__PURE__*/React.createElement("div", {
+    className: "network-converted"
+  }, [['Запас у точках', metrics.inventory_value], ['У дорозі', metrics.in_transit_value], ['Залишилось сплатити', metrics.receivable], ['Зокрема утримано', metrics.retained]].map(([label, value]) => /*#__PURE__*/React.createElement("div", {
+    key: label
+  }, /*#__PURE__*/React.createElement("span", null, label), /*#__PURE__*/React.createElement("strong", null, networkMoney(networkEquivalent(value, referenceRate), referenceCurrency))))))), error && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, error), loading && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F \u043C\u0435\u0440\u0435\u0436\u0456 \u0442\u0430 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0439\u2026"), network && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "network-kpis"
+  }, (financial ? [['Запас у точках', money(metrics.inventory_value), 'Усі фізичні партії обраної валюти', 'lots'], ['У дорозі', money(metrics.in_transit_value), metrics.in_transit_count + ' відкритих переміщень', 'transfers'], ['Залишилось сплатити', money(metrics.receivable), 'За рахунками обраної валюти', 'invoices'], ['Зокрема утримано', money(metrics.retained), 'Входить у борг; зняття не є оплатою', 'retentions']] : [['Точки мережі', metrics.point_count, 'У поточному відборі', 'points'], ['Складські партії', metrics.lot_count, 'Залишки та стан якості', 'lots'], ['Постачання', metrics.open_purchases, 'Відкриті замовлення', 'purchases'], ['У дорозі', metrics.in_transit_count, 'Ще не прийнято у точці', 'transfers']]).map(([label, value, note, target]) => /*#__PURE__*/React.createElement("button", {
+    className: "bos-kpi",
+    type: "button",
+    key: target,
+    onClick: () => openRegister(target)
+  }, /*#__PURE__*/React.createElement("span", null, label), /*#__PURE__*/React.createElement("strong", null, value ?? '—'), /*#__PURE__*/React.createElement("p", null, note), /*#__PURE__*/React.createElement("em", null, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u0437\u0430\u043F\u0438\u0441\u0438 \u2197")))), group === 'overview' && /*#__PURE__*/React.createElement("div", {
+    className: "network-overview"
+  }, /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("div", {
+    className: "erp-row"
+  }, /*#__PURE__*/React.createElement("h3", null, "\u0413\u0435\u043E\u0433\u0440\u0430\u0444\u0456\u044F \u043C\u0435\u0440\u0435\u0436\u0456"), /*#__PURE__*/React.createElement("span", {
+    className: "erp-status"
+  }, metrics.point_count, " \u0442\u043E\u0447\u043E\u043A \u0443 \u0432\u0456\u0434\u0431\u043E\u0440\u0456")), /*#__PURE__*/React.createElement(NetworkMap, {
+    points: rows.points || [],
+    locations: locations,
+    transfers: rows.transfers || [],
+    selected: point,
+    onPoint: choosePoint
+  })), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u041F\u043E\u0442\u043E\u0447\u043D\u0438\u0439 \u0432\u0456\u0434\u0431\u0456\u0440"), /*#__PURE__*/React.createElement("p", {
+    className: "network-scope"
+  }, branch === 'unassigned' ? 'Без філії' : branches.find(b => String(b.id) === branch)?.name || 'Уся мережа'), /*#__PURE__*/React.createElement("p", null, point ? locations.find(p => String(p.id) === point)?.name : 'Усі робочі точки'), /*#__PURE__*/React.createElement("div", {
+    className: "network-processes"
+  }, [['purchases', 'Постачання / імпорт'], ['orders', 'Продажі / експорт'], ['jobs', 'Виробництво'], ['transfers', 'Переміщення']].map(([id, label]) => /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    key: id,
+    onClick: () => openRegister(id)
+  }, /*#__PURE__*/React.createElement("span", null, label), /*#__PURE__*/React.createElement("strong", null, (rows[id] || []).length)))), write && /*#__PURE__*/React.createElement("div", {
+    className: "erp-actions"
+  }, action('purchase', {
+    currency,
+    destination_id: point || ''
+  }, 'Нова закупівля'), action('order', {
+    currency,
+    fulfillment_location_id: point || ''
+  }, 'Новий продаж'), action('location', {
+    branch_id: branch === 'unassigned' ? '' : branch
+  }, 'Нова точка')), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0421\u0443\u043C\u0438 \u0432\u0456\u0434\u0431\u0438\u0440\u0430\u044E\u0442\u044C\u0441\u044F \u0437\u0430 \u0432\u0430\u043B\u044E\u0442\u043E\u044E \u0431\u0435\u0437 \u043A\u043E\u043D\u0432\u0435\u0440\u0442\u0430\u0446\u0456\u0457. \u041F\u0440\u0438\u0432\u2019\u044F\u0437\u043A\u0438 \u0444\u0456\u043B\u0456\u0439 \u0442\u0430 \u0442\u043E\u0447\u043E\u043A \u0431\u0435\u0440\u0443\u0442\u044C\u0441\u044F \u0437 \u043A\u0430\u0440\u0442\u043E\u043A BoS."))), network.warnings?.map((w, i) => /*#__PURE__*/React.createElement("p", {
+    className: "op-muted",
+    key: i
+  }, w)), group === 'operations' && /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("div", {
+    className: "erp-row"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", null, "\u041E\u043F\u0435\u0440\u0430\u0446\u0456\u0439\u043D\u0456 \u0440\u0435\u0454\u0441\u0442\u0440\u0438"), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0421\u043F\u0456\u043B\u044C\u043D\u0456 \u0437\u0430\u043F\u0438\u0441\u0438, \u0447\u043E\u0442\u0438\u0440\u0438 \u0441\u043F\u043E\u0441\u043E\u0431\u0438 \u0440\u043E\u0431\u043E\u0442\u0438."))), /*#__PURE__*/React.createElement(CoreModuleWorkspace, {
+    network: network,
+    table: table,
+    onTable: setTable,
+    view: moduleView,
+    onView: setModuleView,
+    search: moduleSearch,
+    onSearch: setModuleSearch,
+    branch: branch,
+    point: point,
+    currency: currency,
+    onPoint: chooseWorkspacePoint,
+    onSelect: onSelect,
+    onAction: onAction
+  })), group === 'documents' && /*#__PURE__*/React.createElement(NetworkDocuments, {
+    network: network,
+    onNavigate: onNavigate,
+    onDocument: onDocument
+  }), " ", group === 'control' && /*#__PURE__*/React.createElement(NetworkWorkflow, {
+    network: network,
+    onNavigate: onNavigate,
+    onDocument: onDocument,
+    onSelect: onSelect
+  })));
+}
+// NETWORK_WORKSPACE_END
+
 function ERPWorkspace({
   view = 'overview',
   refetchTasks,
@@ -15461,9 +18436,12 @@ function ERPWorkspace({
     }, ERP_LABELS[x] || x);
   const buttons = defs => /*#__PURE__*/React.createElement("div", {
     className: "erp-actions"
-  }, defs.filter(([, a]) => bosCanAction(a)).map(([label, a, p = {}]) => /*#__PURE__*/React.createElement(Button, {
+  }, defs.filter(([, a]) => bosCanAction(a)).map(([label, a, p = {}, disabled = false]) => /*#__PURE__*/React.createElement(Button, {
     key: a,
-    onClick: () => begin(a, p)
+    disabled: disabled,
+    onClick: () => {
+      if (!disabled) begin(a, p);
+    }
   }, label)));
   const filter = rows => rows.filter(x => !search || JSON.stringify(x).toLowerCase().includes(search.toLowerCase()) || itemLabel(x.item_id).toLowerCase().includes(search.toLowerCase()));
   let content;
@@ -15526,6 +18504,13 @@ function ERPWorkspace({
     rows: data.locations,
     columns: [["Код", 'code'], ["Місце", 'name'], ["Тип", r => status(r.kind)], ["Підрядник", r => partner(r.supplier_id)]]
   })));
+  if (view === 'network') content = /*#__PURE__*/React.createElement(ERPNetwork, {
+    data: data,
+    onSelect: setSelection,
+    onAction: begin,
+    onNavigate: onNavigate,
+    onDocument: setDoc
+  });
   if (view === 'sales') content = /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u041F\u0440\u043E\u0434\u0430\u0436\u0456 \u0442\u0430 \u0432\u0438\u043A\u043E\u043D\u0430\u043D\u043D\u044F \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u044C"), buttons([['Нова пропозиція', 'order']]), filter(data.orders).map(o => /*#__PURE__*/React.createElement("div", {
     className: "erp-plan",
     key: o.id
@@ -15731,8 +18716,9 @@ function ERPWorkspace({
     }),
     rows: data.invoices,
     columns: [["Рахунок", 'code'], ["Замовлення", r => order(r.order_id)?.code], ["Сума", r => erpNum(r.amount) + ' ' + r.currency], ["Сплачено", r => erpNum(r.paid)], ["Чинний кредит", r => b03Amount(r.effective_credit, r.currency)], ["До оплати", r => b03Amount(r.open, r.currency)], ["Кредит клієнта", r => b03Amount(r.customer_credit, r.currency)], ["Термін", r => erpDate(r.due_date)], ["Дія", r => buttons([['Оплата', 'payment', {
-      invoice_id: r.invoice_id
-    }]])]]
+      invoice_id: r.invoice_id,
+      amount: r.collectible
+    }, !flowPositive(r.collectible)]])]]
   })), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u0416\u0443\u0440\u043D\u0430\u043B \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u0438\u0445 ERP-\u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0439"), /*#__PURE__*/React.createElement(ERPTable, {
     onRow: r => setSelection({
       kind: 'events',
@@ -15746,6 +18732,7 @@ function ERPWorkspace({
   }, /*#__PURE__*/React.createElement("div", {
     className: "erp-row"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", null, "ERP \xB7 ", {
+    network: 'Мережа та операції',
     overview: 'Огляд виконання',
     catalog: 'Номенклатура',
     sales: 'Продажі',
@@ -15758,12 +18745,12 @@ function ERPWorkspace({
     className: "op-muted"
   }, "\u0404\u0434\u0438\u043D\u0456 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F, \u043C\u0430\u0442\u0435\u0440\u0456\u0430\u043B\u0438 \u0442\u0430 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u0430\u043B\u044C\u043D\u0456")), /*#__PURE__*/React.createElement("div", {
     className: "erp-actions"
-  }, /*#__PURE__*/React.createElement(Input, {
+  }, view !== 'network' && /*#__PURE__*/React.createElement(Input, {
     "aria-label": "\u041F\u043E\u0448\u0443\u043A ERP",
     placeholder: "\u041A\u043E\u0434, \u043D\u0430\u0437\u0432\u0430, \u0448\u0442\u0440\u0438\u0445\u043A\u043E\u0434\u2026",
     value: search,
     onChange: e => setSearch(e.target.value)
-  }), /*#__PURE__*/React.createElement(Button, {
+  }), " ", /*#__PURE__*/React.createElement(Button, {
     onClick: refresh
   }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438"), bosRole() === 'ceo' && /*#__PURE__*/React.createElement(Button, {
     onClick: () => setInitialImport(true)
@@ -15778,9 +18765,12 @@ function ERPWorkspace({
   }, error), notice && /*#__PURE__*/React.createElement("p", {
     className: "erp-notice",
     role: "status"
-  }, notice), lastReceipt && /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u0424\u0430\u043A\u0442\u0438\u0447\u043D\u0438\u0439 \u0432\u043F\u043B\u0438\u0432 \u043E\u0441\u0442\u0430\u043D\u043D\u044C\u043E\u0457 \u0434\u0456\u0457"), /*#__PURE__*/React.createElement(ImpactTable, {
+  }, notice), lastReceipt && /*#__PURE__*/React.createElement(Card, null, lastReceipt.action === 'erp_register_supplier_invoice' ? /*#__PURE__*/React.createElement(SupplierInvoiceReceipt, {
+    receipt: lastReceipt,
+    data: data
+  }) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h3", null, "\u0424\u0430\u043A\u0442\u0438\u0447\u043D\u0438\u0439 \u0432\u043F\u043B\u0438\u0432 \u043E\u0441\u0442\u0430\u043D\u043D\u044C\u043E\u0457 \u0434\u0456\u0457"), /*#__PURE__*/React.createElement(ImpactTable, {
     changes: lastReceipt.impact
-  }), /*#__PURE__*/React.createElement(Button, {
+  })), /*#__PURE__*/React.createElement(Button, {
     onClick: () => setLastReceipt(null)
   }, "\u041F\u0440\u0438\u0445\u043E\u0432\u0430\u0442\u0438")), content, /*#__PURE__*/React.createElement(B03Ledger, {
     view: view,
@@ -15814,9 +18804,9 @@ function ERPWorkspace({
     recovery: action.recovery,
     data: data,
     onClose: () => setAction(null),
-    onDone: r => {
-      setLastReceipt(r);
-      setNotice('Операцію збережено. Запис журналу №' + r.erp_event_id + (r.note ? ' · ' + r.note : ''));
+    onDone: (r, context) => {
+      setLastReceipt(s2ReceiptContext(r, context));
+      setNotice(r.action === 'erp_register_supplier_invoice' ? 'Квитанцію реєстрації отримано; поточні джерела перечитуються окремо.' : 'Операцію збережено. Запис журналу №' + r.erp_event_id + (r.note ? ' · ' + r.note : ''));
       refresh();
       refetchTasks?.();
     }
@@ -15872,7 +18862,7 @@ function ImpactTable({
   }, /*#__PURE__*/React.createElement(ERPTable, {
     rows: changes,
     empty: "\u041A\u0456\u043B\u044C\u043A\u0456\u0441\u043D\u0456 \u043F\u043E\u043A\u0430\u0437\u043D\u0438\u043A\u0438 \u043D\u0435 \u0437\u043C\u0456\u043D\u044E\u044E\u0442\u044C\u0441\u044F. \u0411\u0443\u0434\u0435 \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043E \u0440\u0456\u0448\u0435\u043D\u043D\u044F \u0442\u0430 \u0437\u0430\u043F\u0438\u0441 \u0436\u0443\u0440\u043D\u0430\u043B\u0443.",
-    columns: [["Запис", 'code'], ["Показник", 'label'], ["Було", r => r.before === null ? 'Новий запис' : typeof r.before === 'boolean' ? r.before ? 'Так' : 'Ні' : ERP_LABELS[r.before] || String(r.before)], ["Стане / стало", r => typeof r.after === 'boolean' ? r.after ? 'Так' : 'Ні' : (ERP_LABELS[r.after] || String(r.after)) + (r.currency && ['amount', 'paid', 'open', 'actual_cost', 'effective_credit', 'net_amount', 'receivable', 'customer_credit', 'total', 'agreed_amount', 'allocated_cost', 'return_allocated_cost'].includes(r.field) ? ' ' + r.currency : '')]]
+    columns: [["Запис", 'code'], ["Показник", 'label'], ["Було", r => r.before === null ? 'Новий запис' : typeof r.before === 'boolean' ? r.before ? 'Так' : 'Ні' : ERP_LABELS[r.before] || String(r.before)], ["Стане / стало", r => typeof r.after === 'boolean' ? r.after ? 'Так' : 'Ні' : (ERP_LABELS[r.after] || String(r.after)) + (r.currency && ['amount', 'paid', 'open', 'actual_cost', 'effective_credit', 'net_amount', 'receivable', 'customer_credit', 'total', 'agreed_amount', 'allocated_cost', 'return_allocated_cost', 'retained', 'collectible', 'total_cost'].includes(r.field) ? ' ' + r.currency : '')]]
   }));
 }
 function NextAction({
@@ -16234,7 +19224,7 @@ function OrderTrace({
 }
 
 // Scoped order facts; displayed amounts remain server Decimal strings.
-const FLOW_MONEY = [['gross_invoiced', 'Первісна сума'], ['credited', 'Чинний кредит'], ['invoiced', 'До оплати за рахунками'], ['paid', 'Облікова оплата'], ['open', 'Залишок до оплати'], ['customer_credit', 'Переплата клієнта']];
+const FLOW_MONEY = [['gross_invoiced', 'Первісна сума'], ['credited', 'Чинний кредит'], ['invoiced', 'До оплати за рахунками'], ['paid', 'Облікова оплата'], ['open', 'Залишок до оплати'], ['customer_credit', 'Переплата клієнта'], ['retained', 'Договірне утримання'], ['collectible', 'Доступно до оплати']];
 const FLOW_QUANTITIES = [['remaining', 'Залишилось виконати'], ['reserved_usable', 'Придатний резерв'], ['quantity_to_cover', 'Потреба без резерву'], ['available_all_locations', 'Вільно в усіх місцях'], ['available_target', 'Вільно в обраному місці'], ['uncovered_after_stock', 'Не покрито запасом'], ['unallocated_expected', 'Очікується без розподілу']];
 function flowDecimal(value) {
   return typeof value === 'string' && /^\d+(?:\.\d+)?$/.test(value);
@@ -16250,11 +19240,12 @@ function flowVerify(value, schema, id, revision, target = null) {
     if (value.order?.id !== id || value.scope !== 'linked_invoices' || !Array.isArray(value.totals) || !Array.isArray(value.invoices)) throw Error('settlement_shape');
     for (const row of [...value.totals, ...value.invoices]) if (typeof row.currency !== 'string' || FLOW_MONEY.some(([key]) => !flowDecimal(row[key]))) throw Error('settlement_money');
     for (const row of value.invoices) {
-      if (!pk(row.invoice_id) || typeof row.code !== 'string' || !Array.isArray(row.payment_history?.entries) || !Array.isArray(row.adjustments)) throw Error('settlement_sources');
+      if (!pk(row.invoice_id) || typeof row.code !== 'string' || !Array.isArray(row.payment_history?.entries) || !Array.isArray(row.adjustments) || !Array.isArray(row.retentions)) throw Error('settlement_sources');
+      for (const entry of row.retentions) if (!pk(entry.retention_id) || entry.invoice_id !== row.invoice_id || entry.currency !== row.currency || !flowDecimal(entry.amount) || !['held', 'released'].includes(entry.status) || typeof entry.code !== 'string' || typeof entry.reason !== 'string' || typeof entry.release_reason !== 'string') throw Error('retention_source');
       for (const entry of row.payment_history.entries) if (!pk(entry.event_id) || entry.amount !== null && !flowDecimal(entry.amount) || !Array.isArray(entry.issues)) throw Error('payment_source');
     }
   } else {
-    if (value.line?.id !== id || !pk(value.line.item_id) || typeof value.line.unit !== 'string' || value.scope !== 'visible_sources' || (value.target_location?.id ?? null) !== target || !value.quantities || typeof value.supported !== 'boolean') throw Error('supply_shape');
+    if (!['UAH', 'EUR', 'USD'].includes(value.line?.currency) || value.line?.id !== id || !pk(value.line.item_id) || typeof value.line.unit !== 'string' || value.scope !== 'visible_sources' || (value.target_location?.id ?? null) !== target || !value.quantities || typeof value.supported !== 'boolean') throw Error('supply_shape');
     for (const amount of Object.values(value.quantities)) if (amount !== null && !flowDecimal(amount)) throw Error('supply_quantity');
     if (bosRole() !== 'ceo' && (['reserved_usable', 'quantity_to_cover', 'available_all_locations', 'available_target', 'target_gap', 'uncovered_after_stock', 'unallocated_expected', 'indicative_after_expected'].some(key => value.quantities[key] !== null) || value.completeness !== 'restricted')) throw Error('restricted_supply');
     for (const key of ['stock', 'waiting', 'purchases']) if (!Array.isArray(value[key])) throw Error('supply_sources');
@@ -16263,7 +19254,7 @@ function flowVerify(value, schema, id, revision, target = null) {
   }
   return value;
 }
-function useERPProjection(path, verify) {
+function useERPProjection(path, verify, ownerCurrent = null) {
   const context = (path || '') + ':' + c03Scope(),
     [state, setState] = useState({
       context,
@@ -16292,7 +19283,7 @@ function useERPProjection(path, verify) {
     const ticket = sequence.current,
       origin = context,
       revision = window.BOS_RUNTIME?.access_revision;
-    if (!path) {
+    if (!path || ownerCurrent && !ownerCurrent()) {
       setState({
         context,
         status: 'idle',
@@ -16307,7 +19298,7 @@ function useERPProjection(path, verify) {
     const abort = new AbortController();
     controller.current = abort;
     const timer = setTimeout(() => abort.abort(), 30000);
-    const valid = () => ticket === sequence.current && current.current === origin && path + ':' + c03Scope() === origin;
+    const valid = () => ticket === sequence.current && current.current === origin && path + ':' + c03Scope() === origin && (!ownerCurrent || ownerCurrent());
     setState({
       context,
       status: 'loading',
@@ -16319,7 +19310,7 @@ function useERPProjection(path, verify) {
         signal: abort.signal
       });
       if (!valid()) return;
-      if ([401, 403, 404].includes(response.status)) {
+      if ([401, 403, 404].includes(response.status) || response.headers.get('X-BoS-Identity') === 'denied') {
         invalidate('denied');
         return;
       }
@@ -16335,11 +19326,14 @@ function useERPProjection(path, verify) {
         invalidate('denied');
         return;
       }
+      const verified = verify(payload, revision);
       setState({
         context,
         status: 'ready',
-        data: verify(payload, revision)
+        data: verified,
+        readTicket: ticket
       });
+      return verified;
     } catch (e) {
       if (valid()) setState({
         context,
@@ -16369,7 +19363,9 @@ function useERPProjection(path, verify) {
       status: 'idle',
       data: null
     },
-    refresh
+    refresh,
+    invalidate,
+    isCurrent: () => state.status === 'ready' && state.context === context && state.readTicket === sequence.current && current.current === context && path + ':' + c03Scope() === context && (!ownerCurrent || ownerCurrent())
   };
 }
 function FlowReadStatus({
@@ -16396,7 +19392,7 @@ function OrderSettlement({
     } = useERPProjection('orders/' + orderId + '/settlement/', (value, revision) => flowVerify(value, 'bos.order-settlement.v1', orderId, revision)),
     facts = state.data;
   return /*#__PURE__*/React.createElement("section", {
-    className: "bos-order-trace",
+    className: "bos-order-trace bos-readable-facts",
     "aria-label": "\u0420\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043A\u0438 \u0437\u0430 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F\u043C"
   }, /*#__PURE__*/React.createElement("div", {
     className: "erp-row"
@@ -16405,42 +19401,56 @@ function OrderSettlement({
     onClick: refresh
   }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438 \u0440\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043A\u0438")), /*#__PURE__*/React.createElement(FlowReadStatus, {
     state: state
-  }), facts && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
+  }), facts && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "bos-readable-facts__context"
+  }, /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
   }, facts.basis), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
   }, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0435\u043D\u043E: ", facts.generated_at), facts.payment_history_status !== 'complete' && /*#__PURE__*/React.createElement("p", {
     role: "status"
-  }, "\u0406\u0441\u0442\u043E\u0440\u0456\u044F \u043E\u043F\u043B\u0430\u0442 \u043D\u0435\u043F\u043E\u0432\u043D\u0430 \u0430\u0431\u043E \u043D\u0435 \u0443\u0437\u0433\u043E\u0434\u0436\u0443\u0454\u0442\u044C\u0441\u044F \u0437 \u043E\u0431\u043B\u0456\u043A\u043E\u0432\u043E\u044E \u0441\u0443\u043C\u043E\u044E. \u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0442\u0435 \u0434\u0436\u0435\u0440\u0435\u043B\u0430 \u0440\u0430\u0445\u0443\u043D\u043A\u0456\u0432."), facts.limits?.has_more?.invoices && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0447\u0430\u0441\u0442\u0438\u043D\u0443 \u0440\u0430\u0445\u0443\u043D\u043A\u0456\u0432. \u041F\u0456\u0434\u0441\u0443\u043C\u043A\u0438 \u0432\u043A\u043B\u044E\u0447\u0430\u044E\u0442\u044C \u0443\u0441\u0456 \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0456 \u0440\u0430\u0445\u0443\u043D\u043A\u0438."), facts.totals.map(row => /*#__PURE__*/React.createElement("div", {
+  }, "\u0406\u0441\u0442\u043E\u0440\u0456\u044F \u043E\u043F\u043B\u0430\u0442 \u043D\u0435\u043F\u043E\u0432\u043D\u0430 \u0430\u0431\u043E \u043D\u0435 \u0443\u0437\u0433\u043E\u0434\u0436\u0443\u0454\u0442\u044C\u0441\u044F \u0437 \u043E\u0431\u043B\u0456\u043A\u043E\u0432\u043E\u044E \u0441\u0443\u043C\u043E\u044E. \u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0442\u0435 \u0434\u0436\u0435\u0440\u0435\u043B\u0430 \u0440\u0430\u0445\u0443\u043D\u043A\u0456\u0432."), facts.limits?.has_more?.invoices && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0447\u0430\u0441\u0442\u0438\u043D\u0443 \u0440\u0430\u0445\u0443\u043D\u043A\u0456\u0432. \u041F\u0456\u0434\u0441\u0443\u043C\u043A\u0438 \u0432\u043A\u043B\u044E\u0447\u0430\u044E\u0442\u044C \u0443\u0441\u0456 \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0456 \u0440\u0430\u0445\u0443\u043D\u043A\u0438.")), facts.totals.map(row => /*#__PURE__*/React.createElement("div", {
     key: row.currency
   }, /*#__PURE__*/React.createElement("h4", null, row.currency), /*#__PURE__*/React.createElement("dl", {
-    className: "bos-trace-metrics"
+    className: "bos-trace-metrics bos-readable-facts__metrics"
   }, FLOW_MONEY.map(([key, label]) => /*#__PURE__*/React.createElement("div", {
     key: key
-  }, /*#__PURE__*/React.createElement("dt", null, label), /*#__PURE__*/React.createElement("dd", null, row[key], " ", /*#__PURE__*/React.createElement("small", null, row.currency))))))), facts.invoices.length === 0 && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0438\u0445 \u0440\u0430\u0445\u0443\u043D\u043A\u0456\u0432 \u0449\u0435 \u043D\u0435\u043C\u0430\u0454."), facts.invoices.map(row => /*#__PURE__*/React.createElement("article", {
+  }, /*#__PURE__*/React.createElement("dt", null, label), /*#__PURE__*/React.createElement("dd", null, row[key], " ", /*#__PURE__*/React.createElement("small", null, row.currency))))))), /*#__PURE__*/React.createElement("div", {
+    className: "bos-readable-facts__sources"
+  }, facts.invoices.length === 0 && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0438\u0445 \u0440\u0430\u0445\u0443\u043D\u043A\u0456\u0432 \u0449\u0435 \u043D\u0435\u043C\u0430\u0454."), facts.invoices.map(row => /*#__PURE__*/React.createElement("article", {
     key: row.invoice_id,
-    className: "bos-trace-line"
-  }, /*#__PURE__*/React.createElement("h4", null, row.code, " \xB7 \u0434\u043E ", erpDate(row.due_date)), /*#__PURE__*/React.createElement("p", null, "\u0414\u043E \u043E\u043F\u043B\u0430\u0442\u0438: ", row.open, " ", row.currency, ". \u041E\u0431\u043B\u0456\u043A\u043E\u0432\u0430 \u043E\u043F\u043B\u0430\u0442\u0430: ", row.paid, " ", row.currency, "."), !readOnly && bosCanAction('payment') && flowPositive(row.open) && /*#__PURE__*/React.createElement(Button, {
-    onClick: () => onAction('payment', {
-      invoice_id: row.invoice_id,
-      amount: row.open
-    })
+    className: "bos-trace-line bos-readable-facts__source-card"
+  }, /*#__PURE__*/React.createElement("h4", null, row.code, " \xB7 \u0434\u043E ", erpDate(row.due_date)), /*#__PURE__*/React.createElement("p", {
+    className: "bos-readable-facts__invoice-values"
+  }, /*#__PURE__*/React.createElement("span", null, "\u0411\u043E\u0440\u0433 \u0437\u0430 \u0440\u0430\u0445\u0443\u043D\u043A\u043E\u043C: ", row.open, " ", row.currency, ". "), /*#__PURE__*/React.createElement("span", null, "\u0423\u0442\u0440\u0438\u043C\u0430\u043D\u043E: ", row.retained, " ", row.currency, ". "), /*#__PURE__*/React.createElement("span", null, "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u043E \u0434\u043E \u043E\u043F\u043B\u0430\u0442\u0438: ", row.collectible, " ", row.currency, ". "), /*#__PURE__*/React.createElement("span", null, "\u041E\u0431\u043B\u0456\u043A\u043E\u0432\u0430 \u043E\u043F\u043B\u0430\u0442\u0430: ", row.paid, " ", row.currency, ".")), !readOnly && bosCanAction('payment') && /*#__PURE__*/React.createElement(Button, {
+    disabled: !flowPositive(row.collectible),
+    onClick: () => {
+      if (flowPositive(row.collectible)) onAction('payment', {
+        invoice_id: row.invoice_id,
+        amount: row.collectible
+      });
+    }
   }, "\u0417\u0430\u0440\u0435\u0454\u0441\u0442\u0440\u0443\u0432\u0430\u0442\u0438 \u043E\u043F\u043B\u0430\u0442\u0443 \xB7 ", row.code), /*#__PURE__*/React.createElement("details", null, /*#__PURE__*/React.createElement("summary", null, "\u0414\u0436\u0435\u0440\u0435\u043B\u0430 \u0440\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043A\u0443 \xB7 ", row.code), /*#__PURE__*/React.createElement("p", null, "\u041F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043E \u043A\u043E\u0440\u0435\u043A\u0442\u043D\u0438\u043C\u0438 \u0437\u0430\u043F\u0438\u0441\u0430\u043C\u0438: ", row.payment_history.recorded_total, " ", row.currency, ". \u0420\u0456\u0437\u043D\u0438\u0446\u044F \u0437 \u043E\u0431\u043B\u0456\u043A\u043E\u043C: ", row.payment_history.difference, " ", row.currency, "."), row.payment_history.status !== 'complete' && /*#__PURE__*/React.createElement("p", {
     role: "status"
   }, "\u041F\u043E\u0442\u0440\u0456\u0431\u043D\u0430 \u0437\u0432\u0456\u0440\u043A\u0430 \u0456\u0441\u0442\u043E\u0440\u0456\u0457 \u043E\u043F\u043B\u0430\u0442 \u0446\u044C\u043E\u0433\u043E \u0440\u0430\u0445\u0443\u043D\u043A\u0443."), row.payment_history.entries.map(entry => /*#__PURE__*/React.createElement("p", {
     key: entry.event_id
   }, "\u041F\u043E\u0434\u0456\u044F \u2116", entry.event_id, " \xB7 ", entry.reference || 'Немає коректного підтвердження', " \xB7 ", entry.amount ?? 'Суму не визначено', " ", entry.currency, " \xB7 ", erpDate(entry.created_at), entry.issues.length > 0 ? ' · Потребує перевірки' : '')), row.adjustments.map(entry => /*#__PURE__*/React.createElement("p", {
     key: entry.adjustment_id
-  }, entry.code, " \xB7 ", entry.kind === 'credit' ? 'Кредит' : 'Сторно', " \xB7 ", entry.amount, " ", entry.currency, entry.active ? ' · чинний' : '')), (row.has_more?.payments || row.has_more?.adjustments) && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0447\u0430\u0441\u0442\u0438\u043D\u0443 \u0434\u0436\u0435\u0440\u0435\u043B; \u0437\u0432\u0456\u0440\u043A\u0430 \u0432\u0440\u0430\u0445\u043E\u0432\u0443\u0454 \u0432\u0441\u0456 \u0437\u0430\u043F\u0438\u0441\u0438 \u0446\u044C\u043E\u0433\u043E \u0440\u0430\u0445\u0443\u043D\u043A\u0443."))))));
+  }, entry.code, " \xB7 ", entry.kind === 'credit' ? 'Кредит' : 'Сторно', " \xB7 ", entry.amount, " ", entry.currency, entry.active ? ' · чинний' : '')), row.retentions.map(entry => /*#__PURE__*/React.createElement("p", {
+    key: entry.retention_id
+  }, "\u0423\u0442\u0440\u0438\u043C\u0430\u043D\u043D\u044F \u2116", entry.retention_id, " \xB7 ", entry.code, " \xB7 ", entry.amount, " ", entry.currency, " \xB7 ", entry.status === 'held' ? 'чинне' : 'зняте', " \xB7 ", entry.reason, entry.release_reason ? ' · ' + entry.release_reason : '')), (row.has_more?.payments || row.has_more?.adjustments || row.has_more?.retentions) && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0447\u0430\u0441\u0442\u0438\u043D\u0443 \u0434\u0436\u0435\u0440\u0435\u043B; \u0437\u0432\u0456\u0440\u043A\u0430 \u0432\u0440\u0430\u0445\u043E\u0432\u0443\u0454 \u0432\u0441\u0456 \u0437\u0430\u043F\u0438\u0441\u0438 \u0446\u044C\u043E\u0433\u043E \u0440\u0430\u0445\u0443\u043D\u043A\u0443.")))))));
 }
 function OrderSupplyOptions({
   orderId,
   data,
   onAction,
-  readOnly = false
+  readOnly = false,
+  onTraceSelect,
+  onDocument,
+  initialSupply = null
 }) {
-  const [lineId, setLineId] = useState(''),
-    [targetId, setTargetId] = useState('');
+  const [lineId, setLineId] = useState(initialSupply?.line_id ? String(initialSupply.line_id) : ''),
+    [targetId, setTargetId] = useState(initialSupply?.target_id ? String(initialSupply.target_id) : '');
   const lines = data.lines.filter(row => row.order_id === orderId && data.items.some(item => item.id === row.item_id && item.method === 'buy'));
   const path = lineId ? 'lines/' + lineId + '/supply-options/' + (targetId ? '?target_location_id=' + targetId : '') : null;
   const {
@@ -16449,6 +19459,10 @@ function OrderSupplyOptions({
     } = useERPProjection(path, (value, revision) => flowVerify(value, 'bos.supply-options.v1', Number(lineId), revision, targetId ? Number(targetId) : null)),
     facts = state.data;
   const reasons = {
+    currency_mismatch: 'Інша валюта, конвертацію не виконано',
+    destination_not_selected_target: 'Інше або невизначене призначення',
+    allocated_to_production: 'Призначено виробничій роботі',
+    unallocated_expected_receipt: 'Не розподілено цьому замовленню',
     revision_mismatch: 'Інша версія',
     quality_pending: 'Очікує перевірки якості',
     quality_blocked: 'Якість заблоковано',
@@ -16457,12 +19471,139 @@ function OrderSupplyOptions({
     availability_restricted: 'Доступність не визначена у поточному доступі',
     available: 'Доступна партія'
   };
-  const action = (name, preset, label) => !readOnly && facts?.supported && bosCanAction(name) ? /*#__PURE__*/React.createElement(Button, {
+  const navContext = [orderId, lineId, targetId, c03Scope()].join(':'),
+    navCurrent = useRef(navContext),
+    navSequence = useRef(0),
+    navController = useRef(null),
+    navLock = useRef(false);
+  navCurrent.current = navContext;
+  const navCurrentNow = (ticket, origin) => navSequence.current === ticket && navCurrent.current === origin && [orderId, lineId, targetId, c03Scope()].join(':') === origin;
+  const [opening, setOpening] = useState(false),
+    [sourceError, setSourceError] = useState(''),
+    [sourceBlocked, setSourceBlocked] = useState(false),
+    blockedRefresh = useRef(0);
+  const visibleFacts = sourceBlocked ? null : facts;
+  function stopOpen() {
+    navSequence.current++;
+    navController.current?.abort();
+    navController.current = null;
+    navLock.current = false;
+  }
+  function blockSources(message) {
+    stopOpen();
+    setOpening(false);
+    setSourceBlocked(true);
+    setSourceError(message);
+  }
+  function refreshSupply() {
+    if (sourceBlocked) blockedRefresh.current++;
+    refresh();
+  }
+  useEffect(() => {
+    if (sourceBlocked && state.status === 'ready' && blockedRefresh.current) {
+      blockedRefresh.current = 0;
+      setSourceBlocked(false);
+      setSourceError('');
+    }
+  }, [sourceBlocked, state.status, state.data]);
+  useEffect(() => {
+    setOpening(false);
+    setSourceError('');
+    setSourceBlocked(false);
+    blockedRefresh.current = 0;
+    const denied = () => blockSources('Джерело недоступне для поточного доступу.'),
+      changed = () => blockSources('Дані змінилися. Оновіть забезпечення перед відкриттям джерела.');
+    window.addEventListener('bos:session-ended', denied);
+    window.addEventListener('bos:data-changed', changed);
+    return () => {
+      stopOpen();
+      window.removeEventListener('bos:session-ended', denied);
+      window.removeEventListener('bos:data-changed', changed);
+    };
+  }, [navContext]);
+  async function openSource(kind, id) {
+    if (navLock.current || !visibleFacts || !lineId || !onTraceSelect) return;
+    navLock.current = true;
+    setOpening(true);
+    setSourceError('');
+    const ticket = navSequence.current,
+      origin = navContext,
+      controller = new AbortController();
+    navController.current = controller;
+    const deny = message => {
+      const error = Error(message);
+      error.sourceStatus = message;
+      throw error;
+    };
+    try {
+      const revision = window.BOS_RUNTIME?.access_revision;
+      if (!revision) deny('Джерело недоступне для поточного доступу.');
+      const supplyResponse = await fetch('/api/erp/' + path, {
+        method: 'GET',
+        cache: 'no-store',
+        signal: controller.signal
+      });
+      if (!navCurrentNow(ticket, origin)) return;
+      if ([401, 403, 404].includes(supplyResponse.status)) deny('Джерело недоступне для поточного доступу.');
+      if (supplyResponse.status === 409) deny('Дані змінилися. Оновіть забезпечення перед відкриттям джерела.');
+      if (!supplyResponse.ok) deny('Не вдалося перевірити джерело. Повторіть відкриття.');
+      let projected;
+      try {
+        projected = flowVerify(await supplyResponse.json(), 'bos.supply-options.v1', Number(lineId), revision, targetId ? Number(targetId) : null);
+      } catch {
+        deny('Дані змінилися або джерело більше не відповідає поточному доступу. Оновіть забезпечення.');
+      }
+      if (!navCurrentNow(ticket, origin) || supplyResponse.headers.get('X-BoS-Access') && supplyResponse.headers.get('X-BoS-Access') !== revision) deny('Джерело недоступне для поточного доступу.');
+      const inProjection = kind === 'purchases' ? projected.purchases.some(row => row.purchase_id === id) : kind === 'lots' ? [...projected.stock, ...projected.waiting].some(row => row.lot_id === id) : kind === 'documents' ? [...projected.stock, ...projected.waiting].some(row => row.document_ids.includes(id)) : false;
+      if (!inProjection) deny('Джерело більше не належить до показаного забезпечення. Оновіть забезпечення.');
+      const snapshotResponse = await fetch('/api/erp/snapshot/', {
+        method: 'GET',
+        cache: 'no-store',
+        signal: controller.signal
+      });
+      if (!navCurrentNow(ticket, origin)) return;
+      if ([401, 403, 404].includes(snapshotResponse.status)) deny('Джерело недоступне для поточного доступу.');
+      if (snapshotResponse.status === 409) deny('Дані змінилися. Оновіть забезпечення перед відкриттям джерела.');
+      if (!snapshotResponse.ok) deny('Не вдалося перевірити джерело. Повторіть відкриття.');
+      const fresh = await snapshotResponse.json();
+      if (!navCurrentNow(ticket, origin) || snapshotResponse.headers.get('X-BoS-Access') && snapshotResponse.headers.get('X-BoS-Access') !== revision) deny('Джерело недоступне для поточного доступу.');
+      if (!b03FindRecord(fresh, 'orders', orderId) || !fresh.lines?.some(row => row.id === Number(lineId) && row.order_id === orderId) || targetId && !b03FindRecord(fresh, 'locations', Number(targetId))) deny('Початкове замовлення або вибрана позиція більше недоступні. Поверніться до замовлення.');
+      if (!b03FindRecord(fresh, kind, id)) deny('Джерело відсутнє серед доступних поточних записів. Оновіть забезпечення.');
+      const supplyReturn = {
+        order_id: orderId,
+        line_id: Number(lineId),
+        target_id: targetId ? Number(targetId) : null
+      };
+      if (kind === 'documents') {
+        onDocument?.(id);
+        return;
+      }
+      onTraceSelect({
+        kind,
+        id,
+        supplyReturn
+      }, fresh);
+    } catch (error) {
+      if (navCurrentNow(ticket, origin) && error.name !== 'AbortError') blockSources(error.sourceStatus || 'Не вдалося перевірити поточні джерела. Оновіть забезпечення.');
+    } finally {
+      if (navCurrentNow(ticket, origin)) {
+        navLock.current = false;
+        navController.current = null;
+        setOpening(false);
+      }
+    }
+  }
+  const sourceButton = (kind, id, label) => Number.isSafeInteger(id) ? /*#__PURE__*/React.createElement(Button, {
+    type: "button",
+    disabled: opening || !onTraceSelect,
+    onClick: () => openSource(kind, id)
+  }, label) : null;
+  const action = (name, preset, label) => !readOnly && visibleFacts?.supported && bosCanAction(name) ? /*#__PURE__*/React.createElement(Button, {
     onClick: () => onAction(name, preset)
   }, label) : null;
   if (!lines.length) return null;
   return /*#__PURE__*/React.createElement("section", {
-    className: "bos-order-trace",
+    className: "bos-order-trace bos-readable-facts",
     "aria-label": "\u0417\u0430\u0431\u0435\u0437\u043F\u0435\u0447\u0435\u043D\u043D\u044F \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F"
   }, /*#__PURE__*/React.createElement("h3", null, "\u0417\u0430\u0431\u0435\u0437\u043F\u0435\u0447\u0435\u043D\u043D\u044F \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("div", {
     className: "erp-form"
@@ -16483,41 +19624,64 @@ function OrderSupplyOptions({
     key: row.id,
     value: row.id
   }, row.code, " \xB7 ", row.name))))), /*#__PURE__*/React.createElement(Button, {
-    disabled: !lineId || state.status === 'loading',
-    onClick: refresh
+    disabled: !lineId || state.status === 'loading' || opening,
+    onClick: refreshSupply
   }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438 \u0437\u0430\u0431\u0435\u0437\u043F\u0435\u0447\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement(FlowReadStatus, {
     state: state
-  }), facts && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
+  }), opening && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u044F\u0454\u043C\u043E \u0434\u043E\u0441\u0442\u0443\u043F \u0456 \u0437\u0432\u2019\u044F\u0437\u043E\u043A \u0434\u0436\u0435\u0440\u0435\u043B\u0430\u2026"), sourceError && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, sourceError), visibleFacts && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "bos-readable-facts__context"
+  }, /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
-  }, facts.basis), !facts.supported && /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u043E \u0434\u043B\u044F \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043E\u0433\u043E \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u0442\u0430 \u0437\u0430\u043A\u0443\u043F\u043E\u0432\u0443\u0432\u0430\u043D\u043E\u0457 \u043D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0438."), facts.completeness === 'restricted' && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u043B\u0438\u0448\u0435 \u0434\u043E\u0437\u0432\u043E\u043B\u0435\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430. \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0456\u0441\u0442\u044C \u0456 \u0437\u0430\u0433\u0430\u043B\u044C\u043D\u0438\u0439 \u0434\u0435\u0444\u0456\u0446\u0438\u0442 \u043D\u0435 \u0432\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u0456."), /*#__PURE__*/React.createElement("dl", {
-    className: "bos-trace-metrics"
+  }, facts.basis), facts.fulfillment_location && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u0430 \u0442\u043E\u0447\u043A\u0430 \u0432\u0438\u043A\u043E\u043D\u0430\u043D\u043D\u044F: ", facts.fulfillment_location.code, ". \u041C\u0456\u0441\u0446\u0435 \u0434\u043B\u044F \u043D\u043E\u0432\u043E\u0457 \u0434\u0456\u0457 \u043E\u0431\u0435\u0440\u0456\u0442\u044C \u044F\u0432\u043D\u043E."), !facts.supported && /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u043E \u0434\u043B\u044F \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043E\u0433\u043E \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u0442\u0430 \u0437\u0430\u043A\u0443\u043F\u043E\u0432\u0443\u0432\u0430\u043D\u043E\u0457 \u043D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0438."), facts.completeness === 'restricted' && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u043B\u0438\u0448\u0435 \u0434\u043E\u0437\u0432\u043E\u043B\u0435\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430. \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0456\u0441\u0442\u044C \u0456 \u0437\u0430\u0433\u0430\u043B\u044C\u043D\u0438\u0439 \u0434\u0435\u0444\u0456\u0446\u0438\u0442 \u043D\u0435 \u0432\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u0456.")), /*#__PURE__*/React.createElement("dl", {
+    className: "bos-trace-metrics bos-readable-facts__metrics"
   }, FLOW_QUANTITIES.map(([key, label]) => /*#__PURE__*/React.createElement("div", {
     key: key
-  }, /*#__PURE__*/React.createElement("dt", null, label), /*#__PURE__*/React.createElement("dd", null, facts.quantities[key] === null ? 'Не визначено' : facts.quantities[key] + ' ' + facts.line.unit)))), /*#__PURE__*/React.createElement("h4", null, "\u041F\u0430\u0440\u0442\u0456\u0457 \u0442\u0430 \u043C\u0456\u0441\u0446\u044F \u0437\u0431\u0435\u0440\u0456\u0433\u0430\u043D\u043D\u044F"), [...facts.stock, ...facts.waiting].map(row => /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("dt", null, label), /*#__PURE__*/React.createElement("dd", null, facts.quantities[key] === null ? 'Не визначено' : facts.quantities[key] + ' ' + facts.line.unit)))), /*#__PURE__*/React.createElement("div", {
+    className: "bos-readable-facts__sources"
+  }, /*#__PURE__*/React.createElement("h4", null, "\u0420\u0435\u0437\u0435\u0440\u0432\u0438 \u0446\u0456\u0454\u0457 \u043F\u043E\u0437\u0438\u0446\u0456\u0457"), (facts.reservations || []).map(row => /*#__PURE__*/React.createElement("p", {
+    key: row.reservation_id
+  }, "\u0420\u0435\u0437\u0435\u0440\u0432 \u2116", row.reservation_id, " \xB7 ", row.code, " \xB7 ", row.location.code, " \xB7 ", row.quantity, " ", row.unit, ". ", row.reason === 'release_transfer_required' ? 'Потрібно окремо звільнити резерв, перемістити та зарезервувати у точці виконання.' : 'Резерв у місці виконання; придатність врахована в підсумку.')), /*#__PURE__*/React.createElement("h4", null, "\u041F\u0430\u0440\u0442\u0456\u0457 \u0442\u0430 \u043C\u0456\u0441\u0446\u044F \u0437\u0431\u0435\u0440\u0456\u0433\u0430\u043D\u043D\u044F"), [...facts.stock, ...facts.waiting].map(row => /*#__PURE__*/React.createElement("div", {
     key: row.lot_id,
-    className: "bos-trace-line"
-  }, /*#__PURE__*/React.createElement("p", null, row.code, " \xB7 ", row.location.code, " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", row.revision, " \xB7 ", reasons[row.reason] || 'Перевірте стан партії'), /*#__PURE__*/React.createElement("p", null, "\u0424\u0456\u0437\u0438\u0447\u043D\u043E: ", row.quantity, " ", row.unit, ". \u0412\u0456\u043B\u044C\u043D\u043E: ", row.available === null ? 'Не визначено' : row.available + ' ' + row.unit, "."), row.document_ids.length > 0 && /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0438: ", row.document_ids.map(id => '№' + id).join(', ')), row.eligible && /*#__PURE__*/React.createElement("div", {
+    className: "bos-trace-line bos-readable-facts__source-card"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "bos-readable-facts__lot-heading"
+  }, /*#__PURE__*/React.createElement("strong", {
+    className: "bos-readable-facts__lot-code"
+  }, row.code), /*#__PURE__*/React.createElement("span", {
+    className: "bos-readable-facts__lot-location"
+  }, " \xB7 ", row.location.code, " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", row.revision), /*#__PURE__*/React.createElement("span", {
+    className: "bos-readable-facts__lot-status"
+  }, " \xB7 ", reasons[row.reason] || 'Перевірте стан партії')), /*#__PURE__*/React.createElement("p", null, "\u0424\u0456\u0437\u0438\u0447\u043D\u043E: ", row.quantity, " ", row.unit, ". \u0412\u0456\u043B\u044C\u043D\u043E: ", row.available === null ? 'Не визначено' : row.available + ' ' + row.unit, "."), row.document_ids.length > 0 && /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0438: ", row.document_ids.map(id => sourceButton('documents', id, 'Відкрити документ №' + id))), /*#__PURE__*/React.createElement("div", {
     className: "erp-actions"
-  }, action('reserve', {
+  }, sourceButton('lots', row.lot_id, 'Відкрити партію · ' + row.code), row.eligible && action('reserve', {
     lot_id: row.lot_id,
     line_id: facts.line.id,
     quantity: ''
-  }, 'Резервувати · ' + row.code), targetId && row.location.id !== Number(targetId) && action('transfer', {
+  }, 'Резервувати · ' + row.code), row.eligible && targetId && row.location.id !== Number(targetId) && action('transfer', {
     lot_id: row.lot_id,
     location_id: Number(targetId),
     quantity: ''
-  }, 'Перемістити · ' + row.code)))), !targetId && /*#__PURE__*/React.createElement("p", null, "\u0414\u043B\u044F \u043F\u0435\u0440\u0435\u043C\u0456\u0449\u0435\u043D\u043D\u044F \u044F\u0432\u043D\u043E \u043E\u0431\u0435\u0440\u0456\u0442\u044C \u043C\u0456\u0441\u0446\u0435 \u043F\u0440\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u043D\u044F."), /*#__PURE__*/React.createElement("h4", null, "\u041E\u0447\u0456\u043A\u0443\u0432\u0430\u043D\u0456 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456"), facts.purchases.map(row => /*#__PURE__*/React.createElement("p", {
+  }, 'Миттєво перемістити · ' + row.code)))), !targetId && /*#__PURE__*/React.createElement("p", null, "\u0414\u043B\u044F \u043F\u0435\u0440\u0435\u043C\u0456\u0449\u0435\u043D\u043D\u044F \u044F\u0432\u043D\u043E \u043E\u0431\u0435\u0440\u0456\u0442\u044C \u043C\u0456\u0441\u0446\u0435 \u043F\u0440\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u043D\u044F."), /*#__PURE__*/React.createElement("h4", null, "\u041E\u0447\u0456\u043A\u0443\u0432\u0430\u043D\u0456 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456"), facts.purchases.map(row => /*#__PURE__*/React.createElement("div", {
     key: row.purchase_id
-  }, row.code, " \xB7 ", row.open_quantity, " ", row.unit, " \xB7 \u043E\u0447\u0456\u043A\u0443\u0454\u0442\u044C\u0441\u044F ", erpDate(row.due_date), " \xB7 ", row.eligible_as_unallocated_expectation ? 'Не розподілено цьому замовленню' : row.allocation === 'production' ? 'Призначено виробничій роботі' : 'Інша версія')), Object.values(facts.limits?.has_more || {}).some(Boolean) && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0447\u0430\u0441\u0442\u0438\u043D\u0443 \u0434\u0436\u0435\u0440\u0435\u043B; \u043F\u0456\u0434\u0441\u0443\u043C\u043A\u0438 \u043C\u0430\u044E\u0442\u044C \u043E\u043A\u0440\u0435\u043C\u0438\u0439 \u043E\u0431\u0441\u044F\u0433 \u0434\u043E\u0441\u0442\u0443\u043F\u0443."), action('purchase', {
+  }, /*#__PURE__*/React.createElement("p", null, row.code, " \xB7 ", row.open_quantity, " ", row.unit, " \xB7 \u043E\u0447\u0456\u043A\u0443\u0454\u0442\u044C\u0441\u044F ", erpDate(row.due_date), " \xB7 ", reasons[row.reason] || 'Потребує перевірки', " \xB7 \u043F\u0440\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u043D\u044F: ", row.destination?.code || 'Не визначено у поточному доступі'), sourceButton('purchases', row.purchase_id, 'Відкрити закупівлю · ' + row.code))), Object.values(facts.limits?.has_more || {}).some(Boolean) && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0447\u0430\u0441\u0442\u0438\u043D\u0443 \u0434\u0436\u0435\u0440\u0435\u043B; \u043F\u0456\u0434\u0441\u0443\u043C\u043A\u0438 \u043C\u0430\u044E\u0442\u044C \u043E\u043A\u0440\u0435\u043C\u0438\u0439 \u043E\u0431\u0441\u044F\u0433 \u0434\u043E\u0441\u0442\u0443\u043F\u0443.")), action('purchase', {
     item_id: facts.line.item_id,
     revision: facts.line.revision,
+    currency: facts.line.currency,
+    ...(targetId ? {
+      destination_id: Number(targetId)
+    } : {}),
     quantity: flowPositive(facts.quantities.uncovered_after_stock) ? facts.quantities.uncovered_after_stock : '',
     price: '',
     supplier_id: '',
     due_date: ''
   }, 'Підготувати закупівлю'), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
-  }, "\u0414\u043B\u044F \u0434\u0456\u0457 \u0432\u043A\u0430\u0436\u0456\u0442\u044C \u043A\u0456\u043B\u044C\u043A\u0456\u0441\u0442\u044C \u0456 \u043F\u043E\u0442\u0440\u0456\u0431\u043D\u0456 \u0440\u0435\u043A\u0432\u0456\u0437\u0438\u0442\u0438. \u0417\u0430\u043F\u0438\u0441 \u0432\u0438\u043A\u043E\u043D\u0443\u0454\u0442\u044C\u0441\u044F \u043F\u0456\u0441\u043B\u044F \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0438 \u0442\u0430 \u043E\u043A\u0440\u0435\u043C\u043E\u0433\u043E \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F.")));
+  }, "\u041E\u0447\u0456\u043A\u0443\u0432\u0430\u043D\u0456 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456 \u043F\u043E\u043A\u0430\u0437\u0430\u043D\u0456 \u044F\u043A \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430. \u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0442\u044F \u043D\u0435 \u043E\u0437\u043D\u0430\u0447\u0430\u0454, \u0449\u043E \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044E \u043F\u0440\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u043E \u0446\u044C\u043E\u043C\u0443 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044E. \u0414\u043B\u044F \u0434\u0456\u0457 \u0432\u043A\u0430\u0436\u0456\u0442\u044C \u043A\u0456\u043B\u044C\u043A\u0456\u0441\u0442\u044C \u0456 \u043F\u043E\u0442\u0440\u0456\u0431\u043D\u0456 \u0440\u0435\u043A\u0432\u0456\u0437\u0438\u0442\u0438; \u0437\u0430\u043F\u0438\u0441 \u0432\u0438\u043A\u043E\u043D\u0443\u0454\u0442\u044C\u0441\u044F \u043B\u0438\u0448\u0435 \u043F\u0456\u0441\u043B\u044F \u043D\u0430\u044F\u0432\u043D\u043E\u0457 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0438 \u0442\u0430 \u043E\u043A\u0440\u0435\u043C\u043E\u0433\u043E \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F.")));
 }
 const DOCUMENT_MATCH_ISSUES = {
   ocr_required: 'У файлі немає тексту. Потрібен OCR або ручне читання.',
@@ -16558,11 +19722,23 @@ const DOCUMENT_MATCH_ISSUES = {
 };
 const DOCUMENT_MATCH_FIELDS = [['supplier_edrpou', 'Код постачальника'], ['invoice_number', 'Номер рахунку'], ['invoice_date', 'Дата рахунку'], ['currency', 'Валюта'], ['tax_basis', 'Податкова основа'], ['total', 'Сума рахунку']];
 const DOCUMENT_MATCH_LINE = [['item_code', 'Код номенклатури'], ['revision', 'Версія'], ['unit', 'Одиниця'], ['quantity', 'Кількість'], ['unit_price', 'Ціна одиниці'], ['line_total', 'Сума рядка']];
-function documentMatchVerify(value, purchaseId, documentId, revision) {
+function documentMatchVerify(value, purchaseId, documentId, revision, selection = null) {
   const draft = value?.draft,
     pk = n => Number.isSafeInteger(n) && n > 0;
   if (bosRole() !== 'ceo' || value?.schema !== 'bos.document-match-read.v1' || value.purchase_id !== purchaseId || value.document_id !== documentId || value.access_revision !== revision || typeof value.generated_at !== 'string' || draft?.schema !== 'bos.document-match.v1' || draft.provider !== 'mock.synthetic-invoice.v1' || draft.operation_proposal !== null || !Array.isArray(draft.exceptions) || !['accept_draft', 'needs_information', 'reject_draft'].includes(draft.decision)) throw Error('document_match_context');
   if (draft.source !== null && (draft.source?.document_id !== documentId || typeof draft.source?.sha256 !== 'string' || !/^[a-f0-9]{64}$/.test(draft.source.sha256))) throw Error('document_match_source');
+  const registration = value.supplier_invoice_registration;
+  if (!registration || !['unregistered', 'matched', 'requires_revalidation'].includes(registration.status) || !Array.isArray(registration.items) || registration.items.length > 1 || registration.status === 'unregistered' !== (registration.items.length === 0)) throw Error('document_match_registration');
+  const ids = rows => Array.isArray(rows) && rows.every(pk) && new Set(rows).size === rows.length;
+  for (const row of registration.items) {
+    const date = typeof row?.invoice_date === 'string' ? Date.parse(row.invoice_date + 'T00:00:00Z') : NaN;
+    if (!row || !['id', 'supplier_id', 'purchase_id', 'document_id'].every(key => pk(row[key])) || row.purchase_id !== purchaseId || !['registered', 'requires_revalidation'].includes(row.status) || registration.status === 'matched' !== (row.status === 'registered') || typeof row.invoice_number !== 'string' || !row.invoice_number.trim() || row.invoice_number.length > 4000 || !/^\d{4}-\d{2}-\d{2}$/.test(row.invoice_date) || !Number.isFinite(date) || new Date(date).toISOString().slice(0, 10) !== row.invoice_date || typeof row.amount !== 'string' || !/^(?:0|[1-9]\d{0,12})\.\d{2}$/.test(row.amount) || !['UAH', 'EUR', 'USD'].includes(row.currency) || !ids(row.receipt_ids) || !ids(row.return_ids)) throw Error('document_match_registration_row');
+  }
+  if (draft.matches !== null) {
+    const m = draft.matches;
+    if (!m || !ids(m.receipt_ids) || !ids(m.supplier_candidate_ids) || !ids(m.item_candidate_ids) || !['supplier_id', 'item_id', 'purchase_id'].every(key => m[key] === null || pk(m[key])) || m.purchase_id !== null && m.purchase_id !== purchaseId) throw Error('document_match_matches');
+  }
+  if (selection && draft.decision === 'accept_draft' && (!draft.matches || draft.matches.purchase_id !== selection.purchase_id || draft.matches.supplier_id !== selection.supplier_id || draft.matches.item_id !== selection.item_id)) throw Error('document_match_selection');
   if (draft.fields !== null) {
     if (!draft.source || !Array.isArray(draft.fields.lines) || draft.fields.lines.length !== 1) throw Error('document_match_fields');
     for (const claim of [...DOCUMENT_MATCH_FIELDS.map(([key]) => draft.fields[key]), ...DOCUMENT_MATCH_LINE.map(([key]) => draft.fields.lines[0][key])]) {
@@ -16575,21 +19751,41 @@ function documentMatchVerify(value, purchaseId, documentId, revision) {
 function PurchaseDocumentMatch({
   purchase,
   data,
-  onDocument
+  onDocument,
+  onAction,
+  readOnly = false,
+  initialSelection = null,
+  onDenied,
+  readCurrent = null
 }) {
-  const [selection, setSelection] = useState({
+  const initial = s2Selection(initialSelection),
+    seed = initial?.purchase_id === purchase.id ? {
+      document_id: String(initial.document_id),
+      supplier_id: String(initial.supplier_id),
+      item_id: String(initial.item_id)
+    } : null;
+  const [selection, setSelection] = useState(seed || {
       document_id: '',
       supplier_id: '',
       item_id: ''
     }),
-    [submitted, setSubmitted] = useState(null);
+    [submitted, setSubmitted] = useState(seed);
   const path = submitted ? 'purchases/' + purchase.id + '/document-match/?' + Object.entries(submitted).filter(([, value]) => value !== '').map(([key, value]) => key + '=' + encodeURIComponent(value)).join('&') : null;
-  const {
+  const explicit = s2Selection({
+      purchase_id: purchase.id,
+      ...submitted
+    }),
+    projection = useERPProjection(path, (value, revision) => documentMatchVerify(value, purchase.id, Number(submitted.document_id), revision, explicit), readCurrent),
+    {
       state,
       refresh
-    } = useERPProjection(path, (value, revision) => documentMatchVerify(value, purchase.id, Number(submitted.document_id), revision)),
+    } = projection,
     draft = state.data?.draft;
+  useEffect(() => {
+    if (state.status === 'denied') onDenied?.();
+  }, [state.status]);
   function change(key, value) {
+    projection.invalidate('idle');
     setSubmitted(null);
     setSelection(old => ({
       ...old,
@@ -16611,15 +19807,29 @@ function PurchaseDocumentMatch({
     value: row.id
   }, row.label))));
   const claim = (label, value) => /*#__PURE__*/React.createElement("div", {
-    className: "bos-trace-line",
+    className: "bos-trace-line bos-readable-facts__source-card",
     key: label
   }, /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, label, ":"), " ", value.value), /*#__PURE__*/React.createElement("details", null, /*#__PURE__*/React.createElement("summary", null, "\u0414\u0436\u0435\u0440\u0435\u043B\u043E \u043F\u043E\u043B\u044F \xAB", label, "\xBB"), /*#__PURE__*/React.createElement("p", null, value.evidence.source, " \xB7 \u0444\u0440\u0430\u0433\u043C\u0435\u043D\u0442 ", value.evidence.start, "\u2013", value.evidence.end), /*#__PURE__*/React.createElement("blockquote", null, value.evidence.quote), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
   }, "SHA-256: ", value.evidence.source_sha256)));
+  const canRegister = !readOnly && bosCanAction('register_supplier_invoice') && state.status === 'ready' && projection.isCurrent() && s2CanRegister(state.data, explicit);
+  const register = () => {
+    if (readOnly || !bosCanAction('register_supplier_invoice') || !projection.isCurrent()) return;
+    try {
+      const intent = s2IntentFromRead(state.data, explicit);
+      const {
+        action,
+        ...preset
+      } = intent;
+      onAction?.('register_supplier_invoice', preset);
+    } catch {/* Fresh read is required; no stale intent is handed off. */}
+  };
   return /*#__PURE__*/React.createElement("section", {
-    className: "bos-order-trace",
+    className: "bos-order-trace bos-readable-facts",
     "aria-label": "\u0417\u0456\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u043D\u044F \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456"
-  }, /*#__PURE__*/React.createElement("h3", null, "\u0417\u0456\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u043D\u044F \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456"), /*#__PURE__*/React.createElement("p", null, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0435 \u0437\u0456\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u043D\u044F \u0441\u0438\u043D\u0442\u0435\u0442\u0438\u0447\u043D\u043E\u0433\u043E \u0440\u0430\u0445\u0443\u043D\u043A\u0443: \u043E\u0434\u0438\u043D \u0440\u044F\u0434\u043E\u043A, \u043E\u0434\u043D\u0430 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044F \u0442\u0430 \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0456 \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F. \u0417\u0432\u0438\u0447\u0430\u0439\u043D\u0456 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0438 \u043F\u043E\u0432\u0435\u0440\u0442\u0430\u044E\u0442\u044C \u044F\u0432\u043D\u0443 \u043F\u0440\u0438\u0447\u0438\u043D\u0443 \u043D\u0435\u043C\u043E\u0436\u043B\u0438\u0432\u043E\u0441\u0442\u0456 \u0437\u0456\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u043D\u044F. OCR \u0442\u0430 AI \u043D\u0435 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0456."), /*#__PURE__*/React.createElement("p", null, "\u0417\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044F: ", purchase.code, ". \u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442, \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043B\u044C\u043D\u0438\u043A \u0456 \u043D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0430 \u043E\u0431\u0438\u0440\u0430\u044E\u0442\u044C\u0441\u044F \u044F\u0432\u043D\u043E."), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("h3", null, "\u0417\u0456\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u043D\u044F \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456"), /*#__PURE__*/React.createElement("div", {
+    className: "bos-readable-facts__context"
+  }, /*#__PURE__*/React.createElement("p", null, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0435 \u0437\u0456\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u043D\u044F \u0441\u0438\u043D\u0442\u0435\u0442\u0438\u0447\u043D\u043E\u0433\u043E \u0440\u0430\u0445\u0443\u043D\u043A\u0443: \u043E\u0434\u0438\u043D \u0440\u044F\u0434\u043E\u043A, \u043E\u0434\u043D\u0430 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044F \u0442\u0430 \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0456 \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F. \u0417\u0432\u0438\u0447\u0430\u0439\u043D\u0456 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0438 \u043F\u043E\u0432\u0435\u0440\u0442\u0430\u044E\u0442\u044C \u044F\u0432\u043D\u0443 \u043F\u0440\u0438\u0447\u0438\u043D\u0443 \u043D\u0435\u043C\u043E\u0436\u043B\u0438\u0432\u043E\u0441\u0442\u0456 \u0437\u0456\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u043D\u044F. OCR \u0442\u0430 AI \u043D\u0435 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0456."), /*#__PURE__*/React.createElement("p", null, "\u0417\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044F: ", purchase.code, ". \u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442, \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043B\u044C\u043D\u0438\u043A \u0456 \u043D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0430 \u043E\u0431\u0438\u0440\u0430\u044E\u0442\u044C\u0441\u044F \u044F\u0432\u043D\u043E.")), /*#__PURE__*/React.createElement("div", {
     className: "erp-form"
   }, field('document_id', 'Документ для зіставлення', (data.documents || []).map(row => ({
     id: row.id,
@@ -16635,19 +19845,30 @@ function PurchaseDocumentMatch({
     onClick: compare
   }, "\u0417\u0456\u0441\u0442\u0430\u0432\u0438\u0442\u0438 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442"), /*#__PURE__*/React.createElement(FlowReadStatus, {
     state: state
-  }), draft && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h4", null, draft.decision === 'accept_draft' ? 'Синтетична чернетка узгоджена' : 'Зіставлення потребує перевірки'), /*#__PURE__*/React.createElement("p", {
+  }), draft && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "bos-readable-facts__result"
+  }, /*#__PURE__*/React.createElement("h4", null, draft.decision === 'accept_draft' ? 'Синтетична чернетка узгоджена' : 'Зіставлення потребує перевірки'), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
   }, "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442 \u043D\u0435 \u0437\u0430\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043E. \u041F\u0440\u043E\u0432\u043E\u0434\u043A\u0438, \u043E\u043F\u043B\u0430\u0442\u0438 \u0439 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u0446\u0456\u0454\u044E \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u043E\u044E \u043D\u0435 \u0441\u0442\u0432\u043E\u0440\u044E\u044E\u0442\u044C\u0441\u044F."), draft.exceptions.map(code => /*#__PURE__*/React.createElement("p", {
     key: code,
-    role: "status"
-  }, DOCUMENT_MATCH_ISSUES[code] || 'Потрібна ручна перевірка джерел: ' + code)), draft.source && /*#__PURE__*/React.createElement("p", null, draft.source.code, " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", draft.source.revision, " \xB7 ", /*#__PURE__*/React.createElement(Button, {
+    role: "status",
+    className: "bos-readable-facts__issue"
+  }, DOCUMENT_MATCH_ISSUES[code] || 'Потрібна ручна перевірка джерел: ' + code)), /*#__PURE__*/React.createElement(SupplierInvoiceRegistrationFacts, {
+    registration: state.data.supplier_invoice_registration,
+    onDocument: onDocument
+  }), canRegister && /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    onClick: register
+  }, state.data.supplier_invoice_registration.status === 'matched' ? 'Перевірити цей самий зареєстрований рахунок' : 'Зареєструвати рахунок постачальника'), draft.source && /*#__PURE__*/React.createElement("p", null, draft.source.code, " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", draft.source.revision, " \xB7 ", /*#__PURE__*/React.createElement(Button, {
     onClick: () => onDocument(draft.source.document_id)
-  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u043E\u0440\u0438\u0433\u0456\u043D\u0430\u043B \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430")), draft.fields && /*#__PURE__*/React.createElement(React.Fragment, null, DOCUMENT_MATCH_FIELDS.map(([key, label]) => claim(label, draft.fields[key])), /*#__PURE__*/React.createElement("h4", null, "\u041F\u043E\u0437\u0438\u0446\u0456\u044F \u0440\u0430\u0445\u0443\u043D\u043A\u0443"), DOCUMENT_MATCH_LINE.map(([key, label]) => claim(label, draft.fields.lines[0][key]))), draft.matches && /*#__PURE__*/React.createElement("p", null, "\u041E\u0431\u0440\u0430\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430: \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043B\u044C\u043D\u0438\u043A ", draft.matches.supplier_id === null ? 'не узгоджений' : '№' + draft.matches.supplier_id, "; \u043D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0430 ", draft.matches.item_id === null ? 'не узгоджена' : '№' + draft.matches.item_id, "; \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044F ", draft.matches.purchase_id === null ? 'не узгоджена' : '№' + draft.matches.purchase_id, ". \u041F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F: ", draft.matches.receipt_ids.map(id => '№' + id).join(', ') || 'немає узгоджених джерел', "."), draft.comparison && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h4", null, "\u0417\u0432\u0456\u0440\u043A\u0430 \u043A\u0456\u043B\u044C\u043A\u043E\u0441\u0442\u0456 \u0442\u0430 \u0441\u0443\u043C"), [['quantity', 'Кількість із закупівлею'], ['price', 'Ціна із закупівлею'], ['line_total', 'Сума рядка'], ['invoice_total', 'Підсумок рахунку']].map(([key, label]) => {
+  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u043E\u0440\u0438\u0433\u0456\u043D\u0430\u043B \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430"))), /*#__PURE__*/React.createElement("div", {
+    className: "bos-readable-facts__sources"
+  }, draft.fields && /*#__PURE__*/React.createElement(React.Fragment, null, DOCUMENT_MATCH_FIELDS.map(([key, label]) => claim(label, draft.fields[key])), /*#__PURE__*/React.createElement("h4", null, "\u041F\u043E\u0437\u0438\u0446\u0456\u044F \u0440\u0430\u0445\u0443\u043D\u043A\u0443"), DOCUMENT_MATCH_LINE.map(([key, label]) => claim(label, draft.fields.lines[0][key]))), draft.matches && /*#__PURE__*/React.createElement("p", null, "\u041E\u0431\u0440\u0430\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430: \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043B\u044C\u043D\u0438\u043A ", draft.matches.supplier_id === null ? 'не узгоджений' : '№' + draft.matches.supplier_id, "; \u043D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0430 ", draft.matches.item_id === null ? 'не узгоджена' : '№' + draft.matches.item_id, "; \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u044F ", draft.matches.purchase_id === null ? 'не узгоджена' : '№' + draft.matches.purchase_id, ". \u041F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F: ", draft.matches.receipt_ids.map(id => '№' + id).join(', ') || 'немає узгоджених джерел', "."), draft.comparison && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h4", null, "\u0417\u0432\u0456\u0440\u043A\u0430 \u043A\u0456\u043B\u044C\u043A\u043E\u0441\u0442\u0456 \u0442\u0430 \u0441\u0443\u043C"), [['quantity', 'Кількість із закупівлею'], ['price', 'Ціна із закупівлею'], ['line_total', 'Сума рядка'], ['invoice_total', 'Підсумок рахунку']].map(([key, label]) => {
     const row = draft.comparison[key];
     return /*#__PURE__*/React.createElement("p", {
       key: key
     }, label, ": ", row ? 'у документі ' + row.invoice + '; очікується ' + row.expected + '; різниця ' + row.difference : 'не порівнюється через валюту або одиницю');
-  }), /*#__PURE__*/React.createElement("p", null, "\u041F\u0440\u0438\u0439\u043D\u044F\u0442\u043E: ", draft.comparison.receipt_quantity.gross, "; \u043F\u043E\u0432\u0435\u0440\u043D\u0443\u0442\u043E: ", draft.comparison.receipt_quantity.returned, "; \u043F\u0456\u0441\u043B\u044F \u043F\u043E\u0432\u0435\u0440\u043D\u0435\u043D\u044C: ", draft.comparison.receipt_quantity.net, " ", draft.comparison.purchase_unit, "."))));
+  }), /*#__PURE__*/React.createElement("p", null, "\u041F\u0440\u0438\u0439\u043D\u044F\u0442\u043E: ", draft.comparison.receipt_quantity.gross, "; \u043F\u043E\u0432\u0435\u0440\u043D\u0443\u0442\u043E: ", draft.comparison.receipt_quantity.returned, "; \u043F\u0456\u0441\u043B\u044F \u043F\u043E\u0432\u0435\u0440\u043D\u0435\u043D\u044C: ", draft.comparison.receipt_quantity.net, " ", draft.comparison.purchase_unit, ".")))));
 }
 function BoSInspector({
   selection,
@@ -16683,9 +19904,12 @@ function BoSInspector({
   }, text || label(type, id));
   const acts = defs => readOnly ? null : /*#__PURE__*/React.createElement("div", {
     className: "erp-actions"
-  }, defs.filter(([a]) => bosCanAction(a)).map(([a, p, l]) => /*#__PURE__*/React.createElement(Button, {
+  }, defs.filter(([a]) => bosCanAction(a)).map(([a, p, l, disabled = false]) => /*#__PURE__*/React.createElement(Button, {
     key: a,
-    onClick: () => onAction(a, p)
+    disabled: disabled,
+    onClick: () => {
+      if (!disabled) onAction(a, p);
+    }
   }, l || B03_ACTIONS[a]?.[0] || ERP_ACTIONS[a]?.[0])));
   const baseTable = (type, rows) => {
     const cols = type === 'orders' ? [["Замовлення", 'code'], ["Клієнт", r => label('partners', r.customer_id)], ["Строк", r => erpDate(r.due_date)], ["Стан", r => ERP_LABELS[r.status]]] : type === 'invoices' ? [["Рахунок", 'code'], ["Замовлення", r => label('orders', r.order_id)], ["Термін", r => erpDate(r.due_date)], ...(bosCan('finance') ? [["Сума", r => r.amount + ' ' + r.currency], ["Оплачено", 'paid'], ["До оплати", 'open']] : [])] : type === 'purchases' ? [["Закупівля", 'code'], ["Матеріал", r => label('items', r.item_id)], ["Замовлено / прийнято", r => /*#__PURE__*/React.createElement(React.Fragment, null, r.quantity + ' / ' + r.received, r.approval_snapshot?.source === 'imported_open_balance' && /*#__PURE__*/React.createElement("p", {
@@ -16759,7 +19983,11 @@ function BoSInspector({
         cost = data.costs?.find(x => x.order_id === id);
       body = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, link('partners', r.customer_id), " \xB7 ", label('employees', r.owner_id), " \xB7 \u0434\u043E ", erpDate(r.due_date), " \xB7 ", ERP_LABELS[r.status]), r.notes && /*#__PURE__*/React.createElement("p", {
         className: "op-muted"
-      }, r.notes), !readOnly && /*#__PURE__*/React.createElement(NextAction, {
+      }, r.notes), r.fulfillment_location_id && /*#__PURE__*/React.createElement("p", null, "\u0422\u043E\u0447\u043A\u0430 \u0432\u0438\u043A\u043E\u043D\u0430\u043D\u043D\u044F: ", link('locations', r.fulfillment_location_id), " \xB7 \u043A\u0440\u0430\u0457\u043D\u0430 ", r.destination_country || 'Не задано'), acts([['order_network', {
+        order_id: id,
+        fulfillment_location_id: r.fulfillment_location_id ?? '',
+        destination_country: r.destination_country || ''
+      }, 'Реквізити виконання']]), !readOnly && /*#__PURE__*/React.createElement(NextAction, {
         orderId: id,
         version: data.events[0]?.id,
         onAction: onAction
@@ -16787,11 +20015,14 @@ function BoSInspector({
         onTraceSelect: onTraceSelect,
         onNavigate: onNavigate
       }), /*#__PURE__*/React.createElement(OrderSupplyOptions, {
-        key: 'supply:' + id + ':' + c03Scope(),
+        key: 'supply:' + id + ':' + c03Scope() + ':' + (selection.supplyReturn?.line_id || ''),
         orderId: id,
         data: data,
         onAction: onAction,
-        readOnly: readOnly
+        readOnly: readOnly,
+        onTraceSelect: onTraceSelect,
+        onDocument: setDoc,
+        initialSupply: selection.supplyReturn
       }), bosRole() === 'ceo' && /*#__PURE__*/React.createElement(OrderSettlement, {
         key: 'settlement:' + id + ':' + c03Scope(),
         orderId: id,
@@ -16819,7 +20050,10 @@ function BoSInspector({
       }, /*#__PURE__*/React.createElement("span", null, l), /*#__PURE__*/React.createElement("strong", null, v)))), bosCan('finance') && /*#__PURE__*/React.createElement("p", null, "\u0421\u043E\u0431\u0456\u0432\u0430\u0440\u0442\u0456\u0441\u0442\u044C \u043E\u0434\u0438\u043D\u0438\u0446\u0456 ", r.unit_cost, " ", r.currency, "."), /*#__PURE__*/React.createElement("p", null, r.missing_documents.length ? 'Бракує перевірених документів: ' + r.missing_documents.join(', ') : 'Комплектність документів відповідає заданим вимогам.'), acts([['transfer', {
         lot_id: id,
         quantity: r.available
-      }, 'Перемістити'], ['reserve', {
+      }, 'Миттєве переміщення'], ['transfer_dispatch', {
+        lot_id: id,
+        quantity: r.available
+      }, 'Відправити між точками'], ['reserve', {
         lot_id: id,
         quantity: r.available
       }, 'Резерв'], ['quality', {
@@ -16895,7 +20129,11 @@ function BoSInspector({
         rows: [["Скасовано", r.cancelled_quantity], ["Повернуто фізично постачальнику", r.returned_quantity], ["Поточний стан", ERP_LABELS[r.effective_status] || r.effective_status]]
       }), /*#__PURE__*/React.createElement("p", {
         className: "op-muted"
-      }, "\u041F\u043E\u0432\u0435\u0440\u043D\u0435\u043D\u043D\u044F \u043D\u0435 \u0437\u043C\u0435\u043D\u0448\u0443\u0454 \u0444\u0430\u043A\u0442 \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F \u0456 \u043D\u0435 \u0441\u0442\u0432\u043E\u0440\u044E\u0454 \u0437\u0430\u043C\u0456\u043D\u043D\u0443 \u043F\u043E\u0441\u0442\u0430\u0432\u043A\u0443."), bosRole() !== 'observer' && /*#__PURE__*/React.createElement("p", null, "\u0426\u0456\u043D\u0430 ", r.price, " ", r.currency, "; \u0434\u043E\u0434\u0430\u0442\u043A\u043E\u0432\u0456 \u0432\u0438\u0442\u0440\u0430\u0442\u0438 ", r.extras, "."), /*#__PURE__*/React.createElement("p", null, "\u041E\u0447\u0456\u043A\u0443\u0454\u043C\u043E ", erpDate(r.due_date), "; \u043F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0438\u0439 \u0441\u0442\u0440\u043E\u043A ", erpDate(r.original_due), "."), r.production_id && /*#__PURE__*/React.createElement("p", null, "\u0414\u043B\u044F ", link('jobs', r.production_id)), r.request_id && /*#__PURE__*/React.createElement("p", null, "\u0417\u0430\u044F\u0432\u043A\u0430 ", label('requests', r.request_id)), /*#__PURE__*/React.createElement(PurchaseSource, {
+      }, "\u041F\u043E\u0432\u0435\u0440\u043D\u0435\u043D\u043D\u044F \u043D\u0435 \u0437\u043C\u0435\u043D\u0448\u0443\u0454 \u0444\u0430\u043A\u0442 \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F \u0456 \u043D\u0435 \u0441\u0442\u0432\u043E\u0440\u044E\u0454 \u0437\u0430\u043C\u0456\u043D\u043D\u0443 \u043F\u043E\u0441\u0442\u0430\u0432\u043A\u0443."), bosRole() !== 'observer' && /*#__PURE__*/React.createElement("p", null, "\u0426\u0456\u043D\u0430 ", r.price, " ", r.currency, "; \u0434\u043E\u0434\u0430\u0442\u043A\u043E\u0432\u0456 \u0432\u0438\u0442\u0440\u0430\u0442\u0438 ", r.extras, "."), /*#__PURE__*/React.createElement("p", null, "\u041E\u0447\u0456\u043A\u0443\u0454\u043C\u043E ", erpDate(r.due_date), "; \u043F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0438\u0439 \u0441\u0442\u0440\u043E\u043A ", erpDate(r.original_due), "."), r.production_id && /*#__PURE__*/React.createElement("p", null, "\u0414\u043B\u044F ", link('jobs', r.production_id)), r.request_id && /*#__PURE__*/React.createElement("p", null, "\u0417\u0430\u044F\u0432\u043A\u0430 ", label('requests', r.request_id)), /*#__PURE__*/React.createElement("p", null, "\u0422\u043E\u0447\u043A\u0430 \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F: ", r.destination_id ? link('locations', r.destination_id) : 'Не задано', " \xB7 \u043A\u0440\u0430\u0457\u043D\u0430 \u043F\u043E\u0445\u043E\u0434\u0436\u0435\u043D\u043D\u044F ", r.origin_country || 'Не задано'), acts([['purchase_network', {
+        purchase_id: id,
+        destination_id: r.destination_id ?? '',
+        origin_country: r.origin_country || ''
+      }, 'Реквізити постачання']]), /*#__PURE__*/React.createElement(PurchaseSource, {
         snapshot: r.approval_snapshot,
         purchase: r,
         onDocument: setDoc
@@ -16903,10 +20141,13 @@ function BoSInspector({
         key: id + ':' + c03Scope(),
         purchase: r,
         data: data,
-        onDocument: setDoc
+        onDocument: setDoc,
+        onAction: onAction,
+        readOnly: readOnly
       }), acts([['receive', {
         purchase_id: id,
-        quantity: b03OpenPurchase(r)
+        quantity: b03OpenPurchase(r),
+        location_id: r.destination_id || ''
       }, 'Прийняти поставку'], ['postpone', {
         purchase_id: id,
         due_date: r.due_date
@@ -16926,10 +20167,15 @@ function BoSInspector({
     } else if (kind === 'invoices') {
       body = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, "\u0414\u043E \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F ", link('orders', r.order_id), " \xB7 \u0442\u0435\u0440\u043C\u0456\u043D ", erpDate(r.due_date)), /*#__PURE__*/React.createElement(B03Settlement, {
         invoice: r
-      }), /*#__PURE__*/React.createElement("p", null, "\u0420\u0430\u0445\u0443\u043D\u043E\u043A \u0441\u0444\u043E\u0440\u043C\u043E\u0432\u0430\u043D\u043E \u0437\u0430 \u0444\u0430\u043A\u0442\u0438\u0447\u043D\u0438\u043C\u0438 \u0432\u0456\u0434\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F\u043C\u0438. \u0420\u0435\u0454\u0441\u0442\u0440\u0430\u0446\u0456\u044F \u043E\u043F\u043B\u0430\u0442\u0438 \u0437\u043C\u0456\u043D\u0438\u0442\u044C \u0432\u0456\u0434\u043A\u0440\u0438\u0442\u0443 \u0441\u0443\u043C\u0443 \u0431\u0435\u0437 \u0431\u0430\u043D\u043A\u0456\u0432\u0441\u044C\u043A\u043E\u0433\u043E \u043F\u0435\u0440\u0435\u043A\u0430\u0437\u0443."), Number(r.open) > 0 && acts([['payment', {
+      }), /*#__PURE__*/React.createElement("p", null, "\u0420\u0430\u0445\u0443\u043D\u043E\u043A \u0441\u0444\u043E\u0440\u043C\u043E\u0432\u0430\u043D\u043E \u0437\u0430 \u0444\u0430\u043A\u0442\u0438\u0447\u043D\u0438\u043C\u0438 \u0432\u0456\u0434\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F\u043C\u0438. \u0420\u0435\u0454\u0441\u0442\u0440\u0430\u0446\u0456\u044F \u043E\u043F\u043B\u0430\u0442\u0438 \u0437\u043C\u0456\u043D\u0438\u0442\u044C \u0432\u0456\u0434\u043A\u0440\u0438\u0442\u0443 \u0441\u0443\u043C\u0443 \u0431\u0435\u0437 \u0431\u0430\u043D\u043A\u0456\u0432\u0441\u044C\u043A\u043E\u0433\u043E \u043F\u0435\u0440\u0435\u043A\u0430\u0437\u0443."), /*#__PURE__*/React.createElement(B03Facts, {
+        currency: r.currency,
+        rows: [["Зокрема утримано", r.retained], ["Доступно до оплати", r.collectible]]
+      }), acts([['payment', {
         invoice_id: r.invoice_id,
-        amount: r.open
-      }, 'Зареєструвати оплату']]), acts([['credit_invoice', {
+        amount: r.collectible
+      }, 'Зареєструвати оплату', !flowPositive(r.collectible)], ['hold_payment', {
+        invoice_id: r.invoice_id
+      }, 'Утримати суму', !flowPositive(r.collectible)]]), acts([['credit_invoice', {
         invoice_id: r.invoice_id
       }, 'Кредитове коригування']]), /*#__PURE__*/React.createElement("h3", null, "\u041A\u043E\u0440\u0438\u0433\u0443\u0432\u0430\u043D\u043D\u044F \u0446\u044C\u043E\u0433\u043E \u0440\u0430\u0445\u0443\u043D\u043A\u0443"), /*#__PURE__*/React.createElement(ERPTable, {
         rows: (data.invoice_adjustments || []).filter(x => x.invoice_id === r.invoice_id),
@@ -16955,7 +20201,13 @@ function BoSInspector({
       changes: r.result.impact || []
     }) : /*#__PURE__*/React.createElement("p", {
       className: "op-muted"
-    }, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0440\u0435\u043A\u0432\u0456\u0437\u0438\u0442\u0438 \u043F\u043E\u0434\u0456\u0457. \u0414\u0435\u0442\u0430\u043B\u044C\u043D\u0438\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u043F\u043E\u0442\u0440\u0435\u0431\u0443\u0454 \u0444\u0456\u043D\u0430\u043D\u0441\u043E\u0432\u0438\u0445 \u043F\u0440\u0430\u0432."));else if (kind === 'locations') body = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, ERP_LABELS[r.kind], " \xB7 ", r.supplier_id && link('partners', r.supplier_id)), baseTable('lots', data.lots.filter(x => x.location_id === id && Number(x.quantity) > 0)));else if (kind === 'partners') body = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, r.type === 'supplier' ? 'Постачальник' : 'Клієнт'), baseTable('orders', data.orders.filter(x => x.customer_id === id)), baseTable('purchases', data.purchases.filter(x => x.supplier_id === id)));
+    }, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0440\u0435\u043A\u0432\u0456\u0437\u0438\u0442\u0438 \u043F\u043E\u0434\u0456\u0457. \u0414\u0435\u0442\u0430\u043B\u044C\u043D\u0438\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u043F\u043E\u0442\u0440\u0435\u0431\u0443\u0454 \u0444\u0456\u043D\u0430\u043D\u0441\u043E\u0432\u0438\u0445 \u043F\u0440\u0430\u0432."));else if (kind === 'locations') body = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, ERP_LABELS[r.kind], " \xB7 ", r.supplier_id && link('partners', r.supplier_id)), /*#__PURE__*/React.createElement("p", null, "\u0424\u0456\u043B\u0456\u044F: ", (data.branches || []).find(b => b.id === r.branch_id)?.name || 'Не прив’язано', " \xB7 ", r.address || 'Адресу не задано'), /*#__PURE__*/React.createElement("p", null, "\u041A\u043E\u043E\u0440\u0434\u0438\u043D\u0430\u0442\u0438: ", r.lat != null && r.lng != null ? r.lat + ', ' + r.lng : 'Не задано'), acts([['location_update', {
+      location_id: id,
+      branch_id: r.branch_id ?? '',
+      lat: r.lat ?? '',
+      lng: r.lng ?? '',
+      address: r.address || ''
+    }, 'Редагувати реквізити']]), baseTable('lots', data.lots.filter(x => x.location_id === id && Number(x.quantity) > 0)));else if (kind === 'partners') body = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, r.type === 'supplier' ? 'Постачальник' : 'Клієнт'), baseTable('orders', data.orders.filter(x => x.customer_id === id)), baseTable('purchases', data.purchases.filter(x => x.supplier_id === id)));
   }
   return /*#__PURE__*/React.createElement("dialog", {
     ref: ref,
@@ -16963,7 +20215,13 @@ function BoSInspector({
     onClose: onClose
   }, /*#__PURE__*/React.createElement("div", {
     className: "erp-row"
-  }, /*#__PURE__*/React.createElement("h2", null, title), /*#__PURE__*/React.createElement(Button, {
+  }, /*#__PURE__*/React.createElement("h2", null, title), selection.supplyReturn && /*#__PURE__*/React.createElement(Button, {
+    onClick: () => onSelect({
+      kind: 'orders',
+      id: selection.supplyReturn.order_id,
+      supplyReturn: selection.supplyReturn
+    })
+  }, "\u041F\u043E\u0432\u0435\u0440\u043D\u0443\u0442\u0438\u0441\u044F \u0434\u043E \u0437\u0430\u0431\u0435\u0437\u043F\u0435\u0447\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement(Button, {
     onClick: () => ref.current.close()
   }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438")), body, doc && /*#__PURE__*/React.createElement(DocViewer, {
     id: doc,
@@ -17390,87 +20648,403 @@ function WorkpointsPanel({
       setAction(null);
       if (action.scope === bosHttpScope() && action.opener?.isConnected && !action.opener.disabled) action.opener.focus();
     },
-    onDone: async r => {
+    onDone: async (r, context) => {
       const scope = bosHttpScope();
       setAction(null);
       await refresh();
       if (alive.current && scope === bosHttpScope()) {
         setReceipt({
           scope,
-          value: r
+          value: s2ReceiptContext(r, context)
         });
         refetchTasks?.();
       }
     }
-  }), receipt && receipt.scope === bosHttpScope() && /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043E\u0457 \u0434\u0456\u0457"), /*#__PURE__*/React.createElement("p", {
+  }), receipt && receipt.scope === bosHttpScope() && /*#__PURE__*/React.createElement(Card, null, receipt.value.action === 'erp_register_supplier_invoice' ? /*#__PURE__*/React.createElement(SupplierInvoiceReceipt, {
+    receipt: receipt.value,
+    data: data
+  }) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h3", null, "\u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043E\u0457 \u0434\u0456\u0457"), /*#__PURE__*/React.createElement("p", {
     role: "status"
   }, "\u041E\u043F\u0435\u0440\u0430\u0446\u0456\u044E \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043E. \u0414\u0430\u043D\u0456 \u0442\u043E\u0447\u043A\u0438 \u0432\u0438\u0449\u0435 \u043F\u043E\u043A\u0430\u0437\u0443\u044E\u0442\u044C\u0441\u044F \u043B\u0438\u0448\u0435 \u043F\u0456\u0441\u043B\u044F \u0443\u0441\u043F\u0456\u0448\u043D\u043E\u0433\u043E \u043F\u043E\u0432\u0442\u043E\u0440\u043D\u043E\u0433\u043E \u0447\u0438\u0442\u0430\u043D\u043D\u044F."), /*#__PURE__*/React.createElement(ImpactTable, {
     changes: receipt.value.impact
-  })));
+  }))));
+}
+// HOME owns only the provenance of its snapshot read; command receipts have their own lifecycle.
+function homeReadScope() {
+  const r = window.BOS_RUNTIME;
+  if (!r || r.user_id == null || !r.mode || !r.role || !r.access_revision) return '';
+  return JSON.stringify([r.user_id, r.mode, r.role, r.access_revision, r.employee_id ?? null, Object.entries(r.capabilities || {}).sort(([a], [b]) => a.localeCompare(b))]);
+}
+function homeKnownNumber(value) {
+  return typeof value === 'number' && Number.isFinite(value) || typeof value === 'string' && /^-?\d+(?:\.\d+)?$/.test(value) && Number.isFinite(Number(value));
+}
+function homeBusinessDate(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+  const d = new Date(value + 'T00:00:00Z');
+  return Number.isFinite(d.getTime()) && d.toISOString().slice(0, 10) === value ? value : null;
+}
+function homeSnapshotShape(value, financial) {
+  const object = x => !!x && typeof x === 'object' && !Array.isArray(x),
+    pk = x => Number.isSafeInteger(x) && x > 0;
+  const rows = (list, id = 'id') => Array.isArray(list) && list.every(x => object(x) && pk(x[id])) && new Set(list.map(x => x[id])).size === list.length;
+  const scalar = x => x == null || typeof x === 'string' || typeof x === 'boolean' || typeof x === 'number' && Number.isFinite(x),
+    fields = (row, keys) => keys.every(key => scalar(row[key]));
+  const array = (list, check) => Array.isArray(list) && list.every(x => object(x) && check(x));
+  const bom = list => array(list, x => pk(x.item_id) && homeKnownNumber(x.quantity));
+  const routing = list => array(list, x => typeof x.name === 'string' && fields(x, ['instruction', 'days']));
+  const remaining = (row, done) => homeKnownNumber(row.quantity) && Number(row.quantity) > 0 && homeKnownNumber(row[done]) && Number(row[done]) >= 0 && Number(row[done]) <= Number(row.quantity) && (row.open_quantity != null ? homeKnownNumber(row.open_quantity) : [row.quantity, row[done]].every(x => /^\d+(?:\.\d{1,3})?$/.test(String(x))));
+  if (!object(value) || !object(value.home)) return false;
+  const required = ['items', 'locations', 'lots', 'orders', 'lines', 'jobs', 'reservations', 'purchases', 'events', 'employees', 'partners', 'documents', 'movements', 'operator_entries'];
+  const optional = ['requests', 'branches', 'changes', 'source_movements', 'correction_events', 'cancellations', 'cancellation_releases', 'goods_returns', 'supplier_claims', 'invoice_adjustments', 'invoice_adjustment_lines', 'transfers', 'retentions'];
+  for (const key of required) if (!rows(value[key])) return false;
+  for (const key of optional) if (value[key] !== undefined && !rows(value[key])) return false;
+  if (!rows(value.invoices, 'invoice_id') || !rows(value.home.tasks)) return false;
+  // These values are rendered directly by the retained overview/record tables.
+  // Absent display fields are allowed; objects/arrays cannot masquerade as text.
+  const displayFields = ['code', 'name', 'full_name', 'title', 'unit', 'kind', 'method', 'revision', 'material', 'status', 'quality', 'quantity', 'reserved', 'available', 'shipped', 'produced', 'received', 'open_quantity', 'cancelled_quantity', 'returned_quantity', 'price', 'extras', 'unit_cost', 'planned_cost', 'actual_cost', 'currency', 'notes', 'note', 'reason', 'reference', 'lot_code', 'address', 'lat', 'lng', 'destination_country', 'origin_country', 'effective_status', 'operation', 'minutes', 'defects', 'target_revision', 'disposition', 'before_quantity', 'after_quantity', 'amount', 'paid', 'open', 'effective_credit', 'net_amount', 'receivable', 'customer_credit', 'retained', 'collectible', 'total', 'source_cost', 'allocated_cost', 'agreed_amount', 'due_date', 'original_due', 'created_at', 'business_date'];
+  for (const key of [...required, ...optional, 'invoices']) if (value[key] && !value[key].every(x => fields(x, displayFields))) return false;
+  for (const [key, field] of [['orders', 'code'], ['lots', 'code'], ['invoices', 'code'], ['partners', 'name'], ['employees', 'full_name']]) if (!value[key].every(x => typeof x[field] === 'string')) return false;
+  if (!value.jobs.every(x => typeof x.status === 'string') || !value.events.every(x => typeof x.action === 'string')) return false;
+  const events = [...value.events, ...(value.correction_events || [])];
+  if (!events.every(x => typeof x.action === 'string' && (x.result == null || object(x.result) && fields(x.result, ['code', 'reference', 'note']) && (x.result.impact == null || array(x.result.impact, r => fields(r, ['code', 'label', 'field', 'currency'])))))) return false;
+  if (financial && !events.every(x => x.action !== 'erp_payment' || object(x.payload) && pk(x.payload.invoice_id) && fields(x.payload, ['reference', 'amount']))) return false;
+  if (!value.lots.every(x => homeKnownNumber(x.quantity) && typeof x.quality === 'string' && Array.isArray(x.missing_documents) && x.missing_documents.every(d => typeof d === 'string') && object(x.documents) && Object.values(x.documents).every(pk))) return false;
+  if (!value.items.every(x => bom(x.bom) && routing(x.routing) && object(x.external_codes) && Object.values(x.external_codes).every(scalar))) return false;
+  if (!value.jobs.every(x => bom(x.bom) && routing(x.routing))) return false;
+  if (!value.orders.every(x => typeof x.code === 'string') || !value.lines.every(x => pk(x.order_id) && pk(x.item_id) && remaining(x, 'shipped'))) return false;
+  if (!value.purchases.every(x => remaining(x, 'received'))) return false;
+  if (!value.home.tasks.every(x => typeof x.title === 'string' && typeof x.status === 'string' && typeof x.archived === 'boolean' && typeof x.is_overdue === 'boolean' && scalar(x.assignee_name ?? x.assignee ?? '') && fields(x, ['deadline']))) return false;
+  if (!value.purchases.every(x => {
+    const s = x.approval_snapshot;
+    return s == null || object(s) && fields(s, ['source', 'request_code', 'quote_code', 'source_reference', 'source_order_code', 'source_line_id', 'unit', 'revision', 'currency', 'agreed_quantity', 'price', 'extras', 'original_quantity', 'received_before_cutover', 'remaining_quantity', 'remaining_extras', 'original_extras', 'direct_reason', 'supplier_confirmation']) && (s.original_terms == null || object(s.original_terms)) && (s.source_documents == null || object(s.source_documents) && Object.values(s.source_documents).every(d => object(d) && pk(d.document_id) && fields(d, ['code', 'revision'])));
+  })) return false;
+  // Operational roles legitimately have no financial projection. Missing metric values remain unknown.
+  if (financial && (!Array.isArray(value.home.financial) || !value.home.financial.every(x => object(x) && typeof x.currency === 'string' && /^[A-Z]{3}$/.test(x.currency)) || !Array.isArray(value.costs) || !value.costs.every(object))) return false;
+  if (!value.invoices.every(x => !financial && x.lines === undefined || array(x.lines, line => pk(line.line_id) && homeKnownNumber(line.quantity) && scalar(line.price)))) return false;
+  if (value.costs !== undefined && !array(value.costs, x => pk(x.order_id) && fields(x, ['code', 'currency', 'order_value', 'shipped_value', 'shipped_cost', 'gross_margin']))) return false;
+  return true;
+}
+function homeSelectionVisible(selection, data) {
+  if (!selection || !data) return false;
+  if (selection.kind === 'metric') return bosCan('finance') && BOS_METRICS.some(x => x[0] === selection.key) && data.home.financial.some(x => x.currency === selection.currency && homeKnownNumber(x[selection.key]));
+  if (selection.kind === 'list') return ['jobs', 'lots', 'tasks', 'orders'].includes(selection.key);
+  return Number.isSafeInteger(selection.id) && Array.isArray(data[selection.kind]) && !!b03FindRecord(data, selection.kind, selection.id);
 }
 function BoSHome({
   onNavigate,
   refetchTasks,
   focus = false
 }) {
-  const [data, setData] = useState(null),
-    [error, setError] = useState(''),
+  const scope = homeReadScope(),
+    [view, setView] = useState({
+      scope: '',
+      status: 'initial',
+      data: null,
+      at: null,
+      error: ''
+    }),
     [currency, setCurrency] = useState('UAH'),
     [selection, setSelection] = useState(null),
     [action, setAction] = useState(null),
     [receipt, setReceipt] = useState(null);
-  const loadSeq = useRef(0);
-  async function refresh() {
-    const n = ++loadSeq.current;
+  const life = useRef({
+      alive: false,
+      scope: '',
+      epoch: 0,
+      accessEpoch: 0,
+      pending: null,
+      view: null,
+      actionId: 0,
+      nextSelection: null,
+      selected: null
+    }),
+    presentation = useRef('');
+  presentation.current = JSON.stringify([currency, focus]);
+  const renderedPresentation = presentation.current;
+  function publish(next) {
+    life.current.view = next;
+    setView(next);
+  }
+  function select(next) {
+    life.current.selected = next;
+    setSelection(next);
+  }
+  function cancelRead() {
+    const l = life.current;
+    l.epoch++;
+    if (l.pending) {
+      clearTimeout(l.pending.timer);
+      l.pending.controller.abort();
+      l.pending = null;
+    }
+  }
+  function clearContext(status, message) {
+    const l = life.current;
+    cancelRead();
+    l.accessEpoch++;
+    l.actionId++;
+    l.nextSelection = null;
+    select(null);
+    setAction(null);
+    setReceipt(null);
+    publish({
+      scope: l.scope,
+      status,
+      data: null,
+      at: null,
+      error: message
+    });
+  }
+  function readCurrent(ticket) {
+    const l = life.current;
+    if (l.alive && l.scope === ticket.scope && l.epoch === ticket.epoch && homeReadScope() !== ticket.scope) {
+      clearContext('context-drift', 'Контекст доступу змінився. Оновіть огляд у поточному обліковому записі.');
+      return false;
+    }
+    return l.alive && l.scope === ticket.scope && homeReadScope() === ticket.scope && l.epoch === ticket.epoch;
+  }
+  function failRead(ticket, clear = false, message = 'Не вдалося оновити робочий огляд. Повторіть читання вручну.') {
+    if (!readCurrent(ticket)) return;
+    if (clear) {
+      clearContext('denied', message);
+      return;
+    }
+    const previous = life.current.view;
+    publish({
+      ...previous,
+      status: previous.data ? 'stale' : 'error',
+      error: message
+    });
+  }
+  async function refresh(supersede = false) {
+    const l = life.current;
+    if (!l.alive) return;
+    if (!homeReadScope() || l.scope !== homeReadScope()) {
+      clearContext('context-drift', 'Контекст доступу змінився. Дочекайтеся актуального облікового запису та оновіть огляд.');
+      return;
+    }
+    if (l.pending && !supersede) return;
+    cancelRead();
+    select(null);
+    const controller = new AbortController(),
+      ticket = {
+        scope: l.scope,
+        epoch: l.epoch,
+        controller,
+        revision: window.BOS_RUNTIME.access_revision,
+        financial: bosCan('finance'),
+        timer: null
+      };
+    l.pending = ticket;
+    const previous = l.view;
+    publish({
+      ...previous,
+      scope: l.scope,
+      status: previous?.data ? 'refreshing' : 'loading',
+      data: previous?.data || null,
+      at: previous?.at || null,
+      error: ''
+    });
+    ticket.timer = setTimeout(() => {
+      if (!readCurrent(ticket)) return;
+      controller.abort();
+      l.pending = null;
+      failRead(ticket);
+      l.epoch++;
+    }, 30000);
     try {
-      const d = await erpFetch('snapshot/');
-      if (n === loadSeq.current) {
-        setData(d);
-        setError('');
+      const response = await fetch('/api/erp/snapshot/', {
+        cache: 'no-store',
+        signal: controller.signal
+      });
+      if (!readCurrent(ticket)) return;
+      const access = response.headers.get('X-BoS-Access');
+      if ([401, 403].includes(response.status) || response.headers.get('X-BoS-Identity') === 'denied' || access && access !== ticket.revision) {
+        failRead(ticket, true, 'Доступ до робочого огляду змінився. Перевірте обліковий запис і оновіть дані.');
+        return;
       }
-    } catch (e) {
-      if (n === loadSeq.current) setError(e.message);
+      if ([404, 409].includes(response.status)) {
+        failRead(ticket, true, 'Дані або контекст огляду змінилися. Оновіть огляд вручну.');
+        return;
+      }
+      if (!response.ok) {
+        failRead(ticket);
+        return;
+      }
+      if (access !== ticket.revision) {
+        failRead(ticket, true, 'Не вдалося підтвердити контекст читання. Оновіть огляд вручну.');
+        return;
+      }
+      const body = await response.json();
+      if (!readCurrent(ticket)) return;
+      if (!homeSnapshotShape(body, ticket.financial)) {
+        failRead(ticket, false, 'Сервер не повернув повний робочий огляд. Оновіть дані вручну.');
+        return;
+      }
+      const empty = ['orders', 'lots', 'jobs', 'invoices', 'events'].every(key => body[key].length === 0) && body.home.tasks.length === 0;
+      const next = l.nextSelection;
+      l.nextSelection = null;
+      publish({
+        scope: ticket.scope,
+        status: empty ? 'empty' : 'fresh',
+        data: body,
+        at: new Date().toISOString(),
+        error: ''
+      });
+      if (next && homeSelectionVisible(next, body)) select(next);
+    } catch {
+      failRead(ticket);
+    } finally {
+      clearTimeout(ticket.timer);
+      if (l.pending === ticket) l.pending = null;
     }
   }
   useEffect(() => {
-    refresh();
-    window.addEventListener('bos:data-changed', refresh);
-    return () => window.removeEventListener('bos:data-changed', refresh);
-  }, []);
+    const l = life.current;
+    l.alive = true;
+    l.scope = scope;
+    clearContext('initial', '');
+    const changed = () => {
+      if (l.scope !== homeReadScope()) {
+        clearContext('context-drift', 'Контекст доступу змінився. Оновіть огляд у поточному обліковому записі.');
+        return;
+      }
+      refresh(true);
+    };
+    const ended = () => clearContext('denied', 'Сесію або доступ змінено. Перевірте обліковий запис і оновіть огляд.');
+    window.addEventListener('bos:data-changed', changed);
+    window.addEventListener('bos:session-ended', ended);
+    if (scope) refresh();else publish({
+      scope,
+      status: 'denied',
+      data: null,
+      at: null,
+      error: 'Робочий огляд потребує чинного облікового запису.'
+    });
+    return () => {
+      l.alive = false;
+      cancelRead();
+      l.actionId++;
+      window.removeEventListener('bos:data-changed', changed);
+      window.removeEventListener('bos:session-ended', ended);
+    };
+  }, [scope]);
+  useEffect(() => {
+    select(null);
+    life.current.nextSelection = null;
+  }, [currency, focus]);
+  const inScope = view.scope === scope && !!scope,
+    data = inScope ? view.data : null,
+    status = inScope ? view.status : 'context-drift',
+    at = inScope ? view.at : null;
+  const ready = !!data && ['fresh', 'empty'].includes(status),
+    epoch = life.current.epoch,
+    busy = ['initial', 'loading', 'refreshing'].includes(status),
+    recoveryOwner = {
+      scope,
+      accessEpoch: life.current.accessEpoch,
+      data
+    };
+  function canUse() {
+    const l = life.current;
+    return l.alive && l.scope === scope && homeReadScope() === scope && l.epoch === epoch && l.view?.data === data && ['fresh', 'empty'].includes(l.view?.status) && presentation.current === renderedPresentation;
+  }
+  function canInspect() {
+    return canUse() && !!selection && life.current.selected === selection;
+  }
+  function open(next) {
+    if (canUse() && homeSelectionVisible(next, data)) select(next);
+  }
   function begin(type, preset) {
+    if (!canUse()) return;
     if (!bosCanAction(type)) {
-      setError('Ця дія недоступна вашому обліковому запису.');
+      publish({
+        ...life.current.view,
+        error: 'Ця дія недоступна вашому обліковому запису.'
+      });
       return;
     }
-    setSelection(null);
+    select(null);
+    const l = life.current;
     setAction({
+      id: ++l.actionId,
+      scope,
+      accessEpoch: l.accessEpoch,
       type,
-      preset
+      preset,
+      data
     });
   }
-  if (!data) return /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: 24
-    }
-  }, /*#__PURE__*/React.createElement("p", null, error || 'Завантаження робочого простору…'), /*#__PURE__*/React.createElement(Button, {
-    onClick: refresh
-  }, "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0438"));
-  const financials = bosCan('finance') ? data.home?.financial || [] : [],
+  function traceSelect(next) {
+    if (!canInspect()) return;
+    cancelRead();
+    select(null);
+    life.current.nextSelection = next;
+    publish({
+      ...life.current.view,
+      status: 'stale',
+      error: 'Джерело прочитано окремо. Оновіть робочий огляд, щоб відкрити запис у поточному контексті.'
+    });
+  }
+  function recover(entry) {
+    const l = life.current;
+    if (!l.alive || !recoveryOwner.data || l.scope !== recoveryOwner.scope || homeReadScope() !== recoveryOwner.scope || l.accessEpoch !== recoveryOwner.accessEpoch || l.view?.data !== recoveryOwner.data || ['denied', 'context-drift'].includes(l.view?.status)) return;
+    select(null);
+    setAction({
+      id: ++l.actionId,
+      scope: recoveryOwner.scope,
+      accessEpoch: recoveryOwner.accessEpoch,
+      type: entry.action,
+      preset: {},
+      recovery: entry,
+      data: recoveryOwner.data
+    });
+  }
+  function currentAction(value) {
+    const l = life.current;
+    return l.alive && value && value.id === l.actionId && value.accessEpoch === l.accessEpoch && value.scope === l.scope && value.scope === homeReadScope();
+  }
+  function closeAction(value) {
+    if (!currentAction(value)) return;
+    life.current.actionId++;
+    setAction(null);
+  }
+  function done(value, result, context) {
+    if (!currentAction(value)) return;
+    life.current.actionId++;
+    setAction(null);
+    setReceipt({
+      scope,
+      accessEpoch: life.current.accessEpoch,
+      value: s2ReceiptContext(result, context)
+    });
+    refresh(true);
+    refetchTasks?.();
+  }
+  const shownAction = action && action.scope === scope && action.accessEpoch === life.current.accessEpoch ? action : null,
+    shownReceipt = receipt && receipt.scope === scope && receipt.accessEpoch === life.current.accessEpoch ? receipt.value : null;
+  const financials = data && bosCan('finance') ? data.home.financial : [],
     financial = financials.find(x => x.currency === currency) || financials[0],
     cur = financial?.currency;
-  const homeTasks = (data.home?.tasks || []).filter(t => !t.archived).map(t => ({
+  const homeTasks = data ? data.home.tasks.filter(t => !t.archived).map(t => ({
       ...t,
       overdue: t.is_overdue === true
-    })),
+    })) : [],
     openTasks = homeTasks.filter(x => x.status !== 'done'),
     overdue = homeTasks.filter(x => x.overdue),
-    issues = data.lots.filter(x => Number(x.quantity) > 0 && (x.quality !== 'approved' || x.missing_documents.length));
-  const open = selection => setSelection(selection),
-    orders = data.orders.filter(o => data.lines.some(l => l.order_id === o.id && b03Positive(b03OpenLine(l)))),
+    issues = data ? data.lots.filter(x => Number(x.quantity) > 0 && (x.quality !== 'approved' || x.missing_documents.length)) : [];
+  const orders = data ? data.orders.filter(o => data.lines.some(l => l.order_id === o.id && b03Positive(b03OpenLine(l)))) : [],
     inspect = (kind, id) => open({
       kind,
       id
     });
+  const number = value => homeKnownNumber(value) ? erpNum(value) : '—',
+    businessDate = homeBusinessDate(data?.as_of),
+    previous = !!data && !ready;
+  const readLabel = previous ? 'Попереднє читання в цьому вікні' : 'Останнє успішне читання в цьому вікні';
+  const localTime = at ? new Date(at).toLocaleString('uk-UA', {
+    timeZoneName: 'short'
+  }) : null;
   return /*#__PURE__*/React.createElement("div", {
     className: "bos-home"
   }, /*#__PURE__*/React.createElement("div", {
@@ -17479,45 +21053,70 @@ function BoSHome({
     className: "op-muted"
   }, focus ? 'Рішення й наступні кроки за поточними замовленнями.' : 'Натисніть показник: відкриються записи, розрахунок і дії.')), /*#__PURE__*/React.createElement("div", {
     className: "erp-actions"
-  }, /*#__PURE__*/React.createElement(React.Fragment, null, financial && /*#__PURE__*/React.createElement(Select, {
+  }, financial && /*#__PURE__*/React.createElement(Select, {
     "aria-label": "\u0412\u0430\u043B\u044E\u0442\u0430 \u043F\u043E\u043A\u0430\u0437\u043D\u0438\u043A\u0456\u0432",
     value: cur,
-    onChange: e => setCurrency(e.target.value)
+    onChange: e => {
+      select(null);
+      life.current.nextSelection = null;
+      setCurrency(e.target.value);
+    }
   }, financials.map(x => /*#__PURE__*/React.createElement("option", {
     key: x.currency
-  }, x.currency)))), /*#__PURE__*/React.createElement(Button, {
-    onClick: refresh
-  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438"), /*#__PURE__*/React.createElement(Button, {
+  }, x.currency))), /*#__PURE__*/React.createElement(Button, {
+    disabled: busy,
+    onClick: () => refresh()
+  }, data ? 'Оновити' : 'Повторити'), /*#__PURE__*/React.createElement(Button, {
     onClick: () => onNavigate('info')
-  }, "\u042F\u043A \u043F\u0440\u0430\u0446\u044E\u0454 BoS"))), error && /*#__PURE__*/React.createElement("p", {
+  }, "\u042F\u043A \u043F\u0440\u0430\u0446\u044E\u0454 BoS"))), /*#__PURE__*/React.createElement("section", {
+    "aria-label": "\u0421\u0432\u0456\u0436\u0456\u0441\u0442\u044C \u0440\u043E\u0431\u043E\u0447\u043E\u0433\u043E \u043E\u0433\u043B\u044F\u0434\u0443",
+    "aria-busy": busy
+  }, status === 'loading' || status === 'initial' ? /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F \u0440\u043E\u0431\u043E\u0447\u043E\u0433\u043E \u043E\u0433\u043B\u044F\u0434\u0443\u2026") : status === 'refreshing' ? /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u041E\u043D\u043E\u0432\u043B\u044E\u0454\u043C\u043E \u0440\u043E\u0431\u043E\u0447\u0438\u0439 \u043E\u0433\u043B\u044F\u0434\u2026") : ready ? /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, status === 'empty' ? 'Читання завершено. Доступних робочих записів немає.' : 'Робочий огляд прочитано.') : null, at ? /*#__PURE__*/React.createElement("p", null, readLabel, ": ", /*#__PURE__*/React.createElement("time", {
+    dateTime: at
+  }, localTime), ". \u0417\u0430 \u0433\u043E\u0434\u0438\u043D\u043D\u0438\u043A\u043E\u043C \u0446\u044C\u043E\u0433\u043E \u043F\u0440\u0438\u0441\u0442\u0440\u043E\u044E; \u0447\u0430\u0441 \u043C\u0456\u0441\u0442\u0438\u0442\u044C \u0447\u0430\u0441\u043E\u0432\u0438\u0439 \u043F\u043E\u044F\u0441.") : /*#__PURE__*/React.createElement("p", null, "\u0423\u0441\u043F\u0456\u0448\u043D\u043E\u0433\u043E \u0447\u0438\u0442\u0430\u043D\u043D\u044F \u0449\u0435 \u043D\u0435\u043C\u0430\u0454."), data && /*#__PURE__*/React.createElement("p", null, "\u0411\u0456\u0437\u043D\u0435\u0441-\u0434\u0430\u0442\u0430 \u0440\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043A\u0443: ", businessDate ? /*#__PURE__*/React.createElement("time", {
+    dateTime: businessDate
+  }, businessDate) : 'Дату не надано', ". \u0426\u0435 \u0434\u0430\u0442\u0430 \u0440\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043A\u0443, \u0430 \u043D\u0435 \u0447\u0430\u0441 \u043E\u043D\u043E\u0432\u043B\u0435\u043D\u043D\u044F."), previous && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u043F\u043E\u043F\u0435\u0440\u0435\u0434\u043D\u0456 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0444\u0430\u043A\u0442\u0438. \u041D\u043E\u0432\u0456 \u0434\u0456\u0457 \u0442\u0430 \u043F\u0435\u0440\u0435\u0445\u043E\u0434\u0438 \u0434\u043E \u0457\u0445\u043D\u0456\u0445 \u0434\u0436\u0435\u0440\u0435\u043B \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u043F\u0456\u0441\u043B\u044F \u0443\u0441\u043F\u0456\u0448\u043D\u043E\u0433\u043E \u043E\u043D\u043E\u0432\u043B\u0435\u043D\u043D\u044F."), ready && /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0426\u0435 \u043E\u0441\u0442\u0430\u043D\u043D\u044F \u043F\u0440\u0438\u0439\u043D\u044F\u0442\u0430 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u044C \u0443 \u0446\u044C\u043E\u043C\u0443 \u0432\u0456\u043A\u043D\u0456. \u041D\u0430\u0441\u0442\u0443\u043F\u043D\u0456 \u0437\u043C\u0456\u043D\u0438 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u043F\u043E\u0442\u0440\u0435\u0431\u0443\u044E\u0442\u044C \u043D\u043E\u0432\u043E\u0433\u043E \u0447\u0438\u0442\u0430\u043D\u043D\u044F."), (inScope ? view.error : 'Контекст доступу змінився. Оновіть робочий огляд.') && /*#__PURE__*/React.createElement("p", {
     role: "alert",
     className: "erp-error"
-  }, error), receipt && /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("div", {
-    className: "erp-row"
-  }, /*#__PURE__*/React.createElement("h3", null, "\u041E\u043F\u0435\u0440\u0430\u0446\u0456\u044E \u0432\u0438\u043A\u043E\u043D\u0430\u043D\u043E \xB7 \u0432\u043F\u043B\u0438\u0432 \u043D\u0430 \u0437\u0430\u043F\u0438\u0441\u0438"), /*#__PURE__*/React.createElement(Button, {
+  }, inScope ? view.error : 'Контекст доступу змінився. Оновіть робочий огляд.')), shownReceipt && /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement(Button, {
     onClick: () => setReceipt(null)
-  }, "\u041F\u0440\u0438\u0445\u043E\u0432\u0430\u0442\u0438")), /*#__PURE__*/React.createElement(ImpactTable, {
-    changes: receipt.impact
-  })), /*#__PURE__*/React.createElement(WorkpointsPanel, {
+  }, "\u041F\u0440\u0438\u0445\u043E\u0432\u0430\u0442\u0438"), shownReceipt.action === 'erp_register_supplier_invoice' ? /*#__PURE__*/React.createElement(SupplierInvoiceReceipt, {
+    receipt: shownReceipt,
+    data: data
+  }) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h3", null, "\u041E\u043F\u0435\u0440\u0430\u0446\u0456\u044E \u0432\u0438\u043A\u043E\u043D\u0430\u043D\u043E \xB7 \u0432\u043F\u043B\u0438\u0432 \u043D\u0430 \u0437\u0430\u043F\u0438\u0441\u0438"), /*#__PURE__*/React.createElement(ImpactTable, {
+    changes: shownReceipt.impact
+  })), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041A\u0432\u0438\u0442\u0430\u043D\u0446\u0456\u044F \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0443\u0454 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u044E; \u0441\u0432\u0456\u0436\u0456\u0441\u0442\u044C \u0440\u043E\u0431\u043E\u0447\u043E\u0433\u043E \u043E\u0433\u043B\u044F\u0434\u0443 \u0432\u0438\u0437\u043D\u0430\u0447\u0430\u0454\u0442\u044C\u0441\u044F \u043E\u043A\u0440\u0435\u043C\u0438\u043C \u0447\u0438\u0442\u0430\u043D\u043D\u044F\u043C \u0432\u0438\u0449\u0435.")), data && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(WorkpointsPanel, {
     onNavigate: onNavigate,
     refetchTasks: refetchTasks
-  }), /*#__PURE__*/React.createElement(HttpObservations, null), /*#__PURE__*/React.createElement("h2", null, "\u041E\u0433\u043B\u044F\u0434 \u0443\u0441\u0456\u0445 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u043A\u043E\u043C\u043F\u0430\u043D\u0456\u0457"), !focus && financial && /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement(HttpObservations, null), /*#__PURE__*/React.createElement("h2", null, "\u041E\u0433\u043B\u044F\u0434 \u0443\u0441\u0456\u0445 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u043A\u043E\u043C\u043F\u0430\u043D\u0456\u0457"), !focus && bosCan('finance') && !financial && /*#__PURE__*/React.createElement("p", null, "\u0424\u0456\u043D\u0430\u043D\u0441\u043E\u0432\u0456 \u043F\u043E\u043A\u0430\u0437\u043D\u0438\u043A\u0438 \u043D\u0435 \u043D\u0430\u0434\u0430\u043D\u043E."), !focus && financial && /*#__PURE__*/React.createElement("div", {
     className: "bos-kpi-grid"
   }, BOS_METRICS.map(([key, label, formula]) => /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: "bos-kpi",
+    disabled: !ready || !homeKnownNumber(financial[key]),
     key: key,
     onClick: () => open({
       kind: 'metric',
       key,
       currency: cur
     })
-  }, /*#__PURE__*/React.createElement("span", null, label), /*#__PURE__*/React.createElement("strong", null, erpNum(financial[key]), " ", /*#__PURE__*/React.createElement("small", null, cur)), /*#__PURE__*/React.createElement("p", null, formula), /*#__PURE__*/React.createElement("em", null, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u0440\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043E\u043A \u2197")))), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("span", null, label), /*#__PURE__*/React.createElement("strong", null, number(financial[key]), " ", /*#__PURE__*/React.createElement("small", null, cur)), /*#__PURE__*/React.createElement("p", null, formula), /*#__PURE__*/React.createElement("em", null, homeKnownNumber(financial[key]) ? 'Відкрити розрахунок ↗' : 'Дані не надано')))), /*#__PURE__*/React.createElement("div", {
     className: "bos-kpi-grid bos-counts"
   }, [['Відкриті роботи', data.jobs.filter(x => x.status !== 'done').length, 'jobs', false], ['Партії без допуску', issues.length, 'lots', false], ['Відкриті доручення', openTasks.length, 'tasks', false], ['Прострочені доручення', overdue.length, 'tasks', true]].map(([title, n, key, late]) => /*#__PURE__*/React.createElement("button", {
     className: "bos-kpi",
     type: "button",
     key: title,
+    disabled: !ready,
     onClick: () => open({
       kind: 'list',
       key,
@@ -17538,7 +21137,10 @@ function BoSHome({
     return /*#__PURE__*/React.createElement("div", {
       className: "bos-order",
       key: o.id
-    }, /*#__PURE__*/React.createElement(BoSLink, {
+    }, /*#__PURE__*/React.createElement("button", {
+      className: "bos-record-link",
+      type: "button",
+      disabled: !ready,
       onClick: () => inspect('orders', o.id)
     }, o.code, " \xB7 ", data.partners.find(x => x.id === o.customer_id)?.name), /*#__PURE__*/React.createElement("p", {
       className: "op-muted"
@@ -17547,7 +21149,8 @@ function BoSHome({
     }, "\u0412\u0456\u0434\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043E \u0432\u0456\u0434 \u043F\u0435\u0440\u0432\u0456\u0441\u043D\u043E\u0433\u043E \u043F\u043B\u0430\u043D\u0443 ", erpNum(completion), "%", /*#__PURE__*/React.createElement("progress", {
       value: completion,
       max: 100
-    })), /*#__PURE__*/React.createElement(NextAction, {
+    })), ready && /*#__PURE__*/React.createElement(NextAction, {
+      key: o.id + ':' + epoch,
       orderId: o.id,
       version: data.events[0]?.id,
       onAction: begin,
@@ -17556,66 +21159,76 @@ function BoSHome({
   }), !orders.length && /*#__PURE__*/React.createElement("p", null, "\u041D\u0435\u0432\u0438\u043A\u043E\u043D\u0430\u043D\u0438\u0445 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u044C \u0441\u0435\u0440\u0435\u0434 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u043D\u0435\u043C\u0430\u0454.")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, "\u0414\u0435 \u043F\u043E\u0442\u0440\u0456\u0431\u043D\u0430 \u0443\u0432\u0430\u0433\u0430"), issues.map(l => /*#__PURE__*/React.createElement("button", {
     className: "bos-attention",
     key: l.id,
+    disabled: !ready,
     onClick: () => inspect('lots', l.id)
   }, /*#__PURE__*/React.createElement("strong", null, l.code, " \xB7 ", erpNum(l.quantity)), /*#__PURE__*/React.createElement("span", null, ERP_LABELS[l.quality], l.missing_documents.length ? ' · бракує ' + l.missing_documents.join(', ') : ''))), overdue.map(t => /*#__PURE__*/React.createElement("button", {
     className: "bos-attention",
     key: 'task' + t.id,
-    onClick: () => onNavigate('hr', 'tasks')
+    disabled: !ready,
+    onClick: () => {
+      if (canUse()) onNavigate('hr', 'tasks');
+    }
   }, /*#__PURE__*/React.createElement("strong", null, t.title), /*#__PURE__*/React.createElement("span", null, c01Assignee(t), " \xB7 \u0434\u043E ", erpDate(t.deadline)))), !issues.length && !overdue.length && /*#__PURE__*/React.createElement("p", null, "\u0417\u0430 \u0446\u0438\u043C\u0438 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0430\u043C\u0438 \u0432\u0456\u0434\u0445\u0438\u043B\u0435\u043D\u044C \u043D\u0435\u043C\u0430\u0454.")), financial ? /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, "\u0420\u0430\u0445\u0443\u043D\u043A\u0438 \u0442\u0430 \u043E\u043F\u043B\u0430\u0442\u0438"), data.invoices.filter(x => x.currency === cur).map(i => /*#__PURE__*/React.createElement("div", {
     className: "bos-order",
     key: i.invoice_id
-  }, /*#__PURE__*/React.createElement(BoSLink, {
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "bos-record-link",
+    type: "button",
+    disabled: !ready,
     onClick: () => inspect('invoices', i.invoice_id)
   }, i.code), /*#__PURE__*/React.createElement("label", {
     className: "bos-progress"
-  }, "\u041E\u043F\u043B\u0430\u0447\u0435\u043D\u043E ", erpNum(i.paid), " / ", erpNum(i.amount), " ", cur, /*#__PURE__*/React.createElement("progress", {
+  }, "\u041E\u043F\u043B\u0430\u0447\u0435\u043D\u043E ", number(i.paid), " / ", number(i.amount), " ", cur, homeKnownNumber(i.paid) && homeKnownNumber(i.amount) && /*#__PURE__*/React.createElement("progress", {
     value: Number(i.paid),
     max: Number(i.amount) || 1
   })), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
-  }, "\u0414\u043E \u043E\u043F\u043B\u0430\u0442\u0438 ", b03Amount(i.open, cur), " \xB7 \u0434\u043E ", erpDate(i.due_date)), i.effective_credit != null && /*#__PURE__*/React.createElement("p", null, "\u0427\u0438\u043D\u043D\u0435 \u043A\u043E\u0440\u0438\u0433\u0443\u0432\u0430\u043D\u043D\u044F: ", b03Amount(i.effective_credit, cur), ". \u041A\u0440\u0435\u0434\u0438\u0442 \u043A\u043B\u0456\u0454\u043D\u0442\u0430: ", b03Amount(i.customer_credit, cur), "."))), !data.invoices.length && /*#__PURE__*/React.createElement("p", null, "\u0420\u0430\u0445\u0443\u043D\u043E\u043A \u0437\u2019\u044F\u0432\u0438\u0442\u044C\u0441\u044F \u043F\u0456\u0441\u043B\u044F \u0432\u0456\u0434\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F. \u041F\u0435\u0440\u0435\u0439\u0434\u0456\u0442\u044C \u0434\u043E \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u043E\u0433\u043E \u043A\u0440\u043E\u043A\u0443 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F.")) : /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, "\u0420\u0430\u0445\u0443\u043D\u043A\u0438 \u0434\u043E \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u044C"), data.invoices.map(i => /*#__PURE__*/React.createElement("div", {
+  }, "\u0414\u043E \u043E\u043F\u043B\u0430\u0442\u0438 ", homeKnownNumber(i.open) ? b03Amount(i.open, cur) : 'Дані не надано', " \xB7 \u0434\u043E ", erpDate(i.due_date)), i.effective_credit != null && /*#__PURE__*/React.createElement("p", null, "\u0427\u0438\u043D\u043D\u0435 \u043A\u043E\u0440\u0438\u0433\u0443\u0432\u0430\u043D\u043D\u044F: ", homeKnownNumber(i.effective_credit) ? b03Amount(i.effective_credit, cur) : '—', ". \u041A\u0440\u0435\u0434\u0438\u0442 \u043A\u043B\u0456\u0454\u043D\u0442\u0430: ", homeKnownNumber(i.customer_credit) ? b03Amount(i.customer_credit, cur) : '—', "."))), !data.invoices.length && /*#__PURE__*/React.createElement("p", null, "\u0420\u0430\u0445\u0443\u043D\u043E\u043A \u0437\u2019\u044F\u0432\u0438\u0442\u044C\u0441\u044F \u043F\u0456\u0441\u043B\u044F \u0432\u0456\u0434\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F. \u041F\u0435\u0440\u0435\u0439\u0434\u0456\u0442\u044C \u0434\u043E \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u043E\u0433\u043E \u043A\u0440\u043E\u043A\u0443 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F.")) : /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, "\u0420\u0430\u0445\u0443\u043D\u043A\u0438 \u0434\u043E \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u044C"), data.invoices.map(i => /*#__PURE__*/React.createElement("div", {
     className: "bos-order",
     key: i.invoice_id
-  }, /*#__PURE__*/React.createElement(BoSLink, {
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "bos-record-link",
+    type: "button",
+    disabled: !ready,
     onClick: () => inspect('invoices', i.invoice_id)
   }, i.code), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
   }, "\u0422\u0435\u0440\u043C\u0456\u043D ", erpDate(i.due_date)))), !data.invoices.length && /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0440\u0430\u0445\u0443\u043D\u043A\u0456\u0432 \u043F\u043E\u043A\u0438 \u043D\u0435\u043C\u0430\u0454.")))), /*#__PURE__*/React.createElement(B03PendingLauncher, {
-    onRecover: entry => {
-      setSelection(null);
-      setAction({
-        type: entry.action,
-        preset: {},
-        recovery: entry
-      });
-    }
+    onRecover: recover
   }), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, "\u041E\u0441\u0442\u0430\u043D\u043D\u0456 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0457"), /*#__PURE__*/React.createElement(ERPTable, {
     rows: data.events.slice(0, 8),
     columns: [["Операція", r => r.action === 'erp_import_batch' ? 'Початковий імпорт' : B03_ACTIONS[r.action.replace('erp_', '')]?.[0] || ERP_ACTIONS[r.action.replace('erp_', '')]?.[0] || r.action], ["Запис", r => r.result?.code || r.result?.reference || 'Запис журналу №' + r.id], ["Дата", r => erpDate(r.created_at)]],
-    onRow: r => inspect('events', r.id)
-  })), selection && /*#__PURE__*/React.createElement(BoSInspector, {
+    onRow: ready ? r => inspect('events', r.id) : undefined
+  })), ready && selection && /*#__PURE__*/React.createElement(BoSInspector, {
+    key: scope + ':' + epoch + ':' + renderedPresentation,
     selection: selection,
     data: data,
-    onClose: () => setSelection(null),
-    onSelect: setSelection,
-    onAction: begin,
-    onNavigate: onNavigate,
-    onTraceSelect: (next, fresh) => {
-      loadSeq.current++;
-      setData(fresh);
-      setSelection(next);
-    }
-  }), " ", action && /*#__PURE__*/React.createElement(BoSActionDialog, {
-    action: action.type,
-    preset: action.preset,
-    recovery: action.recovery,
-    data: data,
-    onClose: () => setAction(null),
-    onDone: r => {
-      setReceipt(r);
-      refresh();
-      refetchTasks?.();
-    }
+    onClose: () => {
+      if (canInspect()) select(null);
+    },
+    onSelect: next => {
+      if (canInspect()) open(next);
+    },
+    onAction: (type, preset) => {
+      if (canInspect()) begin(type, preset);
+    },
+    onNavigate: (...args) => {
+      if (canInspect()) onNavigate(...args);
+    },
+    onTraceSelect: traceSelect
+  })), shownAction && /*#__PURE__*/React.createElement(BoSActionDialog, {
+    action: shownAction.type,
+    preset: shownAction.preset,
+    recovery: shownAction.recovery,
+    data: shownAction.data,
+    onConfirmPending: submitted => {
+      if (currentAction(shownAction)) setAction(value => value ? {
+        ...value,
+        submitted
+      } : value);
+    },
+    onClose: () => closeAction(shownAction),
+    onDone: (r, context) => done(shownAction, r, context)
   }));
 }
 function BoSProductGuide({
@@ -17900,14 +21513,23 @@ function App() {
   } = nav;
   const sub = nav.sub || bosNavigation().find(n => n.id === section)?.subs[0]?.id || null;
   const renderContent = () => {
-    if (!bosCanView(section, sub)) return /*#__PURE__*/React.createElement("div", {
-      className: "erp-workspace"
-    }, /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, "\u0420\u043E\u0437\u0434\u0456\u043B \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0439"), /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0442\u043E\u0447\u043D\u0438\u0439 \u043E\u0431\u043B\u0456\u043A\u043E\u0432\u0438\u0439 \u0437\u0430\u043F\u0438\u0441 \u043D\u0435 \u043C\u0430\u0454 \u0434\u043E\u0441\u0442\u0443\u043F\u0443 \u0434\u043E \u0446\u044C\u043E\u0433\u043E \u0440\u043E\u0437\u0434\u0456\u043B\u0443."), /*#__PURE__*/React.createElement(Button, {
-      onClick: () => setNav({
-        section: 'dash',
-        sub: null
-      })
-    }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u0440\u043E\u0431\u043E\u0447\u0438\u0439 \u043E\u0433\u043B\u044F\u0434")));
+    if (!bosCanView(section, sub)) {
+      if (section === 'hr' && sub === 'kpi') return /*#__PURE__*/React.createElement(KPI, {
+        employees: [],
+        loading: false,
+        error: null,
+        refetchEmployees: refetchEmployees,
+        denied: true
+      });
+      return /*#__PURE__*/React.createElement("div", {
+        className: "erp-workspace"
+      }, /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, "\u0420\u043E\u0437\u0434\u0456\u043B \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0439"), /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0442\u043E\u0447\u043D\u0438\u0439 \u043E\u0431\u043B\u0456\u043A\u043E\u0432\u0438\u0439 \u0437\u0430\u043F\u0438\u0441 \u043D\u0435 \u043C\u0430\u0454 \u0434\u043E\u0441\u0442\u0443\u043F\u0443 \u0434\u043E \u0446\u044C\u043E\u0433\u043E \u0440\u043E\u0437\u0434\u0456\u043B\u0443."), /*#__PURE__*/React.createElement(Button, {
+        onClick: () => setNav({
+          section: 'dash',
+          sub: null
+        })
+      }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u0440\u043E\u0431\u043E\u0447\u0438\u0439 \u043E\u0433\u043B\u044F\u0434")));
+    }
     if (section === 'heli') return /*#__PURE__*/React.createElement(BoSHome, {
       focus: true,
       onNavigate: (section, sub) => setNav({
@@ -18007,7 +21629,10 @@ function App() {
         employees: employees
       });
       if (sub === 'kpi') return /*#__PURE__*/React.createElement(KPI, {
-        employees: employees
+        employees: employees,
+        loading: employeesLoading,
+        error: employeesError,
+        refetchEmployees: refetchEmployees
       });
     }
     if (section === 'organizer') {
@@ -18144,7 +21769,9 @@ function App() {
       setDataError(null);
       setNotice('');
     }
-  }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438")), /*#__PURE__*/React.createElement("div", {
+  }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438")), /*#__PURE__*/React.createElement("main", {
+    "data-bos-main": true,
+    tabIndex: -1,
     style: {
       flex: 1,
       overflowY: 'auto',

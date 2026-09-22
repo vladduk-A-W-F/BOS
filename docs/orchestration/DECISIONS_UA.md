@@ -1,3 +1,13 @@
+# Поточний цикл v17 · ручна перевірка власника · 21.09.2026
+
+Продуктовий source `207c7426bcd057cc1a5cfcf172d4c040b05221e9`, runtime `77e8ca05b58efc99d47ce8dd2887074b3c93ba6eaff863a24307ae0e89dc622a`. Стан підготовки/публікації: **FREEZE_FOR_OWNER_REVIEW**. Актуальна звірка всіх 35 карток, S1–S3, UXD-01–08 і 11 gates: [підсумковий звіт](CYCLE_V17_CLOSEOUT_RU.md), [машинна матриця](CYCLE_V17_MATRIX.json). Після передачі звіту — FREEZE_FOR_OWNER_REVIEW: нові етапи, агенти й автоматичні зміни зупинено до нових вказівок. Датовані відомості про доступність і відновлення застосунку наведено в підсумковому звіті. TECHNICAL_READY=false, PILOT_ALLOWED=false, MVP=false.
+
+Membership UI actual3: **FAIL overall (7 PASS / 1 FAIL / 0 NOT_RUN)**; private v5 лише static accepted, не застосований і behavior NOT_RUN. S2 має scoped backend/control/service докази; повне поточне UI/runtime приймання продукту не встановлено.
+
+Далі збережено історичні рішення і checkpoints; їхні «поточні» статуси та команди не перекривають цей датований запис.
+
+---
+
 # Рішення та розбіжності
 
 | ID | Рішення / статус | Підстава |
@@ -36,11 +46,3 @@
 
 ### D20 · Через пакет SaaS до лендингу
 320файлів кодового пакета звірено, installer не запускався. Існуючий owner-private Site version2 опубліковано; demo й localStorage збережено. ProductionDjango/pilot/API залишаються вимкненими за відкритими умовами.
-
-### D21 · Незалежний контроль GitHub · 21.09.2026
-
-Поточна база review — PR1 head 620aeab2010c6c8327ce46c25bb62435bcf7f9e4, а не main. PR2 abb8845f6563bafa806029ddc1e7c2cace09907c потребує reconciliation; дві migrations 0006 повторно додають Location.branch. PR3 є журналом власника, не щоденним інтеграційним review і не продуктовим кандидатом. Деталі та точні SHA: daily/2026-09-21_UA.md.
-
-Виправлено тільки поточний план/чергу: не повторювати вже прийнятий UI-LOCAL-RUNNER і вже опублікований registry patch. Наступні картки — reconciliation, read-only payment timeout diagnosis, перенесення доказів і acceptance packet. Історичні scoped PASS збережені на своїх SHA; зелений scope job, skipped job або echo-only CI не є прийманням продукту. NETWORK-PLAN-CURRENCY у PR2 вже scoped accepted, хоча його старий реєстр ще PLANNED; при майбутній інтеграції звести реєстри за новішими доказами, не переписувати їх історію.
-
-Цей docs-only review не змінює AGENTS, дозволи, readiness, pilot, production, Sites або активну гілку Codex. Не підтверджує стан незбереженої локальної роботи чи працюючого процесу. Майбутній кандидат потребує окремої прив'язки доказів; ліміти network workflow/read/composition/core-views також не скидаються новою назвою картки.

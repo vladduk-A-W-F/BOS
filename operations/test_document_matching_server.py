@@ -39,6 +39,9 @@ class DocumentMatchingServerTests(TestCase):
         self.assertTrue(Path(connection.settings_dict['NAME']).is_absolute())
         # The test runner must explicitly provide its owned D: temp/media root.
         self.assertEqual(Path(settings.MEDIA_ROOT).drive.lower(), 'd:')
+        self.setup_fixture()
+
+    def setup_fixture(self):
         self.folder = tempfile.TemporaryDirectory(prefix='document-match-', dir=settings.MEDIA_ROOT)
         self.addCleanup(self.folder.cleanup)
         self.media = Path(self.folder.name)

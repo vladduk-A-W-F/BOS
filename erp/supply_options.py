@@ -1,7 +1,7 @@
 """Read-only, unallocated supply options for one purchased sales item.
 
-A purchase has no destination/order allocation unless linked to a production
-job. Expected receipts therefore remain an indication, never promised stock.
+A purchase may name a destination, but has no sales-order allocation. Expected
+receipts therefore remain an indication, never promised stock for this order.
 All writes still belong to the existing ERP preview/confirm commands.
 """
 from decimal import Decimal
@@ -38,18 +38,30 @@ def collect(policy, line_id, target_location_id=None):
     line = policy.queryset(SalesLine).select_related('item', 'order').get(pk=line_id)
     item, order = line.item, line.order
     locations = {row.pk: row for row in policy.queryset(Location).order_by('pk')}
+    fulfillment = locations.get(order.fulfillment_location_id)
     target = locations.get(target_location_id)
     if target_location_id is not None and target is None:
         raise Location.DoesNotExist('Запис недоступний.')
     supported = item.method == 'buy' and order.status == 'confirmed'
     remaining = sales_open(line)
-    visible_reserves = list(policy.queryset(Reservation).filter(line=line).select_related('lot__item'))
+    visible_reserves = list(policy.queryset(Reservation).filter(line=line).select_related('lot__item', 'lot__location'))
     own_visible = sum((r.quantity for r in visible_reserves), ZERO)
     # A hidden reservation must not become an inferred available balance.
-    own_usable = (sum((r.quantity for r in visible_reserves if service.usable(r.lot, line.revision)), ZERO)
+    own_usable = (sum((r.quantity for r in visible_reserves
+                      if service.usable(r.lot, line.revision) and r.lot.currency == order.currency
+                      and (order.fulfillment_location_id is None or r.lot.location_id == order.fulfillment_location_id)), ZERO)
                   if policy.ceo else None)
     need = max(remaining - own_usable, ZERO) if policy.ceo else None
-    stock, waiting, purchases = [], [], []
+    stock, waiting, purchases, reserves = [], [], [], []
+    for reserve in visible_reserves:
+        location = locations.get(reserve.lot.location_id)
+        if location is None:
+            continue
+        other_point = order.fulfillment_location_id is not None and reserve.lot.location_id != order.fulfillment_location_id
+        reserves.append({'reservation_id': reserve.pk, 'lot_id': reserve.lot_id, 'code': reserve.lot.code,
+                         'location': location_row(location), 'quantity': quantity_text(reserve.quantity),
+                         'unit': item.unit, 'fulfillment_match': not other_point,
+                         'reason': 'release_transfer_required' if other_point else 'reserved_at_fulfillment'})
     free_total = local_free = incoming = ZERO
     for lot in policy.queryset(Lot).filter(item=item, quantity__gt=0).select_related('item').order_by('pk'):
         location = locations.get(lot.location_id)
@@ -61,15 +73,17 @@ def collect(policy, line_id, target_location_id=None):
                    'other_or_unassigned_branch')
         row = {'lot_id': lot.pk, 'code': lot.code, 'location': location_row(location),
                'relation': related, 'revision': lot.revision, 'quality': lot.quality,
-               'quantity': quantity_text(lot.quantity), 'unit': item.unit,
+               'quantity': quantity_text(lot.quantity), 'unit': item.unit, 'currency': lot.currency,
                'available': None, 'eligible': None, 'reason': 'availability_restricted',
                'document_ids': sorted(set(lot.documents.values()))}
         if policy.ceo:
-            good = service.usable(lot, line.revision)
+            good = service.usable(lot, line.revision) and lot.currency == order.currency
             amount = max(service.free(lot), ZERO) if good else ZERO
             row.update(available=quantity_text(amount), eligible=good and amount > 0)
             if lot.revision != line.revision:
                 row['reason'] = 'revision_mismatch'
+            elif lot.currency != order.currency:
+                row['reason'] = 'currency_mismatch'
             elif lot.quality != 'approved':
                 row['reason'] = 'quality_' + lot.quality
             elif not good:
@@ -93,14 +107,20 @@ def collect(policy, line_id, target_location_id=None):
         amount = purchase_open(po)
         if amount <= 0:
             continue
-        usable_for_line = po.revision == line.revision and po.production_id is None
+        destination = locations.get(po.destination_id)
+        target_matches = target is None or (destination is not None and destination.pk == target.pk)
+        usable_for_line = (po.revision == line.revision and po.currency == order.currency
+                           and po.production_id is None and target_matches)
         row = {'purchase_id': po.pk, 'code': po.code, 'revision': po.revision,
                'unit': item.unit, 'open_quantity': quantity_text(amount),
                'due_date': po.due_date.isoformat(), 'currency': po.currency,
+               'destination': location_row(destination) if destination else None,
                'allocation': 'not_recorded' if po.production_id is None else 'production',
                'eligible_as_unallocated_expectation': usable_for_line,
                'reason': 'revision_mismatch' if po.revision != line.revision else
-                         'allocated_to_production' if po.production_id else 'unallocated_expected_receipt'}
+                         'currency_mismatch' if po.currency != order.currency else
+                         'allocated_to_production' if po.production_id else
+                         'destination_not_selected_target' if not target_matches else 'unallocated_expected_receipt'}
         purchases.append(row)
         if usable_for_line:
             incoming += amount
@@ -114,10 +134,12 @@ def collect(policy, line_id, target_location_id=None):
               'uncovered_after_stock': quantity(uncovered),
               'unallocated_expected': quantity(incoming if policy.ceo else None),
               'indicative_after_expected': quantity(max(uncovered - incoming, ZERO) if policy.ceo else None)}
-    sections = {'stock': stock, 'waiting': waiting, 'purchases': purchases}
+    sections = {'stock': stock, 'waiting': waiting, 'purchases': purchases, 'reservations': reserves}
     return serial({'schema': SCHEMA, 'scope': 'visible_sources',
         'line': {'id': line.pk, 'order_id': order.pk, 'item_id': item.pk, 'item_code': item.code,
-                 'revision': line.revision, 'unit': item.unit, 'order_branch_id': order.branch_id},
+                 'revision': line.revision, 'unit': item.unit, 'currency': order.currency,
+                 'order_branch_id': order.branch_id},
+        'fulfillment_location': location_row(fulfillment) if fulfillment else None,
         'target_location': location_row(target) if target else None,
         'target_required_for_transfer': target is None, 'supported': supported,
         'reason': None if supported else 'requires_confirmed_order_and_purchased_item',
@@ -126,10 +148,14 @@ def collect(policy, line_id, target_location_id=None):
                    'totals_include_all_visible_sources': policy.ceo},
         'completeness': 'complete' if policy.ceo else 'restricted',
         'operation_proposal': None,
-        'basis': 'Потреба після придатного резерву цього замовлення. Вільні партії можуть бути в іншій точці; '
+        'basis': 'Потреба після придатного резерву у погодженій точці виконання, якщо її задано. '
+                 'Резерв в іншому місці не покриває потребу відвантаження: потрібне окреме звільнення, '
+                 'переміщення та новий резерв. Вільні партії можуть бути в іншій точці; '
                  'вибір місця явний. Відкриті закупівлі не розподілені цьому замовленню, не є гарантованим '
                  'залишком і можуть бути потрібні іншим замовленням. Строки та фактичну поставку перевіряйте окремо. '
-                 'Переміщення зберігає якість; нове приймання потребує її перевірки.'})
+                 'За обраного місця очікування враховує тільки закупівлі з цим явним призначенням. '
+                 'Миттєве переміщення зберігає якість; мережева відправка окремо проходить стан у дорозі '
+                 'та приймання з перевіркою якості. Рухи у дорозі не є доступним запасом.'})
 
 
 def build(request, line_id, target_location_id=None):

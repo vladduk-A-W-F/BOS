@@ -1,3 +1,13 @@
+# Поточний цикл v17 · ручна перевірка власника · 21.09.2026
+
+Продуктовий source `207c7426bcd057cc1a5cfcf172d4c040b05221e9`, runtime `77e8ca05b58efc99d47ce8dd2887074b3c93ba6eaff863a24307ae0e89dc622a`. Стан підготовки/публікації: **FREEZE_FOR_OWNER_REVIEW**. Актуальна звірка всіх 35 карток, S1–S3, UXD-01–08 і 11 gates: [підсумковий звіт](CYCLE_V17_CLOSEOUT_RU.md), [машинна матриця](CYCLE_V17_MATRIX.json). Після передачі звіту — FREEZE_FOR_OWNER_REVIEW: нові етапи, агенти й автоматичні зміни зупинено до нових вказівок. Датовані відомості про доступність і відновлення застосунку наведено в підсумковому звіті. TECHNICAL_READY=false, PILOT_ALLOWED=false, MVP=false.
+
+Membership UI actual3: **FAIL overall (7 PASS / 1 FAIL / 0 NOT_RUN)**; private v5 лише static accepted, не застосований і behavior NOT_RUN. S2 має scoped backend/control/service докази; повне поточне UI/runtime приймання продукту не встановлено.
+
+Далі збережено історичні рішення і checkpoints; їхні «поточні» статуси та команди не перекривають цей датований запис.
+
+---
+
 # BoS · глибинний контекст
 
 Поточний продуктовий checkpoint20.09.2026: [VERTICAL_UA_UA.md](VERTICAL_UA_UA.md), Git`e66af863b0bd840cefb4ef78e5a17414411f3db8`, runtime`7ea639f89ed86ac0bc9fc5ecf201d4d4752fab22e5876700f16a1634e59ffad6`. Повний локальний Git перевірено; українські Branch links/Policy sources/UAHseed/реальний UI і перший CEO scoped accepted. BackendPG15/15,ownerPG17/17; browser/fullgate acceptance ще не зараховано. Нижчі старі checkpoint-кандидати є історією. Новий локальний browser runner дозволений уточненням A11; старі blocked routes/full limits збережені.

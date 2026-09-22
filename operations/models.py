@@ -1,6 +1,7 @@
 from decimal import Decimal
 import uuid
 from django.db import models
+from django.utils import timezone
 from django.conf import settings
 from .private_storage import private_document_storage
 
@@ -25,12 +26,13 @@ class Document(models.Model):
         permissions=[('download_document','Завантажувати доступні документи'),('export_workspace','Експортувати доступний робочий контекст')]
 
 class ProcurementRequest(models.Model):
+    created_at=models.DateTimeField(null=True,default=timezone.now,editable=False)
     code=models.CharField(max_length=30,unique=True)
     part=models.CharField(max_length=120)
     revision=models.CharField(max_length=40)
     quantity=models.PositiveIntegerField()
     unit=models.CharField(max_length=20,default='шт.')
-    currency=models.CharField(max_length=3,default='EUR')
+    currency=models.CharField(max_length=3,default='UAH')
     required_by=models.DateField()
     owner=models.ForeignKey('employees.Employee',on_delete=models.PROTECT)
     document=models.ForeignKey(Document,on_delete=models.PROTECT)
@@ -38,6 +40,7 @@ class ProcurementRequest(models.Model):
     status=models.CharField(max_length=30,default='review')
 
 class SupplierQuote(models.Model):
+    created_at=models.DateTimeField(null=True,default=timezone.now,editable=False)
     code=models.CharField(max_length=30,unique=True)
     request=models.ForeignKey(ProcurementRequest,on_delete=models.CASCADE,related_name='quotes')
     supplier=models.ForeignKey('finance.Counterparty',on_delete=models.PROTECT)
@@ -77,6 +80,33 @@ class Invoice(models.Model):
             models.CheckConstraint(condition=models.Q(('paid__gte', 0), ('paid__lte', models.F('amount'))), name='bos_invoice_paid_range'),
             models.CheckConstraint(condition=models.Q(('currency__in', ('EUR', 'USD', 'UAH'))), name='bos_invoice_currency'),
         ]
+
+
+class SupplierInvoiceRegistration(models.Model):
+    """Immutable accepted supplier document; this is not a payment or AP posting."""
+    identity_sha256=models.CharField(max_length=64,unique=True)
+    invoice_identity_sha256=models.CharField(max_length=64,unique=True)
+    source_sha256=models.CharField(max_length=64)
+    context_sha256=models.CharField(max_length=64)
+    semantic_context_sha256=models.CharField(max_length=64)
+    supplier=models.ForeignKey('finance.Counterparty',on_delete=models.PROTECT)
+    purchase=models.OneToOneField('erp.Purchase',on_delete=models.PROTECT,related_name='supplier_invoice_registration')
+    document=models.ForeignKey(Document,on_delete=models.PROTECT,related_name='supplier_invoice_registrations')
+    invoice_number=models.CharField(max_length=60)
+    invoice_date=models.DateField()
+    amount=models.DecimalField(max_digits=14,decimal_places=2)
+    currency=models.CharField(max_length=3)
+    receipt_ids=models.JSONField(default=list)
+    return_ids=models.JSONField(default=list)
+    registered_by=models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.PROTECT)
+    created_at=models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints=[
+            models.CheckConstraint(condition=models.Q(('amount__gte',0),('amount__lte',Decimal('999999999999.99'))),name='bos_supplier_invoice_amount_range'),
+            models.CheckConstraint(condition=models.Q(('currency__in',('EUR','USD','UAH'))),name='bos_supplier_invoice_currency'),
+        ]
+        ordering=['-created_at','-id']
 
 class Configuration(models.Model):
     key=models.CharField(max_length=50,unique=True)

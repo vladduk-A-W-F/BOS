@@ -265,13 +265,13 @@ def run_flow_checks(page, origin, database, output, report):
             and supply.get('target_location', {}).get('id') == selected['target_id']
             and supply.get('supported') is True and supply.get('operation_proposal') is None,
             'Supply did not use the explicit source and destination')
-    expect(panel.get_by_role('button', name='Перемістити · UA-DEMO-LV-LOT', exact=True)).to_be_visible()
+    expect(panel.get_by_role('button', name='Миттєво перемістити · UA-DEMO-LV-LOT', exact=True)).to_be_visible()
     panel.scroll_into_view_if_needed()
     screenshot('flow-supply-selected')
     before = snapshot()
-    panel.get_by_role('button', name='Перемістити · UA-DEMO-LV-LOT', exact=True).click()
+    panel.get_by_role('button', name='Миттєво перемістити · UA-DEMO-LV-LOT', exact=True).click()
     dialog = page.locator('dialog[open]')
-    expect(dialog.get_by_role('heading', name='Перемістити матеріал', exact=True)).to_be_visible()
+    expect(dialog.get_by_role('heading', name='Миттєво перемістити матеріал', exact=True)).to_be_visible()
     expect(_combo(dialog, 'Вихідна партія')).to_have_value(str(selected['source_lot_id']))
     expect(_combo(dialog, 'Куди')).to_have_value(str(selected['target_id']))
     expect(dialog.get_by_label('Кількість', exact=True)).to_have_value('')

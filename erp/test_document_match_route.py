@@ -1,6 +1,10 @@
 """HTTP integration of the accepted synthetic read adapter only."""
+import os
+from pathlib import Path
+import re
 from unittest.mock import patch
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.db import connection
@@ -23,7 +27,30 @@ class DocumentMatchRouteTests(TestCase):
 
     def setUp(self):
         from operations.test_document_matching_server import DocumentMatchingServerTests
-        DocumentMatchingServerTests.setUp(self)
+        self.assertEqual(os.environ.get('DJANGO_SETTINGS_MODULE'), 'verification_settings')
+        media = Path(settings.MEDIA_ROOT)
+        self.assertTrue(media.is_absolute() and media.is_dir())
+        self.assertEqual(media.drive.lower(), 'd:')
+        self.assertEqual(media.resolve(), Path(os.environ['BOS_TEST_MEDIA']).resolve())
+        configured = os.environ['BOS_TEST_DB_NAME']
+        actual = connection.settings_dict['NAME']
+        if connection.vendor == 'sqlite':
+            self.assertEqual(os.environ.get('BOS_VERIFY_DB', 'sqlite'), 'sqlite')
+            self.assertTrue(Path(configured).is_absolute())
+            self.assertEqual(str(actual), configured + '_django_test')
+        else:
+            self.assertEqual(connection.vendor, 'postgresql')
+            self.assertEqual(os.environ.get('BOS_VERIFY_DB'), 'postgres')
+            self.assertEqual(os.environ.get('BOS_PG_DISPOSABLE'), '1')
+            self.assertIsNotNone(re.fullmatch(r'bos_verify_[a-f0-9]{16}', configured))
+            self.assertEqual(actual, 'test_' + configured)
+            with connection.cursor() as cursor:
+                cursor.execute('SELECT current_database(), current_setting(\'server_version_num\')')
+                database, version = cursor.fetchone()
+            self.assertEqual(database, actual)
+            self.assertGreaterEqual(int(version), 160000)
+            self.assertLess(int(version), 170000)
+        DocumentMatchingServerTests.setup_fixture(self)
         self.client.force_login(self.user)
 
     @property

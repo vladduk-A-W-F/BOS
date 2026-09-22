@@ -15,7 +15,7 @@ from erp.models import SalesOrder
 from .models import Task
 from .queries import as_of,project,source_refs,is_overdue
 
-ACTIONS={'create_task','update_task'}
+ACTIONS={'create_task','update_task','handoff_task'}
 FIELDS={'title','category','priority','assignee_id','deadline','order_id','status','result','archived'}
 LABELS={'title':'Назва','category':'Категорія','priority':'Пріоритет','assignee_id':'Відповідальний','deadline':'Строк','order_id':'Замовлення','status':'Статус','result':'Результат','archived':'В архіві','is_overdue':'Прострочено'}
 
@@ -25,6 +25,9 @@ class ConfirmConflict(Exception):
 
 def clean(payload):
     if not isinstance(payload,dict) or payload.get('action') not in ACTIONS:raise ValueError('Невідома дія доручення.')
+    if payload.get('action')=='handoff_task':
+        from .handoffs import clean as clean_handoff
+        return clean_handoff(payload)
     portable_tree(payload);d=deepcopy(payload);create=d['action']=='create_task'
     required={'action','title','assignee_id','deadline'} if create else {'action','task_id','reason'}
     allowed=required|({'category','priority','order_id','request_code'} if create else FIELDS)
@@ -56,6 +59,9 @@ def clean(payload):
 
 
 def locked_references(payload):
+    if payload['action']=='handoff_task':
+        from .handoffs import locked_references as locked_handoff
+        return locked_handoff(payload)
     task=Task.objects.select_for_update().get(pk=payload['task_id']) if payload['action']=='update_task' else None
     ids={pk for pk in (payload.get('assignee_id'),task.assignee_employee_id if task else None) if pk}
     list(Employee.objects.select_for_update().filter(pk__in=sorted(ids)).order_by('pk'))
@@ -76,6 +82,9 @@ def state(task,refs):
 
 
 def prepare(request,payload,task=None):
+    if payload.get('action')=='handoff_task':
+        from .handoffs import prepare as prepare_handoff
+        return prepare_handoff(request,payload)
     policy=Policy(request);policy.action(payload);create=payload['action']=='create_task'
     if not create:task=policy.tasks().select_related('assignee_employee','sales_order','branch').get(pk=payload['task_id'])
     if create and date.fromisoformat(payload['deadline'])<as_of():raise ValueError('Дедлайн нового доручення не може бути в минулому.')
@@ -117,6 +126,9 @@ def prepare(request,payload,task=None):
 
 
 def fingerprint(payload):
+    if payload.get('action')=='handoff_task':
+        from .handoffs import fingerprint as handoff_fingerprint
+        return handoff_fingerprint(payload)
     task=Task.objects.filter(pk=payload.get('task_id')).first();employee_ids={pk for pk in (payload.get('assignee_id'),task.assignee_employee_id if task else None) if pk}
     data={'as_of':str(as_of()),'payload':payload,'task':list(Task.objects.filter(pk=payload.get('task_id')).values()),'history':list(AuditEvent.objects.filter(task_id=payload.get('task_id')).order_by('pk').values()),
         'employees':list(Employee.objects.filter(pk__in=employee_ids).order_by('pk').values('id','full_name','archived_at','branch_id')),
@@ -138,6 +150,9 @@ def preview(request,payload):
 
 
 def apply(request,payload):
+    if payload.get('action')=='handoff_task':
+        from .handoffs import apply as apply_handoff
+        return apply_handoff(request,payload)
     locked_references(payload);plan=prepare(request,payload)
     if not plan['changed']:raise ConfirmConflict('proposal_stale','Зміни вже не відповідають погодженому стану. Підготуйте новий перегляд.')
     obj=plan['object'];obj.save();principal=actor(request);user=get_user_model().objects.get(pk=principal.user_id)

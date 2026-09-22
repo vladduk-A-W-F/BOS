@@ -1,19 +1,21 @@
 # REVIEW-BRANCH-RECONCILE
 
-Пріоритет P1. Власник bos_architect. Статус READY_READ_ONLY. Залежності: немає; реалізація продукту не входить у цю картку.
+Пріоритет P1. Власник `bos_architect`. Статус **RESOLVED_SOURCE_SCOPED_EVIDENCE_REMAINS**. Автоматичне виконання заборонене чинним `FREEZE_FOR_OWNER_REVIEW`.
 
-## Проблема й доказ
-PR1 `620aeab2010c6c8327ce46c25bb62435bcf7f9e4` і PR2 `abb8845f6563bafa806029ddc1e7c2cace09907c` розійшлися від `edd5227e666442d8324044559b6e8cf10eaf8be1` (PR2: +15/-18). У PR1 erp/migrations/0006_branch_links.py та у PR2 erp/migrations/0006_network_operations.py обидві залежать від 0005_source_corrections і додають Location.branch. PR1 також додає SalesOrder.branch, PR2 — fulfillment_location. У PR2 0007_request_timing залежить від його 0006. Звичайна merge migration сама по собі не усуває повторне AddField.
+## Проблема та історичний доказ
 
-## Дозволені файли й наступний крок
-Читання: обидва erp/migrations/*, erp/models.py, service/queries/policy, procurement migrations, frontend/boss_app_source.html, відповідні source consumers і orchestration реєстри.
-Запис цієї картки: лише новий docs/orchestration/reconciliation/* звіт/картка та погоджені PLAN/STATE/QUEUE у виділеній review-гілці. Продуктові правки — окрема наступна картка з точним allowlist після діагнозу.
-1. Перечитати remote heads і зберегти карту двох графів, полів і споживачів; не перемикати активний checkout.
-2. За дозволеними наявними звітами з'ясувати застосованість міграцій; невідоме позначити UNKNOWN. Не читати реальні клієнтські дані і не підключатися до робочих БД.
-3. Запропонувати сумісний шлях із збереженням історії та обох бізнес-семантик; не видаляти/переписувати застосовані міграції за припущенням.
-4. Окремо звести черги: NETWORK-PLAN-CURRENCY уже scoped accepted у NETWORK_ACCEPTANCE_UA.md при f00a2faf; NETWORK-ACCEPT-PC більше не є автоматично runnable після workflow 3/3. Зберегти обидві лінії evidence і нові CORE картки, а не заміняти свіжу QUEUE старою.
-5. Зафіксувати main divergence +56/-2 та дві власні CI-зміни main; reconcile main лише окремим наступним завданням, не merge зараз.
+У checkpoint 21.09.2026 PR1 і PR2 мали sibling migrations `0006`, які окремо додавали `Location.branch`. Це створювало ризик повторного DDL та несумісного applied history.
+
+## Що змінилося
+
+У [`26f67e3`](https://github.com/vladduk-A-W-F/BOS/commit/26f67e3822121a0edb69f769290a7d2408f1c8b9) реалізовано frozen bridge `SharedLocationBranch` та fail-closed `AssertCompositionEntry`; `0008_compose_branch_network` зводить обидві історії. [`19601f1`](https://github.com/vladduk-A-W-F/BOS/commit/19601f11aeb543cb5227b918fbeb912375a21d63) виправляє database alias історичної migration. `SalesOrder.branch` і `fulfillment_location` залишені різними поняттями.
 
 ## Приймання
-Незалежний reviewer підтверджує повний mapping колізій, один запропонований граф без подвійного поля, сумісність SalesOrder.branch/fulfillment_location, точні refs та окрему виконавчу картку. Ця картка приймає ПЛАН інтеграції, не її виконання. Фінальна runtime-перевірка графа — лише після окремої дозволеної реалізації.
-Заборонено merge/force-push, міграції БД, product edits, full/PG/E2E reruns, production та зміну AGENTS. Ліміти з [checkpoint](../daily/2026-09-21.json) не скидаються.
+
+Підтверджено source reconciliation і фактичний локальний SQLite update на product `207c7426bcd057cc1a5cfcf172d4c040b05221e9`, runtime `77e8ca05b58efc99d47ce8dd2887074b3c93ba6eaff863a24307ae0e89dc622a`: шість migration nodes, збереження 230 старих rows у 53 nonappend tables. Fresh/local/network fixtures використовують оригінальні SHA-pinned histories і не підробляють receipts.
+
+Це **не** PostgreSQL/full migration acceptance: owned runner працює лише з SQLite, PostgreSQL catalog check має mock cursor. Поточні 11 gates не закриті.
+
+## Наступний крок
+
+Не виконувати новий прогін. Після окремого рішення власника можна лише імпортувати наявні raw logs/manifests/reviews для synthetic histories у переносний evidence package з SHA-прив’язкою. Дозволені файли: `docs/orchestration/evidence/**`, відповідний індекс та звіт; product/migrations/AGENTS не змінювати цією карткою.

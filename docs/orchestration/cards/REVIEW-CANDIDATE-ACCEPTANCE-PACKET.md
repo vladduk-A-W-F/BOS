@@ -1,18 +1,20 @@
 # REVIEW-CANDIDATE-ACCEPTANCE-PACKET
 
-Пріоритет P1. Власник bos_readiness_auditor. Статус BLOCKED_DEPENDENCIES.
-Залежності: REVIEW-BRANCH-RECONCILE, REVIEW-NETWORK-PAYMENT-DIAG, REVIEW-EVIDENCE-PORTABILITY. Незалежний попередній збір можливий паралельно; фінальне приймання пакета — після залежностей.
+Пріоритет P1. Власник `bos_readiness_auditor`. Статус **ACCEPT_SCOPED_DOCUMENT_CURRENT_GATES_OPEN**. Продуктове приймання не заявляється.
 
-## Проблема й доказ
-Немає єдиного прийнятого PR1+PR2 runtime. Gate10 exact646d3b8 не охоплює PR2. Gates1–9/11 не прийняті для поточного кандидата. LOCAL-GATE1-4 має незавершений access-current-1/checks=[]; PG preflight має 0 test attempts. Core views на abb8845 мають component/static, не browser proof. Success scope job/skipped/echo-only CI не є продуктовими доказами.
+## Виконано
 
-## Дозволені файли й наступний крок
-Read-only: STATE/QUEUE, ACCEPTANCE_GATES.json, scripts/verify.py (без виконання), reports/raw, Git refs/diffs/jobs. Write: новий docs/orchestration/acceptance-packets/* і погоджені PLAN/STATE/QUEUE; тестовий код і workflows не змінювати.
-Після опублікованого й незалежно перевіреного integrated candidate зафіксувати його Git SHA та source digest. План reconciliation не означає, що цей кандидат уже існує. Якщо інтеграція ще не виконана, лишити відповідну зовнішню передумову OPEN.
-Для кожного з 11 незмінних gates вказати: вимогу, exact source, evidence/CI job, реально виконані cases, skipped/missing, reviewer, ліміт і конкретний наступний дозволений scope.
-Спочатку підготувати адресні prerequisites Gate1/4 та PG fixture; full/PG-suite/E2E не запускати. Restore/Linux/wheels/Caddy/OpenSSL лишаються непідтвердженими до власних доказів.
-При перенесенні PR2 зберегти історичний PG2 PASS/currency accepted, але не переносити їх на новий source без обґрунтованого impact review. Ліміти network workflow/read/composition/core views збережені.
+Для product `207c7426bcd057cc1a5cfcf172d4c040b05221e9` і docs head `c4a68d494a91d3bc9ac5259f6a7b351e5cf6efb0` опубліковано `CYCLE_V17_MATRIX.json` та closeout report. Незалежна перевірка підтвердила:
 
-## Приймання
-Незалежний reviewer підтверджує матрицю, відсутність чужих SHA/непов'язаного CI і мінімальний decision packet лише для дій, яким справді бракує дозволу/середовища. Це приймання документа, не TECHNICAL_READY чи PILOT_ALLOWED.
-Потрібні людські рішення описуються точно; загальний запит «дозвольте все повторити» неприйнятний. Заборонено зміну frozen gates/AGENTS/production/Sites/реальних даних/API. Автоматичне merge й запуск suites не входять у картку.
+- рівно 35 canonical IDs: 24 `READY_SCOPED`, 6 `PARTIAL`, 4 `BLOCKED`, 1 `NOT_STARTED`;
+- усі 11 current-source gates мають `NOT_ACCEPTED` або `BLOCKED`;
+- історичний Gate10 на `646d3b8` не переноситься на product `207c7426`;
+- `TECHNICAL_READY=false`, `PILOT_ALLOWED=false`, MVP=false.
+
+## Межі
+
+Matrix є прийнятим source-bound документом, а не дозволом на запуски чи повним прийманням. `STATE.continuation_acceptance_gates` зберігає історичну таблицю; актуальним зрізом є `CYCLE_V17_MATRIX.json`. Незмінний closeout CI snapshot `PENDING_POST_PUSH_OBSERVATION` не переписується; фактичні post-push runs наведені у daily checkpoint 22.09.2026.
+
+## Наступний крок
+
+Поточний крок — лише ручна перевірка власника. Після нового рішення сформувати окремий bounded authorization для конкретного дефекту; не робити загальний запит на повтор full/PG/E2E і не змінювати production/Sites/реальні дані.

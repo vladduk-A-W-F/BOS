@@ -1,0 +1,67 @@
+{
+  "schema": "bos.owner-smoke.correction-v3a.foreign-review.v1",
+  "verdict": "ACCEPT_SCOPED_OWNER_SMOKE_CORRECTION_V3A_FOR_ROOT_THIRD_DECISION",
+  "reviewer": "A, independent of B author/executor",
+  "blockers": 0,
+  "closed_finding": "SMOKE3-LOCATOR-1",
+  "manifest": {
+    "path": "D:\\3\\BOSDev\\handoffs\\cycle-v17-owner-review-browser-smoke-preparation-20260921\\correction-v3a\\MANIFEST.json",
+    "sha256": "00fc100aee5533035bd9908d455e6815b970aba56bad63afe8eada1d771adbb2",
+    "bytes": 6750
+  },
+  "core_manifest": {
+    "path": "D:\\3\\BOSDev\\handoffs\\cycle-v17-owner-review-browser-smoke-preparation-20260921\\correction-v3a\\PREPARATION_MANIFEST.json",
+    "sha256": "f2a1814524910074f926c13e250ad459a151c7bdee990132b121cbac53b600c9",
+    "bytes": 31423
+  },
+  "outer_manifest": {
+    "path": "D:\\3\\BOSDev\\handoffs\\cycle-v17-owner-review-browser-smoke-preparation-20260921\\correction-v3a\\outer-capture\\MANIFEST.json",
+    "sha256": "e5af9b3e87f0146c9e7f742e7a870c7aaa2aceff8d2acfac328130a0edba41f8",
+    "bytes": 2826
+  },
+  "audit": {
+    "path": "D:\\3\\Codex\\2026-09-20\\bos-execution\\work\\network-composition-evidence-20260920\\cycle-v17-owner-smoke-actual2-independent-review-20260921\\correction-v3a-review\\AUDIT.json",
+    "sha256": "caa8d8a6249610625df792e2090284f6729dcdc578451ab4071344b073d4bc3d",
+    "bytes": 17211
+  },
+  "reused_v3_review": {
+    "path": "D:\\3\\Codex\\2026-09-20\\bos-execution\\work\\network-composition-evidence-20260920\\cycle-v17-owner-smoke-actual2-independent-review-20260921\\correction-review\\REVIEW.json",
+    "sha256": "4b6cf416873f8e7481777361b92f38526de30787854ee868c17d05fc72b9272b",
+    "bytes": 1605
+  },
+  "actual2_failure_review": {
+    "path": "D:\\3\\Codex\\2026-09-20\\bos-execution\\work\\network-composition-evidence-20260920\\cycle-v17-owner-smoke-actual2-independent-review-20260921\\REVIEW.json",
+    "sha256": "c2539f69ec03562f6ab1b468662480570bf434ed582fb0c3a83349f859d5f070",
+    "bytes": 2099
+  },
+  "approved_preparatory_scope": "Only actual same-page observed-or-future GET200 plus source-backed completed states for four owner read routes; no forced request or business mutation. Unique wrapped-label locator corrected.",
+  "proposed_execution_limits": {
+    "attempt": 3,
+    "prior_actual_invocations": 2,
+    "max_new_invocations": 1,
+    "timeout_seconds": 180,
+    "routes": [
+      "workpoints",
+      "orders",
+      "procurement",
+      "network"
+    ],
+    "automatic_retry": false,
+    "last_in_current_smoke_scope": true,
+    "persistent_server_stop": false
+  },
+  "execution_authorized": false,
+  "required_next_root_step": "Materialize exact THIRD approval, outer command and host binding with this review/core/outer/host pins; use exact frozen Functions transport and original result persistence.",
+  "preserved_history": [
+    "Actual1 FAIL 0/0/4",
+    "Actual2 FAIL 0/1/3",
+    "v3 unexecuted HOLD",
+    "Existing browser6/profiler/P05/MEMUI history unchanged"
+  ],
+  "limits": [
+    "No product or route readiness PASS asserted",
+    "Readiness remains a real runtime condition; timeout/denied/error fails",
+    "No runtime update/restart/seed; existing owner server unchanged",
+    "No new target execution by reviewer"
+  ]
+}

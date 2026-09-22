@@ -1,5 +1,5 @@
 {
-  "source": "Accepted ACCESS_AUDIT_UA + A03 auth additions; live resolver 2026-09-11; permissions are in check_access.py, not inferred from handlers; A09 server health additions 2026-09-12 (original patterns unchanged); B02 four explicit CEO-only initial-import routes (all previous patterns retained); B03 explicit read-only committed correction outcome route (all176 entries retained); C01 explicit task-history plain/format and owner proposal-status routes; all177 B03 records and57 required field IDs retained C03 adds8 named statement paths and2 DRF journal-summary definitions; no ledger admin registration. | 2026-09-20 BATCH-02 PLAN-LINKS-READ additive GET and field boundaries; historical writers85/12 unchanged. | 2026-09-20 VERTICAL-UA-DATA additive GET workpoints, visible-source role oracle; historical definitions and writers85/12 unchanged. | 2026-09-20 FLOW-READ-UI adds two scoped GET definitions; historical writers85/12 unchanged. | 2026-09-20 DOC-MATCH-READ-UI adds one CEO-only GET; synthetic read draft only; writers85/12 unchanged.",
+  "source": "Accepted ACCESS_AUDIT_UA + A03 auth additions; live resolver 2026-09-11; permissions are in check_access.py, not inferred from handlers; A09 server health additions 2026-09-12 (original patterns unchanged); B02 four explicit CEO-only initial-import routes (all previous patterns retained); B03 explicit read-only committed correction outcome route (all176 entries retained); C01 explicit task-history plain/format and owner proposal-status routes; all177 B03 records and57 required field IDs retained C03 adds8 named statement paths and2 DRF journal-summary definitions; no ledger admin registration. | 2026-09-20 BATCH-02 PLAN-LINKS-READ additive GET and field boundaries; historical writers85/12 unchanged. | 2026-09-20 VERTICAL-UA-DATA additive GET workpoints, visible-source role oracle; historical definitions and writers85/12 unchanged. | 2026-09-20 FLOW-READ-UI adds two scoped GET definitions; historical writers85/12 unchanged. | 2026-09-20 DOC-MATCH-READ-UI adds one CEO-only GET; synthetic read draft only; writers85/12 unchanged. | 2026-09-20 NETWORK-COMPOSITION adds three scoped GET definitions; physical point filters and separate export capability; historical records preserved. No access sweep claimed.",
   "patterns": [
     {
       "actions": null,
@@ -1829,6 +1829,30 @@
       "converters": {
         "pk": "IntConverter"
       }
+    },
+    {
+      "pattern": "api/erp/network/",
+      "name": "bos-network",
+      "callback": "erp.network_views.snapshot",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/erp/network/export/",
+      "name": "bos-network-export",
+      "callback": "erp.network_views.export",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/erp/modules/",
+      "name": "bos-modules",
+      "callback": "erp.module_views.registry",
+      "actions": null,
+      "model": null,
+      "converters": {}
     }
   ],
   "required_field_tests": [

@@ -13,12 +13,12 @@ from django.utils import timezone
 from boss_project.policy import Policy
 from operations.models import Invoice
 from .balances import exact, invoice_settlement, money_text
-from .models import Event, InvoiceAdjustment, InvoiceLink, SalesOrder
+from .models import Event, InvoiceAdjustment, InvoiceLink, PaymentRetention, SalesOrder
 from .order_trace import ReadStateChanged, digest, serial, write_revision
 
 SCHEMA = 'bos.order-settlement.v1'
 LIMIT = 100
-MONEY_FIELDS = ('gross_invoiced', 'credited', 'invoiced', 'paid', 'open', 'customer_credit')
+MONEY_FIELDS = ('gross_invoiced', 'credited', 'invoiced', 'paid', 'open', 'customer_credit', 'retained', 'collectible')
 BASIS = ('Поточні пов’язані рахунки після чинних кредитів і сторнування; '
          'оплачено — облікове поле рахунку. Історія оплат звіряється окремо. '
          'Валюти не конвертуються; це не залишок коштів і не підтвердження банку.')
@@ -103,6 +103,11 @@ def collect(policy, order_id):
                                              'reversed_credit_id', 'reversal__id', 'created_at'))
     if len(credit_rows) != InvoiceAdjustment.objects.filter(invoice_id__in=invoice_ids).count():
         raise PermissionError('Розрахунок недоступний у поточному доступі.')
+    retention_rows = list(policy.queryset(PaymentRetention).filter(invoice_id__in=invoice_ids)
+                          .order_by('pk').values('id', 'code', 'invoice_id', 'amount', 'currency',
+                                                'status', 'reason', 'release_reason', 'created_at', 'released_at'))
+    if len(retention_rows) != PaymentRetention.objects.filter(invoice_id__in=invoice_ids).count():
+        raise PermissionError('Розрахунок недоступний у поточному доступі.')
     # Numeric-string IDs are legacy malformed records: include them for explicit
     # reconciliation failure, never silently treat them as a valid payment.
     events = policy.queryset(Event).filter(action='erp_payment',
@@ -114,11 +119,13 @@ def collect(policy, order_id):
                       for key in ('invoice_id', 'amount', 'reference')}}
                   for row in events.order_by('pk').values('id', 'created_at', 'payload')
                   if isinstance(row['payload'], dict)] if invoice_ids else []
-    credits, payments = defaultdict(list), defaultdict(list)
+    credits, payments, retentions = defaultdict(list), defaultdict(list), defaultdict(list)
     credit_ids = {row['id'] for row in credit_rows}
     invoice_id_set, invoice_id_strings = set(invoice_ids), {str(pk) for pk in invoice_ids}
     for row in credit_rows:
         credits[row['invoice_id']].append(row)
+    for row in retention_rows:
+        retentions[row['invoice_id']].append(row)
     for row in event_rows:
         # Query scope is verified again before associating an event. In
         # particular a JSON boolean must never alias integer invoice ID 1.
@@ -127,7 +134,8 @@ def collect(policy, order_id):
             if int(value) in invoice_id_set:
                 payments[int(value)].append(row)
     source = {'order': {'id': order.pk, 'code': order.code, 'status': order.status},
-              'links': links, 'invoices': [], 'credits': credit_rows, 'payments': event_rows}
+              'links': links, 'invoices': [], 'credits': credit_rows, 'payments': event_rows,
+              'retentions': retention_rows}
     totals, invoice_dtos = {}, []
     incomplete = partial = False
     link_by_invoice = {row['invoice_id']: row['id'] for row in links}
@@ -135,7 +143,7 @@ def collect(policy, order_id):
         settlement = invoice_settlement(invoice)
         values = dict(zip(MONEY_FIELDS, (invoice.amount, settlement['effective_credit'],
                       settlement['net_amount'], invoice.paid, settlement['receivable'],
-                      settlement['customer_credit'])))
+                      settlement['customer_credit'], settlement['retained'], settlement['collectible'])))
         group = totals.setdefault(invoice.currency, {key: Decimal(0) for key in MONEY_FIELDS})
         for key, value in values.items():
             group[key] += value
@@ -145,13 +153,20 @@ def collect(policy, order_id):
                         'active': row['kind'] == 'credit' and row['reversal__id'] is None,
                         'reversed_credit_id': row['reversed_credit_id'] if row['reversed_credit_id'] in credit_ids else None,
                         'created_at': row['created_at']} for row in credits[invoice.pk]]
-        more = {'payments': history['has_more'], 'adjustments': len(adjustments) > LIMIT}
+        retention_sources = [{'retention_id': row['id'], 'code': row['code'], 'invoice_id': invoice.pk,
+                              'amount': money_text(row['amount']), 'currency': row['currency'],
+                              'status': row['status'], 'reason': row['reason'],
+                              'release_reason': row['release_reason'], 'created_at': row['created_at'],
+                              'released_at': row['released_at']} for row in retentions[invoice.pk]]
+        more = {'payments': history['has_more'], 'adjustments': len(adjustments) > LIMIT,
+                'retentions': len(retention_sources) > LIMIT}
         partial |= any(more.values())
         incomplete |= history['status'] != 'complete'
         invoice_dtos.append({'invoice_id': invoice.pk, 'invoice_link_id': link_by_invoice[invoice.pk],
                              'code': invoice.code, 'currency': invoice.currency, 'due_date': invoice.due_date,
                              **{key: money_text(value) for key, value in values.items()},
-                             'payment_history': history, 'adjustments': adjustments[:LIMIT], 'has_more': more})
+                             'payment_history': history, 'adjustments': adjustments[:LIMIT],
+                             'retentions': retention_sources[:LIMIT], 'has_more': more})
         source['invoices'].append({'id': invoice.pk, 'code': invoice.code, 'currency': invoice.currency,
                                    'due_date': invoice.due_date, **values})
     more_invoices = len(invoice_dtos) > LIMIT

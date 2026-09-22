@@ -1,0 +1,176 @@
+{
+  "schema": "bos.closeout.final-factual.independent-review-checkpoint.v1",
+  "at_utc": "2026-09-21T21:34:41.658170+00:00",
+  "reviewer": "/root/closeout_final_review",
+  "immutable_checkpoint": true,
+  "review_mode": "Read-only inspection of existing files and screenshots; only this private checkpoint was written.",
+  "actual_smoke3": {
+    "verdict": "ACCEPT_SCOPED_SMOKE3_HISTORICAL",
+    "blockers": [],
+    "receipt": {
+      "path": "D:/3/BOSDev/handoffs/cycle-v17-owner-review-browser-smoke-preparation-20260921/correction-v3a/execution-attempt-3/receipt.json",
+      "sha256": "6af4e6f9456be7cc4d1251941d5a3362e42872d71e38288a137a921e6741a0df",
+      "bytes": 11652
+    },
+    "recorded_interval_utc": [
+      "2026-09-21T20:52:46.450691+00:00",
+      "2026-09-21T20:53:00.262288+00:00"
+    ],
+    "counts": {
+      "PASS": 4,
+      "FAIL": 0,
+      "NOT_RUN": 0
+    },
+    "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+    "recorded_source_before_after": {
+      "files": 426,
+      "digest": "77e8ca05b58efc99d47ce8dd2887074b3c93ba6eaff863a24307ae0e89dc622a",
+      "equal": true
+    },
+    "recorded_served_app_sha256": "4b2918a018cf2499a4aa2ea8ca598c7abfd17fd74379ab4236250723a5390263",
+    "routes": [
+      "workpoints",
+      "orders",
+      "procurement",
+      "network"
+    ],
+    "scope": "Four owner read routes at 1440x1000. Orders acceptance is the data-gated sales heading plus a real GET200 snapshot from the same authenticated page; it does not accept every per-order next-action state.",
+    "normal_login": {
+      "authenticated": true,
+      "role": "ceo",
+      "mode": "working",
+      "login_posts": 1,
+      "business_posts_allowed": 0
+    },
+    "actual_read_witnesses": "Each of the four recorded API reads is GET200; orders reuses the observed authenticated-page snapshot, procurement includes automatic compare200.",
+    "original_execution": {
+      "host_tool_results": 2,
+      "session_id": 37218,
+      "host_final_exit": 0,
+      "gate_exit": 0,
+      "target_exit": 0,
+      "timeout": false,
+      "retry": false,
+      "host_summary_sha256": "bfd371f1bcc128d8f2d0c56f06352cb6a205f01b5030772be2672fe46838aea7",
+      "outer_result_sha256": "320fdf061cb7d2b90d8ecd50d0cbe2f638df40d6b4c5994c4cfc439ab64873c4",
+      "host_result_sha256": [
+        "4ada018b4f13155ef3282608b018eb84bc8dc9069aa8034041668cd142f50904",
+        "11c5e6092a259d0d826f02aaf93cc2988ec3a3dcd5504dc38d1f0859024782d8"
+      ],
+      "target_exit_sha256": "8723d1d3399ac2c79aa505aa4fb23c6440934d86f74819a09b7c351d48c05730",
+      "stdout_and_stderr_hashes_and_sizes_match_outer": true,
+      "stderr_bytes": 0,
+      "prelaunch_and_target_start_exit_argv_identities_match": true
+    },
+    "screenshots": {
+      "all_four_hashes_and_sizes_verified": true,
+      "all_four_visually_inspected": true,
+      "sha256": {
+        "workpoints.png": "7eb419abf7ac5bab5597d803e63e3cee805ec8bc119cb4ad9c774d5b4a115f3f",
+        "orders.png": "8f7b8bf2b294f1888956ade38133dba2db9965124785a2eae66965dcec3b24d6",
+        "procurement.png": "7c70734899b15f9f5fedb9c75ad5b11236529f13b49b6d236e6b04f9929c3ce1",
+        "network.png": "ee9840b54021636e17b48e0167d52fcb7c3bf7d5715cba7e37e4087679a0c790"
+      },
+      "visual_scope_note": "Screens show the four requested read sections. Orders still displays per-order next-step checks, which are outside this smoke acceptance."
+    },
+    "recorded_cleanup": {
+      "browser_closed": true,
+      "owned_edge_exited": true,
+      "profile_removed": true,
+      "server_stop_called": false,
+      "server_owned_handles_still_running_at_receipt": true
+    },
+    "errors": "One startup401 console resource error accompanies unauthenticated auth/me; no page_errors, request_failures or blocked_requests. No blanket clean-console claim.",
+    "history_preserved": [
+      "Actual1 FAIL0/0/4",
+      "Actual2 FAIL0/1/3",
+      "v3 unexecuted locator HOLD corrected in v3a"
+    ],
+    "reused_preparation_review_sha256": "a8774cd85aa9eedba678910d873616fb76914c541ee4af3c52d23dee52591870",
+    "preparation_review_note": "This is a preparatory/static approval, not an earlier actual3 acceptance.",
+    "limitation": "Historical receipt only; no current availability, full gates, full UI, MEMUI4, production, pilot or MVP acceptance."
+  },
+  "docs_factual_delta": {
+    "verdict": "ACCEPT_NON_AVAILABILITY_DELTA_HOLD_AVAILABILITY_ONLY",
+    "subject": {
+      "path": "D:/3/BOSDev/handoffs/cycle-v17-closeout-final-documentation-20260921/final-runtime-smoke/MANIFEST.json",
+      "sha256": "5edbb2573913a5c4031409d570c629c22c2938929d059fdf307f5c162ac5b971"
+    },
+    "accepted_baseline": {
+      "manifest_sha256": "ba28e58d9ad2f5cd4a28f9bb95dc392590666a5dac03fdfcd036e44e27b038ca",
+      "independent_review_sha256": "2a1eec56c0ca2dfd73d2f5492102c4c4b90e90795404fe32524cc36483e9724d"
+    },
+    "verified_scope": {
+      "files": 33,
+      "all_post_hashes_and_sizes_match": true,
+      "allowlist_exact_unique_docs_only": true,
+      "added_portable_evidence": 11,
+      "changed_existing_closeout_files": 7,
+      "removed_files": 0,
+      "all11_external_evidence_pins_match": true
+    },
+    "preserved": {
+      "cards_and_queue_tasks": "All35 cards and all35 queue task records semantically identical to accepted draft2, retaining IDs/status/dependencies/history.",
+      "counts": {
+        "READY_SCOPED": 24,
+        "PARTIAL": 6,
+        "BLOCKED": 4,
+        "NOT_STARTED": 1
+      },
+      "scenarios": 3,
+      "gate_definitions": 11,
+      "UXD": "8 retained; UXD06 wording only changes planned smoke to read-only smoke.",
+      "state_historical_records": "historical_before_v17_closeout, historical_limits, historical_registry_before_network_c514 and historical product candidate fields unchanged.",
+      "UI3": "FAIL7/1/0 retained; no new membership behavior acceptance.",
+      "private_v5": "STATIC_ACCEPT_ONLY_NOT_APPLIED_BEHAVIOR_NOT_RUN",
+      "technical_ready": false,
+      "pilot_allowed": false,
+      "MVP": false
+    },
+    "accepted_factual_updates": [
+      "Runtime update2 historical acceptance is bound to independent review690fbf7e27bf225911d7fd15dd2b4e8803a4ec871901f41fd3620df59bb2f321, outcome236a4b270ed5ac0c684935a2e730b4be8fbe7d42a29c5fbf8a51366dee7fd3f6 and root acceptance5209934e6afca62654d93fe1cf44763f7d02784f6b05e930dd5cddcd39ee48d6.",
+      "Historical update scope:6 migrations,0 seed,0 build,53 existing business-table old-column projections and230 rows preserved at update; later ordinary login is not claimed byte-unchanged.",
+      "Smoke3 facts, normal login, bounded scope, recorded cleanup, failure history and one expected startup401 are represented without broader readiness claims.",
+      "Exact local show-login.ps1 path exists; its secret contents were not read or executed.",
+      "CI remains PENDING_POST_PUSH_OBSERVATION with no automatic rerun or skipped-as-pass claim.",
+      "Freeze phase preserves the stop-development and owner-review boundary."
+    ],
+    "hold_findings": [
+      {
+        "id": "AVAILABILITY-1",
+        "scope": "STATE.execution.background_service_running, publication.runtime.running/status/history and duplicated verification/checks",
+        "reason": "Unqualified current running=true / remains available / no further restart claims are stale after the recorded outage; qualify successful update/smoke as dated snapshots and bind current availability to later restoration evidence."
+      },
+      {
+        "id": "AVAILABILITY-2",
+        "scope": "Three UA leads, Russian report availability lead and online_access scope",
+        "reason": "Current link availability and no-restart statements must reflect the later outage/restoration; preserve historical smoke and transport separation."
+      }
+    ],
+    "non_availability_blockers": [],
+    "successor_review_limit": "Only the incoming factual availability/outage/restoration delta and new manifest identity need review. Reuse the completed33-file/35-card/4-PNG checks; no exhaustive re-review or rerun."
+  },
+  "later_outage": {
+    "path": "D:/3/BOSDev/online-review/20260921/OUTAGE_20260921_2118.json",
+    "sha256": "3d7564472ac00b5dd472710d93d14c5bc748b6f2c35b01f9b8ea8174d8fa501b",
+    "reported_at_utc": "2026-09-21T21:18:53Z",
+    "checked_at_utc": "2026-09-21T21:27:13.1597409Z",
+    "recorded_old_pids_alive": 0,
+    "recorded_listeners": 0,
+    "recorded_cloudflare_error": 1033,
+    "causation_note": "Codex restart preceded absence of prior serving processes. Parent-lifetime coupling is inferred; exact termination event is unavailable.",
+    "current_restoration": "Pending separate controller receipt; not sampled by this reviewer."
+  },
+  "reused_review_limits": "Prior static preparation, docs consistency and runtime update2 acceptances were hash-verified and reused; helper implementation and historical suites were not reviewed again.",
+  "mutations": {
+    "private_checkpoint_only": true,
+    "application": 0,
+    "browser": 0,
+    "HTTP": 0,
+    "database": 0,
+    "git": 0,
+    "tests": 0,
+    "process_actions": 0,
+    "shared_source": 0
+  }
+}

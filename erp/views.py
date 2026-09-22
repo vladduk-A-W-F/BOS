@@ -164,7 +164,8 @@ def document_match(request, pk):
     supplier_id, item_id = selected('supplier_id'), selected('item_id')
     def read(current):
         draft = build(current, document_id, purchase_id=pk, supplier_id=supplier_id, item_id=item_id)
+        from operations.document_matching.registration import projection
         return {'schema': 'bos.document-match-read.v1', 'purchase_id': pk, 'document_id': document_id,
                 'access_revision': current.bos_access_revision, 'generated_at': timezone.now().isoformat(),
-                'draft': draft}
+                'draft': draft, 'supplier_invoice_registration': projection(current, pk, document_id)}
     return projection_response(request, read)

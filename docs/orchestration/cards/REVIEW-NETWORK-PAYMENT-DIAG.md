@@ -1,16 +1,17 @@
 # REVIEW-NETWORK-PAYMENT-DIAG
 
-Пріоритет P1. Власник bos_diagnostician. Статус READY_READ_ONLY. Залежності: немає; паралельно з reconciliation.
+Пріоритет P1. Власник `bos_diagnostician`. Статус **ON_HOLD_FREEZE_HISTORICAL_CAUSE_OPEN**. Автоматичне виконання заборонене.
 
-## Проблема й доказ
-[Run 35516896359](https://github.com/vladduk-A-W-F/BOS/actions/runs/35516896359) на `929a395547fa1ed496171120a14b19bc8d5b6f87`, source `c15dfe0e3aeefde2fd4fa7af0e9dd2c7c04072a59b185554b821576b4c2111ca`.
-PG job 106094275478 PASS для двох mutex-cases; browser job 106094275495 exit1 після 57 assertions, остання «hold preserves receivable». Timeout 15000ms при очікуванні response payment preview. Причина не встановлена: це не доказ несправного backend або невідправленого запиту. Payment/release/final settlement, mobile і manager/observer не прийняті. Network workflow вже 3/3.
+## Проблема та доказ
 
-## Дозволений наступний крок
-Read-only: .github/ci/network_browser_acceptance.py, frontend/boss_app_source.html, preview/confirm handlers, збережені network-acceptance/final reports, raw request/response/DOM/console/screenshot evidence на точних SHA. Не виконувати код із evidence.
-Write allowlist: нові docs/orchestration/diagnostics/network-payment/* і погоджені orchestration записи у review-гілці.
-Побудувати timeline: UI payload/selector → дія → початок очікування → наявні HTTP/console events → timeout. Відокремити harness, UI state, request/response та серверні гіпотези. Зіставити з новішим core views diff, не переносити 57 assertions на abb8845 або майбутній merge.
+[Run 35516896359](https://github.com/vladduk-A-W-F/BOS/actions/runs/35516896359) на `929a395547fa1ed496171120a14b19bc8d5b6f87` зафіксував PASS двох PostgreSQL mutex-сценаріїв, але browser payment preview завершився timeout. Workflow використав дозволений ліміт 3/3. Першопричину timeout не доведено.
 
-## Приймання
-Точна першопричина з посиланнями на raw+source або явна мінімальна прогалина спостереження; незалежний reviewer; окрема картка виправлення лише за доведеного дефекту. Якщо журналів недостатньо, результат BLOCKED_MISSING_EVIDENCE і конкретний безпечний план, не вигаданий діагноз.
-Не збільшувати timeout або послаблювати assertion заради PASS. Жодного четвертого запуску workflow/обходу ліміту через локальну копію, новий ID чи агент. Ніяких продуктових змін цією карткою.
+Пізніший `linked.json` підтверджує collectible payment/replay лише в історичному in-process service-chain scope на `954608682837966a9e0c63ad8760294d53c8a187`. Після нього server/migrations/settings/dependencies не змінювалися, тому доказ можна повторно використати в його точних межах. Він не закриває browser incident, ролі, HTTP чи restart.
+
+## Наступний крок після явного відновлення робіт
+
+1. Розібрати вже збережені журнали та таймлайни без запуску suite.
+2. Відокремити timeout harness/browser від можливої серверної помилки.
+3. Якщо причина не доводиться з наявного evidence, повернути `CAUSE_OPEN` і конкретний запит рішення; не збільшувати timeout і не створювати четвертий запуск.
+
+Дозволені файли: лише `docs/orchestration/evidence/**`, `docs/orchestration/PLAN_TIME_RESULTS_UA.md` та ця картка. Product, БД, browser/full/PG/E2E запуски не дозволені.
