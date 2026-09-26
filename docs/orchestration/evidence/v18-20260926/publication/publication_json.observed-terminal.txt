@@ -1,0 +1,20 @@
+OBSERVED_TERMINAL_TRANSCRIPT
+The first and only publication JSON matrix execution emitted a terminating
+PowerShell exception before its planned stdout-stderr receipt could be written.
+This transcript preserves the output observed by the execution harness. It is
+not a rerun.
+
+JSON_PARSE=PASS path=docs\orchestration\STATE.json
+JSON_PARSE=PASS path=docs\orchestration\CURRENT_BASELINE.json
+JSON_PARSE=PASS path=docs\orchestration\QUEUE.json
+JSON_PARSE=PASS path=docs\tracker\activity.json
+JSON_PARSE=PASS path=docs\orchestration\evidence\v18-20260926\MAIN_PUBLICATION.json
+Exception:
+Line |
+  37 |  ... xpectedDigest) { throw 'CURRENT_BASELINE current identity mismatch' }
+     |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | CURRENT_BASELINE current identity mismatch
+
+CLASSIFICATION=FAIL_HARNESS_FIELD_NAME
+CAUSE=The harness read STATE's field name product_candidate_commit against CURRENT_BASELINE. The established CURRENT_BASELINE schema uses product_commit, whose observed value is 25208141c247ba931fce3a972be45536eafdd1c7; its top-level runtime_source_sha256 is the expected 44a3a2ee9fb1e8b36917f7c2c5c6aa60e533f1d3236e26de907e64520f94307a.
+NO_RERUN=true

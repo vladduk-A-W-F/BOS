@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updatedAt": "2026-09-26T14:06:49Z",
+  "updatedAt": "2026-09-26T19:28:57Z",
   "productVersion": "BoS v18",
   "runtimeVersion": "0.2.18-current",
   "currentManifest": "docs/orchestration/CURRENT_BASELINE.json",
@@ -11,10 +11,10 @@
       "id": "v18-numbered-baseline",
       "title": "BoS v18: согласовать номер, записи и проверку кода",
       "status": "done",
-      "updatedAt": "2026-09-26T14:06:49Z",
-      "summary": "BoS v18 / 0.2.18-current подготовлена для review в PR #8. Независимо приняты bounded syntax/import/checker-проверки; текущие записи согласованы. Полная приёмка продукта и публикация v18 в main не заявлены.",
+      "updatedAt": "2026-09-26T19:28:57Z",
+      "summary": "BoS v18 / 0.2.18-current принята в main через PR #8 по прямому разрешению владельца; merge 718b894. Все четыре коммита сохранены. Новый нумерованный тег передаётся атомарно с итоговыми записями. Полная продуктовая приёмка не заявлена.",
       "sourceType": "agent_report",
-      "next": "Получить решение владельца о merge v18 в main и новом теге; текущее ограничение main сохраняется.",
+      "next": "Сохранить текущую версию до следующего поручения; открытые продуктовые критерии остаются в manifest.",
       "evidence": [
         "https://github.com/vladduk-A-W-F/BOS/pull/8",
         "docs/orchestration/CURRENT_BASELINE.json"
@@ -64,6 +64,11 @@
     }
   ],
   "events": [
+    {
+      "at": "2026-09-26T19:28:57Z",
+      "text": "Владелец разрешил финальную передачу. PR #8 merged в main без squash: 718b894. BoS v18 закрепляется новым тегом bos-v18-current-2026-09-26 вместе с итоговым docs-only коммитом; прежний snapshot сохранён.",
+      "kind": "verified_github_merge"
+    },
     {
       "at": "2026-09-26T14:06:49Z",
       "text": "BoS v18 подготовлена в PR #8: Python342, JSON24, Node14, guarded Django и checker приняты в ограниченной области. Main и новый тег ожидают решения владельца; product readiness остаётся false.",

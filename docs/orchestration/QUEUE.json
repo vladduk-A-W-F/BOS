@@ -3,12 +3,22 @@
   "current_baseline_manifest": "docs/orchestration/CURRENT_BASELINE.json",
   "product_version": "BoS v18",
   "runtime_version": "0.2.18-current",
-  "current_delivery": "V18-REGISTER-20260926",
+  "current_delivery": "V18-PUBLISH-20260926",
   "automatic_execution_allowed": false,
-  "launch_gate": "V18_REVIEW_READY_AWAITING_MAIN_DECISION",
+  "launch_gate": "V18_CURRENT_MAIN_INTERIM_FINAL",
   "all_tasks_require_owner_plan_review": false,
   "rules": "PLAN-* є запропонованими ключами; не перейменовувати історичні P-ID. Залежності необхідні, але не замінюють external_prerequisites.",
   "tasks": [
+    {
+      "id": "V18-PUBLISH-20260926",
+      "title": "Publish reviewed v18 as current main with a numbered immutable snapshot",
+      "owner": "bos_architect",
+      "depends_on": ["V18-REGISTER-20260926"],
+      "status": "MAIN_MERGED_ATOMIC_RECEIPT_PUBLICATION",
+      "card": "docs/orchestration/cards/V18-PUBLISH-20260926.md",
+      "evidence": "docs/orchestration/evidence/v18-20260926/MAIN_PUBLICATION.json",
+      "automatic_execution_allowed": false
+    },
     {
       "id": "VERSION-V18-20260926",
       "title": "Align the application stamp with the v18 product cycle",
@@ -44,7 +54,7 @@
       "title": "Reconcile all current version records and final code review",
       "owner": "bos_architect",
       "depends_on": ["VERIFY-V18-BOUNDED-01"],
-      "status": "REVIEW_READY_MAIN_DECISION_REQUIRED",
+      "status": "COMPLETED_ACCEPTED_IN_PR8",
       "card": "docs/orchestration/cards/V18-REGISTER-20260926.md",
       "evidence": "docs/orchestration/CURRENT_BASELINE.json",
       "automatic_execution_allowed": false

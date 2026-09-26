@@ -11,7 +11,7 @@ BoS v18 має номер застосунку `0.2.18-current`. Це насту
 - [Запуск і робота із застосунком](README_UA.md)
 - [Історія початкових 100 комітів](docs/orchestration/consolidation-20260926/COMMITS.md)
 
-Фактичний статус v18 у main/PR/тегу визначає манифест; назва версії сама по собі не доводить публікацію. Старий snapshot `bos-current-2026-09-26` залишається незмінним. `TECHNICAL_READY=false`, `PILOT_ALLOWED=false`, `MVP=false`: проміжна підсумкова версія не означає production-готовність або повне приймання всіх бізнес-сценаріїв.
+BoS v18 є поточною основною версією: [PR #8](https://github.com/vladduk-A-W-F/BOS/pull/8) об'єднано в main зі збереженням комітів. Нумерований snapshot: [bos-v18-current-2026-09-26](https://github.com/vladduk-A-W-F/BOS/tree/bos-v18-current-2026-09-26); точні записи публікації містить манифест. Старий snapshot `bos-current-2026-09-26` залишається незмінним. `TECHNICAL_READY=false`, `PILOT_ALLOWED=false`, `MVP=false`: проміжна підсумкова версія не означає production-готовність або повне приймання всіх бізнес-сценаріїв.
 
 ## Походження
 
