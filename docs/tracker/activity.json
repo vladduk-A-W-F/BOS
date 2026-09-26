@@ -1,8 +1,25 @@
 {
   "schema": 1,
-  "updatedAt": "2026-09-20T19:46:01Z",
+  "updatedAt": "2026-09-26T14:06:49Z",
+  "productVersion": "BoS v18",
+  "runtimeVersion": "0.2.18-current",
+  "currentManifest": "docs/orchestration/CURRENT_BASELINE.json",
+  "currentReport": "docs/orchestration/V18_CURRENT_RU.md",
   "agent": "Codex",
   "tasks": [
+    {
+      "id": "v18-numbered-baseline",
+      "title": "BoS v18: согласовать номер, записи и проверку кода",
+      "status": "done",
+      "updatedAt": "2026-09-26T14:06:49Z",
+      "summary": "BoS v18 / 0.2.18-current подготовлена для review в PR #8. Независимо приняты bounded syntax/import/checker-проверки; текущие записи согласованы. Полная приёмка продукта и публикация v18 в main не заявлены.",
+      "sourceType": "agent_report",
+      "next": "Получить решение владельца о merge v18 в main и новом теге; текущее ограничение main сохраняется.",
+      "evidence": [
+        "https://github.com/vladduk-A-W-F/BOS/pull/8",
+        "docs/orchestration/CURRENT_BASELINE.json"
+      ]
+    },
     {
       "id": "tracker",
       "title": "Создать панель хода проекта",
@@ -16,12 +33,13 @@
     {
       "id": "merge",
       "title": "Объединить рабочие версии BOS",
-      "status": "planned",
-      "summary": "Согласовать основную и сетевую ветки; разрешить конфликты кода и миграций.",
-      "sourceType": "audit_plan",
-      "updatedAt": "2026-09-20T19:46:01Z",
+      "status": "done",
+      "summary": "Все исходные коммиты объединены в main через PR #7; опубликован неизменяемый snapshot 03fa08f. Это завершение консолидации, не production-готовность.",
+      "sourceType": "verified_github_merge",
+      "updatedAt": "2026-09-26T13:57:52Z",
       "evidence": [
-        "https://github.com/vladduk-A-W-F/BOS/pull/2"
+        "https://github.com/vladduk-A-W-F/BOS/pull/7",
+        "https://github.com/vladduk-A-W-F/BOS/commit/03fa08f797503d04d2340ba8aa57e719b275c019"
       ]
     },
     {
@@ -46,6 +64,16 @@
     }
   ],
   "events": [
+    {
+      "at": "2026-09-26T14:06:49Z",
+      "text": "BoS v18 подготовлена в PR #8: Python342, JSON24, Node14, guarded Django и checker приняты в ограниченной области. Main и новый тег ожидают решения владельца; product readiness остаётся false.",
+      "kind": "agent_report"
+    },
+    {
+      "at": "2026-09-26T13:57:52Z",
+      "text": "Журнал согласован с фактическим merge PR #7. Начата нумерация BoS v18 и ограниченная проверка кода; старые задачи tracker/payment/accept не объявлены выполненными без новых доказательств.",
+      "kind": "agent_report"
+    },
     {
       "at": "2026-09-20T19:46:01Z",
       "text": "Создан отдельный журнал мониторинга. Рабочие ветки приложения не изменены.",
