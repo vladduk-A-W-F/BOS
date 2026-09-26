@@ -1,18 +1,60 @@
 {
   "schema": 1,
   "current_baseline_manifest": "docs/orchestration/CURRENT_BASELINE.json",
-  "current_delivery": "FINAL-CURRENT-20260926",
+  "product_version": "BoS v18",
+  "runtime_version": "0.2.18-current",
+  "current_delivery": "V18-REGISTER-20260926",
   "automatic_execution_allowed": false,
-  "launch_gate": "FREEZE_FOR_OWNER_REVIEW",
+  "launch_gate": "V18_REVIEW_READY_AWAITING_MAIN_DECISION",
   "all_tasks_require_owner_plan_review": false,
   "rules": "PLAN-* є запропонованими ключами; не перейменовувати історичні P-ID. Залежності необхідні, але не замінюють external_prerequisites.",
   "tasks": [
+    {
+      "id": "VERSION-V18-20260926",
+      "title": "Align the application stamp with the v18 product cycle",
+      "owner": "bos_architect",
+      "depends_on": [],
+      "status": "ACCEPT_SCOPED_SOURCE_REVIEW",
+      "card": "docs/orchestration/cards/VERSION-V18-20260926.md",
+      "evidence": "docs/orchestration/evidence/v18-20260926/VERSION_REVIEW.md",
+      "automatic_execution_allowed": false
+    },
+    {
+      "id": "TEST-INFRA-LEXICAL-01",
+      "title": "Repair the known browser-global checker defect with negative canaries",
+      "owner": "bos_implementer",
+      "depends_on": [],
+      "status": "ACCEPT_SCOPED",
+      "card": "docs/orchestration/cards/TEST-INFRA-LEXICAL-01.md",
+      "evidence": "docs/orchestration/evidence/v18-20260926/CHECKER_REVIEW.md",
+      "automatic_execution_allowed": false
+    },
+    {
+      "id": "VERIFY-V18-BOUNDED-01",
+      "title": "Audit exact source and guarded Django imports without full suites",
+      "owner": "bos_test_ci",
+      "depends_on": ["VERSION-V18-20260926", "TEST-INFRA-LEXICAL-01"],
+      "status": "ACCEPT_SCOPED_BOUNDED_AUDIT",
+      "card": "docs/orchestration/cards/VERIFY-V18-BOUNDED-01.md",
+      "evidence": "docs/orchestration/evidence/v18-20260926/",
+      "automatic_execution_allowed": false
+    },
+    {
+      "id": "V18-REGISTER-20260926",
+      "title": "Reconcile all current version records and final code review",
+      "owner": "bos_architect",
+      "depends_on": ["VERIFY-V18-BOUNDED-01"],
+      "status": "REVIEW_READY_MAIN_DECISION_REQUIRED",
+      "card": "docs/orchestration/cards/V18-REGISTER-20260926.md",
+      "evidence": "docs/orchestration/CURRENT_BASELINE.json",
+      "automatic_execution_allowed": false
+    },
     {
       "id": "FINAL-CURRENT-20260926",
       "title": "Consolidate current main baseline and freeze snapshot",
       "owner": "bos_architect",
       "depends_on": ["UI-COLUMN-CONTENT-01"],
-      "status": "CURRENT_MAIN_BASELINE_FROZEN",
+      "status": "COMPLETED_MAIN_SNAPSHOT_03FA08F",
       "card": "docs/orchestration/cards/FINAL-CURRENT-20260926.md",
       "evidence": "docs/orchestration/CURRENT_BASELINE.json",
       "automatic_execution_allowed": false

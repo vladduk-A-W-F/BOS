@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "as_of": "2026-09-26T14:10:47Z",
+  "card": "V18-REGISTER-20260926",
+  "source_candidate": "25208141c247ba931fce3a972be45536eafdd1c7",
+  "bounded_audit_commit": "439560ea00ee8451c8bfffa2fd6ecee36498bc76",
+  "reason_for_final_static_check": "Current records changed from pending to reviewed results after the bounded QA matrix. Only record consistency and source identity were rechecked; no product test was repeated.",
+  "checks": [
+    {
+      "command": "bundled Python -B tools/bos_control.py validate",
+      "exit_code": 0,
+      "output": {
+        "scope": "static setup only; not application acceptance",
+        "result": "PASS",
+        "role_count": 10,
+        "task_count": 41,
+        "gate_count": 11,
+        "execution_status": "V18_REVIEW_READY_AWAITING_MAIN_DECISION",
+        "application_tests_run": false,
+        "cli_runtime_tested": false,
+        "errors": []
+      }
+    },
+    {
+      "command": "PowerShell ConvertFrom-Json and explicit version/readiness assertions on CURRENT_BASELINE, STATE, QUEUE, tracker/activity and REVIEW_PUBLICATION",
+      "exit_code": 0,
+      "output": {"parsed_files": 5, "product": "BoS v18", "runtime": "0.2.18-current", "queue_tasks": 41, "ancestry": "PASS_ALL_ORIGINAL_COMMITS_IN_CANDIDATE", "final_review": "ACCEPT_SCOPED", "main_merge": null}
+    },
+    {
+      "command": "bundled Python -B -c from scripts.verify import source_digest; print(source_digest())",
+      "exit_code": 0,
+      "source_digest": "44a3a2ee9fb1e8b36917f7c2c5c6aa60e533f1d3236e26de907e64520f94307a",
+      "matches_pre_qa": true,
+      "matches_post_qa": true
+    },
+    {"command": "git diff --check (current record edits)", "exit_code": 0, "output": ""}
+  ],
+  "artifact_integration": {
+    "manifest_sha256": "a2c6095e478602d84979e0d5dcd5c33ce5d0d69b3bf7f086b3b57d3857ef22d9",
+    "manifest_files": 26,
+    "independent_manifest_hash_review": "PASS_26_OF_26",
+    "root_source_and_destination_hash_comparison": "PASS_26_OF_26",
+    "staged_raw_blob_comparison": "PASS_29_OF_29_INCLUDING_MANIFEST_CARD_REVIEW",
+    "existing_fsck_receipts_adopted_without_modification": 2,
+    "diagnostics": [
+      {"operation": "initial git add wrapper", "wrapper_exit_code": 1, "reason": "PowerShell expression combined the final three paths into one argument; git rejected the pathspec without staging. Corrected explicit path array succeeded.", "product_test_attempt": false},
+      {"operation": "git -c core.whitespace=cr-at-eol diff --cached --check", "wrapper_exit_code": 1, "reason": "Raw node_syntax.command.txt line 4 preserves one trailing space after FAILED_FILES:. Raw output and manifest bytes intentionally remain unchanged.", "product_test_attempt": false},
+      {"operation": "git -c core.whitespace=cr-at-eol diff --cached --check -- . :(glob,exclude)**/*.txt", "exit_code": 0, "scope": "Excludes raw .txt receipts explicitly; all source/helpers/cards/review/manifest in the evidence commit passed."}
+    ],
+    "reviewer_disposition": "plan_review ACCEPT_SCOPED; commit exact evidence bytes and disclose diagnostics, no new test run"
+  },
+  "main_permission": "REQUESTED_NOT_CONFIRMED_UNDER_LATEST_AGENTS",
+  "main_merge_performed": false,
+  "new_tag_created": false,
+  "production_activated": false,
+  "verification_limit": "This receipt records observed command results before the records commit. Final commit and remote PR head are verified after push and reported externally, avoiding a self-referential commit hash."
+}
