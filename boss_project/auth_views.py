@@ -23,7 +23,9 @@ def payload(request):
 @require_GET
 @ensure_csrf_cookie
 def csrf(request):
-    return JsonResponse({'mode': settings.BOS_DATA_MODE, 'authenticated': request.user.is_authenticated})
+    from training.access import enabled
+    return JsonResponse({'mode': settings.BOS_DATA_MODE, 'authenticated': request.user.is_authenticated,
+                         'training_enabled': enabled()})
 
 
 @require_POST
@@ -77,6 +79,9 @@ def me(request):
 @require_POST
 @csrf_protect
 def demo(request):
+    from training.access import enabled
+    if enabled():
+        return JsonResponse({'error': 'У цій навчальній установці потрібен особистий вхід.'}, status=404)
     if settings.BOS_DATA_MODE != 'demo' or request.META.get('REMOTE_ADDR') not in ('127.0.0.1', '::1'):
         return JsonResponse({'error': 'Сторінку не знайдено.'}, status=404)
     try:

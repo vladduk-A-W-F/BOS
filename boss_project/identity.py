@@ -29,6 +29,11 @@ def actor_for_user(user):
     user = get_user_model().objects.filter(pk=user.pk, is_active=True).first()
     if user is None:
         raise IdentityDenied('Сесію завершено. Увійдіть знову.', 401)
+    from training.access import enforce_training_identity
+    try:
+        enforce_training_identity(user)
+    except PermissionError as exc:
+        raise IdentityDenied(str(exc)) from exc
     roles = list(user.groups.filter(name__in=ROLES).values_list('name', flat=True))
     if len(roles) != 1:
         raise IdentityDenied('Для облікового запису потрібна одна призначена роль BoS.')

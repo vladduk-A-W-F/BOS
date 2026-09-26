@@ -128,6 +128,9 @@ def audit(policy, rows):
 
 
 def receipt(policy, value):
+    if isinstance(value, dict) and str(value.get('action', '')).startswith('crm_'):
+        from crm.projections import receipt as crm_receipt
+        return crm_receipt(policy, value)
     if policy.ceo:
         return value
     # The input can remain visible after the created output changes scope.

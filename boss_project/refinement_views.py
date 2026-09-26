@@ -23,10 +23,12 @@ def start_guide(request):
 
 @require_GET
 def runtime_status(request):
+    from training.access import enabled
     server = getattr(settings, 'WSGI_APPLICATION', '') == 'boss_project.server_wsgi.application'
     return JsonResponse({
         'version': VERSION, 'mode': 'server' if server else 'local',
         'data_mode': getattr(settings, 'BOS_DATA_MODE', 'demo'),
+        'training_enabled': enabled(),
         'ai_configured': bool(getattr(settings, 'ANTHROPIC_API_KEY', '')),
         # CEO dashboard KPI and the browser organizer retain their actual scope.
         'dashboard': 'demo_generated', 'organizer': 'browser_local',

@@ -25,6 +25,8 @@ from .version import VERSION
 from . import auth_views
 
 urlpatterns = [
+    path('api/training/', include('training.urls')),
+    path('api/crm/', include('crm.urls')),
     path("api/statements/", include("finance.statement_urls")),
     path('api/auth/csrf/', auth_views.csrf, name='bos-auth-csrf'),
     path('api/auth/login/', auth_views.login, name='bos-auth-login'),
