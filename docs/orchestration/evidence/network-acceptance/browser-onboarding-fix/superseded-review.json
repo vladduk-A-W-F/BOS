@@ -1,0 +1,43 @@
+{
+  "card": "NETWORK-BROWSER-ONBOARDING-TEST-DEFECT",
+  "reviewer": "currency_completion",
+  "author": "browser_acceptance",
+  "verdict": "ACCEPT_SCOPED_CORRECTION_FOR_FINAL_AUTHORIZED_ATTEMPT",
+  "harness_sha256": "c260c8aae3c4cad6922a4cbb7ae17ea4a1724582b4825a08685197f326d93e41",
+  "patch_sha256": "74a90670fe38e347be43b8e5f03964841355d44f1cab35183f1cc5bd2d8266aa",
+  "failure_evidence": {
+    "run_id": "35516516284",
+    "candidate_sha": "b54b621bfa7b81a63546edc8936b8a84df619da5",
+    "runtime_sha256": "c15dfe0e3aeefde2fd4fa7af0e9dd2c7c04072a59b185554b821576b4c2111ca",
+    "previous_harness_sha256": "e7a65a26708d7d6f4c63c2feaaa4207c55e48cc6b73e1610da16647a685ef99b",
+    "artifact_directory": "/workspace/scratch/4dbe5b4c73ee/execution/network-acceptance/attempt2-browser",
+    "sha256_index_entries_verified": 10,
+    "login_http_status": 200,
+    "actual_browser_run": true,
+    "feature_checks_completed": 0,
+    "failure": "Fresh-user industry selection not performed before navbar assertion",
+    "source_unchanged": true,
+    "source_databases_unchanged": true,
+    "disposable_data_removed": true
+  },
+  "review": {
+    "screenshot_inspected": true,
+    "onboarding_source_inspected": true,
+    "login_only_diff": true,
+    "normal_ui_selection_for_every_fresh_role": true,
+    "no_storage_or_auth_bypass": true,
+    "no_expectations_removed": true,
+    "remaining_locator_source_review": "Navbar role buttons, group/tab labels, filters/converter labels, ERP transfer/receipt/quality/retention/payment/release form labels, preview/confirm/cancel labels, download link and dialog focus path match source; actual DOM/layout acceptance still requires browser.",
+    "same_runtime_required": true
+  },
+  "reviewer_browser_launches": 0,
+  "reviewer_tests_run": 0,
+  "budget": {
+    "workflow_invocations_prior": 2,
+    "actual_browser_invocations_prior": 1,
+    "remaining_workflow_invocations": 1
+  },
+  "browser_acceptance": false,
+  "technical_ready": false,
+  "pilot_allowed": false
+}

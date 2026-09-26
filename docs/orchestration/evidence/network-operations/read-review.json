@@ -1,0 +1,84 @@
+{
+  "card": "NETWORK-READ",
+  "role": "independent reviewer",
+  "verdict": "ACCEPT_SCOPED",
+  "files_sha256": {
+    "erp/network.py": "19026f6a34c535ff5659f8179b6b9c6bda16667a10a470ca8b45d68087f5d954",
+    "erp/network_views.py": "35c290ead336750996813664a9392a47d089e2f124e38410d368c581673ed6d9",
+    "erp/queries.py": "404e27f678b698c1260f1084ed690415a87d94b7ab6657032b7da32a78c0ebcd",
+    "erp/experience.py": "2d0eb1059f9aecffe02a004e5d66a5d3004cf9b2195c5f9a7b9984b42b8cd9c3",
+    "erp/urls.py": "850a01bfe9b1a2f04ecd75b8fa7a78600ece14ba2ab8d4923d8f60da3a2989b2",
+    "operations/service.py": "bf8832a01fe47aa3d7a42382c71005aa1f5fa29b7ecf9c1a72c668584fca74d1"
+  },
+  "reviewed": [
+    "network policy projection before aggregation",
+    "CEO-only monetary fields in network/export",
+    "UAH/EUR/USD selection and Decimal sums of displayed rows",
+    "branch/point/unassigned filters and explicit map fallback",
+    "transfer attribution to sender",
+    "CSV quotes and formula prefix",
+    "authenticated export permission including observer refusal",
+    "preview impact FIELDS and new snapshot arrays",
+    "next-step retained balance and fulfillment location",
+    "typed stale/expired confirmation outcomes"
+  ],
+  "author_evidence": {
+    "tests": 10,
+    "outcome": "PASS",
+    "raw": "../network-integration/test-read/raw.log",
+    "note": "Author reports three invocations including fixture/harness fixes; no full module rerun by reviewer."
+  },
+  "independent_evidence": {
+    "tests": 2,
+    "before": "FAIL (both expected regression assertions failed)",
+    "before_exit_code": 1,
+    "before_raw": "read_review_raw.txt",
+    "after": "PASS",
+    "after_exit_code": 0,
+    "after_seconds": 0.339,
+    "after_raw": "read_review_fixed_raw.txt",
+    "test_file": "test_network_read_adversarial.py",
+    "assertions_changed": false,
+    "database": "disposable synthetic SQLite"
+  },
+  "findings": [
+    {
+      "id": "NETWORK-READ-R1",
+      "severity": "high",
+      "status": "fixed_and_verified",
+      "issue": "Document scope change during build returned rows that were no longer visible, because original staleness fingerprint excluded visibility metadata",
+      "resolution": "Network read scope digest includes actor access and visible document identities/access metadata; compares a fresh Policy after build; exact regression now returns409."
+    },
+    {
+      "id": "NETWORK-READ-R2",
+      "severity": "medium",
+      "status": "fixed_and_verified",
+      "issue": "A UAH order counted EUR stock at its fulfillment point as available",
+      "resolution": "plan_line filters reservation/stock/purchase/job currency; exact regression now free0 instead of10. Adjacent next_step sales reservation currency filter independently inspected."
+    },
+    {
+      "id": "NETWORK-R1",
+      "severity": "medium",
+      "status": "resolved_static_and_author_targeted_test",
+      "issue": "Payment/receipt/ship suggestions must honor retained balances and explicit destinations",
+      "resolution": "next_step now uses collectible and hold-specific non-completed state, honors receipt destination, and offers dispatch before receiving at fulfillment point."
+    },
+    {
+      "id": "NETWORK-R2",
+      "severity": "medium",
+      "status": "resolved_static_and_author_targeted_test",
+      "issue": "New network changes lacked impact fields in domain patch alone",
+      "resolution": "Snapshot exposes projected entities and experience.FIELDS includes mapping, transfer, retention and collectible changes."
+    }
+  ],
+  "blocking_findings": [],
+  "legacy_followup": [
+    "Preexisting production-material next_step loops can select mixed-currency material or jobs; outside the newly changed sales/network suggestion paths. Service guards still reject invalid cost currency. Include a focused future suggestion-consistency card rather than claiming full planner acceptance."
+  ],
+  "limitations": [
+    "No PostgreSQL concurrency validation",
+    "No full-suite/browser/E2E tests",
+    "No review of subsequent procurement workflow additions in this verdict",
+    "Independent tests exercise only two newly identified regressions; author10 covers listed core read/roundtrip cases"
+  ]
+}

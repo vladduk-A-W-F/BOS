@@ -1,0 +1,23 @@
+{
+  "scope": "NETWORK-BROWSER new hosted CI harness authoring",
+  "status": "PREPARED_NOT_RUN",
+  "py_compile": {
+    "exit_code": 0
+  },
+  "browser_launch": false,
+  "download_attempt": false,
+  "harness_sha256": "e7a65a26708d7d6f4c63c2feaaa4207c55e48cc6b73e1610da16647a685ef99b",
+  "workflow_fragment": "browser-job.yml",
+  "requires": [
+    "Independent harness review",
+    "Guarded CI run on exact frozen candidate",
+    "Independent screenshot and receipt review"
+  ],
+  "limitations": [
+    "No full historical E2E suite or A11 rerun",
+    "No full accessibility audit, screen-reader audit, or Windows acceptance",
+    "No deployment/production readiness claim"
+  ],
+  "technical_ready": false,
+  "pilot_allowed": false
+}

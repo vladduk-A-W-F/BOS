@@ -1,0 +1,81 @@
+{
+  "card": "CORE-WORKSPACE-VIEWS",
+  "canonical_tree_edited": false,
+  "source": "/workspace/scratch/4dbe5b4c73ee/execution/core-views/source",
+  "patch": "/workspace/scratch/4dbe5b4c73ee/execution/core-views/core-views.patch",
+  "baseline_source_sha256": "d62bc8eef83aee92c2b7b08a7e1ce508abff8edf28a7f32e1fcc5d9bd1f84360",
+  "changes": [
+    "Four views over the same network payload, filters, model and search",
+    "Immutable live server catalog required; HTTP/schema failure does not invent a catalog",
+    "Exact string monetary display and focus reasons",
+    "Real-state kanban; real linked-point map; keyboard inline details",
+    "Existing action dialog and preview/confirm preserved",
+    "KPI nowrap responsive grid and container font fix for observed wrapping issue"
+  ],
+  "author_test_invocations": 3,
+  "focused_tests": [
+    {
+      "command": "node scripts/checks/module_views.cjs",
+      "result": "PASS",
+      "checks": 23,
+      "raw": "/workspace/scratch/4dbe5b4c73ee/execution/core-views/module_views_raw_1.txt"
+    },
+    {
+      "command": "node scripts/checks/module_views.cjs",
+      "result": "PASS",
+      "checks": 23,
+      "raw": "/workspace/scratch/4dbe5b4c73ee/execution/core-views/module_views_raw_2.txt",
+      "reason": "Final source after dead-table removal and inline focus restoration"
+    },
+    {
+      "command": "node scripts/checks/module_views.cjs",
+      "exit_code": 0,
+      "result": "PASS",
+      "checks": 25,
+      "raw": "/workspace/scratch/4dbe5b4c73ee/execution/core-views/module_views_raw_3.txt",
+      "reason": "Final review regressions for cross-branch map selection and stale financial descriptors using actual bosCanAction"
+    }
+  ],
+  "build": {
+    "command": "node scripts/build_frontend.cjs",
+    "exit_code": 0,
+    "raw": "/workspace/scratch/4dbe5b4c73ee/execution/core-views/build_review_final_raw.txt"
+  },
+  "files": {
+    "frontend/boss_app_source.html": "a79805f432096cd8aea5fb18762d0897f530fe1c6ffeae945c7877784f0e87ac",
+    "scripts/checks/module_views.cjs": "afad4b23d14cc3b877eead8990cabfa5f74f5c09f5d8f6a76242c4f264687c7c",
+    "docs/CORE_MODULE_VIEWS_UA.md": "4a76eff0797b7128e9131cacc2bf849778fa545330d05288a92b5de2954ccfb2",
+    "scripts/checks/fixtures/module_catalog/ceo.json": "fb4949ab0200c82a642107723819d8c5d39f4921f47c59779a5a9a2d0f518819",
+    "scripts/checks/fixtures/module_catalog/manager.json": "e6e44bb191e571b39d28b778ea773a257ad3f131f82e8b45cff478d7736f2fee",
+    "scripts/checks/fixtures/module_catalog/observer.json": "58237e7c80e21d3a7f8e44947981f9fc60b61455fb082a3df62d8043e01b7b9b"
+  },
+  "generated_files_not_in_patch": {
+    "assets/app.js": "0b251f00692f76141cc4b72c184cc17bead9e7350e5073a03f8bf334a3c4d9d9",
+    "frontend/boss_app_html.html": "5e67fa8a5bae31421e3855f93fbe1afcd2313a24c2f14047797b179ea082565a"
+  },
+  "fixtures": {
+    "source": "actual execution/core-registry/source/erp/module_registry.py build() descriptors with explicit synthetic role/capability objects",
+    "schema": "bos.modules.v1",
+    "role_files": [
+      "ceo",
+      "manager",
+      "observer"
+    ],
+    "live_auth_proof": false
+  },
+  "independent_review": "currency_completion statically approved fixes; awaiting final hash verification",
+  "limitations": [
+    "No browser/E2E rerun or PASS claim",
+    "No PostgreSQL proof from frontend tests",
+    "No WCAG certification",
+    "CSS rule checks are not device renders",
+    "No OCR, LLM or automation invocation",
+    "No production activation",
+    "Existing payment-preview blocker unchanged"
+  ],
+  "review_fixes": [
+    "Reconcile branch and point from actual Location while preserving model/view/search",
+    "Current finance capabilities additionally guard financial create/record actions",
+    "Harness extracts actual bosCanAction; no narrower invoice-denying test stub"
+  ]
+}

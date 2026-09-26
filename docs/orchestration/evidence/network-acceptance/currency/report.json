@@ -1,0 +1,45 @@
+{
+  "card": "NETWORK-PLAN-CURRENCY",
+  "baseline_commit": "e97382620fc4604c582ef8e4f2ec4cfd3ffa8f5f",
+  "source": "/workspace/scratch/4dbe5b4c73ee/execution/network-currency/source",
+  "patch": "/workspace/scratch/4dbe5b4c73ee/execution/network-currency/network-currency.patch",
+  "patch_sha256": "786722bbedbe3680f1d1b78475714c3b4d90e8ea102c7b265e1a8c78c92b8932",
+  "files": {
+    "erp/experience.py": "6fb148713ceda27c828eecc2b9ced0828039aa4569a46c9f867b5e98b9966530",
+    "erp/test_network_currency.py": "39b907640292f6548b8a44a8733ac5a67127dd3cab38f8ae06ea70200d09c490"
+  },
+  "tests_unchanged_between_before_and_after": true,
+  "attempts_used": 2,
+  "attempts_remaining": 1,
+  "runs": [
+    {
+      "stage": "before",
+      "command": "BOS_TEST_DB_NAME=:memory: BOS_TEST_MEDIA=/workspace/scratch/4dbe5b4c73ee/execution/network-currency/media /workspace/scratch/4dbe5b4c73ee/execution/venv/bin/python -B manage.py test erp.test_network_currency --settings=verification_settings --noinput --verbosity=2",
+      "cwd": "/workspace/scratch/4dbe5b4c73ee/execution/network-currency/source",
+      "exit_code": 1,
+      "tests": 12,
+      "failures": 12,
+      "raw": "/workspace/scratch/4dbe5b4c73ee/execution/network-currency/before.raw.log",
+      "raw_sha256": "532942f7cbb8bcdc9999f20bd457ff0203f65981de696c0efbf12a91cc193998"
+    },
+    {
+      "stage": "after",
+      "command": "BOS_TEST_DB_NAME=:memory: BOS_TEST_MEDIA=/workspace/scratch/4dbe5b4c73ee/execution/network-currency/media /workspace/scratch/4dbe5b4c73ee/execution/venv/bin/python -B manage.py test erp.test_network_currency --settings=verification_settings --noinput --verbosity=2",
+      "cwd": "/workspace/scratch/4dbe5b4c73ee/execution/network-currency/source",
+      "exit_code": 0,
+      "tests": 12,
+      "failures": 0,
+      "raw": "/workspace/scratch/4dbe5b4c73ee/execution/network-currency/after.raw.log",
+      "raw_sha256": "e196a69a887c9f23a627bdc79d5f8dd577ae654d113abecebd5524eda8f3e76c"
+    }
+  ],
+  "limitations": [
+    "Synthetic SQLite HTTP/ORM scope only; no fullsuite, browser, PostgreSQL or production activation.",
+    "Historical cross-currency reservations are explained and left unchanged; their writer-side reconciliation is a separate change."
+  ],
+  "independent_review": {
+    "verdict": "ACCEPT_SCOPED",
+    "report": "/workspace/scratch/4dbe5b4c73ee/execution/network-review/currency_review.json",
+    "reviewer": "integration_diagnosis"
+  }
+}

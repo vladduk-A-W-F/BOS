@@ -1,0 +1,78 @@
+{
+  "card": "NETWORK-FINAL-INTEGRATION",
+  "verdict": "ACCEPT_SCOPED",
+  "reviewer": "/root/integration_diagnosis",
+  "base_publication_sha": "edd5227e666442d8324044559b6e8cf10eaf8be1",
+  "scope": "Final network-workflow composition and Codex handoff; no production/full-system acceptance.",
+  "files_sha256": {
+    "erp/network.py": "cc409420402d22c231c9591c8b242d66b10c12325c788ee108c41f193739ff07",
+    "erp/network_views.py": "35c290ead336750996813664a9392a47d089e2f124e38410d368c581673ed6d9",
+    "erp/network_workflow.py": "0217d4388cd6f84c1eaa5eebcb56e1cf064893d91eaf8d00ece2acc9bff5b502",
+    "erp/test_network_integration.py": "d1a9ab5af7bedd642bd6c1d1e928a746ceb342f5f87253901ab95e262f42a8f6",
+    "erp/test_network.py": "bd97ef5eceef2da42fd9fd7cbe6618ceb761e2b4c47eab77dcd9ffe6c167ac03",
+    "erp/models.py": "56fde9108470d709219961f700e253da03fe74831f88549fa1b6e6dc2349d1c3",
+    "operations/models.py": "7bc4f93fe5e76a9e6e18ab145f37e442e0f5f4d5a7e9180dd39d3b3aa86c4c30",
+    "erp/migrations/0007_request_timing.py": "529a8f24cc8ad817806a0ec990222936be336c256baea6c1a831110dfe433060",
+    "operations/migrations/0009_request_timing.py": "ed9e1a96e9cd4a24d46bee8c4e264970e01975ee6f9f38cb7ad2ac1d6ef3af42",
+    "docs/CODEX_NETWORK_TASK_UA.md": "506dd845a8aa1ce2f8e5bbf3587f347caa2de2d780196640fc628ea6cd592062"
+  },
+  "independent_checks": [
+    "Workflow is composed inside same authenticated policy/read-freshness envelope",
+    "Workflow receives normalized effective currency/branch/location filters",
+    "Workflow source, two model files and two timing migrations exactly byte-match independently reviewed workflow source",
+    "Timestamp additions remain nullable; no historical backfill",
+    "Composition test checks HTTP JSON workflow/documents/filtered export/no DB writes",
+    "Composition document-scope race test returns409 without documents",
+    "Codex handoff now distinguishes original runtime from refreshed Git base",
+    "Handoff explicitly records exhausted3 network module invocations and prohibits retry reset by environment/candidate",
+    "Export equality expectation now compares stable data and independently orders fresh measured_at timestamps"
+  ],
+  "resolved_findings": [
+    {
+      "id": "FINAL-01",
+      "issue": "Missing currency defaulted to UAH in network but all currencies in workflow",
+      "fix": "Call workflow with normalized currency, selected_branch and selected_point",
+      "verification": "Static review and root final composition2 PASS; full default-query case was not separately tested."
+    },
+    {
+      "id": "FINAL-02",
+      "issue": "Handoff had stale publication base and a combined test command including exhausted module",
+      "fix": "Refreshed baseSHA and per-problem attempt accounting; removed combined invocation",
+      "verification": "Document read"
+    },
+    {
+      "id": "FINAL-03",
+      "issue": "Whole-response equality ignored fresh workflow measured_at",
+      "fix": "Separate timestamp ordering assertion and stable-payload equality",
+      "verification": "Static test review only; exhausted module not rerun"
+    }
+  ],
+  "evidence_reviewed": {
+    "workflow_review": "../network-workflow-review/report.json",
+    "composition_tests": 2,
+    "composition_outcome": "PASS",
+    "composition_seconds": 0.41,
+    "composition_raw": "../network-integration/composition-raw.log",
+    "initial_import_error_retained": "../network-integration/composition-import-error.log",
+    "reviewer_additional_runs": 0,
+    "composition_invocations": 3,
+    "composition_initial_errors": "ImportError before module copied; retained. First pass before normalized-filter follow-up retained separately.",
+    "migration_consistency": "PASS; No changes detected",
+    "migration_raw": "../network-integration/migrations-final.log",
+    "ui_harness_tests": 19,
+    "ui_harness": "PASS; ../network-integration/ui-final.log",
+    "frontend_build": "PASS; ../network-integration/build-final.log"
+  },
+  "blocking_findings": [],
+  "limitations": [
+    "PostgreSQL16 real concurrent-confirmation proof remains outstanding",
+    "Real browser/mobile/keyboard acceptance remains outstanding",
+    "No production activation or deployment acceptance",
+    "Updated full network read module not rerun; original10 are pre-composition evidence plus final2 composition tests",
+    "Production-material currency suggestion legacy gap remains explicit Codex follow-up"
+  ],
+  "readiness": {
+    "technical_ready": false,
+    "pilot_allowed": false
+  }
+}

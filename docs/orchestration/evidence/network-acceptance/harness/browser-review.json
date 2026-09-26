@@ -1,0 +1,33 @@
+{
+  "card": "NETWORK-BROWSER",
+  "reviewer": "currency_completion",
+  "author": "browser_acceptance",
+  "verdict": "ACCEPT_SCOPED_HARNESS_FOR_ONE_GUARDED_CI_RUN",
+  "harness_sha256": "e7a65a26708d7d6f4c63c2feaaa4207c55e48cc6b73e1610da16647a685ef99b",
+  "patch_sha256": "ae06368df985ad85f16543927b82ff7c542b1fb1ccacff90a2c73e7b78a421f4",
+  "workflow_fragment_sha256": "f3d0acdac1f50bee95d406fa48b1b2f87df74e54b9452512a04f8ad615ce52fc",
+  "candidate_runtime_sha256": "c15dfe0e3aeefde2fd4fa7af0e9dd2c7c04072a59b185554b821576b4c2111ca",
+  "browser_acceptance": false,
+  "browser_run": false,
+  "local_server_run": false,
+  "raw": "/workspace/scratch/4dbe5b4c73ee/execution/network-browser-review/static_review.raw.json",
+  "resolved_findings": [
+    "Corrected quality form label selectors against actual ERP_ACTIONS.",
+    "CSV parser uses semicolon and compares IDs, currencies, and values.",
+    "Readiness explicitly awaits loading indicator disappearance.",
+    "Harness requires clean exact checkout, intended repository/push/feature branch and first runner attempt; evidence outside source under RUNNER_TEMP.",
+    "Coverage omissions and synthetic legacy-BLOB denial fixture are explicit."
+  ],
+  "scope": [
+    "Real UI auth, groups, filters, map, CSV, reference converter, transfers/quality, holds/payments, mobile layout, role/API denials are represented by actual browser operations and server responses.",
+    "Random synthetic users and fresh SQLite/media; data cleanup, source digest and source database canaries; Chrome preinstalled only, no browser-download fallback.",
+    "Screenshot and HTTP/console artifacts are captured; screenshot review remains pending after actual CI."
+  ],
+  "remaining_limits": [
+    "Top-level scope-job workflow integration independently reviewed by integration_diagnosis.",
+    "Static harness acceptance does not prove selectors/DOM behavior or application acceptance without actual CI execution.",
+    "Browser scope excludes live permission-revocation race, typed stale UI recovery, lost confirm-response injection, RFQ/quote/purchase UI creation, converter reload, JSON equivalence, full accessibility/Windows/historical gates."
+  ],
+  "technical_ready": false,
+  "pilot_allowed": false
+}

@@ -1,0 +1,16 @@
+{
+  "card": "NETWORK-PG-RUNNER-LABELS",
+  "cause": "DiscoverRunner.run_tests requires test_labels positional argument; original worker called with no arguments and exited before database/test setup.",
+  "fix": "Pass explicit [] to run_tests. ExactRunner.build_suite overrides discovery and constructs only the fixed two NetworkConcurrencyTests methods from TESTS.",
+  "failed_run": 35516516284,
+  "failed_candidate": "b54b621bfa7b81a63546edc8936b8a84df619da5",
+  "workflow_attempts_used": 2,
+  "postgres_worker_invocations_used": 1,
+  "postgres_methods_executed": 0,
+  "remaining_workflow_attempts": 1,
+  "sha256": "fcfb7f41fecf803f824a28625bca9497067d868f7615db247bd0d63d11f4552f",
+  "previous_sha256": "a62da45ce2de76c3ab37d88de8770b5eb4659181bc945b9a191ac341f026fa1f",
+  "source_runtime_unchanged": true,
+  "guard_and_scope_unchanged": true,
+  "author_runs": 0
+}

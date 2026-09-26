@@ -1,0 +1,25 @@
+{
+  "card": "NETWORK-CI-CONTEXT-FIX",
+  "diagnosis": "runner context invalid at jobs.<job_id>.env; available in jobs.<job_id>.steps.env. Two output-directory variables prevented workflow validation before any job.",
+  "official_source": "https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#context-availability",
+  "fix": "Move two runner.temp expressions to always evidence-directory step env, propagate identical values to later steps via GITHUB_ENV.",
+  "failed_workflow_run": 35516152992,
+  "failed_candidate_commit": "0975280d8be77545810c4d2aa535273e774f143f",
+  "workflow_attempts_used": 1,
+  "postgres_app_attempts_used": 0,
+  "browser_app_attempts_used": 0,
+  "historical_limit": 3,
+  "tests_or_workflows_run_by_author": false,
+  "sha256": "8fe89df7a6d8dc7f4680cb190a7258bf0dabfb10224bafdeb8ab77a27505fb3e",
+  "previous_sha256": "df9932b23a0b6cedb3eca5d9bcb7def6f7d7461b021eca7060939070bacfb1b2",
+  "unchanged": [
+    "push trigger",
+    "branch/repository/first-attempt guards",
+    "exact token",
+    "runtime digest",
+    "test/harness code",
+    "artifact paths",
+    "timeouts",
+    "readiness flags"
+  ]
+}

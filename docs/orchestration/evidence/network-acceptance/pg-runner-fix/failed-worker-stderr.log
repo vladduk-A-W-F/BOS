@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/home/runner/work/BOS/BOS/candidate/.github/ci/network_pg.py", line 407, in <module>
+    raise SystemExit(worker())
+                     ^^^^^^^^
+  File "/home/runner/work/BOS/BOS/candidate/.github/ci/network_pg.py", line 292, in worker
+    return int(bool(ExactRunner(verbosity=2, interactive=False).run_tests()))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: DiscoverRunner.run_tests() missing 1 required positional argument: 'test_labels'

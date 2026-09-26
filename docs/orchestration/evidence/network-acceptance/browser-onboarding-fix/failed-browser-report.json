@@ -1,0 +1,178 @@
+{
+  "scope": "NETWORK-BROWSER new feature only",
+  "status": "FAIL_OR_BLOCKED",
+  "accepted_scoped": false,
+  "browser_run": true,
+  "full_suite": false,
+  "historical_e2e_rerun": false,
+  "A11_blocked_routes_retried": false,
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "checks": [],
+  "http": [
+    {
+      "path": "/",
+      "query": "",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/assets/react.js",
+      "query": "",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/assets/purify.js",
+      "query": "",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/assets/network-map.js",
+      "query": "",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/assets/react-dom.js",
+      "query": "",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/assets/marked.js",
+      "query": "",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/assets/app.js",
+      "query": "",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/api/auth/csrf/",
+      "query": "",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/api/auth/me/",
+      "query": "",
+      "status": 401,
+      "method": "GET"
+    },
+    {
+      "path": "/api/auth/login/",
+      "query": "",
+      "status": 200,
+      "method": "POST"
+    },
+    {
+      "path": "/api/operations/status/",
+      "query": "",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/api/contracts/",
+      "query": "",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/api/runtime/status/",
+      "query": "",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/api/tasks/",
+      "query": "",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/api/transactions/",
+      "query": "",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/api/employees/",
+      "query": "",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/api/counterparties/",
+      "query": "",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/api/salaries/",
+      "query": "",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/api/branches/",
+      "query": "",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/api/dashboard/summary/",
+      "query": "period=month",
+      "status": 200,
+      "method": "GET"
+    }
+  ],
+  "snapshots": [],
+  "proposals": [],
+  "receipts": [],
+  "page_errors": [],
+  "console": [
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    }
+  ],
+  "errors": [
+    "AssertionError: Locator expected to be visible\nActual value: None\nError: element(s) not found \nCall log:\n  - Expect \"to_be_visible\" locator(\".bos-navbar\") with timeout 5000ms\n  - waiting for locator(\".bos-navbar\")\n\nAria snapshot:\n- text: 🏢\n- heading \"Помічник Керівника\" [level=1]\n- paragraph: Оберіть сферу діяльності підприємства\n- text: 📈 Продажі 🏗 Будівництво 💻 IT 🛎 Послуги 🛒 Торгівля 🏭 Виробництво"
+  ],
+  "visual_review": "PENDING_INDEPENDENT_SCREENSHOT_REVIEW",
+  "limitations": [
+    "Bounded network feature acceptance only; historical gates remain open",
+    "No live permission-revocation race, typed stale UI recovery, or lost confirm response injection",
+    "Workflow stages are read; RFQ/quote/purchase create flows not exercised in this browser scope",
+    "Converter reload persistence and JSON export equivalence not exercised",
+    "CEO-only document uses synthetic legacy BLOB fixture for denial checks",
+    "No full accessibility/screen-reader audit, Windows, or production acceptance"
+  ],
+  "harness_sha256": "e7a65a26708d7d6f4c63c2feaaa4207c55e48cc6b73e1610da16647a685ef99b",
+  "candidate_sha": "b54b621bfa7b81a63546edc8936b8a84df619da5",
+  "runtime_sha256": "c15dfe0e3aeefde2fd4fa7af0e9dd2c7c04072a59b185554b821576b4c2111ca",
+  "source_database_canaries": {},
+  "chrome_version": "Google Chrome 152.0.7977.82",
+  "chrome_path": "/usr/bin/google-chrome",
+  "fixture": {
+    "source_id": 1,
+    "destination_id": 3,
+    "branch_id": 1,
+    "lot_id": 85,
+    "owner_id": 1,
+    "private_document_id": 29,
+    "private_document_code": "BROWSER-CEO-ONLY"
+  },
+  "disposable_data_removed": true,
+  "source_unchanged": true,
+  "source_databases_unchanged": true
+}

@@ -1,0 +1,36 @@
+{
+  "card": "NETWORK-PG",
+  "reviewer": "integration_diagnosis",
+  "verdict": "ACCEPT_SCOPED_SOURCE",
+  "reviewed_at": "2026-09-20T14:17:50.901973+00:00",
+  "reviewed_files": {
+    "/workspace/scratch/4dbe5b4c73ee/execution/network-pg/source/.github/ci/network_pg.py": "a62da45ce2de76c3ab37d88de8770b5eb4659181bc945b9a191ac341f026fa1f"
+  },
+  "runtime_source_sha256": "c15dfe0e3aeefde2fd4fa7af0e9dd2c7c04072a59b185554b821576b4c2111ca",
+  "findings": [],
+  "checked": [
+    "Exactly two new TransactionTestCase methods; no historical suite discovery",
+    "Authorized same-session real HTTP preview/confirm, distinct holder/waiter PostgreSQL connections",
+    "Third PostgreSQL connection observes holder in pg_blocking_pids(waiter), Lock wait, actual operations_configuration UPDATE",
+    "Uncommitted effect remains invisible, identical successful receipts, one business effect, unchanged replay",
+    "PostgreSQL 16 exact generated test database required; source canary unchanged",
+    "Only issued test database explicitly removed and absence verified even after worker timeout",
+    "Guard requires exact repository/feature branch/push commit/token, clean checkout, first run attempt, Python 3.12 and frozen runtime digest",
+    "Raw stdout/stderr, errors, timestamps, final compact proof and SHA index retained; missing evidence never passes"
+  ],
+  "validation": {
+    "static_ast": "PASS",
+    "new_methods": 2,
+    "runtime_digest_match": true,
+    "reviewer_app_test_runs": 0,
+    "reviewer_pg_runs": 0,
+    "reviewer_browser_runs": 0
+  },
+  "limitations": [
+    "This approves source and permits one bounded hosted invocation; it is not PostgreSQL execution acceptance",
+    "Combined workflow must receive final independent review after browser job fragment is merged",
+    "Actual hosted logs/artifact and exact commit/source relation remain to be reviewed"
+  ],
+  "technical_ready": false,
+  "pilot_allowed": false
+}

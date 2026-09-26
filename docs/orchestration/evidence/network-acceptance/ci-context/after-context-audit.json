@@ -1,0 +1,293 @@
+{
+  "expressions": [
+    {
+      "path": "concurrency.group",
+      "expression": "github.ref",
+      "contexts": [
+        "github"
+      ],
+      "category": "concurrency",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.scope.if",
+      "expression": "github.event_name == 'push' && github.repository == 'vladduk-A-W-F/BOS' && github.ref == 'refs/heads/feat/network-operations-20260920' && github.run_attempt == '1' && !github.event.deleted && !github.event.forced",
+      "contexts": [
+        "github"
+      ],
+      "category": "job_if",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.scope.outputs.run",
+      "expression": "steps.scope.outputs.run",
+      "contexts": [
+        "steps"
+      ],
+      "category": "job_outputs",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.scope.steps.0.with.ref",
+      "expression": "github.sha",
+      "contexts": [
+        "github"
+      ],
+      "category": "step",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.postgres.if",
+      "expression": "needs.scope.outputs.run == 'true' && github.run_attempt == '1'",
+      "contexts": [
+        "github",
+        "needs"
+      ],
+      "category": "job_if",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.postgres.env.BOS_NETWORK_CANDIDATE_SHA",
+      "expression": "github.sha",
+      "contexts": [
+        "github"
+      ],
+      "category": "job_env",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.postgres.steps.0.with.ref",
+      "expression": "github.sha",
+      "contexts": [
+        "github"
+      ],
+      "category": "step",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.postgres.steps.2.if",
+      "expression": "always()",
+      "contexts": [],
+      "category": "step",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.postgres.steps.2.env.BOS_NETWORK_OUTPUT",
+      "expression": "runner.temp",
+      "contexts": [
+        "runner"
+      ],
+      "category": "step",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.postgres.steps.2.env.BOS_NETWORK_OUTPUT",
+      "expression": "github.run_id",
+      "contexts": [
+        "github"
+      ],
+      "category": "step",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.postgres.steps.2.env.BOS_NETWORK_OUTPUT",
+      "expression": "github.run_attempt",
+      "contexts": [
+        "github"
+      ],
+      "category": "step",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.postgres.steps.4.env.BOS_PGPORT",
+      "expression": "job.services.postgres.ports[5432]",
+      "contexts": [
+        "job"
+      ],
+      "category": "step",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.postgres.steps.5.if",
+      "expression": "always()",
+      "contexts": [],
+      "category": "step",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.postgres.steps.6.if",
+      "expression": "always()",
+      "contexts": [],
+      "category": "step",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.postgres.steps.6.with.name",
+      "expression": "github.run_id",
+      "contexts": [
+        "github"
+      ],
+      "category": "step",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.postgres.steps.6.with.name",
+      "expression": "github.run_attempt",
+      "contexts": [
+        "github"
+      ],
+      "category": "step",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.postgres.steps.6.with.path",
+      "expression": "runner.temp",
+      "contexts": [
+        "runner"
+      ],
+      "category": "step",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.postgres.steps.6.with.path",
+      "expression": "github.run_id",
+      "contexts": [
+        "github"
+      ],
+      "category": "step",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.postgres.steps.6.with.path",
+      "expression": "github.run_attempt",
+      "contexts": [
+        "github"
+      ],
+      "category": "step",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.browser.if",
+      "expression": "needs.scope.outputs.run == 'true' && github.run_attempt == '1'",
+      "contexts": [
+        "github",
+        "needs"
+      ],
+      "category": "job_if",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.browser.env.BOS_NETWORK_CANDIDATE_SHA",
+      "expression": "github.sha",
+      "contexts": [
+        "github"
+      ],
+      "category": "job_env",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.browser.steps.0.with.ref",
+      "expression": "github.sha",
+      "contexts": [
+        "github"
+      ],
+      "category": "step",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.browser.steps.2.if",
+      "expression": "always()",
+      "contexts": [],
+      "category": "step",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.browser.steps.2.env.BOS_NETWORK_BROWSER_OUTPUT",
+      "expression": "runner.temp",
+      "contexts": [
+        "runner"
+      ],
+      "category": "step",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.browser.steps.2.env.BOS_NETWORK_BROWSER_OUTPUT",
+      "expression": "github.run_id",
+      "contexts": [
+        "github"
+      ],
+      "category": "step",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.browser.steps.2.env.BOS_NETWORK_BROWSER_OUTPUT",
+      "expression": "github.run_attempt",
+      "contexts": [
+        "github"
+      ],
+      "category": "step",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.browser.steps.6.if",
+      "expression": "always()",
+      "contexts": [],
+      "category": "step",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.browser.steps.7.if",
+      "expression": "always()",
+      "contexts": [],
+      "category": "step",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.browser.steps.7.with.name",
+      "expression": "github.run_id",
+      "contexts": [
+        "github"
+      ],
+      "category": "step",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.browser.steps.7.with.name",
+      "expression": "github.run_attempt",
+      "contexts": [
+        "github"
+      ],
+      "category": "step",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.browser.steps.7.with.path",
+      "expression": "runner.temp",
+      "contexts": [
+        "runner"
+      ],
+      "category": "step",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.browser.steps.7.with.path",
+      "expression": "github.run_id",
+      "contexts": [
+        "github"
+      ],
+      "category": "step",
+      "unsupported": []
+    },
+    {
+      "path": "jobs.browser.steps.7.with.path",
+      "expression": "github.run_attempt",
+      "contexts": [
+        "github"
+      ],
+      "category": "step",
+      "unsupported": []
+    }
+  ],
+  "total": 33,
+  "unsupported_sites": []
+}
