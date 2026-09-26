@@ -17787,8 +17787,9 @@ function moduleActionPreset(action, row, descriptor) {
   return preset;
 }
 function moduleCell(column, row, currency) {
-  const value = row[column.key];
-  if (value == null) return '—';
+  const value = row[column.key],
+    missing = value == null || typeof value === 'string' && value.trim() === '';
+  if (missing) return ['date', 'datetime'].includes(column.type) ? 'Не встановлено' : 'Не вказано';
   if (column.type === 'money') return /*#__PURE__*/React.createElement("span", {
     className: "network-registry-money"
   }, moduleMoney(value, row.currency || currency));
@@ -17832,7 +17833,7 @@ function ModuleRecordFacts({
 }) {
   return /*#__PURE__*/React.createElement("dl", {
     className: "module-facts"
-  }, model.columns.filter(c => row[c.key] != null).map(c => /*#__PURE__*/React.createElement("div", {
+  }, model.columns.filter(c => c.key !== model.label_field && row[c.key] != null).map(c => /*#__PURE__*/React.createElement("div", {
     key: c.key
   }, /*#__PURE__*/React.createElement("dt", null, c.label), /*#__PURE__*/React.createElement("dd", null, moduleCell(c, row, currency)))));
 }
@@ -17941,18 +17942,26 @@ function CoreModuleSurface({
     row,
     onAction
   });
-  const card = row => /*#__PURE__*/React.createElement("article", {
-    key: row[model.key],
-    className: "module-record"
-  }, /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    className: "module-record-title",
-    onClick: () => detail(row)
-  }, label(row), " ", /*#__PURE__*/React.createElement("span", {
-    "aria-hidden": "true"
-  }, "\u2197")), row.item_name && /*#__PURE__*/React.createElement("p", null, row.item_name), row.customer_name && /*#__PURE__*/React.createElement("p", null, row.customer_name), row.location_name && /*#__PURE__*/React.createElement("p", {
-    className: "op-muted"
-  }, row.location_name), row.due_date && /*#__PURE__*/React.createElement("small", null, "\u0421\u0442\u0440\u043E\u043A: ", erpDate(row.due_date)), /*#__PURE__*/React.createElement(ModuleRecordActions, actionProps(row)));
+  const card = row => {
+    const title = label(row),
+      facts = [['item_name', 'Номенклатура'], ['customer_name', 'Клієнт']].filter(([key]) => key !== model.label_field && row[key] != null && !(typeof row[key] === 'string' && row[key].trim() === ''));
+    return /*#__PURE__*/React.createElement("article", {
+      key: row[model.key],
+      className: "module-record"
+    }, /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      className: "module-record-title",
+      onClick: () => detail(row)
+    }, title, " ", /*#__PURE__*/React.createElement("span", {
+      "aria-hidden": "true"
+    }, "\u2197")), facts.map(([key, label]) => /*#__PURE__*/React.createElement("p", {
+      key: key
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "op-muted"
+    }, label, ": "), row[key])), row.location_name && /*#__PURE__*/React.createElement("p", {
+      className: "op-muted"
+    }, row.location_name), row.due_date && /*#__PURE__*/React.createElement("small", null, "\u0421\u0442\u0440\u043E\u043A: ", erpDate(row.due_date)), /*#__PURE__*/React.createElement(ModuleRecordActions, actionProps(row)));
+  };
   const selected = rows.find(row => row[model.key] === inline),
     mapped = moduleMapRows(network, model, rows),
     inbox = moduleInbox(model, rows, network.as_of);

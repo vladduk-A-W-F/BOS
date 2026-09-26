@@ -4550,7 +4550,8 @@ function moduleActionPreset(action,row,descriptor){
  return preset;
 }
 function moduleCell(column,row,currency){
- const value=row[column.key];if(value==null)return '—';
+ const value=row[column.key],missing=value==null||(typeof value==='string'&&value.trim()==='');
+ if(missing)return ['date','datetime'].includes(column.type)?'Не встановлено':'Не вказано';
  if(column.type==='money')return <span className="network-registry-money">{moduleMoney(value,row.currency||currency)}</span>;
  if(['date','datetime'].includes(column.type))return erpDate(value);
  if(['process','kind','status','quality','effective_status','coordinate_basis'].includes(column.key))return ERP_LABELS[value]||({import:'Імпорт',purchase:'Закупівля',sale:'Продаж',export:'Експорт',point:'Координати точки',branch:'Центр філії',missing:'Не задано',in_transit:'У дорозі',held:'Утримано',released:'Знято'})[value]||String(value);
@@ -4563,7 +4564,7 @@ function ModuleRecordActions({catalog,network,model,row,onAction}){
  return <div className="erp-actions">{actions.map(a=><Button type="button" key={a.id} onClick={()=>onAction(a.ui_action,moduleActionPreset(a.ui_action,row,a))}>{a.name}</Button>)}</div>;
 }
 function ModuleRecordFacts({model,row,currency}){
- return <dl className="module-facts">{model.columns.filter(c=>row[c.key]!=null).map(c=><div key={c.key}><dt>{c.label}</dt><dd>{moduleCell(c,row,currency)}</dd></div>)}</dl>;
+ return <dl className="module-facts">{model.columns.filter(c=>c.key!==model.label_field&&row[c.key]!=null).map(c=><div key={c.key}><dt>{c.label}</dt><dd>{moduleCell(c,row,currency)}</dd></div>)}</dl>;
 }
 function ModuleCreateActions({catalog,network,model,branch,point,currency,onAction}){
  if(!catalog.permissions.write||!network.capabilities?.write||!bosCan('write'))return null;
@@ -4585,7 +4586,7 @@ function CoreModuleSurface({catalog,network,table,onTable,view,onView,search,onS
  const detail=row=>{if(['transfers','retentions'].includes(model.id)){triggerRef.current=typeof document==='undefined'?null:document.activeElement;setInline(row[model.key]);}else onSelect({kind:model.id==='points'?'locations':model.id,id:row[model.key]});};
  const closeInline=()=>{setInline(null);triggerRef.current?.focus?.();};
  const actionProps=row=>({catalog,network,model,row,onAction});
- const card=row=><article key={row[model.key]} className="module-record"><button type="button" className="module-record-title" onClick={()=>detail(row)}>{label(row)} <span aria-hidden="true">↗</span></button>{row.item_name&&<p>{row.item_name}</p>}{row.customer_name&&<p>{row.customer_name}</p>}{row.location_name&&<p className="op-muted">{row.location_name}</p>}{row.due_date&&<small>Строк: {erpDate(row.due_date)}</small>}<ModuleRecordActions {...actionProps(row)}/></article>;
+ const card=row=>{const title=label(row),facts=[['item_name','Номенклатура'],['customer_name','Клієнт']].filter(([key])=>key!==model.label_field&&row[key]!=null&&!(typeof row[key]==='string'&&row[key].trim()===''));return <article key={row[model.key]} className="module-record"><button type="button" className="module-record-title" onClick={()=>detail(row)}>{title} <span aria-hidden="true">↗</span></button>{facts.map(([key,label])=><p key={key}><span className="op-muted">{label}: </span>{row[key]}</p>)}{row.location_name&&<p className="op-muted">{row.location_name}</p>}{row.due_date&&<small>Строк: {erpDate(row.due_date)}</small>}<ModuleRecordActions {...actionProps(row)}/></article>;};
  const selected=rows.find(row=>row[model.key]===inline),mapped=moduleMapRows(network,model,rows),inbox=moduleInbox(model,rows,network.as_of);
  const columns=model.columns.map(c=>[c.label,row=>moduleCell(c,row,currency)]);
  columns.push(['Дії',row=><ModuleRecordActions {...actionProps(row)}/>]);

@@ -68,19 +68,19 @@ MODELS = (
         Column('coordinate_basis', 'Джерело координат'), Column('inventory_value', 'Запас', 'money', True))),
     Model('lots', 'Складські партії', 'erp.Lot', 'id', 'code', 'quality', (
         Column('code', 'Партія'), Column('item_name', 'Номенклатура'), Column('location_name', 'Точка'),
-        Column('quantity', 'Фізично', 'quantity'), Column('available', 'Доступно', 'quantity'),
+        Column('quantity', 'На складі', 'quantity'), Column('available', 'Доступно для операцій', 'quantity'),
         Column('quality', 'Якість', 'status'), Column('currency', 'Валюта'),
         Column('value', 'Вартість', 'money', True)), (('location_id', 'points'),)),
     Model('purchases', 'Постачання', 'erp.Purchase', 'id', 'code', 'effective_status', (
         Column('code', 'Замовлення'), Column('process', 'Процес'), Column('supplier_name', 'Постачальник'),
         Column('item_name', 'Номенклатура'), Column('location_name', 'Приймання'),
-        Column('open_quantity', 'Залишилось', 'quantity'), Column('effective_status', 'Стан', 'status'),
+        Column('open_quantity', 'Ще прийняти', 'quantity'), Column('effective_status', 'Стан', 'status'),
         Column('due_date', 'Строк', 'date'), Column('currency', 'Валюта'),
         Column('price', 'Ціна', 'money', True)), (('destination_id', 'points'), ('production_id', 'jobs'))),
     Model('orders', 'Продажі', 'erp.SalesOrder', 'id', 'code', 'status', (
         Column('code', 'Замовлення'), Column('process', 'Процес'), Column('customer_name', 'Клієнт'),
         Column('location_name', 'Виконання'), Column('status', 'Стан', 'status'),
-        Column('open_line_count', 'Невиконані рядки', 'integer'), Column('due_date', 'Строк', 'date'),
+        Column('open_line_count', 'Рядки до виконання', 'integer'), Column('due_date', 'Строк', 'date'),
         Column('currency', 'Валюта')), (('fulfillment_location_id', 'points'),)),
     Model('jobs', 'Виробництво', 'erp.Production', 'id', 'code', 'status', (
         Column('code', 'Робота'), Column('item_name', 'Виріб'), Column('location_name', 'Точка'),
