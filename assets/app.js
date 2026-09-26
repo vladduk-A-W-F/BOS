@@ -341,6 +341,11 @@ const NAV = [{
     iconKey: 'salaries'
   }]
 }, {
+  id: 'crm',
+  label: 'CRM',
+  iconKey: 'contractors',
+  subs: []
+}, {
   id: 'hr',
   label: 'HR',
   icon: '👥',
@@ -21248,246 +21253,1175 @@ function BoSHome({
     onDone: (r, context) => done(shownAction, r, context)
   }));
 }
-function BoSProductGuide({
-  onNavigate
-}) {
-  const cases = [{
-    id: 'BOS3-CASE-01',
-    title: '50 комплектів без необґрунтованої обіцянки',
-    client: 'ТОВ «Промінь-Сервіс»',
-    need: '50 умовних монтажних комплектів М10',
-    owner_role: 'Менеджер продажів',
-    next_action: 'Уточнити строк після перевірки SO-101 і забезпечення',
-    stage: 'draft_after_source_check',
-    source_codes: ['SO-101', 'DEMO-101', 'FAST-101', 'MAT-101'],
-    problem: 'Клієнт умовно просить 50 комплектів. Перед обіцянкою треба відрізнити замовлену кількість від придатного вільного запасу та резерву.',
-    result: 'Навчальний результат: є підстава для розмови про строк, але комерційна обіцянка не є фактичною поставкою.',
-    handoffs: ['Продажі → Планування', 'Планування → Склад'],
-    roles: 'Керівник і менеджер переходять за доступними джерелами; спостерігач працює лише з читанням.',
-    steps: [{
-      label: 'Перевірити основу замовлення',
-      section: 'erp',
-      sub: 'sales',
-      destination: 'ERP / Продажі',
-      check: 'Знайдіть SO-101: 50 виробів, відповідального та строк.'
-    }, {
-      label: 'Побачити придатний запас і резерв',
-      section: 'erp',
-      sub: 'stock',
-      destination: 'ERP / Склад',
-      check: 'Не ототожнюйте фізичний запас з доступним для відвантаження.'
-    }, {
-      label: 'Відкрити робочий наступний крок',
-      section: 'dash',
-      sub: null,
-      destination: 'Сьогодні',
-      check: 'Перевірте заповнені поля і «Було → Стане» перед погодженням.'
-    }]
-  }, {
-    id: 'BOS3-CASE-02',
-    title: 'Не зірвати комплектування через дефіцит',
-    client: 'ПП «РемБуд-Лаб»',
-    need: 'Закрити матеріальну потребу для 40 умовних комплектів',
-    owner_role: 'Керівник планування',
-    next_action: 'Звірити PO-MAT і PO-FAST до оновлення строку клієнту',
-    stage: 'risk_review',
-    source_codes: ['MO-101', 'PO-MAT', 'PO-FAST', 'LOT-FG-HOLD'],
-    problem: 'MO-101 має забезпечити решту 40 комплектів. Є 24 кг заготовки та 60 кріпильних елементів; 8 кг і 20 шт. очікуються. LOT-FG-HOLD заблокована.',
-    result: 'Навчальний результат: закупівля, приймання, допуск якості, резерв і відвантаження є різними фактами.',
-    handoffs: ['Планування → Закупки', 'Закупки → Склад', 'Склад → Виробництво', 'Виробництво → Якість', 'Якість → Логістика'],
-    roles: 'Керівник бачить повний маршрут; менеджер і спостерігач бачать лише розділи та факти, дозволені їхній ролі.',
-    steps: [{
-      label: 'Перевірити виробничу потребу',
-      section: 'erp',
-      sub: 'production',
-      destination: 'ERP / Виробництво',
-      check: 'Відкрийте MO-101 і відрізніть запланований випуск від фактичного.'
-    }, {
-      label: 'Звірити очікувані поставки',
-      section: 'erp',
-      sub: 'purchase',
-      destination: 'ERP / Постачання',
-      check: 'Знайдіть PO-MAT і PO-FAST; строк не дорівнює фактичному прийманню.'
-    }, {
-      label: 'Перевірити партії на складі',
-      section: 'erp',
-      sub: 'stock',
-      destination: 'ERP / Склад',
-      check: 'LOT-FG-HOLD заблокована й не є придатним запасом для відвантаження.'
-    }, {
-      label: 'Перевірити рішення якості',
-      section: 'erp',
-      sub: 'quality',
-      destination: 'ERP / Якість і зміни',
-      check: 'Допуск якості є окремим рішенням з документом-підставою, а не прийманням.'
-    }, {
-      label: 'Повернутися до наступного кроку',
-      section: 'dash',
-      sub: null,
-      destination: 'Сьогодні',
-      check: 'Проведення можливе лише після preview та явного погодження.'
-    }]
-  }, {
-    id: 'BOS3-CASE-03',
-    title: 'Після відвантаження не втратити оплату',
-    client: 'ТОВ «Контур-Монтаж»',
-    need: 'Наступний контакт за синтетичним відкритим рахунком',
-    owner_role: 'Керівник продажів',
-    next_action: 'Призначити контакт після перевірки рахунку та джерела',
-    stage: 'collection_follow_up_draft',
-    source_codes: ['SO-090', 'SO-091', 'SO-092'],
-    problem: 'SO-090, SO-091 і SO-092 — готові синтетичні приклади повної, часткової та відсутньої оплати.',
-    result: 'Навчальний результат: запис оплати не є банківським переказом, а позначка контакту не закриває борг.',
-    handoffs: ['Логістика → Фінанси', 'Фінанси → Продажі', 'Продажі → HR і керівник'],
-    roles: 'Розмір фінансових даних і доступ до джерел залежать від чинної ролі; нових ролей навчання не створює.',
-    steps: [{
-      label: 'Відкрити показник і джерело',
-      section: 'heli',
-      sub: null,
-      destination: 'Вертоліт',
-      check: 'Відкрийте доступний показник та його конкретний рахунок-джерело.'
-    }, {
-      label: 'Перевірити фінансовий контекст',
-      section: 'erp',
-      sub: 'costs',
-      destination: 'ERP / Фінансовий результат',
-      check: 'Відрізніть рахунок, облікову оплату і відкритий залишок.'
-    }, {
-      label: 'Зафіксувати відповідального за контакт',
-      section: 'hr',
-      sub: 'tasks',
-      destination: 'HR / Доручення',
-      check: 'Доручення не реєструє оплату й не закриває фінансовий борг.'
-    }]
-  }];
-  const fallbackProgress = {
-    caseId: cases[0].id,
-    step: 0
-  };
-  const [storedProgress, setStoredProgress] = useLocalState('bos.training.v3', fallbackProgress);
-  const rawProgress = storedProgress && typeof storedProgress === 'object' && !Array.isArray(storedProgress) ? storedProgress : {};
-  const active = cases.find(item => item.id === rawProgress.caseId) || cases[0];
-  const rawStep = Number.isSafeInteger(rawProgress.step) ? rawProgress.step : 0;
-  const activeStep = Math.max(0, Math.min(rawStep, active.steps.length - 1));
-  const normalizedProgress = {
-    caseId: active.id,
-    step: activeStep
-  };
-  const storedProgressJSON = JSON.stringify(storedProgress),
-    normalizedProgressJSON = JSON.stringify(normalizedProgress);
-  useEffect(() => {
-    if (storedProgressJSON !== normalizedProgressJSON) setStoredProgress(normalizedProgress);
-  }, [storedProgressJSON, normalizedProgressJSON]);
-  const preview = {
-    schema: 'bos.training.crm-handoff.v1',
-    synthetic: true,
-    crm_record_created: false,
-    case_id: active.id,
-    client: active.client,
-    need: active.need,
-    owner_role: active.owner_role,
-    next_action: active.next_action,
-    stage: active.stage,
-    source_codes: active.source_codes
-  };
-  const stageLabels = {
-    draft_after_source_check: 'Чернетка після перевірки джерел',
-    risk_review: 'Перевірка ризику строку',
-    collection_follow_up_draft: 'Чернетка контакту щодо оплати'
-  };
-  const previewFields = [['Клієнт', preview.client], ['Потреба', preview.need], ['Відповідальна роль', preview.owner_role], ['Наступна дія', preview.next_action], ['Етап чернетки', stageLabels[preview.stage] || preview.stage], ['Коди джерел', preview.source_codes.join(', ')]];
-  const saveProgress = next => {
-    try {
-      localStorage.setItem(bosStorageKey('bos.training.v3'), JSON.stringify(next));
-    } catch {
-      window.dispatchEvent(new CustomEvent('boss:notice', {
-        detail: 'Не вдалося зберегти прогрес навчання в браузері.'
-      }));
-    }
-    setStoredProgress(next);
-  };
-  const openStep = (step, index) => {
-    saveProgress({
-      caseId: active.id,
-      step: index
-    });
-    onNavigate(step.section, step.sub);
-  };
-  const changeCase = id => saveProgress({
-    caseId: id,
-    step: 0
+function bos3Registry() {
+  const content = window.BOS3_CONTENT;
+  return content && content.schema === 'bos.training.content.v1' && Array.isArray(content.cases) && Array.isArray(content.areas) ? content : null;
+}
+function bos3Slug() {
+  const value = new URLSearchParams(location.search).get('training');
+  const content = bos3Registry();
+  return content?.cases.some(item => item.slug === value) ? value : null;
+}
+function bos3Href(slug) {
+  const url = new URL(location.href);
+  url.searchParams.set('training', slug);
+  return url.pathname + url.search + url.hash;
+}
+function bos3SetSlug(slug, replace = false) {
+  const url = new URL(location.href);
+  if (slug) url.searchParams.set('training', slug);else url.searchParams.delete('training');
+  history[replace ? 'replaceState' : 'pushState']({}, '', url.pathname + url.search + url.hash);
+  window.dispatchEvent(new PopStateEvent('popstate'));
+}
+function bos3StatusLabel(status) {
+  return {
+    not_started: 'Не розпочато',
+    in_progress: 'У процесі',
+    paused: 'Призупинено',
+    completed: 'Завершено',
+    needs_recheck: 'Потрібна повторна перевірка',
+    needs_recheck_after_source_change: 'Потрібна повторна перевірка',
+    unavailable: 'Недоступно'
+  }[status] || 'Очікує перевірки';
+}
+function bos3ValidContent(value) {
+  return value && value.schema === 'bos.training.content.v1' && Array.isArray(value.cases) && Array.isArray(value.areas) ? value : null;
+}
+async function trainingFetch(path, data) {
+  const response = await fetch('/api/training/' + path, data === undefined ? {} : {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
   });
-  const download = () => {
-    const url = URL.createObjectURL(new Blob([JSON.stringify(preview, null, 2)], {
-        type: 'application/json'
-      })),
-      link = document.createElement('a');
-    link.href = url;
-    link.download = active.id.toLowerCase() + '-crm-handoff.json';
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  let body;
+  try {
+    body = await response.json();
+  } catch {
+    throw Error('Навчальний сервіс повернув некоректну відповідь.');
+  }
+  if (!response.ok) {
+    const error = Error(body?.error || body?.reason || 'Навчальний сервіс недоступний.');
+    error.status = response.status;
+    throw error;
+  }
+  return body;
+}
+function bos3CaseState(payload, caseId) {
+  if (!payload) return null;
+  if (payload.case_id === caseId) return payload;
+  if (payload.session?.case_id === caseId) return payload.session;
+  return Array.isArray(payload.cases) ? payload.cases.find(item => item?.case_id === caseId || item?.id === caseId) || null : null;
+}
+function bos3StepState(state, stepId) {
+  return Array.isArray(state?.steps) ? state.steps.find(item => item?.id === stepId) || null : null;
+}
+function bos3SessionId(state) {
+  return typeof state?.session_id === 'string' ? state.session_id : typeof state?.public_id === 'string' ? state.public_id : null;
+}
+function Bos3CaseCards({
+  content,
+  caseStates = {},
+  onSelect,
+  compact = false
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "bos3-case-grid"
+  }, content.cases.map(item => {
+    const state = caseStates[item.id] || {};
+    const status = state.status || 'not_started';
+    return /*#__PURE__*/React.createElement("a", {
+      className: "bos3-case-link",
+      key: item.id,
+      href: bos3Href(item.slug),
+      onClick: event => {
+        if (onSelect) {
+          event.preventDefault();
+          bos3SetSlug(item.slug);
+          onSelect(item.slug);
+        }
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "bos3-case-code"
+    }, item.id), /*#__PURE__*/React.createElement("span", {
+      className: "bos3-status",
+      "data-status": status
+    }, bos3StatusLabel(status)), /*#__PURE__*/React.createElement("h3", null, item.title), !compact && /*#__PURE__*/React.createElement("p", null, item.goal), /*#__PURE__*/React.createElement("div", {
+      className: "bos3-case-meta"
+    }, item.departments.slice(0, compact ? 3 : 6).map(department => /*#__PURE__*/React.createElement("span", {
+      key: department
+    }, department))));
+  }));
+}
+function Bos3AreaGrid({
+  content,
+  onOpenCase,
+  compact = false
+}) {
+  const [selected, setSelected] = useState(null);
+  const area = content.areas.find(item => item.id === selected) || null;
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "bos3-area-grid"
+  }, content.areas.map(item => /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "bos3-area",
+    key: item.id,
+    "aria-pressed": selected === item.id,
+    onClick: () => {
+      if (compact) {
+        const first = content.cases.find(caseItem => item.case_ids.includes(caseItem.id));
+        if (first) onOpenCase(first.slug);
+        return;
+      }
+      setSelected(item.id);
+    }
+  }, /*#__PURE__*/React.createElement("strong", null, item.label), /*#__PURE__*/React.createElement("p", null, item.question), /*#__PURE__*/React.createElement("span", {
+    className: "bos3-capability"
+  }, item.availability), /*#__PURE__*/React.createElement("small", null, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u043F\u043E\u0432'\u044F\u0437\u0430\u043D\u0438\u0439 \u043A\u0435\u0439\u0441")))), area && !compact && /*#__PURE__*/React.createElement("div", {
+    className: "bos3-area-result",
+    role: "status"
+  }, /*#__PURE__*/React.createElement("strong", null, area.label), area.availability, /*#__PURE__*/React.createElement("div", {
+    className: "bos3-actions",
+    style: {
+      marginTop: 12
+    }
+  }, area.case_ids.slice(0, 2).map(id => {
+    const item = content.cases.find(caseItem => caseItem.id === id);
+    return item ? /*#__PURE__*/React.createElement(Button, {
+      key: id,
+      onClick: () => onOpenCase(item.slug)
+    }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u043A\u0435\u0439\u0441") : null;
+  }))));
+}
+function Bos3Brochure({
+  compact = false,
+  onSelectCase
+}) {
+  const content = bos3Registry();
+  if (!content) return /*#__PURE__*/React.createElement("section", {
+    className: "bos3-empty"
+  }, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0456 \u043C\u0430\u0442\u0435\u0440\u0456\u0430\u043B\u0438 \u0449\u0435 \u043D\u0435 \u0437\u0456\u0431\u0440\u0430\u043D\u0456 \u0434\u043B\u044F \u0446\u044C\u043E\u0433\u043E \u043A\u0430\u043D\u0434\u0438\u0434\u0430\u0442\u0430.");
+  return /*#__PURE__*/React.createElement("section", {
+    className: compact ? 'bos3-auth-guide' : 'bos3-start',
+    "aria-label": "\u041D\u0430\u0432\u0447\u0430\u043D\u043D\u044F BoS 3.0"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bos3-hero"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "bos3-kicker"
+  }, content.training_notice), compact ? /*#__PURE__*/React.createElement("h2", null, content.brand) : /*#__PURE__*/React.createElement("h1", null, content.brand), /*#__PURE__*/React.createElement("p", null, content.summary)), /*#__PURE__*/React.createElement("div", {
+    className: "bos3-hero-aside"
+  }, /*#__PURE__*/React.createElement("strong", null, content.company), "\u0422\u0440\u0438 \u043D\u0435\u0437\u0430\u043B\u0435\u0436\u043D\u0456 \u043A\u0435\u0439\u0441\u0438 \u0434\u043B\u044F \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0438 \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0438\u0445 \u0444\u0430\u043A\u0442\u0456\u0432. \u0412\u043E\u043D\u0438 \u043D\u0435 \u0437\u043C\u0456\u043D\u044E\u044E\u0442\u044C \u0440\u043E\u0431\u043E\u0447\u0456 \u0434\u0430\u043D\u0456.")), /*#__PURE__*/React.createElement("div", {
+    className: "bos3-section-heading"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", null, "\u0420\u043E\u0431\u043E\u0447\u0456 \u043E\u0431\u043B\u0430\u0441\u0442\u0456"), /*#__PURE__*/React.createElement("p", null, "\u041E\u0431\u0435\u0440\u0456\u0442\u044C \u043F\u0438\u0442\u0430\u043D\u043D\u044F, \u0449\u043E\u0431 \u043F\u043E\u0431\u0430\u0447\u0438\u0442\u0438 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0443 \u0444\u0443\u043D\u043A\u0446\u0456\u044E \u0439 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u0438\u0439 \u043A\u0435\u0439\u0441."))), /*#__PURE__*/React.createElement(Bos3AreaGrid, {
+    content: content,
+    compact: compact,
+    onOpenCase: onSelectCase || (() => {})
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "bos3-section-heading"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", null, "\u0422\u0440\u0438 \u043A\u0435\u0439\u0441\u0438"), /*#__PURE__*/React.createElement("p", null, "\u041A\u043E\u0436\u0435\u043D \u043C\u0430\u0454 \u0432\u043B\u0430\u0441\u043D\u0435 \u043F\u043E\u0441\u0438\u043B\u0430\u043D\u043D\u044F \u0442\u0430 \u043D\u0435 \u0437\u0430\u043B\u0435\u0436\u0438\u0442\u044C \u0432\u0456\u0434 \u043F\u043E\u0440\u044F\u0434\u043A\u0443 \u043F\u0440\u043E\u0445\u043E\u0434\u0436\u0435\u043D\u043D\u044F."))), /*#__PURE__*/React.createElement(Bos3CaseCards, {
+    content: content,
+    compact: compact,
+    onSelect: onSelectCase
+  }), !compact && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
+    className: "bos3-note"
+  }, "\u0421\u0442\u0430\u0442\u0443\u0441 \u043A\u0435\u0439\u0441\u0443, \u0444\u0430\u043A\u0442\u0438 \u0442\u0430 \u0434\u043E\u043A\u0430\u0437\u0438 \u0437'\u044F\u0432\u043B\u044F\u044E\u0442\u044C\u0441\u044F \u043B\u0438\u0448\u0435 \u043F\u0456\u0441\u043B\u044F \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0438 \u0432\u0430\u0448\u043E\u0457 \u0430\u0443\u0442\u0435\u043D\u0442\u0438\u0444\u0456\u043A\u043E\u0432\u0430\u043D\u043E\u0457 \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u043E\u0457 \u0441\u0435\u0441\u0456\u0457."), /*#__PURE__*/React.createElement("a", {
+    className: "bos-start-pdf",
+    href: "/api/training/brochure.pdf"
+  }, "\u0411\u0440\u043E\u0448\u0443\u0440\u0430 BoS 3.0: \u043A\u0435\u0439\u0441\u0438 \u0439 \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0443\u0440 (PDF)")));
+}
+function Bos3Tour({
+  content,
+  tourState,
+  setTourState,
+  onNavigate,
+  onPersist
+}) {
+  const index = Math.max(0, Math.min(Number(tourState?.index) || 0, content.tour.length - 1));
+  const step = content.tour[index];
+  useEffect(() => {
+    const close = event => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      Promise.resolve(onPersist?.('skipped')).then(saved => {
+        if (saved !== false) setTourState(null);
+      });
+    };
+    window.addEventListener('keydown', close);
+    return () => window.removeEventListener('keydown', close);
+  }, [setTourState, onPersist]);
+  if (!step) return null;
+  const finish = async status => {
+    if (!onPersist || (await onPersist(status)) !== false) setTourState(null);
+  };
+  return /*#__PURE__*/React.createElement("section", {
+    className: "bos3-tour",
+    "aria-label": "\u041A\u043E\u0440\u043E\u0442\u043A\u0435 \u0437\u043D\u0430\u0439\u043E\u043C\u0441\u0442\u0432\u043E \u0437 \u0440\u043E\u0431\u043E\u0447\u0438\u043C \u043F\u0440\u043E\u0441\u0442\u043E\u0440\u043E\u043C"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "bos3-tour-index"
+  }, "\u041A\u0440\u043E\u043A ", index + 1, " \u0437 ", content.tour.length), /*#__PURE__*/React.createElement("h2", null, step.title), /*#__PURE__*/React.createElement("p", null, step.description), /*#__PURE__*/React.createElement("div", {
+    className: "bos3-tour-controls"
+  }, /*#__PURE__*/React.createElement(Button, {
+    className: "bos3-tour-control",
+    onClick: () => onNavigate(step.route.section, step.route.sub)
+  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u0440\u043E\u0437\u0434\u0456\u043B"), /*#__PURE__*/React.createElement(Button, {
+    className: "bos3-tour-control",
+    disabled: !index,
+    onClick: () => setTourState({
+      index: index - 1
+    })
+  }, "\u041D\u0430\u0437\u0430\u0434"), index < content.tour.length - 1 ? /*#__PURE__*/React.createElement(Button, {
+    className: "bos3-tour-control",
+    variant: "primary",
+    onClick: () => setTourState({
+      index: index + 1
+    })
+  }, "\u0414\u0430\u043B\u0456") : /*#__PURE__*/React.createElement(Button, {
+    className: "bos3-tour-control",
+    variant: "primary",
+    onClick: () => finish('completed')
+  }, "\u0414\u043E \u0440\u043E\u0431\u043E\u0447\u043E\u0433\u043E \u043F\u0440\u043E\u0441\u0442\u043E\u0440\u0443"), /*#__PURE__*/React.createElement(Button, {
+    className: "bos3-tour-control",
+    onClick: () => finish('skipped')
+  }, "\u041F\u0440\u043E\u043F\u0443\u0441\u0442\u0438\u0442\u0438 \u0442\u0443\u0440")));
+}
+const BOS3_FACT_LABELS = {
+  client: 'Клієнт',
+  order_code: 'Замовлення',
+  order_quantity: 'Кількість замовлення',
+  due_date: 'Строк',
+  currency: 'Валюта',
+  scenario_date: 'Дата сценарію',
+  washer_shortage: 'Початковий дефіцит шайб',
+  produced: 'Виготовлено',
+  received: 'Прийнято',
+  purchase_code: 'Закупівля',
+  production_code: 'Виробництво',
+  approved_lot: 'Допущена партія',
+  approved_quantity: 'Кількість допущеної партії',
+  blocked_lot: 'Заблокована партія',
+  blocked_quantity: 'Кількість заблокованої партії',
+  reserved: 'Зарезервовано',
+  shipped: 'Відвантажено',
+  invoice_code: 'Рахунок',
+  amount: 'Сума рахунку',
+  paid: 'Оплачено',
+  balance: 'Відкритий залишок',
+  order: 'Замовлення',
+  quantity: 'Кількість',
+  lot: 'Партія',
+  quality: 'Стан якості',
+  fixture: 'Контрольна сума набору',
+  initial: 'Початкові умови',
+  purchase: 'Закупівля',
+  production: 'Виробництво',
+  status: 'Стан',
+  approved_lot_id: 'Допущена партія',
+  allocation_verified: 'Перевірка резерву',
+  blocked: 'Стан заблокованої партії',
+  movements: 'Відвантаження',
+  tasks: 'Доручення',
+  record_exists: 'CRM-картка'
+};
+function bos3FactLabel(key) {
+  return BOS3_FACT_LABELS[key] || 'Дані джерела';
+}
+function bos3FactValue(value) {
+  if (Array.isArray(value)) return value.map(bos3FactValue).join(', ');
+  if (value && typeof value === 'object') return Object.entries(value).map(([key, item]) => bos3FactLabel(key) + ': ' + bos3FactValue(item)).join('; ');
+  return value === null || value === undefined ? '—' : String(value);
+}
+function Bos3Evidence({
+  evidence
+}) {
+  if (!evidence) return null;
+  if (typeof evidence === 'string') return /*#__PURE__*/React.createElement("div", {
+    className: "bos3-evidence"
+  }, /*#__PURE__*/React.createElement("strong", null, "\u0421\u043F\u043E\u0441\u0442\u0435\u0440\u0435\u0436\u0435\u043D\u043D\u044F \u0441\u0435\u0440\u0432\u0435\u0440\u0430"), /*#__PURE__*/React.createElement("br", null), evidence);
+  const passed = evidence.passed === true,
+    observed = evidence.observed;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "bos3-evidence",
+    "data-passed": passed
+  }, /*#__PURE__*/React.createElement("strong", null, passed ? 'Перевірку пройдено' : 'Ще не підтверджено'), observed && /*#__PURE__*/React.createElement("div", null, bos3FactValue(observed)));
+}
+function Bos3CaseRunner({
+  content,
+  caseDef,
+  serverCase,
+  session,
+  loading,
+  error,
+  onBack,
+  onStart,
+  onPause,
+  onRefresh,
+  onCheck,
+  onSelectStep,
+  onOpenRoute,
+  onTour,
+  onWorkspace,
+  onCRM
+}) {
+  const [answers, setAnswers] = useState({});
+  const state = session || serverCase || {};
+  const steps = Array.isArray(state.steps) ? state.steps : [];
+  const currentId = state.current_step || state.current_step_id || steps[0]?.id;
+  const current = steps.find(item => item.id === currentId) || steps[0];
+  const fields = Array.isArray(current?.answer_fields) ? current.answer_fields : [];
+  const facts = state.facts && typeof state.facts === 'object' ? state.facts : {};
+  const sources = Array.isArray(state.sources) ? state.sources : [];
+  const hasSession = !!bos3SessionId(session);
+  useEffect(() => setAnswers({}), [current?.id]);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "bos3-runner"
+  }, /*#__PURE__*/React.createElement("header", {
+    className: "bos3-runner-header"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "bos3-kicker"
+  }, content.training_notice, " \xB7 ", caseDef.id), /*#__PURE__*/React.createElement("h1", null, caseDef.title), /*#__PURE__*/React.createElement("p", null, caseDef.goal), /*#__PURE__*/React.createElement("p", {
+    className: "bos3-note"
+  }, caseDef.story_intro)), /*#__PURE__*/React.createElement("span", {
+    className: "bos3-status",
+    "data-status": state.status || 'not_started'
+  }, loading ? 'Оновлення…' : bos3StatusLabel(state.status || 'not_started'))), error && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, error), /*#__PURE__*/React.createElement("div", {
+    className: "bos3-actions"
+  }, /*#__PURE__*/React.createElement(Button, {
+    onClick: onBack
+  }, "\u0414\u043E \u0432\u0441\u0456\u0445 \u043A\u0435\u0439\u0441\u0456\u0432"), !hasSession && /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    disabled: loading || state.available === false,
+    onClick: onStart
+  }, loading ? 'Зачекайте…' : 'Почати навчання'), hasSession && /*#__PURE__*/React.createElement(Button, {
+    disabled: loading,
+    onClick: onRefresh
+  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0443"), hasSession && state.status === 'in_progress' && /*#__PURE__*/React.createElement(Button, {
+    disabled: loading,
+    onClick: onPause
+  }, "\u041F\u0440\u0438\u0437\u0443\u043F\u0438\u043D\u0438\u0442\u0438"), state.status === 'completed' && /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    onClick: onTour
+  }, "\u041A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0443\u0440"), /*#__PURE__*/React.createElement(Button, {
+    onClick: onWorkspace
+  }, "\u0420\u043E\u0431\u043E\u0447\u0438\u0439 \u043F\u0440\u043E\u0441\u0442\u0456\u0440")), state.available === false && /*#__PURE__*/React.createElement("div", {
+    className: "bos3-empty"
+  }, state.reason || 'Навчальне середовище ще не налаштовано для цього облікового запису. Жоден крок не позначено виконаним.'), /*#__PURE__*/React.createElement("div", {
+    className: "bos3-runner-grid"
+  }, /*#__PURE__*/React.createElement("section", {
+    className: "bos3-steps",
+    "aria-label": "\u041A\u0440\u043E\u043A\u0438 \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u043E\u0433\u043E \u043A\u0435\u0439\u0441\u0443"
+  }, steps.length ? steps.map((step, index) => {
+    const sourceStep = bos3StepState(state, step.id) || {};
+    const allowed = bosCanView(step.route?.section, step.route?.sub);
+    const status = sourceStep.status || 'not_started',
+      selectable = hasSession && status !== 'locked' && !loading;
+    return /*#__PURE__*/React.createElement("article", {
+      className: "bos3-step",
+      key: step.id,
+      "data-current": step.id === current?.id,
+      "data-status": status
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "bos3-step-index"
+    }, index + 1), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", null, step.title), /*#__PURE__*/React.createElement("p", null, sourceStep.instruction || sourceStep.question || 'Перевірте джерело та поверніться до навчального кейсу.'), /*#__PURE__*/React.createElement(Bos3Evidence, {
+      evidence: sourceStep.evidence
+    }), /*#__PURE__*/React.createElement("small", null, step.route?.section === 'heli' ? 'Вертоліт' : step.route?.section === 'dash' ? 'Сьогодні' : step.route?.section === 'erp' ? 'ERP' : step.route?.section === 'hr' ? 'HR' : step.route?.section === 'crm' ? 'CRM' : 'Робочий розділ')), /*#__PURE__*/React.createElement("div", {
+      className: "bos3-step-actions"
+    }, /*#__PURE__*/React.createElement(Button, {
+      variant: step.id === current?.id ? 'primary' : 'subtle',
+      disabled: !selectable,
+      title: selectable ? 'Обрати крок для перевірки' : 'Спершу почніть кейс або перевірте попередній крок',
+      onClick: () => onSelectStep(step)
+    }, "\u041E\u0431\u0440\u0430\u0442\u0438"), /*#__PURE__*/React.createElement(Button, {
+      disabled: !selectable || !allowed,
+      title: !allowed ? 'Недоступно поточній ролі' : selectable ? 'Відкрити після підтвердження переходу' : 'Спершу почніть кейс або перевірте попередній крок',
+      onClick: () => onOpenRoute(step)
+    }, allowed ? 'Відкрити' : 'Недоступно')));
+  }) : /*#__PURE__*/React.createElement("p", {
+    className: "bos3-note"
+  }, "\u041A\u0440\u043E\u043A\u0438 \u0442\u0430 \u043A\u0440\u0438\u0442\u0435\u0440\u0456\u0457 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0438 \u043D\u0430\u0434\u0430\u0454 \u0441\u0435\u0440\u0432\u0435\u0440 \u043B\u0438\u0448\u0435 \u0434\u043B\u044F \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E\u0457 \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u043E\u0457 \u0441\u0435\u0441\u0456\u0457.")), /*#__PURE__*/React.createElement("aside", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 18
+    }
+  }, /*#__PURE__*/React.createElement("section", {
+    className: "bos3-side-card"
+  }, /*#__PURE__*/React.createElement("h2", null, "\u0424\u0430\u043A\u0442\u0438 \u0441\u0435\u0441\u0456\u0457"), Object.keys(facts).length ? /*#__PURE__*/React.createElement("dl", null, Object.entries(facts).map(([label, value]) => /*#__PURE__*/React.createElement(React.Fragment, {
+    key: label
+  }, /*#__PURE__*/React.createElement("dt", null, bos3FactLabel(label)), /*#__PURE__*/React.createElement("dd", null, bos3FactValue(value))))) : /*#__PURE__*/React.createElement("p", {
+    className: "bos3-note"
+  }, "\u041F\u0456\u0441\u043B\u044F \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043D\u044F \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u043E\u0457 \u0441\u0435\u0441\u0456\u0457 \u0442\u0443\u0442 \u0437'\u044F\u0432\u043B\u044F\u0442\u044C\u0441\u044F \u0442\u0456\u043B\u044C\u043A\u0438 \u0444\u0430\u043A\u0442\u0438 fixture, \u0434\u043E\u0437\u0432\u043E\u043B\u0435\u043D\u0456 \u0432\u0430\u0448\u0456\u0439 \u0440\u043E\u043B\u0456."), /*#__PURE__*/React.createElement("div", {
+    className: "bos3-source-list"
+  }, sources.map(source => /*#__PURE__*/React.createElement("span", {
+    key: typeof source === 'string' ? source : source.code || source.id
+  }, typeof source === 'string' ? source : source.code || source.id)))), /*#__PURE__*/React.createElement("section", {
+    className: "bos3-side-card"
+  }, /*#__PURE__*/React.createElement("h2", null, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0430 \u043A\u0440\u043E\u043A\u0443"), /*#__PURE__*/React.createElement("p", {
+    className: "bos3-note"
+  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0442\u044F \u0435\u043A\u0440\u0430\u043D\u0430, \u043F\u0435\u0440\u0435\u0445\u0456\u0434 \u0430\u0431\u043E \u0446\u0435\u0439 \u0437\u0430\u043F\u0438\u0442 \u0441\u0430\u043C\u0456 \u043D\u0435 \u0441\u0442\u0432\u043E\u0440\u044E\u044E\u0442\u044C \u0433\u043E\u0441\u043F\u043E\u0434\u0430\u0440\u0441\u044C\u043A\u0438\u0439 \u0444\u0430\u043A\u0442."), current && /*#__PURE__*/React.createElement("p", {
+    className: "bos3-note"
+  }, /*#__PURE__*/React.createElement("strong", null, "\u0417\u0430\u0432\u0434\u0430\u043D\u043D\u044F:"), " ", current.question || current.instruction || 'Оберіть доступний крок.'), fields.length > 0 && /*#__PURE__*/React.createElement("form", {
+    className: "bos3-answer-form",
+    onSubmit: event => {
+      event.preventDefault();
+      onCheck(current?.id, answers);
+    }
+  }, fields.map(field => {
+    const key = field.key || field.id || field.name;
+    return /*#__PURE__*/React.createElement("label", {
+      key: key
+    }, field.label || key, /*#__PURE__*/React.createElement("input", {
+      type: field.type === 'number' ? 'number' : 'text',
+      required: field.required !== false,
+      value: answers[key] || '',
+      onChange: event => setAnswers(value => ({
+        ...value,
+        [key]: event.target.value
+      }))
+    }));
+  }), /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    disabled: !hasSession || loading
+  }, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0438\u0442\u0438 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u044C")), fields.length === 0 && /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    disabled: !hasSession || loading || !current,
+    onClick: () => onCheck(current?.id, {})
+  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0443")), /*#__PURE__*/React.createElement("section", {
+    className: "bos3-side-card"
+  }, /*#__PURE__*/React.createElement("h2", null, "\u041F\u0435\u0440\u0435\u0434\u0430\u0447\u0430 \u0434\u043E CRM"), /*#__PURE__*/React.createElement("p", {
+    className: "bos3-note"
+  }, caseDef.crm?.label || 'Наступна дія', "."), /*#__PURE__*/React.createElement("p", {
+    className: "bos3-note"
+  }, "CRM-\u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0430 \u0441\u0442\u0432\u043E\u0440\u044E\u0454\u0442\u044C\u0441\u044F \u043B\u0438\u0448\u0435 \u043F\u0456\u0441\u043B\u044F server preview \u0442\u0430 \u044F\u0432\u043D\u043E\u0433\u043E \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043D\u044F."), /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    disabled: !hasSession,
+    onClick: onCRM
+  }, "\u041F\u0456\u0434\u0433\u043E\u0442\u0443\u0432\u0430\u0442\u0438 \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0443")))), state.status === 'completed' && /*#__PURE__*/React.createElement("section", {
+    className: "bos3-empty"
+  }, /*#__PURE__*/React.createElement("strong", null, "\u041A\u0435\u0439\u0441 \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u043E \u0441\u0435\u0440\u0432\u0435\u0440\u043D\u043E\u044E \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u043E\u044E."), " \u041C\u043E\u0436\u043D\u0430 \u0432\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0443\u0440 \u0430\u0431\u043E \u043F\u0440\u043E\u0434\u043E\u0432\u0436\u0438\u0442\u0438 \u0440\u043E\u0431\u043E\u0442\u0443 \u0432 \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u043E\u043C\u0443 \u043F\u0440\u043E\u0441\u0442\u043E\u0440\u0456."), hasSession && state.status !== 'completed' && /*#__PURE__*/React.createElement("p", {
+    className: "bos3-note"
+  }, "\u0414\u043B\u044F \u043F\u043E\u0432\u0442\u043E\u0440\u0443 \u043D\u0435 \u0441\u0442\u0438\u0440\u0430\u0439\u0442\u0435 \u0434\u0430\u043D\u0456 \u0432 \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0456: \u0437\u0430\u0445\u0438\u0449\u0435\u043D\u0435 \u043F\u043E\u0432\u0442\u043E\u0440\u043D\u0435 \u043F\u0440\u043E\u0445\u043E\u0434\u0436\u0435\u043D\u043D\u044F \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u043E\u0457 \u0441\u0435\u0441\u0456\u0457 \u043F\u043E\u0442\u0440\u0435\u0431\u0443\u0454 \u043E\u043A\u0440\u0435\u043C\u043E\u0433\u043E \u0441\u0435\u0440\u0432\u0435\u0440\u043D\u043E\u0433\u043E \u0448\u043B\u044F\u0445\u0443."));
+}
+function Bos3TrainingHub({
+  onNavigate,
+  tourState,
+  setTourState,
+  onOpenCRM
+}) {
+  const initial = bos3Registry();
+  const [content, setContent] = useState(initial);
+  const [server, setServer] = useState(null);
+  const [slug, setSlug] = useState(() => bos3Slug() || initial?.cases[0]?.slug || null);
+  const [view, setView] = useState(() => bos3Slug() ? 'case' : 'start');
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const selected = content?.cases.find(item => item.slug === slug) || content?.cases[0] || null;
+  const caseStates = (server?.cases || []).reduce((result, item) => ({
+    ...result,
+    [item.case_id || item.id]: item
+  }), {});
+  const choose = next => {
+    setSlug(next);
+    setView('case');
+    setSession(null);
+    setError('');
+  };
+  const loadContent = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const result = await trainingFetch('content/');
+      setServer(result);
+      const next = bos3ValidContent(result.content);
+      if (next) setContent(next);
+      if (result.available === false) setError('');
+    } catch (e) {
+      setServer({
+        available: false,
+        reason: e.message
+      });
+      setError('');
+    } finally {
+      setLoading(false);
+    }
+  };
+  const loadSession = async () => {
+    if (!selected || server?.available === false) return;
+    setLoading(true);
+    setError('');
+    try {
+      update(await trainingFetch('sessions/' + encodeURIComponent(selected.id) + '/'));
+    } catch (e) {
+      if (e.status !== 404) setError(e.message);
+      setSession(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    loadContent();
+  }, []);
+  useEffect(() => {
+    const changed = () => {
+      const next = bos3Slug();
+      if (next) {
+        setSlug(next);
+        setView('case');
+        setSession(null);
+      }
+    };
+    window.addEventListener('popstate', changed);
+    return () => window.removeEventListener('popstate', changed);
+  }, []);
+  useEffect(() => {
+    if (view === 'case' && selected && server?.available !== false) loadSession();
+  }, [slug, view, server?.available]);
+  if (!content) return /*#__PURE__*/React.createElement("div", {
+    className: "bos3-empty"
+  }, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0438\u0439 \u0440\u0435\u0454\u0441\u0442\u0440 \u0434\u043B\u044F \u0446\u044C\u043E\u0433\u043E \u043A\u0430\u043D\u0434\u0438\u0434\u0430\u0442\u0430 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0439.");
+  if (view === 'start') return /*#__PURE__*/React.createElement(Bos3Brochure, {
+    onSelectCase: choose
+  });
+  const serverCase = caseStates[selected?.id] || null;
+  const runnerCase = server?.available === false ? {
+    ...(serverCase || {}),
+    available: false,
+    reason: server.reason
+  } : serverCase;
+  const update = next => {
+    const state = bos3CaseState(next, selected.id);
+    if (!state) return null;
+    setSession(bos3SessionId(state) ? state : null);
+    setServer(current => current ? {
+      ...current,
+      cases: Array.isArray(current.cases) ? current.cases.map(item => (item.case_id || item.id) === selected.id ? state : item) : [state]
+    } : {
+      available: true,
+      cases: [state]
+    });
+    return state;
+  };
+  const start = async () => {
+    if (!selected) return;
+    setLoading(true);
+    setError('');
+    try {
+      update(await trainingFetch('sessions/' + encodeURIComponent(selected.id) + '/start/', {}));
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const pause = async () => {
+    if (!selected) return;
+    setLoading(true);
+    setError('');
+    try {
+      update(await trainingFetch('sessions/' + encodeURIComponent(selected.id) + '/pause/', {}));
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const check = async (stepId, answers) => {
+    if (!selected || !stepId || !bos3SessionId(session)) return;
+    setLoading(true);
+    setError('');
+    try {
+      const next = update(await trainingFetch('sessions/' + encodeURIComponent(selected.id) + '/check/', {
+        step_id: stepId,
+        answers
+      }));
+      const available = next?.steps?.find(step => step.id !== stepId && step.status === 'available');
+      if (available) update(await trainingFetch('sessions/' + encodeURIComponent(selected.id) + '/navigate/', {
+        step_id: available.id
+      }));
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const selectStep = async step => {
+    if (!selected || !step?.id || !bos3SessionId(session)) {
+      setError('Спершу почніть навчальну сесію.');
+      return false;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      update(await trainingFetch('sessions/' + encodeURIComponent(selected.id) + '/navigate/', {
+        step_id: step.id
+      }));
+      return true;
+    } catch (e) {
+      setError(e.message);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+  const openRoute = async step => {
+    if (!step?.route || !(await selectStep(step))) return;
+    if (step.kind === 'crm') {
+      openCRM();
+      return;
+    }
+    onNavigate(step.route.section, step.route.sub);
+  };
+  const saveTour = async status => {
+    if (!selected || !bos3SessionId(session)) return true;
+    try {
+      update(await trainingFetch('sessions/' + encodeURIComponent(selected.id) + '/tour/', {
+        status
+      }));
+      return true;
+    } catch (e) {
+      setError(e.message);
+      return false;
+    }
+  };
+  const openCRM = () => {
+    const sessionId = bos3SessionId(session);
+    if (!sessionId) {
+      setError('Сервер не надав ідентифікатор навчальної сесії для CRM-передачі.');
+      return;
+    }
+    onOpenCRM?.({
+      session_id: sessionId,
+      case_id: selected.id
+    });
+  };
+  return /*#__PURE__*/React.createElement(React.Fragment, null, tourState && /*#__PURE__*/React.createElement("div", {
+    className: "bos3-runner"
+  }, /*#__PURE__*/React.createElement(Bos3Tour, {
+    content: content,
+    tourState: tourState,
+    setTourState: setTourState,
+    onNavigate: onNavigate,
+    onPersist: saveTour
+  })), /*#__PURE__*/React.createElement(Bos3CaseRunner, {
+    content: content,
+    caseDef: selected,
+    serverCase: runnerCase,
+    session: session,
+    loading: loading,
+    error: error,
+    onBack: () => {
+      setView('start');
+      bos3SetSlug(null);
+    },
+    onStart: start,
+    onPause: pause,
+    onRefresh: loadSession,
+    onCheck: check,
+    onSelectStep: selectStep,
+    onOpenRoute: openRoute,
+    onTour: () => setTourState({
+      index: 0
+    }),
+    onWorkspace: () => onNavigate('dash', null),
+    onCRM: openCRM
+  }));
+}
+async function crmFetch(path) {
+  const response = await fetch('/api/crm/' + path);
+  let body;
+  try {
+    body = await response.json();
+  } catch {
+    throw Error('CRM-сервіс повернув некоректну відповідь.');
+  }
+  if (!response.ok) throw Error(body?.error || 'CRM-сервіс недоступний.');
+  return body;
+}
+const CRM_STAGE_LABELS = {
+  qualification: 'Кваліфікація',
+  supply: 'Забезпечення',
+  fulfillment: 'Виконання',
+  collection: 'Контроль оплати',
+  won: 'Завершено',
+  lost: 'Не завершено'
+};
+const CRM_ACTIVITY_LABELS = {
+  note: 'Нотатка',
+  call: 'Дзвінок',
+  meeting: 'Зустріч',
+  follow_up: 'Наступний контакт'
+};
+const CRM_ACTIVITY_STATUS = {
+  planned: 'Заплановано',
+  done: 'Виконано',
+  cancelled: 'Скасовано'
+};
+function CRMProposal({
+  proposal,
+  onClose,
+  onDone
+}) {
+  const [busy, setBusy] = useState(false),
+    [error, setError] = useState('');
+  if (!proposal) return null;
+  const impact = Array.isArray(proposal.impact) ? proposal.impact : [];
+  const confirm = async () => {
+    if (!proposal.id) return;
+    setBusy(true);
+    setError('');
+    try {
+      onDone(await opFetch('confirm/', {
+        proposal_id: proposal.id,
+        confirmed: true
+      }));
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  return /*#__PURE__*/React.createElement("section", {
+    className: "crm-proposal crm-form",
+    "aria-label": "\u041F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043D\u044F CRM-\u0434\u0456\u0457"
+  }, /*#__PURE__*/React.createElement("h3", null, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0430 \u043F\u0435\u0440\u0435\u0434 \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043D\u044F\u043C"), /*#__PURE__*/React.createElement("p", {
+    className: "crm-full"
+  }, "BoS \u0449\u0435 \u043D\u0435 \u0437\u043C\u0456\u043D\u0438\u0432 CRM. \u0417\u0456\u0441\u0442\u0430\u0432\u0442\u0435 \u043C\u0430\u0439\u0431\u0443\u0442\u043D\u0456\u0439 \u0432\u043F\u043B\u0438\u0432 \u0456\u0437 \u0434\u0436\u0435\u0440\u0435\u043B\u0430\u043C\u0438, \u0430 \u043F\u043E\u0442\u0456\u043C \u044F\u0432\u043D\u043E \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u044C\u0442\u0435 \u0434\u0456\u044E."), /*#__PURE__*/React.createElement("dl", {
+    className: "crm-full"
+  }, /*#__PURE__*/React.createElement("dt", null, "\u041E\u043F\u0435\u0440\u0430\u0446\u0456\u044F"), /*#__PURE__*/React.createElement("dd", null, proposal.effect?.operation || proposal.payload?.action || 'CRM-дія'), /*#__PURE__*/React.createElement("dt", null, "\u0427\u0438\u043D\u043D\u0435 \u0434\u043E"), /*#__PURE__*/React.createElement("dd", null, proposal.expires_at ? new Date(proposal.expires_at).toLocaleString('uk-UA') : 'Не потребує підтвердження')), impact.length > 0 && /*#__PURE__*/React.createElement("ul", {
+    className: "crm-impact crm-full"
+  }, impact.map((item, index) => /*#__PURE__*/React.createElement("li", {
+    key: index
+  }, /*#__PURE__*/React.createElement("strong", null, item.label || item.field), ": ", String(item.before ?? '—'), " \u2192 ", String(item.after ?? '—')))), error && /*#__PURE__*/React.createElement("p", {
+    className: "crm-full",
+    role: "alert"
+  }, error), /*#__PURE__*/React.createElement("div", {
+    className: "crm-full bos3-actions"
+  }, /*#__PURE__*/React.createElement(Button, {
+    onClick: onClose,
+    disabled: busy
+  }, "\u0421\u043A\u0430\u0441\u0443\u0432\u0430\u0442\u0438"), /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    onClick: confirm,
+    disabled: busy || !proposal.id
+  }, busy ? 'Підтвердження…' : 'Явно підтвердити')));
+}
+function CRMHandoff({
+  draft,
+  onClose,
+  onPreview,
+  onOpenDeal
+}) {
+  if (!draft) return /*#__PURE__*/React.createElement("section", {
+    className: "crm-form"
+  }, /*#__PURE__*/React.createElement("h3", null, "\u041F\u0456\u0434\u0433\u043E\u0442\u043E\u0432\u043A\u0430 CRM-\u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0456"), /*#__PURE__*/React.createElement("p", null, "\u0421\u0435\u0440\u0432\u0435\u0440 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u044F\u0454 \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0443 \u0441\u0435\u0441\u0456\u044E \u0442\u0430 \u043F\u043E\u0432'\u044F\u0437\u0430\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430\u2026"), /*#__PURE__*/React.createElement(Button, {
+    onClick: onClose
+  }, "\u0421\u043A\u0430\u0441\u0443\u0432\u0430\u0442\u0438"));
+  if (draft.existing) return /*#__PURE__*/React.createElement("section", {
+    className: "crm-form"
+  }, /*#__PURE__*/React.createElement("h3", null, "CRM-\u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0430 \u0432\u0436\u0435 \u0456\u0441\u043D\u0443\u0454"), /*#__PURE__*/React.createElement("p", {
+    className: "crm-full"
+  }, "\u0414\u043B\u044F \u0446\u044C\u043E\u0433\u043E \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u043E\u0433\u043E \u043A\u0435\u0439\u0441\u0443 \u0441\u0435\u0440\u0432\u0435\u0440 \u0443\u0436\u0435 \u0437\u043D\u0430\u0439\u0448\u043E\u0432 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0443 \u0443\u0433\u043E\u0434\u0443. \u041F\u043E\u0432\u0442\u043E\u0440\u043D\u0435 \u0432\u0456\u0434\u043A\u0440\u0438\u0442\u0442\u044F \u043D\u0435 \u0441\u0442\u0432\u043E\u0440\u044E\u0454 \u0434\u0443\u0431\u043B\u044C."), /*#__PURE__*/React.createElement("div", {
+    className: "crm-full bos3-actions"
+  }, /*#__PURE__*/React.createElement(Button, {
+    onClick: onClose
+  }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438"), /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    onClick: () => onOpenDeal(draft.deal.id)
+  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u0443\u0433\u043E\u0434\u0443")));
+  const payload = draft.payload || {};
+  return /*#__PURE__*/React.createElement("section", {
+    className: "crm-form"
+  }, /*#__PURE__*/React.createElement("h3", null, "\u041F\u0435\u0440\u0435\u0434\u0430\u0447\u0430 \u0437 \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u043E\u0433\u043E \u043A\u0435\u0439\u0441\u0443"), /*#__PURE__*/React.createElement("p", {
+    className: "crm-full"
+  }, "\u0427\u0435\u0440\u043D\u0435\u0442\u043A\u0443 \u0441\u0444\u043E\u0440\u043C\u0443\u0432\u0430\u0432 \u0441\u0435\u0440\u0432\u0435\u0440 \u0437 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0438\u0445 \u0434\u0436\u0435\u0440\u0435\u043B. \u0407\u0457 preview \u043D\u0435 \u0441\u0442\u0432\u043E\u0440\u044E\u0454 \u0443\u0433\u043E\u0434\u0443."), /*#__PURE__*/React.createElement("div", {
+    className: "crm-full crm-facts"
+  }, Object.entries(draft.sources || {}).map(([key, value]) => /*#__PURE__*/React.createElement("div", {
+    key: key
+  }, /*#__PURE__*/React.createElement("span", null, key === 'counterparty' ? 'Клієнт' : key === 'order' ? 'Замовлення' : key === 'invoice' ? 'Рахунок' : 'Відповідальний'), /*#__PURE__*/React.createElement("strong", null, value?.name || value?.code || '—')))), /*#__PURE__*/React.createElement("label", null, "\u041D\u0430\u0437\u0432\u0430 \u0443\u0433\u043E\u0434\u0438", /*#__PURE__*/React.createElement("input", {
+    value: payload.title || '',
+    readOnly: true
+  })), /*#__PURE__*/React.createElement("label", null, "\u0415\u0442\u0430\u043F", /*#__PURE__*/React.createElement("input", {
+    value: CRM_STAGE_LABELS[payload.stage] || payload.stage || '',
+    readOnly: true
+  })), /*#__PURE__*/React.createElement("label", {
+    className: "crm-full"
+  }, "\u041D\u0430\u0441\u0442\u0443\u043F\u043D\u0430 \u0434\u0456\u044F", /*#__PURE__*/React.createElement("textarea", {
+    value: payload.next_action || '',
+    readOnly: true
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "crm-full bos3-actions"
+  }, /*#__PURE__*/React.createElement(Button, {
+    onClick: onClose
+  }, "\u0421\u043A\u0430\u0441\u0443\u0432\u0430\u0442\u0438"), /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    onClick: () => onPreview(payload)
+  }, "\u041F\u0456\u0434\u0433\u043E\u0442\u0443\u0432\u0430\u0442\u0438 preview")));
+}
+function CRMActivityStatus({
+  item,
+  onPreview
+}) {
+  const [status, setStatus] = useState(item.status || 'planned'),
+    [reason, setReason] = useState('');
+  useEffect(() => {
+    setStatus(item.status || 'planned');
+    setReason('');
+  }, [item.id, item.status]);
+  const update = event => {
+    event.preventDefault();
+    if (status === item.status) {
+      return;
+    }
+    onPreview({
+      action: 'crm_activity_update',
+      activity_id: item.id,
+      status,
+      reason: reason.trim()
+    });
   };
   return /*#__PURE__*/React.createElement("div", {
-    className: "bos-home"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", null, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0430 \u043C\u043E\u0434\u0435\u043B\u044C BoS 3.0"), /*#__PURE__*/React.createElement("p", null, "\u0422\u0440\u0438 \u0443\u043C\u043E\u0432\u043D\u0456 \u043A\u0435\u0439\u0441\u0438 \u0444\u0430\u0431\u0440\u0438\u043A\u0438 \u043C\u0435\u0442\u0438\u0437\u0456\u0432 \u043F\u0440\u043E\u0432\u043E\u0434\u044F\u0442\u044C \u0447\u0435\u0440\u0435\u0437 \u043F\u043E\u0442\u043E\u0447\u043D\u0456 \u0444\u0443\u043D\u043A\u0446\u0456\u0457 BoS. \u0426\u0435 \u043D\u0435 \u0442\u0435\u0445\u043D\u0456\u0447\u043D\u0430 \u0432\u0435\u0440\u0441\u0456\u044F 3.0: \u043E\u0441\u043D\u043E\u0432\u0430 \u0437\u0430\u0441\u0442\u043E\u0441\u0443\u043D\u043A\u0443 \u043B\u0438\u0448\u0430\u0454\u0442\u044C\u0441\u044F v18, \u0430 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u0443\u0440\u043E\u043A\u0443 \u043D\u0435 \u043E\u0437\u043D\u0430\u0447\u0430\u0454 \u0432\u0438\u043A\u043E\u043D\u0430\u043D\u0443 \u0431\u0456\u0437\u043D\u0435\u0441-\u043E\u043F\u0435\u0440\u0430\u0446\u0456\u044E.")), /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("h2", null, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0430 \u043D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0430 \u0456 \u043C\u0435\u0436\u0456"), /*#__PURE__*/React.createElement("p", {
-    className: "op-muted"
-  }, "DEMO-101 \u2014 \u043F\u043E\u044F\u0441\u043D\u044E\u0432\u0430\u043B\u044C\u043D\u0430 \u0430\u043D\u0430\u043B\u043E\u0433\u0456\u044F \u043C\u043E\u043D\u0442\u0430\u0436\u043D\u043E\u0433\u043E \u043A\u043E\u043C\u043F\u043B\u0435\u043A\u0442\u0443 \u041C10; FAST-101 \u2014 \u0433\u0430\u0439\u043A\u0430 \u041C10 \u0434\u043B\u044F \u043A\u043E\u043C\u043F\u043B\u0435\u043A\u0442\u0443, 2 \u0448\u0442. \u043D\u0430 \u043A\u043E\u043C\u043F\u043B\u0435\u043A\u0442; MAT-101 \u2014 \u0441\u0442\u0430\u043B\u0435\u0432\u0430 \u0437\u0430\u0433\u043E\u0442\u043E\u0432\u043A\u0430 \u043A\u0440\u043E\u043D\u0448\u0442\u0435\u0439\u043D\u0430, 0,8 \u043A\u0433 \u043D\u0430 \u043A\u043E\u043C\u043F\u043B\u0435\u043A\u0442, \u0430 \u043D\u0435 \u043C\u0430\u0441\u0430 \u043E\u043A\u0440\u0435\u043C\u043E\u0433\u043E \u0431\u043E\u043B\u0442\u0430. \u0411\u043E\u043B\u0442 \u041C10 \u0456 \u0448\u0430\u0439\u0431\u0430 10 \u2014 \u043B\u0438\u0448\u0435 \u043C\u0430\u0439\u0431\u0443\u0442\u043D\u0456 \u043F\u0440\u0438\u043A\u043B\u0430\u0434\u0438 CRM, \u043D\u0435 \u043D\u0430\u044F\u0432\u043D\u0456 \u0441\u043A\u043B\u0430\u0434\u0441\u044C\u043A\u0456 \u0437\u0430\u043F\u0438\u0441\u0438. \u041D\u0430\u0437\u0432\u0438 \u0442\u0430 \u0441\u043A\u043B\u0430\u0434 \u0434\u0435\u043C\u043E-\u0434\u0430\u043D\u0438\u0445 \u043D\u0435 \u0437\u043C\u0456\u043D\u044E\u044E\u0442\u044C\u0441\u044F.")), /*#__PURE__*/React.createElement("label", {
-    className: "op-toolbar"
-  }, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0438\u0439 \u043A\u0435\u0439\u0441", /*#__PURE__*/React.createElement(Select, {
-    "aria-label": "\u041E\u0431\u0435\u0440\u0456\u0442\u044C \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0438\u0439 \u043A\u0435\u0439\u0441",
-    value: active.id,
-    onChange: event => changeCase(event.target.value)
-  }, cases.map(item => /*#__PURE__*/React.createElement("option", {
+    className: "crm-activity crm-full"
+  }, /*#__PURE__*/React.createElement("strong", null, CRM_ACTIVITY_LABELS[item.kind] || item.kind, " \xB7 ", item.summary), /*#__PURE__*/React.createElement("span", null, CRM_ACTIVITY_STATUS[item.status] || item.status, " \xB7 ", item.owner?.name || '—', item.due_date ? ' · до ' + item.due_date : ''), /*#__PURE__*/React.createElement("form", {
+    className: "crm-form",
+    onSubmit: update
+  }, /*#__PURE__*/React.createElement("label", null, "\u0421\u0442\u0430\u0442\u0443\u0441", /*#__PURE__*/React.createElement(Select, {
+    value: status,
+    onChange: event => setStatus(event.target.value)
+  }, Object.entries(CRM_ACTIVITY_STATUS).map(([key, label]) => /*#__PURE__*/React.createElement("option", {
+    key: key,
+    value: key
+  }, label)))), /*#__PURE__*/React.createElement("label", null, "\u041F\u0440\u0438\u0447\u0438\u043D\u0430 \u0437\u043C\u0456\u043D\u0438", /*#__PURE__*/React.createElement("input", {
+    value: reason,
+    onChange: event => setReason(event.target.value),
+    maxLength: 1000,
+    required: true
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "crm-full"
+  }, /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    disabled: status === item.status || reason.trim().length < 3
+  }, "\u041F\u0456\u0434\u0433\u043E\u0442\u0443\u0432\u0430\u0442\u0438 preview \u0441\u0442\u0430\u0442\u0443\u0441\u0443"))));
+}
+function CRMDealDetail({
+  deal,
+  employees,
+  onPreview
+}) {
+  const owners = employees.length ? employees : [deal.owner].filter(Boolean),
+    [form, setForm] = useState({
+      next_action: deal.next_action || '',
+      stage: deal.stage || '',
+      owner_id: String(deal.owner?.id || ''),
+      reason: ''
+    }),
+    [activity, setActivity] = useState({
+      owner_id: String(deal.owner?.id || ''),
+      kind: 'follow_up',
+      summary: '',
+      due_date: '',
+      status: 'planned'
+    }),
+    [localError, setLocalError] = useState('');
+  useEffect(() => {
+    setForm({
+      next_action: deal.next_action || '',
+      stage: deal.stage || '',
+      owner_id: String(deal.owner?.id || ''),
+      reason: ''
+    });
+    setActivity(value => ({
+      ...value,
+      owner_id: String(deal.owner?.id || '')
+    }));
+    setLocalError('');
+  }, [deal.id, deal.next_action, deal.stage, deal.owner?.id]);
+  const update = event => {
+    event.preventDefault();
+    const payload = {
+      action: 'crm_deal_update',
+      deal_id: deal.id,
+      reason: form.reason.trim()
+    };
+    if (form.next_action !== deal.next_action) payload.next_action = form.next_action;
+    if (form.stage !== deal.stage) payload.stage = form.stage;
+    if (Number(form.owner_id) !== deal.owner?.id) payload.owner_id = Number(form.owner_id);
+    if (Object.keys(payload).length === 3) {
+      setLocalError('Змініть наступну дію, етап або відповідального перед preview.');
+      return;
+    }
+    if (payload.reason.length < 3) {
+      setLocalError('Вкажіть коротку причину зміни.');
+      return;
+    }
+    setLocalError('');
+    onPreview(payload);
+  };
+  const createActivity = event => {
+    event.preventDefault();
+    if (activity.summary.trim().length < 3) {
+      setLocalError('Опишіть активність щонайменше трьома символами.');
+      return;
+    }
+    setLocalError('');
+    onPreview({
+      action: 'crm_activity_update',
+      deal_id: deal.id,
+      owner_id: Number(activity.owner_id),
+      kind: activity.kind,
+      summary: activity.summary.trim(),
+      due_date: activity.due_date || null,
+      status: activity.status
+    });
+  };
+  const allowedStages = [deal.stage, ...({
+    qualification: ['supply'],
+    supply: ['fulfillment'],
+    fulfillment: ['collection'],
+    collection: ['won', 'lost'],
+    won: [],
+    lost: []
+  }[deal.stage] || [])];
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "crm-detail-header"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "bos3-kicker"
+  }, deal.case_id), /*#__PURE__*/React.createElement("h2", null, deal.title)), /*#__PURE__*/React.createElement("span", {
+    className: "bos3-status"
+  }, CRM_STAGE_LABELS[deal.stage] || deal.stage)), /*#__PURE__*/React.createElement("div", {
+    className: "crm-facts"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "\u041A\u043B\u0456\u0454\u043D\u0442"), /*#__PURE__*/React.createElement("strong", null, deal.counterparty?.name || '—')), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "\u0417\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("strong", null, deal.order?.code || '—')), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "\u0420\u0430\u0445\u0443\u043D\u043E\u043A"), /*#__PURE__*/React.createElement("strong", null, deal.invoice?.code || '—')), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "\u041A\u043E\u043D\u0442\u0430\u043A\u0442"), /*#__PURE__*/React.createElement("strong", null, deal.contact?.name || 'Не задано'))), localError && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, localError), /*#__PURE__*/React.createElement("form", {
+    className: "crm-form",
+    onSubmit: update
+  }, /*#__PURE__*/React.createElement("h3", null, "\u0417\u043C\u0456\u043D\u0438\u0442\u0438 \u0443\u0433\u043E\u0434\u0443"), /*#__PURE__*/React.createElement("label", {
+    className: "crm-full"
+  }, "\u041D\u0430\u0441\u0442\u0443\u043F\u043D\u0430 \u0434\u0456\u044F", /*#__PURE__*/React.createElement("textarea", {
+    value: form.next_action,
+    onChange: event => setForm(value => ({
+      ...value,
+      next_action: event.target.value
+    })),
+    maxLength: 500,
+    required: true
+  })), /*#__PURE__*/React.createElement("label", null, "\u0415\u0442\u0430\u043F", /*#__PURE__*/React.createElement(Select, {
+    value: form.stage,
+    onChange: event => setForm(value => ({
+      ...value,
+      stage: event.target.value
+    }))
+  }, allowedStages.map(stage => /*#__PURE__*/React.createElement("option", {
+    key: stage,
+    value: stage
+  }, CRM_STAGE_LABELS[stage])))), /*#__PURE__*/React.createElement("label", null, "\u0412\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u0430\u043B\u044C\u043D\u0438\u0439", /*#__PURE__*/React.createElement(Select, {
+    value: form.owner_id,
+    onChange: event => setForm(value => ({
+      ...value,
+      owner_id: event.target.value
+    }))
+  }, owners.map(employee => /*#__PURE__*/React.createElement("option", {
+    key: employee.id,
+    value: employee.id
+  }, employee.name || employee.full_name)))), /*#__PURE__*/React.createElement("label", {
+    className: "crm-full"
+  }, "\u041F\u0440\u0438\u0447\u0438\u043D\u0430 \u0437\u043C\u0456\u043D\u0438", /*#__PURE__*/React.createElement("textarea", {
+    value: form.reason,
+    onChange: event => setForm(value => ({
+      ...value,
+      reason: event.target.value
+    })),
+    maxLength: 1000,
+    required: true
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "crm-full"
+  }, /*#__PURE__*/React.createElement(Button, {
+    variant: "primary"
+  }, "\u041F\u0456\u0434\u0433\u043E\u0442\u0443\u0432\u0430\u0442\u0438 preview \u0437\u043C\u0456\u043D"))), /*#__PURE__*/React.createElement("section", {
+    className: "crm-form"
+  }, /*#__PURE__*/React.createElement("h3", null, "\u0410\u043A\u0442\u0438\u0432\u043D\u043E\u0441\u0442\u0456"), (deal.activities || []).map(item => /*#__PURE__*/React.createElement(CRMActivityStatus, {
     key: item.id,
-    value: item.id
-  }, item.id, " \xB7 ", item.title)))), /*#__PURE__*/React.createElement("section", {
-    className: "bos-training-case",
-    "aria-labelledby": "bos-training-active"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "erp-row"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
-    id: "bos-training-active"
-  }, active.title), /*#__PURE__*/React.createElement("p", {
-    className: "op-muted"
-  }, active.id, " \xB7 \u0443\u043C\u043E\u0432\u043D\u0438\u0439 \u043A\u043B\u0456\u0454\u043D\u0442: ", active.client)), /*#__PURE__*/React.createElement("span", {
-    className: "erp-status"
-  }, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0438\u0439 \u043A\u0435\u0439\u0441")), /*#__PURE__*/React.createElement("h3", null, "\u041F\u0440\u043E\u0431\u043B\u0435\u043C\u0430"), /*#__PURE__*/React.createElement("p", null, active.problem), /*#__PURE__*/React.createElement("h3", null, "\u0429\u043E \u043C\u0430\u0454 \u0441\u0442\u0430\u0442\u0438 \u0437\u0440\u043E\u0437\u0443\u043C\u0456\u043B\u0438\u043C"), /*#__PURE__*/React.createElement("p", null, active.result), /*#__PURE__*/React.createElement("h3", null, "\u041F\u0435\u0440\u0435\u0434\u0430\u0447\u0430 \u043C\u0456\u0436 \u0432\u0456\u0434\u0434\u0456\u043B\u0430\u043C\u0438"), /*#__PURE__*/React.createElement("div", {
-    className: "bos-training-handoffs"
-  }, active.handoffs.map(item => /*#__PURE__*/React.createElement("span", {
-    key: item
-  }, item))), /*#__PURE__*/React.createElement("p", {
-    className: "op-muted"
-  }, active.roles), /*#__PURE__*/React.createElement("h3", null, "\u041C\u0430\u0440\u0448\u0440\u0443\u0442 \u0443\u0440\u043E\u043A\u0443"), active.steps.map((step, index) => {
-    const allowed = bosCanView(step.section, step.sub);
-    return /*#__PURE__*/React.createElement("div", {
-      className: "bos-training-step",
-      key: step.destination
-    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, index + 1, ". ", step.label), /*#__PURE__*/React.createElement("p", {
-      className: "op-muted"
-    }, step.destination), /*#__PURE__*/React.createElement("p", null, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0430: ", step.check)), /*#__PURE__*/React.createElement(Button, {
-      variant: activeStep === index ? 'primary' : 'subtle',
-      disabled: !allowed,
-      title: allowed ? 'Відкрити наявний розділ' : 'Недоступно поточній ролі',
-      onClick: () => openStep(step, index)
-    }, allowed ? 'Відкрити крок' : 'Недоступно цій ролі'));
-  })), /*#__PURE__*/React.createElement("section", {
-    className: "bos-training-preview",
-    "aria-labelledby": "bos-crm-preview"
-  }, /*#__PURE__*/React.createElement("h2", {
-    id: "bos-crm-preview"
-  }, "\u0427\u0435\u0440\u043D\u0435\u0442\u043A\u0430 \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0456 \u0434\u043E CRM"), /*#__PURE__*/React.createElement("p", {
-    className: "op-muted"
-  }, "\u041B\u0438\u0448\u0435 \u0443\u043C\u043E\u0432\u043D\u0456 \u0434\u0430\u043D\u0456 \u043E\u0431\u0440\u0430\u043D\u043E\u0433\u043E \u043A\u0435\u0439\u0441\u0443. \u041F\u0435\u0440\u0435\u0433\u043B\u044F\u0434 \u0442\u0430 \u0435\u043A\u0441\u043F\u043E\u0440\u0442 \u043D\u0435 \u0441\u0442\u0432\u043E\u0440\u044E\u044E\u0442\u044C CRM-\u0437\u0430\u043F\u0438\u0441, \u043D\u0435 \u043D\u0430\u0434\u0441\u0438\u043B\u0430\u044E\u0442\u044C \u0434\u0430\u043D\u0456 \u0439 \u043D\u0435 \u0437\u043C\u0456\u043D\u044E\u044E\u0442\u044C BoS."), /*#__PURE__*/React.createElement("dl", null, previewFields.map(([label, value]) => /*#__PURE__*/React.createElement(React.Fragment, {
-    key: label
-  }, /*#__PURE__*/React.createElement("dt", null, label), /*#__PURE__*/React.createElement("dd", null, value)))), /*#__PURE__*/React.createElement("p", {
-    className: "op-muted"
-  }, "\u0422\u0435\u0445\u043D\u0456\u0447\u043D\u0456 \u043F\u043E\u0437\u043D\u0430\u0447\u043A\u0438 \u0435\u043A\u0441\u043F\u043E\u0440\u0442\u0443: \u0441\u0445\u0435\u043C\u0430 ", preview.schema, "; \u0441\u0438\u043D\u0442\u0435\u0442\u0438\u0447\u043D\u0456 \u0434\u0430\u043D\u0456: ", preview.synthetic ? 'Так' : 'Ні', "; CRM-\u0437\u0430\u043F\u0438\u0441 \u0441\u0442\u0432\u043E\u0440\u0435\u043D\u043E: ", preview.crm_record_created ? 'Так' : 'Ні', "."), /*#__PURE__*/React.createElement(Button, {
-    onClick: download
-  }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0438\u0442\u0438 JSON-\u0447\u0435\u0440\u043D\u0435\u0442\u043A\u0443")), /*#__PURE__*/React.createElement("p", {
-    className: "op-muted"
-  }, "\u041F\u0440\u043E\u0433\u0440\u0435\u0441 \u0443\u0440\u043E\u043A\u0443 \u0437\u0431\u0435\u0440\u0456\u0433\u0430\u0454\u0442\u044C\u0441\u044F \u043B\u0438\u0448\u0435 \u0432 \u0446\u044C\u043E\u043C\u0443 \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0456 \u0434\u043B\u044F \u043F\u043E\u0442\u043E\u0447\u043D\u043E\u0433\u043E \u043E\u0431\u043B\u0456\u043A\u043E\u0432\u043E\u0433\u043E \u0437\u0430\u043F\u0438\u0441\u0443 \u0442\u0430 \u043D\u0435 \u0454 \u0441\u0442\u0430\u043D\u043E\u043C \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F, \u0432\u0438\u0440\u043E\u0431\u043D\u0438\u0446\u0442\u0432\u0430, \u0441\u043A\u043B\u0430\u0434\u0443, \u0440\u0430\u0445\u0443\u043D\u043A\u0443 \u0430\u0431\u043E CRM. \u0420\u0435\u0430\u043B\u044C\u043D\u0430 CRM \u2014 \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u0438\u0439 \u043E\u043A\u0440\u0435\u043C\u0438\u0439 \u0435\u0442\u0430\u043F \u0456\u0437 \u043C\u043E\u0434\u0435\u043B\u043B\u044E \u0434\u0430\u043D\u0438\u0445, \u043F\u0440\u0430\u0432\u0430\u043C\u0438, \u043C\u0456\u0433\u0440\u0430\u0446\u0456\u044F\u043C\u0438 \u0442\u0430 \u0441\u0438\u043D\u0442\u0435\u0442\u0438\u0447\u043D\u0438\u043C\u0438 \u0442\u0435\u0441\u0442\u0430\u043C\u0438."));
+    item: item,
+    onPreview: onPreview
+  })), !(deal.activities || []).length && /*#__PURE__*/React.createElement("p", {
+    className: "crm-full bos3-note"
+  }, "\u0410\u043A\u0442\u0438\u0432\u043D\u043E\u0441\u0442\u0435\u0439 \u0449\u0435 \u043D\u0435\u043C\u0430\u0454."), /*#__PURE__*/React.createElement("label", null, "\u0422\u0438\u043F", /*#__PURE__*/React.createElement(Select, {
+    value: activity.kind,
+    onChange: event => setActivity(value => ({
+      ...value,
+      kind: event.target.value
+    }))
+  }, Object.entries(CRM_ACTIVITY_LABELS).map(([key, label]) => /*#__PURE__*/React.createElement("option", {
+    key: key,
+    value: key
+  }, label)))), /*#__PURE__*/React.createElement("label", null, "\u0412\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u0430\u043B\u044C\u043D\u0438\u0439", /*#__PURE__*/React.createElement(Select, {
+    value: activity.owner_id,
+    onChange: event => setActivity(value => ({
+      ...value,
+      owner_id: event.target.value
+    }))
+  }, owners.map(employee => /*#__PURE__*/React.createElement("option", {
+    key: employee.id,
+    value: employee.id
+  }, employee.name || employee.full_name)))), /*#__PURE__*/React.createElement("label", {
+    className: "crm-full"
+  }, "\u0417\u043C\u0456\u0441\u0442", /*#__PURE__*/React.createElement("textarea", {
+    value: activity.summary,
+    onChange: event => setActivity(value => ({
+      ...value,
+      summary: event.target.value
+    })),
+    maxLength: 1000,
+    required: true
+  })), /*#__PURE__*/React.createElement("label", null, "\u0421\u0442\u0440\u043E\u043A", /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    value: activity.due_date,
+    onChange: event => setActivity(value => ({
+      ...value,
+      due_date: event.target.value
+    }))
+  })), /*#__PURE__*/React.createElement("label", null, "\u0421\u0442\u0430\u0442\u0443\u0441", /*#__PURE__*/React.createElement(Select, {
+    value: activity.status,
+    onChange: event => setActivity(value => ({
+      ...value,
+      status: event.target.value
+    }))
+  }, Object.entries(CRM_ACTIVITY_STATUS).map(([key, label]) => /*#__PURE__*/React.createElement("option", {
+    key: key,
+    value: key
+  }, label)))), /*#__PURE__*/React.createElement("div", {
+    className: "crm-full"
+  }, /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    onClick: createActivity
+  }, "\u041F\u0456\u0434\u0433\u043E\u0442\u0443\u0432\u0430\u0442\u0438 preview \u0430\u043A\u0442\u0438\u0432\u043D\u043E\u0441\u0442\u0456"))));
+}
+function CRMWorkspace({
+  employees,
+  handoffContext,
+  onClearHandoff
+}) {
+  const [deals, setDeals] = useState([]),
+    [selected, setSelected] = useState(null),
+    [loading, setLoading] = useState(true),
+    [error, setError] = useState(''),
+    [handoff, setHandoff] = useState(null),
+    [proposal, setProposal] = useState(null),
+    [notice, setNotice] = useState('');
+  const load = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const value = await crmFetch('');
+      setDeals(Array.isArray(value.items) ? value.items : []);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const loadDetail = async id => {
+    try {
+      setSelected(await crmFetch('deals/' + encodeURIComponent(id) + '/'));
+      setError('');
+    } catch (e) {
+      setError(e.message);
+    }
+  };
+  useEffect(() => {
+    load();
+  }, []);
+  useEffect(() => {
+    if (!handoffContext?.session_id) return;
+    let live = true;
+    setHandoff(null);
+    setError('');
+    crmFetch('handoff/' + encodeURIComponent(handoffContext.session_id) + '/?case_id=' + encodeURIComponent(handoffContext.case_id)).then(value => {
+      if (live) setHandoff(value);
+    }).catch(e => {
+      if (live) setError(e.message);
+    });
+    return () => {
+      live = false;
+    };
+  }, [handoffContext?.session_id, handoffContext?.case_id]);
+  const preview = async payload => {
+    setError('');
+    try {
+      const value = await opFetch('preview/', payload);
+      if (value.id) setProposal(value);else {
+        setNotice(value.effect?.note || 'CRM-передача вже існує.');
+        if (value.effect?.deal_id) loadDetail(value.effect.deal_id);
+        await load();
+      }
+    } catch (e) {
+      setError(e.message);
+    }
+  };
+  const confirmed = async receipt => {
+    setProposal(null);
+    setNotice('CRM-дію підтверджено.');
+    await load();
+    if (receipt.deal_id) await loadDetail(receipt.deal_id);
+    if (receipt.action === 'crm_handoff') onClearHandoff?.();
+  };
+  const owners = Array.isArray(employees) ? employees.filter(row => !row.archived_at) : [];
+  return /*#__PURE__*/React.createElement("div", {
+    className: "crm-workspace"
+  }, /*#__PURE__*/React.createElement("header", {
+    className: "crm-heading"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "bos3-kicker"
+  }, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0456 \u0434\u0430\u043D\u0456"), /*#__PURE__*/React.createElement("h1", null, "CRM"), /*#__PURE__*/React.createElement("p", null, "\u0423\u0433\u043E\u0434\u0438 \u043F\u043E\u0432'\u044F\u0437\u0430\u043D\u0456 \u0437 \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u0438\u043C\u0438 \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0438\u043C\u0438 \u0434\u0436\u0435\u0440\u0435\u043B\u0430\u043C\u0438. \u0421\u0442\u0432\u043E\u0440\u0435\u043D\u043D\u044F, \u0437\u043C\u0456\u043D\u0430 \u0442\u0430 \u0430\u043A\u0442\u0438\u0432\u043D\u0456\u0441\u0442\u044C \u043F\u0440\u043E\u0445\u043E\u0434\u044F\u0442\u044C \u0447\u0435\u0440\u0435\u0437 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0443 \u0439 \u044F\u0432\u043D\u0435 \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043D\u044F.")), /*#__PURE__*/React.createElement(Button, {
+    onClick: load,
+    disabled: loading
+  }, loading ? 'Оновлення…' : 'Оновити')), notice && /*#__PURE__*/React.createElement("p", {
+    role: "status",
+    className: "bos3-empty"
+  }, notice), error && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, error), handoffContext && /*#__PURE__*/React.createElement(CRMHandoff, {
+    draft: handoff,
+    onClose: () => {
+      onClearHandoff?.();
+      setHandoff(null);
+    },
+    onPreview: preview,
+    onOpenDeal: id => {
+      onClearHandoff?.();
+      setHandoff(null);
+      loadDetail(id);
+    }
+  }), proposal && /*#__PURE__*/React.createElement(CRMProposal, {
+    proposal: proposal,
+    onClose: () => setProposal(null),
+    onDone: confirmed
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "crm-layout"
+  }, /*#__PURE__*/React.createElement("section", {
+    className: "crm-list",
+    "aria-label": "CRM-\u0443\u0433\u043E\u0434\u0438"
+  }, deals.map(deal => /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    key: deal.id,
+    "aria-current": selected?.id === deal.id,
+    onClick: () => loadDetail(deal.id)
+  }, /*#__PURE__*/React.createElement("strong", null, deal.title), /*#__PURE__*/React.createElement("span", null, CRM_STAGE_LABELS[deal.stage] || deal.stage, " \xB7 ", deal.owner?.name || 'Відповідального не надано'), /*#__PURE__*/React.createElement("span", null, deal.next_action))), !loading && !deals.length && /*#__PURE__*/React.createElement("div", {
+    className: "bos3-empty"
+  }, "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 CRM-\u0443\u0433\u043E\u0434 \u043D\u0435\u043C\u0430\u0454. \u041F\u0435\u0440\u0435\u0434\u0430\u0447\u0430 \u0437 \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u043E\u0433\u043E \u043A\u0435\u0439\u0441\u0443 \u0441\u0442\u0432\u043E\u0440\u044E\u0454\u0442\u044C\u0441\u044F \u043B\u0438\u0448\u0435 \u043F\u0456\u0441\u043B\u044F preview \u0442\u0430 \u044F\u0432\u043D\u043E\u0433\u043E \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043D\u044F.")), /*#__PURE__*/React.createElement("section", {
+    className: "crm-detail"
+  }, selected ? /*#__PURE__*/React.createElement(CRMDealDetail, {
+    deal: selected,
+    employees: owners,
+    onPreview: preview
+  }) : /*#__PURE__*/React.createElement("div", {
+    className: "bos3-empty"
+  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0439\u0442\u0435 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0443 \u0443\u0433\u043E\u0434\u0443, \u0449\u043E\u0431 \u043F\u0435\u0440\u0435\u0433\u043B\u044F\u043D\u0443\u0442\u0438 \u0434\u0436\u0435\u0440\u0435\u043B\u0430, \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u0443 \u0434\u0456\u044E \u0442\u0430 \u0430\u043A\u0442\u0438\u0432\u043D\u043E\u0441\u0442\u0456."))));
 }
 function BoSReadOnlyRecords({
   title,
@@ -21538,6 +22472,7 @@ function BoSReadOnlyRecords({
 function App() {
   // On first render: try to restore saved industry from localStorage
   // If found → skip onboarding, go straight to app
+  const trainingEnabled = window.BOS_RUNTIME?.training_enabled === true;
   const savedIndustry = (() => {
     try {
       const raw = localStorage.getItem(bosStorageKey('industry'));
@@ -21546,12 +22481,17 @@ function App() {
       return null;
     }
   })();
-  const [screen, setScreen] = useState(savedIndustry ? 'app' : 'onboarding');
-  const [industry, setIndustry] = useState(savedIndustry);
-  const [nav, setNav] = useState({
+  const [screen, setScreen] = useState(trainingEnabled || savedIndustry ? 'app' : 'onboarding');
+  const [industry, setIndustry] = useState(trainingEnabled ? null : savedIndustry);
+  const [nav, setNav] = useState(() => bos3Slug() || trainingEnabled ? {
+    section: 'info',
+    sub: null
+  } : {
     section: 'dash',
     sub: null
   });
+  const [trainingTour, setTrainingTour] = useState(null);
+  const [crmHandoff, setCrmHandoff] = useState(null);
   const [opRole, setOpRole] = useState(bosRole());
   // AI-панель справа: по умолчанию открыта на широких экранах (>=1400px), закрыта на узких.
   // Пользователь может вручную открывать/закрывать через кнопку в Topbar.
@@ -21894,11 +22834,25 @@ function App() {
       if (sub === 'audiomeeting') return /*#__PURE__*/React.createElement(AudioMeeting, null);
       if (sub === 'dictaphone') return /*#__PURE__*/React.createElement(Dictaphone, null);
     }
-    if (section === 'info') return /*#__PURE__*/React.createElement(BoSProductGuide, {
+    if (section === 'info') return /*#__PURE__*/React.createElement(Bos3TrainingHub, {
+      tourState: trainingTour,
+      setTourState: setTrainingTour,
       onNavigate: (section, sub) => setNav({
         section,
         sub
-      })
+      }),
+      onOpenCRM: context => {
+        setCrmHandoff(context);
+        setNav({
+          section: 'crm',
+          sub: null
+        });
+      }
+    });
+    if (section === 'crm') return /*#__PURE__*/React.createElement(CRMWorkspace, {
+      employees: employees,
+      handoffContext: crmHandoff,
+      onClearHandoff: () => setCrmHandoff(null)
     });
     if (section === 'settings') return /*#__PURE__*/React.createElement(React.Fragment, null, bosRole() === 'ceo' && /*#__PURE__*/React.createElement("div", {
       style: {
@@ -21926,7 +22880,7 @@ function App() {
     }
   }, /*#__PURE__*/React.createElement("div", {
     className: "op-mode"
-  }, /*#__PURE__*/React.createElement("span", null, window.BOS_RUNTIME?.mode === 'demo' ? 'Навчальна компанія · дані на ' + window.BOS_RUNTIME.as_of.split('-').reverse().join('.') : 'Робочий простір', " \xB7 BoS"), window.BOS_RUNTIME?.mode === 'demo' ? /*#__PURE__*/React.createElement("label", null, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0430 \u0440\u043E\u043B\u044C ", /*#__PURE__*/React.createElement("select", {
+  }, /*#__PURE__*/React.createElement("span", null, window.BOS_RUNTIME?.mode === 'demo' ? 'Навчальна компанія · дані на ' + window.BOS_RUNTIME.as_of.split('-').reverse().join('.') : 'Робочий простір', " \xB7 BoS"), window.BOS_RUNTIME?.mode === 'demo' && !window.BOS_RUNTIME?.training_enabled ? /*#__PURE__*/React.createElement("label", null, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0430 \u0440\u043E\u043B\u044C ", /*#__PURE__*/React.createElement("select", {
     value: opRole,
     onChange: async e => {
       try {
@@ -22028,6 +22982,7 @@ function App() {
 function AuthGate() {
   const [ready, setReady] = useState(false),
     [mode, setMode] = useState(null),
+    [trainingEnabled, setTrainingEnabled] = useState(false),
     [busy, setBusy] = useState(true),
     [error, setError] = useState('');
   const [username, setUsername] = useState(''),
@@ -22037,6 +22992,7 @@ function AuthGate() {
     const d = await r.json();
     if (!r.ok || !d.authenticated) throw Error(d.error || 'Увійдіть до BoS.');
     window.BOS_RUNTIME = d;
+    setTrainingEnabled(d.training_enabled === true);
     setPassword('');
     setReady(true);
   };
@@ -22048,6 +23004,7 @@ function AuthGate() {
       if (!r.ok) throw Error('Не вдалося відкрити BoS.');
       const d = await r.json();
       setMode(d.mode);
+      setTrainingEnabled(d.training_enabled === true);
       const session = await fetch('/api/auth/me/');
       if (session.ok) await openWorkspace();else if (session.status !== 401) {
         const e = await session.json();
@@ -22072,6 +23029,10 @@ function AuthGate() {
   }, []);
   const enter = async (demo = false) => {
     if (busy) return;
+    if (demo && trainingEnabled) {
+      setError('Для навчальної інсталяції потрібен персональний логін і пароль.');
+      return;
+    }
     setBusy(true);
     setError('');
     try {
@@ -22149,7 +23110,7 @@ function AuthGate() {
     }
   }, "\u0423\u0432\u0456\u0439\u0442\u0438 \u0434\u043E \u0440\u043E\u0431\u043E\u0447\u043E\u0433\u043E \u043F\u0440\u043E\u0441\u0442\u043E\u0440\u0443"), /*#__PURE__*/React.createElement("p", {
     className: "bos-auth-intro"
-  }, "\u0412\u0430\u0448\u0456 \u0434\u0430\u043D\u0456 \u0442\u0430 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0434\u0456\u0457 \u0432\u0438\u0437\u043D\u0430\u0447\u0430\u0454 \u043E\u0431\u043B\u0456\u043A\u043E\u0432\u0438\u0439 \u0437\u0430\u043F\u0438\u0441."), mode === 'demo' ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Button, {
+  }, "\u0412\u0430\u0448\u0456 \u0434\u0430\u043D\u0456 \u0442\u0430 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0434\u0456\u0457 \u0432\u0438\u0437\u043D\u0430\u0447\u0430\u0454 \u043E\u0431\u043B\u0456\u043A\u043E\u0432\u0438\u0439 \u0437\u0430\u043F\u0438\u0441."), mode === 'demo' && !trainingEnabled ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Button, {
     variant: "primary",
     onClick: () => enter(true),
     disabled: busy,
@@ -22158,19 +23119,21 @@ function AuthGate() {
     }
   }, busy ? 'Зачекайте…' : 'Відкрити навчальну компанію'), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
-  }, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0438\u0439 \u0432\u0445\u0456\u0434 \u043D\u0435 \u043F\u043E\u0442\u0440\u0435\u0431\u0443\u0454 \u043B\u043E\u0433\u0456\u043D\u0430 \u0447\u0438 \u043F\u0430\u0440\u043E\u043B\u044F. \u0412\u0456\u043D \u043D\u0430\u0434\u0430\u0454 \u0431\u0456\u0437\u043D\u0435\u0441-\u043F\u0440\u0430\u0432\u0430 \u043A\u0435\u0440\u0456\u0432\u043D\u0438\u043A\u0430 \u043B\u0438\u0448\u0435 \u0443 \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0438\u0445 \u0434\u0430\u043D\u0438\u0445, \u0430 \u043D\u0435 \u0442\u0435\u0445\u043D\u0456\u0447\u043D\u0438\u0439 \u0430\u0431\u043E \u0430\u0434\u043C\u0456\u043D\u0456\u0441\u0442\u0440\u0430\u0442\u0438\u0432\u043D\u0438\u0439 \u0434\u043E\u0441\u0442\u0443\u043F."), /*#__PURE__*/React.createElement("section", {
-    className: "bos-start-guide",
-    "aria-labelledby": "bos-start-guide-title"
-  }, /*#__PURE__*/React.createElement("h2", {
-    id: "bos-start-guide-title"
-  }, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0430 \u043C\u043E\u0434\u0435\u043B\u044C BoS 3.0"), /*#__PURE__*/React.createElement("p", null, "\u0422\u0440\u0438 \u0443\u043C\u043E\u0432\u043D\u0456 \u043A\u0435\u0439\u0441\u0438: \u043E\u0431\u0491\u0440\u0443\u043D\u0442\u043E\u0432\u0430\u043D\u0430 \u043E\u0431\u0456\u0446\u044F\u043D\u043A\u0430 \u043A\u043B\u0456\u0454\u043D\u0442\u0443, \u043A\u043E\u043C\u043F\u043B\u0435\u043A\u0442\u0443\u0432\u0430\u043D\u043D\u044F \u0431\u0435\u0437 \u0434\u0435\u0444\u0456\u0446\u0438\u0442\u0443 \u0442\u0430 \u043A\u043E\u043D\u0442\u0440\u043E\u043B\u044C \u0432\u0456\u0434\u043A\u0440\u0438\u0442\u043E\u0457 \u043E\u043F\u043B\u0430\u0442\u0438. \u0426\u0435 \u043D\u0430\u0432\u0447\u0430\u043D\u043D\u044F \u043D\u0430 \u043F\u043E\u0442\u043E\u0447\u043D\u0438\u0445 \u0434\u0435\u043C\u043E-\u0434\u0430\u043D\u0438\u0445, \u043D\u0435 \u0442\u0435\u0445\u043D\u0456\u0447\u043D\u0430 \u0432\u0435\u0440\u0441\u0456\u044F 3.0."), /*#__PURE__*/React.createElement("div", {
-    className: "bos-start-steps"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "1. \u0412\u0435\u0440\u0442\u043E\u043B\u0456\u0442"), /*#__PURE__*/React.createElement("span", null, "\u0412\u0456\u0434\u043A\u0440\u0438\u0439\u0442\u0435 \u043F\u043E\u043A\u0430\u0437\u043D\u0438\u043A \u0456 \u0439\u043E\u0433\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430.")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "2. \u0421\u044C\u043E\u0433\u043E\u0434\u043D\u0456"), /*#__PURE__*/React.createElement("span", null, "\u0417\u043D\u0430\u0439\u0434\u0456\u0442\u044C SO-101 \u0442\u0430 \u0432\u0456\u0434\u043A\u0440\u0438\u0439\u0442\u0435 \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u0438\u0439 \u043A\u0440\u043E\u043A.")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "3. \u041F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("span", null, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0442\u0435 \xAB\u0411\u0443\u043B\u043E \u2192 \u0421\u0442\u0430\u043D\u0435\xBB, \u043F\u043E\u0442\u0456\u043C \u044F\u0432\u043D\u043E \u043F\u043E\u0433\u043E\u0434\u044C\u0442\u0435 \u0434\u0456\u044E."))), /*#__PURE__*/React.createElement("a", {
+  }, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0438\u0439 \u0432\u0445\u0456\u0434 \u043D\u0435 \u043F\u043E\u0442\u0440\u0435\u0431\u0443\u0454 \u043B\u043E\u0433\u0456\u043D\u0430 \u0447\u0438 \u043F\u0430\u0440\u043E\u043B\u044F. \u0412\u0456\u043D \u043D\u0430\u0434\u0430\u0454 \u0431\u0456\u0437\u043D\u0435\u0441-\u043F\u0440\u0430\u0432\u0430 \u043A\u0435\u0440\u0456\u0432\u043D\u0438\u043A\u0430 \u043B\u0438\u0448\u0435 \u0443 \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0438\u0445 \u0434\u0430\u043D\u0438\u0445, \u0430 \u043D\u0435 \u0442\u0435\u0445\u043D\u0456\u0447\u043D\u0438\u0439 \u0430\u0431\u043E \u0430\u0434\u043C\u0456\u043D\u0456\u0441\u0442\u0440\u0430\u0442\u0438\u0432\u043D\u0438\u0439 \u0434\u043E\u0441\u0442\u0443\u043F."), /*#__PURE__*/React.createElement(Bos3Brochure, {
+    compact: true,
+    onSelectCase: slug => bos3SetSlug(slug)
+  }), /*#__PURE__*/React.createElement("a", {
     className: "bos-start-pdf",
     href: "/help/start.pdf"
-  }, "\u041F\u0430\u043C\u2019\u044F\u0442\u043A\u0430 \u0432\u0445\u043E\u0434\u0443 \u0439 \u043F\u0435\u0440\u0448\u043E\u0457 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0438 (PDF)")), /*#__PURE__*/React.createElement("details", {
+  }, "\u041F\u0430\u043C\u2019\u044F\u0442\u043A\u0430 \u0432\u0445\u043E\u0434\u0443 \u0439 \u043F\u0435\u0440\u0448\u043E\u0457 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0438 (PDF)"), /*#__PURE__*/React.createElement("details", {
     className: "bos-auth-secondary"
-  }, /*#__PURE__*/React.createElement("summary", null, "\u0423\u0432\u0456\u0439\u0442\u0438 \u0437 \u043B\u043E\u0433\u0456\u043D\u043E\u043C \u0456 \u043F\u0430\u0440\u043E\u043B\u0435\u043C"), passwordForm)) : passwordForm, error && /*#__PURE__*/React.createElement("p", {
+  }, /*#__PURE__*/React.createElement("summary", null, "\u0423\u0432\u0456\u0439\u0442\u0438 \u0437 \u043B\u043E\u0433\u0456\u043D\u043E\u043C \u0456 \u043F\u0430\u0440\u043E\u043B\u0435\u043C"), passwordForm)) : /*#__PURE__*/React.createElement(React.Fragment, null, passwordForm, trainingEnabled && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Bos3Brochure, {
+    compact: true,
+    onSelectCase: slug => bos3SetSlug(slug)
+  }), /*#__PURE__*/React.createElement("a", {
+    className: "bos-start-pdf",
+    href: "/api/training/brochure.pdf"
+  }, "\u0411\u0440\u043E\u0448\u0443\u0440\u0430 BoS 3.0: \u043A\u0435\u0439\u0441\u0438 \u0439 \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0443\u0440 (PDF)"))), error && /*#__PURE__*/React.createElement("p", {
     role: "alert",
     style: {
       color: T.red,
