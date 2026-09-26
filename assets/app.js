@@ -259,12 +259,12 @@ const INDUSTRIES = [{
 }];
 const NAV = [{
   id: 'heli',
-  label: 'Сьогодні',
+  label: 'Вертоліт',
   iconKey: 'helicopter',
   subs: []
 }, {
   id: 'dash',
-  label: 'Показники',
+  label: 'Сьогодні',
   icon: '⊞',
   iconKey: 'dashboard',
   subs: []
@@ -20742,7 +20742,8 @@ function homeSelectionVisible(selection, data) {
 function BoSHome({
   onNavigate,
   refetchTasks,
-  focus = false
+  focus = false,
+  readOnlyOverview = false
 }) {
   const scope = homeReadScope(),
     [view, setView] = useState({
@@ -20768,7 +20769,7 @@ function BoSHome({
       selected: null
     }),
     presentation = useRef('');
-  presentation.current = JSON.stringify([currency, focus]);
+  presentation.current = JSON.stringify([currency, focus, readOnlyOverview]);
   const renderedPresentation = presentation.current;
   function publish(next) {
     life.current.view = next;
@@ -20941,7 +20942,7 @@ function BoSHome({
   useEffect(() => {
     select(null);
     life.current.nextSelection = null;
-  }, [currency, focus]);
+  }, [currency, focus, readOnlyOverview]);
   const inScope = view.scope === scope && !!scope,
     data = inScope ? view.data : null,
     status = inScope ? view.status : 'context-drift',
@@ -20965,7 +20966,7 @@ function BoSHome({
     if (canUse() && homeSelectionVisible(next, data)) select(next);
   }
   function begin(type, preset) {
-    if (!canUse()) return;
+    if (readOnlyOverview || !canUse()) return;
     if (!bosCanAction(type)) {
       publish({
         ...life.current.view,
@@ -20997,7 +20998,7 @@ function BoSHome({
   }
   function recover(entry) {
     const l = life.current;
-    if (!l.alive || !recoveryOwner.data || l.scope !== recoveryOwner.scope || homeReadScope() !== recoveryOwner.scope || l.accessEpoch !== recoveryOwner.accessEpoch || l.view?.data !== recoveryOwner.data || ['denied', 'context-drift'].includes(l.view?.status)) return;
+    if (readOnlyOverview || !l.alive || !recoveryOwner.data || l.scope !== recoveryOwner.scope || homeReadScope() !== recoveryOwner.scope || l.accessEpoch !== recoveryOwner.accessEpoch || l.view?.data !== recoveryOwner.data || ['denied', 'context-drift'].includes(l.view?.status)) return;
     select(null);
     setAction({
       id: ++l.actionId,
@@ -21058,12 +21059,12 @@ function BoSHome({
     className: "bos-home"
   }, /*#__PURE__*/React.createElement("div", {
     className: "erp-row"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", null, focus ? 'Сьогодні у BoS' : bosCan('finance') ? 'Показники та їхні джерела' : 'Операційний огляд'), /*#__PURE__*/React.createElement("p", {
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", null, readOnlyOverview ? 'Вертоліт · показники та джерела' : 'Сьогодні у BoS'), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
-  }, focus ? 'Рішення й наступні кроки за поточними замовленнями.' : 'Натисніть показник: відкриються записи, розрахунок і дії.')), /*#__PURE__*/React.createElement("div", {
+  }, readOnlyOverview ? 'Перевірте показники та відкрийте лише їхні доступні джерела. Дії в цьому огляді не виконуються.' : 'Робочі точки, замовлення та наступні кроки на сьогодні.')), /*#__PURE__*/React.createElement("div", {
     className: "erp-actions"
   }, financial && /*#__PURE__*/React.createElement(Select, {
-    "aria-label": "\u0412\u0430\u043B\u044E\u0442\u0430 \u043F\u043E\u043A\u0430\u0437\u043D\u0438\u043A\u0456\u0432",
+    "aria-label": readOnlyOverview ? 'Валюта показників' : 'Валюта рахунків',
     value: cur,
     onChange: e => {
       select(null);
@@ -21075,7 +21076,9 @@ function BoSHome({
   }, x.currency))), /*#__PURE__*/React.createElement(Button, {
     disabled: busy,
     onClick: () => refresh()
-  }, data ? 'Оновити' : 'Повторити'), /*#__PURE__*/React.createElement(Button, {
+  }, data ? 'Оновити' : 'Повторити'), !readOnlyOverview && /*#__PURE__*/React.createElement(Button, {
+    onClick: () => onNavigate('heli')
+  }, "\u0412\u0435\u0440\u0442\u043E\u043B\u0456\u0442"), /*#__PURE__*/React.createElement(Button, {
     onClick: () => onNavigate('info')
   }, "\u042F\u043A \u043F\u0440\u0430\u0446\u044E\u0454 BoS"))), /*#__PURE__*/React.createElement("section", {
     "aria-label": "\u0421\u0432\u0456\u0436\u0456\u0441\u0442\u044C \u0440\u043E\u0431\u043E\u0447\u043E\u0433\u043E \u043E\u0433\u043B\u044F\u0434\u0443",
@@ -21095,7 +21098,7 @@ function BoSHome({
   }, "\u0426\u0435 \u043E\u0441\u0442\u0430\u043D\u043D\u044F \u043F\u0440\u0438\u0439\u043D\u044F\u0442\u0430 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u044C \u0443 \u0446\u044C\u043E\u043C\u0443 \u0432\u0456\u043A\u043D\u0456. \u041D\u0430\u0441\u0442\u0443\u043F\u043D\u0456 \u0437\u043C\u0456\u043D\u0438 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u043F\u043E\u0442\u0440\u0435\u0431\u0443\u044E\u0442\u044C \u043D\u043E\u0432\u043E\u0433\u043E \u0447\u0438\u0442\u0430\u043D\u043D\u044F."), (inScope ? view.error : 'Контекст доступу змінився. Оновіть робочий огляд.') && /*#__PURE__*/React.createElement("p", {
     role: "alert",
     className: "erp-error"
-  }, inScope ? view.error : 'Контекст доступу змінився. Оновіть робочий огляд.')), shownReceipt && /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement(Button, {
+  }, inScope ? view.error : 'Контекст доступу змінився. Оновіть робочий огляд.')), !readOnlyOverview && shownReceipt && /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement(Button, {
     onClick: () => setReceipt(null)
   }, "\u041F\u0440\u0438\u0445\u043E\u0432\u0430\u0442\u0438"), shownReceipt.action === 'erp_register_supplier_invoice' ? /*#__PURE__*/React.createElement(SupplierInvoiceReceipt, {
     receipt: shownReceipt,
@@ -21104,10 +21107,7 @@ function BoSHome({
     changes: shownReceipt.impact
   })), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
-  }, "\u041A\u0432\u0438\u0442\u0430\u043D\u0446\u0456\u044F \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0443\u0454 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u044E; \u0441\u0432\u0456\u0436\u0456\u0441\u0442\u044C \u0440\u043E\u0431\u043E\u0447\u043E\u0433\u043E \u043E\u0433\u043B\u044F\u0434\u0443 \u0432\u0438\u0437\u043D\u0430\u0447\u0430\u0454\u0442\u044C\u0441\u044F \u043E\u043A\u0440\u0435\u043C\u0438\u043C \u0447\u0438\u0442\u0430\u043D\u043D\u044F\u043C \u0432\u0438\u0449\u0435.")), data && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(WorkpointsPanel, {
-    onNavigate: onNavigate,
-    refetchTasks: refetchTasks
-  }), /*#__PURE__*/React.createElement(HttpObservations, null), /*#__PURE__*/React.createElement("h2", null, "\u041E\u0433\u043B\u044F\u0434 \u0443\u0441\u0456\u0445 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u043A\u043E\u043C\u043F\u0430\u043D\u0456\u0457"), !focus && bosCan('finance') && !financial && /*#__PURE__*/React.createElement("p", null, "\u0424\u0456\u043D\u0430\u043D\u0441\u043E\u0432\u0456 \u043F\u043E\u043A\u0430\u0437\u043D\u0438\u043A\u0438 \u043D\u0435 \u043D\u0430\u0434\u0430\u043D\u043E."), !focus && financial && /*#__PURE__*/React.createElement("div", {
+  }, "\u041A\u0432\u0438\u0442\u0430\u043D\u0446\u0456\u044F \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0443\u0454 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u044E; \u0441\u0432\u0456\u0436\u0456\u0441\u0442\u044C \u0440\u043E\u0431\u043E\u0447\u043E\u0433\u043E \u043E\u0433\u043B\u044F\u0434\u0443 \u0432\u0438\u0437\u043D\u0430\u0447\u0430\u0454\u0442\u044C\u0441\u044F \u043E\u043A\u0440\u0435\u043C\u0438\u043C \u0447\u0438\u0442\u0430\u043D\u043D\u044F\u043C \u0432\u0438\u0449\u0435.")), data && /*#__PURE__*/React.createElement(React.Fragment, null, readOnlyOverview ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h2", null, "\u041F\u043E\u043A\u0430\u0437\u043D\u0438\u043A\u0438 \u0437\u0430 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u043C\u0438 \u0437\u0430\u043F\u0438\u0441\u0430\u043C\u0438 \u043A\u043E\u043C\u043F\u0430\u043D\u0456\u0457"), bosCan('finance') && !financial && /*#__PURE__*/React.createElement("p", null, "\u0424\u0456\u043D\u0430\u043D\u0441\u043E\u0432\u0456 \u043F\u043E\u043A\u0430\u0437\u043D\u0438\u043A\u0438 \u043D\u0435 \u043D\u0430\u0434\u0430\u043D\u043E."), financial && /*#__PURE__*/React.createElement("div", {
     className: "bos-kpi-grid"
   }, BOS_METRICS.map(([key, label, formula]) => /*#__PURE__*/React.createElement("button", {
     type: "button",
@@ -21132,7 +21132,14 @@ function BoSHome({
       title,
       overdue: late
     })
-  }, /*#__PURE__*/React.createElement("span", null, title), /*#__PURE__*/React.createElement("strong", null, n), /*#__PURE__*/React.createElement("em", null, "\u041F\u0435\u0440\u0435\u0433\u043B\u044F\u043D\u0443\u0442\u0438 \u0437\u0430\u043F\u0438\u0441\u0438 \u2197")))), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("span", null, title), /*#__PURE__*/React.createElement("strong", null, n), /*#__PURE__*/React.createElement("em", null, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0437\u0430\u043F\u0438\u0441\u0438 \u2197")))), /*#__PURE__*/React.createElement(HttpObservations, null), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, "\u041E\u0441\u0442\u0430\u043D\u043D\u0456 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0457"), /*#__PURE__*/React.createElement(ERPTable, {
+    rows: data.events.slice(0, 8),
+    columns: [["Операція", r => r.action === 'erp_import_batch' ? 'Початковий імпорт' : B03_ACTIONS[r.action.replace('erp_', '')]?.[0] || ERP_ACTIONS[r.action.replace('erp_', '')]?.[0] || r.action], ["Запис", r => r.result?.code || r.result?.reference || 'Запис журналу №' + r.id], ["Дата", r => erpDate(r.created_at)]],
+    onRow: ready ? r => inspect('events', r.id) : undefined
+  }))) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(WorkpointsPanel, {
+    onNavigate: onNavigate,
+    refetchTasks: refetchTasks
+  }), /*#__PURE__*/React.createElement("h2", null, "\u0420\u043E\u0431\u043E\u0442\u0430 \u043D\u0430 \u0441\u044C\u043E\u0433\u043E\u0434\u043D\u0456"), /*#__PURE__*/React.createElement("div", {
     className: "bos-work-columns"
   }, /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("div", {
     className: "erp-row"
@@ -21208,10 +21215,11 @@ function BoSHome({
     rows: data.events.slice(0, 8),
     columns: [["Операція", r => r.action === 'erp_import_batch' ? 'Початковий імпорт' : B03_ACTIONS[r.action.replace('erp_', '')]?.[0] || ERP_ACTIONS[r.action.replace('erp_', '')]?.[0] || r.action], ["Запис", r => r.result?.code || r.result?.reference || 'Запис журналу №' + r.id], ["Дата", r => erpDate(r.created_at)]],
     onRow: ready ? r => inspect('events', r.id) : undefined
-  })), ready && selection && /*#__PURE__*/React.createElement(BoSInspector, {
+  })))), ready && selection && /*#__PURE__*/React.createElement(BoSInspector, {
     key: scope + ':' + epoch + ':' + renderedPresentation,
     selection: selection,
     data: data,
+    readOnly: readOnlyOverview,
     onClose: () => {
       if (canInspect()) select(null);
     },
@@ -21225,7 +21233,7 @@ function BoSHome({
       if (canInspect()) onNavigate(...args);
     },
     onTraceSelect: traceSelect
-  })), shownAction && /*#__PURE__*/React.createElement(BoSActionDialog, {
+  }), !readOnlyOverview && shownAction && /*#__PURE__*/React.createElement(BoSActionDialog, {
     action: shownAction.type,
     preset: shownAction.preset,
     recovery: shownAction.recovery,
@@ -21243,7 +21251,7 @@ function BoSHome({
 function BoSProductGuide({
   onNavigate
 }) {
-  const features = [['Виконання замовлення', 'Показує, що вже є, чого бракує та яку операцію можна виконати наступною. Менеджер переходить до заповненої форми з картки замовлення.', 'erp', 'sales', 'Відкрити продажі'], ['Матеріали й склад', 'Партії, резерви та якість в одному місці. Видно, чому фізичний запас ще не можна відвантажити і для кого він зарезервований.', 'erp', 'stock', 'Відкрити склад'], ['Виробництво й підрядники', 'Пов’язує матеріали, операції, виконавця та випуск. Не дозволяє почати без потрібного резерву або списати більше наявного.', 'erp', 'production', 'Відкрити виробництво'], ['Закупівлі та документи', 'Допомагає порівняти ціну разом з додатковими витратами, строками й вимогами; джерело відкривається поряд із висновком.', 'finance', 'procurement', 'Порівняти пропозиції'], ['Якість та зміни', 'Показує комплектність документів, дозволи партій та вплив нової версії креслення на незавершені роботи.', 'erp', 'quality', 'Відкрити якість'], ['Розрахунки й контроль', 'Від підсумкової суми можна перейти до поставки, рахунку та оплати. Перед дією видно, які записи зміняться.', 'dash', null, 'Відкрити показники']];
+  const features = [['Виконання замовлення', 'Показує, що вже є, чого бракує та яку операцію можна виконати наступною. Менеджер переходить до заповненої форми з картки замовлення.', 'erp', 'sales', 'Відкрити продажі'], ['Матеріали й склад', 'Партії, резерви та якість в одному місці. Видно, чому фізичний запас ще не можна відвантажити і для кого він зарезервований.', 'erp', 'stock', 'Відкрити склад'], ['Виробництво й підрядники', 'Пов’язує матеріали, операції, виконавця та випуск. Не дозволяє почати без потрібного резерву або списати більше наявного.', 'erp', 'production', 'Відкрити виробництво'], ['Закупівлі та документи', 'Допомагає порівняти ціну разом з додатковими витратами, строками й вимогами; джерело відкривається поряд із висновком.', 'finance', 'procurement', 'Порівняти пропозиції'], ['Якість та зміни', 'Показує комплектність документів, дозволи партій та вплив нової версії креслення на незавершені роботи.', 'erp', 'quality', 'Відкрити якість'], ['Розрахунки й контроль', 'У «Вертольоті» показник веде до доступних джерел. У «Сьогодні» — робочі кроки з окремою перевіркою та погодженням.', 'heli', null, 'Відкрити показники']];
   return /*#__PURE__*/React.createElement("div", {
     className: "bos-home"
   }, /*#__PURE__*/React.createElement("h1", null, "\u042F\u043A BoS \u0441\u043F\u0440\u043E\u0449\u0443\u0454 \u0440\u043E\u0431\u043E\u0442\u0443"), /*#__PURE__*/React.createElement("p", null, "BoS \u0437\u0432\u2019\u044F\u0437\u0443\u0454 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F, \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456, \u0441\u043A\u043B\u0430\u0434, \u0432\u0438\u0440\u043E\u0431\u043D\u0438\u0446\u0442\u0432\u043E \u0442\u0430 \u0440\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043A\u0438. \u0417\u0430\u043C\u0456\u0441\u0442\u044C \u043F\u043E\u0432\u0442\u043E\u0440\u043D\u043E\u0433\u043E \u043F\u043E\u0448\u0443\u043A\u0443 \u0432 \u0440\u0456\u0437\u043D\u0438\u0445 \u0441\u043F\u0438\u0441\u043A\u0430\u0445 \u0432\u0438 \u0432\u0456\u0434\u043A\u0440\u0438\u0432\u0430\u0454\u0442\u0435 \u0437\u0430\u043F\u0438\u0441, \u0431\u0430\u0447\u0438\u0442\u0435 \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0456 \u0434\u0430\u043D\u0456 \u0439 \u043F\u0435\u0440\u0435\u0445\u043E\u0434\u0438\u0442\u0435 \u0434\u043E \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u043E\u0457 \u0434\u0456\u0457."), /*#__PURE__*/React.createElement("div", {
@@ -21254,7 +21262,7 @@ function BoSProductGuide({
     onClick: () => onNavigate(section, sub)
   }, cta)))), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, "\u0421\u043F\u0440\u043E\u0431\u0443\u0439\u0442\u0435 \u043D\u0430 \u0437\u0430\u043F\u043E\u0432\u043D\u0435\u043D\u043E\u043C\u0443 \u043F\u0440\u0438\u043A\u043B\u0430\u0434\u0456"), /*#__PURE__*/React.createElement("p", null, "SO-101: 50 \u0432\u0438\u0440\u043E\u0431\u0456\u0432. \u0427\u0430\u0441\u0442\u0438\u043D\u0430 \u0432\u0436\u0435 \u0432 \u0440\u0435\u0437\u0435\u0440\u0432\u0456, \u0440\u0435\u0448\u0442\u0443 \u043F\u043E\u0442\u0440\u0456\u0431\u043D\u043E \u0432\u0438\u0433\u043E\u0442\u043E\u0432\u0438\u0442\u0438. \u0412\u0456\u0434\u043A\u0440\u0438\u0439\u0442\u0435 \xAB\u0421\u044C\u043E\u0433\u043E\u0434\u043D\u0456\xBB, \u043D\u0430\u0442\u0438\u0441\u043D\u0456\u0442\u044C \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u0438\u0439 \u043A\u0440\u043E\u043A, \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u0442\u0435 \u0437\u0430\u043F\u043E\u0432\u043D\u0435\u043D\u0456 \u043F\u043E\u043B\u044F \u0442\u0430 \u0442\u0430\u0431\u043B\u0438\u0446\u044E \xAB\u0411\u0443\u043B\u043E \u2192 \u0421\u0442\u0430\u043D\u0435\xBB. \u041F\u0456\u0441\u043B\u044F \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F BoS \u043F\u043E\u043A\u0430\u0436\u0435 \u0444\u0430\u043A\u0442\u0438\u0447\u043D\u0456 \u0437\u043C\u0456\u043D\u0438 \u0442\u0430 \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u0443 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u044E."), /*#__PURE__*/React.createElement(Button, {
     variant: "primary",
-    onClick: () => onNavigate('heli')
+    onClick: () => onNavigate('dash')
   }, "\u041F\u0440\u043E\u0439\u0442\u0438 \u0440\u043E\u0431\u043E\u0447\u0438\u0439 \u0446\u0438\u043A\u043B")), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, "\u0429\u043E \u0440\u043E\u0431\u0438\u0442\u044C \u0430\u0441\u0438\u0441\u0442\u0435\u043D\u0442"), /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u044F\u0441\u043D\u044E\u0454 \u0441\u0442\u0430\u043D \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u044C, \u043C\u0430\u0442\u0435\u0440\u0456\u0430\u043B\u0456\u0432 \u0456 \u0440\u0430\u0445\u0443\u043D\u043A\u0456\u0432 \u0437\u0430 \u043F\u043E\u0442\u043E\u0447\u043D\u0438\u043C\u0438 \u0437\u0430\u043F\u0438\u0441\u0430\u043C\u0438. \u0423 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u0456\u0439 \u0432\u0435\u0440\u0441\u0456\u0457 \u043F\u0440\u0430\u0446\u044E\u044E\u0442\u044C \u0432\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u0456 \u0441\u0446\u0435\u043D\u0430\u0440\u0456\u0457. \u0414\u043B\u044F \u0432\u0456\u043B\u044C\u043D\u043E\u0433\u043E \u0430\u043D\u0430\u043B\u0456\u0437\u0443 \u043C\u043E\u0436\u043D\u0430 \u043F\u0435\u0440\u0435\u0434\u0430\u0442\u0438 \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442 \u0443 ChatGPT \u0442\u0430 \u043F\u043E\u0432\u0435\u0440\u043D\u0443\u0442\u0438 \u0437\u0430\u043F\u0440\u043E\u043F\u043E\u043D\u043E\u0432\u0430\u043D\u0443 \u0434\u0456\u044E \u043D\u0430 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0443 \u0439 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F."), /*#__PURE__*/React.createElement(Button, {
     onClick: () => onNavigate('ai', 'aichat')
   }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u0430\u0441\u0438\u0441\u0442\u0435\u043D\u0442\u0430"), /*#__PURE__*/React.createElement("p", {
@@ -21540,7 +21548,8 @@ function App() {
       }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u0440\u043E\u0431\u043E\u0447\u0438\u0439 \u043E\u0433\u043B\u044F\u0434")));
     }
     if (section === 'heli') return /*#__PURE__*/React.createElement(BoSHome, {
-      focus: true,
+      key: "heli-overview",
+      readOnlyOverview: true,
       onNavigate: (section, sub) => setNav({
         section,
         sub
@@ -21548,6 +21557,8 @@ function App() {
       refetchTasks: refetchTasks
     });
     if (section === 'dash') return /*#__PURE__*/React.createElement(BoSHome, {
+      key: "today-work",
+      focus: true,
       onNavigate: (section, sub) => setNav({
         section,
         sub
@@ -21865,6 +21876,30 @@ function AuthGate() {
       setBusy(false);
     }
   };
+  const passwordForm = /*#__PURE__*/React.createElement("form", {
+    className: "bos-auth-form",
+    onSubmit: e => {
+      e.preventDefault();
+      enter(false);
+    }
+  }, /*#__PURE__*/React.createElement("label", null, "\u041B\u043E\u0433\u0456\u043D", /*#__PURE__*/React.createElement(Input, {
+    autoComplete: "username",
+    value: username,
+    onChange: e => setUsername(e.target.value),
+    required: true,
+    disabled: busy
+  })), /*#__PURE__*/React.createElement("label", null, "\u041F\u0430\u0440\u043E\u043B\u044C", /*#__PURE__*/React.createElement(Input, {
+    type: "password",
+    autoComplete: "current-password",
+    value: password,
+    onChange: e => setPassword(e.target.value),
+    required: true,
+    disabled: busy
+  })), /*#__PURE__*/React.createElement(Button, {
+    type: "submit",
+    variant: "primary",
+    disabled: busy
+  }, busy ? 'Зачекайте…' : 'Увійти'));
   if (ready) return /*#__PURE__*/React.createElement(App, null);
   return /*#__PURE__*/React.createElement("main", {
     style: {
@@ -21876,14 +21911,7 @@ function AuthGate() {
       fontFamily: T.font
     }
   }, /*#__PURE__*/React.createElement("section", {
-    style: {
-      width: '100%',
-      maxWidth: 420,
-      padding: 28,
-      border: '1px solid ' + T.border,
-      borderRadius: 18,
-      background: T.surface
-    },
+    className: "bos-auth-shell",
     "aria-labelledby": "bos-sign-in"
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -21900,59 +21928,29 @@ function AuthGate() {
       marginBottom: 10
     }
   }, "\u0423\u0432\u0456\u0439\u0442\u0438 \u0434\u043E \u0440\u043E\u0431\u043E\u0447\u043E\u0433\u043E \u043F\u0440\u043E\u0441\u0442\u043E\u0440\u0443"), /*#__PURE__*/React.createElement("p", {
-    style: {
-      color: T.textMuted,
-      fontSize: 14,
-      lineHeight: 1.6,
-      marginBottom: 22
-    }
-  }, "\u0412\u0430\u0448\u0456 \u0434\u0430\u043D\u0456 \u0442\u0430 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0434\u0456\u0457 \u0432\u0438\u0437\u043D\u0430\u0447\u0430\u0454 \u043E\u0431\u043B\u0456\u043A\u043E\u0432\u0438\u0439 \u0437\u0430\u043F\u0438\u0441."), /*#__PURE__*/React.createElement("form", {
-    onSubmit: e => {
-      e.preventDefault();
-      enter(false);
-    },
-    style: {
-      display: 'grid',
-      gap: 14
-    }
-  }, /*#__PURE__*/React.createElement("label", {
-    style: {
-      display: 'grid',
-      gap: 7,
-      color: T.text
-    }
-  }, "\u041B\u043E\u0433\u0456\u043D", /*#__PURE__*/React.createElement(Input, {
-    autoComplete: "username",
-    value: username,
-    onChange: e => setUsername(e.target.value),
-    required: true,
-    disabled: busy
-  })), /*#__PURE__*/React.createElement("label", {
-    style: {
-      display: 'grid',
-      gap: 7,
-      color: T.text
-    }
-  }, "\u041F\u0430\u0440\u043E\u043B\u044C", /*#__PURE__*/React.createElement(Input, {
-    type: "password",
-    autoComplete: "current-password",
-    value: password,
-    onChange: e => setPassword(e.target.value),
-    required: true,
-    disabled: busy
-  })), /*#__PURE__*/React.createElement(Button, {
-    type: "submit",
+    className: "bos-auth-intro"
+  }, "\u0412\u0430\u0448\u0456 \u0434\u0430\u043D\u0456 \u0442\u0430 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0434\u0456\u0457 \u0432\u0438\u0437\u043D\u0430\u0447\u0430\u0454 \u043E\u0431\u043B\u0456\u043A\u043E\u0432\u0438\u0439 \u0437\u0430\u043F\u0438\u0441."), mode === 'demo' ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Button, {
     variant: "primary",
-    disabled: busy
-  }, busy ? 'Зачекайте…' : 'Увійти')), mode === 'demo' && /*#__PURE__*/React.createElement(Button, {
-    variant: "subtle",
     onClick: () => enter(true),
     disabled: busy,
     style: {
-      width: '100%',
-      marginTop: 14
+      width: '100%'
     }
-  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0443 \u043A\u043E\u043C\u043F\u0430\u043D\u0456\u044E"), error && /*#__PURE__*/React.createElement("p", {
+  }, busy ? 'Зачекайте…' : 'Відкрити навчальну компанію'), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0438\u0439 \u0432\u0445\u0456\u0434 \u043D\u0435 \u043F\u043E\u0442\u0440\u0435\u0431\u0443\u0454 \u043B\u043E\u0433\u0456\u043D\u0430 \u0447\u0438 \u043F\u0430\u0440\u043E\u043B\u044F. \u0412\u0456\u043D \u043D\u0430\u0434\u0430\u0454 \u0431\u0456\u0437\u043D\u0435\u0441-\u043F\u0440\u0430\u0432\u0430 \u043A\u0435\u0440\u0456\u0432\u043D\u0438\u043A\u0430 \u043B\u0438\u0448\u0435 \u0443 \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0438\u0445 \u0434\u0430\u043D\u0438\u0445, \u0430 \u043D\u0435 \u0442\u0435\u0445\u043D\u0456\u0447\u043D\u0438\u0439 \u0430\u0431\u043E \u0430\u0434\u043C\u0456\u043D\u0456\u0441\u0442\u0440\u0430\u0442\u0438\u0432\u043D\u0438\u0439 \u0434\u043E\u0441\u0442\u0443\u043F."), /*#__PURE__*/React.createElement("section", {
+    className: "bos-start-guide",
+    "aria-labelledby": "bos-start-guide-title"
+  }, /*#__PURE__*/React.createElement("h2", {
+    id: "bos-start-guide-title"
+  }, "\u041F\u043E\u0447\u0430\u0442\u043E\u043A \u0440\u043E\u0431\u043E\u0442\u0438"), /*#__PURE__*/React.createElement("p", null, "\u041A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u043C\u0430\u0440\u0448\u0440\u0443\u0442 \u0434\u043B\u044F \u0437\u0430\u043F\u043E\u0432\u043D\u0435\u043D\u043E\u0433\u043E \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u043E\u0433\u043E \u043F\u0440\u0438\u043A\u043B\u0430\u0434\u0443."), /*#__PURE__*/React.createElement("div", {
+    className: "bos-start-steps"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "1. \u0412\u0435\u0440\u0442\u043E\u043B\u0456\u0442"), /*#__PURE__*/React.createElement("span", null, "\u0412\u0456\u0434\u043A\u0440\u0438\u0439\u0442\u0435 \u043F\u043E\u043A\u0430\u0437\u043D\u0438\u043A \u0456 \u0439\u043E\u0433\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430.")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "2. \u0421\u044C\u043E\u0433\u043E\u0434\u043D\u0456"), /*#__PURE__*/React.createElement("span", null, "\u0417\u043D\u0430\u0439\u0434\u0456\u0442\u044C SO-101 \u0442\u0430 \u0432\u0456\u0434\u043A\u0440\u0438\u0439\u0442\u0435 \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u0438\u0439 \u043A\u0440\u043E\u043A.")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "3. \u041F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("span", null, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0442\u0435 \xAB\u0411\u0443\u043B\u043E \u2192 \u0421\u0442\u0430\u043D\u0435\xBB, \u043F\u043E\u0442\u0456\u043C \u044F\u0432\u043D\u043E \u043F\u043E\u0433\u043E\u0434\u044C\u0442\u0435 \u0434\u0456\u044E."))), /*#__PURE__*/React.createElement("a", {
+    className: "bos-start-pdf",
+    href: "/help/start.pdf"
+  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u043F\u0430\u043C\u2019\u044F\u0442\u043A\u0443 PDF")), /*#__PURE__*/React.createElement("details", {
+    className: "bos-auth-secondary"
+  }, /*#__PURE__*/React.createElement("summary", null, "\u0423\u0432\u0456\u0439\u0442\u0438 \u0437 \u043B\u043E\u0433\u0456\u043D\u043E\u043C \u0456 \u043F\u0430\u0440\u043E\u043B\u0435\u043C"), passwordForm)) : passwordForm, error && /*#__PURE__*/React.createElement("p", {
     role: "alert",
     style: {
       color: T.red,

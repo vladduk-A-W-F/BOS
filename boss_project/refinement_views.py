@@ -12,6 +12,16 @@ def asset(request,name):
     return FileResponse(p.open('rb'),content_type='text/javascript')
 
 @require_GET
+def start_guide(request):
+    if getattr(settings, 'BOS_DATA_MODE', '') != 'demo' or request.META.get('REMOTE_ADDR') not in ('127.0.0.1', '::1'):
+        raise Http404
+    path = Path(settings.BASE_DIR) / 'docs' / 'BoS_v18_Start_UA.pdf'
+    if not path.is_file():
+        raise Http404
+    return FileResponse(path.open('rb'), content_type='application/pdf',
+                        as_attachment=True, filename='BoS_v18_Start_UA.pdf')
+
+@require_GET
 def runtime_status(request):
     server = getattr(settings, 'WSGI_APPLICATION', '') == 'boss_project.server_wsgi.application'
     return JsonResponse({

@@ -20,7 +20,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView  # serves a static HTML template
 
-from .refinement_views import asset, runtime_status
+from .refinement_views import asset, runtime_status, start_guide
 from .version import VERSION
 from . import auth_views
 
@@ -34,6 +34,7 @@ urlpatterns = [
     path("api/erp/", include("erp.urls")),
     path("api/operations/", include("operations.urls")),
     path("assets/<str:name>", asset),
+    path('help/start.pdf', start_guide, name='bos-start-guide'),
     path("api/runtime/status/", runtime_status),
     # Root URL serves the React HTML — Django looks for it in TEMPLATES['DIRS']
     path('', TemplateView.as_view(template_name='boss_app_html.html', extra_context={'bos_version': VERSION})),
