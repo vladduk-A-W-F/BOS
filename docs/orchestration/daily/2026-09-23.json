@@ -1,0 +1,93 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "observed_at": "2026-09-23T06:44:02Z",
+  "repository": "vladduk-A-W-F/BOS",
+  "previous_daily_checkpoint": {
+    "path": "docs/orchestration/daily/2026-09-22.json",
+    "review_head": "6148d0b1b8da1b085d2977023dd21aa185dadc1a"
+  },
+  "observation_window": {
+    "from": "2026-09-22T06:49:51Z",
+    "to": "2026-09-23T06:44:02Z"
+  },
+  "candidate": {
+    "pr": 1,
+    "branch": "setup/bos-gpt-orchestration-20260920",
+    "docs_head": "c4a68d494a91d3bc9ac5259f6a7b351e5cf6efb0",
+    "product_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+    "runtime_sha256": "77e8ca05b58efc99d47ce8dd2887074b3c93ba6eaff863a24307ae0e89dc622a",
+    "visible_commits_since_checkpoint": 0,
+    "main_head": "ecb8cf7f62a4b333b61481481d2eea97b3400b54",
+    "main_is_candidate": false
+  },
+  "branch_heads": {
+    "setup/bos-gpt-orchestration-20260920": "c4a68d494a91d3bc9ac5259f6a7b351e5cf6efb0",
+    "review/bos-daily-integrator": "6148d0b1b8da1b085d2977023dd21aa185dadc1a",
+    "feat/network-operations-20260920": "abb8845f6563bafa806029ddc1e7c2cace09907c",
+    "tracking/bos-progress": "ce7f82995c90ca49a40004b75e77df13ada3ad3c",
+    "main": "ecb8cf7f62a4b333b61481481d2eea97b3400b54"
+  },
+  "pull_requests": [
+    {"number": 1, "state": "OPEN_DRAFT", "head": "c4a68d494a91d3bc9ac5259f6a7b351e5cf6efb0", "base": "fix/p10-002-task-sequence-20260919"},
+    {"number": 2, "state": "OPEN_DRAFT_STALE_CONFLICTING", "head": "abb8845f6563bafa806029ddc1e7c2cace09907c", "base": "setup/bos-gpt-orchestration-20260920"},
+    {"number": 3, "state": "OPEN_TRACKER", "head": "ce7f82995c90ca49a40004b75e77df13ada3ad3c", "base": "main"},
+    {"number": 4, "state": "OPEN_DRAFT_DAILY_REVIEW", "head_before_update": "6148d0b1b8da1b085d2977023dd21aa185dadc1a", "base": "setup/bos-gpt-orchestration-20260920"}
+  ],
+  "changes_since_checkpoint": {
+    "visible_product_commits": 0,
+    "visible_document_commits": 1,
+    "visible_review_commits_before_this_checkpoint": 1,
+    "new_ci_runs": 0,
+    "new_pr_or_issue_comments": 0,
+    "summary": "No product-candidate commits were observed. One expected review commit, 6148d0b at 2026-09-22T07:02:00Z, saved the prior daily checkpoint after its observation timestamp. No later synchronized changes were observed; this does not establish absence of local work."
+  },
+  "ci": {
+    "latest_run_created_at": "2026-09-21T22:05:13Z",
+    "new_runs_since_checkpoint": 0,
+    "head": "c4a68d494a91d3bc9ac5259f6a7b351e5cf6efb0",
+    "observed_boundaries": [
+      {"run_id": 35660811735, "name": "BATCH01", "conclusion": "SUCCESS_SCOPE_TARGETED_SKIPPED"},
+      {"run_id": 35660811695, "name": "PLAN-TIME evidence reader", "conclusion": "SUCCESS_READ_EXISTING_EVIDENCE"},
+      {"run_id": 35660811641, "name": "source bundle", "conclusion": "SUCCESS_PRIVATE_BUNDLE_PRESERVE_SKIPPED"},
+      {"run_id": 35660811589, "name": "BATCH02", "conclusion": "SUCCESS_SCOPE_TARGETED_SKIPPED"},
+      {"run_id": 35660811552, "name": "PLAN-TIME targeted", "conclusion": "SUCCESS_SCOPE_TARGETED_SKIPPED"}
+    ]
+  },
+  "acceptance": {
+    "matrix": {"tasks": 35, "READY_SCOPED": 24, "PARTIAL": 6, "BLOCKED": 4, "NOT_STARTED": 1},
+    "current_gates": {"total": 11, "accepted": 0, "status": "NOT_ACCEPTED_OR_BLOCKED"},
+    "migration_composition": "SOURCE_RECONCILED_SQLITE_UPDATE_ACCEPTED_SCOPED_PG_NOT_ACCEPTED",
+    "s2": "SCOPED_BACKEND_CONTROL_SERVICE_ONLY",
+    "membership_ui": {"overall": "FAIL", "PASS": 7, "FAIL": 1, "NOT_RUN": 0, "v5_static_only": true, "behavior": "NOT_RUN"},
+    "task_queue": "PRIVATE_NOT_INTEGRATED",
+    "sites": "SEPARATE_DEMO_NOT_SERVER_BOS_ACCEPTANCE"
+  },
+  "plan_correction": {
+    "required": false,
+    "files_changed": [],
+    "reason": "No new synchronized facts conflict with PLAN/STATE/QUEUE/DECISIONS; FREEZE remains current. Only the daily report/checkpoint is added."
+  },
+  "next_actions": [
+    {"order": 1, "status": "CURRENT_ALLOWED", "task": "Owner manual review and explicit decision: keep freeze, adjust scope, or authorize one bounded card."},
+    {"order": 2, "status": "ON_HOLD", "task": "Membership preview reuse exact diff and behavior evidence."},
+    {"order": 3, "status": "ON_HOLD", "task": "Import existing raw evidence and produce a bounded current-candidate acceptance authorization without rerunning exhausted suites."}
+  ],
+  "readiness": {"technical_ready": false, "pilot_allowed": false, "mvp": false},
+  "issue5": {
+    "url": "https://github.com/vladduk-A-W-F/BOS/issues/5",
+    "state": "OPEN",
+    "comments": 0,
+    "meaning": "No GitHub acknowledgement from local Codex; this is not proof of no local work."
+  },
+  "actions_performed": {
+    "product_changes": false,
+    "plan_state_queue_decisions_changes": false,
+    "ci_runs": false,
+    "database_runs": false,
+    "browser_runs": false,
+    "production_changes": false,
+    "sites_changes": false,
+    "access_changes": false
+  }
+}

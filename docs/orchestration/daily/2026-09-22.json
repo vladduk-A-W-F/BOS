@@ -1,0 +1,182 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "observed_at": "2026-09-22T06:49:51Z",
+  "repository": "vladduk-A-W-F/BOS",
+  "previous_daily_checkpoint": {
+    "path": "docs/orchestration/daily/2026-09-21.json",
+    "review_head": "24cd91fe3f831e7ea6d2506171d40d054079ad1e"
+  },
+  "observation_window": {
+    "from": "2026-09-21T06:27:38Z",
+    "to": "2026-09-22T06:49:51Z"
+  },
+  "candidate": {
+    "pr": 1,
+    "branch": "setup/bos-gpt-orchestration-20260920",
+    "docs_head": "c4a68d494a91d3bc9ac5259f6a7b351e5cf6efb0",
+    "product_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+    "runtime_sha256": "77e8ca05b58efc99d47ce8dd2887074b3c93ba6eaff863a24307ae0e89dc622a",
+    "previous_docs_head": "620aeab2010c6c8327ce46c25bb62435bcf7f9e4",
+    "visible_commits_since_checkpoint": 21,
+    "main_head": "ecb8cf7",
+    "main_is_candidate": false
+  },
+  "pull_requests": [
+    {
+      "number": 1,
+      "state": "OPEN_DRAFT",
+      "head": "c4a68d494a91d3bc9ac5259f6a7b351e5cf6efb0",
+      "base": "fix/p10-002-task-sequence-20260919"
+    },
+    {
+      "number": 2,
+      "state": "OPEN_DRAFT_STALE_CONFLICTING",
+      "head": "abb8845f6563bafa806029ddc1e7c2cace09907c",
+      "base": "setup/bos-gpt-orchestration-20260920"
+    },
+    {
+      "number": 3,
+      "state": "OPEN_TRACKER",
+      "head": "ce7f829",
+      "base": "main"
+    },
+    {
+      "number": 4,
+      "state": "OPEN_DRAFT_DAILY_REVIEW",
+      "head_before_update": "24cd91fe3f831e7ea6d2506171d40d054079ad1e",
+      "base": "setup/bos-gpt-orchestration-20260920"
+    }
+  ],
+  "changes_since_checkpoint": {
+    "product_sequence": [
+      "26f67e3",
+      "19601f1",
+      "9aefb76",
+      "9546086",
+      "207c7426"
+    ],
+    "docs_closeout": "c4a68d494a91d3bc9ac5259f6a7b351e5cf6efb0",
+    "summary": "PR1 integrated network migration composition, S2 scoped supplier-document flow, task/UI work, department catalog and v17 closeout. Product head is 207c7426; c4a68d is docs-only."
+  },
+  "ci": [
+    {
+      "run_id": 35660811735,
+      "name": "BATCH01",
+      "conclusion": "SUCCESS_SCOPE_JOB_TARGETED_SKIPPED"
+    },
+    {
+      "run_id": 35660811695,
+      "name": "PLAN-TIME evidence reader",
+      "conclusion": "SUCCESS_READ_EXISTING_EVIDENCE"
+    },
+    {
+      "run_id": 35660811641,
+      "name": "source bundle",
+      "conclusion": "SUCCESS_BUNDLE_PRIVATE_PRESERVE_SKIPPED"
+    },
+    {
+      "run_id": 35660811589,
+      "name": "BATCH02",
+      "conclusion": "SUCCESS_SCOPE_JOB_TARGETED_SKIPPED"
+    },
+    {
+      "run_id": 35660811552,
+      "name": "PLAN-TIME targeted",
+      "conclusion": "SUCCESS_SCOPE_JOB_TARGETED_SKIPPED"
+    }
+  ],
+  "acceptance": {
+    "matrix": {
+      "tasks": 35,
+      "READY_SCOPED": 24,
+      "PARTIAL": 6,
+      "BLOCKED": 4,
+      "NOT_STARTED": 1
+    },
+    "current_gates": {
+      "total": 11,
+      "accepted": 0,
+      "status": "NOT_ACCEPTED_OR_BLOCKED"
+    },
+    "migration_composition": "SOURCE_RECONCILED_SQLITE_UPDATE_ACCEPTED_SCOPED_PG_NOT_ACCEPTED",
+    "s2": "SCOPED_BACKEND_CONTROL_SERVICE_ONLY",
+    "membership_ui": {
+      "overall": "FAIL",
+      "PASS": 7,
+      "FAIL": 1,
+      "NOT_RUN": 0,
+      "v5_static_only": true,
+      "behavior": "NOT_RUN"
+    },
+    "browser_smoke": "HISTORICAL_4_OF_4_READ_ROUTES_2026-09-21T20:53Z_NOT_CURRENT_LIVENESS",
+    "sites": "SEPARATE_DEMO_NOT_SERVER_BOS_ACCEPTANCE"
+  },
+  "evidence_review": {
+    "portable_receipts_rehashed": 12,
+    "matrix_hash_matches": 12,
+    "original_raw_gaps": [
+      "S2",
+      "service-chain",
+      "source-package",
+      "restored HTTPS receipt"
+    ],
+    "no_test_reruns": true
+  },
+  "availability": {
+    "committed_outage_at": "2026-09-21T21:27:13Z",
+    "pr1_reported_restoration_at": "2026-09-21T21:40:36Z",
+    "pr1_reported_checks": "7/7 HTTP/auth/origin",
+    "raw_restoration_receipt_in_git": false,
+    "current_liveness_claimed": false,
+    "restart_resilience_proven": false
+  },
+  "corrections": {
+    "state_reason": "Replaced stale batch-execution rationale with current owner-review freeze; preserved previous rationale as superseded_batch_reason.",
+    "canonical_plan": "PLAN/QUEUE/DECISIONS ordering and freeze kept; no runnable task added.",
+    "review_cards": {
+      "REVIEW-BRANCH-RECONCILE": "RESOLVED_SOURCE_SCOPED_EVIDENCE_REMAINS",
+      "REVIEW-NETWORK-PAYMENT-DIAG": "ON_HOLD_FREEZE_HISTORICAL_CAUSE_OPEN",
+      "REVIEW-EVIDENCE-PORTABILITY": "PARTIAL_ON_HOLD_FREEZE",
+      "REVIEW-CANDIDATE-ACCEPTANCE-PACKET": "ACCEPT_SCOPED_DOCUMENT_CURRENT_GATES_OPEN",
+      "REVIEW-MEMBERSHIP-PREVIEW-REUSE": "ON_HOLD_OWNER_REVIEW"
+    }
+  },
+  "next_actions": [
+    {
+      "order": 1,
+      "status": "CURRENT_ALLOWED",
+      "task": "Owner manual review and explicit decision: keep freeze, adjust scope, or authorize one bounded card."
+    },
+    {
+      "order": 2,
+      "status": "ON_HOLD",
+      "task": "Membership preview reuse exact diff and behavior evidence."
+    },
+    {
+      "order": 3,
+      "status": "ON_HOLD",
+      "task": "Import existing raw evidence and produce a bounded current-candidate acceptance authorization without rerunning exhausted suites."
+    }
+  ],
+  "readiness": {
+    "technical_ready": false,
+    "pilot_allowed": false,
+    "mvp": false
+  },
+  "issue5": {
+    "url": "https://github.com/vladduk-A-W-F/BOS/issues/5",
+    "state": "OPEN",
+    "comments": 0,
+    "meaning": "No GitHub acknowledgement/final report comment; this is not proof of no work."
+  },
+  "actions_performed": {
+    "product_changes": false,
+    "ci_runs": false,
+    "database_runs": false,
+    "browser_runs": false,
+    "production_changes": false,
+    "sites_changes": false,
+    "access_changes": false
+  }
+}
