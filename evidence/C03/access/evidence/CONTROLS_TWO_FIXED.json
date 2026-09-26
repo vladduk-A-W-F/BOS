@@ -1,0 +1,115 @@
+{
+  "scope": "Only 2 prior failed controls, actual function source with top-level run selection; each nested assertion/request unchanged. No fullgate, no discovery shrink in shipped checker",
+  "source_root": "/workspace/scratch/c7b51e996a9f/tmp/c03_access_candidate/source",
+  "db": "/workspace/scratch/c7b51e996a9f/tmp/c03_access_candidate/evidence/check_e067f711306e455d96d9a89340fc5f7d.sqlite3",
+  "selected": [
+    "statement_bound_transaction_protection",
+    "statement_exact_replay"
+  ],
+  "original_control_ids": [
+    "statement_original_source",
+    "statement_marker_permanence",
+    "statement_import_history_permanence",
+    "statement_historical_task_context",
+    "statement_transaction_salary_scope",
+    "statement_source_permissions",
+    "statement_bound_transaction_protection",
+    "statement_archive_currency_totals",
+    "statement_exact_replay",
+    "statement_summary_layers",
+    "statement_scoped_filters_cursors",
+    "statement_upload_admission"
+  ],
+  "results": [
+    {
+      "id": "statement_bound_transaction_protection",
+      "passed": true,
+      "http": [
+        {
+          "role": "ceo",
+          "method": "PATCH",
+          "route": "/api/transactions/10/",
+          "status": 400
+        },
+        {
+          "role": "ceo",
+          "method": "PATCH",
+          "route": "/api/transactions/10.json",
+          "status": 400
+        },
+        {
+          "role": "ceo",
+          "method": "PATCH",
+          "route": "/api/transactions/10.json/",
+          "status": 400
+        },
+        {
+          "role": "technical_admin",
+          "method": "POST",
+          "route": "/admin/finance/transaction/10/change/",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "statement_exact_replay",
+      "passed": true,
+      "http": [
+        {
+          "role": "ceo",
+          "method": "POST",
+          "route": "/api/operations/confirm/",
+          "status": 200
+        },
+        {
+          "role": "ceo",
+          "method": "POST",
+          "route": "/api/operations/confirm/",
+          "status": 200
+        },
+        {
+          "role": "ceo",
+          "method": "POST",
+          "route": "/api/operations/confirm/",
+          "status": 200
+        },
+        {
+          "role": "ceo",
+          "method": "POST",
+          "route": "/api/operations/confirm/",
+          "status": 200
+        },
+        {
+          "role": "ceo",
+          "method": "POST",
+          "route": "/api/operations/confirm/",
+          "status": 200
+        },
+        {
+          "role": "ceo",
+          "method": "POST",
+          "route": "/api/erp/preview/",
+          "status": 200
+        },
+        {
+          "role": "ceo",
+          "method": "POST",
+          "route": "/api/erp/preview/",
+          "status": 200
+        }
+      ]
+    }
+  ],
+  "counts": {
+    "groups": 2,
+    "passed": 2,
+    "http": 11
+  },
+  "source_sha256": {
+    "scripts/access_fixtures.py": "18d9e082be89f2450f65a2848fd14b8a9e702097297fa9091da7ff53397db344",
+    "scripts/access_routes.json": "23c70fc3b70f638d54ce2d43082c285c2b37a7be3020c42e9ab7cab3c68ab1be",
+    "scripts/check_access.py": "25bcc6bb5e5e98528b02ea7885acc1691ea276c9b6bb7d48e201313654191cb4",
+    "operations/service.py": "7628774ed3a76966d2e4ae42dcd714fcfe29a9b046a0bd52b83e0b3372135260",
+    "finance/statements.py": "cafec6a8aee0f263b4ea4c730fd82ffdb5c8c2581bd152e6a07df769145ced68"
+  }
+}

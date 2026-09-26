@@ -1,0 +1,1050 @@
+{
+  "schema": 1,
+  "diagnostic": "PLAN-TIME/P06-F05/one-replay",
+  "status": "complete",
+  "one_cycle_complete": true,
+  "complete": true,
+  "root_cause_proven": false,
+  "sequences": 1,
+  "replay_requests": 4,
+  "gate_acceptance": false,
+  "historical_root_cause_proven": false,
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "sequences_requested": 1,
+  "replays_requested": 4,
+  "phases": [
+    {
+      "phase": "source_and_environment",
+      "started_seconds": 9.612200000219673e-05,
+      "status": "complete",
+      "wall_seconds": 0.0008360690000017712,
+      "cpu_seconds": 0.0009038409999999886,
+      "sql_count": 0,
+      "sql_seconds": 0.0
+    },
+    {
+      "phase": "django_setup",
+      "started_seconds": 0.0011175100000002658,
+      "status": "complete",
+      "wall_seconds": 0.3957240210000066,
+      "cpu_seconds": 0.26061706799999995,
+      "sql_count": 0,
+      "sql_seconds": 0.0
+    },
+    {
+      "phase": "database_proof_before_writes",
+      "started_seconds": 0.39712870400001066,
+      "status": "complete",
+      "wall_seconds": 0.011872002999979259,
+      "cpu_seconds": 0.005598419999999993,
+      "sql_count": 2,
+      "sql_seconds": 0.0022709579999684593
+    },
+    {
+      "phase": "migrate",
+      "started_seconds": 0.5571895580000046,
+      "status": "complete",
+      "wall_seconds": 2.4291554760000054,
+      "cpu_seconds": 2.195325738,
+      "sql_count": 590,
+      "sql_seconds": 0.28025468599997794
+    },
+    {
+      "phase": "invariant_helpers_import_and_connection_recheck",
+      "started_seconds": 2.986703471999988,
+      "status": "complete",
+      "wall_seconds": 0.05730641400000991,
+      "cpu_seconds": 0.057124021999999997,
+      "sql_count": 1,
+      "sql_seconds": 0.0002975790000050438
+    },
+    {
+      "phase": "synthetic_fixture",
+      "started_seconds": 3.0467333580000115,
+      "status": "complete",
+      "wall_seconds": 0.0048757229999978335,
+      "cpu_seconds": 0.003187400999999923,
+      "sql_count": 5,
+      "sql_seconds": 0.002405559000010271
+    },
+    {
+      "phase": "role_authentication_once",
+      "started_seconds": 3.051908647999994,
+      "status": "complete",
+      "wall_seconds": 1.0700577960000146,
+      "cpu_seconds": 1.0613198359999996,
+      "sql_count": 27,
+      "sql_seconds": 0.011758996999958526
+    },
+    {
+      "phase": "counts_before_sequence",
+      "started_seconds": 4.122408377999989,
+      "status": "complete",
+      "wall_seconds": 0.03261729100000821,
+      "cpu_seconds": 0.019279320000000322,
+      "sql_count": 55,
+      "sql_seconds": 0.018067198999943912
+    },
+    {
+      "phase": "preview_opening",
+      "started_seconds": 4.155581756999993,
+      "status": "complete",
+      "wall_seconds": 0.12146794700001351,
+      "cpu_seconds": 0.09147340400000026,
+      "sql_count": 158,
+      "sql_seconds": 0.045609301999746776
+    },
+    {
+      "phase": "first_confirm",
+      "started_seconds": 4.277553188000013,
+      "status": "complete",
+      "wall_seconds": 0.10353003000000172,
+      "cpu_seconds": 0.07621156199999968,
+      "sql_count": 154,
+      "sql_seconds": 0.041527556000062305
+    },
+    {
+      "phase": "unused_original_oracle",
+      "started_seconds": 4.38167224099999,
+      "status": "complete",
+      "wall_seconds": 0.19288362100002132,
+      "cpu_seconds": 0.012271816999999796,
+      "sql_count": 25,
+      "sql_seconds": 0.00649369399999955
+    },
+    {
+      "phase": "interleaved_adjustment",
+      "started_seconds": 4.575156966999998,
+      "status": "complete",
+      "wall_seconds": 0.005433299000003444,
+      "cpu_seconds": 0.0037223029999999824,
+      "sql_count": 9,
+      "sql_seconds": 0.002557462999988047
+    },
+    {
+      "phase": "oracle_after_adjustment",
+      "started_seconds": 4.581174691000001,
+      "status": "complete",
+      "wall_seconds": 0.18427315200000294,
+      "cpu_seconds": 0.01388182899999979,
+      "sql_count": 25,
+      "sql_seconds": 0.007064675999998826
+    },
+    {
+      "phase": "replay_http_1",
+      "started_seconds": 4.766150570999997,
+      "status": "complete",
+      "wall_seconds": 0.02230708100000811,
+      "cpu_seconds": 0.01587022100000013,
+      "sql_count": 27,
+      "sql_seconds": 0.009194274999913432
+    },
+    {
+      "phase": "replay_oracle_1",
+      "started_seconds": 4.959300971000005,
+      "status": "complete",
+      "wall_seconds": 0.018866363000000774,
+      "cpu_seconds": 0.01402603899999999,
+      "sql_count": 25,
+      "sql_seconds": 0.007164023999933988
+    },
+    {
+      "phase": "replay_http_2",
+      "started_seconds": 4.978977899,
+      "status": "complete",
+      "wall_seconds": 0.022216495999998642,
+      "cpu_seconds": 0.01610888300000024,
+      "sql_count": 27,
+      "sql_seconds": 0.008833644000077356
+    },
+    {
+      "phase": "replay_oracle_2",
+      "started_seconds": 5.001925198000009,
+      "status": "complete",
+      "wall_seconds": 0.018440091000002212,
+      "cpu_seconds": 0.013931844999999221,
+      "sql_count": 25,
+      "sql_seconds": 0.006755120000036641
+    },
+    {
+      "phase": "replay_http_3",
+      "started_seconds": 5.021093525999987,
+      "status": "complete",
+      "wall_seconds": 0.021380108000016662,
+      "cpu_seconds": 0.015694492000000615,
+      "sql_count": 27,
+      "sql_seconds": 0.0084001469999464
+    },
+    {
+      "phase": "replay_oracle_3",
+      "started_seconds": 5.043206588000004,
+      "status": "complete",
+      "wall_seconds": 0.016950936999990063,
+      "cpu_seconds": 0.012613910999999867,
+      "sql_count": 25,
+      "sql_seconds": 0.0065487959999757095
+    },
+    {
+      "phase": "replay_http_4",
+      "started_seconds": 5.061070164,
+      "status": "complete",
+      "wall_seconds": 0.02195881099999042,
+      "cpu_seconds": 0.016156681000000006,
+      "sql_count": 27,
+      "sql_seconds": 0.008569244000000253
+    },
+    {
+      "phase": "replay_oracle_4",
+      "started_seconds": 5.083852932000013,
+      "status": "complete",
+      "wall_seconds": 0.016503755999991654,
+      "cpu_seconds": 0.012440564000000265,
+      "sql_count": 25,
+      "sql_seconds": 0.0061726880001060636
+    },
+    {
+      "phase": "persisted_business_assertions",
+      "started_seconds": 5.101186296000009,
+      "status": "complete",
+      "wall_seconds": 0.009753246999991916,
+      "cpu_seconds": 0.007207594999999678,
+      "sql_count": 14,
+      "sql_seconds": 0.0038187230000517047
+    },
+    {
+      "phase": "rollback_mark",
+      "started_seconds": 5.112027041999994,
+      "status": "complete",
+      "wall_seconds": 0.0009785230000147749,
+      "cpu_seconds": 0.0009782390000001584,
+      "sql_count": 0,
+      "sql_seconds": 0.0
+    },
+    {
+      "phase": "counts_after_rollback",
+      "started_seconds": 5.20846163600001,
+      "status": "complete",
+      "wall_seconds": 0.025686461999981702,
+      "cpu_seconds": 0.017209949999999807,
+      "sql_count": 55,
+      "sql_seconds": 0.01237667700004863
+    }
+  ],
+  "calls": [
+    {
+      "function": "erp_write_lock",
+      "phase": "preview_opening",
+      "status": "complete",
+      "wall_seconds": 0.0022126339999886113,
+      "cpu_seconds": 0.0013894279999999704,
+      "sql_count": 5,
+      "sql_seconds": 0.001313861999932442
+    },
+    {
+      "function": "global_fingerprint",
+      "phase": "preview_opening",
+      "status": "complete",
+      "wall_seconds": 0.0211431090000076,
+      "cpu_seconds": 0.01654174899999994,
+      "sql_count": 24,
+      "sql_seconds": 0.007338052999983802
+    },
+    {
+      "function": "full_snapshot",
+      "phase": "preview_opening",
+      "status": "complete",
+      "wall_seconds": 0.024553034999996726,
+      "cpu_seconds": 0.018013247000000288,
+      "sql_count": 36,
+      "sql_seconds": 0.009832930999863265
+    },
+    {
+      "function": "erp_write_lock",
+      "phase": "preview_opening",
+      "status": "complete",
+      "wall_seconds": 0.0011080689999971582,
+      "cpu_seconds": 0.0007462170000001045,
+      "sql_count": 2,
+      "sql_seconds": 0.0005564889999902789
+    },
+    {
+      "function": "erp_dispatch",
+      "phase": "preview_opening",
+      "status": "complete",
+      "wall_seconds": 0.006309854000022597,
+      "cpu_seconds": 0.004256778000000239,
+      "sql_count": 10,
+      "sql_seconds": 0.0031764389999864306
+    },
+    {
+      "function": "full_snapshot",
+      "phase": "preview_opening",
+      "status": "complete",
+      "wall_seconds": 0.02705553499998814,
+      "cpu_seconds": 0.020363745000000044,
+      "sql_count": 38,
+      "sql_seconds": 0.010120131000036281
+    },
+    {
+      "function": "erp_write_lock",
+      "phase": "first_confirm",
+      "status": "complete",
+      "wall_seconds": 0.0021239920000084567,
+      "cpu_seconds": 0.0014213739999999753,
+      "sql_count": 5,
+      "sql_seconds": 0.0011819019999848024
+    },
+    {
+      "function": "global_fingerprint",
+      "phase": "first_confirm",
+      "status": "complete",
+      "wall_seconds": 0.01502152300000148,
+      "cpu_seconds": 0.011337673999999964,
+      "sql_count": 24,
+      "sql_seconds": 0.005746261000012964
+    },
+    {
+      "function": "full_snapshot",
+      "phase": "first_confirm",
+      "status": "complete",
+      "wall_seconds": 0.023261934000004203,
+      "cpu_seconds": 0.017299574000000373,
+      "sql_count": 36,
+      "sql_seconds": 0.009106853000105275
+    },
+    {
+      "function": "erp_write_lock",
+      "phase": "first_confirm",
+      "status": "complete",
+      "wall_seconds": 0.0011407419999898138,
+      "cpu_seconds": 0.000761093000000379,
+      "sql_count": 2,
+      "sql_seconds": 0.000567625000002181
+    },
+    {
+      "function": "erp_dispatch",
+      "phase": "first_confirm",
+      "status": "complete",
+      "wall_seconds": 0.006377367999988337,
+      "cpu_seconds": 0.004301641000000078,
+      "sql_count": 11,
+      "sql_seconds": 0.0031555430000480555
+    },
+    {
+      "function": "full_snapshot",
+      "phase": "first_confirm",
+      "status": "complete",
+      "wall_seconds": 0.024500282000019524,
+      "cpu_seconds": 0.018227873999999922,
+      "sql_count": 38,
+      "sql_seconds": 0.009522141999951828
+    },
+    {
+      "function": "global_fingerprint",
+      "phase": "unused_original_oracle",
+      "status": "complete",
+      "wall_seconds": 0.01566631299999699,
+      "cpu_seconds": 0.011435216000000192,
+      "sql_count": 24,
+      "sql_seconds": 0.006256925000002411
+    },
+    {
+      "function": "erp_write_lock",
+      "phase": "interleaved_adjustment",
+      "status": "complete",
+      "wall_seconds": 0.001152683999976034,
+      "cpu_seconds": 0.0007450210000001789,
+      "sql_count": 2,
+      "sql_seconds": 0.0006114420000074006
+    },
+    {
+      "function": "erp_dispatch",
+      "phase": "interleaved_adjustment",
+      "status": "complete",
+      "wall_seconds": 0.004936762000028239,
+      "cpu_seconds": 0.003226763999999882,
+      "sql_count": 9,
+      "sql_seconds": 0.002557462999988047
+    },
+    {
+      "function": "global_fingerprint",
+      "phase": "oracle_after_adjustment",
+      "status": "complete",
+      "wall_seconds": 0.01742077299999778,
+      "cpu_seconds": 0.012970598999999972,
+      "sql_count": 24,
+      "sql_seconds": 0.006791999000000715
+    },
+    {
+      "function": "erp_write_lock",
+      "phase": "replay_http_1",
+      "status": "complete",
+      "wall_seconds": 0.0010986420000165253,
+      "cpu_seconds": 0.000732481000000007,
+      "sql_count": 2,
+      "sql_seconds": 0.0005568049999737923
+    },
+    {
+      "function": "global_fingerprint",
+      "phase": "replay_oracle_1",
+      "status": "complete",
+      "wall_seconds": 0.01736467599999969,
+      "cpu_seconds": 0.012685590000000246,
+      "sql_count": 24,
+      "sql_seconds": 0.006932174999946028
+    },
+    {
+      "function": "erp_write_lock",
+      "phase": "replay_http_2",
+      "status": "complete",
+      "wall_seconds": 0.0011235489999990023,
+      "cpu_seconds": 0.000735383999999506,
+      "sql_count": 2,
+      "sql_seconds": 0.0005831560000331137
+    },
+    {
+      "function": "global_fingerprint",
+      "phase": "replay_oracle_2",
+      "status": "complete",
+      "wall_seconds": 0.017316418999996586,
+      "cpu_seconds": 0.012973052000000429,
+      "sql_count": 24,
+      "sql_seconds": 0.006516306000037275
+    },
+    {
+      "function": "erp_write_lock",
+      "phase": "replay_http_3",
+      "status": "complete",
+      "wall_seconds": 0.0010710680000158845,
+      "cpu_seconds": 0.0006979319999995681,
+      "sql_count": 2,
+      "sql_seconds": 0.0005610689999855367
+    },
+    {
+      "function": "global_fingerprint",
+      "phase": "replay_oracle_3",
+      "status": "complete",
+      "wall_seconds": 0.015731917000010753,
+      "cpu_seconds": 0.011554548000000331,
+      "sql_count": 24,
+      "sql_seconds": 0.0063022449999721175
+    },
+    {
+      "function": "erp_write_lock",
+      "phase": "replay_http_4",
+      "status": "complete",
+      "wall_seconds": 0.0010635659999991276,
+      "cpu_seconds": 0.0007105830000000424,
+      "sql_count": 2,
+      "sql_seconds": 0.0005582430000288241
+    },
+    {
+      "function": "global_fingerprint",
+      "phase": "replay_oracle_4",
+      "status": "complete",
+      "wall_seconds": 0.015309606999977632,
+      "cpu_seconds": 0.011383127000000215,
+      "sql_count": 24,
+      "sql_seconds": 0.005964714000100457
+    }
+  ],
+  "sql": {
+    "database_proof_before_writes/other": {
+      "count": 2,
+      "seconds": 0.0022709579999684593,
+      "max_seconds": 0.002013659999988704,
+      "errors": 0,
+      "operations": {
+        "SELECT": 2
+      }
+    },
+    "migrate/other": {
+      "count": 590,
+      "seconds": 0.28025468599997794,
+      "max_seconds": 0.0027513009999893256,
+      "errors": 0,
+      "operations": {
+        "SELECT": 51,
+        "CREATE": 213,
+        "ALTER": 196,
+        "INSERT": 82,
+        "UPDATE": 48
+      }
+    },
+    "invariant_helpers_import_and_connection_recheck/other": {
+      "count": 1,
+      "seconds": 0.0002975790000050438,
+      "max_seconds": 0.0002975790000050438,
+      "errors": 0,
+      "operations": {
+        "SELECT": 1
+      }
+    },
+    "synthetic_fixture/other": {
+      "count": 5,
+      "seconds": 0.002405559000010271,
+      "max_seconds": 0.0006387900000106583,
+      "errors": 0,
+      "operations": {
+        "INSERT": 5
+      }
+    },
+    "role_authentication_once/other": {
+      "count": 27,
+      "seconds": 0.011758996999958526,
+      "max_seconds": 0.0010336579999830064,
+      "errors": 0,
+      "operations": {
+        "INSERT": 5,
+        "SELECT": 19,
+        "DELETE": 1,
+        "UPDATE": 2
+      }
+    },
+    "counts_before_sequence/other": {
+      "count": 55,
+      "seconds": 0.018067198999943912,
+      "max_seconds": 0.0008126550000042698,
+      "errors": 0,
+      "operations": {
+        "SELECT": 55
+      }
+    },
+    "preview_opening/other": {
+      "count": 45,
+      "seconds": 0.013827885999944556,
+      "max_seconds": 0.0006615140000008068,
+      "errors": 0,
+      "operations": {
+        "SELECT": 39,
+        "SAVEPOINT": 2,
+        "ROLLBACK": 1,
+        "RELEASE": 2,
+        "INSERT": 1
+      }
+    },
+    "preview_opening/erp_write_lock": {
+      "count": 7,
+      "seconds": 0.0018703509999227208,
+      "max_seconds": 0.00039411199998085067,
+      "errors": 0,
+      "operations": {
+        "SELECT": 2,
+        "SAVEPOINT": 1,
+        "INSERT": 1,
+        "RELEASE": 1,
+        "UPDATE": 2
+      }
+    },
+    "preview_opening/global_fingerprint": {
+      "count": 24,
+      "seconds": 0.007338052999983802,
+      "max_seconds": 0.0005782490000001417,
+      "errors": 0,
+      "operations": {
+        "SELECT": 24
+      }
+    },
+    "preview_opening/full_snapshot": {
+      "count": 74,
+      "seconds": 0.019953061999899546,
+      "max_seconds": 0.0004940639999801988,
+      "errors": 0,
+      "operations": {
+        "SELECT": 74
+      }
+    },
+    "preview_opening/erp_dispatch": {
+      "count": 8,
+      "seconds": 0.0026199499999961517,
+      "max_seconds": 0.0005162600000119255,
+      "errors": 0,
+      "operations": {
+        "SAVEPOINT": 1,
+        "SELECT": 3,
+        "INSERT": 2,
+        "UPDATE": 1,
+        "RELEASE": 1
+      }
+    },
+    "first_confirm/other": {
+      "count": 40,
+      "seconds": 0.01281485499995938,
+      "max_seconds": 0.0006530980000150066,
+      "errors": 0,
+      "operations": {
+        "SELECT": 35,
+        "SAVEPOINT": 1,
+        "UPDATE": 3,
+        "RELEASE": 1
+      }
+    },
+    "first_confirm/erp_write_lock": {
+      "count": 7,
+      "seconds": 0.0017495269999869834,
+      "max_seconds": 0.0002988420000065162,
+      "errors": 0,
+      "operations": {
+        "SELECT": 2,
+        "SAVEPOINT": 1,
+        "INSERT": 1,
+        "RELEASE": 1,
+        "UPDATE": 2
+      }
+    },
+    "first_confirm/global_fingerprint": {
+      "count": 24,
+      "seconds": 0.005746261000012964,
+      "max_seconds": 0.0002826019999986329,
+      "errors": 0,
+      "operations": {
+        "SELECT": 24
+      }
+    },
+    "first_confirm/full_snapshot": {
+      "count": 74,
+      "seconds": 0.018628995000057103,
+      "max_seconds": 0.00040440000000785403,
+      "errors": 0,
+      "operations": {
+        "SELECT": 74
+      }
+    },
+    "first_confirm/erp_dispatch": {
+      "count": 9,
+      "seconds": 0.0025879180000458746,
+      "max_seconds": 0.00043486599997777375,
+      "errors": 0,
+      "operations": {
+        "SAVEPOINT": 1,
+        "SELECT": 3,
+        "INSERT": 3,
+        "UPDATE": 1,
+        "RELEASE": 1
+      }
+    },
+    "unused_original_oracle/global_fingerprint": {
+      "count": 24,
+      "seconds": 0.006256925000002411,
+      "max_seconds": 0.0004485940000051869,
+      "errors": 0,
+      "operations": {
+        "SELECT": 24
+      }
+    },
+    "unused_original_oracle/other": {
+      "count": 1,
+      "seconds": 0.00023676899999713896,
+      "max_seconds": 0.00023676899999713896,
+      "errors": 0,
+      "operations": {
+        "SELECT": 1
+      }
+    },
+    "interleaved_adjustment/erp_dispatch": {
+      "count": 7,
+      "seconds": 0.0019460209999806466,
+      "max_seconds": 0.00037137900000061563,
+      "errors": 0,
+      "operations": {
+        "SAVEPOINT": 1,
+        "SELECT": 2,
+        "UPDATE": 1,
+        "INSERT": 2,
+        "RELEASE": 1
+      }
+    },
+    "interleaved_adjustment/erp_write_lock": {
+      "count": 2,
+      "seconds": 0.0006114420000074006,
+      "max_seconds": 0.0003099209999959385,
+      "errors": 0,
+      "operations": {
+        "SELECT": 1,
+        "UPDATE": 1
+      }
+    },
+    "oracle_after_adjustment/global_fingerprint": {
+      "count": 24,
+      "seconds": 0.006791999000000715,
+      "max_seconds": 0.0004259529999899314,
+      "errors": 0,
+      "operations": {
+        "SELECT": 24
+      }
+    },
+    "oracle_after_adjustment/other": {
+      "count": 1,
+      "seconds": 0.00027267699999811157,
+      "max_seconds": 0.00027267699999811157,
+      "errors": 0,
+      "operations": {
+        "SELECT": 1
+      }
+    },
+    "replay_http_1/other": {
+      "count": 25,
+      "seconds": 0.00863746999993964,
+      "max_seconds": 0.000679195000003574,
+      "errors": 0,
+      "operations": {
+        "SELECT": 23,
+        "SAVEPOINT": 1,
+        "RELEASE": 1
+      }
+    },
+    "replay_http_1/erp_write_lock": {
+      "count": 2,
+      "seconds": 0.0005568049999737923,
+      "max_seconds": 0.00027984899998045876,
+      "errors": 0,
+      "operations": {
+        "SELECT": 1,
+        "UPDATE": 1
+      }
+    },
+    "replay_oracle_1/global_fingerprint": {
+      "count": 24,
+      "seconds": 0.006932174999946028,
+      "max_seconds": 0.0005677250000246659,
+      "errors": 0,
+      "operations": {
+        "SELECT": 24
+      }
+    },
+    "replay_oracle_1/other": {
+      "count": 1,
+      "seconds": 0.00023184899998796027,
+      "max_seconds": 0.00023184899998796027,
+      "errors": 0,
+      "operations": {
+        "SELECT": 1
+      }
+    },
+    "replay_http_2/other": {
+      "count": 25,
+      "seconds": 0.008250488000044243,
+      "max_seconds": 0.0006700849999958791,
+      "errors": 0,
+      "operations": {
+        "SELECT": 23,
+        "SAVEPOINT": 1,
+        "RELEASE": 1
+      }
+    },
+    "replay_http_2/erp_write_lock": {
+      "count": 2,
+      "seconds": 0.0005831560000331137,
+      "max_seconds": 0.00030677800000944444,
+      "errors": 0,
+      "operations": {
+        "SELECT": 1,
+        "UPDATE": 1
+      }
+    },
+    "replay_oracle_2/global_fingerprint": {
+      "count": 24,
+      "seconds": 0.006516306000037275,
+      "max_seconds": 0.0003129970000088633,
+      "errors": 0,
+      "operations": {
+        "SELECT": 24
+      }
+    },
+    "replay_oracle_2/other": {
+      "count": 1,
+      "seconds": 0.00023881399999936548,
+      "max_seconds": 0.00023881399999936548,
+      "errors": 0,
+      "operations": {
+        "SELECT": 1
+      }
+    },
+    "replay_http_3/other": {
+      "count": 25,
+      "seconds": 0.007839077999960864,
+      "max_seconds": 0.0006124939999949675,
+      "errors": 0,
+      "operations": {
+        "SELECT": 23,
+        "SAVEPOINT": 1,
+        "RELEASE": 1
+      }
+    },
+    "replay_http_3/erp_write_lock": {
+      "count": 2,
+      "seconds": 0.0005610689999855367,
+      "max_seconds": 0.00029085599999234546,
+      "errors": 0,
+      "operations": {
+        "SELECT": 1,
+        "UPDATE": 1
+      }
+    },
+    "replay_oracle_3/global_fingerprint": {
+      "count": 24,
+      "seconds": 0.0063022449999721175,
+      "max_seconds": 0.00030628899997964254,
+      "errors": 0,
+      "operations": {
+        "SELECT": 24
+      }
+    },
+    "replay_oracle_3/other": {
+      "count": 1,
+      "seconds": 0.000246551000003592,
+      "max_seconds": 0.000246551000003592,
+      "errors": 0,
+      "operations": {
+        "SELECT": 1
+      }
+    },
+    "replay_http_4/other": {
+      "count": 25,
+      "seconds": 0.00801100099997143,
+      "max_seconds": 0.0006221980000020721,
+      "errors": 0,
+      "operations": {
+        "SELECT": 23,
+        "SAVEPOINT": 1,
+        "RELEASE": 1
+      }
+    },
+    "replay_http_4/erp_write_lock": {
+      "count": 2,
+      "seconds": 0.0005582430000288241,
+      "max_seconds": 0.0003000150000218582,
+      "errors": 0,
+      "operations": {
+        "SELECT": 1,
+        "UPDATE": 1
+      }
+    },
+    "replay_oracle_4/global_fingerprint": {
+      "count": 24,
+      "seconds": 0.005964714000100457,
+      "max_seconds": 0.0003324989999953232,
+      "errors": 0,
+      "operations": {
+        "SELECT": 24
+      }
+    },
+    "replay_oracle_4/other": {
+      "count": 1,
+      "seconds": 0.00020797400000560629,
+      "max_seconds": 0.00020797400000560629,
+      "errors": 0,
+      "operations": {
+        "SELECT": 1
+      }
+    },
+    "persisted_business_assertions/other": {
+      "count": 14,
+      "seconds": 0.0038187230000517047,
+      "max_seconds": 0.00036346500002082394,
+      "errors": 0,
+      "operations": {
+        "SELECT": 14
+      }
+    },
+    "counts_after_rollback/other": {
+      "count": 55,
+      "seconds": 0.01237667700004863,
+      "max_seconds": 0.0003470409999977164,
+      "errors": 0,
+      "operations": {
+        "SELECT": 55
+      }
+    }
+  },
+  "http_statuses": [
+    {
+      "request": "preview",
+      "status": 200
+    },
+    {
+      "request": "first_confirm",
+      "status": 200
+    },
+    {
+      "request": "replay_1",
+      "status": 200
+    },
+    {
+      "request": "replay_2",
+      "status": 200
+    },
+    {
+      "request": "replay_3",
+      "status": 200
+    },
+    {
+      "request": "replay_4",
+      "status": 200
+    }
+  ],
+  "instrumentation": {
+    "cprofile_enabled": false,
+    "overhead": "Uncalibrated observer overhead; instrumented wall time is not an uninstrumented benchmark.",
+    "sql_timing_scope": "cursor execute/executemany; fetch and Python materialization are outside SQL time",
+    "function_timing_scope": "inclusive; nested call times must not be added together",
+    "hard_deadline": "Supervisor must enforce 60 seconds including bootstrap."
+  },
+  "limits": [
+    "One synthetic sequence, not 1000 randomized sequences or five invariants.",
+    "No historical phase timestamps; no attribution of the old 600-second timeout.",
+    "One rollback proves no row growth for this sample only, not across 1000 cycles.",
+    "No contending connection; measured mutex duration does not prove lock-wait behavior."
+  ],
+  "faulthandler_after_seconds": 45,
+  "elapsed_seconds": 5.235262385999988,
+  "cpu_seconds": 3.9611970919999995,
+  "sql_count": 1328,
+  "sql_seconds": 0.49614100699974983,
+  "source_files_sha256": {
+    "scripts/check_invariants.py": "144c279bcd23624d04e065fb73b63da419a9dda16bbf7e6a2eb3ca09cdefa805",
+    "scripts/check_support.py": "7e16b2bfe82db850b90a96b531a0186d7a7d3e68563b867bbdcc6e0e6d9f59f4",
+    "erp/service.py": "ec78a86330963fe3466bdfc69dd0eeda0151c8de47474acdfb15db56a9bd3ffe",
+    "erp/views.py": "feb05d367aedf37b43d2e3a257eeffd808b54f2d44f32d4a4487bd54711e5b72",
+    "erp/queries.py": "d263c65b71e05c463891a71447fc3230f6eda1eb825b2caec54d7ee113a45538",
+    "erp/adjustment_proposals.py": "0eaf7a62baa91b7a7f58ed7684993328b343c7bedc4102cd8af8b94ba1d32f94",
+    "operations/service.py": "ec7b2e7d86a394b8155bf9c13f976356f060072e9d967b076eb07a371ba5e7aa",
+    "boss_project/identity.py": "a5cdff7a921aa8e2b9802af19c866118285307061efcde8e0ec6514dd5466738",
+    "boss_project/policy.py": "eb94c341d19f671d07b3c52b090e6d70c0da2ed12947af72b1fd91d51a83b1a9",
+    "demo_settings.py": "419be4518a057d256ade32895d23eb8f8925ae8b901194f207f8e27873489a49",
+    "verification_settings.py": "35d8c2ea87b9ec7f4c871d3d17f606ba5c82b004b39b5f563692ae1e81a46eda"
+  },
+  "worker_sha256": "ef2de845d1719765bed6787d5784051f9032cc32be04896d758e9da93dffe862",
+  "runtime": {
+    "system": "Linux",
+    "python": "3.12.14",
+    "django": "6.0.5"
+  },
+  "database": {
+    "vendor": "postgresql",
+    "name": "bos_verify_cc82a3f33cad4a29",
+    "database": "bos_verify_cc82a3f33cad4a29",
+    "version_num": 160015,
+    "server_version": "16.15 (Debian 16.15-1.pgdg13+2)",
+    "server_version_num": 160015,
+    "preexisting_user_tables": 0
+  },
+  "helper_import_connection_proof_preserved": true,
+  "table_counts_before_sequence": {
+    "ai_assistant_chatfile": 0,
+    "ai_assistant_chatmessage": 0,
+    "ai_assistant_claudeusagelog": 0,
+    "ai_assistant_employeechangelog": 0,
+    "ai_assistant_taskchangelog": 0,
+    "auth_group": 1,
+    "auth_group_permissions": 0,
+    "auth_permission": 210,
+    "auth_user": 1,
+    "auth_user_groups": 1,
+    "auth_user_user_permissions": 0,
+    "branches_branch": 0,
+    "django_admin_log": 0,
+    "django_content_type": 52,
+    "django_session": 1,
+    "employees_employee": 1,
+    "erp_cancellationrelease": 0,
+    "erp_changeorder": 0,
+    "erp_event": 0,
+    "erp_goodsreturn": 0,
+    "erp_importbatch": 0,
+    "erp_importidentity": 0,
+    "erp_inspection": 0,
+    "erp_invoiceadjustment": 0,
+    "erp_invoiceadjustmentline": 0,
+    "erp_invoicelink": 0,
+    "erp_item": 2,
+    "erp_location": 2,
+    "erp_lot": 0,
+    "erp_movement": 0,
+    "erp_operatorentry": 0,
+    "erp_ordercancellation": 0,
+    "erp_production": 0,
+    "erp_purchase": 0,
+    "erp_reservation": 0,
+    "erp_salesline": 0,
+    "erp_salesorder": 0,
+    "erp_supplierclaim": 0,
+    "finance_contract": 0,
+    "finance_counterparty": 0,
+    "finance_financialintent": 0,
+    "finance_salary": 0,
+    "finance_statementallocation": 0,
+    "finance_statementimport": 0,
+    "finance_statementline": 0,
+    "finance_transaction": 0,
+    "operations_actionproposal": 0,
+    "operations_auditevent": 0,
+    "operations_configuration": 0,
+    "operations_document": 0,
+    "operations_invoice": 0,
+    "operations_loginattempt": 0,
+    "operations_procurementrequest": 0,
+    "operations_supplierquote": 0,
+    "tasks_task": 0
+  },
+  "replays_completed": 4,
+  "table_counts_after_rollback": {
+    "ai_assistant_chatfile": 0,
+    "ai_assistant_chatmessage": 0,
+    "ai_assistant_claudeusagelog": 0,
+    "ai_assistant_employeechangelog": 0,
+    "ai_assistant_taskchangelog": 0,
+    "auth_group": 1,
+    "auth_group_permissions": 0,
+    "auth_permission": 210,
+    "auth_user": 1,
+    "auth_user_groups": 1,
+    "auth_user_user_permissions": 0,
+    "branches_branch": 0,
+    "django_admin_log": 0,
+    "django_content_type": 52,
+    "django_session": 1,
+    "employees_employee": 1,
+    "erp_cancellationrelease": 0,
+    "erp_changeorder": 0,
+    "erp_event": 0,
+    "erp_goodsreturn": 0,
+    "erp_importbatch": 0,
+    "erp_importidentity": 0,
+    "erp_inspection": 0,
+    "erp_invoiceadjustment": 0,
+    "erp_invoiceadjustmentline": 0,
+    "erp_invoicelink": 0,
+    "erp_item": 2,
+    "erp_location": 2,
+    "erp_lot": 0,
+    "erp_movement": 0,
+    "erp_operatorentry": 0,
+    "erp_ordercancellation": 0,
+    "erp_production": 0,
+    "erp_purchase": 0,
+    "erp_reservation": 0,
+    "erp_salesline": 0,
+    "erp_salesorder": 0,
+    "erp_supplierclaim": 0,
+    "finance_contract": 0,
+    "finance_counterparty": 0,
+    "finance_financialintent": 0,
+    "finance_salary": 0,
+    "finance_statementallocation": 0,
+    "finance_statementimport": 0,
+    "finance_statementline": 0,
+    "finance_transaction": 0,
+    "operations_actionproposal": 0,
+    "operations_auditevent": 0,
+    "operations_configuration": 0,
+    "operations_document": 0,
+    "operations_invoice": 0,
+    "operations_loginattempt": 0,
+    "operations_procurementrequest": 0,
+    "operations_supplierquote": 0,
+    "tasks_task": 0
+  },
+  "row_counts_restored_for_one_sequence": true
+}

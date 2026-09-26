@@ -1,0 +1,332 @@
+[
+  {
+    "serializer": "TaskSerializer",
+    "field": "tasks.Task.title",
+    "serializer_class": "CharField",
+    "read_only": true,
+    "validated_limit": null,
+    "choices": null,
+    "model_max_length": 200
+  },
+  {
+    "serializer": "TaskSerializer",
+    "field": "tasks.Task.priority",
+    "serializer_class": "ChoiceField",
+    "read_only": true,
+    "validated_limit": null,
+    "choices": [
+      "high",
+      "medium",
+      "low"
+    ],
+    "model_max_length": 10
+  },
+  {
+    "serializer": "TaskSerializer",
+    "field": "tasks.Task.status",
+    "serializer_class": "ChoiceField",
+    "read_only": true,
+    "validated_limit": null,
+    "choices": [
+      "active",
+      "process",
+      "done",
+      "overdue"
+    ],
+    "model_max_length": 10
+  },
+  {
+    "serializer": "TaskSerializer",
+    "field": "tasks.Task.assignee",
+    "serializer_class": "CharField",
+    "read_only": true,
+    "validated_limit": null,
+    "choices": null,
+    "model_max_length": 100
+  },
+  {
+    "serializer": "TaskSerializer",
+    "field": "tasks.Task.category",
+    "serializer_class": "CharField",
+    "read_only": true,
+    "validated_limit": null,
+    "choices": null,
+    "model_max_length": 50
+  },
+  {
+    "serializer": "CounterpartySerializer",
+    "field": "finance.Counterparty.name",
+    "serializer_class": "CharField",
+    "read_only": false,
+    "validated_limit": 200,
+    "choices": null,
+    "model_max_length": 200
+  },
+  {
+    "serializer": "CounterpartySerializer",
+    "field": "finance.Counterparty.type",
+    "serializer_class": "ChoiceField",
+    "read_only": false,
+    "validated_limit": null,
+    "choices": [
+      "supplier",
+      "customer",
+      "service",
+      "utility",
+      "other"
+    ],
+    "model_max_length": 20
+  },
+  {
+    "serializer": "CounterpartySerializer",
+    "field": "finance.Counterparty.edrpou",
+    "serializer_class": "CharField",
+    "read_only": false,
+    "validated_limit": 20,
+    "choices": null,
+    "model_max_length": 20
+  },
+  {
+    "serializer": "CounterpartySerializer",
+    "field": "finance.Counterparty.phone",
+    "serializer_class": "CharField",
+    "read_only": false,
+    "validated_limit": 50,
+    "choices": null,
+    "model_max_length": 50
+  },
+  {
+    "serializer": "CounterpartySerializer",
+    "field": "finance.Counterparty.email",
+    "serializer_class": "CharField",
+    "read_only": false,
+    "validated_limit": 100,
+    "choices": null,
+    "model_max_length": 100
+  },
+  {
+    "serializer": "ContractSerializer",
+    "field": "finance.Contract.number",
+    "serializer_class": "CharField",
+    "read_only": false,
+    "validated_limit": 100,
+    "choices": null,
+    "model_max_length": 100
+  },
+  {
+    "serializer": "ContractSerializer",
+    "field": "finance.Contract.name",
+    "serializer_class": "CharField",
+    "read_only": false,
+    "validated_limit": 200,
+    "choices": null,
+    "model_max_length": 200
+  },
+  {
+    "serializer": "ContractSerializer",
+    "field": "finance.Contract.category",
+    "serializer_class": "ChoiceField",
+    "read_only": false,
+    "validated_limit": null,
+    "choices": [
+      "services",
+      "goods",
+      "utility",
+      "rent",
+      "supply",
+      "other"
+    ],
+    "model_max_length": 20
+  },
+  {
+    "serializer": "ContractSerializer",
+    "field": "finance.Contract.status",
+    "serializer_class": "ChoiceField",
+    "read_only": false,
+    "validated_limit": null,
+    "choices": [
+      "active",
+      "closed",
+      "draft"
+    ],
+    "model_max_length": 20
+  },
+  {
+    "serializer": "ContractSerializer",
+    "field": "finance.Contract.currency",
+    "serializer_class": "CharField",
+    "read_only": false,
+    "validated_limit": 3,
+    "choices": null,
+    "model_max_length": 3
+  },
+  {
+    "serializer": "TransactionSerializer",
+    "field": "finance.Transaction.direction",
+    "serializer_class": "ChoiceField",
+    "read_only": false,
+    "validated_limit": null,
+    "choices": [
+      "in",
+      "out"
+    ],
+    "model_max_length": 3
+  },
+  {
+    "serializer": "TransactionSerializer",
+    "field": "finance.Transaction.currency",
+    "serializer_class": "CharField",
+    "read_only": false,
+    "validated_limit": 3,
+    "choices": null,
+    "model_max_length": 3
+  },
+  {
+    "serializer": "TransactionSerializer",
+    "field": "finance.Transaction.description",
+    "serializer_class": "CharField",
+    "read_only": false,
+    "validated_limit": 300,
+    "choices": null,
+    "model_max_length": 300
+  },
+  {
+    "serializer": "TransactionSerializer",
+    "field": "finance.Transaction.category",
+    "serializer_class": "ChoiceField",
+    "read_only": false,
+    "validated_limit": null,
+    "choices": [
+      "salary",
+      "supplier",
+      "customer",
+      "utility",
+      "rent",
+      "tax",
+      "other"
+    ],
+    "model_max_length": 20
+  },
+  {
+    "serializer": "SalarySerializer",
+    "field": "finance.Salary.currency",
+    "serializer_class": "CharField",
+    "read_only": false,
+    "validated_limit": 3,
+    "choices": null,
+    "model_max_length": 3
+  },
+  {
+    "serializer": "SalarySerializer",
+    "field": "finance.Salary.status",
+    "serializer_class": "ChoiceField",
+    "read_only": false,
+    "validated_limit": null,
+    "choices": [
+      "pending",
+      "paid",
+      "cancelled"
+    ],
+    "model_max_length": 20
+  },
+  {
+    "serializer": "EmployeeSerializer",
+    "field": "employees.Employee.full_name",
+    "serializer_class": "CharField",
+    "read_only": false,
+    "validated_limit": 200,
+    "choices": null,
+    "model_max_length": 200
+  },
+  {
+    "serializer": "EmployeeSerializer",
+    "field": "employees.Employee.role",
+    "serializer_class": "CharField",
+    "read_only": false,
+    "validated_limit": 100,
+    "choices": null,
+    "model_max_length": 100
+  },
+  {
+    "serializer": "EmployeeSerializer",
+    "field": "employees.Employee.department",
+    "serializer_class": "CharField",
+    "read_only": false,
+    "validated_limit": 100,
+    "choices": null,
+    "model_max_length": 100
+  },
+  {
+    "serializer": "EmployeeSerializer",
+    "field": "employees.Employee.phone",
+    "serializer_class": "CharField",
+    "read_only": false,
+    "validated_limit": 20,
+    "choices": null,
+    "model_max_length": 20
+  },
+  {
+    "serializer": "EmployeeSerializer",
+    "field": "employees.Employee.email",
+    "serializer_class": "EmailField",
+    "read_only": false,
+    "validated_limit": 254,
+    "choices": null,
+    "model_max_length": 254
+  },
+  {
+    "serializer": "BranchSerializer",
+    "field": "branches.Branch.name",
+    "serializer_class": "CharField",
+    "read_only": false,
+    "validated_limit": 200,
+    "choices": null,
+    "model_max_length": 200
+  },
+  {
+    "serializer": "BranchSerializer",
+    "field": "branches.Branch.short_name",
+    "serializer_class": "CharField",
+    "read_only": false,
+    "validated_limit": 60,
+    "choices": null,
+    "model_max_length": 60
+  },
+  {
+    "serializer": "BranchSerializer",
+    "field": "branches.Branch.code",
+    "serializer_class": "CharField",
+    "read_only": false,
+    "validated_limit": 50,
+    "choices": null,
+    "model_max_length": 50
+  },
+  {
+    "serializer": "BranchSerializer",
+    "field": "branches.Branch.type",
+    "serializer_class": "ChoiceField",
+    "read_only": false,
+    "validated_limit": null,
+    "choices": [
+      "headquarters",
+      "department",
+      "regional",
+      "mobile",
+      "foreign"
+    ],
+    "model_max_length": 20
+  },
+  {
+    "serializer": "BranchSerializer",
+    "field": "branches.Branch.status",
+    "serializer_class": "ChoiceField",
+    "read_only": false,
+    "validated_limit": null,
+    "choices": [
+      "green",
+      "yellow",
+      "red"
+    ],
+    "model_max_length": 10
+  }
+]

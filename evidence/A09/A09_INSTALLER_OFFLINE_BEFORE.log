@@ -1,0 +1,34 @@
+{
+  "case": "offline_direct_local_url_dependency",
+  "refusal": "Крок server-config не виконано; власну незавершену інсталяцію збережено.",
+  "outside_dependency_installed": true,
+  "installed_distribution_names": [
+    "Django",
+    "pip",
+    "synthetic_outside",
+    "waitress"
+  ],
+  "database_created": true,
+  "commands": [
+    {
+      "step": "venv",
+      "returncode": 0
+    },
+    {
+      "step": "offline-pip",
+      "returncode": 0
+    },
+    {
+      "step": "pip-check",
+      "returncode": 0
+    },
+    {
+      "step": "pinned-runtime",
+      "returncode": 0
+    },
+    {
+      "step": "server-config",
+      "returncode": 1
+    }
+  ]
+}

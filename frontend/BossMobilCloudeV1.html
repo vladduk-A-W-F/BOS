@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Помічник Керівника</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+body{background:#F9FAFB;min-height:100vh;display:flex;justify-content:center}
+#app{width:100%;max-width:430px;min-height:100vh;display:flex;flex-direction:column;position:relative;background:#F9FAFB}
+.content{flex:1;overflow-y:auto;padding-bottom:80px}
+.status-bar{background:#fff;padding:10px 20px 0;display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:#111827}
+/* NAV */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-top:1px solid #E5E7EB;display:flex;padding-bottom:8px;z-index:100}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 2px 4px;background:none;border:none;cursor:pointer}
+.nav-icon{font-size:20px}
+.nav-label{font-size:9px;font-weight:600;color:#9CA3AF;margin-top:2px}
+.nav-dot{width:4px;height:4px;border-radius:50%;background:#2563EB;margin-top:2px}
+.nav-btn.active .nav-label{color:#2563EB}
+/* COMMON */
+.screen{padding:0 16px 16px;display:none}
+.screen.active{display:block}
+.screen-title{padding:14px 0 10px;font-size:20px;font-weight:700}
+.sub-tabs{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.sub-tab{padding:7px 16px;border-radius:20px;border:none;cursor:pointer;white-space:nowrap;font-size:13px;font-weight:600;background:#F3F4F6;color:#374151}
+.sub-tab.active{background:#2563EB;color:#fff}
+.sub-tab.purple.active{background:#7C3AED;color:#fff}
+.card{background:#fff;border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat-card{border-radius:16px;padding:14px;cursor:pointer}
+.badge{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;white-space:nowrap}
+.pulse-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#EF4444;animation:pulse 1.2s infinite;margin-right:4px}
+.kpi-bar-bg{height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden;margin-top:4px}
+.kpi-bar-fill{height:100%;border-radius:3px;transition:width .5s}
+.avatar{width:44px;height:44px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0}
+/* week days */
+.week-days{display:flex;gap:6px;margin-bottom:14px}
+.day-cell{flex:1;text-align:center;padding:8px 4px;border-radius:12px;background:#F3F4F6}
+.day-cell.today{background:#2563EB}
+.day-name{font-size:10px;color:#9CA3AF}
+.day-num{font-size:15px;font-weight:700;color:#111827}
+.day-cell.today .day-name{color:#BFDBFE}
+.day-cell.today .day-num{color:#fff}
+/* notes */
+.notes-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.sticky{border-radius:16px;padding:12px;min-height:80px;position:relative}
+.sticky p{font-size:12px;line-height:1.5;color:#111827}
+.sticky p.crossed{text-decoration:line-through;color:#9CA3AF}
+.sticky-actions{display:flex;gap:6px;margin-top:8px;justify-content:flex-end}
+.sticky-btn{background:rgba(0,0,0,.1);border:none;border-radius:6px;padding:3px 7px;font-size:12px;cursor:pointer}
+/* chat */
+.chat-messages{min-height:260px;display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.bubble{max-width:80%;padding:10px 14px;font-size:13px;line-height:1.5}
+.bubble.ai{background:#F3F4F6;color:#111827;border-radius:18px 18px 18px 4px}
+.bubble.user{background:#2563EB;color:#fff;border-radius:18px 18px 4px 18px;margin-left:auto}
+/* input row */
+.input-row{display:flex;gap:8px}
+.txt-input{flex:1;border:1px solid #E5E7EB;border-radius:20px;padding:10px 16px;font-size:13px;outline:none}
+.send-btn{background:#7C3AED;color:#fff;border:none;border-radius:50%;width:42px;height:42px;font-weight:700;cursor:pointer;font-size:18px}
+/* record btn */
+.rec-btn{width:80px;height:80px;border-radius:50%;border:none;color:#fff;font-size:32px;cursor:pointer;margin:0 auto 16px;display:flex;align-items:center;justify-content:center}
+/* finance bar */
+.bar-chart{display:flex;gap:4px;height:48px;align-items:flex-end}
+.bar{flex:1;border-radius:4px 4px 0 0}
+.bar-labels{display:flex;justify-content:space-between;font-size:10px;color:#9CA3AF;margin-top:4px}
+/* settings */
+.setting-block{background:#fff;border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.setting-label{font-size:13px;font-weight:700;margin-bottom:8px}
+.opt-group{display:flex;gap:6px;flex-wrap:wrap}
+.opt-btn{padding:6px 14px;border-radius:20px;border:none;cursor:pointer;font-size:12px;font-weight:600;background:#F3F4F6;color:#374151}
+.opt-btn.active{background:#2563EB;color:#fff}
+/* add task */
+.add-task-row{display:flex;gap:8px;margin-top:10px}
+.add-task-input{flex:1;border:1px solid #E5E7EB;border-radius:10px;padding:10px 12px;font-size:14px;outline:none}
+.btn-primary{background:#2563EB;color:#fff;border:none;border-radius:10px;padding:10px 16px;font-weight:700;cursor:pointer}
+.btn-secondary{background:#F3F4F6;color:#374151;border:none;border-radius:10px;padding:10px 16px;font-weight:700;cursor:pointer}
+.add-trigger{width:100%;background:#EFF6FF;color:#2563EB;border:2px dashed #BFDBFE;border-radius:16px;padding:14px;font-weight:700;cursor:pointer;font-size:14px;margin-top:8px}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.rec-anim{animation:blink 1s infinite;color:#EF4444;font-weight:600;margin-top:12px;text-align:center}
+.sub-content{display:none}
+.sub-content.active{display:block}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="status-bar"><span id="clock">9:41</span><span>●●● WiFi 🔋</span></div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div id="screen-dashboard" class="screen active">
+      <div class="screen-title">Доброго ранку, Директоре 👋<br><span style="font-size:13px;color:#6B7280;font-weight:400">Середа, 18 березня 2026</span></div>
+      <div class="grid2">
+        <div class="stat-card" style="background:#FEE2E2" onclick="goTo('hr','tasks')"><div style="font-size:22px">⚠️</div><div style="font-size:24px;font-weight:800;color:#DC2626">2</div><div style="font-size:12px;color:#6B7280">Прострочено</div></div>
+        <div class="stat-card" style="background:#DBEAFE" onclick="goTo('hr','tasks')"><div style="font-size:22px">🔄</div><div style="font-size:24px;font-weight:800;color:#2563EB">2</div><div style="font-size:12px;color:#6B7280">В процесі</div></div>
+        <div class="stat-card" style="background:#DCFCE7" onclick="goTo('hr','tasks')"><div style="font-size:22px">✅</div><div style="font-size:24px;font-weight:800;color:#16A34A">1</div><div style="font-size:12px;color:#6B7280">Виконано</div></div>
+        <div class="stat-card" style="background:#F0FDF4" onclick="goTo('finance','bank')"><div style="font-size:22px">💰</div><div style="font-size:24px;font-weight:800;color:#15803D">350K ₴</div><div style="font-size:12px;color:#6B7280">Баланс</div></div>
+      </div>
+      <div class="card">
+        <div style="font-weight:700;margin-bottom:10px;font-size:14px">📅 Сьогодні</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #F3F4F6"><span class="pulse-dot"></span><span style="font-size:12px;font-weight:700;color:#6B7280;min-width:42px">09:00</span><span style="font-size:13px">Щоденна нарада</span></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #F3F4F6"><span class="pulse-dot"></span><span style="font-size:12px;font-weight:700;color:#6B7280;min-width:42px">11:00</span><span style="font-size:13px">Зустріч з банком</span></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:7px 0"><span style="font-size:12px;font-weight:700;color:#6B7280;min-width:50px">13:00</span><span style="font-size:13px">Обід з партнером</span></div>
+      </div>
+      <div class="card" style="background:#FFF7ED;border:1px solid #FED7AA">
+        <div style="font-weight:700;font-size:14px;margin-bottom:6px">🎂 День народження сьогодні!</div>
+        <div style="font-size:13px;color:#92400E">Іваненко Олег — Заст. директора</div>
+      </div>
+      <div class="card">
+        <div style="font-weight:700;margin-bottom:10px;font-size:14px">🔥 Термінові доручення</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F3F4F6">
+          <div><div style="font-size:13px;font-weight:600">Підготувати звіт Q1</div><div style="font-size:11px;color:#9CA3AF">Іваненко О. · 20.03</div></div>
+          <span class="badge" style="background:#DBEAFE;color:#2563EB">В процесі</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0">
+          <div><div style="font-size:13px;font-weight:600">Зустріч з постачальником</div><div style="font-size:11px;color:#9CA3AF">Петренко В. · 19.03</div></div>
+          <span class="badge" style="background:#FEE2E2;color:#DC2626">Прострочено</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- FINANCE -->
+    <div id="screen-finance" class="screen">
+      <div class="screen-title">💰 Фінанси</div>
+      <div class="sub-tabs">
+        <button class="sub-tab active" onclick="switchSub('finance','bank',this)">Банк</button>
+        <button class="sub-tab" onclick="switchSub('finance','contractors',this)">Контрагенти</button>
+        <button class="sub-tab" onclick="switchSub('finance','contracts',this)">Договори</button>
+      </div>
+      <div id="finance-bank" class="sub-content active">
+        <div class="grid2">
+          <div style="background:#DCFCE7;border-radius:16px;padding:14px"><div style="font-size:18px">📈</div><div style="font-size:15px;font-weight:800;color:#16A34A">1 240 000 ₴</div><div style="font-size:11px;color:#6B7280">Надходження</div></div>
+          <div style="background:#FEE2E2;border-radius:16px;padding:14px"><div style="font-size:18px">📉</div><div style="font-size:15px;font-weight:800;color:#DC2626">890 000 ₴</div><div style="font-size:11px;color:#6B7280">Витрати</div></div>
+          <div style="background:#FEF9C3;border-radius:16px;padding:14px"><div style="font-size:18px">📋</div><div style="font-size:15px;font-weight:800;color:#CA8A04">320 000 ₴</div><div style="font-size:11px;color:#6B7280">Зобов'язання</div></div>
+          <div style="background:#EDE9FE;border-radius:16px;padding:14px"><div style="font-size:18px">👥</div><div style="font-size:15px;font-weight:800;color:#7C3AED">450 000 ₴</div><div style="font-size:11px;color:#6B7280">Зарплата</div></div>
+        </div>
+        <div class="card">
+          <div style="font-weight:700;margin-bottom:8px;font-size:13px">Баланс тижня</div>
+          <div class="bar-chart">
+            <div class="bar" style="height:60%;background:#BFDBFE"></div>
+            <div class="bar" style="height:75%;background:#BFDBFE"></div>
+            <div class="bar" style="height:55%;background:#BFDBFE"></div>
+            <div class="bar" style="height:80%;background:#BFDBFE"></div>
+            <div class="bar" style="height:70%;background:#BFDBFE"></div>
+            <div class="bar" style="height:90%;background:#BFDBFE"></div>
+            <div class="bar" style="height:65%;background:#2563EB"></div>
+          </div>
+          <div class="bar-labels"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Нд</span></div>
+        </div>
+      </div>
+      <div id="finance-contractors" class="sub-content">
+        <div class="card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px"><div><div style="font-weight:700;font-size:14px">ТОВ "Буд-Інвест"</div><div style="font-size:11px;color:#6B7280">Підрядник</div></div><span class="badge" style="background:#DBEAFE;color:#2563EB">Підрядник</span></div><div style="display:flex;gap:16px"><div><div style="font-size:10px;color:#9CA3AF">Дебіт</div><div style="font-weight:700;color:#16A34A;font-size:13px">45 000 ₴</div></div><div><div style="font-size:10px;color:#9CA3AF">Кредит</div><div style="font-weight:700;color:#DC2626;font-size:13px">12 000 ₴</div></div></div></div>
+        <div class="card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px"><div><div style="font-weight:700;font-size:14px">ФОП Гриценко</div><div style="font-size:11px;color:#6B7280">Послуги</div></div><span class="badge" style="background:#DCFCE7;color:#16A34A">Послуги</span></div><div style="display:flex;gap:16px"><div><div style="font-size:10px;color:#9CA3AF">Дебіт</div><div style="font-weight:700;color:#16A34A;font-size:13px">8 000 ₴</div></div><div><div style="font-size:10px;color:#9CA3AF">Кредит</div><div style="font-weight:700;color:#DC2626;font-size:13px">0 ₴</div></div></div></div>
+        <div class="card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px"><div><div style="font-weight:700;font-size:14px">ТОВ "ПостачПром"</div><div style="font-size:11px;color:#6B7280">Товари</div></div><span class="badge" style="background:#FEF9C3;color:#CA8A04">Товари</span></div><div style="display:flex;gap:16px"><div><div style="font-size:10px;color:#9CA3AF">Дебіт</div><div style="font-weight:700;color:#16A34A;font-size:13px">67 000 ₴</div></div><div><div style="font-size:10px;color:#9CA3AF">Кредит</div><div style="font-weight:700;color:#DC2626;font-size:13px">23 000 ₴</div></div></div></div>
+      </div>
+      <div id="finance-contracts" class="sub-content">
+        <div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-weight:700;font-size:14px">№2026-01</span><span class="badge" style="background:#DCFCE7;color:#16A34A">Діючий</span></div><div style="font-size:12px;color:#6B7280;margin-bottom:8px">ТОВ "Буд-Інвест"</div><div style="display:flex;gap:16px"><div><div style="font-size:10px;color:#9CA3AF">Тип</div><div style="font-size:12px;font-weight:600">Послуги</div></div><div><div style="font-size:10px;color:#9CA3AF">Сума</div><div style="font-size:12px;font-weight:600">120 000 ₴</div></div><div><div style="font-size:10px;color:#9CA3AF">До</div><div style="font-size:12px;font-weight:600">31.12.26</div></div></div></div>
+        <div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-weight:700;font-size:14px">№2026-02</span><span class="badge" style="background:#DCFCE7;color:#16A34A">Діючий</span></div><div style="font-size:12px;color:#6B7280;margin-bottom:8px">ФОП Гриценко</div><div style="display:flex;gap:16px"><div><div style="font-size:10px;color:#9CA3AF">Тип</div><div style="font-size:12px;font-weight:600">Товари</div></div><div><div style="font-size:10px;color:#9CA3AF">Сума</div><div style="font-size:12px;font-weight:600">45 000 ₴</div></div><div><div style="font-size:10px;color:#9CA3AF">До</div><div style="font-size:12px;font-weight:600">30.06.26</div></div></div></div>
+        <div class="card" style="opacity:.6"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-weight:700;font-size:14px">№2025-15</span><span class="badge" style="background:#F3F4F6;color:#6B7280">Закритий</span></div><div style="font-size:12px;color:#6B7280;margin-bottom:8px">АТ "Енерго"</div><div style="display:flex;gap:16px"><div><div style="font-size:10px;color:#9CA3AF">Тип</div><div style="font-size:12px;font-weight:600">Комунальні</div></div><div><div style="font-size:10px;color:#9CA3AF">Сума</div><div style="font-size:12px;font-weight:600">60 000 ₴</div></div><div><div style="font-size:10px;color:#9CA3AF">До</div><div style="font-size:12px;font-weight:600">31.12.25</div></div></div></div>
+      </div>
+    </div>
+
+    <!-- HR -->
+    <div id="screen-hr" class="screen">
+      <div class="screen-title">👥 HR</div>
+      <div class="sub-tabs">
+        <button class="sub-tab active" onclick="switchSub('hr','tasks',this)">Доручення</button>
+        <button class="sub-tab" onclick="switchSub('hr','staff',this)">Співробітники</button>
+        <button class="sub-tab" onclick="switchSub('hr','birthdays',this)">Дні нар.</button>
+        <button class="sub-tab" onclick="switchSub('hr','kpi',this)">KPI</button>
+      </div>
+      <div id="hr-tasks" class="sub-content active">
+        <div id="tasks-list"></div>
+        <div id="add-task-form" style="display:none" class="card">
+          <input id="new-task-input" class="add-task-input" style="width:100%" placeholder="Нове доручення..."/>
+          <div class="add-task-row"><button class="btn-primary" onclick="addTask()">Додати</button><button class="btn-secondary" onclick="hideAddTask()">Скасувати</button></div>
+        </div>
+        <button class="add-trigger" id="add-trigger-btn" onclick="showAddTask()">+ Нове доручення</button>
+      </div>
+      <div id="hr-staff" class="sub-content">
+        <div id="staff-list"></div>
+      </div>
+      <div id="hr-birthdays" class="sub-content">
+        <div id="bday-list"></div>
+      </div>
+      <div id="hr-kpi" class="sub-content">
+        <div id="kpi-list"></div>
+      </div>
+    </div>
+
+    <!-- ORGANIZER -->
+    <div id="screen-organizer" class="screen">
+      <div class="screen-title">📋 Органайзер</div>
+      <div class="sub-tabs">
+        <button class="sub-tab active" onclick="switchSub('organizer','schedule',this)">Розклад</button>
+        <button class="sub-tab" onclick="switchSub('organizer','notes',this)">Нотатки</button>
+        <button class="sub-tab" onclick="switchSub('organizer','reporting',this)">Звітність</button>
+      </div>
+      <div id="organizer-schedule" class="sub-content active">
+        <div class="week-days">
+          <div class="day-cell"><div class="day-name">Пн</div><div class="day-num">16</div></div>
+          <div class="day-cell"><div class="day-name">Вт</div><div class="day-num">17</div></div>
+          <div class="day-cell today"><div class="day-name">Ср</div><div class="day-num">18</div></div>
+          <div class="day-cell"><div class="day-name">Чт</div><div class="day-num">19</div></div>
+          <div class="day-cell"><div class="day-name">Пт</div><div class="day-num">20</div></div>
+          <div class="day-cell"><div class="day-name">Сб</div><div class="day-num">21</div></div>
+          <div class="day-cell"><div class="day-name">Нд</div><div class="day-num">22</div></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="card" style="display:flex;align-items:center;gap:12px;border-left:4px solid #EF4444;padding:12px 14px"><span class="pulse-dot"></span><span style="font-size:13px;font-weight:700;color:#6B7280;min-width:42px">09:00</span><span style="font-size:14px">Щоденна нарада</span></div>
+          <div class="card" style="display:flex;align-items:center;gap:12px;border-left:4px solid #EF4444;padding:12px 14px"><span class="pulse-dot"></span><span style="font-size:13px;font-weight:700;color:#6B7280;min-width:42px">11:00</span><span style="font-size:14px">Зустріч з банком</span></div>
+          <div class="card" style="display:flex;align-items:center;gap:12px;border-left:4px solid #E5E7EB;padding:12px 14px"><span style="font-size:13px;font-weight:700;color:#6B7280;min-width:50px">13:00</span><span style="font-size:14px">Обід з партнером</span></div>
+          <div class="card" style="display:flex;align-items:center;gap:12px;border-left:4px solid #E5E7EB;padding:12px 14px"><span style="font-size:13px;font-weight:700;color:#6B7280;min-width:50px">15:00</span><span style="font-size:14px">Перевірка звітності</span></div>
+          <div class="card" style="display:flex;align-items:center;gap:12px;border-left:4px solid #EF4444;padding:12px 14px"><span class="pulse-dot"></span><span style="font-size:13px;font-weight:700;color:#6B7280;min-width:42px">17:30</span><span style="font-size:14px">Дзвінок — інвестор</span></div>
+        </div>
+      </div>
+      <div id="organizer-notes" class="sub-content">
+        <div class="notes-grid" id="notes-grid"></div>
+        <div class="input-row">
+          <input id="note-input" class="txt-input" placeholder="Нова нотатка..."/>
+          <button onclick="addNote()" style="background:#2563EB;color:#fff;border:none;border-radius:12px;padding:10px 16px;font-weight:700;cursor:pointer">+</button>
+        </div>
+      </div>
+      <div id="organizer-reporting" class="sub-content">
+        <div class="card" style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:700;font-size:14px">Декларація ПДВ</div><div style="font-size:11px;color:#6B7280">Бухгалтерія</div></div><div style="text-align:right"><div style="font-weight:700;font-size:14px;color:#DC2626">20.03</div><div style="font-size:10px;color:#DC2626;font-weight:600">Терміново!</div></div></div>
+        <div class="card" style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:700;font-size:14px">Фінансова звітність</div><div style="font-size:11px;color:#6B7280">Фінанси</div></div><div style="font-weight:700;font-size:14px">31.03</div></div>
+        <div class="card" style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:700;font-size:14px">Медогляд персоналу</div><div style="font-size:11px;color:#6B7280">HR</div></div><div style="font-weight:700;font-size:14px">15.04</div></div>
+        <div class="card" style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:700;font-size:14px">Списання матеріалів</div><div style="font-size:11px;color:#6B7280">Склад</div></div><div style="font-weight:700;font-size:14px">05.04</div></div>
+      </div>
+    </div>
+
+    <!-- AI -->
+    <div id="screen-ai" class="screen">
+      <div class="screen-title">🤖 AI Асистент</div>
+      <div class="sub-tabs">
+        <button class="sub-tab purple active" onclick="switchSub('ai','chat',this)">Чат</button>
+        <button class="sub-tab purple" onclick="switchSub('ai','audio',this)">Аудіо нарада</button>
+        <button class="sub-tab purple" onclick="switchSub('ai','voice',this)">Диктофон</button>
+      </div>
+      <div id="ai-chat" class="sub-content active">
+        <div class="chat-messages" id="chat-messages">
+          <div class="bubble ai">Вітаю! Я ваш AI-асистент. Можу нагадати про доручення, допомогти скласти протокол наради або розшифрувати голос у текст.</div>
+        </div>
+        <div class="input-row">
+          <input id="chat-input" class="txt-input" placeholder="Написати повідомлення..." onkeydown="if(event.key==='Enter')sendMsg()"/>
+          <button class="send-btn" onclick="sendMsg()">↑</button>
+        </div>
+      </div>
+      <div id="ai-audio" class="sub-content" style="text-align:center;padding:20px 0">
+        <div style="font-size:60px;margin-bottom:12px">🎙️</div>
+        <div style="font-weight:700;font-size:18px;margin-bottom:8px">Аудіо нарада</div>
+        <p style="color:#6B7280;font-size:13px;margin-bottom:20px">Запишіть або завантажте аудіо наради.<br>AI перетворить її на протокол і додасть доручення.</p>
+        <button onclick="alert('Функція завантаження буде доступна після підключення до сервера')" style="width:100%;background:#7C3AED;color:#fff;border:none;border-radius:16px;padding:14px;font-weight:700;cursor:pointer;font-size:15px;margin-bottom:10px">⬆️ Завантажити аудіо</button>
+        <button id="rec-audio-btn" onclick="toggleRecord('audio')" style="width:100%;background:#F3F4F6;color:#374151;border:none;border-radius:16px;padding:14px;font-weight:700;cursor:pointer;font-size:15px">🔴 Почати запис</button>
+        <div id="rec-audio-status" style="display:none" class="rec-anim">● Записую...</div>
+      </div>
+      <div id="ai-voice" class="sub-content" style="text-align:center;padding:20px 0">
+        <div style="font-size:60px;margin-bottom:12px">🎤</div>
+        <div style="font-weight:700;font-size:18px;margin-bottom:8px">Голосова диктовка</div>
+        <p style="color:#6B7280;font-size:13px;margin-bottom:20px">Надиктуйте текст. AI розшифрує та оформить у потрібному стилі або перекладе мовою.</p>
+        <button id="rec-voice-btn" onclick="toggleRecord('voice')" class="rec-btn" style="background:#7C3AED">🎤</button>
+        <div id="rec-voice-status" style="display:none" class="rec-anim">● Записую...</div>
+        <div style="display:flex;gap:8px;margin-top:16px">
+          <button onclick="setStyle(this)" style="flex:1;padding:8px 4px;font-size:12px;font-weight:600;background:#F3F4F6;color:#374151;border:none;border-radius:10px;cursor:pointer">Офіційний</button>
+          <button onclick="setStyle(this)" style="flex:1;padding:8px 4px;font-size:12px;font-weight:600;background:#F3F4F6;color:#374151;border:none;border-radius:10px;cursor:pointer">Короткий</button>
+          <button onclick="setStyle(this)" style="flex:1;padding:8px 4px;font-size:12px;font-weight:600;background:#F3F4F6;color:#374151;border:none;border-radius:10px;cursor:pointer">Переклад EN</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="screen-settings" class="screen">
+      <div class="screen-title">⚙️ Налаштування</div>
+      <div class="setting-block">
+        <div class="setting-label">🏭 Вид діяльності</div>
+        <div class="opt-group">
+          <button class="opt-btn active" onclick="pickOpt(this)">Будівництво</button>
+          <button class="opt-btn" onclick="pickOpt(this)">Продажі</button>
+          <button class="opt-btn" onclick="pickOpt(this)">IT</button>
+          <button class="opt-btn" onclick="pickOpt(this)">Послуги</button>
+          <button class="opt-btn" onclick="pickOpt(this)">Виробництво</button>
+        </div>
+      </div>
+      <div class="setting-block">
+        <div class="setting-label">🌐 Мова</div>
+        <div class="opt-group">
+          <button class="opt-btn active" onclick="pickOpt(this)">🇺🇦 Українська</button>
+          <button class="opt-btn" onclick="pickOpt(this)">🇷🇺 Русский</button>
+          <button class="opt-btn" onclick="pickOpt(this)">🇬🇧 English</button>
+        </div>
+      </div>
+      <div class="setting-block">
+        <div class="setting-label">💱 Валюта</div>
+        <div class="opt-group">
+          <button class="opt-btn active" onclick="pickOpt(this)">₴ UAH</button>
+          <button class="opt-btn" onclick="pickOpt(this)">$ USD</button>
+          <button class="opt-btn" onclick="pickOpt(this)">€ EUR</button>
+        </div>
+      </div>
+      <div class="setting-block">
+        <div class="setting-label">🎨 Тема</div>
+        <div class="opt-group">
+          <button class="opt-btn active" onclick="pickOpt(this)">☀️ Світла</button>
+          <button class="opt-btn" onclick="pickOpt(this)">🌙 Темна</button>
+          <button class="opt-btn" onclick="pickOpt(this)">🎨 Яскрава</button>
+        </div>
+      </div>
+      <div class="card" style="background:#FFF7ED;border:1px solid #FED7AA">
+        <div style="font-weight:700;margin-bottom:4px">📱 Версія</div>
+        <div style="font-size:12px;color:#92400E">Помічник Керівника v1.0 · Прототип</div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" onclick="goTo('dashboard')"><span class="nav-icon">🏠</span><span class="nav-label">Головна</span><div class="nav-dot"></div></button>
+    <button class="nav-btn" onclick="goTo('finance')"><span class="nav-icon">💰</span><span class="nav-label">Фінанси</span></button>
+    <button class="nav-btn" onclick="goTo('hr')"><span class="nav-icon">👥</span><span class="nav-label">HR</span></button>
+    <button class="nav-btn" onclick="goTo('organizer')"><span class="nav-icon">📋</span><span class="nav-label">Органайзер</span></button>
+    <button class="nav-btn" onclick="goTo('ai')"><span class="nav-icon">🤖</span><span class="nav-label">AI</span></button>
+    <button class="nav-btn" onclick="goTo('settings')"><span class="nav-icon">⚙️</span><span class="nav-label">Налашт.</span></button>
+  </nav>
+</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+var tasks = [
+  {id:1,title:"Підготувати звіт Q1",priority:"high",status:"in_progress",assignee:"Іваненко О.",due:"20.03"},
+  {id:2,title:"Зустріч з постачальником",priority:"high",status:"overdue",assignee:"Петренко В.",due:"19.03"},
+  {id:3,title:"Підписати договір №45",priority:"normal",status:"done",assignee:"Коваленко М.",due:"18.03"},
+  {id:4,title:"Оновити KPI відділу",priority:"normal",status:"overdue",assignee:"Шевченко Т.",due:"15.03"},
+  {id:5,title:"Провести нараду з HR",priority:"high",status:"in_progress",assignee:"Мороз С.",due:"21.03"},
+];
+var employees = [
+  {id:1,name:"Іваненко Олег",role:"Заст. директора",dept:"Управління",kpi:92,bday:"22.03",avatar:"ІО",color:"#3B82F6"},
+  {id:2,name:"Петренко Василь",role:"Кер. відділу продажів",dept:"Продажі",kpi:78,bday:"15.04",avatar:"ПВ",color:"#8B5CF6"},
+  {id:3,name:"Коваленко Михайло",role:"Гол. бухгалтер",dept:"Фінанси",kpi:95,bday:"25.03",avatar:"КМ",color:"#10B981"},
+  {id:4,name:"Шевченко Тетяна",role:"HR-менеджер",dept:"HR",kpi:88,bday:"10.05",avatar:"ШТ",color:"#F59E0B"},
+  {id:5,name:"Мороз Сергій",role:"IT-директор",dept:"IT",kpi:81,bday:"03.06",avatar:"МС",color:"#EF4444"},
+];
+var notes = [
+  {id:1,text:"Переговорити з Петренком щодо Q2 плану",color:"#FEF08A",crossed:false},
+  {id:2,text:"Ідея: впровадити бонусну систему для продажників",color:"#BBF7D0",crossed:false},
+  {id:3,text:"Зателефонувати аудитору до п'ятниці",color:"#BFDBFE",crossed:true},
+  {id:4,text:"Замовити канцтовари",color:"#FED7AA",crossed:false},
+];
+var noteColors=["#FEF08A","#BBF7D0","#BFDBFE","#FED7AA","#F9A8D4"];
+var statusCfg={done:{label:"Виконано",bg:"#DCFCE7",c:"#16A34A"},in_progress:{label:"В процесі",bg:"#DBEAFE",c:"#2563EB"},overdue:{label:"Прострочено",bg:"#FEE2E2",c:"#DC2626"},pending:{label:"Очікує",bg:"#FEF9C3",c:"#CA8A04"}};
+var kpiColor=function(v){return v>=90?"#16A34A":v>=75?"#2563EB":"#D97706"};
+var recording={audio:false,voice:false};
+
+// ── NAV ──────────────────────────────────────────────────────────────────────
+function goTo(tab,sub){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>{b.classList.remove('active');b.querySelector('.nav-dot')&&b.querySelector('.nav-dot').remove()});
+  document.getElementById('screen-'+tab).classList.add('active');
+  var btns=document.querySelectorAll('.nav-btn');
+  var idx={dashboard:0,finance:1,hr:2,organizer:3,ai:4,settings:5};
+  var btn=btns[idx[tab]];
+  btn.classList.add('active');
+  var dot=document.createElement('div');dot.className='nav-dot';btn.appendChild(dot);
+  if(sub){
+    var stabs=document.querySelectorAll('#screen-'+tab+' .sub-tab');
+    stabs.forEach(function(t){
+      t.classList.remove('active');
+      if(t.getAttribute('onclick')&&t.getAttribute('onclick').includes("'"+sub+"'")){t.classList.add('active');}
+    });
+    switchSub(tab,sub);
+  }
+  if(tab==='hr')renderHR();
+  if(tab==='organizer')renderNotes();
+}
+function switchSub(screen,sub,btn){
+  document.querySelectorAll('#screen-'+screen+' .sub-content').forEach(function(c){c.classList.remove('active')});
+  var el=document.getElementById(screen+'-'+sub);
+  if(el)el.classList.add('active');
+  if(btn){document.querySelectorAll('#screen-'+screen+' .sub-tab').forEach(function(b){b.classList.remove('active')});btn.classList.add('active');}
+  if(screen==='hr')renderHR();
+  if(screen==='organizer'&&sub==='notes')renderNotes();
+}
+
+// ── HR RENDER ────────────────────────────────────────────────────────────────
+function renderHR(){
+  renderTasks();renderStaff();renderBdays();renderKpi();
+}
+function badge(s){var c=statusCfg[s];return '<span class="badge" style="background:'+c.bg+';color:'+c.c+'">'+c.label+'</span>';}
+function renderTasks(){
+  var h='';
+  tasks.forEach(function(t){
+    h+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:flex-start">';
+    h+='<div style="flex:1;padding-right:8px"><div style="font-weight:600;font-size:14px">'+t.title+'</div>';
+    h+='<div style="font-size:11px;color:#9CA3AF;margin-top:3px">'+t.assignee+' · '+t.due+'</div></div>';
+    h+=badge(t.status)+'</div>';
+    if(t.priority==='high')h+='<div style="margin-top:6px;font-size:11px;color:#DC2626;font-weight:600">🔴 Важливе</div>';
+    h+='</div>';
+  });
+  document.getElementById('tasks-list').innerHTML=h;
+}
+function renderStaff(){
+  var h='';
+  employees.forEach(function(e){
+    h+='<div class="card" style="display:flex;align-items:center;gap:12px">';
+    h+='<div class="avatar" style="background:'+e.color+'">'+e.avatar+'</div>';
+    h+='<div style="flex:1"><div style="font-weight:700;font-size:14px">'+e.name+'</div>';
+    h+='<div style="font-size:11px;color:#6B7280">'+e.role+'</div>';
+    h+='<div class="kpi-bar-bg"><div class="kpi-bar-fill" style="width:'+e.kpi+'%;background:'+kpiColor(e.kpi)+'"></div></div></div>';
+    h+='<div style="text-align:right"><div style="font-weight:800;font-size:16px;color:'+kpiColor(e.kpi)+'">'+e.kpi+'%</div><div style="font-size:10px;color:#9CA3AF">KPI</div></div></div>';
+  });
+  document.getElementById('staff-list').innerHTML=h;
+}
+function renderBdays(){
+  var h='';
+  employees.forEach(function(e){
+    h+='<div class="card" style="display:flex;align-items:center;gap:12px">';
+    h+='<div class="avatar" style="background:'+e.color+'">'+e.avatar+'</div>';
+    h+='<div><div style="font-weight:700">'+e.name+'</div><div style="font-size:12px;color:#6B7280">'+e.dept+'</div></div>';
+    h+='<div style="margin-left:auto;text-align:right"><div style="font-size:18px">🎂</div><div style="font-size:13px;font-weight:700">'+e.bday+'</div></div></div>';
+  });
+  document.getElementById('bday-list').innerHTML=h;
+}
+function renderKpi(){
+  var sorted=[...employees].sort(function(a,b){return b.kpi-a.kpi});
+  var h='';
+  sorted.forEach(function(e,i){
+    h+='<div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:6px">';
+    h+='<div><span style="font-size:12px;font-weight:800;color:#9CA3AF;margin-right:8px">#'+(i+1)+'</span>';
+    h+='<span style="font-weight:700">'+e.name+'</span></div>';
+    h+='<span style="font-weight:800;font-size:16px;color:'+kpiColor(e.kpi)+'">'+e.kpi+'%</span></div>';
+    h+='<div class="kpi-bar-bg"><div class="kpi-bar-fill" style="width:'+e.kpi+'%;background:'+kpiColor(e.kpi)+'"></div></div></div>';
+  });
+  document.getElementById('kpi-list').innerHTML=h;
+}
+
+// ── TASKS ADD ────────────────────────────────────────────────────────────────
+function showAddTask(){document.getElementById('add-task-form').style.display='block';document.getElementById('add-trigger-btn').style.display='none';document.getElementById('new-task-input').focus();}
+function hideAddTask(){document.getElementById('add-task-form').style.display='none';document.getElementById('add-trigger-btn').style.display='block';}
+function addTask(){
+  var v=document.getElementById('new-task-input').value.trim();
+  if(!v)return;
+  tasks.push({id:Date.now(),title:v,priority:'normal',status:'pending',assignee:'Я',due:'—'});
+  document.getElementById('new-task-input').value='';
+  hideAddTask();renderTasks();
+}
+
+// ── NOTES ────────────────────────────────────────────────────────────────────
+function renderNotes(){
+  var h='';
+  notes.forEach(function(n){
+    var rot=(n.id%3-1)*1.5;
+    h+='<div class="sticky" style="background:'+n.color+';transform:rotate('+rot+'deg)">';
+    h+='<p'+(n.crossed?' class="crossed"':'')+'>'+n.text+'</p>';
+    h+='<div class="sticky-actions">';
+    h+='<button class="sticky-btn" onclick="crossNote('+n.id+')">'+(n.crossed?'↩️':'✏️')+'</button>';
+    h+='<button class="sticky-btn" onclick="deleteNote('+n.id+')">🗑️</button>';
+    h+='</div></div>';
+  });
+  document.getElementById('notes-grid').innerHTML=h;
+}
+function crossNote(id){notes=notes.map(function(n){return n.id===id?Object.assign({},n,{crossed:!n.crossed}):n});renderNotes();}
+function deleteNote(id){notes=notes.filter(function(n){return n.id!==id});renderNotes();}
+function addNote(){
+  var v=document.getElementById('note-input').value.trim();
+  if(!v)return;
+  notes.push({id:Date.now(),text:v,color:noteColors[Math.floor(Math.random()*noteColors.length)],crossed:false});
+  document.getElementById('note-input').value='';
+  renderNotes();
+}
+
+// ── CHAT ─────────────────────────────────────────────────────────────────────
+function sendMsg(){
+  var inp=document.getElementById('chat-input');
+  var v=inp.value.trim();if(!v)return;
+  var box=document.getElementById('chat-messages');
+  box.innerHTML+='<div style="display:flex;justify-content:flex-end"><div class="bubble user">'+v+'</div></div>';
+  inp.value='';
+  setTimeout(function(){
+    box.innerHTML+='<div class="bubble ai">Зрозумів! Ця функція потребує підключення до AI-сервісу. Прототип демонструє інтерфейс.</div>';
+    box.scrollTop=box.scrollHeight;
+  },600);
+  box.scrollTop=box.scrollHeight;
+}
+
+// ── RECORD ───────────────────────────────────────────────────────────────────
+function toggleRecord(type){
+  recording[type]=!recording[type];
+  var btn=document.getElementById('rec-'+type+'-btn');
+  var status=document.getElementById('rec-'+type+'-status');
+  if(type==='audio'){
+    btn.textContent=recording[type]?'⏹ Зупинити запис':'🔴 Почати запис';
+    btn.style.background=recording[type]?'#EF4444':'#F3F4F6';
+    btn.style.color=recording[type]?'#fff':'#374151';
+  } else {
+    btn.textContent=recording[type]?'⏹':'🎤';
+    btn.style.background=recording[type]?'#EF4444':'#7C3AED';
+  }
+  status.style.display=recording[type]?'block':'none';
+}
+
+// ── SETTINGS HELPERS ─────────────────────────────────────────────────────────
+function pickOpt(btn){
+  var group=btn.closest('.opt-group');
+  group.querySelectorAll('.opt-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function setStyle(btn){
+  btn.parentElement.querySelectorAll('button').forEach(function(b){b.style.background='#F3F4F6';b.style.color='#374151'});
+  btn.style.background='#7C3AED';btn.style.color='#fff';
+}
+
+// ── CLOCK ────────────────────────────────────────────────────────────────────
+function updateClock(){
+  var d=new Date();
+  var h=d.getHours().toString().padStart(2,'0');
+  var m=d.getMinutes().toString().padStart(2,'0');
+  document.getElementById('clock').textContent=h+':'+m;
+}
+updateClock();setInterval(updateClock,30000);
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+renderHR();renderNotes();
+</script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+{
+  "scope": "B03 isolated original UI candidate; source/build/actual JS helpers only; no browser acceptance",
+  "observed_at": "2026-09-12T13:30:39.970562+00:00",
+  "base": {
+    "source": "/workspace/sites/bos-original-refined",
+    "HEAD": "c71e601e4681d8b7bb08cd08669f2e204f30ff4d",
+    "observed_at": "2026-09-12T13:03:46.608435+00:00",
+    "files": {
+      "frontend/boss_app_source.html": "95cd53cfdea137bcc8635b9da0f7c3aaf502c91bbd4726889f4a9d7dad967abb",
+      "frontend/boss_app_html.html": "10e6919e60711ee737271decc3201dbe986eff6b5c62bddf669763e7f74b68ab",
+      "assets/app.js": "5e6c1fc38538cf648c90acf9519836fae220a0de8fe1a4e53da71a01c70fcf42",
+      "assets/babel.js": "7bcd2533d8908a1545817804bcb78aeaf9bd6771694bc0f62cc44bfce4f135b2",
+      "scripts/build_frontend.cjs": "558d994ccfc32a778318c2efb9ee764593d2d0437534a4b6f843fd5336e8af8d"
+    }
+  },
+  "files": {
+    "frontend/boss_app_source.html": "340fbaf24ca3c0e75adfc18f3004034e24d7025fcb3ef7cf97bd250c2614943c",
+    "frontend/boss_app_html.html": "cc950098253dacfda9d6344555ebe1e78682d72b6614d7d8fcf1a5d94dcd3f6b",
+    "assets/app.js": "3cf3aa31e160992f802e1af9c5f6e81fca1adab67a8f0d16732b39282bf0e758"
+  },
+  "wire_sha256": "b54cea049fe229cc32ea62106861b25a35787986653522167279241b15a76999",
+  "contract_sha256": "3717bbabbbde1bab4bb9756277c80a79b933afb74a77b0150aef1d16372b068d",
+  "patch_sha256": "ea23bca8ed5a45b9f6c6abd16a6a5db8eb8507e0bf0f0a2619d4da8fe365287e",
+  "tests": {
+    "runner_sha256": "8f824dcfccd6ac8f691dff150e78d61a8c25e6f2daa6de9bc563253214b42672",
+    "result_sha256": "b846526385dbc277c1e70ad9fe2c0e92719b6f5a604a0b5de94801b5a92dc34b",
+    "passed": 18,
+    "failed": 0
+  },
+  "open": [
+    "actual HTTP integration with frozen backend",
+    "browser A11/gate10 blocked",
+    "independent root source review"
+  ],
+  "review_fix": {
+    "red_proof": "../B03_UI_ROOT_RED.json",
+    "red_sha256": "cc512576ec257585e266f22528db8289f968f0fcd324f20cbbb3af6368bf218b",
+    "initial_freeze": "review_freeze_1",
+    "change": "Stable per-user/mode/role pending key; access revision is checked by server, not queue visibility",
+    "second_freeze": "review_freeze_2",
+    "settlement": "Historical receipt and current invoice are separate facts sections"
+  },
+  "wire_confirmation_sha256": "e187fcae87177c4e4b8e1652f4096d2c95bc69e058eb9861c1345a30bee173f3",
+  "settlement_history_test": {
+    "runner_sha256": "e94959d9c5df28a142049c6a2285a88b14055e6d1c29ae848b21431c39f427e6",
+    "result_sha256": "a4da38bb3447fbefdeacb38abe13ed1010c50d1fe6e25d1ce0d410d30dc1358b",
+    "expected_red": 2,
+    "green": 2,
+    "browser": false
+  },
+  "history_extension": "Full bounded source result movements and linked correction_events, current projection required"
+}

@@ -1,0 +1,15 @@
+F
+======================================================================
+FAIL: test_proof_worker_refuses_unissued_external_database_without_touching_it (erp.test_transfer_runner_guards.TransferWorkerGuardTests.test_proof_worker_refuses_unissued_external_database_without_touching_it)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/erp/test_transfer_runner_guards.py", line 23, in test_proof_worker_refuses_unissued_external_database_without_touching_it
+    self.assertNotEqual(result.returncode, 0, 'Worker accepted a database not issued by this run')
+AssertionError: 0 == 0 : Worker accepted a database not issued by this run
+
+----------------------------------------------------------------------
+Ran 1 test in 0.030s
+
+FAILED (failures=1)
+Found 1 test(s).
+System check identified no issues (0 silenced).

@@ -1,0 +1,432 @@
+{
+  "gate": 8,
+  "date": "2026-09-12T13:12:24.885296+00:00",
+  "complete": true,
+  "platform": "linux",
+  "checks": [
+    {
+      "case": "fresh_venv_pins_migrations_static_empty_business",
+      "passed": true
+    },
+    {
+      "case": "verified_TLS_and_secure_csrf_cookie",
+      "status": 200,
+      "secure_cookie": true
+    },
+    {
+      "case": "liveness",
+      "status": 200
+    },
+    {
+      "case": "readiness",
+      "status": 200
+    },
+    {
+      "case": "health_post_refused",
+      "status": 405
+    },
+    {
+      "case": "demo_endpoint_disabled",
+      "status": 404
+    },
+    {
+      "case": "anonymous_api",
+      "status": 401
+    },
+    {
+      "case": "private_media",
+      "status": 404
+    },
+    {
+      "case": "wrong_host",
+      "status": 421
+    },
+    {
+      "case": "forwarded_spoof_stripped",
+      "status": 200
+    },
+    {
+      "case": "canonical_http_redirect",
+      "status": 308
+    },
+    {
+      "case": "http_wrong_host",
+      "status": 421
+    },
+    {
+      "case": "csrf_required",
+      "status": 403
+    },
+    {
+      "case": "genuine_login_secure_httponly_lax",
+      "status": 200
+    },
+    {
+      "case": "authenticated_api",
+      "status": 200
+    },
+    {
+      "case": "actual_server_version_mode",
+      "status": 200,
+      "version": "0.2.12-dev"
+    },
+    {
+      "case": "frontend_shell",
+      "status": 200
+    },
+    {
+      "case": "frontend_asset",
+      "status": 200
+    },
+    {
+      "case": "foreign_origin_valid_cookie_refused",
+      "status": 403
+    },
+    {
+      "case": "HTTPS_private_upload",
+      "status": 201
+    },
+    {
+      "case": "download_exact_original",
+      "status": 200,
+      "sha256": "bb08ee9803b4dad96e4871d8253fb87d82b02f5ccaffb7297ffe22306877b6fb"
+    },
+    {
+      "case": "review_original",
+      "status": 200
+    },
+    {
+      "case": "oversized_request_413_no_partial_document",
+      "passed": true,
+      "status": 413,
+      "documents_and_private_bytes_unchanged": true
+    },
+    {
+      "case": "collected_admin_static",
+      "status": 200
+    },
+    {
+      "case": "logout_revokes_session",
+      "status": 401
+    },
+    {
+      "case": "admin_csrf_required",
+      "status": 403
+    },
+    {
+      "case": "genuine_native_admin_login",
+      "status": 200
+    },
+    {
+      "case": "technical_admin_not_business_role",
+      "status": 403
+    },
+    {
+      "case": "duplicate_instance_refused",
+      "passed": true
+    },
+    {
+      "case": "restart_preserves_database_and_private_bytes",
+      "passed": true
+    },
+    {
+      "case": "nonempty_application_and_proxy_structured_logs",
+      "passed": true
+    }
+  ],
+  "commands": [
+    {
+      "step": "install",
+      "returncode": 2,
+      "stdout_sha256": "85ec698a9d2e340d1623af7b50c2f8091aabaa0c01c477595f89d6667b65027d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "step": "synthetic-seed",
+      "returncode": 0,
+      "stdout_sha256": "2a164f584420aa7f0831a9da55ccdb37505b14fc264c8743dddf20c102935ac8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "step": "test-certificate",
+      "returncode": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "4f3f7cc8ba220da821fda545a5d198b751a5aa1111824b5802f3924d3cc7af6c"
+    },
+    {
+      "step": "duplicate",
+      "returncode": 3,
+      "stdout_sha256": "c5c43ac5aa7b71078bb3deaf44c9796c4997e6614bb1b6d9a0aea7174484d162",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "synthetic_work": "/tmp/bos-install-check-x0x7kuey",
+  "package": {
+    "version": "0.2.12-dev",
+    "source_sha256": "13c1c5e02757ef29d908d065652dd26ba14f769dbb5a3132b7f627ba67ecaae2",
+    "files": 279,
+    "database_files": 0,
+    "output": "/tmp/bos-install-check-x0x7kuey/package"
+  },
+  "installation": {
+    "complete": false,
+    "application_provisioned": true,
+    "exit_code": 2,
+    "installation_id": "1f086688-c095-4b58-9057-dc76e6a86ac9",
+    "version": "0.2.12-dev",
+    "source_sha256": "13c1c5e02757ef29d908d065652dd26ba14f769dbb5a3132b7f627ba67ecaae2",
+    "checks": {
+      "pinned_venv": "ПРОЙДЕНО",
+      "canonical_config": "ПРОЙДЕНО",
+      "actual_migrations": "ПРОЙДЕНО",
+      "collectstatic": "ПРОЙДЕНО",
+      "business_empty": "ПРОЙДЕНО",
+      "wsgi_runtime": "НЕ ЗАПУЩЕНО",
+      "tls_proxy": "НЕ ЗАПУЩЕНО",
+      "http_health": "НЕ ЗАПУЩЕНО"
+    },
+    "commands": [
+      {
+        "step": "venv",
+        "returncode": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "log": "runtime-logs/venv-1.log"
+      },
+      {
+        "step": "offline-pip",
+        "returncode": 0,
+        "stdout_sha256": "a3588fcc94b9561879ab36cbb55b032dc7d2c8463302b4a93f638e0aba69e2f5",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "log": "runtime-logs/offline-pip-1.log"
+      },
+      {
+        "step": "pip-check",
+        "returncode": 0,
+        "stdout_sha256": "9261363b733079a641c2e4cc9bc46ffa1d8336945a87f807b6cf68847dbc9b09",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "log": "runtime-logs/pip-check-1.log"
+      },
+      {
+        "step": "pinned-runtime",
+        "returncode": 0,
+        "stdout_sha256": "21137663ddf72b28a2c85d1e7544be47ef5596c23b302d9c906033d38f92f525",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "log": "runtime-logs/pinned-runtime-1.log"
+      },
+      {
+        "step": "server-config",
+        "returncode": 0,
+        "stdout_sha256": "882d171237f111dcb6e22cf1a13293e863d727349e6b2bb7815f43bcd97478bf",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "log": "runtime-logs/server-config-1.log"
+      },
+      {
+        "step": "django-check",
+        "returncode": 0,
+        "stdout_sha256": "1e3e63f221bde88816c4a4ef7367691607b20cc1d194028a02ec9ae0586cf9b1",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "log": "runtime-logs/django-check-1.log"
+      },
+      {
+        "step": "migrate",
+        "returncode": 0,
+        "stdout_sha256": "be1b56cfce1d8554dfd0aee29b734e73c185584f479f7e412776e3248d761647",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "log": "runtime-logs/migrate-1.log"
+      },
+      {
+        "step": "collectstatic",
+        "returncode": 0,
+        "stdout_sha256": "18e287efd55bb1d183b5e52099a5782727b93eb80b03adba1fa74af9397ee535",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "log": "runtime-logs/collectstatic-1.log"
+      },
+      {
+        "step": "installation-proof",
+        "returncode": 0,
+        "stdout_sha256": "7d8cb76536547e779a5ecb7183418058ee7979fe9b8a3f94beebc8052cd6e809",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "log": "runtime-logs/installation-proof-1.log"
+      }
+    ],
+    "proof": {
+      "vendor": "sqlite",
+      "business_rows": {
+        "tasks.task": 0,
+        "finance.counterparty": 0,
+        "finance.contract": 0,
+        "finance.transaction": 0,
+        "finance.salary": 0,
+        "finance.financialintent": 0,
+        "employees.employee": 0,
+        "ai_assistant.chatmessage": 0,
+        "ai_assistant.taskchangelog": 0,
+        "ai_assistant.claudeusagelog": 0,
+        "ai_assistant.employeechangelog": 0,
+        "ai_assistant.chatfile": 0,
+        "branches.branch": 0,
+        "operations.document": 0,
+        "operations.procurementrequest": 0,
+        "operations.supplierquote": 0,
+        "operations.actionproposal": 0,
+        "operations.auditevent": 0,
+        "operations.invoice": 0,
+        "operations.configuration": 0,
+        "operations.loginattempt": 0,
+        "erp.item": 0,
+        "erp.location": 0,
+        "erp.lot": 0,
+        "erp.salesorder": 0,
+        "erp.salesline": 0,
+        "erp.production": 0,
+        "erp.reservation": 0,
+        "erp.purchase": 0,
+        "erp.movement": 0,
+        "erp.inspection": 0,
+        "erp.changeorder": 0,
+        "erp.invoicelink": 0,
+        "erp.operatorentry": 0,
+        "erp.event": 0,
+        "erp.importbatch": 0,
+        "erp.importidentity": 0
+      },
+      "pending_migrations": 0,
+      "admin_static": true,
+      "mode": "working"
+    },
+    "runtime": {
+      "prefix": "/tmp/bos-install-check-x0x7kuey/company/venv",
+      "base_prefix": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+      "versions": {
+        "annotated-types": "0.7.0",
+        "anthropic": "0.100.0",
+        "anyio": "4.13.0",
+        "asgiref": "3.11.1",
+        "certifi": "2026.4.22",
+        "distro": "1.9.0",
+        "django": "6.0.5",
+        "django-cors-headers": "4.9.0",
+        "django-filter": "25.2",
+        "django-stubs": "6.0.4",
+        "django-stubs-ext": "6.0.4",
+        "djangorestframework": "3.17.1",
+        "djangorestframework-stubs": "3.17.0",
+        "docstring_parser": "0.18.0",
+        "et_xmlfile": "2.0.0",
+        "h11": "0.16.0",
+        "httpcore": "1.0.9",
+        "httpx": "0.28.1",
+        "idna": "3.13",
+        "jiter": "0.14.0",
+        "lxml": "6.1.1",
+        "openpyxl": "3.1.5",
+        "pydantic": "2.13.4",
+        "pydantic_core": "2.46.4",
+        "pypdf": "6.10.0",
+        "python-docx": "1.2.0",
+        "python-dotenv": "1.2.2",
+        "sniffio": "1.3.1",
+        "sqlparse": "0.5.5",
+        "types-pyyaml": "6.0.12.20260518",
+        "typing-inspection": "0.4.2",
+        "typing_extensions": "4.15.0",
+        "waitress": "3.0.2"
+      }
+    }
+  },
+  "startup": {
+    "event": "bos.bundle.ready",
+    "installation_id": "1f086688-c095-4b58-9057-dc76e6a86ac9",
+    "origin": "https://localhost:51781",
+    "scope": "loopback",
+    "health": {
+      "live": 200,
+      "ready": 200
+    },
+    "source_sha256": "13c1c5e02757ef29d908d065652dd26ba14f769dbb5a3132b7f627ba67ecaae2",
+    "runtime": "waitress 3.0.2",
+    "proxy": "caddy 2.11.1",
+    "upstream_port": 44235
+  },
+  "first_stop": {
+    "event": "bos.bundle.stopped",
+    "installation_id": "1f086688-c095-4b58-9057-dc76e6a86ac9",
+    "children": [
+      {
+        "runtime": "caddy",
+        "exit_code": 0,
+        "forced": false
+      },
+      {
+        "runtime": "waitress",
+        "exit_code": 0,
+        "forced": false
+      }
+    ]
+  },
+  "second_stop": {
+    "event": "bos.bundle.stopped",
+    "installation_id": "1f086688-c095-4b58-9057-dc76e6a86ac9",
+    "children": [
+      {
+        "runtime": "caddy",
+        "exit_code": 0,
+        "forced": false
+      },
+      {
+        "runtime": "waitress",
+        "exit_code": 0,
+        "forced": false
+      }
+    ]
+  },
+  "structured_logs": {
+    "application.stderr.log": {
+      "records": 48,
+      "fields": [
+        "correlation_id",
+        "event",
+        "status",
+        "version"
+      ],
+      "statuses": [
+        200,
+        201,
+        302,
+        400,
+        401,
+        403,
+        404,
+        405
+      ]
+    },
+    "caddy.stderr.log": {
+      "records": 89,
+      "fields": [
+        "correlation_id",
+        "event",
+        "status",
+        "version"
+      ],
+      "statuses": [
+        200,
+        201,
+        302,
+        308,
+        401,
+        403,
+        404,
+        405,
+        413,
+        421
+      ]
+    }
+  },
+  "private_canaries_absent": true,
+  "log_files_checked": 29,
+  "status": "ПРОЙДЕНО"
+}
+
+
+--- STDERR ---

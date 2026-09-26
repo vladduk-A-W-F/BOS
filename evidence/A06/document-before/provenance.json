@@ -1,0 +1,29 @@
+{
+  "command": [
+    "/workspace/scratch/c7b51e996a9f/demo-check-env/bin/python",
+    "-B",
+    "/workspace/sites/bos-original-refined/manage.py",
+    "test",
+    "a06_document_mutex_tests.A06DocumentMutexTests",
+    "--settings=verification_settings",
+    "--noinput",
+    "--verbosity=2"
+  ],
+  "returncode": 1,
+  "source_sha256_before": {
+    "operations/views.py": "48025a46d39f92d3dd0e6070060873fd4aa74c9c17339240846aa513f9b0d5cb",
+    "operations/service.py": "a70a0c70aca0fcfa20a5998a573213805c07d2017164b054b1e0c31999537028",
+    "erp/service.py": "e206dc60ee15ca54312a08a95121fb0d25f71a6a9488bbab6fcf75cc8572d718",
+    "erp/views.py": "ac015006daf8b7f90a34dadf8ee10a8f8fb0733deaa1c1d3bae640cdb37a0b32"
+  },
+  "source_sha256_after": {
+    "operations/views.py": "48025a46d39f92d3dd0e6070060873fd4aa74c9c17339240846aa513f9b0d5cb",
+    "operations/service.py": "a70a0c70aca0fcfa20a5998a573213805c07d2017164b054b1e0c31999537028",
+    "erp/service.py": "e206dc60ee15ca54312a08a95121fb0d25f71a6a9488bbab6fcf75cc8572d718",
+    "erp/views.py": "ac015006daf8b7f90a34dadf8ee10a8f8fb0733deaa1c1d3bae640cdb37a0b32"
+  },
+  "source_files_unchanged": true,
+  "test_sha256": "8422fa81be652d961305986ac2c3f9c6151b07290951d0e8be4adb3d6a03a70e",
+  "database": "New synthetic file-backed SQLite only; removed after test run.",
+  "postgresql": "NOT_RUN"
+}

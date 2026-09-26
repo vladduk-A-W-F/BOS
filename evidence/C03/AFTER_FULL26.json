@@ -1,0 +1,198 @@
+{
+  "report_sha256": "7f32a07725662158d7cf105e098896c9585b27069c2f7f126653aa6ee1dc1ff8",
+  "source_sha256": "7be2d6ba56ff8d99198645ffe7e1bb5b16d7ad0c37ca72e53b8f3c410dfe8011",
+  "source_sha256_after": "7be2d6ba56ff8d99198645ffe7e1bb5b16d7ad0c37ca72e53b8f3c410dfe8011",
+  "source_unchanged": true,
+  "complete": false,
+  "source_databases": {
+    "db.sqlite3": "ec6b89ac86011906881ab686581a0b96f63f17741873c355d2cb459896db02d5",
+    "BoS_Demo.sqlite3": "58fcd32532c6abebfa95ad06ae18d76ddccac2242fb25dc64350ad3203bd0dc8"
+  },
+  "gates": [
+    {
+      "id": 1,
+      "status": "НЕ ЗАПУЩЕНО",
+      "reason": "Усі підперевірки обов’язкові."
+    },
+    {
+      "id": 2,
+      "status": "НЕ ЗАПУЩЕНО",
+      "reason": "Усі підперевірки обов’язкові."
+    },
+    {
+      "id": 3,
+      "status": "НЕ ЗАПУЩЕНО",
+      "reason": "Усі підперевірки обов’язкові."
+    },
+    {
+      "id": 4,
+      "status": "ПРОЙДЕНО",
+      "reason": ""
+    },
+    {
+      "id": 5,
+      "status": "НЕ ЗАПУЩЕНО",
+      "reason": "Усі підперевірки обов’язкові."
+    },
+    {
+      "id": 6,
+      "status": "НЕ ЗАПУЩЕНО",
+      "reason": "Усі підперевірки обов’язкові."
+    },
+    {
+      "id": 7,
+      "status": "ПРОЙДЕНО",
+      "reason": ""
+    },
+    {
+      "id": 8,
+      "status": "ПОМИЛКА",
+      "reason": "Усі підперевірки обов’язкові."
+    },
+    {
+      "id": 9,
+      "status": "НЕ РЕАЛІЗОВАНО",
+      "reason": "Усі підперевірки обов’язкові."
+    },
+    {
+      "id": 10,
+      "status": "НЕ РЕАЛІЗОВАНО",
+      "reason": "Усі підперевірки обов’язкові."
+    },
+    {
+      "id": 11,
+      "status": "НЕ ЗАПУЩЕНО",
+      "reason": "Немає результату реального Windows runner."
+    }
+  ],
+  "sqlite_functional": {
+    "check_workspace.py": {
+      "checks": 22,
+      "expected": 22,
+      "returncode": 0
+    },
+    "check_erp.py": {
+      "checks": 49,
+      "expected": 49,
+      "returncode": 0
+    },
+    "check_operations.py": {
+      "checks": 48,
+      "expected": 48,
+      "returncode": 0
+    },
+    "check_original.py": {
+      "checks": 32,
+      "expected": 32,
+      "returncode": 0
+    },
+    "check_launcher.py": {
+      "checks": 5,
+      "expected": 5,
+      "returncode": 0
+    }
+  },
+  "django": {
+    "tests": 571,
+    "ok": true
+  },
+  "invariants": {
+    "complete": true,
+    "minimum_runs": 1000,
+    "results": [
+      {
+        "invariant": "movement_balance",
+        "runs": 1000,
+        "status": "ПРОЙДЕНО"
+      },
+      {
+        "invariant": "nonnegative_stock",
+        "runs": 1000,
+        "status": "ПРОЙДЕНО"
+      },
+      {
+        "invariant": "one_salary_expense",
+        "runs": 1000,
+        "status": "ПРОЙДЕНО"
+      },
+      {
+        "invariant": "proposal_replay",
+        "runs": 1000,
+        "status": "ПРОЙДЕНО"
+      },
+      {
+        "invariant": "role_access",
+        "runs": 1000,
+        "status": "ПРОЙДЕНО"
+      }
+    ]
+  },
+  "access": {
+    "complete": true,
+    "counts": {
+      "resolver_patterns": 190,
+      "api_definitions": 91,
+      "admin_definitions": 95,
+      "c01_control_groups": 12,
+      "c01_control_http_responses": 104,
+      "c03_control_groups": 12,
+      "c03_control_http_responses": 130,
+      "concrete_urls": 205,
+      "executed_cases": 9432,
+      "http_responses": 9432,
+      "http_passed": 9432,
+      "redirect_http_responses": 9
+    },
+    "field_tests": {
+      "discovered": 57,
+      "failures": 0,
+      "executed": 57,
+      "skipped": 0,
+      "expected_failures": 0
+    },
+    "failures": 0
+  },
+  "concurrency": {
+    "complete": true,
+    "tests": {
+      "discovered": 109,
+      "started": 109,
+      "finished": 109,
+      "succeeded": 109,
+      "tests_run": 109
+    },
+    "erp_stdout": {
+      "required": 116,
+      "observed": 116,
+      "unique": 116,
+      "missing": [],
+      "duplicates": [],
+      "stdout_sha256": "d1432717b938080e4ceb5de375390c2384e52b4f6fb26a9c8bb2c1e30de5f429",
+      "stdout_bytes": 175050
+    },
+    "runner_failures": 0
+  },
+  "gate6": {
+    "complete": true,
+    "passed": 821
+  },
+  "gate7": {
+    "complete": true,
+    "version": "0.2.15-dev",
+    "checks": 18,
+    "failures": []
+  },
+  "gate8": {
+    "complete": false,
+    "checks": 31,
+    "failures": [
+      {
+        "case": "oversized_request_413_no_partial_document",
+        "passed": false,
+        "status": null,
+        "error_type": "ConnectionResetError",
+        "documents_and_private_bytes_unchanged": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "card": "NETWORK-DOMAIN",
+  "role": "independent reviewer",
+  "verdict": "ACCEPT_SCOPED",
+  "patch_sha256": "0d52d536991b2f4f9f33048e5b72552b690ac09641f92dedf71abc9b1abc3caa",
+  "scope": "Domain patch only; frontend/read-model integration requires separate review. No production readiness conclusion.",
+  "reviewed": [
+    "mutation dispatch uses existing transaction/mutex/preview-confirm/audit",
+    "actor/session/role policy and live hidden-source checks",
+    "Decimal quantities/value and immutable transit snapshots",
+    "arrival remains quality pending",
+    "proposal replay does not duplicate transfer receipt",
+    "hold/release conserve AR and are CEO-only",
+    "manual and statement payment limits share collectible",
+    "credit rollback before commit",
+    "UAH defaults alter schema only; no data migration"
+  ],
+  "author_evidence": {
+    "tests": 10,
+    "outcome": "PASS",
+    "raw": "../network-domain/test_raw.txt"
+  },
+  "independent_evidence": {
+    "tests": 4,
+    "outcome": "PASS",
+    "exit_code": 0,
+    "seconds": 5.639,
+    "raw": "review_raw.txt",
+    "test_file": "source/erp/test_network_adversarial.py",
+    "database": "disposable SQLite synthetic",
+    "cases": [
+      "anonymous observer CSRF denied",
+      "fractional transfer receipt proposal replay conserves quantity and movement value",
+      "post-shipment source remap blocked; wrong source shipment denied",
+      "multiple holds with one released; partial payments conserve AR"
+    ]
+  },
+  "domain_blockers": [],
+  "integration_findings": [
+    {
+      "id": "NETWORK-R1",
+      "severity": "medium",
+      "file": "erp/experience.py",
+      "issue": "next_step payment uses receivable instead of collectible; wrong-source reserve/ship and receipt suggestions ignore new explicit locations",
+      "resolution": "Root owns adaptation in read-model card; must review before final integration acceptance."
+    },
+    {
+      "id": "NETWORK-R2",
+      "severity": "medium",
+      "file": "erp/experience.py",
+      "issue": "New metadata/transfer/retention effects need FIELDS and snapshot arrays for meaningful preview impact",
+      "resolution": "Root reports already implemented; verify in next integration review."
+    }
+  ],
+  "limitations": [
+    "No PostgreSQL concurrency validation",
+    "No browser/full/E2E runs",
+    "No historical data modified",
+    "No production activation",
+    "Not a review of root read-model or UI yet"
+  ]
+}

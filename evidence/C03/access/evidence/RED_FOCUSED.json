@@ -1,0 +1,113 @@
+{
+  "scope": "Actual C01-base Django HTTP + fixed manifest expectations; own synthetic SQLite/media; no fullgate/browser/A09; marker fixture explicitly synthetic",
+  "root": "/workspace/scratch/c7b51e996a9f/tmp/c03_access_candidate/source",
+  "checks": [
+    {
+      "name": "explicit190 catalogue with no statement ledger admin",
+      "passed": false,
+      "error": "('actual', 180, 'expected', 190)",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c03_access_candidate/check_red.py\", line 37, in check\n    fn()\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c03_access_candidate/check_red.py\", line 47, in routes\n    assert Counter(map(sig,actual))==Counter(map(sig,baseline+added)),('actual',len(actual),'expected',190)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: ('actual', 180, 'expected', 190)\n",
+      "http": []
+    },
+    {
+      "name": "actual CEO source review import and exact replay without cash",
+      "passed": false,
+      "error": "(404, b'\\n<!doctype html>\\n<html lang=\"en\">\\n<head>\\n  <title>Not Found</title>\\n</head>\\n<body>\\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\\n</body>\\n</html>\\n')",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c03_access_candidate/check_red.py\", line 37, in check\n    fn()\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c03_access_candidate/check_red.py\", line 51, in roundtrip\n    c=f.client('ceo');created=require(http(c,'POST','/api/statements/sources/',upload(),True),201)\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c03_access_candidate/check_red.py\", line 31, in require\n    assert r.status_code==status,(r.status_code,r.content[:300]);return r.json()\n           ^^^^^^^^^^^^^^^^^^^^^\nAssertionError: (404, b'\\n<!doctype html>\\n<html lang=\"en\">\\n<head>\\n  <title>Not Found</title>\\n</head>\\n<body>\\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\\n</body>\\n</html>\\n')\n",
+      "http": [
+        {
+          "method": "POST",
+          "path": "/api/statements/sources/",
+          "status": 404
+        }
+      ]
+    },
+    {
+      "name": "manager cannot upload financial source before parser",
+      "passed": false,
+      "error": "(404, b'\\n<!doctype html>\\n<html lang=\"en\">\\n<head>\\n  <title>Not Found</title>\\n</head>\\n<body>\\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\\n</body>\\n</html>\\n')",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c03_access_candidate/check_red.py\", line 37, in check\n    fn()\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c03_access_candidate/check_red.py\", line 62, in upload_denial\n    before=f.state_digest();r=require(http(f.client(role),'POST','/api/statements/sources/',upload(),True),403);assert f.state_digest()==before\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c03_access_candidate/check_red.py\", line 31, in require\n    assert r.status_code==status,(r.status_code,r.content[:300]);return r.json()\n           ^^^^^^^^^^^^^^^^^^^^^\nAssertionError: (404, b'\\n<!doctype html>\\n<html lang=\"en\">\\n<head>\\n  <title>Not Found</title>\\n</head>\\n<body>\\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\\n</body>\\n</html>\\n')\n",
+      "http": [
+        {
+          "method": "POST",
+          "path": "/api/statements/sources/",
+          "status": 404
+        }
+      ]
+    },
+    {
+      "name": "observer cannot upload financial source before parser",
+      "passed": true,
+      "http": [
+        {
+          "method": "POST",
+          "path": "/api/statements/sources/",
+          "status": 403
+        }
+      ]
+    },
+    {
+      "name": "manager new reads denied including financial summary aliases",
+      "passed": false,
+      "error": "(404, b'\\n<!doctype html>\\n<html lang=\"en\">\\n<head>\\n  <title>Not Found</title>\\n</head>\\n<body>\\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\\n</body>\\n</html>\\n')",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c03_access_candidate/check_red.py\", line 37, in check\n    fn()\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c03_access_candidate/check_red.py\", line 68, in reads\n    require(http(c,'GET','/api/statements/'+path),403)\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c03_access_candidate/check_red.py\", line 31, in require\n    assert r.status_code==status,(r.status_code,r.content[:300]);return r.json()\n           ^^^^^^^^^^^^^^^^^^^^^\nAssertionError: (404, b'\\n<!doctype html>\\n<html lang=\"en\">\\n<head>\\n  <title>Not Found</title>\\n</head>\\n<body>\\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\\n</body>\\n</html>\\n')\n",
+      "http": [
+        {
+          "method": "GET",
+          "path": "/api/statements/imports/",
+          "status": 404
+        }
+      ]
+    },
+    {
+      "name": "observer new reads denied including financial summary aliases",
+      "passed": false,
+      "error": "(404, b'\\n<!doctype html>\\n<html lang=\"en\">\\n<head>\\n  <title>Not Found</title>\\n</head>\\n<body>\\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\\n</body>\\n</html>\\n')",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c03_access_candidate/check_red.py\", line 37, in check\n    fn()\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c03_access_candidate/check_red.py\", line 68, in reads\n    require(http(c,'GET','/api/statements/'+path),403)\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c03_access_candidate/check_red.py\", line 31, in require\n    assert r.status_code==status,(r.status_code,r.content[:300]);return r.json()\n           ^^^^^^^^^^^^^^^^^^^^^\nAssertionError: (404, b'\\n<!doctype html>\\n<html lang=\"en\">\\n<head>\\n  <title>Not Found</title>\\n</head>\\n<body>\\n  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>\\n</body>\\n</html>\\n')\n",
+      "http": [
+        {
+          "method": "GET",
+          "path": "/api/statements/imports/",
+          "status": 404
+        }
+      ]
+    },
+    {
+      "name": "CEO exact journal summary three currencies and aliases",
+      "passed": false,
+      "error": "(404, b'{\"detail\":\"\\xd0\\x9d\\xd0\\xb5 \\xd0\\xb7\\xd0\\xbd\\xd0\\xb0\\xd0\\xb9\\xd0\\xb4\\xd0\\xb5\\xd0\\xbd\\xd0\\xbe.\"}')",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c03_access_candidate/check_red.py\", line 37, in check\n    fn()\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c03_access_candidate/check_red.py\", line 76, in journal\n    d=require(http(f.client('ceo'),'GET',path),200);assert d['includes_archived'] is True and d['balance_kind']=='period_movement'\n      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c03_access_candidate/check_red.py\", line 31, in require\n    assert r.status_code==status,(r.status_code,r.content[:300]);return r.json()\n           ^^^^^^^^^^^^^^^^^^^^^\nAssertionError: (404, b'{\"detail\":\"\\xd0\\x9d\\xd0\\xb5 \\xd0\\xb7\\xd0\\xbd\\xd0\\xb0\\xd0\\xb9\\xd0\\xb4\\xd0\\xb5\\xd0\\xbd\\xd0\\xbe.\"}')\n",
+      "http": [
+        {
+          "method": "GET",
+          "path": "/api/transactions/summary/",
+          "status": 404
+        }
+      ]
+    },
+    {
+      "name": "permanent marker hides old document and historical Task source",
+      "passed": false,
+      "error": "('/api/operations/documents/8/', 200)",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c03_access_candidate/check_red.py\", line 37, in check\n    fn()\n  File \"/workspace/scratch/c7b51e996a9f/tmp/c03_access_candidate/check_red.py\", line 91, in historical\n    r=http(c,'GET',path);assert r.status_code==404,(path,r.status_code);assert marker.encode() not in r.content\n                                ^^^^^^^^^^^^^^^^^^\nAssertionError: ('/api/operations/documents/8/', 200)\n",
+      "http": [
+        {
+          "method": "GET",
+          "path": "/api/operations/documents/8/",
+          "status": 200
+        }
+      ]
+    }
+  ],
+  "passed": 1,
+  "failed": 7,
+  "http_count": 7,
+  "source_sha256": {
+    "scripts/access_routes.json": "182639ea19916ca2c8f4a7c51b1b936e6bcf19d7148f5328b1166d5ca73d8597",
+    "scripts/access_fixtures.py": "6d787e06862fba2149b946a7950b95f02b0877b82cb30ad6c73cd16b6e62b323",
+    "scripts/check_access.py": "0e0f4b6ebd2b2af77d750d466eeb5bc83bce682c5ff0cb3a2688862159ee5694",
+    "finance/views.py": "e59fe719acec658c4433c540de51b757d0e735c8cbca9336a4c4b08fdcd6c2b9",
+    "boss_project/policy.py": "4262e6191f0527522f4abf6e882730dee0469c5140e6d2ef65da523cca7d21f2"
+  },
+  "working_database_opened": false
+}

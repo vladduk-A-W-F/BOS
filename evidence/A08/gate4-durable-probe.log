@@ -1,0 +1,38 @@
+{
+  "red": [
+    {
+      "role": "ceo",
+      "status": 500,
+      "exception": "A durable atomic block cannot be nested within another atomic block.",
+      "original_rows_unchanged": true
+    },
+    {
+      "role": "manager",
+      "status": 500,
+      "exception": "A durable atomic block cannot be nested within another atomic block.",
+      "original_rows_unchanged": true
+    }
+  ],
+  "green": [
+    {
+      "role": "ceo",
+      "status": 201,
+      "changed": true,
+      "actual_private_bytes_match": true,
+      "isolation": {
+        "isolation": "actual_commit_then_owned_sqlite_restore",
+        "restored": true
+      }
+    },
+    {
+      "role": "manager",
+      "status": 201,
+      "changed": true,
+      "actual_private_bytes_match": true,
+      "isolation": {
+        "isolation": "actual_commit_then_owned_sqlite_restore",
+        "restored": true
+      }
+    }
+  ]
+}

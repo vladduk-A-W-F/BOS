@@ -1,0 +1,72 @@
+{
+  "version": "2.0-UA",
+  "mode": "Окрема локальна база",
+  "entities": {
+    "ProcurementRequest": {
+      "code": "Унікальний рядок до 30 символів",
+      "part": "Деталь до 120 символів",
+      "revision": "Версія до 40 символів",
+      "quantity": "Ціле 1..100000",
+      "unit": "Одиниця до 20 символів",
+      "currency": [
+        "EUR",
+        "UAH",
+        "USD"
+      ],
+      "required_by": "YYYY-MM-DD",
+      "owner_id": "FK Employee",
+      "document_id": "FK Document",
+      "details": {
+        "project": "Клієнт або проєкт",
+        "material": "Матеріал",
+        "operations": "Операції",
+        "coating": "Покриття",
+        "quality": "Вимоги до якості"
+      },
+      "status": "review"
+    },
+    "SupplierQuote": {
+      "code": "Унікальний код",
+      "request_id": "FK ProcurementRequest",
+      "supplier_id": "FK Counterparty, type=supplier",
+      "document_id": "FK Document",
+      "terms": {
+        "unit_price": "Decimal",
+        "setup": "Decimal",
+        "tooling": "Decimal",
+        "special_processes": "Decimal",
+        "shipping": "Decimal",
+        "currency": [
+          "EUR",
+          "UAH",
+          "USD"
+        ],
+        "lead_weeks": "Ціле 0..520",
+        "valid_until": "YYYY-MM-DD",
+        "moq": "Ціле 1..100000",
+        "revision": "Версія",
+        "coating_included": "boolean",
+        "material_certificate": "boolean"
+      }
+    },
+    "Document": {
+      "code_revision": "Унікальна пара",
+      "text": "Витягнутий текст",
+      "sections": "Список source/text",
+      "checksum": "SHA256 вмісту",
+      "status": [
+        "needs_review",
+        "approved",
+        "supplier_quote",
+        "ocr_required"
+      ],
+      "content": "Байти джерела",
+      "contract_id": "Необов’язковий FK Contract"
+    },
+    "Task": "Існуюча tasks.Task; без дублювання",
+    "Employee": "Існуюча employees.Employee; без дублювання",
+    "ActionProposal": "Сесія, роль, payload, fingerprint, expires_at, receipt",
+    "AuditEvent": "Дія, Task ID, погоджуваний payload, дата"
+  },
+  "validation": "Правила імпорту й фактичні перевірки — docs/DEMO_AND_IMPORT_UA.md та scripts/check_operations.py"
+}

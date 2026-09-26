@@ -1,0 +1,59 @@
+{
+  "scope": "Source, actual extracted JS closures and exact Babel only; mock snapshot read; no browser/API/DB acceptance",
+  "source_sha256": "12fd92c836a81ca83afdd83205decac1d13c4700e1a00e933a3c6dbd7229dd05",
+  "compiled_sha256": "f8d5355d74855598e871c6f56512beba68d97d47c6096cc9ae2bf5ea45b59da8",
+  "checks": [
+    {
+      "name": "manager operational import retains provided UUID",
+      "passed": true
+    },
+    {
+      "name": "manager denies credit_invoice",
+      "passed": true
+    },
+    {
+      "name": "manager denies reverse_credit",
+      "passed": true
+    },
+    {
+      "name": "manager denies confirm_supplier_claim",
+      "passed": true
+    },
+    {
+      "name": "observer denies operational import",
+      "passed": true
+    },
+    {
+      "name": "reject unknown_top_key",
+      "passed": true
+    },
+    {
+      "name": "reject float_quantity",
+      "passed": true
+    },
+    {
+      "name": "reject string_source_id",
+      "passed": true
+    },
+    {
+      "name": "reject invalid_UUID",
+      "passed": true
+    },
+    {
+      "name": "reject cancel_both_sources",
+      "passed": true
+    },
+    {
+      "name": "reject nested_extra_key",
+      "passed": true
+    },
+    {
+      "name": "imported UUID remains fixed after editing reason",
+      "passed": true
+    },
+    {
+      "name": "compiled app equals exact Babel source output",
+      "passed": true
+    }
+  ]
+}

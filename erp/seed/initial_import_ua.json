@@ -1,0 +1,364 @@
+{
+  "format": "bos.initial-import.v1",
+  "batch_id": "2932ebd6-705e-4aea-8f82-9281280e6516",
+  "namespace": "synthetic-a",
+  "cutover": "2026-09-12",
+  "tax_basis": "excluding_VAT",
+  "bindings": [],
+  "rows": [
+    {
+      "entity": "counterparty",
+      "external_id": "supplier-eur",
+      "name": "B02 постачальник A · EUR",
+      "type": "supplier"
+    },
+    {
+      "entity": "counterparty",
+      "external_id": "customer-eur",
+      "name": "B02 клієнт A · EUR",
+      "type": "customer"
+    },
+    {
+      "entity": "item",
+      "external_id": "material-eur",
+      "bos_code": "B02-A-I-EUR",
+      "name": "B02 матеріал · EUR",
+      "unit": "кг",
+      "kind": "material",
+      "revision": "A",
+      "currency": "EUR"
+    },
+    {
+      "entity": "location",
+      "external_id": "warehouse-eur",
+      "bos_code": "B02-A-W-EUR",
+      "name": "B02 склад · EUR"
+    },
+    {
+      "entity": "opening_lot",
+      "external_id": "lot-one-eur",
+      "bos_code": "B02-A-L1-EUR",
+      "item_ref": "material-eur",
+      "location_ref": "warehouse-eur",
+      "unit": "кг",
+      "revision": "A",
+      "quantity": "1.250",
+      "unit_cost": "2.34",
+      "currency": "EUR",
+      "source_reference": "B02 зріз STOCK-1",
+      "reason": "Початковий синтетичний залишок"
+    },
+    {
+      "entity": "opening_lot",
+      "external_id": "lot-two-eur",
+      "bos_code": "B02-A-L2-EUR",
+      "item_ref": "material-eur",
+      "location_ref": "warehouse-eur",
+      "unit": "кг",
+      "revision": "A",
+      "quantity": "3.750",
+      "unit_cost": "2.34",
+      "currency": "EUR",
+      "source_reference": "B02 зріз STOCK-2",
+      "reason": "Початковий синтетичний залишок"
+    },
+    {
+      "entity": "sales_order",
+      "external_id": "sale-eur",
+      "bos_code": "B02-A-SO-EUR",
+      "customer_ref": "customer-eur",
+      "owner_id": 1,
+      "due_date": "2026-10-01",
+      "currency": "EUR",
+      "source_status": "confirmed"
+    },
+    {
+      "entity": "sales_line",
+      "external_id": "sale-line-eur",
+      "order_ref": "sale-eur",
+      "item_ref": "material-eur",
+      "unit": "кг",
+      "revision": "A",
+      "quantity": "2.500",
+      "price": "4.12"
+    },
+    {
+      "entity": "purchase_open_balance",
+      "external_id": "purchase-line-eur",
+      "bos_code": "B02-A-PO-EUR",
+      "item_ref": "material-eur",
+      "supplier_ref": "supplier-eur",
+      "unit": "кг",
+      "revision": "A",
+      "source_order_code": "SOURCE-PO-7-EUR",
+      "source_line_id": "1",
+      "original_quantity": "8.000",
+      "received_before_cutover": "3.000",
+      "remaining_quantity": "5.000",
+      "price": "1.23",
+      "original_extras": "0.80",
+      "remaining_extras": "0.40",
+      "currency": "EUR",
+      "original_due": "2026-09-01",
+      "due_date": "2026-09-01",
+      "source_reference": "B02 первинний реєстр закупівель"
+    },
+    {
+      "entity": "counterparty",
+      "external_id": "supplier-usd",
+      "name": "B02 постачальник A · USD",
+      "type": "supplier"
+    },
+    {
+      "entity": "counterparty",
+      "external_id": "customer-usd",
+      "name": "B02 клієнт A · USD",
+      "type": "customer"
+    },
+    {
+      "entity": "item",
+      "external_id": "material-usd",
+      "bos_code": "B02-A-I-USD",
+      "name": "B02 матеріал · USD",
+      "unit": "кг",
+      "kind": "material",
+      "revision": "A",
+      "currency": "USD"
+    },
+    {
+      "entity": "location",
+      "external_id": "warehouse-usd",
+      "bos_code": "B02-A-W-USD",
+      "name": "B02 склад · USD"
+    },
+    {
+      "entity": "opening_lot",
+      "external_id": "lot-one-usd",
+      "bos_code": "B02-A-L1-USD",
+      "item_ref": "material-usd",
+      "location_ref": "warehouse-usd",
+      "unit": "кг",
+      "revision": "A",
+      "quantity": "1.250",
+      "unit_cost": "2.34",
+      "currency": "USD",
+      "source_reference": "B02 зріз STOCK-1",
+      "reason": "Початковий синтетичний залишок"
+    },
+    {
+      "entity": "opening_lot",
+      "external_id": "lot-two-usd",
+      "bos_code": "B02-A-L2-USD",
+      "item_ref": "material-usd",
+      "location_ref": "warehouse-usd",
+      "unit": "кг",
+      "revision": "A",
+      "quantity": "3.750",
+      "unit_cost": "2.34",
+      "currency": "USD",
+      "source_reference": "B02 зріз STOCK-2",
+      "reason": "Початковий синтетичний залишок"
+    },
+    {
+      "entity": "sales_order",
+      "external_id": "sale-usd",
+      "bos_code": "B02-A-SO-USD",
+      "customer_ref": "customer-usd",
+      "owner_id": 1,
+      "due_date": "2026-10-01",
+      "currency": "USD",
+      "source_status": "confirmed"
+    },
+    {
+      "entity": "sales_line",
+      "external_id": "sale-line-usd",
+      "order_ref": "sale-usd",
+      "item_ref": "material-usd",
+      "unit": "кг",
+      "revision": "A",
+      "quantity": "2.500",
+      "price": "4.12"
+    },
+    {
+      "entity": "purchase_open_balance",
+      "external_id": "purchase-line-usd",
+      "bos_code": "B02-A-PO-USD",
+      "item_ref": "material-usd",
+      "supplier_ref": "supplier-usd",
+      "unit": "кг",
+      "revision": "A",
+      "source_order_code": "SOURCE-PO-7-USD",
+      "source_line_id": "1",
+      "original_quantity": "8.000",
+      "received_before_cutover": "3.000",
+      "remaining_quantity": "5.000",
+      "price": "1.23",
+      "original_extras": "0.80",
+      "remaining_extras": "0.40",
+      "currency": "USD",
+      "original_due": "2026-09-01",
+      "due_date": "2026-09-01",
+      "source_reference": "B02 первинний реєстр закупівель"
+    },
+    {
+      "entity": "counterparty",
+      "external_id": "supplier-uah",
+      "name": "B02 постачальник A · UAH",
+      "type": "supplier"
+    },
+    {
+      "entity": "counterparty",
+      "external_id": "customer-uah",
+      "name": "B02 клієнт A · UAH",
+      "type": "customer"
+    },
+    {
+      "entity": "item",
+      "external_id": "material-uah",
+      "bos_code": "B02-A-I-UAH",
+      "name": "B02 матеріал · UAH",
+      "unit": "кг",
+      "kind": "material",
+      "revision": "A",
+      "currency": "UAH"
+    },
+    {
+      "entity": "location",
+      "external_id": "warehouse-uah",
+      "bos_code": "B02-A-W-UAH",
+      "name": "B02 склад · UAH"
+    },
+    {
+      "entity": "opening_lot",
+      "external_id": "lot-one-uah",
+      "bos_code": "B02-A-L1-UAH",
+      "item_ref": "material-uah",
+      "location_ref": "warehouse-uah",
+      "unit": "кг",
+      "revision": "A",
+      "quantity": "1.250",
+      "unit_cost": "2.34",
+      "currency": "UAH",
+      "source_reference": "B02 зріз STOCK-1",
+      "reason": "Початковий синтетичний залишок"
+    },
+    {
+      "entity": "opening_lot",
+      "external_id": "lot-two-uah",
+      "bos_code": "B02-A-L2-UAH",
+      "item_ref": "material-uah",
+      "location_ref": "warehouse-uah",
+      "unit": "кг",
+      "revision": "A",
+      "quantity": "3.750",
+      "unit_cost": "2.34",
+      "currency": "UAH",
+      "source_reference": "B02 зріз STOCK-2",
+      "reason": "Початковий синтетичний залишок"
+    },
+    {
+      "entity": "sales_order",
+      "external_id": "sale-uah",
+      "bos_code": "B02-A-SO-UAH",
+      "customer_ref": "customer-uah",
+      "owner_id": 1,
+      "due_date": "2026-10-01",
+      "currency": "UAH",
+      "source_status": "confirmed"
+    },
+    {
+      "entity": "sales_line",
+      "external_id": "sale-line-uah",
+      "order_ref": "sale-uah",
+      "item_ref": "material-uah",
+      "unit": "кг",
+      "revision": "A",
+      "quantity": "2.500",
+      "price": "4.12"
+    },
+    {
+      "entity": "purchase_open_balance",
+      "external_id": "purchase-line-uah",
+      "bos_code": "B02-A-PO-UAH",
+      "item_ref": "material-uah",
+      "supplier_ref": "supplier-uah",
+      "unit": "кг",
+      "revision": "A",
+      "source_order_code": "SOURCE-PO-7-UAH",
+      "source_line_id": "1",
+      "original_quantity": "8.000",
+      "received_before_cutover": "3.000",
+      "remaining_quantity": "5.000",
+      "price": "1.23",
+      "original_extras": "0.80",
+      "remaining_extras": "0.40",
+      "currency": "UAH",
+      "original_due": "2026-09-01",
+      "due_date": "2026-09-01",
+      "source_reference": "B02 первинний реєстр закупівель"
+    }
+  ],
+  "expected_source_control_totals": {
+    "counts": {
+      "counterparty": 6,
+      "item": 3,
+      "location": 3,
+      "opening_lot": 6,
+      "sales_order": 3,
+      "sales_line": 3,
+      "purchase_open_balance": 3
+    },
+    "money": [
+      {
+        "currency": "EUR",
+        "opening_raw_value": "11.70000",
+        "opening_movement_cost": "11.70",
+        "sales_open_value": "10.30000",
+        "purchase_original_value": "10.64000",
+        "purchase_cutover_open_value": "6.55000"
+      },
+      {
+        "currency": "UAH",
+        "opening_raw_value": "11.70000",
+        "opening_movement_cost": "11.70",
+        "sales_open_value": "10.30000",
+        "purchase_original_value": "10.64000",
+        "purchase_cutover_open_value": "6.55000"
+      },
+      {
+        "currency": "USD",
+        "opening_raw_value": "11.70000",
+        "opening_movement_cost": "11.70",
+        "sales_open_value": "10.30000",
+        "purchase_original_value": "10.64000",
+        "purchase_cutover_open_value": "6.55000"
+      }
+    ],
+    "stock": [
+      {
+        "item_ref": "material-eur",
+        "location_ref": "warehouse-eur",
+        "unit": "кг",
+        "revision": "A",
+        "currency": "EUR",
+        "quantity": "5.000"
+      },
+      {
+        "item_ref": "material-uah",
+        "location_ref": "warehouse-uah",
+        "unit": "кг",
+        "revision": "A",
+        "currency": "UAH",
+        "quantity": "5.000"
+      },
+      {
+        "item_ref": "material-usd",
+        "location_ref": "warehouse-usd",
+        "unit": "кг",
+        "revision": "A",
+        "currency": "USD",
+        "quantity": "5.000"
+      }
+    ]
+  }
+}

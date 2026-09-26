@@ -1,0 +1,34 @@
+from pathlib import Path
+import hashlib,json,datetime,difflib
+p=Path(__file__).resolve().parent;h=lambda path:hashlib.sha256(path.read_bytes()).hexdigest();base=json.loads((p/'C01_UI_BASE.json').read_text());source=p/'frontend/boss_app_source.html';a=(p/'base/boss_app_source.html').read_text();b=source.read_text();proof=json.loads((p/'UI_PROOF.json').read_text());assert proof['source_sha256']==h(source) and proof['failed']==0
+review=json.loads((p/'REVIEW_GREEN.json').read_text());assert review['source_sha256']==h(source) and review['failed']==0
+denial=json.loads((p/'DENIAL_GREEN.json').read_text());reopen=json.loads((p/'REOPEN_GREEN.json').read_text());assert all(r['source_sha256']==h(source) and r['failed']==0 for r in [denial,reopen])
+files=['frontend/boss_app_source.html','frontend/boss_app_html.html','assets/app.js'];unchanged={n:h(p/n)==base['files'][n] for n in ['assets/babel.js','scripts/build_frontend.cjs']};assert all(unchanged.values())
+regions={'ERP_ACTIONS_and_ERPActionDialog':('const ERP_ACTIONS=','const IMPORT_ENTITIES='),'B02_import':('const IMPORT_ENTITIES=','// B03_HELPERS_BEGIN'),'B03_helpers_dialog_records':('// B03_HELPERS_BEGIN','function ERPWorkspace(')}
+protected={}
+for name,(start,end) in regions.items():
+ old=a[a.index(start):a.index(end,a.index(start))];new=b[b.index(start):b.index(end,b.index(start))];assert old==new;protected[name]=hashlib.sha256(new.encode()).hexdigest()
+patch=''.join(difflib.unified_diff(a.splitlines(True),b.splitlines(True),fromfile='a/frontend/boss_app_source.html',tofile='b/frontend/boss_app_source.html'));(p/'C01_UI.patch').write_text(patch)
+manifest={'scope':'C01 UI candidate source/build/extracted JS only; no browser/API/DB/fullverify acceptance','frozen_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'base':base,'release_files':{n:{'base_sha256':base['files'][n],'sha256':h(p/n)} for n in files},'unchanged_runtime_assets':unchanged,'protected_sections_sha256':protected,'accepted_task_read_only_exceptions':['NavBar active badge and server is_overdue','BoSInspector task-only columns and active/overdue task filter','BoSHome task-only server projection/assignee aliases','App refetchTasks preserves persisted status and observer reads shared task screen'],'proof_counts':{'base_passed':proof['passed'],'base_failed':proof['failed'],'review_passed':review['passed'],'review_failed':review['failed'],'denial_passed':denial['passed'],'denial_failed':denial['failed'],'reopen_passed':reopen['passed'],'reopen_failed':reopen['failed']},'supporting_files':{str(f.relative_to(p)):h(f) for f in p.iterdir() if f.is_file() and f.name not in ['UI_CANDIDATE_MANIFEST.json','README_UA.md']}}
+(p/'UI_CANDIDATE_MANIFEST.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
+report=f'''# C01 · доручення, історія й архів: UI-кандидат
+
+Готовий до незалежного source review та інтеграції root. Релізні файли лише `frontend/boss_app_source.html`, `frontend/boss_app_html.html`, `assets/app.js`; canonical reviewer не змінював. Source SHA `{h(source)}`, compiled SHA `{h(p/'assets/app.js')}`. Точні base/final hashes у UI_CANDIDATE_MANIFEST.json.
+
+Усі п’ять старих writers у Tasks та окремий Topbar POST замінено входами до одного ControlledTask. Procurement і Assistant користуються тією самою формою. Strict JSON приймає лише create_task/update_task, typed Employee/Order IDs, строки/priority/result/reason; повторні/невідомі поля відхиляються. Старе assignee не переписується, nullable legacy поля не заповнюються мовчки.
+
+Форма має серверний попередній перегляд і фактичний receipt. Нове завершення потребує явного результату та FK відповідального. Reopen лишає попередній результат. Archive/restore — окремі погодження лише з reason/archived, статус і результат не підміняються. Пошук, статусні фільтри та сортування збережено; додано архів з історією/відновленням та read-only режим тієї самої сторінки.
+
+До confirm збережено тільки proposal_id/action/task_id/user_id у поточній вкладці. Storage failure блокує відправлення. Generic409, timeout та 5xx зберігають той самий ID. GET expired/pending/unknown не створює нового наміру. Лише receipt або definitive locked proposal_stale/proposal_expired завершують pending; нова session читає статус, але не виконує старий proposal. Історія отримується з task-scoped cursor API; FK diff objects показано як ID+перевірене ім’я/code.
+
+Кнопки: «+ Нове доручення», «Редагувати», «Архівувати», «Відновити», «Історія», «Переглянути зміни», «Погодити й виконати», «Перевірити результат», «Повторити те саме погодження», «Прочитати поточне доручення», «Прочитати історію», «Попередні події». Робочі вкладки: «Робочі доручення», «Архів».
+
+Перевірено {proof['passed']}/{proof['passed']} meaningful checks у UI_PROOF.json: фактичні витягнуті JS helpers/command closures з контрольованим transport/storage, loss/replay/terminal/concurrency/Escape, typed fields та незмінність захищених ERP/B02/B03 блоків. BASELINE_RED.json містить початковий red: old commit втрачав proposal, Tasks/Topbar raw writers, status overwrite. Ранній runner мав пропущену змінну busy; цей harness error збережено окремо, він не є дефектом продукту. Babel повторно компілюється в пам’яті й точно збігається з app.js.
+
+Додаткові {review['passed']}/{review['passed']} відомі review перевірки у REVIEW_GREEN.json підтверджують field-aware буквальний текст, свіжі дані замовлення і приховування current/source/history після explicit403/404 зі збереженим receipt-state. Початковий REVIEW_RED.json збережено. Прийняте root уточнення дозволяє короткий/пробільний result draft для active/process; done/completion/result-correction лишають strict≥3+FK, null не дозволено. Це уточнення контракту, а не ретроспективне оголошення початкового читання дефектом.
+
+Остаточний wire review: {denial['passed']}/{denial['passed']} DENIAL_GREEN перевіряють prepare/commit/recover403/404 з очищенням current/source panels, збереженням pending identity та скиданням stale same_session у recover. {reopen['passed']}/{reopen['passed']} REOPEN_GREEN підтверджують: одночасний reopen зі зміненим буквальним result потребує окремого погодження; explicit той самий короткий legacy result допускається без нової completion. Попередні freezes та red докази збережені у review_freeze_1/2, DENIAL_RED та REOPEN_RED.
+
+Це не actual browser, не HTTP backend acceptance і не повний gate. Вигляд390/768/1440, zoom200%, реальний keyboard/Escape, реальна мережа й інтеграція ще потребують окремого приймання. A11 не повторювали. Root окремо перевіряє backend/схему/restore/fullverify. Додаткових plugins/dependencies/network permissions немає.
+'''
+(p/'README_UA.md').write_text(report);print(json.dumps({'source_sha256':h(source),'app_sha256':h(p/'assets/app.js'),'manifest_sha256':h(p/'UI_CANDIDATE_MANIFEST.json'),'readme_sha256':h(p/'README_UA.md')},ensure_ascii=False))

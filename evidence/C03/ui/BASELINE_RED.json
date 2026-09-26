@@ -1,0 +1,32 @@
+{
+  "scope": "Actual extracted baseline Bank sumBy/addTx closures with controlled data/transport; no browser/API/DB",
+  "source_sha256": "fd283ac01fd50fd2478a5902e492fbed5f16da943ac3731a01b4903a96dec801",
+  "checks": [
+    {
+      "name": "selected EUR journal total does not mix USD and UAH",
+      "passed": false,
+      "expected": "17.39 EUR",
+      "actual": "9941.91 labeled EUR",
+      "actual_source": "const sumBy = (dir, key) => transactions.filter(t => t.direction===dir && (t.date||'').startsWith(key)).reduce((s,t)=>s+Number(t.amount||0), 0);"
+    },
+    {
+      "name": "manual create explicitly submits chosen currency",
+      "passed": false,
+      "actual_payload": {
+        "direction": "in",
+        "amount": "17.39",
+        "date": "2026-09-12",
+        "description": "Синтетичний запис",
+        "category": "customer",
+        "counterparty": "7"
+      }
+    },
+    {
+      "name": "bank uses truthful period movement label",
+      "passed": false,
+      "actual_label": "Баланс місяця"
+    }
+  ],
+  "passed": 0,
+  "failed": 3
+}

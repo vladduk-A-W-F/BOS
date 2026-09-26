@@ -1,0 +1,22 @@
+Creating test database for alias 'default'...
+Destroying old test database for alias 'default'...
+F
+======================================================================
+FAIL: test_cancelled_component_purchase_does_not_delay_bom_plan (erp.test_corrections.CorrectionTests.test_cancelled_component_purchase_does_not_delay_bom_plan)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/b03_candidate/source/erp/test_corrections.py", line 143, in test_cancelled_component_purchase_does_not_delay_bom_plan
+    line.refresh_from_db();plan=plan_line(line);self.assertEqual(plan['estimated_date'],str(date(2026,9,12)+timedelta(days=component.lead_days)))
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '2027-01-01' != '2026-09-19'
+- 2027-01-01
++ 2026-09-19
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.259s
+
+FAILED (failures=1)
+Destroying test database for alias 'default'...
+Found 1 test(s).
+System check identified no issues (0 silenced).

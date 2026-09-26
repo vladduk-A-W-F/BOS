@@ -1,0 +1,21 @@
+{
+  "complete": true,
+  "scope": "same-process foreground supervisor capability; no IPC/backup/restore/upgrade gate",
+  "work": "/workspace/scratch/c7b51e996a9f/tmp/a10-inprocess-kf8w10c5",
+  "checks": [
+    "real lifetime instance flock refuses another owner; unissued lease/dict refused",
+    "actual held WSGI write and HTTP200 finish before typed lease; queue/workers/sockets drained and child exit0",
+    "same-process capture callback validates live owner/lock and reads stable original fixture DB",
+    "other installation/root/operation and mutation of readonly lease binding refused",
+    "added ACTIVE pointer refuses same-N resume while preserving valid quiescence",
+    "fenced callback excludes concurrent release; explicit same-N resume starts own new child and revokes old lease",
+    "actual external unlock of owner fd invalidates lease; inode alone cannot fake lifetime fence",
+    "closed owner invalidates all issued capabilities",
+    "real drain timeout exits6; state failed, no lease, no committed or post-exit write",
+    "BoS fixture database untouched; all writes isolated in newly owned held-request databases"
+  ],
+  "all_owned_children_stopped": true,
+  "original_bos_fixture_database_unchanged": true,
+  "control_sha256": "4e9b33059b6faa7bb8a03a6dedecfc08d29493e0f0333fb231920c6e80714223",
+  "runner_sha256": "f25b421aa9f5c2542ebecbe5cea3f6a70bad25d6bbfb8e27accbe01e3eced6c6"
+}

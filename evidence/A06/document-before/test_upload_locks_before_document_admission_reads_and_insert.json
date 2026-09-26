@@ -1,0 +1,58 @@
+{
+  "test": "a06_document_mutex_tests.A06DocumentMutexTests.test_upload_locks_before_document_admission_reads_and_insert",
+  "backend": "sqlite",
+  "trace": [
+    {
+      "worker": "upload",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": false,
+      "sql": "select %s as \"a\" from \"operations_document\" where (\"operations_document\".\"code\" = %s and not (\"operations_document\".\"id\" in (select u0.\"id\" as \"pk\" from \"operations_document\" u0))) limit 1",
+      "completed": true
+    },
+    {
+      "worker": "upload",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": false,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"code\" = %s order by \"operations_document\".\"id\" desc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "upload",
+      "operation": "insert",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": false,
+      "sql": "insert into \"operations_document\" (\"access_level\", \"code\", \"revision\", \"title\", \"filename\", \"content\", \"text\", \"sections\", \"status\", \"checksum\", \"contract_id\", \"created_at\") values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) returning \"operations_document\".\"id\"",
+      "completed": true
+    },
+    {
+      "worker": "upload",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": false,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"code\" = %s order by \"operations_document\".\"id\" desc limit 1",
+      "completed": true
+    }
+  ],
+  "database_version": "3.53.1",
+  "http": {
+    "status": 201,
+    "body": {
+      "id": 6,
+      "code": "A06-CERT",
+      "revision": "B",
+      "title": "Синтетичний сертифікат B",
+      "status": "needs_review",
+      "filename": "a06-cert-b.txt",
+      "checksum": "8e49849de3eb8c38840499c5bd3eda80bbc1c3b1cd6680d7a769de1a386e6b11",
+      "contract_id": null,
+      "created_at": "2026-09-11T20:39:05.353083+00:00",
+      "current": true
+    }
+  }
+}

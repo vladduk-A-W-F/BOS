@@ -1,0 +1,154 @@
+{
+  "card": "CORE-WORKSPACE-VIEWS",
+  "reviewer": "/root/currency_completion",
+  "author": "/root/network_workflow",
+  "status": "FINAL",
+  "baseline_frontend_sha256": "d62bc8eef83aee92c2b7b08a7e1ce508abff8edf28a7f32e1fcc5d9bd1f84360",
+  "initial_patch_sha256": "712870c31dde6151dba7c32bf8098fc1ee864b9e2df20cc693274327b055941d",
+  "initial_frontend_sha256": "3e8eb4951ada57b1d2973a7b4eb28aef6d0db92eb91e9912f7c981c5cd947a72",
+  "reviewer_test_invocations": 0,
+  "reviewer_browser_launches": 0,
+  "canonical_mutations": false,
+  "findings": [
+    {
+      "id": "CORE-VIEWS-REVIEW-01",
+      "severity": "medium",
+      "status": "resolved",
+      "description": "Transfer map includes source and destination across branches, but map click originally changed only point. An incompatible old branch could remain selected, producing an empty server intersection and a point absent from the dropdown. Synchronize branch and point while preserving model/view/search.",
+      "resolution": "modulePointSelection follows actual Location.branch_id, retaining all-network scope or changing an incompatible branch. chooseWorkspacePoint changes only branch and point; unknown points are cleared. Final focused check covers assigned, unassigned, all-network and missing cases plus handler wiring."
+    },
+    {
+      "id": "CORE-VIEWS-REVIEW-02",
+      "severity": "medium",
+      "status": "resolved",
+      "description": "The test bosCanAction stub incorrectly denied invoice to manager while production helper permits it. Stale CEO catalog could expose financial invoice action for manager. Explicit current finance gating is required in new action components; server authorization remains unchanged.",
+      "resolution": "Both action components call moduleActionVisible; all five financial action types require catalog finance, current network finance and bosCan(finance). Final check loads actual production bosCanAction and proves manager invoice is otherwise allowed before asserting concealment; also covers catalog and network finance false."
+    }
+  ],
+  "existing_action_dialog": {
+    "byte_identical": true,
+    "bytes": 18020,
+    "sha256": "e520bc19a5c63f3104e2652fe1ad76476eb5e7bced176af33e2ba423b92663d3"
+  },
+  "limits": [
+    "New component tests are not a browser render or live authorization check.",
+    "The prior final browser run35516896359 failed on payment preview; that remains unresolved and no browser proof transfers to these new views.",
+    "No production activation or readiness change."
+  ],
+  "verdict": "ACCEPT_SCOPED_STATIC_AND_AUTHOR_COMPONENT_EVIDENCE",
+  "source": "/workspace/scratch/4dbe5b4c73ee/execution/core-views/source",
+  "patch": "/workspace/scratch/4dbe5b4c73ee/execution/core-views/core-views.patch",
+  "patch_sha256": "d7de95f59594431dddd5b587557b546a736e91103bc526b0a32202ea2ee1fcd2",
+  "files": {
+    "frontend/boss_app_source.html": "a79805f432096cd8aea5fb18762d0897f530fe1c6ffeae945c7877784f0e87ac",
+    "scripts/checks/module_views.cjs": "afad4b23d14cc3b877eead8990cabfa5f74f5c09f5d8f6a76242c4f264687c7c",
+    "docs/CORE_MODULE_VIEWS_UA.md": "4a76eff0797b7128e9131cacc2bf849778fa545330d05288a92b5de2954ccfb2",
+    "scripts/checks/fixtures/module_catalog/ceo.json": "fb4949ab0200c82a642107723819d8c5d39f4921f47c59779a5a9a2d0f518819",
+    "scripts/checks/fixtures/module_catalog/manager.json": "e6e44bb191e571b39d28b778ea773a257ad3f131f82e8b45cff478d7736f2fee",
+    "scripts/checks/fixtures/module_catalog/observer.json": "58237e7c80e21d3a7f8e44947981f9fc60b61455fb082a3df62d8043e01b7b9b"
+  },
+  "generated_files_not_in_patch": {
+    "assets/app.js": "0b251f00692f76141cc4b72c184cc17bead9e7350e5073a03f8bf334a3c4d9d9",
+    "frontend/boss_app_html.html": "5e67fa8a5bae31421e3855f93fbe1afcd2313a24c2f14047797b179ea082565a"
+  },
+  "all_eight_file_hashes_independently_matched": true,
+  "baseline_frontend_matches_current_canonical": true,
+  "allowlist": {
+    "raw_patch_files": [
+      "frontend/boss_app_source.html",
+      "scripts/checks/module_views.cjs",
+      "docs/CORE_MODULE_VIEWS_UA.md",
+      "scripts/checks/fixtures/module_catalog/ceo.json",
+      "scripts/checks/fixtures/module_catalog/manager.json",
+      "scripts/checks/fixtures/module_catalog/observer.json"
+    ],
+    "generated_build_files": [
+      "assets/app.js",
+      "frontend/boss_app_html.html"
+    ],
+    "matches": true
+  },
+  "blocking_findings_remaining": [],
+  "static_observations": [
+    "Four projections consume references from the same role-filtered network.rows model and one parent-owned branch/point/currency/model/search/view state; no new browser ledger, backend writer, localStorage store, drag mutation or network POST.",
+    "Control is paginated ERPTable; flow groups by actual status_field including one neutral group when absent; map uses existing Location relations and keeps unmapped records in cards; focus uses existing due date, open quantity/count, quality, movement and settlement facts.",
+    "Decimal money display and positive-money predicates use exact decimal strings, including amounts beyond binary integer precision; no summing different currencies.",
+    "Current role and both catalog/network capabilities strip finance columns, retention model, monetary focus reasons and financial actions; observer actions remain hidden. Server writer retains authority.",
+    "Catalog is fetched from the actual /api/erp/modules/ endpoint and requires known schema/row paths; HTTP or unknown-schema failure gives alert/retry without a local fallback catalog.",
+    "Create and record actions pass existing action keys and real row IDs/decimal quantities into parent onAction. Existing ERPActionDialog, including preview/confirm implementation, is byte-identical to baseline.",
+    "Existing four usefulness groups and network filters remain. Search and selected layout are parent-owned and survive payload refresh; selected model stays the same on map selection.",
+    "Native controls and details provide intended keyboard interaction; inline transfer/retention details have Escape closure and source focus restoration in code. This is not browser focus or accessibility proof.",
+    "KPI CSS addresses the observed desktop amount/currency wrap using nowrap, responsive grid and container-relative font size without ellipsis; actual desktop/mobile render is unverified.",
+    "CSV preserves server model/branch/point/currency scope and hides export during unsupported client text search instead of claiming the file contains the search-only rows."
+  ],
+  "fixture_parity": {
+    "method": "Actual canonical erp.module_registry.build(policy), explicit SimpleNamespace synthetic role/ceo/capabilities objects; serialized ensure_ascii=False, indent=2, trailing newline; compared author fixture bytes.",
+    "database_connection_opened": false,
+    "roles": {
+      "ceo": {
+        "structure_identical": true,
+        "bytes_identical": true,
+        "sha256": "fb4949ab0200c82a642107723819d8c5d39f4921f47c59779a5a9a2d0f518819"
+      },
+      "manager": {
+        "structure_identical": true,
+        "bytes_identical": true,
+        "sha256": "e6e44bb191e571b39d28b778ea773a257ad3f131f82e8b45cff478d7736f2fee"
+      },
+      "observer": {
+        "structure_identical": true,
+        "bytes_identical": true,
+        "sha256": "58237e7c80e21d3a7f8e44947981f9fc60b61455fb082a3df62d8043e01b7b9b"
+      }
+    },
+    "live_auth_proof": false,
+    "canonical_registry_sha256": "405e8de2faffbf74133b6c1d803f908c8e1f002f2af6d73b38938589c5d6d807"
+  },
+  "author_verification": {
+    "working_directory": "/workspace/scratch/4dbe5b4c73ee/execution/core-views/source",
+    "test_command": "node scripts/checks/module_views.cjs",
+    "invocations": 3,
+    "max_invocations": 3,
+    "earlier_raw": [
+      "/workspace/scratch/4dbe5b4c73ee/execution/core-views/module_views_raw_1.txt",
+      "/workspace/scratch/4dbe5b4c73ee/execution/core-views/module_views_raw_2.txt"
+    ],
+    "final_raw": "/workspace/scratch/4dbe5b4c73ee/execution/core-views/module_views_raw_3.txt",
+    "final_checks": 25,
+    "final_result": "PASS",
+    "final_exit_code": 0,
+    "build_command": "node scripts/build_frontend.cjs",
+    "build_raw": "/workspace/scratch/4dbe5b4c73ee/execution/core-views/build_review_final_raw.txt",
+    "build_exit_code": 0,
+    "interpretation": "Author raw evidence inspected independently; component/helper/contract checks use lightweight React stubs, not a mounted browser or live HTTP authorization test."
+  },
+  "evidence_hashes": {
+    "module_views_raw_1.txt": "9fb86a9954033798541b6616c890c7fba1d25385b309cae8eaa6e04e683daf08",
+    "module_views_raw_2.txt": "9fb86a9954033798541b6616c890c7fba1d25385b309cae8eaa6e04e683daf08",
+    "module_views_raw_3.txt": "6c4cac2cbed57428389e7d3b1020a447af5713d48047a77635996ee7859e82b9",
+    "build_review_final_raw.txt": "c948f92c4b900bc4099af0caf204fd3ab3b5b80e57cda74ec9bcf2e1f247ba02"
+  },
+  "browser_limitations": {
+    "new_views_browser_run": false,
+    "prior_run_id": "35516896359",
+    "prior_source_commit": "929a395547fa1ed496171120a14b19bc8d5b6f87",
+    "prior_runtime_sha256": "c15dfe0e3aeefde2fd4fa7af0e9dd2c7c04072a59b185554b821576b4c2111ca",
+    "prior_result": "57 checks passed before payment preview timeout; full scope FAILED_OR_BLOCKED",
+    "prior_proof_transfers_to_new_views": false,
+    "unverified": [
+      "New view desktop/mobile rendering",
+      "New view live keyboard/focus behavior",
+      "New catalog + new UI live browser integration",
+      "Existing payment preview, settlement and release browser sequence",
+      "Prior browser manager/observer and mobile scope"
+    ],
+    "payment_timeout_root_cause": "Unknown; no matching response was observed, which does not establish absence of a sent request.",
+    "workflow_attempt_budget": "3/3 exhausted; no automatic rerun authorized by this review"
+  },
+  "next_allowed_step": "Root may integrate exact six raw patch files and the two verified generated build files sequentially, record evidence and new candidate hash; no further component suite or browser invocation under this exhausted scope.",
+  "readiness": {
+    "TECHNICAL_READY": false,
+    "PILOT_ALLOWED": false,
+    "production_activation": false
+  }
+}

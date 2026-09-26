@@ -1,0 +1,147 @@
+{
+  "gate": 7,
+  "complete": false,
+  "version": "0.2.13-dev",
+  "synthetic_work": "/tmp/bos-restore-check-rjaywmj6",
+  "scope": "actual same-N TLS, capture, clean restore and restored HTTPS; no upgrade/rollback or Windows/PG",
+  "checks": [
+    {
+      "case": "fresh_offline_install_and_independent_three_currency_fixture",
+      "passed": true
+    },
+    {
+      "case": "original_real_TLS_login_document",
+      "passed": true,
+      "document_sha256": "bba0159323a4d10c1954fea3eb175e0b9a10eb26a76b80dcf4a0f310264f2111"
+    },
+    {
+      "case": "actual_TLS_import_populated_ledger_and_source_document",
+      "passed": true,
+      "batch_id": "4e21f149-b618-4029-b4c1-05dc0fba1f16",
+      "mapping_count": 27,
+      "export_sha256": "0ca120a7088f7b4d8f2e0a9aa3a8ed6e5de0c3e5bcd28c5a10cc50c7c0e82682"
+    },
+    {
+      "case": "actual_TLS_six_populated_correction_ledgers",
+      "passed": true,
+      "counts": {
+        "cancellations": 2,
+        "cancellation_releases": 1,
+        "goods_returns": 2,
+        "supplier_claims": 2,
+        "invoice_adjustments": 2,
+        "invoice_adjustment_lines": 2
+      },
+      "snapshot_sha256": "593ca925a3e72c2fbb70be2b8bbff172afed95bece9204e07c881184e3b5471f"
+    },
+    {
+      "case": "actual_TLS_tasks_FK_result_archive_and_history",
+      "passed": true,
+      "tasks": 4,
+      "receipts": 6,
+      "state_sha256": "0511e5fee5f1aa2d0438ae09e810b1aee0f8b2b19328818a73d267b1cad22df5"
+    },
+    {
+      "case": "actual_quiescence_native_capture",
+      "passed": true,
+      "scope": "capture_only",
+      "installation_id": "aa241b2e-9ac8-48b6-9357-74e9d98191dd",
+      "operation_id": "fefe00a4-fedb-43b4-bd49-1cc842931395",
+      "version": "0.2.13-dev",
+      "manifest_sha256": "790d39a993d13913cc28982c16864b77d12828ac387a1ba11fc7c175b8108647",
+      "database_sha256": "dc52ee9081b48278f954e0ab421c04005c93cfbd5bd5f345c5c0d222085e3ed1",
+      "private_files": 3,
+      "elapsed_seconds": 5.096,
+      "lease_retained": true,
+      "restore_verified": false
+    },
+    {
+      "case": "corrupt_backup_refused",
+      "passed": true
+    },
+    {
+      "case": "existing_installation_restore_refused_without_writes",
+      "passed": true
+    },
+    {
+      "case": "new_installation_native_restore",
+      "passed": true,
+      "scope": "clean_restore_data_and_code_only",
+      "installation_id": "7dec53e2-c9b3-4605-8c0d-514b7927f7c1",
+      "source_installation_id": "aa241b2e-9ac8-48b6-9357-74e9d98191dd",
+      "version": "0.2.13-dev",
+      "database_sha256": "dc52ee9081b48278f954e0ab421c04005c93cfbd5bd5f345c5c0d222085e3ed1",
+      "private_files": 3,
+      "tables": 53,
+      "elapsed_seconds": 30.262,
+      "backup_unchanged": true,
+      "post_restore_http_verified": false,
+      "identity_policy": "new installation UUID, secret and cookie namespace; stored identities/history unchanged"
+    },
+    {
+      "case": "original_same_N_resumed",
+      "passed": true,
+      "health": {
+        "live": 200,
+        "ready": 200
+      }
+    },
+    {
+      "case": "restored_real_TLS_login_document_and_version",
+      "passed": true,
+      "new_cookie_namespace": true,
+      "document_sha256": "bba0159323a4d10c1954fea3eb175e0b9a10eb26a76b80dcf4a0f310264f2111",
+      "version": "0.2.13-dev"
+    },
+    {
+      "case": "restored_import_receipt_identity_replay_and_private_source",
+      "passed": true,
+      "export_sha256": "0ca120a7088f7b4d8f2e0a9aa3a8ed6e5de0c3e5bcd28c5a10cc50c7c0e82682",
+      "no_new_business_effects": true
+    }
+  ],
+  "management_code_sha256": {
+    "maintenance_control": "4e9b33059b6faa7bb8a03a6dedecfc08d29493e0f0333fb231920c6e80714223",
+    "generation_ledger": "b68298be377367ae8bfcddd3ec44cfff446dcd9dc0698864a9a822ea6b8df3f1",
+    "backup_server": "27430b053bf714b09b89214278454144b6587040754f0db8d1d79f874e0cbed8",
+    "restore_server": "baaf64239df69dd0a2c19bcab7b67044af3ad19cd9790f7d95e0b47f5b323eb0",
+    "managed_runtime": "be7e26c107248ff3dc13d86acf700a9d84784f82df386b36d2e9e855ec181840"
+  },
+  "package": {
+    "version": "0.2.13-dev",
+    "source_sha256": "e984108c0d86d445e04e926dc95d551cf00eb517144038df06797a8d2ab9eba0",
+    "files": 295,
+    "database_files": 0,
+    "output": "/tmp/bos-restore-check-rjaywmj6/package"
+  },
+  "seed": {
+    "user_id": 1,
+    "employee_id": 1,
+    "second_employee_id": 2,
+    "legacy_task_ids": [
+      1,
+      2
+    ],
+    "document_id": 1,
+    "import_document": {
+      "document_id": 3,
+      "code": "RESTORE-IMPORT",
+      "revision": "A",
+      "checksum": "1d6432f290d6c0d47600c86dca7b826d164703272398541293ba648634c05acd"
+    },
+    "transaction_ids": [
+      1,
+      2,
+      3
+    ],
+    "currencies": 3,
+    "amounts": [
+      "17.39",
+      "123.45",
+      "9801.07"
+    ],
+    "stored_session_rows": 1
+  },
+  "error_type": "AssertionError",
+  "reason": "Перевірка не завершена; див. останній успішний сценарій."
+}

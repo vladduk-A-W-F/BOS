@@ -1,0 +1,146 @@
+Creating test database for alias 'default' ('/workspace/scratch/c7b51e996a9f/tmp/b01_candidate/check_b01_after1.sqlite3_django_test')...
+Destroying old test database for alias 'default' ('/workspace/scratch/c7b51e996a9f/tmp/b01_candidate/check_b01_after1.sqlite3_django_test')...
+Found 12 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: django_filters, messages, rest_framework, staticfiles
+  Apply all migrations: admin, ai_assistant, auth, branches, contenttypes, employees, erp, finance, operations, sessions, tasks
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying ai_assistant.0001_initial... OK
+  Applying ai_assistant.0002_taskchangelog... OK
+  Applying ai_assistant.0003_claudeusagelog... OK
+  Applying ai_assistant.0004_employeechangelog... OK
+  Applying ai_assistant.0005_chatfile... OK
+  Applying ai_assistant.0006_alter_chatmessage_created_at_and_more... OK
+  Applying ai_assistant.0007_employeechangelog_undone_at... OK
+  Applying ai_assistant.0008_chatmessage_archived_at_chatmessage_user_and_more... OK
+  Applying ai_assistant.0009_private_documents... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying branches.0001_initial... OK
+  Applying branches.0002_branch_short_name... OK
+  Applying branches.0003_fill_short_names... OK
+  Applying employees.0001_initial... OK
+  Applying employees.0002_alter_employee_department... OK
+  Applying employees.0003_employee_branch... OK
+  Applying employees.0004_employee_archived_at... OK
+  Applying employees.0005_employee_user... OK
+  Applying tasks.0001_initial... OK
+  Applying tasks.0002_alter_task_priority... OK
+  Applying tasks.0003_alter_task_deadline_alter_task_priority_and_more... OK
+  Applying tasks.0004_task_branch... OK
+  Applying finance.0001_initial... OK
+  Applying finance.0002_alter_salary_unique_together_alter_contract_status_and_more... OK
+  Applying finance.0003_transaction_branch... OK
+  Applying operations.0001_initial... OK
+  Applying operations.0002_actionproposal_user... OK
+  Applying operations.0003_loginattempt... OK
+  Applying operations.0004_alter_document_options_document_access_level... OK
+  Applying operations.0005_invoice_boundaries... OK
+  Applying operations.0006_private_documents... OK
+  Applying erp.0001_initial... OK
+  Applying erp.0002_row_boundaries... OK
+  Applying erp.0003_purchase_source... OK
+  Applying finance.0004_salary_archived_at_transaction_archived_at_and_more... OK
+  Applying finance.0005_alter_transaction_branch_alter_transaction_contract_and_more... OK
+  Applying finance.0006_financialintent... OK
+  Applying finance.0007_money_boundaries... OK
+  Applying sessions.0001_initial...test_changed_request_or_quote_invalidates_old_proposal_without_rewriting_history (erp.test_procurement_bridge.ProcurementBridgeTests.test_changed_request_or_quote_invalidates_old_proposal_without_rewriting_history) ... ok
+test_creation_writers_lock_before_reading_source_rows (erp.test_procurement_bridge.ProcurementBridgeTests.test_creation_writers_lock_before_reading_source_rows) ... ok
+test_direct_purchase_needs_reason_and_preserves_explicit_reason (erp.test_procurement_bridge.ProcurementBridgeTests.test_direct_purchase_needs_reason_and_preserves_explicit_reason) ... ok
+test_direct_request_allocation_and_mapping_are_checked (erp.test_procurement_bridge.ProcurementBridgeTests.test_direct_request_allocation_and_mapping_are_checked) ... ok
+test_historical_snapshot_source_hides_po_not_an_operational_lot_or_partial_aggregate (erp.test_procurement_bridge.ProcurementBridgeTests.test_historical_snapshot_source_hides_po_not_an_operational_lot_or_partial_aggregate) ... ok
+test_ineligible_or_unverified_source_is_refused (erp.test_procurement_bridge.ProcurementBridgeTests.test_ineligible_or_unverified_source_is_refused) ... ok
+test_original_bytes_and_latest_version_rechecked_at_confirmation (erp.test_procurement_bridge.ProcurementBridgeTests.test_original_bytes_and_latest_version_rechecked_at_confirmation) ... ok
+test_quote_bound_fields_and_confirmation_are_not_client_controlled (erp.test_procurement_bridge.ProcurementBridgeTests.test_quote_bound_fields_and_confirmation_are_not_client_controlled) ... ok
+test_quote_purchase_and_partial_receipts_in_three_currencies (erp.test_procurement_bridge.ProcurementBridgeTests.test_quote_purchase_and_partial_receipts_in_three_currencies) ... 
+  test_quote_purchase_and_partial_receipts_in_three_currencies (erp.test_procurement_bridge.ProcurementBridgeTests.test_quote_purchase_and_partial_receipts_in_three_currencies) (currency='EUR') ... FAIL
+  test_quote_purchase_and_partial_receipts_in_three_currencies (erp.test_procurement_bridge.ProcurementBridgeTests.test_quote_purchase_and_partial_receipts_in_three_currencies) (currency='USD') ... FAIL
+  test_quote_purchase_and_partial_receipts_in_three_currencies (erp.test_procurement_bridge.ProcurementBridgeTests.test_quote_purchase_and_partial_receipts_in_three_currencies) (currency='UAH') ... FAIL
+test_source_scope_and_observer_projection_are_enforced (erp.test_procurement_bridge.ProcurementBridgeTests.test_source_scope_and_observer_projection_are_enforced) ... ok
+test_split_allocation_and_compare_remainder_preserve_multiple_suppliers (erp.test_procurement_bridge.ProcurementBridgeTests.test_split_allocation_and_compare_remainder_preserve_multiple_suppliers) ... ok
+test_two_confirmations_cannot_overallocate_and_successful_replay_is_identical (erp.test_procurement_bridge.ProcurementBridgeConcurrencyTests.test_two_confirmations_cannot_overallocate_and_successful_replay_is_identical) ... FAIL
+
+======================================================================
+FAIL: test_quote_purchase_and_partial_receipts_in_three_currencies (erp.test_procurement_bridge.ProcurementBridgeTests.test_quote_purchase_and_partial_receipts_in_three_currencies) (currency='EUR')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/b01_candidate/source/erp/test_procurement_bridge.py", line 137, in test_quote_purchase_and_partial_receipts_in_three_currencies
+    self.assertEqual(self.state(), before)
+AssertionError: {'erp[3386 chars]2'}}, {'id': 2, 'key': 'erp_write', 'value': {'revision': 3}}]} != {'erp[3386 chars]2'}}, {'id': 2, 'key': 'erp_write', 'value': {'revision': 2}}]}
+Diff is 9727 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_quote_purchase_and_partial_receipts_in_three_currencies (erp.test_procurement_bridge.ProcurementBridgeTests.test_quote_purchase_and_partial_receipts_in_three_currencies) (currency='USD')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/b01_candidate/source/erp/test_procurement_bridge.py", line 123, in test_quote_purchase_and_partial_receipts_in_three_currencies
+    self.assertEqual((po.quantity,po.price,po.extras,po.received,po.currency,po.revision),
+AssertionError: Tuples differ: (Decimal('10.000'), Decimal('12.34'), Decimal('5.00')[26 chars] 'A') != (Decimal('10'), Decimal('12.34'), Decimal('5'), Decim[15 chars] 'A')
+
+First differing element 4:
+'EUR'
+'USD'
+
++ (Decimal('10'), Decimal('12.34'), Decimal('5'), Decimal('0'), 'USD', 'A')
+- (Decimal('10.000'),
+-  Decimal('12.34'),
+-  Decimal('5.00'),
+-  Decimal('0.000'),
+-  'EUR',
+-  'A')
+
+======================================================================
+FAIL: test_quote_purchase_and_partial_receipts_in_three_currencies (erp.test_procurement_bridge.ProcurementBridgeTests.test_quote_purchase_and_partial_receipts_in_three_currencies) (currency='UAH')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/b01_candidate/source/erp/test_procurement_bridge.py", line 123, in test_quote_purchase_and_partial_receipts_in_three_currencies
+    self.assertEqual((po.quantity,po.price,po.extras,po.received,po.currency,po.revision),
+AssertionError: Tuples differ: (Decimal('10.000'), Decimal('12.34'), Decimal('5.00')[26 chars] 'A') != (Decimal('10'), Decimal('12.34'), Decimal('5'), Decim[15 chars] 'A')
+
+First differing element 4:
+'EUR'
+'UAH'
+
++ (Decimal('10'), Decimal('12.34'), Decimal('5'), Decimal('0'), 'UAH', 'A')
+- (Decimal('10.000'),
+-  Decimal('12.34'),
+-  Decimal('5.00'),
+-  Decimal('0.000'),
+-  'EUR',
+-  'A')
+
+======================================================================
+FAIL: test_two_confirmations_cannot_overallocate_and_successful_replay_is_identical (erp.test_procurement_bridge.ProcurementBridgeConcurrencyTests.test_two_confirmations_cannot_overallocate_and_successful_replay_is_identical)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/b01_candidate/source/erp/test_procurement_bridge.py", line 356, in test_two_confirmations_cannot_overallocate_and_successful_replay_is_identical
+    self.assertEqual(self.state(),before)
+AssertionError: {'erp[3386 chars]2'}}, {'id': 2, 'key': 'erp_write', 'value': {'revision': 3}}]} != {'erp[3386 chars]2'}}, {'id': 2, 'key': 'erp_write', 'value': {'revision': 2}}]}
+Diff is 9727 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 12 tests in 2.311s
+
+FAILED (failures=4)
+Destroying test database for alias 'default' ('/workspace/scratch/c7b51e996a9f/tmp/b01_candidate/check_b01_after1.sqlite3_django_test')...
+ OK
+System check identified no issues (0 silenced).
+B01_CONCURRENCY [{"status": 200, "json": {"state": "succeeded", "purchase_id": 1, "code": "B01-PO-1907fc2e93aa", "erp_event_id": 1, "impact": [{"kind": "purchases", "id": 1, "code": "B01-PO-1907fc2e93aa", "field": "quantity", "label": "Замовлено", "before": null, "after": "6.000", "currency": "EUR"}, {"kind": "purchases", "id": 1, "code": "B01-PO-1907fc2e93aa", "field": "price", "label": "Ціна одиниці", "before": null, "after": "12.34", "currency": "EUR"}, {"kind": "purchases", "id": 1, "code": "B01-PO-1907fc2e93aa", "field": "extras", "label": "Додаткові витрати", "before": null, "after": "5.00", "currency": "EUR"}, {"kind": "purchases", "id": 1, "code": "B01-PO-1907fc2e93aa", "field": "received", "label": "Отримано", "before": null, "after": "0.000", "currency": "EUR"}, {"kind": "purchases", "id": 1, "code": "B01-PO-1907fc2e93aa", "field": "status", "label": "Стан поставки", "before": null, "after": "ordered", "currency": "EUR"}, {"kind": "purchases", "id": 1, "code": "B01-PO-1907fc2e93aa", "field": "due_date", "label": "Очікувана дата", "before": null, "after": "2026-10-20", "currency": "EUR"}]}, "proposal": "3c635d45-23e0-48e8-9d6f-0b98c4629814"}, {"status": 409, "json": {"error": "Дані змінилися або дія вже виконується. Оновіть перегляд."}, "proposal": "bba7f243-a285-4f14-b6b5-ebeed63d243f"}]

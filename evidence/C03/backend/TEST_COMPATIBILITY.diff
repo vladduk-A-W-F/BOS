@@ -1,0 +1,157 @@
+--- accepted_c01/erp/test_full_data_transfer.py
++++ c03/erp/test_full_data_transfer.py
+@@ -8,7 +8,7 @@
+ 
+ from django.test import SimpleTestCase
+ from scripts import check_data_transfer as runner
+-from fixtures.synthetic.table_inventory import B03_TABLES
++from fixtures.synthetic.table_inventory import C03_TABLES
+ 
+ 
+ class FullDataTransferTests(SimpleTestCase):
+@@ -29,8 +29,8 @@
+             self.assertTrue(report['complete'])
+             self.assertEqual(report['backend'], backend)
+             self.assertTrue(report['source_unchanged'])
+-            self.assertEqual(report['table_count'], 53)
+-            self.assertEqual(set(report['tables']), B03_TABLES)
++            self.assertEqual(report['table_count'], 56)
++            self.assertEqual(set(report['tables']), C03_TABLES)
+             self.assertEqual(report['business_before']['facts'], report['business_after']['facts'])
+             self.assertTrue(report['files_preserved'])
+             self.assertTrue(report['sequences_preserved'])
+--- accepted_c01/erp/test_import_preservation.py
++++ c03/erp/test_import_preservation.py
+@@ -43,14 +43,14 @@
+         self.assertEqual((self.state(),self.ledger()),before)
+ 
+     def test_populated_ledger_full_typed_transfer_preserves_source_receipts_and_ids(self):
+-        from fixtures.synthetic.table_inventory import B03_TABLES
++        from fixtures.synthetic.table_inventory import C03_TABLES
+         batch=self.batch();preview,receipt=self.commit(batch);before=(self.state(),self.ledger())
+         source=Path(str(connection.settings_dict['NAME']))
+         with tempfile.TemporaryDirectory(prefix='bos-b02-typed-') as folder:
+             work=Path(folder);snapshot=work/('check_'+uuid4().hex+'.sqlite3')
+             capture=make_snapshot(source,snapshot);self.assertTrue(capture['source_main_unchanged'])
+             bundle=work/'typed';manifest=transfer.export_snapshot(snapshot,settings.MEDIA_ROOT,bundle,inspect_schema=inspect_schema)
+-            self.assertEqual(set(manifest['tables']),set(B03_TABLES))
++            self.assertEqual(set(manifest['tables']),set(C03_TABLES))
+             self.assertEqual(manifest['tables']['erp_importbatch']['count'],1)
+             self.assertEqual(manifest['tables']['erp_importidentity']['count'],9)
+             target=sqlite_target(work,bundle/'media')
+--- accepted_c01/erp/test_correction_preservation.py
++++ c03/erp/test_correction_preservation.py
+@@ -18,7 +18,7 @@
+ from scripts.schema_preflight import inspect_schema
+ from scripts.reconcile_data import make_snapshot
+ from scripts.check_data_transfer import sqlite_target
+-from fixtures.synthetic.table_inventory import B03_TABLES
++from fixtures.synthetic.table_inventory import C03_TABLES
+ 
+ 
+ @override_settings(BOS_DATA_MODE='working',DEBUG=False,PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'])
+@@ -49,7 +49,7 @@
+     def test_populated_corrections_refuse_lossy_backward_before_any_schema_or_row_change(self):
+         # C01: execute this unchanged historical DDL oracle on its own new DB.
+         from fixtures.synthetic.task_schema_isolation import isolated_case
+-        if isolated_case(self,task_boundary='0004_task_branch'):return
++        if isolated_case(self,task_boundary='0004_task_branch',finance_boundary='0007_money_boundaries'):return
+         self.populated();before=self.database_state()
+         with self.assertRaisesRegex(RuntimeError,'історію коригувань'):
+             MigrationExecutor(connection).migrate([('erp','0004_initial_import_ledger')])
+@@ -72,7 +72,7 @@
+         receipts=self.populated();before=self.all_rows();source=Path(str(connection.settings_dict['NAME']))
+         with tempfile.TemporaryDirectory(prefix='bos-b03-typed-') as folder:
+             work=Path(folder);snapshot=work/('check_'+uuid4().hex+'.sqlite3');capture=make_snapshot(source,snapshot);self.assertTrue(capture['source_main_unchanged'])
+-            bundle=work/'typed';manifest=transfer.export_snapshot(snapshot,settings.MEDIA_ROOT,bundle,inspect_schema=inspect_schema);self.assertEqual(set(manifest['tables']),set(B03_TABLES))
++            bundle=work/'typed';manifest=transfer.export_snapshot(snapshot,settings.MEDIA_ROOT,bundle,inspect_schema=inspect_schema);self.assertEqual(set(manifest['tables']),set(C03_TABLES))
+             for model in MODELS:self.assertEqual(manifest['tables'][model._meta.db_table]['count'],model.objects.count())
+             target=sqlite_target(work,bundle/'media')
+             try:
+@@ -86,4 +86,4 @@
+         self.assertEqual(self.all_rows(),before)
+         for proposal,receipt in receipts:self.assertEqual(self.confirm(proposal).json(),receipt)
+         self.assertEqual(self.all_rows(),before)
+-        print('B03_TYPED '+json.dumps({'exact_tables':53,'populated_models':6,'source_unchanged':True,'receipt_replays':len(receipts)}))
++        print('B03_TYPED '+json.dumps({'exact_tables':56,'populated_models':6,'source_unchanged':True,'receipt_replays':len(receipts)}))
+--- accepted_c01/tasks/test_preservation.py
++++ c03/tasks/test_preservation.py
+@@ -13,7 +13,7 @@
+ from scripts.schema_preflight import inspect_schema
+ from scripts.reconcile_data import make_snapshot
+ from scripts.check_data_transfer import sqlite_target
+-from fixtures.synthetic.table_inventory import B03_TABLES
++from fixtures.synthetic.table_inventory import C03_TABLES
+ 
+ @override_settings(BOS_DATA_MODE='working',DEBUG=False,PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'])
+ class TaskPreservationTests(CommandFixture,TransactionTestCase):
+@@ -40,7 +40,7 @@
+         before=self.state();source=Path(str(connection.settings_dict['NAME']))
+         with tempfile.TemporaryDirectory(prefix='bos-c01-typed-') as folder:
+             work=Path(folder);snapshot=work/('check_'+uuid4().hex+'.sqlite3');capture=make_snapshot(source,snapshot);self.assertTrue(capture['source_main_unchanged'])
+-            bundle=work/'typed';manifest=transfer.export_snapshot(snapshot,settings.MEDIA_ROOT,bundle,inspect_schema=inspect_schema);self.assertEqual(set(manifest['tables']),set(B03_TABLES));self.assertEqual(manifest['tables']['tasks_task']['count'],2)
++            bundle=work/'typed';manifest=transfer.export_snapshot(snapshot,settings.MEDIA_ROOT,bundle,inspect_schema=inspect_schema);self.assertEqual(set(manifest['tables']),set(C03_TABLES));self.assertEqual(manifest['tables']['tasks_task']['count'],2)
+             target=sqlite_target(work,bundle/'media')
+             try:
+                 transfer.import_to_disposable(bundle,target,verify_actual_schema=lambda row:inspect_schema(row.name));restored=transfer.validate_snapshot(Path(target.name),bundle/'media',inspect_schema=inspect_schema)
+@@ -54,7 +54,7 @@
+         self.assertEqual(self.state(),before)
+         for p,r in pairs:self.assertEqual(self.confirm(p).json(),r)
+         self.assertEqual(self.state(),before)
+-        print('C01_TYPED '+json.dumps({'exact_tables':53,'tasks':2,'receipt_replays':3,'legacy_null':True,'source_unchanged':True}))
++        print('C01_TYPED '+json.dumps({'exact_tables':56,'tasks':2,'receipt_replays':3,'legacy_null':True,'source_unchanged':True}))
+ 
+ 
+ class LegacyTaskMigrationIsolationTests(__import__('django.test',fromlist=['SimpleTestCase']).SimpleTestCase):
+--- accepted_c01/operations/test_document_migration.py
++++ c03/operations/test_document_migration.py
+@@ -88,10 +88,12 @@
+     from django.db.migrations.executor import MigrationExecutor
+ 
+     executor = MigrationExecutor(connection)
+-    # C01 tasks0005 would pull ERP0005 and A08 back into this historical source.
++    # C01 tasks0005 and C03 finance0008 would pull ERP0005 and A08 back
++    # into this historical source; pin both genuine earlier-schema boundaries.
+     previous = {'operations': '0005_invoice_boundaries',
+         'ai_assistant': '0008_chatmessage_archived_at_chatmessage_user_and_more',
+-        'erp': '0002_row_boundaries', 'tasks': '0004_task_branch'}
++        'erp': '0002_row_boundaries', 'tasks': '0004_task_branch',
++        'finance': '0007_money_boundaries'}
+     targets = [(app, previous.get(app, migration))
+                for app, migration in executor.loader.graph.leaf_nodes()]
+     executor.migrate(targets)
+--- accepted_c01/fixtures/synthetic/task_schema_isolation.py
++++ c03/fixtures/synthetic/task_schema_isolation.py
+@@ -12,13 +12,13 @@
+ _CASE='BOS_C01_SCHEMA_CASE';_MARKER='BOS_C01_SCHEMA_MARKER';_TOKEN='BOS_C01_SCHEMA_TOKEN'
+ 
+ 
+-def isolated_case(case,*,task_boundary=None):
++def isolated_case(case,*,task_boundary=None,finance_boundary=None):
+     if connection.vendor!='sqlite':return False
+     test_id=case.id();expected=os.environ.get(_CASE)
+     if expected:
+         marker=Path(os.environ[_MARKER]);value=json.loads(marker.read_text())
+         case.assertEqual(expected,test_id);case.assertEqual(value['case'],test_id)
+-        case.assertEqual(value['token'],os.environ.get(_TOKEN));case.assertEqual(value['boundary'],task_boundary)
++        case.assertEqual(value['token'],os.environ.get(_TOKEN));case.assertEqual(value['boundary'],task_boundary);case.assertEqual(value.get('finance_boundary'),finance_boundary)
+         path=Path(str(connection.settings_dict['NAME']))
+         case.assertTrue(marker.is_file() and not marker.is_symlink());case.assertEqual(path,Path(value['database']+'_django_test'))
+         case.assertEqual(path.parent,marker.parent);case.assertEqual(os.environ.get('DJANGO_SETTINGS_MODULE'),'verification_settings')
+@@ -28,10 +28,15 @@
+             from django.db.migrations.executor import MigrationExecutor
+             case.assertFalse(Task.objects.filter(Q(assignee_employee_id__isnull=False)|Q(sales_order_id__isnull=False)|Q(archived_at__isnull=False)|(Q(result__isnull=False)&~Q(result=''))).exists())
+             MigrationExecutor(connection).migrate([('tasks',task_boundary)])
++        if finance_boundary is not None:
++            from finance.models import StatementImport,StatementLine,StatementAllocation
++            from django.db.migrations.executor import MigrationExecutor
++            for model in (StatementImport,StatementLine,StatementAllocation):case.assertFalse(model.objects.exists())
++            MigrationExecutor(connection).migrate([('finance',finance_boundary)])
+         return False
+     with tempfile.TemporaryDirectory(prefix='bos-c01-schema-case-') as folder:
+         work=Path(folder);database=work/('check_'+uuid4().hex+'.sqlite3');marker=work/'issued.json';token=secrets.token_hex(32)
+-        with marker.open('x') as handle:json.dump({'case':test_id,'token':token,'database':str(database),'boundary':task_boundary},handle)
++        with marker.open('x') as handle:json.dump({'case':test_id,'token':token,'database':str(database),'boundary':task_boundary,'finance_boundary':finance_boundary},handle)
+         marker.chmod(0o600)
+         env=os.environ.copy();env.update(DJANGO_SETTINGS_MODULE='verification_settings',BOS_VERIFY_DB='sqlite',BOS_TEST_DB_NAME=str(database),BOS_TEST_MEDIA=str(work/'media'),PYTHONDONTWRITEBYTECODE='1')
+         env.update({_CASE:test_id,_MARKER:str(marker),_TOKEN:token})

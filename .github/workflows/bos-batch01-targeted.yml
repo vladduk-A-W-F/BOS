@@ -1,0 +1,130 @@
+name: BoS BATCH-01 — адресні регресії PostgreSQL 16
+'on':
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [fix/p10-002-task-sequence-20260919]
+    paths:
+      - .github/ci/batch_01_targeted.py
+      - .github/workflows/bos-batch01-targeted.yml
+permissions:
+  contents: read
+concurrency:
+  group: bos-batch01-targeted-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+jobs:
+  scope:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.base_ref == 'fix/p10-002-task-sequence-20260919' && github.head_ref == 'setup/bos-gpt-orchestration-20260920' && github.run_attempt == '1'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    outputs:
+      run: ${{ steps.scope.outputs.run }}
+    steps:
+      - name: Точний HEAD для перевірки обсягу
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Прогін лише для коміту CI
+        id: scope
+        run: |
+          python3 - <<'PY'
+          import os, subprocess
+          changed = set(subprocess.check_output(
+              ['git', 'diff-tree', '--no-commit-id', '--name-only', '-r', 'HEAD^', 'HEAD'],
+              text=True).splitlines())
+          paths = {'.github/ci/batch_01_targeted.py', '.github/workflows/bos-batch01-targeted.yml'}
+          run = bool(changed & paths)
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('run=' + str(run).lower() + '\n')
+          status = 'Адресний прогін дозволено поточним CI-комітом.' if run else 'SKIPPED: поточний коміт не змінює CI; тести не запускались.'
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write(status + '\n')
+          print(status)
+          PY
+  targeted:
+    needs: scope
+    if: needs.scope.outputs.run == 'true' && github.event.pull_request.head.repo.full_name == github.repository && github.base_ref == 'fix/p10-002-task-sequence-20260919' && github.head_ref == 'setup/bos-gpt-orchestration-20260920' && github.run_attempt == '1'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: bos_ci
+          POSTGRES_PASSWORD: bos_synthetic_ci_only
+          POSTGRES_DB: postgres
+        ports: [5432/tcp]
+        options: --health-cmd "pg_isready -U bos_ci -d postgres" --health-interval 5s --health-timeout 5s --health-retries 12 --tmpfs /var/lib/postgresql/data:rw
+    env:
+      PYTHONUTF8: '1'
+      PYTHONDONTWRITEBYTECODE: '1'
+      BOS_DATA_MODE: demo
+      BOS_PG_DISPOSABLE: '1'
+      BOS_PGHOST: 127.0.0.1
+      BOS_PGUSER: bos_ci
+      BOS_PGPASSWORD: bos_synthetic_ci_only
+      BOS_BATCH_CANDIDATE_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Кандидат
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: candidate
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Точна історична версія
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: 7d46dced3bcf06d44755cf53366c9e16bd465582
+          path: baseline
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Python 3.12
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12'
+      - name: Каталог доказів
+        if: always()
+        env:
+          BOS_BATCH_OUTPUT: ${{ runner.temp }}/bos-batch01-${{ github.run_id }}-${{ github.run_attempt }}
+        run: mkdir -p "$BOS_BATCH_OUTPUT"
+      - name: Залежності з окремими журналами
+        env:
+          BOS_BATCH_OUTPUT: ${{ runner.temp }}/bos-batch01-${{ github.run_id }}-${{ github.run_attempt }}
+        run: python -m pip install -r candidate/requirements-ci.txt > "$BOS_BATCH_OUTPUT/dependencies.stdout.log" 2> "$BOS_BATCH_OUTPUT/dependencies.stderr.log"
+      - name: Один адресний прогін без повторів
+        run: python candidate/.github/ci/batch_01_targeted.py --baseline baseline --output "$BOS_BATCH_OUTPUT" --include-ship
+        env:
+          BOS_PGPORT: ${{ job.services.postgres.ports[5432] }}
+          BOS_BATCH_OUTPUT: ${{ runner.temp }}/bos-batch01-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: SHA-індекс навіть після відмови
+        if: always()
+        env:
+          BOS_BATCH_OUTPUT: ${{ runner.temp }}/bos-batch01-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, subprocess, sys
+          from pathlib import Path
+          output = Path(os.environ['BOS_BATCH_OUTPUT'])
+          output.mkdir(parents=True, exist_ok=True)
+          harness = Path('candidate/.github/ci/batch_01_targeted.py')
+          if harness.is_file():
+              subprocess.run([sys.executable, str(harness), '--output', str(output), '--finalize-only'], check=True)
+          else:
+              report = {'status': 'BLOCKED_CHECKOUT_OR_SETUP', 'accepted_scoped': False,
+                        'technical_ready': False, 'pilot_allowed': False, 'full_run': False,
+                        'business_e2e_run': False, 'reason': 'Candidate harness unavailable; tests not run.'}
+              (output / 'report.json').write_text(json.dumps(report, indent=2) + '\n')
+              files = {p.relative_to(output).as_posix(): {'sha256': hashlib.sha256(p.read_bytes()).hexdigest(),
+                       'bytes': p.stat().st_size} for p in output.rglob('*') if p.is_file() and p.name != 'sha256-index.json'}
+              (output / 'sha256-index.json').write_text(json.dumps({'schema': 'bos.batch01.sha256.v1', 'files': files}, indent=2) + '\n')
+          PY
+      - name: Зберегти всі наявні докази
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: bos-batch01-targeted-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/bos-batch01-${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: error
+          retention-days: 30

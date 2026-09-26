@@ -1,0 +1,172 @@
+{
+  "scope": "Read-only actual extracted frozen UI handler execution with controlled denial replies; not browser/API/DB proof",
+  "source_sha256": "fd283ac01fd50fd2478a5902e492fbed5f16da943ac3731a01b4903a96dec801",
+  "checks": [
+    {
+      "handler": "recover",
+      "status": 403,
+      "passed": true,
+      "panel_clear_requested": true,
+      "state_keys": [
+        "Busy",
+        "Error",
+        "Task",
+        "History",
+        "HistoryCursor",
+        "HistoryLoaded",
+        "Orders",
+        "OrderOpen",
+        "Ready",
+        "ScopeDenied",
+        "Outcome"
+      ],
+      "error": "Source denied",
+      "request_calls": [
+        {
+          "url": "/api/operations/task-proposals/a0000000-0000-4000-8000-000000000001/",
+          "method": "GET"
+        }
+      ],
+      "pending_preserved": true
+    },
+    {
+      "handler": "recover",
+      "status": 404,
+      "passed": true,
+      "panel_clear_requested": true,
+      "state_keys": [
+        "Busy",
+        "Error",
+        "Task",
+        "History",
+        "HistoryCursor",
+        "HistoryLoaded",
+        "Orders",
+        "OrderOpen",
+        "Ready",
+        "ScopeDenied",
+        "Outcome"
+      ],
+      "error": "Source denied",
+      "request_calls": [
+        {
+          "url": "/api/operations/task-proposals/a0000000-0000-4000-8000-000000000001/",
+          "method": "GET"
+        }
+      ],
+      "pending_preserved": true
+    },
+    {
+      "handler": "prepare",
+      "status": 403,
+      "passed": true,
+      "panel_clear_requested": true,
+      "state_keys": [
+        "Error",
+        "NoChange",
+        "Busy",
+        "Task",
+        "History",
+        "HistoryCursor",
+        "HistoryLoaded",
+        "Orders",
+        "OrderOpen",
+        "Ready",
+        "ScopeDenied"
+      ],
+      "error": "Source denied",
+      "request_calls": [
+        {
+          "url": "/api/operations/preview/",
+          "method": "POST"
+        }
+      ],
+      "pending_preserved": true
+    },
+    {
+      "handler": "prepare",
+      "status": 404,
+      "passed": true,
+      "panel_clear_requested": true,
+      "state_keys": [
+        "Error",
+        "NoChange",
+        "Busy",
+        "Task",
+        "History",
+        "HistoryCursor",
+        "HistoryLoaded",
+        "Orders",
+        "OrderOpen",
+        "Ready",
+        "ScopeDenied"
+      ],
+      "error": "Source denied",
+      "request_calls": [
+        {
+          "url": "/api/operations/preview/",
+          "method": "POST"
+        }
+      ],
+      "pending_preserved": true
+    },
+    {
+      "handler": "commit",
+      "status": 403,
+      "passed": true,
+      "panel_clear_requested": true,
+      "state_keys": [
+        "Error",
+        "Pending",
+        "Outcome",
+        "Busy",
+        "Task",
+        "History",
+        "HistoryCursor",
+        "HistoryLoaded",
+        "Orders",
+        "OrderOpen",
+        "Ready",
+        "ScopeDenied"
+      ],
+      "error": "Source denied Ідентифікатор збережено; перевірте результат або повторіть це погодження.",
+      "request_calls": [
+        {
+          "url": "/api/operations/confirm/",
+          "method": "POST"
+        }
+      ],
+      "pending_preserved": true
+    },
+    {
+      "handler": "commit",
+      "status": 404,
+      "passed": true,
+      "panel_clear_requested": true,
+      "state_keys": [
+        "Error",
+        "Pending",
+        "Outcome",
+        "Busy",
+        "Task",
+        "History",
+        "HistoryCursor",
+        "HistoryLoaded",
+        "Orders",
+        "OrderOpen",
+        "Ready",
+        "ScopeDenied"
+      ],
+      "error": "Source denied Ідентифікатор збережено; перевірте результат або повторіть це погодження.",
+      "request_calls": [
+        {
+          "url": "/api/operations/confirm/",
+          "method": "POST"
+        }
+      ],
+      "pending_preserved": true
+    }
+  ],
+  "passed": 6,
+  "failed": 0
+}

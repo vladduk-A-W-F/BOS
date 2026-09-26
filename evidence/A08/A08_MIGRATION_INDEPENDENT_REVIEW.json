@@ -1,0 +1,70 @@
+{
+  "reviewed_at": "2026-09-12T08:49:09.952263+00:00",
+  "review_type": "independent source review and direct inspection of actual targeted evidence; no duplicate fullsuite",
+  "scope": "A08 document migration on owned SQLite copies only",
+  "decision": "scoped_consensus",
+  "source_sha256": {
+    "a08_document_migration.py": "8314962b857f37af5cd87ac9a1699d9b703936e6b738bc43c29efbe18028b438",
+    "a08_check_document_migration.py": "0c1f820660c917c21a6bbce1271bd94efc06985d31b69674264d320679e02b14",
+    "a08_document_migration_tests.py": "e6650fa36a38f453c799de6444e3656e52d3fcbf62d2c172fbff7dd1f21f0e00"
+  },
+  "blocker_resolved": "output path inside source media, including .. alias, rejected before directory creation",
+  "oracle_refinements": [
+    "preserve existing schema file/size/checksum fields",
+    "preserve existing ERP mutex ID and every non-value field",
+    "exact migration rows including IDs/applied times retained"
+  ],
+  "evidence_inspected": {
+    "a08_case_ownership_2.log": {
+      "case": "ownership",
+      "passed": true,
+      "input_unchanged": true,
+      "details": {
+        "constructor_forged_wrong_database_wrong_media_attached_cross_plan": "refused"
+      }
+    },
+    "a08_case_missing_mutex_2.log": {
+      "case": "missing_mutex",
+      "passed": true,
+      "input_unchanged": true,
+      "details": {
+        "full_rehearsal_without_existing_mutex": true,
+        "new_files": 3
+      }
+    },
+    "a08_case_all_conflicts_2.log": {
+      "case": "all_conflicts",
+      "passed": true,
+      "input_unchanged": true,
+      "details": {
+        "findings": [
+          {
+            "model": "operations.Document",
+            "id": 7,
+            "reason": "DOCUMENT_BYTES_SIZE_OR_CHECKSUM_INVALID"
+          },
+          {
+            "model": "operations.Document",
+            "id": 1001,
+            "reason": "DOCUMENT_BYTES_SIZE_OR_CHECKSUM_INVALID"
+          },
+          {
+            "model": "ai_assistant.ChatFile",
+            "id": 1,
+            "reason": "CHAT_BYTES_SIZE_OR_CHECKSUM_INVALID"
+          }
+        ],
+        "rows_and_files_unchanged": true,
+        "refusal_report_saved": true
+      }
+    }
+  },
+  "not_accepted": [
+    "root canonical 9-method suite not run by reviewer",
+    "full 11-gate verify",
+    "PostgreSQL",
+    "Windows",
+    "production data migration",
+    "release"
+  ]
+}

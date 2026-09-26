@@ -1,0 +1,106 @@
+{
+  "candidate_cli_sha256": "0986f037cf99f9ada33e58716f40d8c407b415f039d936ce145e60215e12ebb5",
+  "complete": true,
+  "scope": "actual operator CLI on previously self-created synthetic company; no upgrade/rollback",
+  "checks": [
+    {
+      "case": "actual_offline_backup_cli_and_clean_stop",
+      "passed": true
+    },
+    {
+      "case": "actual_foreground_server_ready",
+      "passed": true
+    },
+    {
+      "case": "stdin_running_status",
+      "passed": true
+    },
+    {
+      "case": "stdin_live_backup_under_quiescence",
+      "passed": true
+    },
+    {
+      "case": "explicit_quiescent_status_after_backup",
+      "passed": true
+    },
+    {
+      "case": "explicit_resume_restarts_owned_server",
+      "passed": true
+    },
+    {
+      "case": "stdin_stop_drains_and_closes",
+      "passed": true
+    },
+    {
+      "case": "actual_restore_cli_native_verified_with_explicit_HTTP_pending",
+      "passed": true,
+      "tables": 45
+    }
+  ],
+  "serve_exit_code": 0,
+  "serve_events": [
+    {
+      "event": "bos.maintenance.serving",
+      "scope": "loopback-same-process",
+      "control": "stdin",
+      "state": "running",
+      "installation_id": "8e0d42f3-82c0-457a-b4c4-f3838830b1dd",
+      "generation": 1,
+      "operation_id": null,
+      "own_children": 2
+    },
+    {
+      "event": "bos.maintenance.status",
+      "command_id": "8febb301-2aa7-42ea-a670-97e6d6dabefa",
+      "state": "running",
+      "installation_id": "8e0d42f3-82c0-457a-b4c4-f3838830b1dd",
+      "generation": 1,
+      "operation_id": null,
+      "own_children": 2
+    },
+    {
+      "event": "bos.maintenance.backup",
+      "command_id": "f48b60a9-8e38-4c19-b514-32aa02d2c730",
+      "state": "quiescent",
+      "complete": true,
+      "scope": "capture_only",
+      "installation_id": "8e0d42f3-82c0-457a-b4c4-f3838830b1dd",
+      "operation_id": "b2ba50bc-95b7-40f1-9c7a-397e60496436",
+      "version": "0.2.10-dev",
+      "manifest_sha256": "ed04d2e3da959d036ed14c23ffdfd39daf0dfd2b7841704695739dbd74c86b35",
+      "database_sha256": "dce9e6edeb26d964737179cdc7d32a66fcfb534c656b7bdb0180b9cefc195297",
+      "private_files": 2,
+      "elapsed_seconds": 5.051,
+      "restore_verified": false
+    },
+    {
+      "event": "bos.maintenance.status",
+      "command_id": "864c7a4e-9a23-4ccc-bcfc-94f91afd3e99",
+      "state": "quiescent",
+      "installation_id": "8e0d42f3-82c0-457a-b4c4-f3838830b1dd",
+      "generation": 1,
+      "operation_id": "b2ba50bc-95b7-40f1-9c7a-397e60496436",
+      "own_children": 0
+    },
+    {
+      "event": "bos.maintenance.resumed",
+      "command_id": "6ecc035b-4c9a-4a2a-8776-5f2632c1b2cd",
+      "state": "running",
+      "installation_id": "8e0d42f3-82c0-457a-b4c4-f3838830b1dd",
+      "generation": 2,
+      "operation_id": null,
+      "own_children": 2
+    },
+    {
+      "event": "bos.maintenance.stop_requested",
+      "command_id": "3c057fe8-eb33-43de-ba22-e4c05d6de8df",
+      "state": "quiescent"
+    },
+    {
+      "event": "bos.maintenance.stopped",
+      "complete": true,
+      "state": "closed"
+    }
+  ],
+  "serve_stderr": ""
+}

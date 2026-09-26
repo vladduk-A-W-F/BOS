@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "task": "P10-002",
+  "date": "2026-09-19",
+  "base_state_sha256": "9fd6bf2bd63c2b9740aa829767fc66185600194974910f9d46dd265821d37bdb",
+  "code_commit": "7d46dced3bcf06d44755cf53366c9e16bd465582",
+  "code_parent": "b11aa8ce8f5855c34fa197e35b8fe77a850e9df0",
+  "branch": "fix/p10-002-task-sequence-20260919",
+  "source_sha256": "10d86748d682926a898d2d2dfecd43fd7f6962f6ed38602da7ae704e52aca154",
+  "ci_sha256": "c893d006f07d3c053e66e3dd4750d4fbbf11075d6840f3ca22073fbd80b2f4fb",
+  "defect_status": "VERIFIED_FRESH_SEED",
+  "task_status": "BLOCKED_FULL_ACCEPTANCE",
+  "scoped_CI_status": "PASS",
+  "P06_status": "BLOCKED",
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "documentation_synced_to_git": false,
+  "runtime_code_commits_this_task": 1,
+  "full_runs_this_task": 0,
+  "CI_runs_this_task": 1,
+  "P05_full_execution_count_unchanged": 3,
+  "run_id": 35470413616,
+  "run_attempt": 1,
+  "job_id": 105970219252,
+  "artifact_id": 10592852341,
+  "checks": {
+    "postgres_before": {
+      "count": 1,
+      "returncode": 1,
+      "expected": "tasks_task_pkey, id=1"
+    },
+    "postgres_after": {
+      "count": 6,
+      "returncode": 0
+    },
+    "sqlite_after": {
+      "count": 6,
+      "returncode": 0
+    }
+  },
+  "remaining_findings": [
+    "P06-F02",
+    "P06-F03",
+    "P06-F04",
+    "P06-F05",
+    "P06-F06",
+    "P05-F01",
+    "P04-F01",
+    "A09",
+    "A10",
+    "A11"
+  ],
+  "limits": [
+    "No automatic full, postgres suite or E2E retry; exhausted P05 count remains 3/3.",
+    "Existing seeded databases are not repaired by idempotent seed; no historical data rewritten.",
+    "Old P05/P06 results belong to b11aa8ce, not automatically accepted for new source."
+  ],
+  "next_task_recommended": "P10-003 only P06-F02: backend-aware isolation guard in InitialImportFixture",
+  "next_task_started": false,
+  "review_status": "ACCEPT_SCOPED",
+  "review_file": "REVIEW_UA.md",
+  "review_sha256": "f7c385f896026a7edd06dc0e39f44d69e34c53c3996de7ac2e1e7ca9a64b9b66"
+}

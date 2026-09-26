@@ -1,0 +1,8 @@
+{"report": "/tmp/bos-a09-tls-l2z987qp/report.json", "complete": false, "checks": [{"case": "verified_TLS_and_secure_csrf_cookie", "status": 200, "secure_cookie": true}, {"case": "anonymous_api", "status": 401}, {"case": "private_media", "status": 404}]}
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_proxy_review/tls_probe.py", line 240, in <module>
+    main()
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_proxy_review/tls_probe.py", line 169, in main
+    assert status == expected, (label, status, body[:150])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: ('wrong_host', 400, b'\n<!doctype html>\n<html lang="en">\n<head>\n  <title>Bad Request (400)</title>\n</head>\n<body>\n  <h1>Bad Request (400)</h1><p></p>\n</body>\n</html>\n')

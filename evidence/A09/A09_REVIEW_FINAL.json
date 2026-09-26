@@ -1,0 +1,715 @@
+{
+  "date": "2026-09-12T09:11:38.954376+00:00",
+  "source": "/workspace/sites/bos-original-refined",
+  "draft_overlay": "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft",
+  "tests_run": 12,
+  "failures": 0,
+  "errors": 0,
+  "successful": true,
+  "probes": [
+    {
+      "attempts": [],
+      "source_alias_samefile": true,
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_INSTALLATION_ROOT.",
+      "case": "test_actual_source_alias_is_refused_independent_of_directory_mode",
+      "mutation": null,
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте REST_FRAMEWORK: автентифікація та права.",
+      "case": "test_effective_configuration_is_checked_after_module_import",
+      "mutation": "permissions",
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте REST_FRAMEWORK: автентифікація та права.",
+      "case": "test_effective_configuration_is_checked_after_module_import",
+      "mutation": "authentication",
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте робочий режим / DEBUG.",
+      "case": "test_effective_configuration_is_checked_after_module_import",
+      "mutation": "BOS_DATA_MODE",
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте робочий режим / DEBUG.",
+      "case": "test_effective_configuration_is_checked_after_module_import",
+      "mutation": "DEBUG",
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте SESSION_COOKIE_SECURE.",
+      "case": "test_effective_configuration_is_checked_after_module_import",
+      "mutation": "SESSION_COOKIE_SECURE",
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте CSRF_COOKIE_SECURE.",
+      "case": "test_effective_configuration_is_checked_after_module_import",
+      "mutation": "CSRF_COOKIE_SECURE",
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте TLS, proxy, cookies або CSRF.",
+      "case": "test_effective_configuration_is_checked_after_module_import",
+      "mutation": "SECURE_SSL_HOST",
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте ідентифікатор інсталяції та назви session/CSRF cookies.",
+      "case": "test_effective_configuration_is_checked_after_module_import",
+      "mutation": "SESSION_COOKIE_NAME",
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте ідентифікатор інсталяції та назви session/CSRF cookies.",
+      "case": "test_effective_configuration_is_checked_after_module_import",
+      "mutation": "CSRF_COOKIE_NAME",
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте MIDDLEWARE: серверний захист і права BoS.",
+      "case": "test_effective_configuration_is_checked_after_module_import",
+      "mutation": "remove_middleware",
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте MIDDLEWARE: серверний захист і права BoS.",
+      "case": "test_effective_configuration_is_checked_after_module_import",
+      "mutation": "remove_middleware",
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте MIDDLEWARE: серверний захист і права BoS.",
+      "case": "test_effective_configuration_is_checked_after_module_import",
+      "mutation": "MIDDLEWARE",
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_PUBLIC_ORIGIN / BOS_ALLOWED_HOSTS.",
+      "case": "test_empty_wildcard_foreign_hosts_and_invalid_origins_refused",
+      "mutation": null,
+      "environment_keys_changed": [
+        "BOS_ALLOWED_HOSTS"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_PUBLIC_ORIGIN / BOS_ALLOWED_HOSTS.",
+      "case": "test_empty_wildcard_foreign_hosts_and_invalid_origins_refused",
+      "mutation": null,
+      "environment_keys_changed": [
+        "BOS_ALLOWED_HOSTS"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_PUBLIC_ORIGIN / BOS_ALLOWED_HOSTS.",
+      "case": "test_empty_wildcard_foreign_hosts_and_invalid_origins_refused",
+      "mutation": null,
+      "environment_keys_changed": [
+        "BOS_ALLOWED_HOSTS"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_PUBLIC_ORIGIN / BOS_ALLOWED_HOSTS.",
+      "case": "test_empty_wildcard_foreign_hosts_and_invalid_origins_refused",
+      "mutation": null,
+      "environment_keys_changed": [
+        "BOS_ALLOWED_HOSTS"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_PUBLIC_ORIGIN / BOS_ALLOWED_HOSTS.",
+      "case": "test_empty_wildcard_foreign_hosts_and_invalid_origins_refused",
+      "mutation": null,
+      "environment_keys_changed": [
+        "BOS_PUBLIC_ORIGIN"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_PUBLIC_ORIGIN / BOS_ALLOWED_HOSTS.",
+      "case": "test_empty_wildcard_foreign_hosts_and_invalid_origins_refused",
+      "mutation": null,
+      "environment_keys_changed": [
+        "BOS_PUBLIC_ORIGIN"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_PUBLIC_ORIGIN / BOS_ALLOWED_HOSTS.",
+      "case": "test_empty_wildcard_foreign_hosts_and_invalid_origins_refused",
+      "mutation": null,
+      "environment_keys_changed": [
+        "BOS_PUBLIC_ORIGIN"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_PUBLIC_ORIGIN / BOS_ALLOWED_HOSTS.",
+      "case": "test_empty_wildcard_foreign_hosts_and_invalid_origins_refused",
+      "mutation": null,
+      "environment_keys_changed": [
+        "BOS_PUBLIC_ORIGIN"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "started",
+      "callable": true,
+      "mode": "working",
+      "cookie": "bos_session_b9a06488d4374a64883334d871418f13",
+      "secret_sha": "a14546a5d49858b56e4c633024e8bd6f37775f79a1796edda31ebff29a7dc245",
+      "settings": "server_settings",
+      "installed_apps": 15,
+      "proxy": {
+        "status": 200,
+        "body": {
+          "secure": true,
+          "client": "198.51.100.18",
+          "forwarded_host": null,
+          "forwarded": null
+        }
+      },
+      "local": {
+        "secret_unchanged": true,
+        "guard_unchanged": true,
+        "permission_unchanged": true
+      },
+      "case": "test_forwarded_headers_apply_only_from_defined_peer",
+      "mutation": null,
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "started",
+      "callable": true,
+      "mode": "working",
+      "cookie": "bos_session_1d0a526d7eee40738035b04c25ea360a",
+      "secret_sha": "a2643e1a7a831e967138798fe0843d18e9abcfbca1d1059c10ead42c7e509748",
+      "settings": "server_settings",
+      "installed_apps": 15,
+      "proxy": {
+        "status": 403,
+        "body": {
+          "error": "Пряме підключення до сервера BoS заборонено."
+        }
+      },
+      "local": {
+        "secret_unchanged": true,
+        "guard_unchanged": true,
+        "permission_unchanged": true
+      },
+      "case": "test_forwarded_headers_apply_only_from_defined_peer",
+      "mutation": null,
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "started",
+      "callable": true,
+      "mode": "working",
+      "cookie": "bos_session_7a016b297da946529db048f3c8436a99",
+      "secret_sha": "6c89233ab37637c89e1558a6f10aa62c69420c450fb1c774807e3bec70c43a46",
+      "settings": "server_settings",
+      "installed_apps": 15,
+      "proxy": {
+        "status": 400,
+        "body": {
+          "error": "Некоректні параметри проксі."
+        }
+      },
+      "local": {
+        "secret_unchanged": true,
+        "guard_unchanged": true,
+        "permission_unchanged": true
+      },
+      "case": "test_forwarded_headers_apply_only_from_defined_peer",
+      "mutation": null,
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "started",
+      "callable": true,
+      "mode": "working",
+      "cookie": "bos_session_52b6db1986914f3da64da92e8dd6f02e",
+      "secret_sha": "f2fc8c5e493033541267c2461a631bead964b1441422783927f03f1638a76d7c",
+      "settings": "server_settings",
+      "installed_apps": 15,
+      "proxy": {
+        "status": 400,
+        "body": {
+          "error": "Некоректні параметри проксі."
+        }
+      },
+      "local": {
+        "secret_unchanged": true,
+        "guard_unchanged": true,
+        "permission_unchanged": true
+      },
+      "case": "test_forwarded_headers_apply_only_from_defined_peer",
+      "mutation": null,
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_SECRET_KEY.",
+      "case": "test_missing_demo_and_weak_secrets_refused_before_io",
+      "mutation": null,
+      "environment_keys_changed": [
+        "BOS_SECRET_KEY"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_SECRET_KEY.",
+      "case": "test_missing_demo_and_weak_secrets_refused_before_io",
+      "mutation": null,
+      "environment_keys_changed": [
+        "BOS_SECRET_KEY"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_SECRET_KEY.",
+      "case": "test_missing_demo_and_weak_secrets_refused_before_io",
+      "mutation": null,
+      "environment_keys_changed": [
+        "BOS_SECRET_KEY"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_SECRET_KEY.",
+      "case": "test_missing_demo_and_weak_secrets_refused_before_io",
+      "mutation": null,
+      "environment_keys_changed": [
+        "BOS_SECRET_KEY"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_SECRET_KEY.",
+      "case": "test_missing_demo_and_weak_secrets_refused_before_io",
+      "mutation": null,
+      "environment_keys_changed": [
+        "BOS_SECRET_KEY"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_SECRET_KEY.",
+      "case": "test_missing_demo_and_weak_secrets_refused_before_io",
+      "mutation": null,
+      "environment_keys_changed": [
+        "BOS_SECRET_KEY"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_INSTALLATION_ROOT.",
+      "case": "test_nonisolated_and_aliased_paths_refused",
+      "mutation": null,
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_INSTALLATION_ROOT.",
+      "case": "test_nonisolated_and_aliased_paths_refused",
+      "mutation": null,
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте шляхи окремої інсталяції.",
+      "case": "test_nonisolated_and_aliased_paths_refused",
+      "mutation": null,
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте шляхи окремої інсталяції.",
+      "case": "test_nonisolated_and_aliased_paths_refused",
+      "mutation": null,
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте відокремлення бази, приватних файлів і статики.",
+      "case": "test_nonisolated_and_aliased_paths_refused",
+      "mutation": null,
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте відокремлення бази, приватних файлів і статики.",
+      "case": "test_nonisolated_and_aliased_paths_refused",
+      "mutation": null,
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_INSTALLATION_ROOT.",
+      "case": "test_nonisolated_and_aliased_paths_refused",
+      "mutation": null,
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_INSTALLATION_ROOT.",
+      "case": "test_nonisolated_and_aliased_paths_refused",
+      "mutation": null,
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_MEDIA_ROOT.",
+      "case": "test_nonisolated_and_aliased_paths_refused",
+      "mutation": null,
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_DATABASE_PATH.",
+      "case": "test_nonisolated_and_aliased_paths_refused",
+      "mutation": null,
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_DATABASE_PATH.",
+      "case": "test_nonisolated_and_aliased_paths_refused",
+      "mutation": null,
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте відокремлення бази, приватних файлів і статики.",
+      "case": "test_private_media_cannot_descend_from_database_file",
+      "mutation": null,
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_TRUSTED_PROXY_IPS.",
+      "case": "test_proxy_config_requires_explicit_exact_peers",
+      "mutation": null,
+      "environment_keys_changed": [
+        "BOS_TRUSTED_PROXY_IPS"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_TRUSTED_PROXY_IPS.",
+      "case": "test_proxy_config_requires_explicit_exact_peers",
+      "mutation": null,
+      "environment_keys_changed": [
+        "BOS_TRUSTED_PROXY_IPS"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_TRUSTED_PROXY_IPS.",
+      "case": "test_proxy_config_requires_explicit_exact_peers",
+      "mutation": null,
+      "environment_keys_changed": [
+        "BOS_TRUSTED_PROXY_IPS"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_TRUSTED_PROXY_IPS.",
+      "case": "test_proxy_config_requires_explicit_exact_peers",
+      "mutation": null,
+      "environment_keys_changed": [
+        "BOS_TRUSTED_PROXY_IPS"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_TRUSTED_PROXY_IPS.",
+      "case": "test_proxy_config_requires_explicit_exact_peers",
+      "mutation": null,
+      "environment_keys_changed": [
+        "BOS_TRUSTED_PROXY_IPS"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_TRUSTED_PROXY_IPS.",
+      "case": "test_proxy_config_requires_explicit_exact_peers",
+      "mutation": null,
+      "environment_keys_changed": [
+        "BOS_TRUSTED_PROXY_IPS"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "started",
+      "callable": true,
+      "mode": "working",
+      "cookie": "bos_session_c78e5f4b2adc44ab964ee3ad3a87f232",
+      "secret_sha": "8f3cc6c9981e448be17184e25661972676f664a0f7ee39a972bf09c5f3ac4b55",
+      "settings": "server_settings",
+      "installed_apps": 15,
+      "local": {
+        "secret_unchanged": true,
+        "guard_unchanged": true,
+        "permission_unchanged": true
+      },
+      "case": "test_readonly_root_with_provisioned_children_is_valid",
+      "mutation": null,
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_DATABASE_PATH.",
+      "case": "test_root_requires_owner_read_and_search",
+      "mutation": null,
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_DATABASE_PATH.",
+      "case": "test_root_requires_owner_read_and_search",
+      "mutation": null,
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_DATABASE_PATH.",
+      "case": "test_root_requires_owner_read_and_search",
+      "mutation": null,
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "started",
+      "callable": true,
+      "mode": "working",
+      "cookie": "bos_session_2670f930b7d345958e153bc92108d59b",
+      "secret_sha": "193bb34f89497f60ecd643ce2feb71014a7fbcc1036874649f9ce3adfd53e270",
+      "settings": "server_settings",
+      "installed_apps": 15,
+      "local": {
+        "secret_unchanged": true,
+        "guard_unchanged": true,
+        "permission_unchanged": true
+      },
+      "case": "test_two_clean_explicit_profiles_create_application_without_io",
+      "mutation": null,
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "started",
+      "callable": true,
+      "mode": "working",
+      "cookie": "bos_session_05d76626d39d4ff9ae5d4f40ce7f6664",
+      "secret_sha": "03b5834547daaa8e971fbca129b0e6bb1d14b967d229c24ff1b25d7624be2710",
+      "settings": "server_settings",
+      "installed_apps": 15,
+      "local": {
+        "secret_unchanged": true,
+        "guard_unchanged": true,
+        "permission_unchanged": true
+      },
+      "case": "test_two_clean_explicit_profiles_create_application_without_io",
+      "mutation": null,
+      "environment_keys_changed": []
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте DJANGO_SETTINGS_MODULE=server_settings.",
+      "case": "test_wrong_entrypoint_modes_and_backend_refused_before_io",
+      "mutation": null,
+      "environment_keys_changed": [
+        "DJANGO_SETTINGS_MODULE"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте DJANGO_SETTINGS_MODULE=server_settings.",
+      "case": "test_wrong_entrypoint_modes_and_backend_refused_before_io",
+      "mutation": null,
+      "environment_keys_changed": [
+        "DJANGO_SETTINGS_MODULE"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте DJANGO_SETTINGS_MODULE=server_settings.",
+      "case": "test_wrong_entrypoint_modes_and_backend_refused_before_io",
+      "mutation": null,
+      "environment_keys_changed": [
+        "DJANGO_SETTINGS_MODULE"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_DATA_MODE=working.",
+      "case": "test_wrong_entrypoint_modes_and_backend_refused_before_io",
+      "mutation": null,
+      "environment_keys_changed": [
+        "BOS_DATA_MODE"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_DATA_MODE=working.",
+      "case": "test_wrong_entrypoint_modes_and_backend_refused_before_io",
+      "mutation": null,
+      "environment_keys_changed": [
+        "BOS_DATA_MODE"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_DATABASE_ENGINE: перевірений профіль sqlite3.",
+      "case": "test_wrong_entrypoint_modes_and_backend_refused_before_io",
+      "mutation": null,
+      "environment_keys_changed": [
+        "BOS_DATABASE_ENGINE"
+      ]
+    },
+    {
+      "attempts": [],
+      "status": "refused",
+      "exception": "ImproperlyConfigured",
+      "reason": "Сервер BoS не запущено: перевірте BOS_DATABASE_ENGINE: перевірений профіль sqlite3.",
+      "case": "test_wrong_entrypoint_modes_and_backend_refused_before_io",
+      "mutation": null,
+      "environment_keys_changed": [
+        "BOS_DATABASE_ENGINE"
+      ]
+    }
+  ],
+  "scope": "Configuration and in-process WSGI/middleware only; no TLS/HTTP server/install/PG/Windows acceptance"
+}

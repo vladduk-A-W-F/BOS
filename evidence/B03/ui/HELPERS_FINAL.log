@@ -1,0 +1,26 @@
+{
+  "scope": "Actual extracted candidate JavaScript in Node; no browser, HTTP, DB or gate10 acceptance",
+  "source_sha256": "f00fe5165592b9e8a8a71fda7d16c2f70ba61620a94a864c7ef3eb4dc1635c60",
+  "helper_sha256": "e9d7935125da893fce1cd0ee0b88e8494a42bb58e09eee54645d02d24a935686",
+  "passed": [
+    "Q3 .300-.200 exact, cancelled imported PO uses current server open",
+    "wire decimals keep cents and reject floats/exponents/extra precision",
+    "cancel purchase sends exactly one source and canonical Q string",
+    "supplier return uses actual receipt ID, no client cost/price",
+    "customer return uses exact shipment and destination",
+    "return credit index zero and source quantity preserved, no client money",
+    "commercial zero credit exact cents and approved document ID",
+    "duplicate source allocations and empty ordinal rejected",
+    "reversal never sends editable amount",
+    "confirmed supplier claim accepts actual zero without null coercion",
+    "unknown intent retains all proposal IDs; no financial payload cached",
+    "same-user revision change preserves unresolved IDs while lookup stays server-authorized",
+    "quota failure preserves existing IDs and fails synchronously",
+    "one authoritative receipt resolves all proposals for that intent only",
+    "B03 history resolves linked events outside150 and exact result movements outside300",
+    "corrupted queue is not silently dropped",
+    "B02 import implementation and Q3 helper unchanged",
+    "legacy ERPActionDialog and ERP action schemas byte-identical"
+  ],
+  "failed": 0
+}

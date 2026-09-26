@@ -1,0 +1,845 @@
+{
+  "scope": "Actual Django HTTP on own new synthetic SQLite/media; fixed13 selected Task route definitions only, no fullgate/fullverify/browser/A09/field-suite execution",
+  "patch1_only": false,
+  "controls_only": true,
+  "source_root": "/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/source",
+  "db": "/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/evidence/check_0553ddaa9f344b39adf0f3f2f31178ec.sqlite3",
+  "baseline_retained": {
+    "route_records": 177,
+    "required_field_ids": 57
+  },
+  "catalogue_exact": 180,
+  "selected_definitions": [
+    {
+      "pattern": "api/operations/task-proposals/<uuid:proposal_id>/",
+      "name": "task-proposal-status",
+      "callback": "tasks.history.proposal_status",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "proposal_id": "UUIDConverter"
+      }
+    },
+    {
+      "pattern": "admin/tasks/task/",
+      "name": "admin:tasks_task_changelist",
+      "callback": "django.contrib.admin.options.ModelAdmin.changelist_view",
+      "actions": null,
+      "model": "tasks.task",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/tasks/task/add/",
+      "name": "admin:tasks_task_add",
+      "callback": "django.contrib.admin.options.ModelAdmin.add_view",
+      "actions": null,
+      "model": "tasks.task",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/tasks/task/<path:object_id>/history/",
+      "name": "admin:tasks_task_history",
+      "callback": "django.contrib.admin.options.ModelAdmin.history_view",
+      "actions": null,
+      "model": "tasks.task",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/tasks/task/<path:object_id>/delete/",
+      "name": "admin:tasks_task_delete",
+      "callback": "django.contrib.admin.options.ModelAdmin.delete_view",
+      "actions": null,
+      "model": "tasks.task",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/tasks/task/<path:object_id>/change/",
+      "name": "admin:tasks_task_change",
+      "callback": "django.contrib.admin.options.ModelAdmin.change_view",
+      "actions": null,
+      "model": "tasks.task",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/tasks/task/<path:object_id>/",
+      "name": "admin:None",
+      "callback": "django.views.generic.base.View.as_view.<locals>.view",
+      "actions": null,
+      "model": "tasks.task",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "api/^tasks/$",
+      "name": "task-list",
+      "callback": "tasks.views.TaskViewSet",
+      "actions": {
+        "get": "list",
+        "post": "create"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^tasks\\.(?P<format>[a-z0-9]+)/?$",
+      "name": "task-list",
+      "callback": "tasks.views.TaskViewSet",
+      "actions": {
+        "get": "list",
+        "post": "create"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^tasks/(?P<pk>[^/.]+)/$",
+      "name": "task-detail",
+      "callback": "tasks.views.TaskViewSet",
+      "actions": {
+        "get": "retrieve",
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^tasks/(?P<pk>[^/.]+)\\.(?P<format>[a-z0-9]+)/?$",
+      "name": "task-detail",
+      "callback": "tasks.views.TaskViewSet",
+      "actions": {
+        "get": "retrieve",
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^tasks/(?P<pk>[^/.]+)/history/$",
+      "name": "task-history",
+      "callback": "tasks.views.TaskViewSet",
+      "actions": {
+        "get": "history"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^tasks/(?P<pk>[^/.]+)/history\\.(?P<format>[a-z0-9]+)/?$",
+      "name": "task-history",
+      "callback": "tasks.views.TaskViewSet",
+      "actions": {
+        "get": "history"
+      },
+      "model": null,
+      "converters": {}
+    }
+  ],
+  "coverage": [
+    {
+      "path": "/api/operations/task-proposals/c4112c48-6b46-446f-b546-aca7ec4d0afc/",
+      "pattern": "api/operations/task-proposals/<uuid:proposal_id>/",
+      "name": "task-proposal-status"
+    },
+    {
+      "path": "/admin/tasks/task/",
+      "pattern": "admin/tasks/task/",
+      "name": "admin:tasks_task_changelist"
+    },
+    {
+      "path": "/admin/tasks/task/add/",
+      "pattern": "admin/tasks/task/add/",
+      "name": "admin:tasks_task_add"
+    },
+    {
+      "path": "/admin/tasks/task/3/history/",
+      "pattern": "admin/tasks/task/<path:object_id>/history/",
+      "name": "admin:tasks_task_history"
+    },
+    {
+      "path": "/admin/tasks/task/3/delete/",
+      "pattern": "admin/tasks/task/<path:object_id>/delete/",
+      "name": "admin:tasks_task_delete"
+    },
+    {
+      "path": "/admin/tasks/task/3/change/",
+      "pattern": "admin/tasks/task/<path:object_id>/change/",
+      "name": "admin:tasks_task_change"
+    },
+    {
+      "path": "/admin/tasks/task/3/",
+      "pattern": "admin/tasks/task/<path:object_id>/",
+      "name": "admin:None"
+    },
+    {
+      "path": "/api/tasks/",
+      "pattern": "api/^tasks/$",
+      "name": "task-list"
+    },
+    {
+      "path": "/api/tasks.json/",
+      "pattern": "api/^tasks\\.(?P<format>[a-z0-9]+)/?$",
+      "name": "task-list"
+    },
+    {
+      "path": "/api/tasks.json",
+      "pattern": "api/^tasks\\.(?P<format>[a-z0-9]+)/?$",
+      "name": "task-list"
+    },
+    {
+      "path": "/api/tasks/2/",
+      "pattern": "api/^tasks/(?P<pk>[^/.]+)/$",
+      "name": "task-detail"
+    },
+    {
+      "path": "/api/tasks/2.json/",
+      "pattern": "api/^tasks/(?P<pk>[^/.]+)\\.(?P<format>[a-z0-9]+)/?$",
+      "name": "task-detail"
+    },
+    {
+      "path": "/api/tasks/2.json",
+      "pattern": "api/^tasks/(?P<pk>[^/.]+)\\.(?P<format>[a-z0-9]+)/?$",
+      "name": "task-detail"
+    },
+    {
+      "path": "/api/tasks/4/history/",
+      "pattern": "api/^tasks/(?P<pk>[^/.]+)/history/$",
+      "name": "task-history"
+    },
+    {
+      "path": "/api/tasks/4/history.json/",
+      "pattern": "api/^tasks/(?P<pk>[^/.]+)/history\\.(?P<format>[a-z0-9]+)/?$",
+      "name": "task-history"
+    },
+    {
+      "path": "/api/tasks/4/history.json",
+      "pattern": "api/^tasks/(?P<pk>[^/.]+)/history\\.(?P<format>[a-z0-9]+)/?$",
+      "name": "task-history"
+    }
+  ],
+  "cases": [],
+  "c01_controls": [
+    {
+      "id": "visible_history_aliases",
+      "passed": true,
+      "http": [
+        {
+          "method": "GET",
+          "route": "/api/tasks/4/history/",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/4/history.json",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/4/history.json/",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/4/history/",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/4/history.json",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/4/history.json/",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/4/history/",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/4/history.json",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/4/history.json/",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "current_historical_source_scope",
+      "passed": true,
+      "http": [
+        {
+          "method": "GET",
+          "route": "/api/tasks/6/",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/6.json",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/6.json/",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/6/history/",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/6/history.json",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/6/history.json/",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/7/",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/7.json",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/7.json/",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/7/history/",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/7/history.json",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/7/history.json/",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks.json",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/?archived=true",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/erp/snapshot/",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/operations/summary/",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/6/",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/6.json",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/6.json/",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/6/history/",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/6/history.json",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/6/history.json/",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/7/",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/7.json",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/7.json/",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/7/history/",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/7/history.json",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/7/history.json/",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks.json",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/?archived=true",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/erp/snapshot/",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/operations/summary/",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/6/history/",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/7/history/",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "archive_restore_retains_source",
+      "passed": true,
+      "http": [
+        {
+          "method": "GET",
+          "route": "/api/tasks/",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks.json",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks.json/",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/?archived=true",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks.json?archived=true",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/5/history/",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/dashboard/summary/",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/erp/snapshot/",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "route": "/api/operations/preview/",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "route": "/api/operations/confirm/",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/dashboard/summary/",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/erp/snapshot/",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "route": "/api/operations/confirm/",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "route": "/api/operations/preview/",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "controlled_writer_alternative",
+      "passed": true,
+      "http": [
+        {
+          "method": "POST",
+          "route": "/api/operations/preview/",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "route": "/api/operations/confirm/",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "route": "/api/operations/preview/",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "route": "/api/operations/confirm/",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "route": "/api/operations/preview/",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "route": "/api/operations/confirm/",
+          "status": 200
+        },
+        {
+          "method": "DELETE",
+          "route": "/api/tasks/9/",
+          "status": 403
+        },
+        {
+          "method": "DELETE",
+          "route": "/api/tasks/9.json",
+          "status": 403
+        },
+        {
+          "method": "DELETE",
+          "route": "/api/tasks/9.json/",
+          "status": 403
+        },
+        {
+          "method": "POST",
+          "route": "/api/operations/confirm/",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "own_foreign_outcomes",
+      "passed": true,
+      "http": [
+        {
+          "method": "GET",
+          "route": "/api/operations/task-proposals/98ffee3c-8faa-44fd-8d0f-fe4cc21b6ab1/",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/operations/task-proposals/98ffee3c-8faa-44fd-8d0f-fe4cc21b6ab1/",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/operations/task-proposals/98ffee3c-8faa-44fd-8d0f-fe4cc21b6ab1/",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/operations/task-proposals/98ffee3c-8faa-44fd-8d0f-fe4cc21b6ab1/",
+          "status": 404
+        }
+      ]
+    },
+    {
+      "id": "revoked_role_outcome",
+      "passed": true,
+      "http": [
+        {
+          "method": "GET",
+          "route": "/api/operations/task-proposals/98ffee3c-8faa-44fd-8d0f-fe4cc21b6ab1/",
+          "status": 403
+        }
+      ]
+    },
+    {
+      "id": "new_session_read_not_execution",
+      "passed": true,
+      "http": [
+        {
+          "method": "GET",
+          "route": "/api/operations/task-proposals/98ffee3c-8faa-44fd-8d0f-fe4cc21b6ab1/",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "route": "/api/operations/confirm/",
+          "status": 403
+        }
+      ]
+    },
+    {
+      "id": "pending_expired_read_not_execution",
+      "passed": true,
+      "http": [
+        {
+          "method": "GET",
+          "route": "/api/operations/task-proposals/f62843bd-cb31-4840-aff3-445749b19530/",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/operations/task-proposals/f62843bd-cb31-4840-aff3-445749b19530/",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "route": "/api/operations/confirm/",
+          "status": 409
+        }
+      ]
+    },
+    {
+      "id": "other_action_outcome",
+      "passed": true,
+      "http": [
+        {
+          "method": "GET",
+          "route": "/api/operations/task-proposals/2a8a103a-d70e-4076-ba6d-d12f0f14487e/",
+          "status": 404
+        }
+      ]
+    },
+    {
+      "id": "history_pagination_cursor_scope",
+      "passed": true,
+      "http": [
+        {
+          "method": "GET",
+          "route": "/api/tasks/4/history/?limit=1",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/4/history/?limit=1&cursor=.eJxtzE1qAzEMQOG7eJs4yLI0ln2O7kIJ8o9gSOlAPO2m5O5Nsuiqywcf78ftOq-XtbtCR6dt326vwGe0MeflNr7XuW6frrhMFjEzkCkTIbQ-qoJxrSNowsTUgzYMWVhGDSFna7YkARFmieSOrn3tm9njhYCLh-wDvgUqIReWEyfKcTkAFICH_dC5u3L-h9IppQgU_2iMOCpY9kjJPKklr72bbzEwq3ShKu79_gswHz72%3A1x5OaE%3A5HBy2ScOlGTzhdaRWNLvzmLS5antcv_A2IcfHpz_ulM",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/4/history/?limit=1&cursor=.eJxtzM1KRDEMQOF36dbpkKRJ2_Q53A0ypH9wUbwwvbqReXdHF65cHvg4X-6w9Xrduit8ctaO_fYb9BNtrHW9jc9tbfu7K055BlIBnibMBK2PajCl1oGWKAl3tEaoWfKoiKqzzZgy5CySA7uTax_HPufjRUDRg3qkZ-SCWiSfJbGG-ARQAB72zdbhyuUfymeKyIx_lHtVjSn6GQJ6hsje4hBvJFW4Dc49uJf7Nx3dPjM%3A1x5OaE%3AeNQeQWPaWA1h2sGtnFkouA0DMrZTEoNAyrbMJQg1xGA",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/4/history/?cursor=invalid",
+          "status": 400
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/4/history/?limit=0",
+          "status": 400
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/4/history/?limit=51",
+          "status": 400
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/4/history/?cursor=.eJxtzE1qAzEMQOG7eJs4yLI0ln2O7kIJ8o9gSOlAPO2m5O5Nsuiqywcf78ftOq-XtbtCR6dt326vwGe0MeflNr7XuW6frrhMFjEzkCkTIbQ-qoJxrSNowsTUgzYMWVhGDSFna7YkARFmieSOrn3tm9njhYCLh-wDvgUqIReWEyfKcTkAFICH_dC5u3L-h9IppQgU_2iMOCpY9kjJPKklr72bbzEwq3ShKu79_gswHz72%3A1x5OaE%3A5HBy2ScOlGTzhdaRWNLvzmLS5antcv_A2IcfHpz_ulM",
+          "status": 400
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/5/history/?cursor=.eJxtzE1qAzEMQOG7eJs4yLI0ln2O7kIJ8o9gSOlAPO2m5O5Nsuiqywcf78ftOq-XtbtCR6dt326vwGe0MeflNr7XuW6frrhMFjEzkCkTIbQ-qoJxrSNowsTUgzYMWVhGDSFna7YkARFmieSOrn3tm9njhYCLh-wDvgUqIReWEyfKcTkAFICH_dC5u3L-h9IppQgU_2iMOCpY9kjJPKklr72bbzEwq3ShKu79_gswHz72%3A1x5OaE%3A5HBy2ScOlGTzhdaRWNLvzmLS5antcv_A2IcfHpz_ulM",
+          "status": 400
+        }
+      ]
+    },
+    {
+      "id": "no_document_source_scope",
+      "passed": true,
+      "http": [
+        {
+          "method": "GET",
+          "route": "/api/tasks/4/history/",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/4/history.json",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/4/history.json/",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/?archived=true",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/4/history/",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/4/history.json",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/4/history.json/",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/tasks/?archived=true",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "route": "/api/operations/task-proposals/98ffee3c-8faa-44fd-8d0f-fe4cc21b6ab1/",
+          "status": 404
+        }
+      ]
+    },
+    {
+      "id": "technical_task_admin_read_only",
+      "passed": true,
+      "http": [
+        {
+          "method": "GET",
+          "route": "/admin/tasks/task/3/change/",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "route": "/admin/tasks/task/add/",
+          "status": 403
+        },
+        {
+          "method": "POST",
+          "route": "/admin/tasks/task/3/change/",
+          "status": 403
+        },
+        {
+          "method": "POST",
+          "route": "/admin/tasks/task/3/delete/",
+          "status": 403
+        },
+        {
+          "method": "POST",
+          "route": "/admin/tasks/task/",
+          "status": 200
+        }
+      ]
+    }
+  ],
+  "counts": {
+    "selected_definitions": 13,
+    "concrete_urls": 16,
+    "surface_http": 0,
+    "surface_passed": 0,
+    "control_groups": 12,
+    "control_passed": 12,
+    "control_http": 104,
+    "redirect_http": 0
+  },
+  "source_sha256": {
+    "scripts/access_fixtures.py": "6d787e06862fba2149b946a7950b95f02b0877b82cb30ad6c73cd16b6e62b323",
+    "scripts/access_routes.json": "182639ea19916ca2c8f4a7c51b1b936e6bcf19d7148f5328b1166d5ca73d8597",
+    "scripts/check_access.py": "0e0f4b6ebd2b2af77d750d466eeb5bc83bce682c5ff0cb3a2688862159ee5694",
+    "tasks/views.py": "02ae775aad1e8a6a26a814613c8598bba23e8336f22ec3cf80e1533a41176db4",
+    "tasks/history.py": "7cf74e20bd8c3b6bd1055fb1349614ff56ea2aea03564ab3d098aa74aa24e999",
+    "tasks/commands.py": "6ff195d65b3d4fb480c5bb4e74f2d146f02834f6f6e19d85d712e6caf9384e20"
+  },
+  "full_gate_run": false,
+  "failures": []
+}

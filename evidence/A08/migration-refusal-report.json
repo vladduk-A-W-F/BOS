@@ -1,0 +1,63 @@
+{
+  "complete": false,
+  "stage": "document_preflight",
+  "findings": [
+    {
+      "model": "operations.Document",
+      "id": 7,
+      "reason": "DOCUMENT_BYTES_SIZE_OR_CHECKSUM_INVALID"
+    },
+    {
+      "model": "operations.Document",
+      "id": 1001,
+      "reason": "DOCUMENT_BYTES_SIZE_OR_CHECKSUM_INVALID"
+    },
+    {
+      "model": "ai_assistant.ChatFile",
+      "id": 1,
+      "reason": "CHAT_BYTES_SIZE_OR_CHECKSUM_INVALID"
+    }
+  ],
+  "plan": {
+    "format": "BoS-A08-document-plan-1",
+    "owned_copy_sha256": "1284f2d717e879c2c61dd56a17bcf8a0bf819d80021421f761f8d3602be063d8",
+    "complete": false,
+    "findings": [
+      {
+        "model": "operations.Document",
+        "id": 7,
+        "reason": "DOCUMENT_BYTES_SIZE_OR_CHECKSUM_INVALID"
+      },
+      {
+        "model": "operations.Document",
+        "id": 1001,
+        "reason": "DOCUMENT_BYTES_SIZE_OR_CHECKSUM_INVALID"
+      },
+      {
+        "model": "ai_assistant.ChatFile",
+        "id": 1,
+        "reason": "CHAT_BYTES_SIZE_OR_CHECKSUM_INVALID"
+      }
+    ],
+    "documents": [
+      {
+        "id": 90001,
+        "source_key": "",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "action": "copy",
+        "checksum_basis": "empty_original",
+        "preserved_sha256": "deb56b7a5570caf79ae926e6bbc89e94832e0c52ac54cc7dfd306b8c647aa2cc"
+      }
+    ],
+    "chat_files": [],
+    "usage": {
+      "physical_bytes": 0,
+      "legacy_blob_bytes": 334,
+      "additional_bytes": 0,
+      "quota_bytes": 1073741824
+    },
+    "plan_sha256": "82970ed67e29003d91efdfb76476d973f7d9143622e92ed940f06eedf09a93a8"
+  },
+  "input_unchanged": true
+}

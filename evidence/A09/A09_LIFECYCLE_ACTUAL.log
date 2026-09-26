@@ -1,0 +1,61 @@
+{
+  "complete": true,
+  "scope": "actual synthetic loopback lifecycle, not release acceptance",
+  "work": "/workspace/scratch/c7b51e996a9f/tmp/a09-lifecycle-57jw6uoo",
+  "checks": [
+    "actual isolated venv, all pinned dependencies, migrations and collectstatic",
+    "missing TLS refuses before listener or lifecycle directory creation",
+    "real pinned Waitress + Caddy, verified TLS and both health routes 200",
+    "second actual CLI process refused by instance OS lock; first stays alive",
+    "different registered installation ID refused; running company unchanged",
+    "SIGTERM gracefully stops both own children, no forced kill; all three ports close",
+    "restart acquires released lock, health returns 200, existing business media preserved",
+    "occupied HTTPS port refuses, own startup children cleaned, unrelated listener survives"
+  ],
+  "package": {
+    "version": "0.2.8-dev",
+    "source_sha256": "1fea0cca612ce53cf219a62ad4055ff1124e0246a5cf207a58c472de4fe88cd3",
+    "files": 247,
+    "database_files": 0,
+    "output": "/workspace/scratch/c7b51e996a9f/tmp/a09-lifecycle-57jw6uoo/package"
+  },
+  "first_stop": {
+    "event": "bos.bundle.stopped",
+    "installation_id": "d8a91b77-83fe-49b7-89a9-5773b9735cb0",
+    "children": [
+      {
+        "runtime": "caddy",
+        "exit_code": 0,
+        "forced": false
+      },
+      {
+        "runtime": "waitress",
+        "exit_code": 0,
+        "forced": false
+      }
+    ]
+  },
+  "second_stop": {
+    "event": "bos.bundle.stopped",
+    "installation_id": "d8a91b77-83fe-49b7-89a9-5773b9735cb0",
+    "children": [
+      {
+        "runtime": "caddy",
+        "exit_code": 0,
+        "forced": false
+      },
+      {
+        "runtime": "waitress",
+        "exit_code": 0,
+        "forced": false
+      }
+    ]
+  },
+  "all_owned_processes_stopped": true,
+  "installation_id": "d8a91b77-83fe-49b7-89a9-5773b9735cb0",
+  "source_sha256": "1fea0cca612ce53cf219a62ad4055ff1124e0246a5cf207a58c472de4fe88cd3",
+  "ports": {
+    "https": 55657,
+    "http": 46323
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "scope": "Gate6 harness static preflight; no application scenario executed",
+  "complete": false,
+  "application_executed": false,
+  "syntax": "passed",
+  "frozen_oracle_all_business_sections_literal_equal": {
+    "created_on": true,
+    "canonical_source_at_read": true,
+    "numeric_oracle": true,
+    "not_final_wire_contract": true,
+    "bootstrap": true,
+    "source_documents": true,
+    "requirement": true,
+    "quote": true,
+    "purchase": true,
+    "supplier_return": true,
+    "lots_final": true,
+    "movements": true,
+    "sales": true,
+    "invoice": true,
+    "statement": true,
+    "transaction": true,
+    "task": true,
+    "confirmed_actions": true,
+    "expected_deltas_after_bootstrap": true,
+    "event_actions": true,
+    "audit_actions": true,
+    "replay": true,
+    "source_preservation": true,
+    "ceo_report": true,
+    "non_numeric_runtime_binding": true,
+    "wider_tests_not_replaced": true,
+    "read_contract_sha256": true
+  },
+  "source_bytes": {
+    "E2E-SPEC-001": {
+      "bytes": 353,
+      "sha256": "e50f628c1ec5a969f42300032b240815c6f3ae627db0723497f1104a6cce34a8",
+      "match": true
+    },
+    "E2E-QUOTE-DOC-001": {
+      "bytes": 491,
+      "sha256": "6e23b8419214b509ef1a8e97dcc5bb71543c4e841c0eddd078f5d18403795406",
+      "match": true
+    },
+    "E2E-CERT-001": {
+      "bytes": 318,
+      "sha256": "fac5f85a2f2766cb1a1f5d437464556e5e88b2d461ae2b963915a082c0adb978",
+      "match": true
+    },
+    "E2E-STMT-001": {
+      "bytes": 229,
+      "sha256": "abc40883040bef29f0cd6bd3868026fa5f3734f6ac7d957e10e1fb75365c9869",
+      "match": true
+    }
+  },
+  "files": {
+    "scripts/e2e_scenario.py": "c475ff7cb13f0f028191c780450c6fd8970cd2e6eb095795983c2d901b1da910",
+    "fixtures/synthetic/e2e_fixture.py": "fe57d2205948d3d3f99ba65a269bb39bfa8da916fae786d8cf98f7a8720f2df7",
+    "tests/e2e_expected.json": "1d97a5e026fd5136b98b4d82f8e951002d7a62a28d039741948739b9342a18c3"
+  },
+  "pending": "Actual run requires stable C03 core from backend owner."
+}

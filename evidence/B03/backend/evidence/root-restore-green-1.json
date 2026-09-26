@@ -1,0 +1,157 @@
+{
+  "gate": 7,
+  "complete": true,
+  "version": "0.2.12-dev",
+  "synthetic_work": "/tmp/bos-restore-check-l83djr3b",
+  "scope": "actual same-N TLS, capture, clean restore and restored HTTPS; no upgrade/rollback or Windows/PG",
+  "checks": [
+    {
+      "case": "fresh_offline_install_and_independent_three_currency_fixture",
+      "passed": true
+    },
+    {
+      "case": "original_real_TLS_login_document",
+      "passed": true,
+      "document_sha256": "bba0159323a4d10c1954fea3eb175e0b9a10eb26a76b80dcf4a0f310264f2111"
+    },
+    {
+      "case": "actual_TLS_import_populated_ledger_and_source_document",
+      "passed": true,
+      "batch_id": "5c6be4ea-4d6e-4f16-970b-3e9afdca010f",
+      "mapping_count": 27,
+      "export_sha256": "69f6e4c672f01b8cf35aed96b9a17af6313be4319d29cfe6b29bedf2e21a0c58"
+    },
+    {
+      "case": "actual_TLS_six_populated_correction_ledgers",
+      "passed": true,
+      "counts": {
+        "cancellations": 2,
+        "cancellation_releases": 1,
+        "goods_returns": 2,
+        "supplier_claims": 2,
+        "invoice_adjustments": 2,
+        "invoice_adjustment_lines": 2
+      },
+      "snapshot_sha256": "17efcfd90a19f3d7aa407fb514d8b74cee68661a8b5df02aa540be29fc4418b0"
+    },
+    {
+      "case": "actual_quiescence_native_capture",
+      "passed": true,
+      "scope": "capture_only",
+      "installation_id": "b4681618-ce7a-49ce-83b2-bc3c8817d6c6",
+      "operation_id": "d8c99f37-2e78-4255-8e61-941f505ad237",
+      "version": "0.2.12-dev",
+      "manifest_sha256": "984723439b9f2a531a81fe0f7aa070d74ad09e50d84e9f4df9bf61e4d6cd0752",
+      "database_sha256": "50ba1213327a6ca9a8d34bf6de3c084a4f27002b8de4c2df138795ab8ecfcdb1",
+      "private_files": 3,
+      "elapsed_seconds": 5.237,
+      "lease_retained": true,
+      "restore_verified": false
+    },
+    {
+      "case": "corrupt_backup_refused",
+      "passed": true
+    },
+    {
+      "case": "existing_installation_restore_refused_without_writes",
+      "passed": true
+    },
+    {
+      "case": "new_installation_native_restore",
+      "passed": true,
+      "scope": "clean_restore_data_and_code_only",
+      "installation_id": "e49802fc-2aaf-4010-a085-e2983fde3982",
+      "source_installation_id": "b4681618-ce7a-49ce-83b2-bc3c8817d6c6",
+      "version": "0.2.12-dev",
+      "database_sha256": "50ba1213327a6ca9a8d34bf6de3c084a4f27002b8de4c2df138795ab8ecfcdb1",
+      "private_files": 3,
+      "tables": 53,
+      "elapsed_seconds": 31.087,
+      "backup_unchanged": true,
+      "post_restore_http_verified": false,
+      "identity_policy": "new installation UUID, secret and cookie namespace; stored identities/history unchanged"
+    },
+    {
+      "case": "original_same_N_resumed",
+      "passed": true,
+      "health": {
+        "live": 200,
+        "ready": 200
+      }
+    },
+    {
+      "case": "restored_real_TLS_login_document_and_version",
+      "passed": true,
+      "new_cookie_namespace": true,
+      "document_sha256": "bba0159323a4d10c1954fea3eb175e0b9a10eb26a76b80dcf4a0f310264f2111",
+      "version": "0.2.12-dev"
+    },
+    {
+      "case": "restored_import_receipt_identity_replay_and_private_source",
+      "passed": true,
+      "export_sha256": "69f6e4c672f01b8cf35aed96b9a17af6313be4319d29cfe6b29bedf2e21a0c58",
+      "no_new_business_effects": true
+    },
+    {
+      "case": "restored_six_correction_ledgers_source_history_and_intent_replay",
+      "passed": true,
+      "correction_actions": 7,
+      "six_populated_ledgers": {
+        "cancellations": 2,
+        "cancellation_releases": 1,
+        "goods_returns": 2,
+        "supplier_claims": 2,
+        "invoice_adjustments": 2,
+        "invoice_adjustment_lines": 2
+      },
+      "snapshot_sha256": "17efcfd90a19f3d7aa407fb514d8b74cee68661a8b5df02aa540be29fc4418b0",
+      "new_business_effects": 0
+    },
+    {
+      "case": "all_owned_processes_stopped_and_source_backup_still_valid",
+      "passed": true,
+      "backup_manifest_sha256": "984723439b9f2a531a81fe0f7aa070d74ad09e50d84e9f4df9bf61e4d6cd0752"
+    },
+    {
+      "case": "late_admission_failure_keeps_new_target_unlaunchable",
+      "passed": true
+    }
+  ],
+  "management_code_sha256": {
+    "maintenance_control": "4e9b33059b6faa7bb8a03a6dedecfc08d29493e0f0333fb231920c6e80714223",
+    "generation_ledger": "b68298be377367ae8bfcddd3ec44cfff446dcd9dc0698864a9a822ea6b8df3f1",
+    "backup_server": "27430b053bf714b09b89214278454144b6587040754f0db8d1d79f874e0cbed8",
+    "restore_server": "baaf64239df69dd0a2c19bcab7b67044af3ad19cd9790f7d95e0b47f5b323eb0",
+    "managed_runtime": "be7e26c107248ff3dc13d86acf700a9d84784f82df386b36d2e9e855ec181840"
+  },
+  "package": {
+    "version": "0.2.12-dev",
+    "source_sha256": "122197d232a463ad974bfe4b81da0600a0e1ce896d166c2a8933475d4237357b",
+    "files": 285,
+    "database_files": 0,
+    "output": "/tmp/bos-restore-check-l83djr3b/package"
+  },
+  "seed": {
+    "user_id": 1,
+    "employee_id": 1,
+    "document_id": 1,
+    "import_document": {
+      "document_id": 3,
+      "code": "RESTORE-IMPORT",
+      "revision": "A",
+      "checksum": "1d6432f290d6c0d47600c86dca7b826d164703272398541293ba648634c05acd"
+    },
+    "transaction_ids": [
+      1,
+      2,
+      3
+    ],
+    "currencies": 3,
+    "amounts": [
+      "17.39",
+      "123.45",
+      "9801.07"
+    ],
+    "stored_session_rows": 1
+  }
+}

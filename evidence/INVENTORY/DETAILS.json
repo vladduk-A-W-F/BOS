@@ -1,0 +1,1165 @@
+{
+  "purpose": "Діагностичне відтворення дефектів; exit 0 не означає приймання",
+  "date": "2026-09-11",
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "django": "6.0.5",
+    "drf": "3.17.1",
+    "sqlite": "3.53.1",
+    "database": "/workspace/scratch/c7b51e996a9f/tmp/master_inventory_db_cspm8t_t/audit.sqlite3",
+    "http_client": "Django Client, enforce_csrf_checks=True, local address",
+    "mocks": false,
+    "production_code_changes": false
+  },
+  "cases": {
+    "finish_repeated_lot": {
+      "defect_reproduced": true,
+      "quantity": "5.000",
+      "movement_total": "0",
+      "reserved": "0",
+      "produced": "10.000",
+      "repeat_same_receipt": true,
+      "repeat_no_new_rows": true,
+      "expected_when_fixed": "quantity == movement_total == 0"
+    },
+    "salary_concurrent_payment": {
+      "defect_reproduced": true,
+      "workers": [
+        {
+          "worker": 0,
+          "status": "succeeded",
+          "transaction_id": 2
+        },
+        {
+          "worker": 1,
+          "status": "succeeded",
+          "transaction_id": 1
+        }
+      ],
+      "transaction_count": 2,
+      "transaction_total": "200",
+      "salary_transaction_id": 2,
+      "expected_when_fixed": "one expense 100 and one stable source link"
+    },
+    "salary_serializer_create_paid": {
+      "defect_reproduced": true,
+      "http_status": 201,
+      "salary_status": "paid",
+      "transaction": null,
+      "expected_when_fixed": "reject inconsistent state or create exactly one expense atomically"
+    },
+    "salary_serializer_update_paid": {
+      "defect_reproduced": true,
+      "http_status": 200,
+      "salary_amount": "200.00",
+      "transaction_amount": "100.00",
+      "expected_when_fixed": "immutable payment history; explicit correction instead of silent rewrite"
+    },
+    "salary_serializer_reopen_then_pay": {
+      "defect_reproduced": true,
+      "patch_status": 200,
+      "pay_status": 200,
+      "first_transaction": 4,
+      "second_transaction": 5,
+      "expected_when_fixed": "cannot silently reset a paid accrual and create another expense"
+    },
+    "transaction_serializer_update_salary_expense": {
+      "defect_reproduced": true,
+      "http_status": 200,
+      "salary_amount": "100.00",
+      "transaction_amount": "300.00",
+      "transaction_direction": "in",
+      "expected_when_fixed": "expense remains immutable and linked to the source"
+    },
+    "salary_api_destroy": {
+      "defect_reproduced": true,
+      "http_status": 204,
+      "salary_exists": false,
+      "transaction_exists": true,
+      "expense_has_source": false,
+      "expected_when_fixed": "retain historical accrual and expense source"
+    },
+    "transaction_api_destroy": {
+      "defect_reproduced": true,
+      "http_status": 204,
+      "salary_status": "paid",
+      "transaction": null,
+      "expected_when_fixed": "paid salary retains exactly one expense"
+    },
+    "employee_api_destroy_salary_cascade": {
+      "defect_reproduced": true,
+      "http_status": 204,
+      "salary_exists": false,
+      "transaction_exists": true,
+      "expected_when_fixed": "archive employee; preserve payroll history and source"
+    },
+    "salary_payment_currency": {
+      "defect_reproduced": true,
+      "salary_currency": "EUR",
+      "transaction_currency": "UAH",
+      "salary_amount": "100.00",
+      "transaction_amount": "100.00",
+      "expected_when_fixed": "expense currency equals salary currency"
+    },
+    "salary_admin_save_model": {
+      "defect_reproduced": true,
+      "http_status": 302,
+      "errors": null,
+      "salary_status": "paid",
+      "transaction": null,
+      "expected_when_fixed": "admin uses same protected payment service"
+    },
+    "transaction_admin_save_model": {
+      "defect_reproduced": true,
+      "http_status": 302,
+      "errors": null,
+      "salary_amount": "100.00",
+      "transaction_amount": "400.00",
+      "transaction_direction": "in",
+      "expected_when_fixed": "admin cannot rewrite posted salary expense"
+    },
+    "salary_admin_delete_single": {
+      "defect_reproduced": true,
+      "http_status": 302,
+      "salary_exists": false,
+      "transaction_exists": true,
+      "salary_status": null,
+      "salary_transaction": null,
+      "expected_when_fixed": "preserve payroll history and one linked expense"
+    },
+    "salary_admin_delete_bulk": {
+      "defect_reproduced": true,
+      "http_status": 302,
+      "salary_exists": false,
+      "transaction_exists": true,
+      "salary_status": null,
+      "salary_transaction": null,
+      "expected_when_fixed": "preserve payroll history and one linked expense"
+    },
+    "transaction_admin_delete_single": {
+      "defect_reproduced": true,
+      "http_status": 302,
+      "salary_exists": true,
+      "transaction_exists": false,
+      "salary_status": "paid",
+      "salary_transaction": null,
+      "expected_when_fixed": "preserve payroll history and one linked expense"
+    },
+    "transaction_admin_delete_bulk": {
+      "defect_reproduced": true,
+      "http_status": 302,
+      "salary_exists": true,
+      "transaction_exists": false,
+      "salary_status": "paid",
+      "salary_transaction": null,
+      "expected_when_fixed": "preserve payroll history and one linked expense"
+    },
+    "employee_admin_delete_single": {
+      "defect_reproduced": true,
+      "http_status": 302,
+      "salary_exists": false,
+      "transaction_exists": true,
+      "salary_status": null,
+      "salary_transaction": null,
+      "expected_when_fixed": "preserve payroll history and one linked expense"
+    },
+    "employee_admin_delete_bulk": {
+      "defect_reproduced": true,
+      "http_status": 302,
+      "salary_exists": false,
+      "transaction_exists": true,
+      "salary_status": null,
+      "salary_transaction": null,
+      "expected_when_fixed": "preserve payroll history and one linked expense"
+    }
+  },
+  "all_defects_reproduced": true,
+  "request_trace": [
+    {
+      "method": "POST",
+      "path": "/api/erp/preview/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/operations/confirm/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/erp/preview/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/operations/confirm/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/erp/preview/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/operations/confirm/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/erp/preview/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/operations/confirm/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/erp/preview/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/operations/confirm/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/operations/confirm/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/salaries/",
+      "status": 201
+    },
+    {
+      "method": "POST",
+      "path": "/api/salaries/3/pay/",
+      "status": 200
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/salaries/3/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/salaries/4/pay/",
+      "status": 200
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/salaries/4/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/salaries/4/pay/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/salaries/5/pay/",
+      "status": 200
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/transactions/6/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/salaries/6/pay/",
+      "status": 200
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/salaries/6/",
+      "status": 204
+    },
+    {
+      "method": "POST",
+      "path": "/api/salaries/7/pay/",
+      "status": 200
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/transactions/8/",
+      "status": 204
+    },
+    {
+      "method": "POST",
+      "path": "/api/salaries/8/pay/",
+      "status": 200
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/employees/9/",
+      "status": 204
+    },
+    {
+      "method": "POST",
+      "path": "/api/salaries/9/pay/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/admin/finance/salary/10/change/",
+      "status": 302,
+      "entry": "authenticated_admin"
+    },
+    {
+      "method": "POST",
+      "path": "/api/salaries/11/pay/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/admin/finance/transaction/11/change/",
+      "status": 302,
+      "entry": "authenticated_admin"
+    },
+    {
+      "method": "POST",
+      "path": "/api/salaries/12/pay/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/admin/finance/salary/12/delete/",
+      "status": 302,
+      "entry": "authenticated_admin"
+    },
+    {
+      "method": "POST",
+      "path": "/api/salaries/13/pay/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/admin/finance/salary/",
+      "status": 302,
+      "entry": "authenticated_admin"
+    },
+    {
+      "method": "POST",
+      "path": "/api/salaries/14/pay/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/admin/finance/transaction/14/delete/",
+      "status": 302,
+      "entry": "authenticated_admin"
+    },
+    {
+      "method": "POST",
+      "path": "/api/salaries/15/pay/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/admin/finance/transaction/",
+      "status": 302,
+      "entry": "authenticated_admin"
+    },
+    {
+      "method": "POST",
+      "path": "/api/salaries/16/pay/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/admin/employees/employee/17/delete/",
+      "status": 302,
+      "entry": "authenticated_admin"
+    },
+    {
+      "method": "POST",
+      "path": "/api/salaries/17/pay/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/admin/employees/employee/",
+      "status": 302,
+      "entry": "authenticated_admin"
+    }
+  ],
+  "serializer_fields": {
+    "SalarySerializer": {
+      "id": {
+        "read_only": true,
+        "required": false,
+        "allow_null": false
+      },
+      "employee": {
+        "read_only": false,
+        "required": true,
+        "allow_null": false
+      },
+      "employee_name": {
+        "read_only": true,
+        "required": false,
+        "allow_null": false
+      },
+      "employee_role": {
+        "read_only": true,
+        "required": false,
+        "allow_null": false
+      },
+      "employee_dept": {
+        "read_only": true,
+        "required": false,
+        "allow_null": false
+      },
+      "amount": {
+        "read_only": false,
+        "required": true,
+        "allow_null": false
+      },
+      "currency": {
+        "read_only": false,
+        "required": false,
+        "allow_null": false
+      },
+      "period_year": {
+        "read_only": false,
+        "required": true,
+        "allow_null": false
+      },
+      "period_month": {
+        "read_only": false,
+        "required": true,
+        "allow_null": false
+      },
+      "payment_date": {
+        "read_only": false,
+        "required": false,
+        "allow_null": true
+      },
+      "status": {
+        "read_only": false,
+        "required": false,
+        "allow_null": false
+      },
+      "notes": {
+        "read_only": false,
+        "required": false,
+        "allow_null": false
+      },
+      "transaction": {
+        "read_only": false,
+        "required": false,
+        "allow_null": true
+      },
+      "created_at": {
+        "read_only": true,
+        "required": false,
+        "allow_null": false
+      }
+    },
+    "TransactionSerializer": {
+      "id": {
+        "read_only": true,
+        "required": false,
+        "allow_null": false
+      },
+      "direction": {
+        "read_only": false,
+        "required": true,
+        "allow_null": false
+      },
+      "amount": {
+        "read_only": false,
+        "required": true,
+        "allow_null": false
+      },
+      "currency": {
+        "read_only": false,
+        "required": false,
+        "allow_null": false
+      },
+      "date": {
+        "read_only": false,
+        "required": true,
+        "allow_null": false
+      },
+      "description": {
+        "read_only": false,
+        "required": true,
+        "allow_null": false
+      },
+      "category": {
+        "read_only": false,
+        "required": false,
+        "allow_null": false
+      },
+      "counterparty": {
+        "read_only": false,
+        "required": false,
+        "allow_null": true
+      },
+      "counterparty_name": {
+        "read_only": true,
+        "required": false,
+        "allow_null": false
+      },
+      "contract": {
+        "read_only": false,
+        "required": false,
+        "allow_null": true
+      },
+      "contract_number": {
+        "read_only": true,
+        "required": false,
+        "allow_null": false
+      },
+      "branch": {
+        "read_only": false,
+        "required": false,
+        "allow_null": true
+      },
+      "branch_name": {
+        "read_only": true,
+        "required": false,
+        "allow_null": false
+      },
+      "created_at": {
+        "read_only": true,
+        "required": false,
+        "allow_null": false
+      }
+    }
+  },
+  "drf_write_routes": [
+    {
+      "route": "api/^tasks/$",
+      "actions": {
+        "post": "create"
+      },
+      "view": "tasks.views.TaskViewSet"
+    },
+    {
+      "route": "api/^tasks\\.(?P<format>[a-z0-9]+)/?$",
+      "actions": {
+        "post": "create"
+      },
+      "view": "tasks.views.TaskViewSet"
+    },
+    {
+      "route": "api/^tasks/(?P<pk>[^/.]+)/$",
+      "actions": {
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "view": "tasks.views.TaskViewSet"
+    },
+    {
+      "route": "api/^tasks/(?P<pk>[^/.]+)\\.(?P<format>[a-z0-9]+)/?$",
+      "actions": {
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "view": "tasks.views.TaskViewSet"
+    },
+    {
+      "route": "api/^employees/$",
+      "actions": {
+        "post": "create"
+      },
+      "view": "employees.views.EmployeeViewSet"
+    },
+    {
+      "route": "api/^employees\\.(?P<format>[a-z0-9]+)/?$",
+      "actions": {
+        "post": "create"
+      },
+      "view": "employees.views.EmployeeViewSet"
+    },
+    {
+      "route": "api/^employees/(?P<pk>[^/.]+)/$",
+      "actions": {
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "view": "employees.views.EmployeeViewSet"
+    },
+    {
+      "route": "api/^employees/(?P<pk>[^/.]+)\\.(?P<format>[a-z0-9]+)/?$",
+      "actions": {
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "view": "employees.views.EmployeeViewSet"
+    },
+    {
+      "route": "api/^counterparties/$",
+      "actions": {
+        "post": "create"
+      },
+      "view": "finance.views.CounterpartyViewSet"
+    },
+    {
+      "route": "api/^counterparties\\.(?P<format>[a-z0-9]+)/?$",
+      "actions": {
+        "post": "create"
+      },
+      "view": "finance.views.CounterpartyViewSet"
+    },
+    {
+      "route": "api/^counterparties/(?P<pk>[^/.]+)/$",
+      "actions": {
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "view": "finance.views.CounterpartyViewSet"
+    },
+    {
+      "route": "api/^counterparties/(?P<pk>[^/.]+)\\.(?P<format>[a-z0-9]+)/?$",
+      "actions": {
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "view": "finance.views.CounterpartyViewSet"
+    },
+    {
+      "route": "api/^contracts/$",
+      "actions": {
+        "post": "create"
+      },
+      "view": "finance.views.ContractViewSet"
+    },
+    {
+      "route": "api/^contracts\\.(?P<format>[a-z0-9]+)/?$",
+      "actions": {
+        "post": "create"
+      },
+      "view": "finance.views.ContractViewSet"
+    },
+    {
+      "route": "api/^contracts/(?P<pk>[^/.]+)/$",
+      "actions": {
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "view": "finance.views.ContractViewSet"
+    },
+    {
+      "route": "api/^contracts/(?P<pk>[^/.]+)\\.(?P<format>[a-z0-9]+)/?$",
+      "actions": {
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "view": "finance.views.ContractViewSet"
+    },
+    {
+      "route": "api/^transactions/$",
+      "actions": {
+        "post": "create"
+      },
+      "view": "finance.views.TransactionViewSet"
+    },
+    {
+      "route": "api/^transactions\\.(?P<format>[a-z0-9]+)/?$",
+      "actions": {
+        "post": "create"
+      },
+      "view": "finance.views.TransactionViewSet"
+    },
+    {
+      "route": "api/^transactions/(?P<pk>[^/.]+)/$",
+      "actions": {
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "view": "finance.views.TransactionViewSet"
+    },
+    {
+      "route": "api/^transactions/(?P<pk>[^/.]+)\\.(?P<format>[a-z0-9]+)/?$",
+      "actions": {
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "view": "finance.views.TransactionViewSet"
+    },
+    {
+      "route": "api/^salaries/$",
+      "actions": {
+        "post": "create"
+      },
+      "view": "finance.views.SalaryViewSet"
+    },
+    {
+      "route": "api/^salaries\\.(?P<format>[a-z0-9]+)/?$",
+      "actions": {
+        "post": "create"
+      },
+      "view": "finance.views.SalaryViewSet"
+    },
+    {
+      "route": "api/^salaries/(?P<pk>[^/.]+)/$",
+      "actions": {
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "view": "finance.views.SalaryViewSet"
+    },
+    {
+      "route": "api/^salaries/(?P<pk>[^/.]+)\\.(?P<format>[a-z0-9]+)/?$",
+      "actions": {
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "view": "finance.views.SalaryViewSet"
+    },
+    {
+      "route": "api/^salaries/(?P<pk>[^/.]+)/pay/$",
+      "actions": {
+        "post": "pay"
+      },
+      "view": "finance.views.SalaryViewSet"
+    },
+    {
+      "route": "api/^salaries/(?P<pk>[^/.]+)/pay\\.(?P<format>[a-z0-9]+)/?$",
+      "actions": {
+        "post": "pay"
+      },
+      "view": "finance.views.SalaryViewSet"
+    }
+  ],
+  "admin_registry": [
+    {
+      "model": "auth.Group",
+      "admin_class": "django.contrib.auth.admin.GroupAdmin",
+      "readonly_fields": [],
+      "save_model": "ModelAdmin.save_model",
+      "delete_model": "ModelAdmin.delete_model",
+      "delete_queryset": "ModelAdmin.delete_queryset"
+    },
+    {
+      "model": "auth.User",
+      "admin_class": "django.contrib.auth.admin.UserAdmin",
+      "readonly_fields": [],
+      "save_model": "ModelAdmin.save_model",
+      "delete_model": "ModelAdmin.delete_model",
+      "delete_queryset": "ModelAdmin.delete_queryset"
+    },
+    {
+      "model": "tasks.Task",
+      "admin_class": "tasks.admin.TaskAdmin",
+      "readonly_fields": [
+        "created_at"
+      ],
+      "save_model": "ModelAdmin.save_model",
+      "delete_model": "ModelAdmin.delete_model",
+      "delete_queryset": "ModelAdmin.delete_queryset"
+    },
+    {
+      "model": "finance.Counterparty",
+      "admin_class": "django.contrib.admin.options.ModelAdmin",
+      "readonly_fields": [],
+      "save_model": "ModelAdmin.save_model",
+      "delete_model": "ModelAdmin.delete_model",
+      "delete_queryset": "ModelAdmin.delete_queryset"
+    },
+    {
+      "model": "finance.Contract",
+      "admin_class": "django.contrib.admin.options.ModelAdmin",
+      "readonly_fields": [],
+      "save_model": "ModelAdmin.save_model",
+      "delete_model": "ModelAdmin.delete_model",
+      "delete_queryset": "ModelAdmin.delete_queryset"
+    },
+    {
+      "model": "finance.Transaction",
+      "admin_class": "django.contrib.admin.options.ModelAdmin",
+      "readonly_fields": [],
+      "save_model": "ModelAdmin.save_model",
+      "delete_model": "ModelAdmin.delete_model",
+      "delete_queryset": "ModelAdmin.delete_queryset"
+    },
+    {
+      "model": "finance.Salary",
+      "admin_class": "django.contrib.admin.options.ModelAdmin",
+      "readonly_fields": [],
+      "save_model": "ModelAdmin.save_model",
+      "delete_model": "ModelAdmin.delete_model",
+      "delete_queryset": "ModelAdmin.delete_queryset"
+    },
+    {
+      "model": "employees.Employee",
+      "admin_class": "employees.admin.EmployeeAdmin",
+      "readonly_fields": [
+        "created_at"
+      ],
+      "save_model": "ModelAdmin.save_model",
+      "delete_model": "ModelAdmin.delete_model",
+      "delete_queryset": "ModelAdmin.delete_queryset"
+    },
+    {
+      "model": "ai_assistant.ChatMessage",
+      "admin_class": "django.contrib.admin.options.ModelAdmin",
+      "readonly_fields": [],
+      "save_model": "ModelAdmin.save_model",
+      "delete_model": "ModelAdmin.delete_model",
+      "delete_queryset": "ModelAdmin.delete_queryset"
+    },
+    {
+      "model": "ai_assistant.TaskChangeLog",
+      "admin_class": "django.contrib.admin.options.ModelAdmin",
+      "readonly_fields": [],
+      "save_model": "ModelAdmin.save_model",
+      "delete_model": "ModelAdmin.delete_model",
+      "delete_queryset": "ModelAdmin.delete_queryset"
+    },
+    {
+      "model": "ai_assistant.EmployeeChangeLog",
+      "admin_class": "django.contrib.admin.options.ModelAdmin",
+      "readonly_fields": [],
+      "save_model": "ModelAdmin.save_model",
+      "delete_model": "ModelAdmin.delete_model",
+      "delete_queryset": "ModelAdmin.delete_queryset"
+    },
+    {
+      "model": "ai_assistant.ChatFile",
+      "admin_class": "ai_assistant.admin.ChatFileAdmin",
+      "readonly_fields": [
+        "uploaded_at"
+      ],
+      "save_model": "ModelAdmin.save_model",
+      "delete_model": "ModelAdmin.delete_model",
+      "delete_queryset": "ModelAdmin.delete_queryset"
+    },
+    {
+      "model": "ai_assistant.ClaudeUsageLog",
+      "admin_class": "ai_assistant.admin.ClaudeUsageLogAdmin",
+      "readonly_fields": [
+        "created_at"
+      ],
+      "save_model": "ModelAdmin.save_model",
+      "delete_model": "ModelAdmin.delete_model",
+      "delete_queryset": "ModelAdmin.delete_queryset"
+    },
+    {
+      "model": "branches.Branch",
+      "admin_class": "branches.admin.BranchAdmin",
+      "readonly_fields": [],
+      "save_model": "ModelAdmin.save_model",
+      "delete_model": "ModelAdmin.delete_model",
+      "delete_queryset": "ModelAdmin.delete_queryset"
+    }
+  ],
+  "framework_sources": {
+    "ModelSerializer.create": {
+      "file": "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/rest_framework/serializers.py",
+      "line": 976,
+      "source": "    def create(self, validated_data):\n        \"\"\"\n        We have a bit of extra checking around this in order to provide\n        descriptive messages when something goes wrong, but this method is\n        essentially just:\n\n            return ExampleModel.objects.create(**validated_data)\n\n        If there are many to many fields present on the instance then they\n        cannot be set until the model is instantiated, in which case the\n        implementation is like so:\n\n            example_relationship = validated_data.pop('example_relationship')\n            instance = ExampleModel.objects.create(**validated_data)\n            instance.example_relationship = example_relationship\n            return instance\n\n        The default implementation also does not handle nested relationships.\n        If you want to support writable nested relationships you'll need\n        to write an explicit `.create()` method.\n        \"\"\"\n        raise_errors_on_nested_writes('create', self, validated_data)\n\n        ModelClass = self.Meta.model\n\n        # Remove many-to-many relationships from validated_data.\n        # They are not valid arguments to the default `.create()` method,\n        # as they require that the instance has already been saved.\n        info = model_meta.get_field_info(ModelClass)\n        many_to_many = {}\n        for field_name, relation_info in info.relations.items():\n            if relation_info.to_many and (field_name in validated_data):\n                many_to_many[field_name] = validated_data.pop(field_name)\n\n        try:\n            instance = ModelClass._default_manager.create(**validated_data)\n        except TypeError:\n            tb = traceback.format_exc()\n            msg = (\n                'Got a `TypeError` when calling `%s.%s.create()`. '\n                'This may be because you have a writable field on the '\n                'serializer class that is not a valid argument to '\n                '`%s.%s.create()`. You may need to make the field '\n                'read-only, or override the %s.create() method to handle '\n                'this correctly.\\nOriginal exception was:\\n %s' %\n                (\n                    ModelClass.__name__,\n                    ModelClass._default_manager.name,\n                    ModelClass.__name__,\n                    ModelClass._default_manager.name,\n                    self.__class__.__name__,\n                    tb\n                )\n            )\n            raise TypeError(msg)\n\n        # Save many-to-many relationships after the instance is created.\n        if many_to_many:\n            for field_name, value in many_to_many.items():\n                field = getattr(instance, field_name)\n                field.set(value)\n\n        return instance\n"
+    },
+    "ModelSerializer.update": {
+      "file": "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/rest_framework/serializers.py",
+      "line": 1040,
+      "source": "    def update(self, instance, validated_data):\n        raise_errors_on_nested_writes('update', self, validated_data)\n        info = model_meta.get_field_info(instance)\n\n        # Simply set each attribute on the instance, and then save it.\n        # Note that unlike `.create()` we don't need to treat many-to-many\n        # relationships as being a special case. During updates we already\n        # have an instance pk for the relationships to be associated with.\n        m2m_fields = []\n        for attr, value in validated_data.items():\n            if attr in info.relations and info.relations[attr].to_many:\n                m2m_fields.append((attr, value))\n            else:\n                setattr(instance, attr, value)\n\n        instance.save()\n\n        # Note that many-to-many fields are set after updating instance.\n        # Setting m2m fields triggers signals which could potentially change\n        # updated instance and we do not want it to collide with .update()\n        for attr, value in m2m_fields:\n            field = getattr(instance, attr)\n            field.set(value)\n\n        return instance\n"
+    },
+    "CreateModelMixin.perform_create": {
+      "file": "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/rest_framework/mixins.py",
+      "line": 23,
+      "source": "    def perform_create(self, serializer):\n        serializer.save()\n"
+    },
+    "UpdateModelMixin.perform_update": {
+      "file": "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/rest_framework/mixins.py",
+      "line": 77,
+      "source": "    def perform_update(self, serializer):\n        serializer.save()\n"
+    },
+    "DestroyModelMixin.perform_destroy": {
+      "file": "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/rest_framework/mixins.py",
+      "line": 94,
+      "source": "    def perform_destroy(self, instance):\n        instance.delete()\n"
+    },
+    "ModelAdmin.changeform_view": {
+      "file": "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/django/utils/decorators.py",
+      "line": 1796,
+      "source": "    @csrf_protect_m\n    def changeform_view(self, request, object_id=None, form_url=\"\", extra_context=None):\n        if request.method in (\"GET\", \"HEAD\", \"OPTIONS\", \"TRACE\"):\n            return self._changeform_view(request, object_id, form_url, extra_context)\n\n        with transaction.atomic(using=router.db_for_write(self.model)):\n            return self._changeform_view(request, object_id, form_url, extra_context)\n"
+    },
+    "ModelAdmin.save_model": {
+      "file": "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/django/contrib/admin/options.py",
+      "line": 1269,
+      "source": "    def save_model(self, request, obj, form, change):\n        \"\"\"\n        Given a model instance save it to the database.\n        \"\"\"\n        obj.save()\n"
+    },
+    "ModelAdmin.delete_view": {
+      "file": "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/django/utils/decorators.py",
+      "line": 2162,
+      "source": "    @csrf_protect_m\n    def delete_view(self, request, object_id, extra_context=None):\n        if request.method in (\"GET\", \"HEAD\", \"OPTIONS\", \"TRACE\"):\n            return self._delete_view(request, object_id, extra_context)\n\n        with transaction.atomic(using=router.db_for_write(self.model)):\n            return self._delete_view(request, object_id, extra_context)\n"
+    },
+    "ModelAdmin.delete_model": {
+      "file": "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/django/contrib/admin/options.py",
+      "line": 1275,
+      "source": "    def delete_model(self, request, obj):\n        \"\"\"\n        Given a model instance delete it from the database.\n        \"\"\"\n        obj.delete()\n"
+    },
+    "ModelAdmin.delete_queryset": {
+      "file": "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/django/contrib/admin/options.py",
+      "line": 1281,
+      "source": "    def delete_queryset(self, request, queryset):\n        \"\"\"Given a queryset, delete it from the database.\"\"\"\n        queryset.delete()\n"
+    }
+  },
+  "source_sha256_before": {
+    "ai_assistant/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ai_assistant/admin.py": "51d0d71166b61b3f2abd7c55504e78f3f34ea814c08efc7e99c48efb66514ff1",
+    "ai_assistant/apps.py": "439406f2c04661869da1243f9b36c5cc7ea682862d8272c31359fd1b35d0e8ed",
+    "ai_assistant/migrations/0001_initial.py": "f654a55a4e3af376ca2c2927f5da2181772675bdf0f0557aea797329514a8cb3",
+    "ai_assistant/migrations/0002_taskchangelog.py": "93d987b6aee156191a61cd7c94e4c257e2cdef8d414edc26a8a9a51b7b0f288a",
+    "ai_assistant/migrations/0003_claudeusagelog.py": "4cab13d86833b7664f0c5c5fa6a17575322c39df4e5ffa5173c2b6b3ea0dc87c",
+    "ai_assistant/migrations/0004_employeechangelog.py": "7cc85c06a5d6ada4e200301ecc9bcfb6e5eae6923c5fa114c56189532af01c32",
+    "ai_assistant/migrations/0005_chatfile.py": "4662a84bda47052f42e003878d30e210fc5e6315803d48d75ca53c2027d70324",
+    "ai_assistant/migrations/0006_alter_chatmessage_created_at_and_more.py": "3859ea3bbb9db43a16d7bf18d040cc9aa6ba28e0a5fc9418df3e3c786a452aa3",
+    "ai_assistant/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ai_assistant/models.py": "ff5d4c2af24fa6bc6f832b9da39b2204ad33b2996d55b75b67a819b6646453dd",
+    "ai_assistant/serializers.py": "fc797903391c03ff3e05d7a82578f124e373f85cb3c50c4107cfd2514c84afc8",
+    "ai_assistant/tests.py": "430662be3c3a4bffe6f3dc117db7e5db22fa6fbd5e79c3a50c1812856417e52e",
+    "ai_assistant/urls.py": "3c7136af74ac06a53e1ddd750fcb6e6de0265e732ed85b38dbf73ee7984709f7",
+    "ai_assistant/views.py": "462d6150d4f6ef846e0459cc80a760a694ab1018495a6fff0e790969de888e05",
+    "boss_project/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "boss_project/asgi.py": "3aff71220338f84e370e601929d886bacfa34d954c14bfcf729079a45fb62615",
+    "boss_project/demo_middleware.py": "8973b932596913065545f0f01d6ff438df126399552144260506d5ad2ea462a3",
+    "boss_project/refinement_views.py": "ac64eab2d96b20c42b781330862bb3710d5318d4e9e1780347def1a13ff7fc1e",
+    "boss_project/settings.py": "f5dc83426c660f4e1d123c621a120e5d7bca141730ea7e78fa603f9341b09d73",
+    "boss_project/urls.py": "86b837a67a1633e6abf52128f6a68cb598bbcf4a79e95116a907892934fcff21",
+    "boss_project/wsgi.py": "b58b7891367d72cb84a296c2551a9cbe66defa9aa2dd688e01409c2e004ec67f",
+    "branches/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "branches/admin.py": "375203c98fbef0ae7cf3f6aa5cc90981693e091eb79d7bab39689adfaea305d0",
+    "branches/apps.py": "af5369a4d436671d40770451f43983fa9d0e75ac0ae292034289bf24b69c8efb",
+    "branches/demo.py": "5688f51eec1a73c548672803af0dfea6f37e8df352bae1bb7649484df2875dec",
+    "branches/management/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "branches/management/commands/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "branches/management/commands/seed_branches.py": "8fa32e90080bc6c1cf317129d138b4be6c99f48a95e49adf4a65511690398117",
+    "branches/migrations/0001_initial.py": "dc8ab7de0f852c71f459c6cd1dca856b95c48654f8ebb69aa3b1e17debb61058",
+    "branches/migrations/0002_branch_short_name.py": "cf17d412a9ec7f0290e8c33df49e8ee6e1fe752a8a87f8f18c1d79a94243b98e",
+    "branches/migrations/0003_fill_short_names.py": "73a2a9892bd5b68c34ae741a99f290e6edc07f84f1ce0dd859ef5c5c1b1fa882",
+    "branches/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "branches/models.py": "f675b025be7f74404b1fe213a2593b2010cb3852571922c270a862df10f16ef8",
+    "branches/serializers.py": "69f6d6f0b247d6d0d5f230e4b216101ae3d9a40430732cf93a91b351924f376d",
+    "branches/urls.py": "d0e5b0b5150f1a16ee78da2169b6496479bdd8b94ccc5fab31528d9b48f9cb7f",
+    "branches/views.py": "836be235630c00a73fef5edf608f02462b9fa1b1273b54a010790ce38b8755dd",
+    "demo_settings.py": "90ee8943f88ada9ca9ef8371ce1d7b26d4e19578ea12a0722eb647882a53f935",
+    "employees/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "employees/admin.py": "8e20209544e37d8a07408c602312e9d1c1cd9bab10ae14c3ee0b4bfd0f6c32f1",
+    "employees/apps.py": "58894c6d6866dbeea06319c81175c367d09c27383db7157652a37a090f1be30c",
+    "employees/migrations/0001_initial.py": "11fcbd1e83a0864d95721cc58a95a6745e9367fcededa3a9e01381c562465f3f",
+    "employees/migrations/0002_alter_employee_department.py": "ea4338a18cb99cab4a5af9201247167a821d41fa5af2618b8873a10ce7af96f1",
+    "employees/migrations/0003_employee_branch.py": "e8463dda702dd471e0ee1d0cf84f7c344e5b8422c79577f25653096935c5639a",
+    "employees/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "employees/models.py": "597c388137057ccfbbc12c631282fa6bb599177ff76236f9fd13db170757abb2",
+    "employees/serializers.py": "d39c02d6a13e15d239c9ad3d2b611b683bdd08b7405de9fd5d5215ab5ae0a4db",
+    "employees/tests.py": "345a1c8fd702c86c8a6b3e39080b36497a01797d96b7c1cc6576cdb7510dee96",
+    "employees/urls.py": "16b61b39ab28e5e52b2f6733a24d890f7f05efb30183bf2f13e1c22ffc0eed6a",
+    "employees/views.py": "e29d42afa6c170baca886ef1cceb4b6881dce8b4f67132d6e8351b859e553567",
+    "erp/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "erp/assistant.py": "da3553d69d3df408946529c9aea099905138ec889c5c20b1df668ddd026bfbec",
+    "erp/experience.py": "e7a29bdd748ee60d06cca8e92d67d5cd20907d7fea70004198da5088daad6055",
+    "erp/management/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "erp/management/commands/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "erp/management/commands/seed_bos_workspace.py": "e4f57de95eed8b7fcbf145f862b640606ef041c86940d437feb6c094b2a44256",
+    "erp/management/commands/seed_erp_demo.py": "5d40c70c0f80154987d9b12380c757381753fb79fc5330c7a6f29e35e98bd00d",
+    "erp/migrations/0001_initial.py": "7cf19c609f64ab6bdc78809e8316eaae2640c451dfb0adfdc4a273e75f496d39",
+    "erp/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "erp/models.py": "4069c3f488d1e6ef09476e44b14213c6a2a16a934301f175bcacfb694836a2c1",
+    "erp/queries.py": "6ac56f6abb4eafb3955879d0af1c288d26e620fc9dff2147f2b820025a49f48a",
+    "erp/service.py": "4e031d98ac02edf70180e68197c289604f771b1267f2682a8a60876e2d4ffc4e",
+    "erp/urls.py": "263f2612645e933c207e7e1297d05cc4ae9be49bd23c17524fe6e6a71aa0bd21",
+    "erp/views.py": "d31c12509876d13cd97ea9f632f73590e003b2bfa4c0205a73b4c9ebaa5315ca",
+    "finance/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finance/admin.py": "59a7f77ac86268e4cc9b3f75d10e2b9ed241c6493a9b210788c8d89daba92a9f",
+    "finance/apps.py": "b3e08d4bfea4c3162b4dc5af185f772278156bdbbefbe9b9ff97fb1c1fd1411a",
+    "finance/migrations/0001_initial.py": "3f57350da1b9eed48707d73d6198fa7ed07484e753f8798e9af4ce357248b960",
+    "finance/migrations/0002_alter_salary_unique_together_alter_contract_status_and_more.py": "dcd54651532c727fc4d4a1731edc978df80890a6879f0715c06e8b85be8572ba",
+    "finance/migrations/0003_transaction_branch.py": "427e56a48a9b8903b971c66a183b2c406e7b1f1736bb7acd91d3bb183b4745be",
+    "finance/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finance/models.py": "49eff089e35d6e971b1e80a75fafa110dabc47c8afab6f178ddd802a773591f0",
+    "finance/serializers.py": "9ae10746356efd39e10019f3010053a8d2a4f65d20ba49579429227faca8f644",
+    "finance/tests.py": "c0ab89c832838335e4930d99866e5e8e59f93fadf96900c58a86efb4e3dab92d",
+    "finance/urls.py": "788a113c3459fb4a0138261b0cd8c2ab5abb75afccffa856a72c428a055360e8",
+    "finance/views.py": "9771327aec97d105da5158e8f80d32e5dfe0808fa35cbc2b55ec3a31855cac6e",
+    "manage.py": "3e985fb40263d48efe40b95c974b8bac8b291a9fadd9d8345f7e36873e40b9c9",
+    "operations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "operations/documents.py": "5c4c6e7b148e40628cc030c8ca1ebe2c904abd7c7e93723077b2a2d9f4b4820a",
+    "operations/management/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "operations/management/commands/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "operations/management/commands/seed_bos_demo.py": "b5516a56ad9dbbec158de9cd3884252243fc2bcbbb68ca07182dca31e5d4374a",
+    "operations/middleware.py": "265a015a9038aebc25feda8ab397ff8f93c06674f5594035f5340162d65b1025",
+    "operations/migrations/0001_initial.py": "3c90d61d836b134c998865ecb6cf6c3e8bd5519d81f3d6f9b3276b224d6004a6",
+    "operations/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "operations/models.py": "b909fb9a18edae0d76896387b119c961371a52bac394977d955328e025108ed7",
+    "operations/service.py": "37a7c5d64a178cf6d4736acf778eb4d74f6ea42a617c24838a5704d51d79b0ff",
+    "operations/urls.py": "3ea1677ffd79b9365553209ae88fd359cb19fdfcc945fd5758d777f9ec9a3b6c",
+    "operations/views.py": "1e8ad85b4444170dad61ff4978568b4f5f50ad1c368692d2f2b900cd5dc9069a",
+    "scripts/check_erp.py": "067a3af792fdaa73bd8806dbb982c756e48f13d67a055e670e4c7fc6ae727069",
+    "scripts/check_launcher.py": "4599c4589eed6f81629a1cd5eeb97ca296fe14df333ab2a09ee8c8991b10f987",
+    "scripts/check_operations.py": "8f2a66e8915b29265dcb3fd716dd257355c72dbc246a09227518b46ec09292d1",
+    "scripts/check_original.py": "ff8df210e36e6701610487a7cf5d73ec9a5163a9460fddebc0565fe814a4f19b",
+    "scripts/check_workspace.py": "1f8035267a1921cecab27a538c9d801946984e71c68b1353c99b586edb704dc5",
+    "scripts/evaluate_scenarios.py": "3892ac8cfd3fd2cfd5c2d54abec71c1ec4c32c937acd76a20d6a2b904256d78f",
+    "scripts/export_erp_demo.py": "f2c682a7df553baf7d97ca942351984b9a7a8bc665c0dd6fbfc8818116b84725",
+    "scripts/start_local.py": "f821a0a93269989674d464b8a136c3cf3d978b305da6d770cb1d0c48a9fe3e80",
+    "tasks/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tasks/admin.py": "3dfe909ce025fb616bb1cffdbadc97ea8a3cb91ea0ba76d704f5df29718f35ff",
+    "tasks/apps.py": "936b394d0dc7520e73da115768d1096f275f97c0cab73d80eb1a6b1d8f7b93bd",
+    "tasks/filters.py": "c87ea7c94f34b2a574db758e10ede1260f9f0538e9da0bf3f11519e6082ddcfe",
+    "tasks/migrations/0001_initial.py": "5b7aacf0bc1f43e329a38d5ad4ff12762f2ea8fd3147f4ca1b50de1d2ec43bce",
+    "tasks/migrations/0002_alter_task_priority.py": "c4405bd4dc455e80678caf49a5c59312e53adfe24ca5a7390591f7c4c48942a3",
+    "tasks/migrations/0003_alter_task_deadline_alter_task_priority_and_more.py": "b2f240d79d5e5d3fd9e271b8ee3d75a7d61ae5ad4a56c2752d2c97fbef151d7d",
+    "tasks/migrations/0004_task_branch.py": "ee1973e6f36f6bd78d41efbdafe21018dda9434851724543223a1d73f52a79d7",
+    "tasks/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tasks/models.py": "d8a980ee820d72634fb51d0e5cf3a75ebefc134d44c9bf68a1e059a1fcb280b1",
+    "tasks/serializers.py": "de2752a6f9060d2fef8dc572ed273197a270d78eee16547fe2074e8856373d30",
+    "tasks/tests.py": "c9abac77c9dcc312a3e786a28ed9aafe1a3a4e8dd2866151d93f77d2dbc4ad0d",
+    "tasks/urls.py": "8d6faaed0d2506e5bc8a1fbe040cfb46194c3e59a07391d3f2bb318fab9c3e6c",
+    "tasks/views.py": "7b9d8816ae1d6cd36de79b494e344288219147757611c2e457992bb666dbe2c1"
+  },
+  "source_sha256_after": {
+    "ai_assistant/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ai_assistant/admin.py": "51d0d71166b61b3f2abd7c55504e78f3f34ea814c08efc7e99c48efb66514ff1",
+    "ai_assistant/apps.py": "439406f2c04661869da1243f9b36c5cc7ea682862d8272c31359fd1b35d0e8ed",
+    "ai_assistant/migrations/0001_initial.py": "f654a55a4e3af376ca2c2927f5da2181772675bdf0f0557aea797329514a8cb3",
+    "ai_assistant/migrations/0002_taskchangelog.py": "93d987b6aee156191a61cd7c94e4c257e2cdef8d414edc26a8a9a51b7b0f288a",
+    "ai_assistant/migrations/0003_claudeusagelog.py": "4cab13d86833b7664f0c5c5fa6a17575322c39df4e5ffa5173c2b6b3ea0dc87c",
+    "ai_assistant/migrations/0004_employeechangelog.py": "7cc85c06a5d6ada4e200301ecc9bcfb6e5eae6923c5fa114c56189532af01c32",
+    "ai_assistant/migrations/0005_chatfile.py": "4662a84bda47052f42e003878d30e210fc5e6315803d48d75ca53c2027d70324",
+    "ai_assistant/migrations/0006_alter_chatmessage_created_at_and_more.py": "3859ea3bbb9db43a16d7bf18d040cc9aa6ba28e0a5fc9418df3e3c786a452aa3",
+    "ai_assistant/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ai_assistant/models.py": "ff5d4c2af24fa6bc6f832b9da39b2204ad33b2996d55b75b67a819b6646453dd",
+    "ai_assistant/serializers.py": "fc797903391c03ff3e05d7a82578f124e373f85cb3c50c4107cfd2514c84afc8",
+    "ai_assistant/tests.py": "430662be3c3a4bffe6f3dc117db7e5db22fa6fbd5e79c3a50c1812856417e52e",
+    "ai_assistant/urls.py": "3c7136af74ac06a53e1ddd750fcb6e6de0265e732ed85b38dbf73ee7984709f7",
+    "ai_assistant/views.py": "462d6150d4f6ef846e0459cc80a760a694ab1018495a6fff0e790969de888e05",
+    "boss_project/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "boss_project/asgi.py": "3aff71220338f84e370e601929d886bacfa34d954c14bfcf729079a45fb62615",
+    "boss_project/demo_middleware.py": "8973b932596913065545f0f01d6ff438df126399552144260506d5ad2ea462a3",
+    "boss_project/refinement_views.py": "ac64eab2d96b20c42b781330862bb3710d5318d4e9e1780347def1a13ff7fc1e",
+    "boss_project/settings.py": "f5dc83426c660f4e1d123c621a120e5d7bca141730ea7e78fa603f9341b09d73",
+    "boss_project/urls.py": "86b837a67a1633e6abf52128f6a68cb598bbcf4a79e95116a907892934fcff21",
+    "boss_project/wsgi.py": "b58b7891367d72cb84a296c2551a9cbe66defa9aa2dd688e01409c2e004ec67f",
+    "branches/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "branches/admin.py": "375203c98fbef0ae7cf3f6aa5cc90981693e091eb79d7bab39689adfaea305d0",
+    "branches/apps.py": "af5369a4d436671d40770451f43983fa9d0e75ac0ae292034289bf24b69c8efb",
+    "branches/demo.py": "5688f51eec1a73c548672803af0dfea6f37e8df352bae1bb7649484df2875dec",
+    "branches/management/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "branches/management/commands/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "branches/management/commands/seed_branches.py": "8fa32e90080bc6c1cf317129d138b4be6c99f48a95e49adf4a65511690398117",
+    "branches/migrations/0001_initial.py": "dc8ab7de0f852c71f459c6cd1dca856b95c48654f8ebb69aa3b1e17debb61058",
+    "branches/migrations/0002_branch_short_name.py": "cf17d412a9ec7f0290e8c33df49e8ee6e1fe752a8a87f8f18c1d79a94243b98e",
+    "branches/migrations/0003_fill_short_names.py": "73a2a9892bd5b68c34ae741a99f290e6edc07f84f1ce0dd859ef5c5c1b1fa882",
+    "branches/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "branches/models.py": "f675b025be7f74404b1fe213a2593b2010cb3852571922c270a862df10f16ef8",
+    "branches/serializers.py": "69f6d6f0b247d6d0d5f230e4b216101ae3d9a40430732cf93a91b351924f376d",
+    "branches/urls.py": "d0e5b0b5150f1a16ee78da2169b6496479bdd8b94ccc5fab31528d9b48f9cb7f",
+    "branches/views.py": "836be235630c00a73fef5edf608f02462b9fa1b1273b54a010790ce38b8755dd",
+    "demo_settings.py": "90ee8943f88ada9ca9ef8371ce1d7b26d4e19578ea12a0722eb647882a53f935",
+    "employees/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "employees/admin.py": "8e20209544e37d8a07408c602312e9d1c1cd9bab10ae14c3ee0b4bfd0f6c32f1",
+    "employees/apps.py": "58894c6d6866dbeea06319c81175c367d09c27383db7157652a37a090f1be30c",
+    "employees/migrations/0001_initial.py": "11fcbd1e83a0864d95721cc58a95a6745e9367fcededa3a9e01381c562465f3f",
+    "employees/migrations/0002_alter_employee_department.py": "ea4338a18cb99cab4a5af9201247167a821d41fa5af2618b8873a10ce7af96f1",
+    "employees/migrations/0003_employee_branch.py": "e8463dda702dd471e0ee1d0cf84f7c344e5b8422c79577f25653096935c5639a",
+    "employees/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "employees/models.py": "597c388137057ccfbbc12c631282fa6bb599177ff76236f9fd13db170757abb2",
+    "employees/serializers.py": "d39c02d6a13e15d239c9ad3d2b611b683bdd08b7405de9fd5d5215ab5ae0a4db",
+    "employees/tests.py": "345a1c8fd702c86c8a6b3e39080b36497a01797d96b7c1cc6576cdb7510dee96",
+    "employees/urls.py": "16b61b39ab28e5e52b2f6733a24d890f7f05efb30183bf2f13e1c22ffc0eed6a",
+    "employees/views.py": "e29d42afa6c170baca886ef1cceb4b6881dce8b4f67132d6e8351b859e553567",
+    "erp/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "erp/assistant.py": "da3553d69d3df408946529c9aea099905138ec889c5c20b1df668ddd026bfbec",
+    "erp/experience.py": "e7a29bdd748ee60d06cca8e92d67d5cd20907d7fea70004198da5088daad6055",
+    "erp/management/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "erp/management/commands/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "erp/management/commands/seed_bos_workspace.py": "e4f57de95eed8b7fcbf145f862b640606ef041c86940d437feb6c094b2a44256",
+    "erp/management/commands/seed_erp_demo.py": "5d40c70c0f80154987d9b12380c757381753fb79fc5330c7a6f29e35e98bd00d",
+    "erp/migrations/0001_initial.py": "7cf19c609f64ab6bdc78809e8316eaae2640c451dfb0adfdc4a273e75f496d39",
+    "erp/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "erp/models.py": "4069c3f488d1e6ef09476e44b14213c6a2a16a934301f175bcacfb694836a2c1",
+    "erp/queries.py": "6ac56f6abb4eafb3955879d0af1c288d26e620fc9dff2147f2b820025a49f48a",
+    "erp/service.py": "4e031d98ac02edf70180e68197c289604f771b1267f2682a8a60876e2d4ffc4e",
+    "erp/urls.py": "263f2612645e933c207e7e1297d05cc4ae9be49bd23c17524fe6e6a71aa0bd21",
+    "erp/views.py": "d31c12509876d13cd97ea9f632f73590e003b2bfa4c0205a73b4c9ebaa5315ca",
+    "finance/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finance/admin.py": "59a7f77ac86268e4cc9b3f75d10e2b9ed241c6493a9b210788c8d89daba92a9f",
+    "finance/apps.py": "b3e08d4bfea4c3162b4dc5af185f772278156bdbbefbe9b9ff97fb1c1fd1411a",
+    "finance/migrations/0001_initial.py": "3f57350da1b9eed48707d73d6198fa7ed07484e753f8798e9af4ce357248b960",
+    "finance/migrations/0002_alter_salary_unique_together_alter_contract_status_and_more.py": "dcd54651532c727fc4d4a1731edc978df80890a6879f0715c06e8b85be8572ba",
+    "finance/migrations/0003_transaction_branch.py": "427e56a48a9b8903b971c66a183b2c406e7b1f1736bb7acd91d3bb183b4745be",
+    "finance/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finance/models.py": "49eff089e35d6e971b1e80a75fafa110dabc47c8afab6f178ddd802a773591f0",
+    "finance/serializers.py": "9ae10746356efd39e10019f3010053a8d2a4f65d20ba49579429227faca8f644",
+    "finance/tests.py": "c0ab89c832838335e4930d99866e5e8e59f93fadf96900c58a86efb4e3dab92d",
+    "finance/urls.py": "788a113c3459fb4a0138261b0cd8c2ab5abb75afccffa856a72c428a055360e8",
+    "finance/views.py": "9771327aec97d105da5158e8f80d32e5dfe0808fa35cbc2b55ec3a31855cac6e",
+    "manage.py": "3e985fb40263d48efe40b95c974b8bac8b291a9fadd9d8345f7e36873e40b9c9",
+    "operations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "operations/documents.py": "5c4c6e7b148e40628cc030c8ca1ebe2c904abd7c7e93723077b2a2d9f4b4820a",
+    "operations/management/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "operations/management/commands/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "operations/management/commands/seed_bos_demo.py": "b5516a56ad9dbbec158de9cd3884252243fc2bcbbb68ca07182dca31e5d4374a",
+    "operations/middleware.py": "265a015a9038aebc25feda8ab397ff8f93c06674f5594035f5340162d65b1025",
+    "operations/migrations/0001_initial.py": "3c90d61d836b134c998865ecb6cf6c3e8bd5519d81f3d6f9b3276b224d6004a6",
+    "operations/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "operations/models.py": "b909fb9a18edae0d76896387b119c961371a52bac394977d955328e025108ed7",
+    "operations/service.py": "37a7c5d64a178cf6d4736acf778eb4d74f6ea42a617c24838a5704d51d79b0ff",
+    "operations/urls.py": "3ea1677ffd79b9365553209ae88fd359cb19fdfcc945fd5758d777f9ec9a3b6c",
+    "operations/views.py": "1e8ad85b4444170dad61ff4978568b4f5f50ad1c368692d2f2b900cd5dc9069a",
+    "scripts/check_erp.py": "067a3af792fdaa73bd8806dbb982c756e48f13d67a055e670e4c7fc6ae727069",
+    "scripts/check_launcher.py": "4599c4589eed6f81629a1cd5eeb97ca296fe14df333ab2a09ee8c8991b10f987",
+    "scripts/check_operations.py": "8f2a66e8915b29265dcb3fd716dd257355c72dbc246a09227518b46ec09292d1",
+    "scripts/check_original.py": "ff8df210e36e6701610487a7cf5d73ec9a5163a9460fddebc0565fe814a4f19b",
+    "scripts/check_workspace.py": "1f8035267a1921cecab27a538c9d801946984e71c68b1353c99b586edb704dc5",
+    "scripts/evaluate_scenarios.py": "3892ac8cfd3fd2cfd5c2d54abec71c1ec4c32c937acd76a20d6a2b904256d78f",
+    "scripts/export_erp_demo.py": "f2c682a7df553baf7d97ca942351984b9a7a8bc665c0dd6fbfc8818116b84725",
+    "scripts/start_local.py": "f821a0a93269989674d464b8a136c3cf3d978b305da6d770cb1d0c48a9fe3e80",
+    "tasks/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tasks/admin.py": "3dfe909ce025fb616bb1cffdbadc97ea8a3cb91ea0ba76d704f5df29718f35ff",
+    "tasks/apps.py": "936b394d0dc7520e73da115768d1096f275f97c0cab73d80eb1a6b1d8f7b93bd",
+    "tasks/filters.py": "c87ea7c94f34b2a574db758e10ede1260f9f0538e9da0bf3f11519e6082ddcfe",
+    "tasks/migrations/0001_initial.py": "5b7aacf0bc1f43e329a38d5ad4ff12762f2ea8fd3147f4ca1b50de1d2ec43bce",
+    "tasks/migrations/0002_alter_task_priority.py": "c4405bd4dc455e80678caf49a5c59312e53adfe24ca5a7390591f7c4c48942a3",
+    "tasks/migrations/0003_alter_task_deadline_alter_task_priority_and_more.py": "b2f240d79d5e5d3fd9e271b8ee3d75a7d61ae5ad4a56c2752d2c97fbef151d7d",
+    "tasks/migrations/0004_task_branch.py": "ee1973e6f36f6bd78d41efbdafe21018dda9434851724543223a1d73f52a79d7",
+    "tasks/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tasks/models.py": "d8a980ee820d72634fb51d0e5cf3a75ebefc134d44c9bf68a1e059a1fcb280b1",
+    "tasks/serializers.py": "de2752a6f9060d2fef8dc572ed273197a270d78eee16547fe2074e8856373d30",
+    "tasks/tests.py": "c9abac77c9dcc312a3e786a28ed9aafe1a3a4e8dd2866151d93f77d2dbc4ad0d",
+    "tasks/urls.py": "8d6faaed0d2506e5bc8a1fbe040cfb46194c3e59a07391d3f2bb318fab9c3e6c",
+    "tasks/views.py": "7b9d8816ae1d6cd36de79b494e344288219147757611c2e457992bb666dbe2c1"
+  },
+  "checkout_database_sha256_before": {
+    "BoS_Demo.sqlite3": "58fcd32532c6abebfa95ad06ae18d76ddccac2242fb25dc64350ad3203bd0dc8",
+    "db.sqlite3": "ec6b89ac86011906881ab686581a0b96f63f17741873c355d2cb459896db02d5"
+  },
+  "checkout_database_sha256_after": {
+    "BoS_Demo.sqlite3": "58fcd32532c6abebfa95ad06ae18d76ddccac2242fb25dc64350ad3203bd0dc8",
+    "db.sqlite3": "ec6b89ac86011906881ab686581a0b96f63f17741873c355d2cb459896db02d5"
+  },
+  "checkout_databases_unchanged": true,
+  "application_python_sources_unchanged": true,
+  "not_run": [
+    "PostgreSQL",
+    "HTTP concurrency",
+    "Windows",
+    "browser",
+    "production data reconciliation",
+    "external LLM",
+    "verify"
+  ]
+}

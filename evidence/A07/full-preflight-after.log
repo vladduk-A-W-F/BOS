@@ -1,0 +1,15 @@
+test_full_model_transfer_preserves_money_stock_files_ids_and_replays (erp.test_full_data_transfer.FullDataTransferTests.test_full_model_transfer_preserves_money_stock_files_ids_and_replays) ... ok
+test_committed_financial_intent_without_source_is_refused_without_repair (erp.test_data_preflight.DataPreflightAdmissionTests.test_committed_financial_intent_without_source_is_refused_without_repair) ... ok
+test_complete_intent_document_and_archived_file_are_accepted_without_changing_bytes (erp.test_data_preflight.DataPreflightAdmissionTests.test_complete_intent_document_and_archived_file_are_accepted_without_changing_bytes) ... ok
+test_equal_amount_date_expenses_remain_candidates_and_keep_distinct_ids (erp.test_data_preflight.DataPreflightAdmissionTests.test_equal_amount_date_expenses_remain_candidates_and_keep_distinct_ids) ... ok
+test_known_incomplete_historical_schema_is_explicitly_refused_without_new_tables (erp.test_data_preflight.DataPreflightAdmissionTests.test_known_incomplete_historical_schema_is_explicitly_refused_without_new_tables) ... ok
+test_missing_referenced_file_is_a_written_refusal_without_source_changes (erp.test_preflight_missing_media.PreflightMissingMediaTests.test_missing_referenced_file_is_a_written_refusal_without_source_changes) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 15.083s
+
+OK
+Found 6 test(s).
+Skipping setup of unused database(s): default.
+System check identified no issues (0 silenced).
+BOS_A07_TRANSFER {"backend": "sqlite", "complete": true, "table_count": 45, "source_sha256": "e995a6f56141b37e0d40d43a6ccb530dfab6497c9f2a2a78568af307a60b882b", "source_unchanged": true, "accounting_totals": {"stock": {"lot_count": 12, "movement_count": 18, "recorded_cost_basis_by_currency": {"EUR": "39", "USD": "39", "UAH": "39"}, "quantity_by_item": {"1": {"stock": "13", "movements": "13"}, "2": {"stock": "2", "movements": "2"}, "3": {"stock": "13", "movements": "13"}, "4": {"stock": "2", "movements": "2"}, "5": {"stock": "13", "movements": "13"}, "6": {"stock": "2", "movements": "2"}}}, "finance": {"salary_rows": 3, "transaction_rows": 6, "salary_amounts": [{"currency": "EUR", "status": "paid", "amount": "100"}, {"currency": "UAH", "status": "paid", "amount": "100"}, {"currency": "USD", "status": "paid", "amount": "100"}], "transaction_amounts": [{"currency": "EUR", "direction": "in", "amount": "200"}, {"currency": "EUR", "direction": "out", "amount": "100"}, {"currency": "UAH", "direction": "in", "amount": "200"}, {"currency": "UAH", "direction": "out", "amount": "100"}, {"currency": "USD", "direction": "in", "amount": "200"}, {"currency": "USD", "direction": "out", "amount": "100"}]}}, "next_ids": [90002, 90003], "http_receipt_equal": true, "not_checked": ["real_customer_data", "postgresql", "production_cutover", "A09_A10_installation_upgrade"]}

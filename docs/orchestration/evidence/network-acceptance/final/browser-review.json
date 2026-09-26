@@ -1,0 +1,110 @@
+{
+  "card": "NETWORK-BROWSER-RESULT",
+  "reviewer": "currency_completion",
+  "verdict": "PARTIAL_EVIDENCE_ACCEPTED_FULL_BROWSER_SCOPE_FAILED",
+  "run_id": "35516896359",
+  "artifact_id": "10607042063",
+  "candidate_sha": "929a395547fa1ed496171120a14b19bc8d5b6f87",
+  "runtime_sha256": "c15dfe0e3aeefde2fd4fa7af0e9dd2c7c04072a59b185554b821576b4c2111ca",
+  "harness_sha256": "40688a9da9ccc70cdce78f98b600df856491fecf882538956f3660bc2e11ea90",
+  "artifact_zip_sha256": "a2a13199ce4ba86803d9a9daf8854bdf08599bc3bdb03a52519e617c4d9edb42",
+  "artifact_zip_bytes": 936536,
+  "sha256_index_entries_verified": 14,
+  "actual_browser_run": true,
+  "passed_assertions_before_timeout": 57,
+  "recorded_failed_assertions": 0,
+  "termination": "Playwright TimeoutError waiting 15000ms for /api/erp/preview/ response during first available-balance payment after hold creation.",
+  "proven_partial": [
+    "Fresh CEO UI login and normal industry onboarding; live network load.",
+    "Four group buttons, geographical SVG regions and point pins are rendered; live workflow populated and synthetic history does not claim acceleration.",
+    "Branch/point UAH projection and lot value totals; selected map pin; filtered table count; semicolon CSV IDs, currencies and values match snapshot.",
+    "Reference converter initially off, rejects zero/negative, computes displayed EUR equivalent, leaves accounting metrics unchanged; EUR history remains separate.",
+    "Document dialog opens and keyboard Escape returns focus.",
+    "Transfer preview and cancel leave rows unchanged; confirm dispatch decreases source once; same proposal replay returns original receipt.",
+    "Transfer receipt creates separate pending lot at destination; separately confirmed quality approves it.",
+    "50 UAH hold is created and confirmed; invoice receivable stays23850.00, retained50.00, collectible23800.00."
+  ],
+  "not_run_or_not_proven": [
+    "No captured payment proposal/receipt; payment completion, hold release and final settlement unproved.",
+    "Mobile390/320 layout and scrolling checks were not reached; no mobile screenshots.",
+    "Manager and observer browser login/access/API denial checks were not reached.",
+    "Final no-uncaught-JavaScript-errors assertion not reached; collected page_errors is empty up to failure.",
+    "No final browser-scope PASS or independent full visual acceptance."
+  ],
+  "payment_diagnosis": {
+    "root_cause_status": "UNRESOLVED_FROM_AVAILABLE_EVIDENCE",
+    "confirmed_facts": [
+      "ERP payment UI routes through ERPActionDialog.preview→erpFetch('preview/')→/api/erp/preview/; no separate finance endpoint.",
+      "Failure screenshot shows invoice NET-INV-KYI-2, amount23800.00, referenceBROWSER-PAY-AVAILABLE, editable form and no displayed validation/server error.",
+      "Available amount matches final recorded snapshot; local source money field accepts step0.01/min0 and reference length fits60.",
+      "Only five proposals are recorded: two transfer dispatch previews, transfer receive, quality, hold; four confirmed receipts and one successful replay.",
+      "HTTP evidence records responses, not request-start events; server.log also contains completed responses. Therefore absence of a payment POST response does not establish that no POST request was sent.",
+      "Background network loading visible; overlapping snapshot refresh responses and per-request wait budget leave slow/pending-request possibility unresolved."
+    ],
+    "unsupported_claims": [
+      "Do not claim backend payment writer rejected the amount.",
+      "Do not claim alternate finance endpoint, no request sent, or a particular form-validation/rerender defect."
+    ],
+    "needed_future_evidence": [
+      "Preserve request/requestfailed events and timing; instrument submit/invalid events and control validity values; capture console/DOM state and request in flight when timeout occurs.",
+      "No automatic repeat: workflow budget3/3 exhausted; future execution needs separately resolved authorization/scope, not renaming this acceptance problem."
+    ]
+  },
+  "visual_review": {
+    "screenshots": {
+      "desktop-documents.png": {
+        "dimensions": [
+          1440,
+          900
+        ],
+        "sha256": "95d505b20bf4d3d79bffd3f51598eb439b160f78bba6be14a70590a013c12e95"
+      },
+      "desktop-operations.png": {
+        "dimensions": [
+          1440,
+          900
+        ],
+        "sha256": "68fcd1ee079c0c47d3ebd4ce2c04face909ed2a7d6dbae00242c6ad7fbb5ab24"
+      },
+      "desktop-overview-1440.png": {
+        "dimensions": [
+          1440,
+          900
+        ],
+        "sha256": "c6cd309666f410595b2e45ae5cb882f8a5d4d3240effd035f6452c3c745d95fe"
+      },
+      "desktop-workflow.png": {
+        "dimensions": [
+          1440,
+          900
+        ],
+        "sha256": "f05124b26e244e7c82d53a88a8e5a1acf8d7c3ff3cf43a755bf8e874b898aa53"
+      },
+      "failure-current-viewport.png": {
+        "dimensions": [
+          1440,
+          900
+        ],
+        "sha256": "b6bc1fdd0aea855ca8ba87387509ffc06ca23ab31d52b9c8df0b01029c38860c"
+      }
+    },
+    "findings": [
+      "All four desktop group captures remain at top of the internally scrolling app pane. full_page screenshots are1440x900 and do not expose below-fold map, register, document or workflow contents. They prove group selection/top chrome only.",
+      "Desktop KPI numbers and currency labels wrap within tokens, including decimal digits and «грн», harming readability at1440px with AI sidebar open.",
+      "Overview screenshot retains navigation hover dropdown over central heading; menu obscures content.",
+      "Payment modal is visually readable and populated; this does not prove native validity or submit request."
+    ],
+    "visual_acceptance": false
+  },
+  "source_unchanged": true,
+  "source_databases_unchanged": true,
+  "disposable_data_removed": true,
+  "reviewer_new_launches": 0,
+  "reviewer_tests_run": 0,
+  "workflow_attempts_used": 3,
+  "workflow_attempts_remaining": 0,
+  "proof_reuse": "Applies only to candidate929a395547fa1ed496171120a14b19bc8d5b6f87 / runtimec15dfe0e3aeefde2fd4fa7af0e9dd2c7c04072a59b185554b821576b4c2111ca; new CORE runtime must not inherit this acceptance.",
+  "browser_acceptance": false,
+  "technical_ready": false,
+  "pilot_allowed": false
+}

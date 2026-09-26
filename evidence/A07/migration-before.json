@@ -1,0 +1,26 @@
+[
+  {
+    "case": "finance",
+    "exit_code": 0,
+    "stdout": "{\"case\": \"finance\", \"denied\": \"CHECK constraint failed: finance_transaction_amount\", \"applied\": false, \"rows_unchanged\": true, \"ddl_unchanged\": true, \"sequence_before\": 1, \"sequence_after\": 1, \"passed\": true}\n",
+    "stderr": ""
+  },
+  {
+    "case": "operations",
+    "exit_code": 0,
+    "stdout": "{\"case\": \"operations\", \"denied\": \"CHECK constraint failed: bos_invoice_paid_range\", \"applied\": false, \"rows_unchanged\": true, \"ddl_unchanged\": true, \"sequence_before\": 1, \"sequence_after\": 1, \"passed\": true}\n",
+    "stderr": ""
+  },
+  {
+    "case": "erp",
+    "exit_code": 0,
+    "stdout": "{\"case\": \"erp\", \"denied\": \"CHECK constraint failed: erp_purchase_quantity\", \"applied\": false, \"rows_unchanged\": true, \"ddl_unchanged\": true, \"sequence_before\": 1, \"sequence_after\": 1, \"passed\": true}\n",
+    "stderr": ""
+  },
+  {
+    "case": "sequence",
+    "exit_code": 1,
+    "stdout": "{\"case\": \"sequence\", \"denied\": null, \"applied\": true, \"rows_unchanged\": true, \"ddl_unchanged\": false, \"sequence_before\": 90001, \"sequence_after\": 7, \"passed\": false}\n",
+    "stderr": ""
+  }
+]

@@ -1,0 +1,19 @@
+test_completed_record_refuses_reprovision_before_runtime_changes (__main__.InstallerTrustBoundaryTests.test_completed_record_refuses_reprovision_before_runtime_changes) ... BOS_A09_INSTALLER_REVIEW_CASE {"case": "completed_record_no_reprovision", "refused": 2, "bundle_unchanged": true, "registry_unchanged": true, "venv_absent": true, "database_absent": true}
+ok
+test_offline_metadata_url_cannot_install_outside_unpinned_dependency (__main__.InstallerTrustBoundaryTests.test_offline_metadata_url_cannot_install_outside_unpinned_dependency) ... BOS_A09_INSTALLER_REVIEW_CASE {"case": "offline_direct_dependency_url", "outside_dependency_installed": false, "actual_pip_check_refused": true, "database_absent": true, "outside_files_unchanged": true}
+ok
+test_offline_wheelhouse_file_refuses_before_bootstrap (__main__.InstallerTrustBoundaryTests.test_offline_wheelhouse_file_refuses_before_bootstrap) ... BOS_A09_INSTALLER_REVIEW_CASE {"case": "wheelhouse_directory_required", "refused": true, "target_absent": true, "registry_absent": true}
+ok
+test_own_venv_hardlink_cannot_overwrite_second_company (__main__.InstallerTrustBoundaryTests.test_own_venv_hardlink_cannot_overwrite_second_company) ... BOS_A09_INSTALLER_REVIEW_CASE {"case": "venv_hardlink_two_companies", "refused": true, "company_a_unchanged": true, "company_b_unchanged": true, "registry_unchanged": true}
+ok
+test_source_pip_module_cannot_shadow_bootstrap (__main__.InstallerTrustBoundaryTests.test_source_pip_module_cannot_shadow_bootstrap) ... BOS_A09_INSTALLER_REVIEW_CASE {"case": "pip_module_shadow", "source_module_executed": false, "actual_venv": true, "actual_offline_pip_refused": true, "database_absent": true, "source_unchanged": true}
+ok
+test_source_registry_all_overlap_directions_refuse_before_writes (__main__.InstallerTrustBoundaryTests.test_source_registry_all_overlap_directions_refuse_before_writes) ... BOS_A09_INSTALLER_REVIEW_CASE {"case": "source_registry_overlap", "refused": 3, "source_unchanged": true, "target_absent": true}
+ok
+test_source_venv_module_cannot_shadow_bootstrap (__main__.InstallerTrustBoundaryTests.test_source_venv_module_cannot_shadow_bootstrap) ... BOS_A09_INSTALLER_REVIEW_CASE {"case": "venv_module_shadow", "source_module_executed": false, "actual_venv": true, "actual_offline_pip_refused": true, "database_absent": true, "source_unchanged": true}
+ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 9.273s
+
+OK

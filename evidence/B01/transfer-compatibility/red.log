@@ -1,0 +1,51 @@
+test_full_model_transfer_preserves_money_stock_files_ids_and_replays (erp.test_full_data_transfer.FullDataTransferTests.test_full_model_transfer_preserves_money_stock_files_ids_and_replays) ... FAIL
+
+======================================================================
+FAIL: test_full_model_transfer_preserves_money_stock_files_ids_and_replays (erp.test_full_data_transfer.FullDataTransferTests.test_full_model_transfer_preserves_money_stock_files_ids_and_replays)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/b01_transfer_fixture_fix/source/erp/test_full_data_transfer.py", line 26, in test_full_model_transfer_preserves_money_stock_files_ids_and_replays
+    self.assertEqual(completed.returncode, 0, failure)
+AssertionError: 1 != 0 : {"complete": false, "backend": "sqlite", "error": "RuntimeError: seed: exit 1; child-01-seed.log"}
+
+
+--- STDERR ---
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/b01_transfer_fixture_fix/source/scripts/check_data_transfer.py", line 276, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/b01_transfer_fixture_fix/source/scripts/check_data_transfer.py", line 252, in main
+    worker(args)
+  File "/workspace/scratch/c7b51e996a9f/tmp/b01_transfer_fixture_fix/source/scripts/check_data_transfer.py", line 103, in worker
+    result = populate()
+             ^^^^^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/b01_transfer_fixture_fix/source/fixtures/synthetic/transfer.py", line 328, in populate
+    expected['currencies'][currency] = _currency_fixture(currency, user, client, completed_http=currency == 'EUR')
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/b01_transfer_fixture_fix/source/fixtures/synthetic/transfer.py", line 249, in _currency_fixture
+    po = _run('purchase', code=code('PO'), item_id=material, supplier_id=supplier.pk,
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/b01_transfer_fixture_fix/source/fixtures/synthetic/transfer.py", line 159, in _run
+    return service.dispatch({'action': 'erp_' + action, **fields}, role='ceo')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/contextlib.py", line 81, in inner
+    return func(*args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/b01_transfer_fixture_fix/source/erp/service.py", line 214, in dispatch
+    d=purchase_source(d,item)
+      ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/b01_transfer_fixture_fix/source/erp/procurement.py", line 112, in purchase_source
+    snapshot['direct_reason'] = statement(direct_reason, 'Причина прямої закупівлі')
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/b01_transfer_fixture_fix/source/erp/procurement.py", line 24, in statement
+    raise ValueError(label + ': потрібне явне посилання або обґрунтування, 3–1000 символів.')
+ValueError: Причина прямої закупівлі: потрібне явне посилання або обґрунтування, 3–1000 символів.
+
+
+----------------------------------------------------------------------
+Ran 1 test in 2.631s
+
+FAILED (failures=1)
+Found 1 test(s).
+Skipping setup of unused database(s): default.
+System check identified no issues (0 silenced).

@@ -1,0 +1,59 @@
+{
+  "profile": "verification/demo SQLite isolated",
+  "database": "D:\\3\\Codex\\2026-09-20\\bos-execution\\work\\vertical-ua\\check_c3bc76f78fab4646ba49c900ff629c44.sqlite3",
+  "checks": [
+    {
+      "role": "ceo",
+      "endpoints": [
+        "workpoints",
+        "snapshot"
+      ],
+      "http_statuses": [
+        200,
+        200
+      ],
+      "handler_pair_seconds": 0.367332,
+      "measurement": "Django test client; not browser HTTP"
+    },
+    {
+      "role": "manager",
+      "endpoints": [
+        "workpoints",
+        "snapshot"
+      ],
+      "http_statuses": [
+        200,
+        200
+      ],
+      "handler_pair_seconds": 0.56647,
+      "measurement": "Django test client; not browser HTTP"
+    },
+    {
+      "role": "observer",
+      "endpoints": [
+        "workpoints",
+        "snapshot"
+      ],
+      "http_statuses": [
+        200,
+        200
+      ],
+      "handler_pair_seconds": 0.548991,
+      "measurement": "Django test client; not browser HTTP"
+    },
+    {
+      "path": "/",
+      "status": 200
+    },
+    {
+      "path": "/assets/app.js",
+      "status": 200
+    },
+    {
+      "path": "/api/runtime/status/",
+      "status": 200
+    }
+  ],
+  "browser_run": false,
+  "tcp_devserver_run": false
+}

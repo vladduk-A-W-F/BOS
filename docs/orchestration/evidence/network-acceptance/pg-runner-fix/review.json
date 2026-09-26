@@ -1,0 +1,43 @@
+{
+  "card": "NETWORK-PG-RUNNER-LABELS-FIX",
+  "reviewer": "integration_diagnosis",
+  "reviewed_at": "2026-09-20T14:30:57.919225+00:00",
+  "verdict": "ACCEPT_SCOPED_ONE_LINE_FIX",
+  "harness_sha256": "fcfb7f41fecf803f824a28625bca9497067d868f7615db247bd0d63d11f4552f",
+  "patch_sha256": "b966467da6ece0078b74fc34756a0ebe44f9931036ad658368ab0e45bc477d3b",
+  "failure_run_id": 35516516284,
+  "verified_artifact_files": 6,
+  "failure": "DiscoverRunner.run_tests missing required test_labels; zero tests executed",
+  "change": "Pass explicit empty labels to run_tests; overridden build_suite still constructs only frozen TESTS",
+  "exact_test_methods": [
+    "test_transfer_receive_same_proposal_waits_and_has_one_effect",
+    "test_retention_release_same_proposal_waits_and_has_one_effect"
+  ],
+  "framework_source": "/workspace/scratch/4dbe5b4c73ee/execution/venv/lib/python3.12/site-packages/django/test/runner.py",
+  "framework_run_tests_required_arguments": [
+    "self",
+    "test_labels"
+  ],
+  "minimal_diff_exactly_verified": true,
+  "additional_startup_review": [
+    "Django run_tests invokes overridden build_suite then get_databases; exact TransactionTestCase suite declares default database",
+    "setup_databases forwards aliases and serialized_aliases and returns original configuration",
+    "Existing worker reached django.setup and imports before failure; no prior startup import error",
+    "Issued PG test database name/vendor/version checks and forced cleanup remain intact",
+    "ClientHandler disconnects close_old_connections while handling synthetic requests, preserving held transaction"
+  ],
+  "findings": [],
+  "historical_limits": {
+    "workflow_invocations": 2,
+    "pg_worker_invocations": 1,
+    "pg_methods_executed": 0,
+    "workflow_invocations_remaining": 1,
+    "historical_suites_forbidden": true
+  },
+  "reviewer_app_test_runs": 0,
+  "reviewer_pg_runs": 0,
+  "reviewer_ci_runs": 0,
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "limitation": "Source acceptance only; actual execution and lock-proof evidence still required"
+}

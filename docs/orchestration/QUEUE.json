@@ -1,0 +1,944 @@
+{
+  "schema": 1,
+  "current_baseline_manifest": "docs/orchestration/CURRENT_BASELINE.json",
+  "current_delivery": "FINAL-CURRENT-20260926",
+  "automatic_execution_allowed": false,
+  "launch_gate": "FREEZE_FOR_OWNER_REVIEW",
+  "all_tasks_require_owner_plan_review": false,
+  "rules": "PLAN-* є запропонованими ключами; не перейменовувати історичні P-ID. Залежності необхідні, але не замінюють external_prerequisites.",
+  "tasks": [
+    {
+      "id": "FINAL-CURRENT-20260926",
+      "title": "Consolidate current main baseline and freeze snapshot",
+      "owner": "bos_architect",
+      "depends_on": ["UI-COLUMN-CONTENT-01"],
+      "status": "MERGE_CANDIDATE_ACCEPT_SCOPED",
+      "card": "docs/orchestration/cards/FINAL-CURRENT-20260926.md",
+      "evidence": "docs/orchestration/CURRENT_BASELINE.json",
+      "automatic_execution_allowed": false
+    },
+    {
+      "id": "UI-COLUMN-CONTENT-01",
+      "title": "Clarify module column text without losing semantic facts",
+      "owner": "bos_implementer",
+      "depends_on": [],
+      "status": "ACCEPT_SCOPED",
+      "card": "docs/orchestration/cards/UI-COLUMN-CONTENT-01.md",
+      "evidence": "docs/orchestration/evidence/current-20260926/columns/",
+      "automatic_execution_allowed": false
+    },
+    {
+      "id": "P10-003",
+      "title": "P06-F02: backend-aware isolation guard",
+      "owner": "bos_test_ci",
+      "depends_on": [],
+      "checkpoint": "C1",
+      "status": "ACCEPT_SCOPED",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/cards/P10-003.md",
+      "evidence": "docs/orchestration/BATCH_01_UA.md",
+      "pg_ci_status": "PASS_SCOPED",
+      "closeout_20260921": {
+        "status": "READY_SCOPED",
+        "completed": "Исправлен backend-aware guard изоляции InitialImportFixture; исторический scoped SQLite/PG16 PASS.",
+        "remaining": "Полный актуальный P06 не принят; исходную БД не использовать как тестовую.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "PLAN-N1",
+      "title": "Звірити max_length та валідацію фактичних входів",
+      "owner": "bos_diagnostician",
+      "depends_on": [],
+      "checkpoint": "C1",
+      "status": "ACCEPT_SCOPED_REQUEST_SHIP",
+      "external_prerequisites": [],
+      "card": null,
+      "evidence": "docs/orchestration/BATCH_01_UA.md",
+      "pg_ci_status": "PASS_SCOPED",
+      "closeout_20260921": {
+        "status": "PARTIAL",
+        "completed": "Проверены и исправлены входы REQUEST/SHIP относительно max_length.",
+        "remaining": "Остальные фактические входы требуют отдельного завершения карты валидации.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "PLAN-F03",
+      "title": "Валідні invoice-коди у concurrency fixtures",
+      "owner": "bos_test_ci",
+      "depends_on": [
+        "PLAN-N1"
+      ],
+      "checkpoint": "C1",
+      "status": "ACCEPT_SCOPED",
+      "external_prerequisites": [],
+      "card": null,
+      "evidence": "docs/orchestration/BATCH_01_UA.md",
+      "pg_ci_status": "PASS_SCOPED",
+      "closeout_20260921": {
+        "status": "READY_SCOPED",
+        "completed": "В concurrency fixtures разделены валидные invoice-коды и негативные проверки длины.",
+        "remaining": "Полная конкурентная проверка всех денежных и складских действий остаётся открыта.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "PLAN-F06",
+      "title": "Повнота E2E evidence та SHA-індекс",
+      "owner": "bos_test_ci",
+      "depends_on": [],
+      "checkpoint": "C1",
+      "status": "ACCEPT_SCOPED_UNIT_ONLY",
+      "external_prerequisites": [],
+      "card": null,
+      "evidence": "docs/orchestration/BATCH_01_UA.md",
+      "closeout_20260921": {
+        "status": "READY_SCOPED",
+        "completed": "Completeness check и SHA-индекс E2E artifacts приняты на unit-проверках.",
+        "remaining": "Полный E2E с новым источником и полным архивом не выполнен.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "PLAN-TIME",
+      "title": "Причини тайм-аутів P06-F04/F05",
+      "owner": "bos_diagnostician",
+      "depends_on": [
+        "P10-003",
+        "PLAN-N1",
+        "PLAN-F03"
+      ],
+      "checkpoint": "C1",
+      "status": "BOUNDED_DIAGNOSTICS_COMPLETE_CAUSES_OPEN",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/cards/PLAN-TIME-PROBE.md",
+      "evidence": "docs/orchestration/PLAN_TIME_RESULTS_UA.md",
+      "diagnostic_run_id": 35513613026,
+      "root_cause_proven": false,
+      "runtime_fix_applied": false,
+      "closeout_20260921": {
+        "status": "BLOCKED",
+        "completed": "Ограниченная диагностика F04/F05 выполнена, исходные receipts сохранены.",
+        "remaining": "Причина тайм-аутов не доказана; runtime fix не применён. Исчерпанные suites не повторять автоматически.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "PLAN-N2",
+      "title": "Замір fingerprint та ADR конкурентності",
+      "owner": "bos_diagnostician",
+      "depends_on": [
+        "PLAN-TIME"
+      ],
+      "checkpoint": "C1",
+      "status": "FIRST_ACTION_IMPLEMENTED_SCOPED",
+      "external_prerequisites": [],
+      "card": null,
+      "evidence": "docs/orchestration/BATCH_02_UA.md",
+      "closeout_20260921": {
+        "status": "PARTIAL",
+        "completed": "Измерен глобальный fingerprint; адресная зависимость реализована для erp_adjust.",
+        "remaining": "Остальные действия сохраняют global fallback; механизм не считается повсеместно внедрённым.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "PLAN-SOURCE",
+      "title": "P04-F01: міжплатформний source SHA",
+      "owner": "bos_test_ci",
+      "depends_on": [],
+      "checkpoint": "C1",
+      "status": "ACCEPT_SCOPED_NATIVE_WINDOWS_RUNTIME_SHA",
+      "external_prerequisites": [],
+      "card": null,
+      "evidence": "docs/orchestration/WINDOWS_SOURCE_UA.md",
+      "historical_evidence": "docs/orchestration/BATCH_01_UA.md",
+      "full_windows_gate11": "NOT_RUN",
+      "closeout_20260921": {
+        "status": "READY_SCOPED",
+        "completed": "Межплатформный runtime digest и native Windows proof приняты в указанном scope.",
+        "remaining": "Не заменяет полную проверку чистой Windows-установки.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "PLAN-LINKS",
+      "title": "Gap-map моделі пов’язаних процесів",
+      "owner": "bos_architect",
+      "depends_on": [],
+      "checkpoint": "C2",
+      "status": "NETWORK_COMPOSITION_ACCEPTED_SCOPED_OTHER_LINKAGE_GAPS_OPEN",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/NETWORK_COMPOSITION_UA.md",
+      "evidence": "docs/orchestration/NETWORK_COMPOSITION_UA.md",
+      "historical_scope_before_c514": {
+        "owner": "bos_architect",
+        "status": "READ_IMPLEMENTED_OTHER_GAPS_OPEN",
+        "card": null,
+        "evidence": "docs/orchestration/BATCH_02_UA.md"
+      },
+      "shared_integrator_thread_id": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+      "current_source_commit": "e038d6db562c6f36c06808c0793f66a6d63982cf",
+      "current_source_sha256": "c514204ef289386959c997a0404a579b5e66ba45c4b2fa9cb1580375413f9d9e",
+      "acceptance_scope": "Source composition, five actual5 checks and four remaining readonly contexts in actual6; priorFAILs preserved. Same-proposal replay does not establish full concurrency; full linked MVP/S2 write remain open.",
+      "full_scenario_acceptance": false,
+      "closeout_20260921": {
+        "status": "PARTIAL",
+        "completed": "Сетевая композиция, trace, S2 registration и связанная synthetic service-цепочка приняты в ограниченном scope.",
+        "remaining": "Остаются общий браузерный маршрут, другие роли, завершение Task с результатом и отдельный restart/reopen.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "PLAN-UX",
+      "title": "Сценарії, комунікація та джерела показників",
+      "owner": "bos_ux",
+      "depends_on": [
+        "PLAN-LINKS"
+      ],
+      "checkpoint": "C3",
+      "status": "ACCEPT_SCOPED_NINE_CONTEXTS_ACROSS_ACTUAL5_AND6_OTHER_UX_GAPS_OPEN",
+      "external_prerequisites": [],
+      "card": "docs/design/PLAN_UX_INCREMENT_UA.md",
+      "evidence": "docs/orchestration/NETWORK_COMPOSITION_UA.md",
+      "historical_scope_before_design_department": {
+        "title": "Сценарії, комунікація та джерела показників",
+        "status": "TRACE_IMPLEMENTED_BROWSER_ACCEPTANCE_OPEN",
+        "checkpoint": "C3",
+        "card": null,
+        "evidence": "docs/orchestration/BATCH_02_UA.md"
+      },
+      "department": "DESIGN",
+      "department_contract": "docs/design/DEPARTMENT_UA.md",
+      "executor_thread_id": "01a0bffa-3fc7-7bc2-9868-86164c6e0315",
+      "executor_host_id": "local",
+      "executor_worktree": "C:/Users/user/.codex/worktrees/c8b3/repo",
+      "first_assignment": "D:/3/BOSDev/handoffs/DESIGN_DEPARTMENT_INITIAL_PROMPT_RU.md",
+      "design_allowlist": [
+        "D:/3/BOSDev/reports/design/DESIGN_BRIEF_RU.md",
+        "D:/3/BOSDev/reports/design/UI_DESIGN_AUDIT_RU.md",
+        "D:/3/BOSDev/reports/design/INITIAL_REPORT.json",
+        "D:/3/BOSDev/reports/design/INITIAL_REPORT_MESSAGE.md"
+      ],
+      "design_source_context": {
+        "docs_checkpoint": "620aeab2010c6c8327ce46c25bb62435bcf7f9e4",
+        "accepted_product_commit": "646d3b80597e087a1ada14221024ec40588996f0",
+        "accepted_source_sha256": "98b011a583c7803d88c888070a3412789559919ecb5692ef34f5e8ad59b5072a",
+        "portable_evidence": "docs/orchestration/evidence/continuation-646d3b8",
+        "pending_network_source": "Context only; not accepted screenshot evidence"
+      },
+      "design_author_result": {
+        "author_report": "D:/3/BOSDev/reports/design/INITIAL_REPORT.json",
+        "author_report_sha256": "ff488bd662a120ebb50eeb2350e0d31eeb0b0989328e67c0818b488b2828de19",
+        "author_status": "PREPARATION_READY_FOR_INDEPENDENT_REVIEW",
+        "reported_screenshots_inspected": 19,
+        "reported_next_visual_increment_count": 1,
+        "independent_review": "PENDING",
+        "attribution": "Author report and root clarification; not a new visual review by this organization writer",
+        "repeat_audit_requested": false,
+        "next_step": "Root independently reviews the existing design brief/audit/report before assigning integration"
+      },
+      "next_visual_increment_count": 1,
+      "independent_reviewer": "root",
+      "shared_frontend_integrator": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+      "design_audit_acceptance": "Existing initial brief retained; current presentation accepted only within exact c514 reviews and9section/width contexts across2runs.",
+      "ui_implemented_by_this_assignment": false,
+      "reporting": "docs/orchestration/REPORTING_UA.md",
+      "current_brief_review": {
+        "status": "ACCEPT_SCOPED_PREPARATORY_DESIGN_BRIEF",
+        "root": {
+          "path": "D:/3/BOSDev/reports/root/DESIGN-INITIAL-ROOT-REVIEW-20260920.json",
+          "sha256": "b4bb8e0323d84853b724d457af29765959d5acf874a54039aca217f36a77becb",
+          "verdict": "ACCEPT_SCOPED_DESIGN_BRIEF_FOR_PRIVATE_PATCH"
+        },
+        "observer": {
+          "path": "D:/3/BOSDev/evidence/design-initial-independent-review-20260920.json",
+          "sha256": "ebff8a90c7e19924363c6501e8481e305b7c033b732cd6a3b2219a916940b081",
+          "verdict": "APPROVE_SCOPED_PREPARATORY_DESIGN_SPEC"
+        },
+        "scope": "Prepared brief/audit and one proposed increment; source screenshots646 are context only. No changed UI implementation acceptance.",
+        "audit_repeated_by_integrator": false,
+        "implementation_accepted": false
+      },
+      "current_assignment": {
+        "id": "PLAN-UX/READABLE-FACTS",
+        "status": "ACCEPT_SCOPED_NINE_CONTEXTS_ACROSS_ACTUAL5_AND6_OTHER_UX_GAPS_OPEN",
+        "source_commit": "e038d6db562c6f36c06808c0793f66a6d63982cf",
+        "source_sha256": "c514204ef289386959c997a0404a579b5e66ba45c4b2fa9cb1580375413f9d9e",
+        "shared_frontend_integrator": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+        "implementation_accepted": true,
+        "accepted_scope": "Existing three readonly sections at1440/768/390 across two actual runs, plus narrow money nowrap correction; not full current Gate10, native200, accessibility or S2 write.",
+        "evidence": "docs/orchestration/NETWORK_COMPOSITION_UA.md",
+        "application_review": {
+          "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/money-wrap-application-independent-review/REVIEW.json",
+          "sha256": "d87d8fe3d3dcbcf1b05020262b018bc4a7205e7c67fd1aed1dfc53bb039413f4"
+        },
+        "actual5_review": {
+          "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/attempt5-independent-review/REVIEW.json",
+          "sha256": "e1661816c6c696b315ac430024a10e941239302fe85fcb8cfe717fda43779575"
+        },
+        "actual6_review": {
+          "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/attempt6-independent-review/REVIEW.json",
+          "sha256": "fed147aaff757b6c452fa2cdbc7064a628dc3413ef937776866af8c60e0ba2c1"
+        },
+        "root_acceptance": {
+          "path": "D:/3/BOSDev/reports/root/ACTUAL6-READONLY-ACCEPTED-20260921.json",
+          "sha256": "8001b65507ddf515adabe8386b5d9ef4e3f0d2e29c397c2c9f0df30626e6afd8"
+        },
+        "next_step": "Separate accepted S2 backend/UI contract and linked MVP execution package; do not repeat accepted audit/capture scope without a new exact decision."
+      },
+      "historical_fields_note": "Initial assignment, author report, design source context and brief review remain historical; current_assignment records accepted c514 presentation. Product integration belongs to permanent execution_writer.",
+      "historical_assignment_before_c514": {
+        "id": "PLAN-UX/READABLE-FACTS",
+        "status": "ACTIVE_PRIVATE_PRESENTATION_PREPARATION",
+        "assignment": {
+          "path": "D:/3/BOSDev/handoffs/design-readable-facts-20260920/ASSIGNMENT_FROM_ROOT_RU.md",
+          "sha256": "c4f9870383751ae35a0a1be22bb8caadd35ec35c3023cbbaa803c88aaf1d7441"
+        },
+        "owner_thread_id": "01a0bffa-3fc7-7bc2-9868-86164c6e0315",
+        "workcopy": "D:/3/BOSDev/handoffs/design-readable-facts-20260920/workcopy",
+        "source_checkout": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920",
+        "source_sha256": "d95e2b05ca06d5190bd2a9429997981acf9886d9218fccf33200df0adf49a56a",
+        "source_manifest": {
+          "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/candidate-alias-fixed.json",
+          "sha256": "3c4a3e6e69b138fb1e64d778e663741c3c03932cebd06e8fea4b4709fa03d214"
+        },
+        "author_allowlist": [
+          "D:/3/BOSDev/handoffs/design-readable-facts-20260920/workcopy/frontend/boss_app_source.html",
+          "D:/3/BOSDev/handoffs/design-readable-facts-20260920/original/frontend/boss_app_source.html",
+          "D:/3/BOSDev/handoffs/design-readable-facts-20260920/DESIGN_READABLE_FACTS.patch",
+          "D:/3/BOSDev/handoffs/design-readable-facts-20260920/MANIFEST.json",
+          "D:/3/BOSDev/handoffs/design-readable-facts-20260920/REVIEW_NOTES_RU.md"
+        ],
+        "source_scope": [
+          "narrow local CSS",
+          "presentation JSX in OrderSettlement",
+          "presentation JSX in OrderSupplyOptions",
+          "presentation JSX in PurchaseDocumentMatch"
+        ],
+        "preserve": "Current metrics including debt/retained/collectible, exact strings, warnings, null/zero/access distinctions, handlers, payloads, permissions, recovery and effects. No global .bos-order-trace change.",
+        "shared_frontend_integrator": "/root/product_integration_continuation",
+        "source_build_or_browser_execution_authorized_for_designer": false,
+        "implementation_accepted": false,
+        "next_step": "Independent private diff review, then sole integrator imports/builds; actual final browser evidence is a separately bounded acceptance."
+      },
+      "full_scenario_acceptance": false,
+      "closeout_20260921": {
+        "status": "PARTIAL",
+        "completed": "Ранее приняты девять UI-контекстов; добавлены links, compact menu, manual KPI и department settings с controlled JSX checks.",
+        "remaining": "Общий текущий UXD-01–08, размеры, native 200%, роли и 28 наблюдений не приняты полностью.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "PLAN-GPT",
+      "title": "Специфікація GPT adapter та рольових evals",
+      "owner": "bos_architect",
+      "depends_on": [
+        "PLAN-LINKS"
+      ],
+      "checkpoint": "C4",
+      "status": "CONTRACT_PREPARED_API_OFF",
+      "external_prerequisites": [],
+      "card": null,
+      "evidence": "docs/orchestration/BATCH_01_UA.md",
+      "closeout_20260921": {
+        "status": "PARTIAL",
+        "completed": "Подготовлен контракт adapter/рольовых evals; продуктовый API выключен.",
+        "remaining": "Нужны разрешённые поля, модель, бюджет и реализация с проверкой прав; не запускать до новых указаний.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "PLAN-ACCEPT",
+      "title": "Повне технічне приймання P19/P20",
+      "owner": "bos_readiness_auditor",
+      "depends_on": [
+        "PLAN-TIME",
+        "PLAN-F06",
+        "PLAN-SOURCE",
+        "PLAN-UX",
+        "PLAN-GPT"
+      ],
+      "checkpoint": "C5",
+      "status": "BLOCKED_HISTORICAL_LIMITS_AND_PRODUCT_GAPS",
+      "external_prerequisites": [
+        "Historical suite restrictions resolved without bypass; same candidate; all original P19 prerequisites; C2-C4 product changes accepted"
+      ],
+      "card": null,
+      "evidence": "docs/orchestration/BATCH_01_UA.md",
+      "closeout_20260921": {
+        "status": "BLOCKED",
+        "completed": "Собраны scoped evidence и незакрытые условия всех 11 gates.",
+        "remaining": "Полное техническое принятие отсутствует; P05/A09/A10 и старые A11 границы сохраняются.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "PLAN-PILOT",
+      "title": "Паспорт пілота та умови P22–P24",
+      "owner": "bos_pilot_pack",
+      "depends_on": [
+        "PLAN-LINKS"
+      ],
+      "checkpoint": "C6",
+      "status": "PASSPORT_PREPARED_OWNER_INPUT_PENDING",
+      "external_prerequisites": [],
+      "card": null,
+      "evidence": "docs/orchestration/BATCH_01_UA.md",
+      "closeout_20260921": {
+        "status": "BLOCKED",
+        "completed": "Паспорт пилота подготовлен.",
+        "remaining": "Нужны выбранная компания, сценарий, данные, критерии и отдельное разрешение владельца после технических условий.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "PLAN-LINKS-READ",
+      "title": "Реалізувати серверний trace одного замовлення",
+      "owner": "bos_implementer",
+      "depends_on": [
+        "PLAN-LINKS"
+      ],
+      "checkpoint": "C2",
+      "status": "ACCEPT_SCOPED_SQLITE_PG16",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/BATCH_02_PLAN_UA.md",
+      "evidence": "docs/orchestration/BATCH_02_UA.md",
+      "closeout_20260921": {
+        "status": "READY_SCOPED",
+        "completed": "Серверный trace заказа принят scoped на SQLite и PostgreSQL 16.",
+        "remaining": "Исторический scope не подтверждает все новые браузерные пути и роли.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "PLAN-UX-TRACE",
+      "title": "Додати джерела виконання в чинний inspector",
+      "owner": "bos_ux",
+      "depends_on": [
+        "PLAN-LINKS-READ",
+        "PLAN-UX"
+      ],
+      "checkpoint": "C3",
+      "status": "ACCEPT_SCOPED_COMPONENT_NO_BROWSER",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/BATCH_02_PLAN_UA.md",
+      "evidence": "docs/orchestration/BATCH_02_UA.md",
+      "closeout_20260921": {
+        "status": "READY_SCOPED",
+        "completed": "Источники исполнения добавлены в inspector; component acceptance сохранён.",
+        "remaining": "Полная текущая browser acceptance для всех связей не выполнена.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "PLAN-N2-ADJUST",
+      "title": "Адресна перевірка погодження erp_adjust",
+      "owner": "bos_implementer",
+      "depends_on": [
+        "PLAN-N2"
+      ],
+      "checkpoint": "C1",
+      "status": "ACCEPT_SCOPED_SQLITE_PG16",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/BATCH_02_PLAN_UA.md",
+      "evidence": "docs/orchestration/BATCH_02_UA.md",
+      "closeout_20260921": {
+        "status": "READY_SCOPED",
+        "completed": "Адресное согласование erp_adjust принято на SQLite/PG16, включая отдельные реальные concurrency cases.",
+        "remaining": "Не распространять результат на остальные command writers.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "PLAN-SAAS",
+      "title": "Пакет SaaS з ізоляцією компаній та onboarding",
+      "owner": "bos_architect",
+      "depends_on": [
+        "PLAN-UX-TRACE"
+      ],
+      "checkpoint": "C3",
+      "status": "PACKAGED_NOT_PRODUCTION_READY",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/BATCH_02_PLAN_UA.md",
+      "evidence": "docs/orchestration/BATCH_03_UA.md",
+      "closeout_20260921": {
+        "status": "PARTIAL",
+        "completed": "Подготовлен пакет отдельной установки на компанию и onboarding.",
+        "remaining": "Production install, TLS, upgrade/rollback и эксплуатационная готовность не приняты.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "PLAN-LANDING",
+      "title": "Лендинг готового ядра та шлях до демонстрації",
+      "owner": "bos_ux",
+      "depends_on": [
+        "PLAN-SAAS"
+      ],
+      "checkpoint": "C3",
+      "status": "PUBLISHED_ACCEPT_SCOPED_LANDING_NAVIGATION",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/BATCH_02_PLAN_UA.md",
+      "evidence": "docs/orchestration/BATCH_04_UA.md",
+      "historical_publication_status": "PUBLISHED_OWNER_PRIVATE",
+      "current_url": "https://business-operating-system.vladduk134.chatgpt.site",
+      "current_audience_observation": "public; not changed by this task",
+      "browser_followup_evidence": "docs/orchestration/evidence/batch04/landing-v3-20260920.json",
+      "site_source_commit": "ce0322034971a1ddc5cd66470e3792bb26f56493",
+      "version_number": 3,
+      "acceptance_scope": "landing_and_navigation_only",
+      "full_transactional_demo_e2e": false,
+      "closeout_20260921": {
+        "status": "READY_SCOPED",
+        "completed": "Исторически опубликован Sites landing; принято только landing/navigation.",
+        "remaining": "Это отдельный Site. Его версия не обновлялась текущим Django closeout; не считать его адресом новой ERP.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "PLAN-CONNECTORS",
+      "title": "Контракти підключення систем клієнтів",
+      "owner": "bos_architect",
+      "depends_on": [
+        "PLAN-SAAS",
+        "PLAN-GPT"
+      ],
+      "checkpoint": "C4",
+      "status": "PLANNED",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/BATCH_02_PLAN_UA.md",
+      "closeout_20260921": {
+        "status": "NOT_STARTED",
+        "completed": "Есть план контрактов систем клиентов.",
+        "remaining": "Реализация коннекторов не начата; нужны реальные согласованные системы и данные после новых указаний.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "PLAN-SOURCE-WINDOWS",
+      "title": "Native Windows source SHA proof for the current runtime",
+      "owner": "bos_test_ci",
+      "depends_on": [
+        "PLAN-SOURCE"
+      ],
+      "checkpoint": "C1",
+      "status": "ACCEPT_SCOPED_NATIVE_WINDOWS_SOURCE",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/WINDOWS_SOURCE_UA.md",
+      "evidence": "docs/orchestration/evidence/windows-source/report.json",
+      "closeout_20260921": {
+        "status": "READY_SCOPED",
+        "completed": "Native Windows source SHA proof сохранён с точным историческим источником.",
+        "remaining": "Не заменяет gate 11 и нынешние проверки приложения.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "FRONTEND-GLOBALS",
+      "title": "Native browser globals у lexical checker",
+      "owner": "bos_implementer",
+      "depends_on": [],
+      "checkpoint": "C5",
+      "status": "ACCEPTED_SCOPED",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/cards/FRONTEND-GLOBALS.md",
+      "evidence": "docs/orchestration/VERTICAL_UA_UA.md",
+      "closeout_20260921": {
+        "status": "READY_SCOPED",
+        "completed": "Native browser globals учтены lexical checker.",
+        "remaining": "Это проверка checker, не full browser acceptance.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "BOOTSTRAP-OWNER",
+      "title": "Перший керівник порожньої установки",
+      "owner": "bos_implementer",
+      "depends_on": [],
+      "checkpoint": "C5",
+      "status": "ACCEPT_SCOPED",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/cards/BOOTSTRAP-OWNER.md",
+      "evidence": "docs/orchestration/VERTICAL_UA_UA.md",
+      "closeout_20260921": {
+        "status": "READY_SCOPED",
+        "completed": "Создание первого CEO пустой установки принято scoped SQLite/PG16.",
+        "remaining": "При обновлении существующего review-стенда bootstrap и seed не повторяются.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "VERTICAL-UA-DATA",
+      "title": "Філія, склад, замовлення та джерела UAH",
+      "owner": "bos_implementer",
+      "depends_on": [
+        "PLAN-LINKS-READ"
+      ],
+      "checkpoint": "C5",
+      "status": "ACCEPTED_SCOPED",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/cards/VERTICAL-UA-DATA.md",
+      "evidence": "docs/orchestration/VERTICAL_UA_UA.md",
+      "closeout_20260921": {
+        "status": "READY_SCOPED",
+        "completed": "Филиал, склад, заказ, UAH и Policy sources реализованы и scoped проверены.",
+        "remaining": "Новые серверные изменения имеют отдельные доказательства; полный текущий role sweep открыт.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "VERTICAL-UA-UI",
+      "title": "Робочі точки в чинному ERP UI",
+      "owner": "bos_ux",
+      "depends_on": [
+        "VERTICAL-UA-DATA",
+        "FRONTEND-GLOBALS"
+      ],
+      "checkpoint": "C3",
+      "status": "ACCEPT_SCOPED_CONTROLLED_UI",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/cards/VERTICAL-UA-UI.md",
+      "evidence": "docs/orchestration/VERTICAL_UA_UA.md",
+      "closeout_20260921": {
+        "status": "READY_SCOPED",
+        "completed": "Рабочие точки встроены в существующий ERP UI; controlled UI acceptance сохранён.",
+        "remaining": "Текущий four-route smoke не заменяет все responsive/role/business проверки.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "UI-LOCAL-RUNNER",
+      "title": "Новий ізольований локальний browser runner",
+      "owner": "bos_test_ci",
+      "depends_on": [
+        "VERTICAL-UA-UI"
+      ],
+      "checkpoint": "C3",
+      "status": "ACCEPT_SCOPED_GATE10_EXACT_646D3B8",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "acceptance_scope": "runner code/12mock/Windowsstdlib; actual attempt4 FAIL retained at530043a; root accepted attempt5 exit0/Gate10 7of7 at646d3b8/98b011, separate flows3of3 and persistent demo; not full Gate6 or readiness",
+      "closeout_20260921": {
+        "status": "READY_SCOPED",
+        "completed": "Собственный локальный browser runner ранее дал 7/7 на точном 646d3b8.",
+        "remaining": "Этот PASS относится к старому источнику; новый smoke учитывается отдельно.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "LOCAL-GATE1-4",
+      "title": "Порожні міграції й актуальний access sweep",
+      "owner": "bos_test_ci",
+      "depends_on": [
+        "VERTICAL-UA-DATA",
+        "BOOTSTRAP-OWNER"
+      ],
+      "checkpoint": "C5",
+      "status": "INCOMPLETE_NO_CURRENT_ACCEPTANCE",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "acceptance_scope": "Historical PG migration only; SQLite original exit unknown; access-current-1 interrupted without final receipt",
+      "closeout_20260921": {
+        "status": "BLOCKED",
+        "completed": "Историческая PG миграция и статический каталог маршрутов сохранены.",
+        "remaining": "SQLite original exit не установлен; current access sweep прерван без receipt; full gates 1/4 не приняты.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "S1-CONFIRM-RECOVERY",
+      "title": "Збереження ID погодження та квитанції",
+      "owner": "bos_ux",
+      "depends_on": [
+        "VERTICAL-UA-UI"
+      ],
+      "checkpoint": "C5",
+      "status": "ACCEPT_SCOPED_RECORDED_BY_COORDINATOR",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/cards/S1-CONFIRM-RECOVERY.md",
+      "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "local_commit": "811a61399f4616a3b3d9d5d5305e593eb6e6e9fe",
+      "full_scenario_acceptance": false,
+      "closeout_20260921": {
+        "status": "READY_SCOPED",
+        "completed": "Сохранение proposal ID и квитанции реализовано и принято в исходном bounded scope.",
+        "remaining": "Полная цепочка заказа, роли, reload/restart и concurrency остаются частичными.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "PLAN-DOC-MATCH-CONTRACT",
+      "title": "Pure mock-контракт документа",
+      "owner": "bos_implementer",
+      "depends_on": [],
+      "checkpoint": "C5",
+      "status": "ACCEPT_SCOPED_MOCK_CONTRACT_RECORDED",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "local_commit": "90e2cf833ab601fe543d1dbdb64e087b432cfd32",
+      "full_scenario_acceptance": false,
+      "closeout_20260921": {
+        "status": "READY_SCOPED",
+        "completed": "Pure mock-контракт документа принят; позднее добавлена реальная серверная registration.",
+        "remaining": "Поддерживаются согласованные synthetic bytes; OCR и произвольные документы не подтверждены.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "SUPPLY-OPTIONS-READ",
+      "title": "Дозволені джерела забезпечення",
+      "owner": "bos_implementer",
+      "depends_on": [
+        "VERTICAL-UA-DATA"
+      ],
+      "checkpoint": "C5",
+      "status": "ACCEPT_SCOPED_SQLITE12",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "local_commit": "92d0713c7cc46c683ae72192661924a3a14083f7",
+      "full_scenario_acceptance": false,
+      "closeout_20260921": {
+        "status": "READY_SCOPED",
+        "completed": "Чтение разрешённых источников обеспечения принято SQLite12.",
+        "remaining": "Полный negative role sweep и linked browser flow остаются открыты.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "FLOW-ORDER-SETTLEMENT",
+      "title": "Фінансові джерела конкретного замовлення",
+      "owner": "bos_implementer",
+      "depends_on": [
+        "VERTICAL-UA-DATA"
+      ],
+      "checkpoint": "C5",
+      "status": "ACCEPT_SCOPED_REFERENCE_FIX",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "local_commit": "ae10e3f2498a8292bcfe065d593a95cc3c0272b9",
+      "full_scenario_acceptance": false,
+      "closeout_20260921": {
+        "status": "READY_SCOPED",
+        "completed": "Исправлены ссылки финансовых источников заказа; service chain подтверждает 300/120/180 UAH.",
+        "remaining": "Платёж — локальная учётная запись; банковская интеграция и полный browser flow не заявляются.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "DOC-MATCH-SERVER",
+      "title": "Перевірені байти й Policy для mock-сверки",
+      "owner": "bos_implementer",
+      "depends_on": [
+        "PLAN-DOC-MATCH-CONTRACT"
+      ],
+      "checkpoint": "C5",
+      "status": "ACCEPT_SCOPED_RECORDED_BY_COORDINATOR",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "local_commit": "67cc588f9f1171442d1822bae127bc6369ecddf3",
+      "full_scenario_acceptance": false,
+      "closeout_20260921": {
+        "status": "READY_SCOPED",
+        "completed": "Проверка байтов документа и Policy реализована; registration backend отдельно принят 11 targeted checks.",
+        "remaining": "Обычные неподдержанные документы не превращать в успешное распознавание.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "FLOW-READ-UI",
+      "title": "Маршрути й UI забезпечення та розрахунків",
+      "owner": "bos_ux",
+      "depends_on": [
+        "S1-CONFIRM-RECOVERY",
+        "SUPPLY-OPTIONS-READ",
+        "FLOW-ORDER-SETTLEMENT"
+      ],
+      "checkpoint": "C5",
+      "status": "ACCEPT_SCOPED_RECORDED_BY_COORDINATOR",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/cards/FLOW-READ-UI.md",
+      "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "local_commit": "bfbc588a2445eeb04e7ef13c2ecca5c72f4eb47d",
+      "full_scenario_acceptance": false,
+      "closeout_20260921": {
+        "status": "READY_SCOPED",
+        "completed": "Маршруты обеспечения и расчётов и источники доступны в принятом bounded UI scope.",
+        "remaining": "Проверка всех текущих связей, ролей и возврата контекста не завершена.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "LOCAL-REVIEW-SUPPORT",
+      "title": "Керовані процеси локального synthetic-стенда",
+      "owner": "bos_test_ci",
+      "depends_on": [
+        "BOOTSTRAP-OWNER"
+      ],
+      "checkpoint": "C5",
+      "status": "ACCEPT_SCOPED_SUPPORT_ONLY",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "local_commit": "bc6cc57503fdd042415e1c4ff93c7867e20ae91a",
+      "full_scenario_acceptance": false,
+      "closeout_20260921": {
+        "status": "READY_SCOPED",
+        "completed": "Lifecycle support принят отдельно: process ownership, synthetic review data и локальный вход.",
+        "remaining": "Новый результат обновления/запуска указывается отдельно; support acceptance не равна deployment acceptance.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "DOC-MATCH-READ-UI",
+      "title": "Явне зіставлення та оригінальні докази",
+      "owner": "bos_ux",
+      "depends_on": [
+        "DOC-MATCH-SERVER",
+        "FLOW-READ-UI"
+      ],
+      "checkpoint": "C5",
+      "status": "ACCEPT_SCOPED_DOC_READ_UI",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/cards/DOC-MATCH-READ-UI.md",
+      "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "local_commit": "accbedc8582bb05a4e784a46b2c23422dbeaf931",
+      "full_scenario_acceptance": false,
+      "closeout_20260921": {
+        "status": "READY_SCOPED",
+        "completed": "Явное сопоставление и исходные evidence реализованы; S2 command UI позднее принят controlled10.",
+        "remaining": "Общий текущий browser S2 и multi-role acceptance не выполнены.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "FLOW-BROWSER-HELPER",
+      "title": "Оракул трьох обмежених browser-кроків",
+      "owner": "bos_test_ci",
+      "depends_on": [
+        "FLOW-READ-UI",
+        "DOC-MATCH-READ-UI"
+      ],
+      "checkpoint": "C5",
+      "status": "ACCEPT_SCOPED_HELPER_ONLY",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "local_commit": "23f7145be0e67724719a4dc015c32f2d684b33ad",
+      "full_scenario_acceptance": false,
+      "closeout_20260921": {
+        "status": "READY_SCOPED",
+        "completed": "Подготовлен и scoped принят oracle трёх ограниченных браузерных шагов.",
+        "remaining": "Helper сам по себе не подтверждает исполнение сценария.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    },
+    {
+      "id": "WORKPOINT-DIALOG-FOCUS",
+      "title": "Повернення фокуса до чинного opener",
+      "owner": "bos_ux",
+      "depends_on": [
+        "FLOW-READ-UI"
+      ],
+      "checkpoint": "C5",
+      "status": "ACCEPT_SCOPED_FOCUS_AND_ACTUAL_BROWSER",
+      "external_prerequisites": [],
+      "card": "docs/orchestration/cards/WORKPOINT-DIALOG-FOCUS.md",
+      "evidence": "docs/orchestration/CONTINUATION_20260920_UA.md",
+      "local_commit": "646d3b80597e087a1ada14221024ec40588996f0",
+      "full_scenario_acceptance": false,
+      "closeout_20260921": {
+        "status": "READY_SCOPED",
+        "completed": "Возврат фокуса к актуальному opener исправлен и ранее проверен реальным браузером.",
+        "remaining": "Исторический browser PASS не заменяет full current-source keyboard/layout проверку.",
+        "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+        "automatic_execution_allowed": false
+      }
+    }
+  ],
+  "closeout_report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+  "automatic_execution_allowed": false,
+  "closeout_limits": {
+    "membership_ui3_overall": "FAIL",
+    "private_v5": "STATIC_ONLY_NOT_APPLIED_BEHAVIOR_NOT_RUN",
+    "s2": "SCOPED_EVIDENCE_NOT_FULL_CURRENT_PRODUCT_ACCEPTANCE",
+    "MVP": false
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "scope": "Only B03 outcome access extension; no canonical writes, full gate, browser or PostgreSQL acceptance",
+  "frozen_at": "2026-09-12T13:49:14.115847+00:00",
+  "base": "/workspace/scratch/c7b51e996a9f/tmp/b03_access_candidate/BASE_SHA.json",
+  "source": "/workspace/scratch/c7b51e996a9f/tmp/b03_access_candidate/source",
+  "changed_files": {
+    "scripts/access_fixtures.py": {
+      "base_sha256": "7c59fa5b59a1b18ca27245096fb55954124291f3b9efd482ef74849f330a5882",
+      "sha256": "ffaf01886f3e42d1e6616036edcf03f671c26cf75d22d04e1b29c730e0efac26"
+    },
+    "scripts/check_access.py": {
+      "base_sha256": "4cd67f6dbcf439793ac3a89b9e342109a79a5e3ee864455b2c1d3b365515e859",
+      "sha256": "b6c8ac6c9747d8f256e046bd2bbc1a71bfec1308d73a86983d4bf289a5a0821b"
+    },
+    "scripts/access_routes.json": {
+      "base_sha256": "7da5f71c0a77bd6b8ba447cb2ff7618fb632e8281e95fed68df431809093e58f",
+      "sha256": "0e360a8d2d45a20c09c628be56debc7d0d5962ccf53a4038f6132397cb4ead7c"
+    }
+  },
+  "all_other_copied_files_unchanged": true,
+  "copied_file_count": 280,
+  "old_176_json_object_lexemes_byte_identical": true,
+  "required_field_test_count": 57,
+  "required_field_tests_unchanged": true,
+  "route_count": 177,
+  "red": {
+    "executed": 54,
+    "passed": 18,
+    "failed": 36
+  },
+  "green": {
+    "executed": 54,
+    "passed": 54,
+    "failed": 0
+  },
+  "runtime": {
+    "executable": "/workspace/scratch/c7b51e996a9f/demo-check-env/bin/python",
+    "python": "3.12.14",
+    "database": "SQLite fresh own synthetic file",
+    "http": "Django HTTP test client through real middleware/views/ORM; no external server"
+  },
+  "backend_source_sha256": {
+    "erp/correction_views.py": "adb8e918db83dc217319cfc62f721b9b4fa94a9ed19aa6e63ecd7f74862e2dd5",
+    "erp/corrections.py": "590f986c528b27293fda666e50b3f8e3daeeeb3d2c0d74c48b80fb8972f95705",
+    "erp/models.py": "132c986d520cb8a824cfd7e3f32e399166f39efadfe15bc74ac8c988eda87482",
+    "erp/urls.py": "d8698d0587f2f52dc4fa0a0d03dfdecdd30a6454a31160d28f942ecace053b4a"
+  },
+  "evidence_sha256": {
+    "BASE_SHA.json": "a1096831d58062e03a7732cf638a248fea76fdb698864efa8023167992cb83a9",
+    "BASE_ACCESS_ROUTES.json": "7da5f71c0a77bd6b8ba447cb2ff7618fb632e8281e95fed68df431809093e58f",
+    "ACCESS_PATCH.diff": "bf94ed7602aa55b68ccecfb78458f8300eac746d0f71ced9ffb1f9ee6b470154",
+    "run_focused_access.py": "8b8b7a257586db3c641758f7bc24377574a86d7ebc4b6ab880a6bdf2a7e41cb3",
+    "evidence/red_clean.json": "7e8d9cc91598c554ccad8588c4149a072b612a44acdff9f7d3333d3e80b43766",
+    "evidence/green.json": "f6a5061d942d8848454e6c1c4e4ceaa3d3697daabc0a59876d1005a7b2df3ed0",
+    "red_clean.log": "3545030df8c4ffd34b5b8c0dfdbd41d4d0ef87d8df0bb921c7514f48c2c4e232",
+    "green.log": "cba737ca9cd8144d3ff1031efd5f7296534c2d9beb8b7514f9767e1fd9d4bca1"
+  }
+}

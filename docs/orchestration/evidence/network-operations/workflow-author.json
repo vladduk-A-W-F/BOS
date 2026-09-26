@@ -1,0 +1,59 @@
+{
+  "scope": "NETWORK-WORKFLOW + RFQ source seed delta",
+  "canonical_tree_edited": false,
+  "workflow_patch": "/workspace/scratch/4dbe5b4c73ee/execution/network-workflow/network-workflow.patch",
+  "seed_patch": "/workspace/scratch/4dbe5b4c73ee/execution/network-workflow/network-seed-rfq-delta.patch",
+  "author_tests": [
+    {
+      "selector": "erp.test_network_workflow",
+      "tests": 6,
+      "exit_code": 0,
+      "raw": "/workspace/scratch/4dbe5b4c73ee/execution/network-workflow/test_raw.txt"
+    },
+    {
+      "selector": "erp.test_network_demo",
+      "tests": 6,
+      "exit_code": 0,
+      "raw": "/workspace/scratch/4dbe5b4c73ee/execution/network-workflow/seed_test_raw.txt"
+    },
+    {
+      "selector": "erp.test_network_demo.NetworkDemoTests.test_workday_is_linked_erp_ua_hryvnia_and_reversible_collection_is_real",
+      "tests": 1,
+      "reason": "Added final synthetic workflow comparison assertion after first seed run",
+      "raw": "/workspace/scratch/4dbe5b4c73ee/execution/network-workflow/seed_workflow_final_raw.txt",
+      "exit_code": 0
+    }
+  ],
+  "migrations_check": "No changes detected; exit0",
+  "test_database": "owned SQLite synthetic only",
+  "independent_review": "pending",
+  "limitations": [
+    "No PostgreSQL proof",
+    "No browser/E2E proof",
+    "No historical creation timestamp invention",
+    "No production activation"
+  ],
+  "files": {
+    "erp/network_workflow.py": "0217d4388cd6f84c1eaa5eebcb56e1cf064893d91eaf8d00ece2acc9bff5b502",
+    "erp/test_network_workflow.py": "90171f2c25963a29df0000dd8115e9fc4955a60817e52a2a14887e901fe1b441",
+    "docs/NETWORK_FLOW_METRICS_UA.md": "6de4177a2c3080ca0d85827d94350ce0a65bf353e2db1c8332b7dcd3c779201f",
+    "operations/models.py": "7bc4f93fe5e76a9e6e18ab145f37e442e0f5f4d5a7e9180dd39d3b3aa86c4c30",
+    "erp/models.py": "56fde9108470d709219961f700e253da03fe74831f88549fa1b6e6dc2349d1c3",
+    "operations/migrations/0009_request_timing.py": "ed9e1a96e9cd4a24d46bee8c4e264970e01975ee6f9f38cb7ad2ac1d6ef3af42",
+    "erp/migrations/0007_request_timing.py": "529a8f24cc8ad817806a0ec990222936be336c256baea6c1a831110dfe433060",
+    "erp/network_demo.py": "10e9a164fcb85f3f8a7446473a5995f579e144b4730c7b60f458090e401bd8fc",
+    "erp/test_network_demo.py": "e4214a48e8890ad0dc42e1d9950c9c13e7951deb7a34c250332a4ed4c257bbc5",
+    "docs/NETWORK_DEMO_UA.md": "f77ce028ee091de973b22af39d210c0f27065fcaa4aca8fab8f45563a1249a92"
+  },
+  "commands": [
+    "BOS_TEST_DB_NAME=<owned check_flow.sqlite3> BOS_TEST_MEDIA=<owned media> DJANGO_SETTINGS_MODULE=verification_settings /workspace/scratch/4dbe5b4c73ee/execution/venv/bin/python manage.py test erp.test_network_workflow --noinput --verbosity 2",
+    "BOS_TEST_DB_NAME=<owned check_seed_flow.sqlite3> BOS_TEST_MEDIA=<owned media> DJANGO_SETTINGS_MODULE=verification_settings /workspace/scratch/4dbe5b4c73ee/execution/venv/bin/python manage.py test erp.test_network_demo --noinput --verbosity 2",
+    "BOS_TEST_DB_NAME=<owned check_seed_flow_final.sqlite3> BOS_TEST_MEDIA=<owned media> DJANGO_SETTINGS_MODULE=verification_settings /workspace/scratch/4dbe5b4c73ee/execution/venv/bin/python manage.py test erp.test_network_demo.NetworkDemoTests.test_workday_is_linked_erp_ua_hryvnia_and_reversible_collection_is_real --noinput --verbosity 2",
+    "BOS_TEST_DB_NAME=<owned check_migrations.sqlite3> BOS_TEST_MEDIA=<owned media> DJANGO_SETTINGS_MODULE=verification_settings /workspace/scratch/4dbe5b4c73ee/execution/venv/bin/python manage.py makemigrations --check --dry-run"
+  ],
+  "review_fixes": [
+    "Actual navigation targets organizer/documents and finance/bank",
+    "Selected quote creation must not be later than purchase creation; otherwise completed-duration unavailable"
+  ],
+  "post_review_fix_testing": "Author did not rerun modules. Independent reviewer owns unchanged reproducer for temporal contradiction and route checks."
+}

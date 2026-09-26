@@ -1,0 +1,89 @@
+{
+  "card": "NETWORK-SEED",
+  "files": [
+    "erp/network_demo.py",
+    "erp/management/commands/seed_network_demo.py",
+    "erp/test_network_demo.py",
+    "docs/NETWORK_DEMO_UA.md"
+  ],
+  "file_sha256": {
+    "erp/network_demo.py": "4f785cd21a040fcee8f8fec7c5d1a3395ba97ae9c837f8cb783695201b46ced2",
+    "erp/management/commands/seed_network_demo.py": "e66c6ed920b48c425fb8e2982acc869547bedd00b614be6c7a54df4947da978a",
+    "erp/test_network_demo.py": "db815094101ad7e0aec98d5f7fa6c03780dc969b96d05311c1ed07c6edd40de5",
+    "docs/NETWORK_DEMO_UA.md": "45e47069aa583874508f01b6568689d6a32d7993922fe4d0a2497f2d9ee94d75"
+  },
+  "patch_sha256": "61d0db9e653a02b5ca30f38e6bc258fd0227f1b12eee2cbb549326a36285a286",
+  "targeted_tests": {
+    "labels": [
+      "erp.test_network_demo"
+    ],
+    "command": [
+      "/workspace/scratch/4dbe5b4c73ee/execution/venv/bin/python",
+      "-B",
+      "manage.py",
+      "test",
+      "erp.test_network_demo",
+      "--settings=verification_settings",
+      "--noinput",
+      "--verbosity=2"
+    ],
+    "root": "/workspace/scratch/4dbe5b4c73ee/execution/network-seed/source",
+    "backend": "sqlite",
+    "returncode": 0,
+    "seconds": 10.738,
+    "timed_out": false,
+    "raw_sha256": "36b70725ff9cc81ffdf48bd33a410e3d11486df83e96abfbd1b4cc4fe7367c76",
+    "scope": "targeted only; not full"
+  },
+  "tests_count": 6,
+  "outcome": "PASS",
+  "first_attempt": "test-output/raw.log: three decimal precision validation errors in calculated fixture amounts; fixed to exact two-decimal command input without changing tests",
+  "review": "Pending independent reviewer",
+  "scope": "Synthetic SQLite test DB and temporary private media only; no full/PG/E2E runs, no canonical modifications",
+  "counts": {
+    "all_profiles": {
+      "branch": 7,
+      "location": 14,
+      "employee": 14,
+      "counterparty": 21,
+      "item": 5,
+      "salesorder": 33,
+      "salesline": 33,
+      "purchase": 11,
+      "foreign_purchase": 4,
+      "foreign_salesorder": 3,
+      "invoice": 21,
+      "invoicelink": 21,
+      "payment_events": 14,
+      "paymentretention": 7,
+      "stocktransfer": 7,
+      "production": 2,
+      "document": 3,
+      "task": 7
+    },
+    "workday": {
+      "lot": 82,
+      "in_transit": 2,
+      "blocked_lots": 7
+    },
+    "disruption": {
+      "lot": 81,
+      "in_transit": 3,
+      "blocked_lots": 8,
+      "overdue_purchases": 11
+    },
+    "collections": {
+      "lot": 82,
+      "in_transit": 2,
+      "blocked_lots": 7,
+      "overdue_invoices": 21
+    }
+  },
+  "run_requirements": [
+    "domain migrations and command implementation integrated",
+    "BOS_DATA_MODE=demo",
+    "fresh business database with private media isolated",
+    "do not run any other seed command first",
+    "no created users or passwords; use existing identity workflow separately"
+  ]
+}

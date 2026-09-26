@@ -1,0 +1,479 @@
+{
+  "schema": "bos.owner-readonly-browser-smoke.v1",
+  "overall": "PASS",
+  "started_at": "2026-09-21T20:52:46.450691+00:00",
+  "origin": "http://127.0.0.1:8876",
+  "source_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+  "source_before": {
+    "files": 426,
+    "source_digest": "77e8ca05b58efc99d47ce8dd2887074b3c93ba6eaff863a24307ae0e89dc622a"
+  },
+  "checks": [
+    {
+      "id": "workpoints",
+      "result": "PASS",
+      "read_witness": {
+        "path": "/api/erp/workpoints/",
+        "status": 200,
+        "mode": "awaited_actual_response"
+      },
+      "heading": "Філії та робочі точки",
+      "read_path": "/api/erp/workpoints/",
+      "read_status": 200
+    },
+    {
+      "id": "orders",
+      "result": "PASS",
+      "read_witness": {
+        "path": "/api/erp/snapshot/",
+        "status": 200,
+        "mode": "observed_authenticated_buffer"
+      },
+      "heading": "Продажі та виконання замовлень",
+      "read_path": "/api/erp/snapshot/",
+      "read_status": 200
+    },
+    {
+      "id": "procurement",
+      "result": "PASS",
+      "read_witness": {
+        "path": "/api/operations/requests/",
+        "status": 200,
+        "mode": "awaited_actual_response"
+      },
+      "automatic_compare_read": {
+        "status": 200,
+        "mode": "awaited_actual_response"
+      },
+      "heading": "Промислові закупівлі",
+      "read_path": "/api/operations/requests/",
+      "read_status": 200
+    },
+    {
+      "id": "network",
+      "result": "PASS",
+      "read_witness": {
+        "path": "/api/erp/network/",
+        "status": 200,
+        "mode": "awaited_actual_response"
+      },
+      "heading": "Від філії до кожної операції",
+      "read_path": "/api/erp/network/",
+      "read_status": 200
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "workpoints.png",
+      "sha256": "7eb419abf7ac5bab5597d803e63e3cee805ec8bc119cb4ad9c774d5b4a115f3f",
+      "bytes": 90172
+    },
+    {
+      "path": "orders.png",
+      "sha256": "8f7b8bf2b294f1888956ade38133dba2db9965124785a2eae66965dcec3b24d6",
+      "bytes": 87573
+    },
+    {
+      "path": "procurement.png",
+      "sha256": "7c70734899b15f9f5fedb9c75ad5b11236529f13b49b6d236e6b04f9929c3ce1",
+      "bytes": 98766
+    },
+    {
+      "path": "network.png",
+      "sha256": "ee9840b54021636e17b48e0167d52fcb7c3bf7d5715cba7e37e4087679a0c790",
+      "bytes": 110021
+    }
+  ],
+  "responses": [
+    {
+      "method": "GET",
+      "path": "/",
+      "status": 200,
+      "phase": "startup"
+    },
+    {
+      "method": "GET",
+      "path": "/assets/react-dom.js",
+      "status": 200,
+      "phase": "startup"
+    },
+    {
+      "method": "GET",
+      "path": "/assets/marked.js",
+      "status": 200,
+      "phase": "startup"
+    },
+    {
+      "method": "GET",
+      "path": "/assets/react.js",
+      "status": 200,
+      "phase": "startup"
+    },
+    {
+      "method": "GET",
+      "path": "/assets/purify.js",
+      "status": 200,
+      "phase": "startup"
+    },
+    {
+      "method": "GET",
+      "path": "/assets/network-map.js",
+      "status": 200,
+      "phase": "startup"
+    },
+    {
+      "method": "GET",
+      "path": "/assets/app.js",
+      "status": 200,
+      "phase": "startup"
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/csrf/",
+      "status": 200,
+      "phase": "startup"
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/me/",
+      "status": 401,
+      "phase": "startup"
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/login/",
+      "status": 200,
+      "phase": "login"
+    },
+    {
+      "method": "GET",
+      "path": "/api/operations/status/",
+      "status": 200,
+      "phase": "login"
+    },
+    {
+      "method": "GET",
+      "path": "/api/runtime/status/",
+      "status": 200,
+      "phase": "authenticated"
+    },
+    {
+      "method": "GET",
+      "path": "/api/transactions/",
+      "status": 200,
+      "phase": "authenticated"
+    },
+    {
+      "method": "GET",
+      "path": "/api/contracts/",
+      "status": 200,
+      "phase": "authenticated"
+    },
+    {
+      "method": "GET",
+      "path": "/api/counterparties/",
+      "status": 200,
+      "phase": "authenticated"
+    },
+    {
+      "method": "GET",
+      "path": "/api/salaries/",
+      "status": 200,
+      "phase": "authenticated"
+    },
+    {
+      "method": "GET",
+      "path": "/api/branches/",
+      "status": 200,
+      "phase": "authenticated"
+    },
+    {
+      "method": "GET",
+      "path": "/api/tasks/",
+      "status": 200,
+      "phase": "authenticated"
+    },
+    {
+      "method": "GET",
+      "path": "/api/employees/",
+      "status": 200,
+      "phase": "authenticated"
+    },
+    {
+      "method": "GET",
+      "path": "/api/dashboard/summary/",
+      "status": 200,
+      "phase": "authenticated"
+    },
+    {
+      "method": "GET",
+      "path": "/api/erp/snapshot/",
+      "status": 200,
+      "phase": "workpoints"
+    },
+    {
+      "method": "GET",
+      "path": "/api/erp/orders/7/next/",
+      "status": 200,
+      "phase": "workpoints"
+    },
+    {
+      "method": "GET",
+      "path": "/api/erp/orders/8/next/",
+      "status": 200,
+      "phase": "workpoints"
+    },
+    {
+      "method": "GET",
+      "path": "/api/erp/orders/2/next/",
+      "status": 200,
+      "phase": "workpoints"
+    },
+    {
+      "method": "GET",
+      "path": "/api/erp/orders/1/next/",
+      "status": 200,
+      "phase": "workpoints"
+    },
+    {
+      "method": "GET",
+      "path": "/api/erp/orders/6/next/",
+      "status": 200,
+      "phase": "workpoints"
+    },
+    {
+      "method": "GET",
+      "path": "/api/erp/workpoints/",
+      "status": 200,
+      "phase": "workpoints"
+    },
+    {
+      "method": "GET",
+      "path": "/api/erp/snapshot/",
+      "status": 200,
+      "phase": "workpoints"
+    },
+    {
+      "method": "GET",
+      "path": "/api/erp/workpoints/",
+      "status": 200,
+      "phase": "workpoints"
+    },
+    {
+      "method": "GET",
+      "path": "/api/erp/snapshot/",
+      "status": 200,
+      "phase": "orders"
+    },
+    {
+      "method": "GET",
+      "path": "/api/erp/orders/1/next/",
+      "status": 200,
+      "phase": "procurement"
+    },
+    {
+      "method": "GET",
+      "path": "/api/erp/orders/2/next/",
+      "status": 200,
+      "phase": "procurement"
+    },
+    {
+      "method": "GET",
+      "path": "/api/erp/orders/6/next/",
+      "status": 200,
+      "phase": "procurement"
+    },
+    {
+      "method": "GET",
+      "path": "/api/erp/orders/3/next/",
+      "status": 200,
+      "phase": "procurement"
+    },
+    {
+      "method": "GET",
+      "path": "/api/erp/orders/5/next/",
+      "status": 200,
+      "phase": "procurement"
+    },
+    {
+      "method": "GET",
+      "path": "/api/erp/orders/4/next/",
+      "status": 200,
+      "phase": "procurement"
+    },
+    {
+      "method": "GET",
+      "path": "/api/erp/orders/8/next/",
+      "status": 200,
+      "phase": "procurement"
+    },
+    {
+      "method": "GET",
+      "path": "/api/erp/orders/7/next/",
+      "status": 200,
+      "phase": "procurement"
+    },
+    {
+      "method": "GET",
+      "path": "/api/operations/requests/",
+      "status": 200,
+      "phase": "procurement"
+    },
+    {
+      "method": "GET",
+      "path": "/api/operations/compare/",
+      "status": 200,
+      "phase": "procurement"
+    },
+    {
+      "method": "GET",
+      "path": "/api/erp/snapshot/",
+      "status": 200,
+      "phase": "network"
+    },
+    {
+      "method": "GET",
+      "path": "/api/erp/network/",
+      "status": 200,
+      "phase": "network"
+    }
+  ],
+  "blocked_requests": [],
+  "page_errors": [],
+  "console_errors": [
+    {
+      "phase": "startup",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    }
+  ],
+  "request_failures": [],
+  "login_posts": 1,
+  "business_posts_allowed": 0,
+  "browser_launched": true,
+  "browser_closed": true,
+  "owned_edge_exited": true,
+  "profile_removed": true,
+  "server_stop_called": false,
+  "scope": "Four owner read routes only; not full gates, MEMUI4 or MVP acceptance",
+  "owned_edge_identities": [
+    {
+      "pid": 62840,
+      "created_ticks": 134344975679090287,
+      "image": "c:\\program files (x86)\\microsoft\\edge\\application\\msedge.exe"
+    },
+    {
+      "pid": 40348,
+      "created_ticks": 134344975681032167,
+      "image": "c:\\program files (x86)\\microsoft\\edge\\application\\msedge.exe"
+    },
+    {
+      "pid": 51632,
+      "created_ticks": 134344975690610367,
+      "image": "c:\\program files (x86)\\microsoft\\edge\\application\\msedge.exe"
+    },
+    {
+      "pid": 56076,
+      "created_ticks": 134344975690844856,
+      "image": "c:\\program files (x86)\\microsoft\\edge\\application\\msedge.exe"
+    },
+    {
+      "pid": 47364,
+      "created_ticks": 134344975696323986,
+      "image": "c:\\program files (x86)\\microsoft\\edge\\application\\msedge.exe"
+    },
+    {
+      "pid": 55164,
+      "created_ticks": 134344975702927915,
+      "image": "c:\\program files (x86)\\microsoft\\edge\\application\\msedge.exe"
+    },
+    {
+      "pid": 45116,
+      "created_ticks": 134344975703005230,
+      "image": "c:\\program files (x86)\\microsoft\\edge\\application\\msedge.exe"
+    }
+  ],
+  "root_http": {
+    "status": 200,
+    "body_sha256": "090c191054dc38aa2fc6a7513cce64cab709d3209021dc991e7bbbdc7e023204",
+    "template_rendered": true,
+    "raw_html_equality_claim": false
+  },
+  "served_app_sha256": "4b2918a018cf2499a4aa2ea8ca598c7abfd17fd74379ab4236250723a5390263",
+  "identity": {
+    "authenticated": true,
+    "role": "ceo",
+    "mode": "working"
+  },
+  "onboarding": "ordinary_visible_choice",
+  "assistant_collapsed": true,
+  "edge_exit_checks": [
+    {
+      "identity": {
+        "pid": 62840,
+        "created_ticks": 134344975679090287,
+        "image": "c:\\program files (x86)\\microsoft\\edge\\application\\msedge.exe"
+      },
+      "held_handle_exited": true
+    },
+    {
+      "identity": {
+        "pid": 40348,
+        "created_ticks": 134344975681032167,
+        "image": "c:\\program files (x86)\\microsoft\\edge\\application\\msedge.exe"
+      },
+      "held_handle_exited": true
+    },
+    {
+      "identity": {
+        "pid": 51632,
+        "created_ticks": 134344975690610367,
+        "image": "c:\\program files (x86)\\microsoft\\edge\\application\\msedge.exe"
+      },
+      "held_handle_exited": true
+    },
+    {
+      "identity": {
+        "pid": 56076,
+        "created_ticks": 134344975690844856,
+        "image": "c:\\program files (x86)\\microsoft\\edge\\application\\msedge.exe"
+      },
+      "held_handle_exited": true
+    },
+    {
+      "identity": {
+        "pid": 47364,
+        "created_ticks": 134344975696323986,
+        "image": "c:\\program files (x86)\\microsoft\\edge\\application\\msedge.exe"
+      },
+      "held_handle_exited": true
+    },
+    {
+      "identity": {
+        "pid": 55164,
+        "created_ticks": 134344975702927915,
+        "image": "c:\\program files (x86)\\microsoft\\edge\\application\\msedge.exe"
+      },
+      "held_handle_exited": true
+    },
+    {
+      "identity": {
+        "pid": 45116,
+        "created_ticks": 134344975703005230,
+        "image": "c:\\program files (x86)\\microsoft\\edge\\application\\msedge.exe"
+      },
+      "held_handle_exited": true
+    }
+  ],
+  "source_after": {
+    "files": 426,
+    "source_digest": "77e8ca05b58efc99d47ce8dd2887074b3c93ba6eaff863a24307ae0e89dc622a"
+  },
+  "shared_frontend_pins_unchanged": true,
+  "server_owned_handles_still_running": true,
+  "finished_at": "2026-09-21T20:53:00.262288+00:00",
+  "counts": {
+    "pass": 4,
+    "fail": 0,
+    "not_run": 0
+  }
+}

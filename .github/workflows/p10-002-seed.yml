@@ -1,0 +1,67 @@
+name: BoS P10-002 — послідовність демодоручень
+'on':
+  push:
+    branches: [fix/p10-002-task-sequence-20260919]
+    paths:
+      - operations/management/commands/seed_bos_demo.py
+      - operations/test_seed_demo_sequence.py
+      - .github/ci/p10_002_seed.py
+      - .github/workflows/p10-002-seed.yml
+permissions:
+  contents: read
+concurrency:
+  group: bos-p10-002-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  regression:
+    if: github.ref == 'refs/heads/fix/p10-002-task-sequence-20260919'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: bos_ci
+          POSTGRES_PASSWORD: bos_synthetic_ci_only
+          POSTGRES_DB: postgres
+        ports: [5432/tcp]
+        options: --health-cmd "pg_isready -U bos_ci -d postgres" --health-interval 5s --health-timeout 5s --health-retries 12 --tmpfs /var/lib/postgresql/data:rw
+    env:
+      PYTHONUTF8: '1'
+      PYTHONDONTWRITEBYTECODE: '1'
+      BOS_DATA_MODE: demo
+      BOS_PG_DISPOSABLE: '1'
+      BOS_PGHOST: 127.0.0.1
+      BOS_PGUSER: bos_ci
+      BOS_PGPASSWORD: bos_synthetic_ci_only
+    steps:
+      - name: Кандидат
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Початкова версія для відтворення
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: b11aa8ce8f5855c34fa197e35b8fe77a850e9df0
+          path: .p10-baseline
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Python 3.12
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12'
+      - name: Залежності
+        run: python -m pip install -r requirements-ci.txt
+      - name: PostgreSQL до та після, сумісність SQLite
+        run: python .github/ci/p10_002_seed.py --baseline .p10-baseline --output "${{ runner.temp }}/p10-002"
+        env:
+          BOS_PGPORT: ${{ job.services.postgres.ports[5432] }}
+      - name: Зберегти докази
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: bos-p10-002-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/p10-002
+          if-no-files-found: error
+          retention-days: 30

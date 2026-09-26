@@ -1,0 +1,47 @@
+{
+  "scope": "Known C01 review findings only; actual source helper/read closures, controlled replies; no browser/API/DB",
+  "source_sha256": "f24de777d9ea56fc9711006db1b7c983843830fcc4680a7f2624e1cc75ad460f",
+  "checks": [
+    {
+      "name": "result title category text remains literal",
+      "passed": false,
+      "error": "'Виконане' == 'done'"
+    },
+    {
+      "name": "root clarified active draft accepts short and spaces",
+      "passed": false,
+      "error": "Змістовний результат має містити щонайменше 3 символи."
+    },
+    {
+      "name": "record refresh updates linked order snapshot",
+      "passed": false,
+      "error": "undefined == 'SO-NEW'"
+    },
+    {
+      "name": "refreshRecord 403 clears source panels but retains receipt success",
+      "passed": false,
+      "error": "undefined == 0"
+    },
+    {
+      "name": "refreshRecord 404 clears source panels but retains receipt success",
+      "passed": false,
+      "error": "undefined == 0"
+    },
+    {
+      "name": "loadHistory 403 clears source panels but retains receipt success",
+      "passed": false,
+      "error": "undefined == 0"
+    },
+    {
+      "name": "loadHistory 404 clears source panels but retains receipt success",
+      "passed": false,
+      "error": "undefined == 0"
+    },
+    {
+      "name": "transient scope read does not erase draft",
+      "passed": true
+    }
+  ],
+  "passed": 1,
+  "failed": 7
+}

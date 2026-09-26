@@ -1,0 +1,116 @@
+Creating test database for alias 'default' ('/workspace/scratch/c7b51e996a9f/tmp/check_a08_recovered_fcaa4357.sqlite3_django_test')...
+Destroying old test database for alias 'default' ('/workspace/scratch/c7b51e996a9f/tmp/check_a08_recovered_fcaa4357.sqlite3_django_test')...
+Found 43 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: django_filters, messages, rest_framework, staticfiles
+  Apply all migrations: admin, ai_assistant, auth, branches, contenttypes, employees, erp, finance, operations, sessions, tasks
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying ai_assistant.0001_initial... OK
+  Applying ai_assistant.0002_taskchangelog... OK
+  Applying ai_assistant.0003_claudeusagelog... OK
+  Applying ai_assistant.0004_employeechangelog... OK
+  Applying ai_assistant.0005_chatfile... OK
+  Applying ai_assistant.0006_alter_chatmessage_created_at_and_more... OK
+  Applying ai_assistant.0007_employeechangelog_undone_at... OK
+  Applying ai_assistant.0008_chatmessage_archived_at_chatmessage_user_and_more... OK
+  Applying ai_assistant.0009_private_documents... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying branches.0001_initial... OK
+  Applying branches.0002_branch_short_name... OK
+  Applying branches.0003_fill_short_names... OK
+  Applying employees.0001_initial... OK
+  Applying employees.0002_alter_employee_department... OK
+  Applying employees.0003_employee_branch... OK
+  Applying employees.0004_employee_archived_at... OK
+  Applying employees.0005_employee_user... OK
+  Applying tasks.0001_initial... OK
+  Applying tasks.0002_alter_task_priority... OK
+  Applying tasks.0003_alter_task_deadline_alter_task_priority_and_more... OK
+  Applying tasks.0004_task_branch... OK
+  Applying finance.0001_initial... OK
+  Applying finance.0002_alter_salary_unique_together_alter_contract_status_and_more... OK
+  Applying finance.0003_transaction_branch... OK
+  Applying operations.0001_initial... OK
+  Applying erp.0001_initial... OK
+  Applying erp.0002_row_boundaries... OK
+  Applying finance.0004_salary_archived_at_transaction_archived_at_and_more... OK
+  Applying finance.0005_alter_transaction_branch_alter_transaction_contract_and_more... OK
+  Applying finance.0006_financialintent... OK
+  Applying finance.0007_money_boundaries... OK
+  Applying operations.0002_actionproposal_user... OK
+  Applying operations.0003_loginattempt... OK
+  Applying operations.0004_alter_document_options_document_access_level... OK
+  Applying operations.0005_invoice_boundaries... OK
+  Applying operations.0006_private_documents... OK
+  Applying sessions.0001_initial...test_corrupted_blob_cannot_be_approved_using_stored_checksum (operations.test_document_integrity.A08DocumentIntegrityTests.test_corrupted_blob_cannot_be_approved_using_stored_checksum) ... ok
+test_corrupted_blob_cannot_be_downloaded_under_original_checksum (operations.test_document_integrity.A08DocumentIntegrityTests.test_corrupted_blob_cannot_be_downloaded_under_original_checksum) ... ok
+test_empty_original_hash_serves_empty_bytes_not_unrelated_text (operations.test_document_integrity.A08DocumentIntegrityTests.test_empty_original_hash_serves_empty_bytes_not_unrelated_text) ... ok
+test_legacy_text_only_download_requires_exact_stored_hash (operations.test_document_integrity.A08DocumentIntegrityTests.test_legacy_text_only_download_requires_exact_stored_hash) ... ok
+test_legacy_text_only_review_requires_exact_stored_hash (operations.test_document_integrity.A08DocumentIntegrityTests.test_legacy_text_only_review_requires_exact_stored_hash) ... ok
+test_metadata_list_and_detail_do_not_select_binary_content (operations.test_document_integrity.A08DocumentIntegrityTests.test_metadata_list_and_detail_do_not_select_binary_content) ... ok
+test_missing_download_permission_is_denied_before_integrity_oracle (operations.test_document_integrity.A08DocumentIntegrityTests.test_missing_download_permission_is_denied_before_integrity_oracle) ... ok
+test_valid_legacy_text_only_remains_downloadable_without_repair (operations.test_document_integrity.A08DocumentIntegrityTests.test_valid_legacy_text_only_remains_downloadable_without_repair) ... ok
+test_confirmation_rechecks_original_bytes_for_quality_change_and_apply_change (erp.test_document_integrity.A08ERPDocumentIntegrityTests.test_confirmation_rechecks_original_bytes_for_quality_change_and_apply_change) ... ok
+test_bound_original_without_recorded_size_is_not_usable (operations.test_document_upload.A08UploadTests.test_bound_original_without_recorded_size_is_not_usable) ... ok
+test_denied_and_oversize_upload_create_no_document_or_file (operations.test_document_upload.A08UploadTests.test_denied_and_oversize_upload_create_no_document_or_file) ... ok
+test_duplicate_version_rolls_back_only_own_new_file (operations.test_document_upload.A08UploadTests.test_duplicate_version_rolls_back_only_own_new_file) ... ok
+test_invalid_quota_configuration_refuses_instead_of_disabling_limit (operations.test_document_upload.A08UploadTests.test_invalid_quota_configuration_refuses_instead_of_disabling_limit) ... ok
+test_late_actual_sql_failure_cleans_new_file_preserves_previous_file (operations.test_document_upload.A08UploadTests.test_late_actual_sql_failure_cleans_new_file_preserves_previous_file) ... ok
+test_missing_or_corrupted_bound_original_never_uses_valid_legacy_backup (operations.test_document_upload.A08UploadTests.test_missing_or_corrupted_bound_original_never_uses_valid_legacy_backup) ... ok
+test_private_file_has_no_raw_media_route_or_permission_bypass (operations.test_document_upload.A08UploadTests.test_private_file_has_no_raw_media_route_or_permission_bypass) ... ok
+test_quota_counts_legacy_blob_and_all_existing_physical_files (operations.test_document_upload.A08UploadTests.test_quota_counts_legacy_blob_and_all_existing_physical_files) ... ok
+test_quota_exact_limit_then_next_byte_refused_without_side_effects (operations.test_document_upload.A08UploadTests.test_quota_exact_limit_then_next_byte_refused_without_side_effects) ... ok
+test_two_real_uploads_cannot_both_spend_one_remaining_quota (operations.test_document_upload.A08UploadTests.test_two_real_uploads_cannot_both_spend_one_remaining_quota) ... ok
+test_upload_persists_private_original_and_reads_after_new_request (operations.test_document_upload.A08UploadTests.test_upload_persists_private_original_and_reads_after_new_request) ... ok
+test_nested_private_media_export_preserves_private_directory_access (erp.test_private_transfer_mode.A08PrivateTransferModeTests.test_nested_private_media_export_preserves_private_directory_access) ... ok
+test_bad_checksum_or_interrupted_stream_cleans_exclusive_partial (operations.test_private_storage.PrivateStorageFiles.test_bad_checksum_or_interrupted_stream_cleans_exclusive_partial) ... ok
+test_bound_missing_or_corrupt_never_falls_back_to_valid_blob (operations.test_private_storage.PrivateStorageFiles.test_bound_missing_or_corrupt_never_falls_back_to_valid_blob) ... ok
+test_corruption_size_conflict_and_buffer_independence (operations.test_private_storage.PrivateStorageFiles.test_corruption_size_conflict_and_buffer_independence) ... ok
+test_exact_10mb_boundary_and_oversize_removes_only_failed_file (operations.test_private_storage.PrivateStorageFiles.test_exact_10mb_boundary_and_oversize_removes_only_failed_file) ... ok
+test_exact_binary_empty_utf8_and_private_permissions (operations.test_private_storage.PrivateStorageFiles.test_exact_binary_empty_utf8_and_private_permissions) ... ok
+test_exclusive_create_and_portable_path_branch_on_real_files (operations.test_private_storage.PrivateStorageFiles.test_exclusive_create_and_portable_path_branch_on_real_files) ... ok
+test_final_symlink_hardlink_and_special_file_refused (operations.test_private_storage.PrivateStorageFiles.test_final_symlink_hardlink_and_special_file_refused) ... ok
+test_invalid_keys_never_read_or_change_files (operations.test_private_storage.PrivateStorageFiles.test_invalid_keys_never_read_or_change_files) ... ok
+test_legacy_exact_bytes_empty_and_exact_utf8_without_repair (operations.test_private_storage.PrivateStorageFiles.test_legacy_exact_bytes_empty_and_exact_utf8_without_repair) ... ok
+test_missing_lookup_false_and_existing_nonprivate_document_directory_refused (operations.test_private_storage.PrivateStorageFiles.test_missing_lookup_false_and_existing_nonprivate_document_directory_refused) ... ok
+test_no_public_urls_raw_open_write_paths_or_delete (operations.test_private_storage.PrivateStorageFiles.test_no_public_urls_raw_open_write_paths_or_delete) ... ok
+test_quota_counts_unbound_physical_files_and_legacy_bytes (operations.test_private_storage.PrivateStorageFiles.test_quota_counts_unbound_physical_files_and_legacy_bytes) ... ok
+test_quota_requires_known_nonnegative_integer_including_callable (operations.test_private_storage.PrivateStorageFiles.test_quota_requires_known_nonnegative_integer_including_callable) ... ok
+test_symlink_in_root_ancestor_document_path_and_quota_refused (operations.test_private_storage.PrivateStorageFiles.test_symlink_in_root_ancestor_document_path_and_quota_refused) ... ok
+test_changed_content_on_owned_inode_is_not_deleted (operations.test_storage_ownership.StorageOwnershipReview.test_changed_content_on_owned_inode_is_not_deleted) ... ok
+test_changed_receipt_payload_and_root_replacement_are_refused (operations.test_storage_ownership.StorageOwnershipReview.test_changed_receipt_payload_and_root_replacement_are_refused) ... ok
+test_commit_finalize_revokes_cleanup_and_raw_delete_stays_forbidden (operations.test_storage_ownership.StorageOwnershipReview.test_commit_finalize_revokes_cleanup_and_raw_delete_stays_forbidden) ... ok
+test_existing_shared_media0755_unchanged_private_subdirs0700 (operations.test_storage_ownership.StorageOwnershipReview.test_existing_shared_media0755_unchanged_private_subdirs0700) ... ok
+test_forged_equal_receipt_or_other_storage_instance_cannot_cleanup (operations.test_storage_ownership.StorageOwnershipReview.test_forged_equal_receipt_or_other_storage_instance_cannot_cleanup) ... ok
+test_replaced_inode_is_not_deleted_even_when_bytes_match (operations.test_storage_ownership.StorageOwnershipReview.test_replaced_inode_is_not_deleted_even_when_bytes_match) ... ok
+test_sql_rollback_discards_only_this_new_file_and_revokes_receipt (operations.test_storage_ownership.StorageOwnershipReview.test_sql_rollback_discards_only_this_new_file_and_revokes_receipt) ... ok
+test_symlink_replacement_cannot_delete_the_destination (operations.test_storage_ownership.StorageOwnershipReview.test_symlink_replacement_cannot_delete_the_destination) ... ok
+
+----------------------------------------------------------------------
+Ran 43 tests in 1.214s
+
+OK
+Destroying test database for alias 'default' ('/workspace/scratch/c7b51e996a9f/tmp/check_a08_recovered_fcaa4357.sqlite3_django_test')...
+ OK
+System check identified no issues (0 silenced).
+BOS_A08_UPLOAD_CONCURRENCY [{"worker": 0, "statuses": [409, 409, 409, 422], "final": 422, "body": "{\"error\": \"\\u041a\\u0432\\u043e\\u0442\\u0443 \\u0441\\u0445\\u043e\\u0432\\u0438\\u0449\\u0430 \\u0434\\u043e\\u043a\\u0443\\u043c\\u0435\\u043d\\u0442\\u0456\\u0432 \\u0432\\u0438\\u0447\\u0435\\u0440\\u043f\\u0430\\u043d\\u043e.\"}"}, {"worker": 1, "statuses": [201], "final": 201, "body": "{\"id\": 10, \"code\": \"A08-PARALLEL-1\", \"revision\": \"A\", \"title\": \"\\u0421\\u0438\\u043d\\u0442\\u0435\\u0442\\u0438\\u0447\\u043d\\u0438\\u0439 \\u0434\\u043e\\u043a\\u0443\\u043c\\u0435\\u043d\\u0442 A08\", \"status\": \"needs_review\", \"filename\": \"a08-evidence.txt\", \"checksum\": \"5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5\", \"contract_id\": null, \"created_at\": \"2026-09-12T08:35:54.899754+00:00\", \"current\": true}"}]
+BOS_A08_TRANSFER_MODES {'media': 448, 'media/documents': 448, 'media/documents/ab': 448, 'media/documents/ab/ab111111111111111111111111111111.blob': 384}

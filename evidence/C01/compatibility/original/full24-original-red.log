@@ -1,0 +1,10 @@
+BOS_DATABASE {"vendor": "sqlite", "version": "3.53.1"}
+
+--- STDERR ---
+Traceback (most recent call last):
+  File "/tmp/bos-verify-wci7nk_f/source/scripts/check_original.py", line 39, in <module>
+    test('keyboard search and native dialog',"e.ctrlKey||e.metaKey" in src and '<dialog ref={dialog}' in src)
+  File "/tmp/bos-verify-wci7nk_f/source/scripts/check_original.py", line 14, in test
+    assert condition,label
+           ^^^^^^^^^
+AssertionError: keyboard search and native dialog

@@ -1,0 +1,109 @@
+test_exact_expected_red_summaries_are_accepted (test_evaluate.ResultSummaryTests.test_exact_expected_red_summaries_are_accepted) ... ok
+test_exact_green_summaries_are_accepted (test_evaluate.ResultSummaryTests.test_exact_green_summaries_are_accepted) ... ok
+test_expected_red_rejects_nonpassing_outcomes (test_evaluate.ResultSummaryTests.test_expected_red_rejects_nonpassing_outcomes) ... 
+  test_expected_red_rejects_nonpassing_outcomes (test_evaluate.ResultSummaryTests.test_expected_red_rejects_nonpassing_outcomes) (red='guard', outcome='skipped=1') ... FAIL
+  test_expected_red_rejects_nonpassing_outcomes (test_evaluate.ResultSummaryTests.test_expected_red_rejects_nonpassing_outcomes) (red='guard', outcome='expected failures=1') ... FAIL
+  test_expected_red_rejects_nonpassing_outcomes (test_evaluate.ResultSummaryTests.test_expected_red_rejects_nonpassing_outcomes) (red='guard', outcome='unexpected successes=1') ... FAIL
+  test_expected_red_rejects_nonpassing_outcomes (test_evaluate.ResultSummaryTests.test_expected_red_rejects_nonpassing_outcomes) (red='invoice', outcome='skipped=1') ... FAIL
+  test_expected_red_rejects_nonpassing_outcomes (test_evaluate.ResultSummaryTests.test_expected_red_rejects_nonpassing_outcomes) (red='invoice', outcome='expected failures=1') ... FAIL
+  test_expected_red_rejects_nonpassing_outcomes (test_evaluate.ResultSummaryTests.test_expected_red_rejects_nonpassing_outcomes) (red='invoice', outcome='unexpected successes=1') ... FAIL
+  test_expected_red_rejects_nonpassing_outcomes (test_evaluate.ResultSummaryTests.test_expected_red_rejects_nonpassing_outcomes) (red='request', outcome='skipped=1') ... FAIL
+  test_expected_red_rejects_nonpassing_outcomes (test_evaluate.ResultSummaryTests.test_expected_red_rejects_nonpassing_outcomes) (red='request', outcome='expected failures=1') ... FAIL
+  test_expected_red_rejects_nonpassing_outcomes (test_evaluate.ResultSummaryTests.test_expected_red_rejects_nonpassing_outcomes) (red='request', outcome='unexpected successes=1') ... FAIL
+test_green_rejects_nonpassing_outcomes (test_evaluate.ResultSummaryTests.test_green_rejects_nonpassing_outcomes) ... ok
+test_missing_or_multiple_summaries_are_refused (test_evaluate.ResultSummaryTests.test_missing_or_multiple_summaries_are_refused) ... 
+  test_missing_or_multiple_summaries_are_refused (test_evaluate.ResultSummaryTests.test_missing_or_multiple_summaries_are_refused) (red=None, summary='OK\nOK\n') ... FAIL
+  test_missing_or_multiple_summaries_are_refused (test_evaluate.ResultSummaryTests.test_missing_or_multiple_summaries_are_refused) (red='guard', summary='FAILED (failures=1)\nFAILED (failures=1)\n') ... FAIL
+
+======================================================================
+FAIL: test_expected_red_rejects_nonpassing_outcomes (test_evaluate.ResultSummaryTests.test_expected_red_rejects_nonpassing_outcomes) (red='guard', outcome='skipped=1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/ci_draft/test_evaluate.py", line 46, in test_expected_red_rejects_nonpassing_outcomes
+    self.assertFalse(harness.evaluate(stage, stdout,
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_expected_red_rejects_nonpassing_outcomes (test_evaluate.ResultSummaryTests.test_expected_red_rejects_nonpassing_outcomes) (red='guard', outcome='expected failures=1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/ci_draft/test_evaluate.py", line 46, in test_expected_red_rejects_nonpassing_outcomes
+    self.assertFalse(harness.evaluate(stage, stdout,
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_expected_red_rejects_nonpassing_outcomes (test_evaluate.ResultSummaryTests.test_expected_red_rejects_nonpassing_outcomes) (red='guard', outcome='unexpected successes=1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/ci_draft/test_evaluate.py", line 46, in test_expected_red_rejects_nonpassing_outcomes
+    self.assertFalse(harness.evaluate(stage, stdout,
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_expected_red_rejects_nonpassing_outcomes (test_evaluate.ResultSummaryTests.test_expected_red_rejects_nonpassing_outcomes) (red='invoice', outcome='skipped=1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/ci_draft/test_evaluate.py", line 46, in test_expected_red_rejects_nonpassing_outcomes
+    self.assertFalse(harness.evaluate(stage, stdout,
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_expected_red_rejects_nonpassing_outcomes (test_evaluate.ResultSummaryTests.test_expected_red_rejects_nonpassing_outcomes) (red='invoice', outcome='expected failures=1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/ci_draft/test_evaluate.py", line 46, in test_expected_red_rejects_nonpassing_outcomes
+    self.assertFalse(harness.evaluate(stage, stdout,
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_expected_red_rejects_nonpassing_outcomes (test_evaluate.ResultSummaryTests.test_expected_red_rejects_nonpassing_outcomes) (red='invoice', outcome='unexpected successes=1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/ci_draft/test_evaluate.py", line 46, in test_expected_red_rejects_nonpassing_outcomes
+    self.assertFalse(harness.evaluate(stage, stdout,
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_expected_red_rejects_nonpassing_outcomes (test_evaluate.ResultSummaryTests.test_expected_red_rejects_nonpassing_outcomes) (red='request', outcome='skipped=1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/ci_draft/test_evaluate.py", line 46, in test_expected_red_rejects_nonpassing_outcomes
+    self.assertFalse(harness.evaluate(stage, stdout,
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_expected_red_rejects_nonpassing_outcomes (test_evaluate.ResultSummaryTests.test_expected_red_rejects_nonpassing_outcomes) (red='request', outcome='expected failures=1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/ci_draft/test_evaluate.py", line 46, in test_expected_red_rejects_nonpassing_outcomes
+    self.assertFalse(harness.evaluate(stage, stdout,
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_expected_red_rejects_nonpassing_outcomes (test_evaluate.ResultSummaryTests.test_expected_red_rejects_nonpassing_outcomes) (red='request', outcome='unexpected successes=1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/ci_draft/test_evaluate.py", line 46, in test_expected_red_rejects_nonpassing_outcomes
+    self.assertFalse(harness.evaluate(stage, stdout,
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_missing_or_multiple_summaries_are_refused (test_evaluate.ResultSummaryTests.test_missing_or_multiple_summaries_are_refused) (red=None, summary='OK\nOK\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/ci_draft/test_evaluate.py", line 68, in test_missing_or_multiple_summaries_are_refused
+    self.assertFalse(harness.evaluate(deepcopy(stage), stdout, stderr + summary))
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_missing_or_multiple_summaries_are_refused (test_evaluate.ResultSummaryTests.test_missing_or_multiple_summaries_are_refused) (red='guard', summary='FAILED (failures=1)\nFAILED (failures=1)\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/ci_draft/test_evaluate.py", line 68, in test_missing_or_multiple_summaries_are_refused
+    self.assertFalse(harness.evaluate(deepcopy(stage), stdout, stderr + summary))
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.002s
+
+FAILED (failures=11)

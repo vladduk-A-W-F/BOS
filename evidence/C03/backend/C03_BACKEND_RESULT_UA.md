@@ -1,0 +1,24 @@
+C03 — завершений кандидат backend для незалежного review; канонічне приймання ще попереду.
+
+Дві нові погоджувані ERP-дії імпортують первинну CSV-виписку та окремо звіряють грошовий запис і оплати рахунків. Три додаткові фінансові реєстри зберігають джерела, глобальні зовнішні ідентифікатори, первинну прив’язку і рознесення. Імпорт сам не створює грошей. Повторне погодження не дублює Transaction, payment Event або рознесення; старі receipts та source bytes зберігаються. Валюти EUR, USD і UAH обчислюються окремо. Вихід за AP, повернення коштів, банківський API чи автоматичне зіставлення не реалізовувався.
+
+Виконання — тільки власні synthetic SQLite/media й code-only кандидат. Прийнята поточна C01 база: commit ed3a299a6c497ed89ca98f12a0957b7d3fb9cdf2, source 9ddc3320… . Canonical checkout не змінювався. Три виправлення C01 full25 взяті точно; два незмінені файли test_schema_preflight.py і check_original.py не включені до переліку C03 інтеграції.
+
+Фактичний red → green:
+- first-before.log: відсутній statement API; first-after-2.log — перші 3/3 сценарії.
+- core-eight-2.log — 8/8. Попередня помилка нового archive fixture використовувала неіснуючий URL; замінена тільки на чинний DELETE/204, без зміни продуктового archive контракту.
+- integrity-before.log: відмова наступного рознесення до того самого bound Transaction, відсутні summary/status/import totals, неправильний logical record CSV та пропущений actual SQL postwrite Transaction.amount drift. Мінімальні backend виправлення; integrity-after-1.log — 10/10. Новий ImportIdentity fixture створює реальний B02 HTTP імпорт замість вигаданих ORM полів.
+- duplicate-payment-before.log: той самий старий payment Event двічі під різними keys помилково давав допустимий preview; тепер явна відмова до proposal.
+- command-limit-before.log та body-upper-before.log: валідні C03 JSON понад 30000 bytes, включно понад 1MiB, помилково мали generic422; тепер413. Старі malformed/інші action-контракти та глобальні ліміти не змінені.
+- final-focused-1.log — 23/23 top-level tests, включно 22 HTTP/parser/integrity і 1 isolated harness із 3 справжніми child migration/typed tests. Це фінальні source bytes, крім двох пояснювальних коментарів у test-only fixtures.
+
+Межа body proof точна: власний Django-presented stream з реальною авторизованою особою, missing/forged Content-Length читає не більше MAX_BODY+1 і повертає413, коротший за declared body400, manager403 до будь-якого read. Це не доказ довільного framing на зовнішньому proxy; чинні Django/upstream ліміти не обійдено. Для SQL fault перевірено справжній AFTER INSERT trigger, який змінює Transaction.amount: 409 і повний rollback. Окремий Invoice-trigger fault не запускався.
+
+Test-only сумісність (TEST_COMPATIBILITY.diff):
+- Чотири existing full typed-transfer тести тепер вимагають точну множину C03_TABLES = попередні53 + finance_statementimport/finance_statementline/finance_statementallocation, рівно56. Усі старі source rows/IDs, media/checksum, sequences, receipt і replay assertions залишені.
+- A08 історичний fixture додатково pin finance0007; чинний C01 tasks0004 pin збережено. Інакше finance0008 знов підтягує ERP0005/A08 latest у source, який мусить бути genuine earlier schema. Перевірки історичних Document/Chat rows/high-water не змінені.
+- B03 lossy-reverse fixture запускається в своєму issued child DB, тепер явно pin finance0007 до original before-state; спочатку перевіряється, що всі три нові statement ledgers порожні. Старий B03 populated-six-ledgers body, reverse guard і whole-state oracle не змінені. Продуктові migration guards не послаблено.
+- preservation-before.log: 11 existing methods, 6 failures саме через додаткові таблиці/міграційні залежності. preservation-after-1.log: усі ті самі11 пройшли; єдиний failure серед12 — новий C03 child oracle помилково очікував незмінний high-water django_migrations після справжнього INSERT recorder.
+- Цей новий oracle виправлено точно: recorder sequence +1, усі business sequences без змін; після reverse recorder rows знов буквальні, high-water не зменшується. Фінальний child3/3 у final-focused-1.log: genuine old53→new56, Transaction high-water70001→next70002; populated reverse відмовляється до schema/rows/sequences/recorder зміни; populated three-model typed transfer зберігає IDs, source bytes, binding JSON та два literal receipts. Replay дозволяє лише exact ERP mutex value.revision +2; кожне інше Configuration поле та решта таблиць незмінні.
+
+Access та G5 належать окремим агентам, інтегруються тільки їхні заморожені файли. Їхні accepted baseline IDs/records/field assertions не послаблені; фінальний manifest посилається на окремі точні звіти та SHA. Native restore/E2E/UI належать root і окремо приймаються ним; не видаються за наш запуск. PostgreSQL, зовнішня публікація, browser/A09 і повний C03 verify тут не запускалися.

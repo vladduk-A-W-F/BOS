@@ -1,0 +1,82 @@
+Found 2 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: django_filters, messages, rest_framework, staticfiles
+  Apply all migrations: admin, ai_assistant, auth, branches, contenttypes, employees, erp, finance, operations, sessions, tasks
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying ai_assistant.0001_initial... OK
+  Applying ai_assistant.0002_taskchangelog... OK
+  Applying ai_assistant.0003_claudeusagelog... OK
+  Applying ai_assistant.0004_employeechangelog... OK
+  Applying ai_assistant.0005_chatfile... OK
+  Applying ai_assistant.0006_alter_chatmessage_created_at_and_more... OK
+  Applying ai_assistant.0007_employeechangelog_undone_at... OK
+  Applying ai_assistant.0008_chatmessage_archived_at_chatmessage_user_and_more... OK
+  Applying ai_assistant.0009_private_documents... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying branches.0001_initial... OK
+  Applying branches.0002_branch_short_name... OK
+  Applying branches.0003_fill_short_names... OK
+  Applying employees.0001_initial... OK
+  Applying employees.0002_alter_employee_department... OK
+  Applying employees.0003_employee_branch... OK
+  Applying employees.0004_employee_archived_at... OK
+  Applying employees.0005_employee_user... OK
+  Applying tasks.0001_initial... OK
+  Applying tasks.0002_alter_task_priority... OK
+  Applying tasks.0003_alter_task_deadline_alter_task_priority_and_more... OK
+  Applying tasks.0004_task_branch... OK
+  Applying finance.0001_initial... OK
+  Applying finance.0002_alter_salary_unique_together_alter_contract_status_and_more... OK
+  Applying finance.0003_transaction_branch... OK
+  Applying operations.0001_initial... OK
+  Applying operations.0002_actionproposal_user... OK
+  Applying operations.0003_loginattempt... OK
+  Applying operations.0004_alter_document_options_document_access_level... OK
+  Applying operations.0005_invoice_boundaries... OK
+  Applying operations.0006_private_documents... OK
+  Applying finance.0004_salary_archived_at_transaction_archived_at_and_more... OK
+  Applying finance.0005_alter_transaction_branch_alter_transaction_contract_and_more... OK
+  Applying finance.0006_financialintent... OK
+  Applying finance.0007_money_boundaries... OK
+  Applying erp.0001_initial... OK
+  Applying erp.0002_row_boundaries... OK
+  Applying erp.0003_purchase_source... OK
+  Applying erp.0004_initial_import_ledger... OK
+  Applying erp.0005_source_corrections... OK
+  Applying finance.0008_statement_ledgers... OK
+  Applying sessions.0001_initial... OK
+  Applying tasks.0005_controlled_tasks... OK
+System check identified no issues (0 silenced).
+ORDER_TRACE_SAMPLE {"as_of": "2026-09-20", "completeness": "complete", "limits": {"has_more": {"invoices": false, "jobs": false, "lines": false, "tasks": false}, "per_section": 100}, "lines": [{"basis": "Відвантажено — історична кількість позиції; фізичне повернення її не зменшує. Відкрито = замовлено − відвантажено − скасовано.", "cancelled": "2.000", "completeness": "complete", "has_more": {"cancellations": false, "lot_origins": false, "reservations": false, "shipments": false}, "item": {"code": "A04-ITEM", "id": 1, "name": "Виріб A04", "unit": "шт."}, "line_id": 1, "open": "6.000", "ordered": "10.000", "revision": "A", "shipped": "2.000", "source_refs": {"cancellations": [{"created_at": "2026-09-20T11:10:55.800Z", "id": 1, "quantity": "2.000"}], "line": {"id": 1, "type": "sales_line"}, "lot_origins": [{"lot_id": 1, "purchase_id": 1, "receipt_id": 2, "relation": "lot_origin"}], "reservations": [{"id": 1, "lot_id": 1, "quantity": "3.125", "usable": true}], "shipments": [{"created_at": "2026-09-20T11:10:55.771Z", "id": 1, "lot_id": 1, "quantity": "-2.000"}]}, "usable_reserved": "3.125"}], "linked_invoice_refs": [{"code": "A04-INV-EUR", "currency": "EUR", "due_date": "2026-09-17", "invoice_id": 1}, {"code": "A04-INV-USD", "currency": "USD", "due_date": "2026-09-17", "invoice_id": 2}, {"code": "A04-INV-UAH", "currency": "UAH", "due_date": "2026-09-17", "invoice_id": 3}], "linked_jobs": [{"code": "TRACE-JOB", "due_date": "2026-09-20", "id": 1, "line_id": 1, "owner": {"id": 1, "name": "Синтетичний Працівник A04", "role": "job_owner"}, "status": "planned"}], "linked_tasks": [{"assignee": {"id": 1, "name": "Синтетичний Працівник A04", "role": "task_assignee"}, "deadline": "2026-09-19", "id": 1, "status": "active", "title": "Відкрите доручення A04"}], "order": {"code": "A04-SO-OPEN", "due_date": "2026-12-19", "id": 1, "owner": {"id": 1, "name": "Синтетичний Працівник A04", "role": "order_owner"}, "status": "confirmed"}, "schema": "bos.order-trace.v1", "scope": {"message": "Призначення очікуваних закупівель цьому замовленню не зафіксовано", "order_id": 1, "purchase_allocation": "not_recorded"}, "access_revision": "60d3581bdff57fe71f8c90d1752ec20da850b1aa279cfa3a06deb3aab4d4ce16", "generated_at": "2026-09-20T11:10:55.842749+00:00"}
+ORDER_TRACE_SYNTHETIC_METRIC {"sql_count": 76, "elapsed_seconds": 0.04061, "backend": "sqlite", "lines": 1, "reservations": 1, "shipments": 1, "scope": "small fixture only"}
+
+--- STDERR ---
+Creating test database for alias 'default' ('/tmp/bos-targeted-wzkp2a5v/check_98382a8b15814bfa8456724496cc31c8.sqlite3_django_test')...
+Destroying old test database for alias 'default' ('/tmp/bos-targeted-wzkp2a5v/check_98382a8b15814bfa8456724496cc31c8.sqlite3_django_test')...
+test_trace_decimal_sources_and_read_only (erp.test_order_trace.OrderTraceTests.test_trace_decimal_sources_and_read_only) ... ok
+test_hidden_shipment_keeps_admitted_line_quantity_without_source_leak (erp.test_order_trace.OrderTraceTests.test_hidden_shipment_keeps_admitted_line_quantity_without_source_leak) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.259s
+
+OK
+Destroying test database for alias 'default' ('/tmp/bos-targeted-wzkp2a5v/check_98382a8b15814bfa8456724496cc31c8.sqlite3_django_test')...

@@ -1,0 +1,32 @@
+{
+  "complete": false,
+  "scope": "actual operator CLI on previously self-created synthetic company; no upgrade/rollback",
+  "checks": [
+    {
+      "case": "actual_offline_backup_cli_and_clean_stop",
+      "passed": true
+    },
+    {
+      "case": "actual_foreground_server_ready",
+      "passed": true
+    },
+    {
+      "case": "stdin_running_status",
+      "passed": true
+    },
+    {
+      "case": "stdin_live_backup_under_quiescence",
+      "passed": true
+    },
+    {
+      "case": "explicit_quiescent_status_after_backup",
+      "passed": true
+    },
+    {
+      "case": "explicit_resume_restarts_owned_server",
+      "passed": true
+    }
+  ],
+  "error_type": "AssertionError",
+  "reason": ""
+}

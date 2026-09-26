@@ -1,0 +1,33 @@
+Creating test database for alias 'default'...
+Destroying old test database for alias 'default'...
+FF.................................................................................................................................................................
+======================================================================
+FAIL: test_delete_history_removes_messages_and_files (ai_assistant.tests.ChatHistoryTestCase.test_delete_history_removes_messages_and_files)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/ai_assistant/tests.py", line 31, in test_delete_history_removes_messages_and_files
+    self.assertEqual(ChatMessage.objects.count(), 0)
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_list_history_returns_oldest_first (ai_assistant.tests.ChatHistoryTestCase.test_list_history_returns_oldest_first)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sites/bos-original-refined/ai_assistant/tests.py", line 20, in test_list_history_returns_oldest_first
+    self.assertEqual([m['role'] for m in resp.data], ['user', 'assistant'])
+AssertionError: Lists differ: [] != ['user', 'assistant']
+
+Second list contains 2 additional elements.
+First extra element 0:
+'user'
+
+- []
++ ['user', 'assistant']
+
+----------------------------------------------------------------------
+Ran 163 tests in 40.701s
+
+FAILED (failures=2)
+Destroying test database for alias 'default'...
+Found 163 test(s).
+System check identified no issues (0 silenced).

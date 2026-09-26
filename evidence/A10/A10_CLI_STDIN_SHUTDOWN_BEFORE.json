@@ -1,0 +1,19 @@
+{
+  "scope": "InputReader interpreter lifecycle only; no BoS/DB/HTTP",
+  "candidate_sha256": "99fa1717c55662aec4d51107c08e2758383a247fe90f048af87cd5575bd46394",
+  "stdin_kept_open_until_process_exit": true,
+  "events": [
+    {
+      "event": "ready"
+    },
+    {
+      "event": "stop_ack",
+      "reader_alive": true
+    }
+  ],
+  "exit_code": -6,
+  "forced": false,
+  "stdin_still_open_at_exit": true,
+  "stderr": "Fatal Python error: _enter_buffered_busy: could not acquire lock for <_io.BufferedReader name='<stdin>'> at interpreter shutdown, possibly due to daemon threads\nPython runtime state: finalizing (tstate=0x00000000015b7de0)\n\nCurrent thread 0x00007f3fe1425740 (most recent call first):\n  <no Python frame>\n",
+  "remaining_stdout": ""
+}

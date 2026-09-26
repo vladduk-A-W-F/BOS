@@ -1,0 +1,191 @@
+name: BoS Network — адресне приймання
+'on':
+  push:
+    branches: [feat/network-operations-20260920]
+    paths:
+      - .github/ci/network_pg.py
+      - .github/ci/network_browser_acceptance.py
+      - .github/workflows/bos-network-targeted.yml
+permissions:
+  contents: read
+concurrency:
+  group: bos-network-targeted-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  scope:
+    if: github.event_name == 'push' && github.repository == 'vladduk-A-W-F/BOS' && github.ref == 'refs/heads/feat/network-operations-20260920' && github.run_attempt == '1' && !github.event.deleted && !github.event.forced
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    outputs:
+      run: ${{ steps.scope.outputs.run }}
+    steps:
+      - name: Точний кандидат
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Токен одного погодженого коміту
+        id: scope
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          def git(*args):
+              return subprocess.check_output(['git', *args], text=True).strip()
+          event = json.loads(Path(os.environ['GITHUB_EVENT_PATH']).read_text())
+          paths = {'.github/ci/network_pg.py', '.github/ci/network_browser_acceptance.py', '.github/workflows/bos-network-targeted.yml'}
+          changed = set(git('diff-tree', '--no-commit-id', '--name-only', '-r', 'HEAD^', 'HEAD').splitlines())
+          token = '[bos-network-acceptance:20260920-01]'
+          run = (bool(changed & paths) and token in git('log', '-1', '--format=%B').splitlines()
+                 and token in event.get('head_commit', {}).get('message', '').splitlines()
+                 and git('rev-parse', 'HEAD') == os.environ['GITHUB_SHA'] == event.get('after'))
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('run=' + str(run).lower() + '\n')
+          status = 'RUN: нові адресні сценарії поточного погодженого коміту.' if run else 'SKIPPED: немає точного токена/CI-зміни; сценарії не запускались.'
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write(status + '\n')
+          print(status)
+          PY
+  postgres:
+    needs: scope
+    if: needs.scope.outputs.run == 'true' && github.run_attempt == '1'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: bos_ci
+          POSTGRES_PASSWORD: bos_synthetic_ci_only
+          POSTGRES_DB: postgres
+        ports: [5432/tcp]
+        options: --health-cmd "pg_isready -U bos_ci -d postgres" --health-interval 5s --health-timeout 5s --health-retries 12 --tmpfs /var/lib/postgresql/data:rw
+    env:
+      PYTHONUTF8: '1'
+      PYTHONDONTWRITEBYTECODE: '1'
+      BOS_DATA_MODE: demo
+      BOS_PG_DISPOSABLE: '1'
+      BOS_PGHOST: 127.0.0.1
+      BOS_PGUSER: bos_ci
+      BOS_PGPASSWORD: bos_synthetic_ci_only
+      BOS_NETWORK_CANDIDATE_SHA: ${{ github.sha }}
+    steps:
+      - name: Кандидат
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.sha }}
+          path: candidate
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Python 3.12
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12'
+      - name: Каталог доказів
+        if: always()
+        env:
+          BOS_NETWORK_OUTPUT: ${{ runner.temp }}/bos-network-pg-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          mkdir -p "$BOS_NETWORK_OUTPUT"
+          echo "BOS_NETWORK_OUTPUT=$BOS_NETWORK_OUTPUT" >> "$GITHUB_ENV"
+      - name: Залежності з окремими журналами
+        run: python -m pip install -r candidate/requirements-ci.txt > "$BOS_NETWORK_OUTPUT/dependencies.stdout.log" 2> "$BOS_NETWORK_OUTPUT/dependencies.stderr.log"
+      - name: Два нові конкурентні сценарії PostgreSQL 16
+        env:
+          BOS_PGPORT: ${{ job.services.postgres.ports[5432] }}
+        run: python -B candidate/.github/ci/network_pg.py --output "$BOS_NETWORK_OUTPUT"
+      - name: Докази, включно з невиконаним запуском
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, subprocess, sys
+          from pathlib import Path
+          output = Path(os.environ['BOS_NETWORK_OUTPUT'])
+          output.mkdir(parents=True, exist_ok=True)
+          harness = Path('candidate/.github/ci/network_pg.py')
+          if harness.is_file():
+              subprocess.run([sys.executable, '-B', str(harness), '--output', str(output), '--finalize-only'], check=True)
+          else:
+              report = {'card': 'NETWORK-PG', 'status': 'BLOCKED_CHECKOUT_OR_SETUP', 'accepted_scoped': False,
+                        'technical_ready': False, 'pilot_allowed': False, 'full_run': False, 'business_e2e_run': False}
+              (output / 'report.json').write_text(json.dumps(report, indent=2) + '\n')
+              files = {p.relative_to(output).as_posix(): {'sha256': hashlib.sha256(p.read_bytes()).hexdigest(),
+                       'bytes': p.stat().st_size} for p in output.rglob('*') if p.is_file() and p.name != 'sha256-index.json'}
+              (output / 'sha256-index.json').write_text(json.dumps({'schema': 'bos.network.pg.sha256.v1', 'files': files}, indent=2) + '\n')
+          PY
+      - name: Зберегти адресні докази
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: bos-network-pg-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/bos-network-pg-${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: error
+          retention-days: 30
+          include-hidden-files: false
+  browser:
+    needs: scope
+    if: needs.scope.outputs.run == 'true' && github.run_attempt == '1'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PYTHONUTF8: '1'
+      PYTHONDONTWRITEBYTECODE: '1'
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+      BOS_NETWORK_CANDIDATE_SHA: ${{ github.sha }}
+      BOS_NETWORK_RUNTIME_SHA256: c15dfe0e3aeefde2fd4fa7af0e9dd2c7c04072a59b185554b821576b4c2111ca
+    steps:
+      - name: Exact candidate
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.sha }}
+          path: candidate
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Python 3.12
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12'
+      - name: Evidence directory
+        if: always()
+        env:
+          BOS_NETWORK_BROWSER_OUTPUT: ${{ runner.temp }}/bos-network-browser-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          mkdir -p "$BOS_NETWORK_BROWSER_OUTPUT"
+          echo "BOS_NETWORK_BROWSER_OUTPUT=$BOS_NETWORK_BROWSER_OUTPUT" >> "$GITHUB_ENV"
+      - name: Require preinstalled Chrome without downloads
+        run: |
+          python3 - <<'PY'
+          import os, pathlib, shutil, subprocess
+          path = shutil.which('google-chrome') or shutil.which('google-chrome-stable')
+          if not path:
+              raise SystemExit('BLOCKED: preinstalled Chrome absent; no browser download fallback')
+          result = subprocess.run([path, '--version'], text=True, capture_output=True, check=True)
+          pathlib.Path(os.environ['BOS_NETWORK_BROWSER_OUTPUT'], 'chrome-preflight.log').write_text(path + '\n' + result.stdout)
+          PY
+      - name: Existing Python dependencies and browser driver only
+        run: python -m pip install -r candidate/requirements-ci.txt > "$BOS_NETWORK_BROWSER_OUTPUT/dependencies.stdout.log" 2> "$BOS_NETWORK_BROWSER_OUTPUT/dependencies.stderr.log"
+      - name: One new bounded network browser scope
+        run: python -B candidate/.github/ci/network_browser_acceptance.py --output "$BOS_NETWORK_BROWSER_OUTPUT" > "$BOS_NETWORK_BROWSER_OUTPUT/harness.stdout.log" 2> "$BOS_NETWORK_BROWSER_OUTPUT/harness.stderr.log"
+      - name: Finalize available evidence
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, subprocess, sys
+          out = pathlib.Path(os.environ['BOS_NETWORK_BROWSER_OUTPUT'])
+          out.mkdir(parents=True, exist_ok=True)
+          harness = pathlib.Path('candidate/.github/ci/network_browser_acceptance.py')
+          if harness.is_file():
+              subprocess.run([sys.executable, '-B', str(harness), '--output', str(out), '--finalize-only'], check=True)
+          else:
+              (out / 'report.json').write_text(json.dumps({'status':'BLOCKED_CHECKOUT', 'accepted_scoped':False, 'browser_run':False, 'technical_ready':False, 'pilot_allowed':False}) + '\n')
+              (out / 'sha256-index.json').write_text(json.dumps({p.name: {'sha256':hashlib.sha256(p.read_bytes()).hexdigest(), 'bytes':p.stat().st_size} for p in out.iterdir() if p.is_file() and p.name != 'sha256-index.json'}, indent=2) + '\n')
+          PY
+      - name: Browser receipts and screenshots
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: bos-network-browser-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/bos-network-browser-${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: error
+          retention-days: 30

@@ -1,0 +1,160 @@
+{
+  "product": "BoS",
+  "synthetic": true,
+  "instruction": "Приклади незалежні. ID чинні тільки для свіжого демо; звірте з поточним експортом. Не виконуйте пакет автоматично. Кожну дію погоджує користувач.",
+  "read_scenarios": [
+    {
+      "question": "Поясни SO-101",
+      "expected": "50 до поставки, 10 резерв, 40 забезпечити; 32 кг / 80 кріплень; дефіцит до закупівель 8 / 20."
+    },
+    {
+      "question": "Чому не можна відвантажити LOT-FG-HOLD?",
+      "expected": "Партію заблоковано, немає обов’язкового сертифіката; 10 фізичних одиниць не є придатними."
+    },
+    {
+      "question": "Чи можна резерв SO-101 віддати SO-102?",
+      "expected": "Спершу потрібне окреме рішення та звільнення резерву; один і той самий запас не резервується двічі."
+    },
+    {
+      "question": "Що потрібно для старту MO-101?",
+      "expected": "Передати матеріали на VENDOR-A, перевірити якість, зарезервувати 32 кг і 80 кріплень, погодити версію."
+    },
+    {
+      "question": "Що станеться після ECO-101?",
+      "expected": "Версія номенклатури B; відкриті роботи на перегляді; прийняті продажі та зафіксована версія робіт не переписуються."
+    }
+  ],
+  "action_examples": [
+    {
+      "purpose": "Погоджене перенесення поставки",
+      "payload": {
+        "action": "erp_postpone",
+        "purchase_id": 1,
+        "due_date": "2026-09-18",
+        "reason": "Навчальне підтвердження постачальника"
+      }
+    },
+    {
+      "purpose": "Передача наявного матеріалу підряднику",
+      "payload": {
+        "action": "erp_transfer",
+        "lot_id": 1,
+        "quantity": "24",
+        "location_id": 3,
+        "code": "V-MAT-AI",
+        "reason": "Давальницький матеріал MO-101",
+        "production_id": 1
+      }
+    },
+    {
+      "purpose": "Приймання закупівлі у підрядника",
+      "payload": {
+        "action": "erp_receive",
+        "purchase_id": 1,
+        "code": "RCV-MAT-AI",
+        "location_id": 3,
+        "quantity": "8",
+        "documents": {
+          "certificate": 16
+        }
+      }
+    },
+    {
+      "purpose": "Доручення відповідальному",
+      "payload": {
+        "action": "create_task",
+        "title": "Підтвердити матеріали й графік MO-101",
+        "assignee_id": 3,
+        "deadline": "2026-09-11"
+      }
+    }
+  ],
+  "nested_parameters": {
+    "bom": [
+      {
+        "item_id": 1,
+        "quantity": "0.8"
+      }
+    ],
+    "lines": [
+      {
+        "item_id": 3,
+        "quantity": "50",
+        "price": "120"
+      }
+    ],
+    "routing": [
+      {
+        "name": "Виготовлення",
+        "instruction": "Виконати погоджені вимоги",
+        "days": 2
+      }
+    ],
+    "documents": {
+      "certificate": 16
+    },
+    "external_codes": {
+      "Код клієнта": "CLIENT-101",
+      "Код постачальника": "SUP-101"
+    },
+    "required_documents": [
+      "certificate"
+    ]
+  },
+  "enums": {
+    "currency": [
+      "EUR",
+      "UAH",
+      "USD"
+    ],
+    "item.kind": [
+      "product",
+      "material",
+      "component"
+    ],
+    "item.method": [
+      "buy",
+      "make",
+      "subcontract"
+    ],
+    "location.kind": [
+      "warehouse",
+      "production",
+      "supplier"
+    ],
+    "quality.result": [
+      "approved",
+      "blocked",
+      "rework"
+    ],
+    "operator.result": [
+      "done",
+      "paused",
+      "defect"
+    ]
+  },
+  "types": {
+    "ids": "Цілі позитивні числа; не рядки",
+    "dates": "YYYY-MM-DD",
+    "quantity": "Позитивний десятковий рядок, до 3 знаків після крапки",
+    "money": "Невід’ємний десятковий рядок, до 2 знаків після крапки",
+    "minutes": "Ціле число",
+    "days": "Ціле число",
+    "reserve": "Вкажіть рівно один із line_id / production_id",
+    "documents": "Тип документа → ID перевіреного документа",
+    "finish.labor_cost": "Витрати робіт лише для поточної кількості випуску, не весь бюджет роботи",
+    "purchase.quote_id": "ID доступної пропозиції; разом із request_id і явно зіставленою номенклатурою. Постачальник, версія, валюта, ціна й додаткові витрати мають точно відповідати пропозиції.",
+    "purchase.supplier_confirmation": "Обов’язкове для quote_id посилання менеджера на підтвердження обраних кількості й due_date, 3–1000 символів. Це засвідчення менеджера, не незалежна перевірка постачальника; calculated_arrival не є гарантією.",
+    "purchase.direct_reason": "Без quote_id потрібна явна причина прямої закупівлі, 3–1000 символів. Не вигадуй погодження для історичних PO.",
+    "purchase.quantity": "Розподіл вимоги: сума quantity мінус погоджені скасування PO не перевищує вимогу. Фізичне повернення не звільняє місце для замінної закупівлі.",
+    "purchase.due_date": "Погоджена дата не раніше as_of; для пов’язаної вимоги — не пізніше required_by. Зміна кількості чи дати потребує актуального перегляду й явного supplier_confirmation.",
+    "correction.operation_id": "Canonical UUID4 одного наміру. Після невідомого результату зберігай той самий UUID і proposal_id; не повторюй як нову операцію.",
+    "correction.business_date": "YYYY-MM-DD не пізніше as_of; reversal/підтвердження вимоги не раніше джерельного документа.",
+    "cancel_remaining": "Рівно line_id або purchase_id, quantity>0. Скасовується лише невиконаний залишок; первісні кількості й виконання не переписуються.",
+    "return_supplier.receipt_id": "Фактичний positive receipt Movement із доступним PO/source lot. Облікова вартість розподіляється сервером; claim окремий, кошти не повертаються.",
+    "return_from_shipment.shipment_id": "Фактичний negative shipment Movement. Нова партія заблокована до перевірки; shipped/invoiced не зменшуються.",
+    "credit_invoice.allocations": "basis=return: [{return_id,invoice_line_index,quantity}]; basis=commercial: [{invoice_line_index,amount}] +source_document_id. Порядковий index береться з invoice.credit_basis.lines; суми/ліміти обчислює сервер.",
+    "reverse_credit.credit_id": "ID одного credit для повного сторнування; власні amount/quantity не передаються.",
+    "confirm_supplier_claim": "claim_id pending, amount>=0 (0 не дорівнює невідомій сумі), та сама currency, actual approved source_document_id. Лише CEO; без банківської виплати."
+  }
+}

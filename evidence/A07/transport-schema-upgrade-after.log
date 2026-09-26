@@ -1,0 +1,14 @@
+.....................................
+----------------------------------------------------------------------
+Ran 37 tests in 9.154s
+
+OK
+Found 37 test(s).
+System check identified no issues (0 silenced).
+BOS_A07_MIGRATION {"applied": true, "backend": "sqlite", "case": "sequence", "database_version": "3.53.1", "ddl_unchanged": false, "denied": null, "next_ids": [90002, 90003], "passed": true, "reverse_rows_unchanged": true, "reverse_sequence": 90001, "rows_unchanged": true, "sequence_after": 90001, "sequence_before": 90001}
+BOS_A07_MIGRATION {"applied": true, "backend": "sqlite", "case": "sequence_empty", "database_version": "3.53.1", "ddl_unchanged": false, "denied": null, "next_ids": [90002, 90003], "passed": true, "reverse_rows_unchanged": true, "reverse_sequence": 90001, "rows_unchanged": true, "sequence_after": 90001, "sequence_before": 90001}
+BOS_A07_MIGRATION {"applied": true, "backend": "sqlite", "case": "sequence_current", "database_version": "3.53.1", "ddl_unchanged": false, "denied": null, "next_ids": [8, 9], "passed": true, "reverse_rows_unchanged": true, "reverse_sequence": 7, "rows_unchanged": true, "sequence_after": 7, "sequence_before": 5}
+BOS_A07_MIGRATION {"applied": false, "backend": "sqlite", "case": "finance", "database_version": "3.53.1", "ddl_unchanged": true, "denied": "CHECK constraint failed: finance_transaction_amount", "passed": true, "rows_unchanged": true, "sequence_after": 1, "sequence_before": 1}
+BOS_A07_MIGRATION {"applied": false, "backend": "sqlite", "case": "operations", "database_version": "3.53.1", "ddl_unchanged": true, "denied": "CHECK constraint failed: bos_invoice_paid_range", "passed": true, "rows_unchanged": true, "sequence_after": 1, "sequence_before": 1}
+BOS_A07_MIGRATION {"applied": false, "backend": "sqlite", "case": "erp", "database_version": "3.53.1", "ddl_unchanged": true, "denied": "CHECK constraint failed: erp_purchase_quantity", "passed": true, "rows_unchanged": true, "sequence_after": 1, "sequence_before": 1}
+BOS_A07_MIGRATION {"applied": false, "backend": "sqlite", "case": "sequence_null", "database_version": "3.53.1", "ddl_unchanged": true, "denied": "Invalid SQLite sequence metadata for operations_invoice", "passed": true, "rows_unchanged": true, "sequence_after": null, "sequence_before": null}

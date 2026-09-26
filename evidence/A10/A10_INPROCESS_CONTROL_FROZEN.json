@@ -1,0 +1,32 @@
+{
+  "scope": "same-process control candidate, no IPC or backup/restore/upgrade gate",
+  "actual_result": "/workspace/scratch/c7b51e996a9f/tmp/A10_INPROCESS_CONTROL_RESULT.json",
+  "files": {
+    "a10_inprocess_draft/scripts/maintenance_control.py": {
+      "path": "/workspace/scratch/c7b51e996a9f/tmp/a10_inprocess_draft/scripts/maintenance_control.py",
+      "sha256": "4e9b33059b6faa7bb8a03a6dedecfc08d29493e0f0333fb231920c6e80714223"
+    },
+    "a10_inprocess_draft/wsgi_fixture.py": {
+      "path": "/workspace/scratch/c7b51e996a9f/tmp/a10_inprocess_draft/wsgi_fixture.py",
+      "sha256": "8711a89570e1282e697511868652805c78454ae43bf715423e64b22dd868c67b"
+    },
+    "a10_inprocess_draft/control_probe.py": {
+      "path": "/workspace/scratch/c7b51e996a9f/tmp/a10_inprocess_draft/control_probe.py",
+      "sha256": "cd95dfe2f69bd30f1e18a44403b3155d96f1567e9a5e1389ff2bd293615b3750"
+    },
+    "a10_drain_draft/start_server.py": {
+      "path": "/workspace/scratch/c7b51e996a9f/tmp/a10_drain_draft/start_server.py",
+      "sha256": "f25b421aa9f5c2542ebecbe5cea3f6a70bad25d6bbfb8e27accbe01e3eced6c6"
+    },
+    "a10_inprocess_draft/scripts/managed_runtime.py": {
+      "path": "/workspace/scratch/c7b51e996a9f/tmp/a10_inprocess_draft/scripts/managed_runtime.py",
+      "sha256": "85e9ad9d42af5b30cdef1d56f0f7fb8a9c0744ad614a8885b6fea77a10cb10f7",
+      "actual_Django_callback_proof": "root pending"
+    }
+  },
+  "independent_review": {
+    "reviewer": "a09_server_review",
+    "status": "scoped source consensus; no blocking defect in same-process control or adapter",
+    "limits": "not IPC/daemon/backup/restore/upgrade gate"
+  }
+}

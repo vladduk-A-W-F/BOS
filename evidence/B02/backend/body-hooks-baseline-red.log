@@ -1,0 +1,27 @@
+test_local_and_server_hooks_reject_before_downstream_parsing (erp.test_import_body.ImportBodyBoundaryTests.test_local_and_server_hooks_reject_before_downstream_parsing) ... FAIL
+
+======================================================================
+FAIL: test_local_and_server_hooks_reject_before_downstream_parsing (erp.test_import_body.ImportBodyBoundaryTests.test_local_and_server_hooks_reject_before_downstream_parsing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/demo-check-env/lib/python3.12/site-packages/django/test/utils.py", line 458, in inner
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/b02_candidate/source/erp/test_import_body.py", line 39, in test_local_and_server_hooks_reject_before_downstream_parsing
+    self.assertEqual(called,[]);self.assertEqual(response.status_code,413);self.assertEqual(stream.requested,[MAX_BODY+1])
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [<QueryDict: {}>] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+<QueryDict: {}>
+
+- [<QueryDict: {}>]
++ []
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=1)
+BASELINE_SHA boss_project/demo_middleware.py 3da095d8c24efe08d55258812d574fa68773c3575a86cfb43e422ba65cead83f
+BASELINE_SHA boss_project/server_config.py a522c9782dc25532337711b4fc830b251a06f8240cd76a6d1c3c52abd3afa0eb

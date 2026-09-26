@@ -1,0 +1,204 @@
+{
+  "batch": "BATCH-02",
+  "scope": "new-card focused regressions only",
+  "started_at": "2026-09-20T11:28:16.034398+00:00",
+  "accepted_scoped": true,
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "full_run": false,
+  "business_e2e_run": false,
+  "historical_p05_used": 3,
+  "historical_p05_limit": 3,
+  "A09_retried": false,
+  "A10_retried": false,
+  "A11_retried": false,
+  "candidate_commit": "8060075455206257d6283c70906facca98f0bc1a",
+  "run_id": "35507888776",
+  "run_attempt": "1",
+  "python": "3.12.14",
+  "checks": [
+    {
+      "label": "postgres-order-trace",
+      "source": "candidate",
+      "labels": [
+        "erp.test_order_trace.OrderTraceTests"
+      ],
+      "expected_tests": 18,
+      "expected_red": null,
+      "timeout_seconds": 180,
+      "mode": "postgres16",
+      "status": "PASS",
+      "accepted": true,
+      "effective_timeout_seconds": 180,
+      "started_at": "2026-09-20T11:28:16.651638+00:00",
+      "source_sha256": "ce495b29214f21a80b8efd5bf41f6f219b5cb182b0453a7c43dac8899bc06ed5",
+      "commit": "8060075455206257d6283c70906facca98f0bc1a",
+      "stdout_log": "postgres-order-trace.stdout.log",
+      "stderr_log": "postgres-order-trace.stderr.log",
+      "source_database": "bos_verify_e4990e32bd2b4f38",
+      "source_canary_before": {
+        "database": "bos_verify_e4990e32bd2b4f38",
+        "version_num": 160015,
+        "tables": [
+          [
+            "public",
+            "bos_batch_source_canary",
+            "BASE TABLE"
+          ]
+        ],
+        "rows": [
+          [
+            1,
+            "Synthetic BATCH-01 source must remain unchanged"
+          ]
+        ]
+      },
+      "command": [
+        "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+        "-B",
+        "-c",
+        "\nimport json, logging, os, sys\nos.environ['DJANGO_SETTINGS_MODULE'] = 'verification_settings'\nimport django\ndjango.setup()\n# Preserve the actual SQL exception behind expected red HTTP 500 responses.\nrequest_logger = logging.getLogger('django.request')\nrequest_logger.setLevel(logging.ERROR)\nrequest_logger.addHandler(logging.StreamHandler())\nfrom django.db import connection\nfrom django.test.runner import DiscoverRunner\n\nclass FocusedRunner(DiscoverRunner):\n    def setup_databases(self, **kwargs):\n        old_config = super().setup_databases(**kwargs)\n        with connection.cursor() as cursor:\n            cursor.execute(\"SELECT current_database(), current_setting('server_version_num')\")\n            name, version = cursor.fetchone()\n        proof = {'vendor': connection.vendor, 'database': name, 'version_num': int(version)}\n        print('BOS_BATCH_TEST_DATABASE ' + json.dumps(proof), flush=True)\n        if (proof['vendor'] != 'postgresql' or not 160000 <= proof['version_num'] < 170000\n                or name != 'test_' + os.environ['BOS_TEST_DB_NAME']):\n            raise RuntimeError('Refuse unexpected test database or PostgreSQL version')\n        return old_config\n\nraise SystemExit(bool(FocusedRunner(verbosity=2, interactive=False).run_tests(sys.argv[1:])))\n",
+        "erp.test_order_trace.OrderTraceTests"
+      ],
+      "exit_code": 0,
+      "source_canary_after": {
+        "database": "bos_verify_e4990e32bd2b4f38",
+        "version_num": 160015,
+        "tables": [
+          [
+            "public",
+            "bos_batch_source_canary",
+            "BASE TABLE"
+          ]
+        ],
+        "rows": [
+          [
+            1,
+            "Synthetic BATCH-01 source must remain unchanged"
+          ]
+        ]
+      },
+      "source_database_unchanged": true,
+      "observed_test_counts": [
+        18
+      ],
+      "test_summaries": [
+        "OK"
+      ],
+      "disallowed_test_outcomes": [],
+      "test_database_proofs": [
+        {
+          "vendor": "postgresql",
+          "database": "test_bos_verify_e4990e32bd2b4f38",
+          "version_num": 160015
+        }
+      ],
+      "completed_at": "2026-09-20T11:28:25.931527+00:00",
+      "duration_seconds": 9.28,
+      "stdout_sha256": "44a33f35704d9a0fd2b87ed2ea802cf42d44442d4cac4caabf634f7f9e5827b1",
+      "stderr_sha256": "8d1acd75c62fe69afeabdb79d3522657f190c00a110d162536953ce627fbadac"
+    },
+    {
+      "label": "postgres-adjust-dependencies",
+      "source": "candidate",
+      "labels": [
+        "erp.test_adjustment_proposals"
+      ],
+      "expected_tests": 24,
+      "expected_red": null,
+      "timeout_seconds": 180,
+      "mode": "postgres16",
+      "status": "PASS",
+      "accepted": true,
+      "effective_timeout_seconds": 180,
+      "started_at": "2026-09-20T11:28:25.932440+00:00",
+      "source_sha256": "ce495b29214f21a80b8efd5bf41f6f219b5cb182b0453a7c43dac8899bc06ed5",
+      "commit": "8060075455206257d6283c70906facca98f0bc1a",
+      "stdout_log": "postgres-adjust-dependencies.stdout.log",
+      "stderr_log": "postgres-adjust-dependencies.stderr.log",
+      "source_database": "bos_verify_77a8896a2ca54378",
+      "source_canary_before": {
+        "database": "bos_verify_77a8896a2ca54378",
+        "version_num": 160015,
+        "tables": [
+          [
+            "public",
+            "bos_batch_source_canary",
+            "BASE TABLE"
+          ]
+        ],
+        "rows": [
+          [
+            1,
+            "Synthetic BATCH-01 source must remain unchanged"
+          ]
+        ]
+      },
+      "command": [
+        "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+        "-B",
+        "-c",
+        "\nimport json, logging, os, sys\nos.environ['DJANGO_SETTINGS_MODULE'] = 'verification_settings'\nimport django\ndjango.setup()\n# Preserve the actual SQL exception behind expected red HTTP 500 responses.\nrequest_logger = logging.getLogger('django.request')\nrequest_logger.setLevel(logging.ERROR)\nrequest_logger.addHandler(logging.StreamHandler())\nfrom django.db import connection\nfrom django.test.runner import DiscoverRunner\n\nclass FocusedRunner(DiscoverRunner):\n    def setup_databases(self, **kwargs):\n        old_config = super().setup_databases(**kwargs)\n        with connection.cursor() as cursor:\n            cursor.execute(\"SELECT current_database(), current_setting('server_version_num')\")\n            name, version = cursor.fetchone()\n        proof = {'vendor': connection.vendor, 'database': name, 'version_num': int(version)}\n        print('BOS_BATCH_TEST_DATABASE ' + json.dumps(proof), flush=True)\n        if (proof['vendor'] != 'postgresql' or not 160000 <= proof['version_num'] < 170000\n                or name != 'test_' + os.environ['BOS_TEST_DB_NAME']):\n            raise RuntimeError('Refuse unexpected test database or PostgreSQL version')\n        return old_config\n\nraise SystemExit(bool(FocusedRunner(verbosity=2, interactive=False).run_tests(sys.argv[1:])))\n",
+        "erp.test_adjustment_proposals"
+      ],
+      "exit_code": 0,
+      "source_canary_after": {
+        "database": "bos_verify_77a8896a2ca54378",
+        "version_num": 160015,
+        "tables": [
+          [
+            "public",
+            "bos_batch_source_canary",
+            "BASE TABLE"
+          ]
+        ],
+        "rows": [
+          [
+            1,
+            "Synthetic BATCH-01 source must remain unchanged"
+          ]
+        ]
+      },
+      "source_database_unchanged": true,
+      "observed_test_counts": [
+        24
+      ],
+      "test_summaries": [
+        "OK"
+      ],
+      "disallowed_test_outcomes": [],
+      "test_database_proofs": [
+        {
+          "vendor": "postgresql",
+          "database": "test_bos_verify_77a8896a2ca54378",
+          "version_num": 160015
+        }
+      ],
+      "completed_at": "2026-09-20T11:29:14.594653+00:00",
+      "duration_seconds": 48.662,
+      "stdout_sha256": "88780c4729d26392b70dc77d91b4a64fe82367f71ac4a76507c15476c6b4419b",
+      "stderr_sha256": "35e9a11adcb93c7423c255e75653ec1c34207e1481ba1525a78c49d0ac488f11"
+    }
+  ],
+  "errors": [],
+  "runner_timeout_seconds": 600,
+  "harness_sha256": "12aa5083f8ba4baea625617c55555b265d3f07e164f9b03613c4f92dcd0a8371",
+  "reused_helper_sha256": "30046f9c933b7a0fefc8e1813e07ca2fbea782bb6ebba9974d74a8dd59a13cfb",
+  "head_changed_ci_paths": [
+    ".github/ci/batch_02_targeted.py",
+    ".github/workflows/bos-batch02-targeted.yml"
+  ],
+  "source_before": {
+    "source_sha256": "ce495b29214f21a80b8efd5bf41f6f219b5cb182b0453a7c43dac8899bc06ed5",
+    "source_databases": {}
+  },
+  "dependencies": {
+    "Django": "6.0.5",
+    "djangorestframework": "3.17.1",
+    "psycopg": "3.3.6"
+  },
+  "postgres_version_num": 160015,
+  "source_unchanged": true,
+  "completed_at": "2026-09-20T11:29:14.666673+00:00",
+  "status": "PASS_SCOPED"
+}

@@ -1,0 +1,55 @@
+{
+  "card": "NETWORK-UI",
+  "independent_reviewer": "/root/network_domain",
+  "verdict": "PASS",
+  "blocking_findings": [],
+  "resolved_findings": [
+    {
+      "id": "UI-01",
+      "issue": "Blank location address was sent as null and rejected",
+      "resolution": "Address sends empty string; only nullable FK and coordinates clear to null; author actual-preview regression added"
+    },
+    {
+      "id": "UI-02",
+      "issue": "Fulfilled confirmed orders falsely appeared as actionable overdue sales",
+      "resolution": "Overdue sales require open_line_count > 0; author component regression added"
+    }
+  ],
+  "patch_sha256": "3fd7edf1ce273bb327487e1d30ad8d49bcd2bd6a5542f47d0b6d854c4639db5d",
+  "source_sha256": "d741f91fd6d7d5f0a63f15e81137b359d5f1eaf821f078a9ae37dc8d06e0fe82",
+  "author_verification": {
+    "checks": 18,
+    "verdict": "PASS",
+    "raw": "execution/network-ui/check-ui-raw.txt",
+    "build": "execution/network-ui/build-raw.txt"
+  },
+  "independent_verification": {
+    "checks": 3,
+    "verdict": "PASS",
+    "raw": "execution/network-ui-review/raw.log",
+    "cases": [
+      "Malformed 500 retains pending ID and forbids new preview",
+      "Typed stale conflict clears pending and permits fresh review",
+      "403 retains pending ID without replacement action"
+    ]
+  },
+  "integration_requirements": [
+    "Root rebuild via scripts/build_frontend.cjs",
+    "Serve local /assets/network-map.js through existing asset allowlist",
+    "Typed proposal_stale/proposal_expired server response required and confirmed in root candidate",
+    "Workflow source contract must be integrated alongside UI"
+  ],
+  "limitations": [
+    "No browser or E2E visual proof",
+    "Independent runtime uses compiled component handlers with stubbed fetch, not browser networking",
+    "Pending token persistence is scoped to current browser session/user/role/mode"
+  ],
+  "additive_label_delta": {
+    "patch_sha256": "f5de6af3b9389acae4ee9898be386c3a8b612f4d00a6c57cbefd541b3da6c18d",
+    "verdict": "PASS",
+    "scope": "Actual Document access levels rendered Ukrainian; unknown fallback preserved; no policy change",
+    "author_checks": 19,
+    "build": "PASS",
+    "raw": "execution/network-ui/access-labels-check-raw.txt"
+  }
+}

@@ -1,0 +1,320 @@
+{
+  "django": "6.0.5",
+  "sqlite": "3.53.1",
+  "database_directory": "/workspace/scratch/c7b51e996a9f/tmp/bos-data-audit-ti5prair",
+  "cases": [
+    {
+      "action": "reserve",
+      "workers": [
+        {
+          "worker": 0,
+          "status": "succeeded",
+          "result": {
+            "reservation_id": 1,
+            "quantity": "7",
+            "erp_event_id": 1
+          }
+        },
+        {
+          "worker": 1,
+          "status": "OperationalError",
+          "error": "database is locked",
+          "sqlite_code": "SQLITE_BUSY"
+        }
+      ],
+      "retry": {
+        "status": "ValueError",
+        "error": "Недостатньо доступного придатного залишку."
+      },
+      "integrity_errors": [],
+      "event_count": 1
+    },
+    {
+      "action": "release",
+      "workers": [
+        {
+          "worker": 0,
+          "status": "OperationalError",
+          "error": "database is locked",
+          "sqlite_code": "SQLITE_BUSY"
+        },
+        {
+          "worker": 1,
+          "status": "succeeded",
+          "result": {
+            "reservation_id": 1,
+            "remaining": "3.000",
+            "erp_event_id": 1
+          }
+        }
+      ],
+      "retry": {
+        "status": "ValueError",
+        "error": "Звільнення перевищує резерв."
+      },
+      "integrity_errors": [],
+      "event_count": 1
+    },
+    {
+      "action": "receive",
+      "workers": [
+        {
+          "worker": 0,
+          "status": "succeeded",
+          "result": {
+            "lot_id": 2,
+            "code": "RCV-A",
+            "quality": "pending",
+            "erp_event_id": 1
+          }
+        },
+        {
+          "worker": 1,
+          "status": "OperationalError",
+          "error": "database is locked",
+          "sqlite_code": "SQLITE_BUSY"
+        }
+      ],
+      "retry": {
+        "status": "ValueError",
+        "error": "Надходження перевищує залишок замовлення."
+      },
+      "integrity_errors": [],
+      "event_count": 1
+    },
+    {
+      "action": "transfer",
+      "workers": [
+        {
+          "worker": 0,
+          "status": "OperationalError",
+          "error": "database is locked",
+          "sqlite_code": "SQLITE_BUSY"
+        },
+        {
+          "worker": 1,
+          "status": "succeeded",
+          "result": {
+            "lot_id": 2,
+            "code": "TR-B",
+            "erp_event_id": 1
+          }
+        }
+      ],
+      "retry": {
+        "status": "ValueError",
+        "error": "Переміщення: перевірте вільний залишок та місце."
+      },
+      "integrity_errors": [],
+      "event_count": 1
+    },
+    {
+      "action": "finish",
+      "workers": [
+        {
+          "worker": 0,
+          "status": "OperationalError",
+          "error": "database is locked",
+          "sqlite_code": "SQLITE_BUSY"
+        },
+        {
+          "worker": 1,
+          "status": "succeeded",
+          "result": {
+            "lot_id": 3,
+            "production_id": 1,
+            "cost": "7.00",
+            "quality": "pending",
+            "erp_event_id": 1
+          }
+        }
+      ],
+      "retry": {
+        "status": "ValueError",
+        "error": "Перевірте стан, погодження й залишок виробництва."
+      },
+      "integrity_errors": [],
+      "event_count": 1
+    },
+    {
+      "action": "ship",
+      "workers": [
+        {
+          "worker": 0,
+          "status": "OperationalError",
+          "error": "database is locked",
+          "sqlite_code": "SQLITE_BUSY"
+        },
+        {
+          "worker": 1,
+          "status": "succeeded",
+          "result": {
+            "line_id": 1,
+            "shipped": "7",
+            "reference": "SHIP-B",
+            "erp_event_id": 1
+          }
+        }
+      ],
+      "retry": {
+        "status": "ValueError",
+        "error": "Перевищено залишок замовлення."
+      },
+      "integrity_errors": [],
+      "event_count": 1
+    },
+    {
+      "action": "return",
+      "workers": [
+        {
+          "worker": 0,
+          "status": "OperationalError",
+          "error": "database is locked",
+          "sqlite_code": "SQLITE_BUSY"
+        },
+        {
+          "worker": 1,
+          "status": "succeeded",
+          "result": {
+            "lot_id": 2,
+            "quality": "blocked",
+            "note": "Повернення зареєстровано. Фінансове коригування та заміна потребують окремого рішення.",
+            "erp_event_id": 1
+          }
+        }
+      ],
+      "retry": {
+        "status": "ValueError",
+        "error": "Повернення перевищує відвантажену кількість цієї партії."
+      },
+      "integrity_errors": [],
+      "event_count": 1
+    },
+    {
+      "action": "adjust",
+      "workers": [
+        {
+          "worker": 0,
+          "status": "OperationalError",
+          "error": "database is locked",
+          "sqlite_code": "SQLITE_BUSY"
+        },
+        {
+          "worker": 1,
+          "status": "succeeded",
+          "result": {
+            "lot_id": 1,
+            "quantity": "3.000",
+            "erp_event_id": 1
+          }
+        }
+      ],
+      "retry": {
+        "status": "ValueError",
+        "error": "Недостатньо фізичного залишку."
+      },
+      "integrity_errors": [],
+      "event_count": 1
+    },
+    {
+      "action": "payment",
+      "workers": [
+        {
+          "worker": 0,
+          "status": "OperationalError",
+          "error": "database is locked",
+          "sqlite_code": "SQLITE_BUSY"
+        },
+        {
+          "worker": 1,
+          "status": "succeeded",
+          "result": {
+            "invoice_id": 1,
+            "paid": "7.00",
+            "note": "Локальний обліковий запис; банківська операція не виконується.",
+            "erp_event_id": 1
+          }
+        }
+      ],
+      "retry": {
+        "status": "ValueError",
+        "error": "Оплата перевищує відкриту суму."
+      },
+      "integrity_errors": [],
+      "event_count": 1
+    },
+    {
+      "action": "payment_dup",
+      "workers": [
+        {
+          "worker": 0,
+          "status": "OperationalError",
+          "error": "database is locked",
+          "sqlite_code": "SQLITE_BUSY"
+        },
+        {
+          "worker": 1,
+          "status": "succeeded",
+          "result": {
+            "invoice_id": 1,
+            "paid": "7.00",
+            "note": "Локальний обліковий запис; банківська операція не виконується.",
+            "erp_event_id": 1
+          }
+        }
+      ],
+      "retry": {
+        "status": "ValueError",
+        "error": "Це посилання оплати вже зареєстровано."
+      },
+      "integrity_errors": [],
+      "event_count": 1
+    },
+    {
+      "action": "invoice",
+      "workers": [
+        {
+          "worker": 0,
+          "status": "OperationalError",
+          "error": "database is locked",
+          "sqlite_code": "SQLITE_BUSY"
+        },
+        {
+          "worker": 1,
+          "status": "succeeded",
+          "result": {
+            "invoice_id": 1,
+            "code": "INV-B",
+            "amount": "10.00",
+            "erp_event_id": 1
+          }
+        }
+      ],
+      "retry": {
+        "status": "ValueError",
+        "error": "Немає відвантажень, за якими ще не створено рахунок."
+      },
+      "integrity_errors": [],
+      "event_count": 1
+    }
+  ],
+  "salary_duplicate": {
+    "workers": [
+      {
+        "worker": 0,
+        "status": "succeeded",
+        "transaction_id": 1
+      },
+      {
+        "worker": 1,
+        "status": "succeeded",
+        "transaction_id": 2
+      }
+    ],
+    "transaction_count": 2,
+    "transaction_total": "200",
+    "salary_transaction_id": 2
+  },
+  "original_db_sha256_before": "ec6b89ac86011906881ab686581a0b96f63f17741873c355d2cb459896db02d5",
+  "original_db_sha256_after": "ec6b89ac86011906881ab686581a0b96f63f17741873c355d2cb459896db02d5"
+}

@@ -1,0 +1,24 @@
+{
+  "complete": false,
+  "scope": "same-process foreground supervisor capability; no IPC/backup/restore/upgrade gate",
+  "work": "/workspace/scratch/c7b51e996a9f/tmp/a10-inprocess-ozvffqan",
+  "checks": [],
+  "all_owned_children_stopped": true,
+  "original_bos_fixture_database_unchanged": true,
+  "control_sha256": "086f470d7c6e32ceeb32e08f34046b6258893b65758cde6b7405454ec853e8b8",
+  "runner_sha256": "f25b421aa9f5c2542ebecbe5cea3f6a70bad25d6bbfb8e27accbe01e3eced6c6"
+}
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a10_inprocess_draft/control_probe.py", line 139, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/a10_inprocess_draft/control_probe.py", line 56, in main
+    with owner(normal) as supervisor:
+         ^^^^^^^^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/a10_inprocess_draft/scripts/maintenance_control.py", line 134, in __enter__
+    self._check_owner()
+  File "/workspace/scratch/c7b51e996a9f/tmp/a10_inprocess_draft/scripts/maintenance_control.py", line 116, in _check_owner
+    refuse('Lifetime instance flock більше не належить цьому fd.')
+  File "/workspace/scratch/c7b51e996a9f/tmp/a10_inprocess_draft/scripts/maintenance_control.py", line 22, in refuse
+    raise ControlRefused(message)
+inprocess_control.ControlRefused: Lifetime instance flock більше не належить цьому fd.

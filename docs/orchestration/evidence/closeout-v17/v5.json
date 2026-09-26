@@ -1,0 +1,56 @@
+{
+  "schema": "bos.membership-ui.v5.root-independent-static-review.v1",
+  "verdict": "ACCEPT_PRIVATE_PREVIEW_OWNER_GUARD_CORRECTION_STATIC_ONLY",
+  "author": "/root/browser_evidence_check",
+  "reviewer": "/root",
+  "at_utc": "2026-09-21T19:31:11.603571+00:00",
+  "manifest": {
+    "path": "D:/3/BOSDev/handoffs/employee-membership-ui-20260921/v5-retained-preview-owner-guard/MANIFEST.json",
+    "sha256": "2a69d0f9a1ddfaebe29bb451772665adcce23d8663096c725f507dac9156cbf0",
+    "bytes": 1922
+  },
+  "base": {
+    "path": "D:/3/BOSDev/handoffs/employee-membership-ui-20260921/v4-union-syntax-closure/post/frontend/boss_app_source.html",
+    "sha256": "b5ab5e66a5fe1f21179140e2bb1623393aff1d1f847535d5412a062fdffbdc5d",
+    "bytes": 850340
+  },
+  "post": {
+    "path": "D:/3/BOSDev/handoffs/employee-membership-ui-20260921/v5-retained-preview-owner-guard/post/frontend/boss_app_source.html",
+    "sha256": "4c21dfa217a3c0bd1975b2df6463f68287e34863228734d4c05a1fac3a2dc1ef",
+    "bytes": 850352
+  },
+  "patch": {
+    "path": "D:/3/BOSDev/handoffs/employee-membership-ui-20260921/v5-retained-preview-owner-guard/V4_TO_V5.raw-full-index.patch",
+    "sha256": "5e771bb621e81309d9d531d9c5b35d86127e64fc89c3dd5ce918f9272a87f5ba",
+    "bytes": 1021
+  },
+  "verified_files": 6,
+  "exact_change": {
+    "before": "if(!formCurrent()||busy||proposal||receipt)return;",
+    "after": "if(!formCurrent()||o.proposal||busy||proposal||receipt)return;",
+    "byte_delta": 12,
+    "all_other_bytes_unchanged": true
+  },
+  "reasoning": [
+    "formCurrent first proves live current owner with unchanged identity, intent, facts and no operation; short circuit prevents null-owner dereference.",
+    "The owner proposal is set synchronously on successful preview and survives release of operation. Retained handlers now observe it and refuse another preview.",
+    "First preview still admits null owner proposal. Back synchronously clears proposal and advances intent; subsequent freshly rendered form can preview. Confirm and history recovery admissions, shared formCurrent and every other source byte remain unchanged."
+  ],
+  "prior_observation": {
+    "actual_total": 3,
+    "latest_passed": 7,
+    "latest_failed": 1,
+    "latest_not_run": 0,
+    "actual_source_sha256": "b5ab5e66a5fe1f21179140e2bb1623393aff1d1f847535d5412a062fdffbdc5d",
+    "defect": "Two preview requests from retained form callback; no duplicated Employee mutation established."
+  },
+  "limitations": [
+    "No Node/Babel/UI/build executed for this correction.",
+    "Membership suite remains failed on prior b5ab; new4c21 behavior is NOT_RUN.",
+    "No source apply or fourth UI8 invocation authorized in this closeout."
+  ],
+  "shared_product_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+  "shared_changed": false,
+  "execution_authorized": false,
+  "MVP": false
+}

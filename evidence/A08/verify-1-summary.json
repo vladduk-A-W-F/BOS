@@ -1,0 +1,62 @@
+{
+  "source_sha256": "b8ed086f34dd468008fd67c0459bd63867b8e51330496007cf6df34737c0108b",
+  "complete": false,
+  "all_11_gates_retained": true,
+  "original_databases_unchanged": true,
+  "gate4_counts": {
+    "resolver_patterns": 170,
+    "api_definitions": 73,
+    "admin_definitions": 95,
+    "concrete_urls": 183,
+    "executed_cases": 8370,
+    "http_responses": 8370,
+    "http_passed": 8368,
+    "redirect_http_responses": 9
+  },
+  "gate4_failures": [
+    {
+      "stage": "http",
+      "detail": "response_oracle_failed",
+      "route": "/api/operations/documents/upload/",
+      "pattern": "api/operations/documents/upload/",
+      "method": "POST",
+      "role": "ceo",
+      "variant": "full",
+      "status": 500,
+      "passed": false,
+      "expectation": [
+        201
+      ],
+      "policy": "allowed_raw_create",
+      "leaks": [],
+      "response_bytes": 145,
+      "unexpected_business_change": false
+    },
+    {
+      "stage": "http",
+      "detail": "response_oracle_failed",
+      "route": "/api/operations/documents/upload/",
+      "pattern": "api/operations/documents/upload/",
+      "method": "POST",
+      "role": "manager",
+      "variant": "full",
+      "status": 500,
+      "passed": false,
+      "expectation": [
+        201
+      ],
+      "policy": "allowed_raw_create",
+      "leaks": [],
+      "response_bytes": 145,
+      "unexpected_business_change": false
+    }
+  ],
+  "gate4_field_tests": {
+    "discovered": 57,
+    "failures": 0,
+    "executed": 57,
+    "skipped": 0,
+    "expected_failures": 0
+  },
+  "reason": "Nested test atomic conflicts with required actual durable commit; business201oracle retained."
+}

@@ -1,0 +1,105 @@
+{
+  "scope": "Actual extracted compiled B03Settlement JavaScript with minimal React element objects; no DOM/browser/HTTP/DB acceptance",
+  "red": {
+    "source_sha256": "f49b1e0477059554ccd5fa6ec8b51086dec163b838242d2fb554ecd4e05b5b9d",
+    "compiled_sha256": "92f18171db33a1435f5766357af5568d630a7215518a1e6ed1e5151c216525b9",
+    "checks": [
+      {
+        "case": "Historical receipt table never borrows current paid110.00 while presenting historical net98.72",
+        "passed": false
+      },
+      {
+        "case": "Original receipt four fields and current six fields are separately labelled",
+        "passed": false
+      }
+    ],
+    "observed_tables": [
+      [
+        [
+          "Первісна сума рахунку",
+          "123.40"
+        ],
+        [
+          "Фактично сплачено",
+          "110.00"
+        ],
+        [
+          "Чинне кредитове коригування",
+          "24.68"
+        ],
+        [
+          "Сума після коригувань",
+          "98.72"
+        ],
+        [
+          "Залишилось сплатити",
+          "0.00"
+        ],
+        [
+          "Кредит клієнта",
+          "1.28"
+        ]
+      ]
+    ]
+  },
+  "green": {
+    "source_sha256": "340fbaf24ca3c0e75adfc18f3004034e24d7025fcb3ef7cf97bd250c2614943c",
+    "compiled_sha256": "3cf3aa31e160992f802e1af9c5f6e81fca1adab67a8f0d16732b39282bf0e758",
+    "checks": [
+      {
+        "case": "Historical receipt table never borrows current paid110.00 while presenting historical net98.72",
+        "passed": true
+      },
+      {
+        "case": "Original receipt four fields and current six fields are separately labelled",
+        "passed": true
+      }
+    ],
+    "observed_tables": [
+      [
+        [
+          "Чинне коригування після погодження",
+          "24.68"
+        ],
+        [
+          "Сума після коригувань",
+          "98.72"
+        ],
+        [
+          "Залишилось сплатити після погодження",
+          "0.00"
+        ],
+        [
+          "Кредит клієнта після погодження",
+          "1.28"
+        ]
+      ],
+      [
+        [
+          "Первісна сума рахунку",
+          "123.40"
+        ],
+        [
+          "Фактично сплачено",
+          "110.00"
+        ],
+        [
+          "Чинне кредитове коригування",
+          "0.00"
+        ],
+        [
+          "Сума після коригувань",
+          "123.40"
+        ],
+        [
+          "Залишилось сплатити",
+          "13.40"
+        ],
+        [
+          "Кредит клієнта",
+          "0.00"
+        ]
+      ]
+    ]
+  }
+}

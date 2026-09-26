@@ -1,0 +1,754 @@
+{
+  "format": "bos.e2e-expected.v1",
+  "status": "FROZEN_ORACLE_NOT_EXECUTION_EVIDENCE",
+  "created_on": "2026-09-12",
+  "canonical_source_at_read": "c71e601e4681d8b7bb08cd08669f2e204f30ff4d",
+  "numeric_oracle": {
+    "method": "Python standard-library Decimal(precision=40) and Fraction; no BoS imports or DB execution",
+    "numeric_assertions_executed": 12,
+    "application_scenario_executed": false,
+    "currency": "EUR",
+    "as_of": "2026-09-12",
+    "tax_basis": "excluding_VAT",
+    "fixed_clock_note": "Business dates fixed; database IDs, record timestamps, runtime file paths and session/proposal UUIDs are captured from actual responses, never hardcoded."
+  },
+  "not_final_wire_contract": [
+    "C01 and C03 dedicated implementation contracts are not yet frozen. Task/statement model semantics below are from agreed plans/reviews. The harness must bind to actual API fields at freeze without changing numeric/source/duplicate-count expectations.",
+    "erp_return_supplier reference=return code and STMT-<allocation UUID hex> payment reference are explicit oracle proposals. If implementation differs, resolve contract before gate6; do not silently rewrite expected results."
+  ],
+  "bootstrap": {
+    "boundary": "Fresh migrated synthetic DB; baseline captured after users/employees, partners, item, locations and three approved source documents, before requirement/quote. No ERP demo seed/full company history.",
+    "users": [
+      {
+        "username": "bos-e2e-ceo",
+        "group": "ceo",
+        "employee_alias": "ceo_employee"
+      },
+      {
+        "username": "bos-e2e-manager",
+        "group": "manager",
+        "employee_alias": "manager_employee"
+      }
+    ],
+    "employees": [
+      {
+        "alias": "ceo_employee",
+        "full_name": "Керівник Еталонний",
+        "user_username": "bos-e2e-ceo"
+      },
+      {
+        "alias": "manager_employee",
+        "full_name": "Марія Еталонна",
+        "user_username": "bos-e2e-manager"
+      }
+    ],
+    "counterparties": [
+      {
+        "alias": "supplier",
+        "external_code": "E2E-SUPPLIER-001",
+        "name": "E2E · Навчальний постачальник",
+        "type": "supplier"
+      },
+      {
+        "alias": "customer",
+        "external_code": "E2E-CUSTOMER-001",
+        "name": "E2E · Навчальний клієнт",
+        "type": "customer"
+      }
+    ],
+    "identity_rule": "Counterparty has no code field and Employee has no code field. Aliases bind to returned PK; user.username or explicit mapping identifies the row. Do not infer mapping from name/amount/date.",
+    "item": {
+      "code": "E2E-ITEM-001",
+      "name": "Навчальний комплект E2E",
+      "kind": "product",
+      "method": "buy",
+      "unit": "шт.",
+      "revision": "A",
+      "currency": "EUR",
+      "document_code": "E2E-SPEC-001",
+      "required_documents": [
+        "certificate"
+      ],
+      "minimum": "0.000",
+      "planned_cost": "0.00"
+    },
+    "locations": [
+      {
+        "code": "E2E-WH-RECEIVE",
+        "kind": "warehouse",
+        "name": "E2E · Склад приймання"
+      },
+      {
+        "code": "E2E-WH-SHIP",
+        "kind": "warehouse",
+        "name": "E2E · Склад відвантаження"
+      }
+    ],
+    "business_opening_state": {
+      "stock": "0.000",
+      "reservations": "0.000",
+      "purchases": 0,
+      "orders": 0,
+      "invoices": 0,
+      "payments": 0,
+      "transactions": 0,
+      "tasks": 0
+    },
+    "do_not_create": [
+      "opening lot",
+      "opening stock movement",
+      "AP invoice",
+      "cash opening balance",
+      "pre-cutover receipt",
+      "demo historical orders"
+    ]
+  },
+  "source_documents": [
+    {
+      "code": "E2E-SPEC-001",
+      "revision": "A",
+      "filename": "E2E_SPEC_001.txt",
+      "access_level": "operational",
+      "status": "approved",
+      "encoding": "UTF-8",
+      "line_endings": "LF",
+      "utf8_text": "Специфікація BoS E2E · синтетичні дані.\nВиріб: E2E-ITEM-001. Версія: A. Одиниця: шт.\nПотреба: 10 шт. Матеріал: навчальний метал.\nПокриття та сертифікат матеріалу обов’язкові.\nПотрібно до 2026-10-01. Суми без ПДВ.\n",
+      "bytes": 353,
+      "sha256": "e50f628c1ec5a969f42300032b240815c6f3ae627db0723497f1104a6cce34a8",
+      "creation_phase": "bootstrap"
+    },
+    {
+      "code": "E2E-QUOTE-DOC-001",
+      "revision": "A",
+      "filename": "E2E_QUOTE_001.txt",
+      "access_level": "operational",
+      "status": "approved",
+      "encoding": "UTF-8",
+      "line_endings": "LF",
+      "utf8_text": "Пропозиція BoS E2E · синтетичний постачальник.\nЗаявка: E2E-REQ-001. Версія A. Валюта EUR.\n10 шт. × 1.23 EUR + доставка 0.40 EUR = 12.70 EUR без ПДВ.\nНалагодження, оснащення й додаткові процеси: 0.00 EUR.\nПокриття та сертифікат матеріалу включено. Мінімальна партія 1 шт.\nСтрок: 1 тиждень. Чинна до 2026-10-01.\n",
+      "bytes": 491,
+      "sha256": "6e23b8419214b509ef1a8e97dcc5bb71543c4e841c0eddd078f5d18403795406",
+      "creation_phase": "bootstrap"
+    },
+    {
+      "code": "E2E-CERT-001",
+      "revision": "A",
+      "filename": "E2E_CERT_001.txt",
+      "access_level": "operational",
+      "status": "approved",
+      "encoding": "UTF-8",
+      "line_endings": "LF",
+      "utf8_text": "Сертифікат BoS E2E · виключно синтетичний приклад.\nВиріб E2E-ITEM-001, версія A.\nДля навчальної партії підтверджено матеріал і потрібне покриття.\nЦе не сертифікат реальної продукції.\n",
+      "bytes": 318,
+      "sha256": "fac5f85a2f2766cb1a1f5d437464556e5e88b2d461ae2b963915a082c0adb978",
+      "creation_phase": "bootstrap"
+    },
+    {
+      "code": "E2E-STMT-001",
+      "revision": "1",
+      "filename": "E2E_STATEMENT_001.csv",
+      "access_level": "ceo",
+      "status": "approved",
+      "encoding": "UTF-8",
+      "line_endings": "LF",
+      "utf8_text": "external_id,booking_date,direction,amount,currency,counterparty_external_id,invoice_reference,purpose\nE2E-BANK-0001,2026-09-12,in,4.68,EUR,E2E-CUSTOMER-001,E2E-INV-001,Синтетична оплата рахунку E2E-INV-001\n",
+      "bytes": 229,
+      "sha256": "abc40883040bef29f0cd6bd3868026fa5f3734f6ac7d957e10e1fb75365c9869",
+      "creation_phase": "statement_source"
+    }
+  ],
+  "requirement": {
+    "code": "E2E-REQ-001",
+    "part": "E2E-ITEM-001",
+    "revision": "A",
+    "quantity": 10,
+    "unit": "шт.",
+    "currency": "EUR",
+    "required_by": "2026-10-01",
+    "owner_alias": "manager_employee",
+    "document_code": "E2E-SPEC-001"
+  },
+  "quote": {
+    "code": "E2E-QUOTE-001",
+    "request_code": "E2E-REQ-001",
+    "supplier_alias": "supplier",
+    "document_code": "E2E-QUOTE-DOC-001",
+    "terms": {
+      "unit_price": "1.23",
+      "setup": "0.00",
+      "shipping": "0.40",
+      "tooling": "0.00",
+      "special_processes": "0.00",
+      "currency": "EUR",
+      "revision": "A",
+      "lead_weeks": 1,
+      "valid_until": "2026-10-01",
+      "moq": 1,
+      "coating_included": true,
+      "material_certificate": true
+    },
+    "tax_basis_note": "quote_create current API accepts exact terms keys above; excluding_VAT lives in requirement/source/purchase snapshot, not an extra rejected quote_create field.",
+    "comparison_total": "12.70",
+    "calculated_arrival": "2026-09-19"
+  },
+  "purchase": {
+    "code": "E2E-PO-001",
+    "quantity": "10.000",
+    "price": "1.23",
+    "extras": "0.40",
+    "currency": "EUR",
+    "revision": "A",
+    "due_date": "2026-09-20",
+    "original_due": "2026-09-20",
+    "supplier_confirmation": "Синтетичне підтвердження: E2E-QUOTE-001, 10 шт., 12.70 EUR без ПДВ, погоджено до 2026-09-20.",
+    "approval_source": "quote",
+    "total": "12.70",
+    "unit_carrying_cost": "1.27",
+    "received_final": "4.000",
+    "cancelled_final": "0.000",
+    "open_quantity_final": "6.000",
+    "open_value_final": "7.62",
+    "base_status_final": "partial",
+    "request_allocated_final": "10.000",
+    "request_remaining_unallocated_final": "0.000"
+  },
+  "supplier_return": {
+    "code": "E2E-RET-S-001",
+    "operation_id": "9e15f73e-a6fc-4659-9d63-5358cf43b7a5",
+    "quantity": "1.000",
+    "allocated_cost": "1.27",
+    "source_quantity": "4.000",
+    "source_cost": "5.08",
+    "direction": "supplier",
+    "source_movement_alias": "receipt_movement",
+    "result_movement_alias": "supplier_return_movement",
+    "claim_state": "pending",
+    "claim_agreed_amount": null,
+    "claim_confirmation_count": 0,
+    "ap_effect": "not_created",
+    "cash_effect": "0.00",
+    "replacement_incoming": "0.000"
+  },
+  "lots_final": [
+    {
+      "code": "E2E-RCV-001",
+      "location_code": "E2E-WH-RECEIVE",
+      "quantity": "1.000",
+      "reserved": "0.000",
+      "available": "1.000",
+      "unit_cost": "1.27",
+      "raw_value": "1.27000",
+      "currency": "EUR",
+      "revision": "A",
+      "quality": "approved",
+      "certificate_code": "E2E-CERT-001"
+    },
+    {
+      "code": "E2E-XFER-001",
+      "location_code": "E2E-WH-SHIP",
+      "quantity": "0.000",
+      "reserved": "0.000",
+      "available": "0.000",
+      "unit_cost": "1.27",
+      "raw_value": "0.00000",
+      "currency": "EUR",
+      "revision": "A",
+      "quality": "approved",
+      "certificate_code": "E2E-CERT-001"
+    }
+  ],
+  "movements": [
+    {
+      "alias": "receipt_movement",
+      "kind": "receipt",
+      "lot_code": "E2E-RCV-001",
+      "quantity": "4.000",
+      "cost": "5.08",
+      "currency_via_lot": "EUR",
+      "reference": "E2E-PO-001",
+      "purchase_code": "E2E-PO-001",
+      "line_alias": null
+    },
+    {
+      "alias": "supplier_return_movement",
+      "kind": "supplier_return",
+      "lot_code": "E2E-RCV-001",
+      "quantity": "-1.000",
+      "cost": "1.27",
+      "currency_via_lot": "EUR",
+      "reference": "E2E-RET-S-001",
+      "purchase_code": "E2E-PO-001",
+      "line_alias": null
+    },
+    {
+      "alias": "transfer_out_movement",
+      "kind": "transfer_out",
+      "lot_code": "E2E-RCV-001",
+      "quantity": "-2.000",
+      "cost": "2.54",
+      "currency_via_lot": "EUR",
+      "reference": "E2E-XFER-001",
+      "purchase_code": null,
+      "line_alias": null
+    },
+    {
+      "alias": "transfer_in_movement",
+      "kind": "transfer_in",
+      "lot_code": "E2E-XFER-001",
+      "quantity": "2.000",
+      "cost": "2.54",
+      "currency_via_lot": "EUR",
+      "reference": "E2E-RCV-001",
+      "purchase_code": null,
+      "line_alias": null
+    },
+    {
+      "alias": "shipment_movement",
+      "kind": "shipment",
+      "lot_code": "E2E-XFER-001",
+      "quantity": "-2.000",
+      "cost": "2.54",
+      "currency_via_lot": "EUR",
+      "reference": "E2E-SHP-001",
+      "purchase_code": null,
+      "line_alias": "sales_line"
+    }
+  ],
+  "sales": {
+    "order_code": "E2E-SO-001",
+    "customer_alias": "customer",
+    "owner_alias": "manager_employee",
+    "currency": "EUR",
+    "due_date": "2026-09-20",
+    "base_status_final": "confirmed",
+    "line_alias": "sales_line",
+    "item_code": "E2E-ITEM-001",
+    "revision": "A",
+    "quantity": "2.000",
+    "price": "2.34",
+    "shipped": "2.000",
+    "invoiced": "2.000",
+    "cancelled": "0.000",
+    "open_delivery": "0.000",
+    "shipment_reference": "E2E-SHP-001",
+    "order_value": "4.68",
+    "shipped_value": "4.68",
+    "shipped_cost": "2.54",
+    "gross_margin": "2.14"
+  },
+  "invoice": {
+    "code": "E2E-INV-001",
+    "order_code": "E2E-SO-001",
+    "customer_alias": "customer",
+    "currency": "EUR",
+    "amount": "4.68",
+    "paid": "4.68",
+    "effective_credit": "0.00",
+    "net_amount": "4.68",
+    "open": "0.00",
+    "customer_credit": "0.00",
+    "due_date": "2026-09-25",
+    "lines": [
+      {
+        "line_alias": "sales_line",
+        "quantity": "2.000",
+        "price": "2.34"
+      }
+    ]
+  },
+  "statement": {
+    "source_system": "synthetic-bank",
+    "account_ref": "E2E-EUR-ACCOUNT",
+    "external_id": "E2E-BANK-0001",
+    "document_code": "E2E-STMT-001",
+    "booking_date": "2026-09-12",
+    "direction": "in",
+    "amount": "4.68",
+    "currency": "EUR",
+    "counterparty_external_id": "E2E-CUSTOMER-001",
+    "invoice_reference": "E2E-INV-001",
+    "transaction_mode": "create_transaction",
+    "allocation_mode": "new_payment",
+    "allocation_key": "417a9537-3de8-4bf5-b99c-638cefcb96f0",
+    "proposed_payment_reference": "STMT-417a95373de84bf5b99c638cefcb96f0",
+    "allocated": "4.68",
+    "unallocated": "0.00",
+    "transaction_count": 1,
+    "payment_event_count": 1,
+    "allocation_count": 1,
+    "explicit_binding": "external customer code binds to the bootstrap returned customer ID, checked against Invoice.customer; no name/amount/date inference",
+    "after_import_before_reconcile": {
+      "line_count": 1,
+      "transaction_count": 0,
+      "invoice_paid": "0.00",
+      "invoice_open": "4.68"
+    }
+  },
+  "transaction": {
+    "direction": "in",
+    "amount": "4.68",
+    "currency": "EUR",
+    "date": "2026-09-12",
+    "description": "Синтетична оплата рахунку E2E-INV-001",
+    "category": "customer",
+    "counterparty_alias": "customer",
+    "contract_id": null,
+    "branch_id": null,
+    "archived_at": null,
+    "creation_actor_username": "bos-e2e-ceo",
+    "statement_line_alias": "statement_line"
+  },
+  "task": {
+    "title": "E2E · Перевірити результат поставки та відкриті питання",
+    "assignee_alias": "manager_employee",
+    "assignee_legacy": "",
+    "order_code": "E2E-SO-001",
+    "request_code": "E2E-REQ-001",
+    "deadline": "2026-09-15",
+    "create_status": "active",
+    "final_status": "done",
+    "is_overdue": false,
+    "priority_on_create": "medium",
+    "priority_on_done": null,
+    "category": "Постачання",
+    "result": "Перевірено відвантаження E2E-SHP-001: 2 шт. Залишок E2E-PO-001 — 6 шт.; вимога щодо E2E-RET-S-001 очікує відповіді постачальника.",
+    "completion_reason": "Результат перевірено за джерельними записами поставки.",
+    "create_actor_username": "bos-e2e-ceo",
+    "completion_actor_username": "bos-e2e-manager",
+    "business_effect_on_completion": {
+      "stock": "0.000",
+      "invoice_paid": "0.00",
+      "transaction_count": 0
+    }
+  },
+  "confirmed_actions": [
+    {
+      "step": 1,
+      "key": "purchase",
+      "action": "erp_purchase",
+      "confirm_actor": "ceo",
+      "proposal_new": 1,
+      "first_confirm": 1,
+      "immediate_same_id_replay": 1,
+      "late_same_id_replay": 1
+    },
+    {
+      "step": 2,
+      "key": "receive",
+      "action": "erp_receive",
+      "confirm_actor": "ceo",
+      "proposal_new": 1,
+      "first_confirm": 1,
+      "immediate_same_id_replay": 1,
+      "late_same_id_replay": 1
+    },
+    {
+      "step": 3,
+      "key": "supplier_return",
+      "action": "erp_return_supplier",
+      "confirm_actor": "ceo",
+      "proposal_new": 1,
+      "first_confirm": 1,
+      "immediate_same_id_replay": 1,
+      "late_same_id_replay": 1
+    },
+    {
+      "step": 4,
+      "key": "quality",
+      "action": "erp_quality",
+      "confirm_actor": "ceo",
+      "proposal_new": 1,
+      "first_confirm": 1,
+      "immediate_same_id_replay": 1,
+      "late_same_id_replay": 1
+    },
+    {
+      "step": 5,
+      "key": "transfer",
+      "action": "erp_transfer",
+      "confirm_actor": "ceo",
+      "proposal_new": 1,
+      "first_confirm": 1,
+      "immediate_same_id_replay": 1,
+      "late_same_id_replay": 1
+    },
+    {
+      "step": 6,
+      "key": "order",
+      "action": "erp_order",
+      "confirm_actor": "ceo",
+      "proposal_new": 1,
+      "first_confirm": 1,
+      "immediate_same_id_replay": 1,
+      "late_same_id_replay": 1
+    },
+    {
+      "step": 7,
+      "key": "confirm_order",
+      "action": "erp_confirm_order",
+      "confirm_actor": "ceo",
+      "proposal_new": 1,
+      "first_confirm": 1,
+      "immediate_same_id_replay": 1,
+      "late_same_id_replay": 1
+    },
+    {
+      "step": 8,
+      "key": "reserve",
+      "action": "erp_reserve",
+      "confirm_actor": "ceo",
+      "proposal_new": 1,
+      "first_confirm": 1,
+      "immediate_same_id_replay": 1,
+      "late_same_id_replay": 1
+    },
+    {
+      "step": 9,
+      "key": "ship",
+      "action": "erp_ship",
+      "confirm_actor": "ceo",
+      "proposal_new": 1,
+      "first_confirm": 1,
+      "immediate_same_id_replay": 1,
+      "late_same_id_replay": 1
+    },
+    {
+      "step": 10,
+      "key": "invoice",
+      "action": "erp_invoice",
+      "confirm_actor": "ceo",
+      "proposal_new": 1,
+      "first_confirm": 1,
+      "immediate_same_id_replay": 1,
+      "late_same_id_replay": 1
+    },
+    {
+      "step": 11,
+      "key": "statement_import",
+      "action": "erp_statement_import",
+      "confirm_actor": "ceo",
+      "proposal_new": 1,
+      "first_confirm": 1,
+      "immediate_same_id_replay": 1,
+      "late_same_id_replay": 1
+    },
+    {
+      "step": 12,
+      "key": "statement_reconcile",
+      "action": "erp_statement_reconcile",
+      "confirm_actor": "ceo",
+      "proposal_new": 1,
+      "first_confirm": 1,
+      "immediate_same_id_replay": 1,
+      "late_same_id_replay": 1
+    },
+    {
+      "step": 13,
+      "key": "task_create",
+      "action": "create_task",
+      "confirm_actor": "ceo",
+      "proposal_new": 1,
+      "first_confirm": 1,
+      "immediate_same_id_replay": 1,
+      "late_same_id_replay": 1
+    },
+    {
+      "step": 14,
+      "key": "task_complete",
+      "action": "update_task",
+      "confirm_actor": "manager",
+      "proposal_new": 1,
+      "first_confirm": 1,
+      "immediate_same_id_replay": 1,
+      "late_same_id_replay": 1
+    }
+  ],
+  "expected_deltas_after_bootstrap": {
+    "operations.Document": 1,
+    "operations.ProcurementRequest": 1,
+    "operations.SupplierQuote": 1,
+    "erp.Purchase": 1,
+    "erp.Lot": 2,
+    "erp.Movement": 5,
+    "erp.GoodsReturn": 1,
+    "erp.SupplierClaim": 1,
+    "erp.Inspection": 1,
+    "erp.SalesOrder": 1,
+    "erp.SalesLine": 1,
+    "erp.Reservation": 1,
+    "operations.Invoice": 1,
+    "erp.InvoiceLink": 1,
+    "finance.StatementImport": 1,
+    "finance.StatementLine": 1,
+    "finance.StatementAllocation": 1,
+    "finance.Transaction": 1,
+    "finance.FinancialIntent": 1,
+    "tasks.Task": 1,
+    "operations.ActionProposal": 14,
+    "erp.Event": 13,
+    "operations.AuditEvent": 3,
+    "erp.OrderCancellation": 0,
+    "erp.CancellationRelease": 0,
+    "erp.InvoiceAdjustment": 0,
+    "erp.InvoiceAdjustmentLine": 0,
+    "erp.Production": 0,
+    "erp.OperatorEntry": 0,
+    "erp.ChangeOrder": 0,
+    "finance.Salary": 0,
+    "erp.Item": 0,
+    "erp.Location": 0,
+    "finance.Counterparty": 0,
+    "employees.Employee": 0
+  },
+  "event_actions": {
+    "erp_purchase": 1,
+    "erp_receive": 1,
+    "erp_return_supplier": 1,
+    "erp_quality": 1,
+    "erp_transfer": 1,
+    "erp_order": 1,
+    "erp_confirm_order": 1,
+    "erp_reserve": 1,
+    "erp_ship": 1,
+    "erp_invoice": 1,
+    "erp_statement_import": 1,
+    "erp_statement_reconcile": 1,
+    "erp_payment": 1
+  },
+  "audit_actions": {
+    "transaction.create": 1,
+    "create_task": 1,
+    "update_task": 1
+  },
+  "replay": {
+    "new_proposals": 14,
+    "first_confirm_calls": 14,
+    "immediate_same_id_replay_calls": 14,
+    "late_same_id_replay_calls": 14,
+    "total_confirm_calls": 42,
+    "effect_delta_per_replay": 0,
+    "receipt_equality": "first canonical receipt, under same authenticated actor/session/role",
+    "canonical_business_and_source_state_unchanged": true,
+    "exclude_from_business_compare": [
+      "authentication/session activity",
+      "ERP mutex revision only"
+    ],
+    "do_not_exclude": [
+      "money",
+      "stock",
+      "document bytes",
+      "domain ledger rows",
+      "events",
+      "task history",
+      "receipt",
+      "FinancialIntent"
+    ]
+  },
+  "source_preservation": {
+    "checkpoint_after_purchase": [
+      "approved Document bytes/SHA/status/revision/access level",
+      "ProcurementRequest fields",
+      "SupplierQuote fields and terms",
+      "Purchase.approval_snapshot",
+      "Purchase.original_due"
+    ],
+    "checkpoint_after_receipt": [
+      "receipt Movement full fields/PK",
+      "PO gross received=4.000 through return/transfer/shipment/reconcile",
+      "lot item/unit_cost/currency/revision/certificate source"
+    ],
+    "checkpoint_after_invoice": [
+      "Invoice.amount/currency/customer/due_date",
+      "InvoiceLink.lines",
+      "shipment Movement full fields/PK"
+    ],
+    "allowed_balances": [
+      "Purchase.received 0→4 during actual receive only",
+      "origin Lot.quantity 0→4→3→1",
+      "transfer Lot.quantity 0→2→0",
+      "Reservation.quantity 2→0",
+      "SalesLine.shipped 0→2 and invoiced 0→2",
+      "Invoice.paid 0→4.68 during new reconciliation payment only",
+      "Task active→done with explicit assignee FK/deadline/result"
+    ],
+    "original_workspace_databases": "not opened by this arithmetic preparation; root scenario harness must prove original DB file SHA unchanged, use only fresh owned DB/media",
+    "private_source_read_mode": "actual upload/download bytes SHA; no OCR/text surrogate, no synthetic checksum substituted for actual download"
+  },
+  "ceo_report": {
+    "currency": "EUR",
+    "gross_order_value": "4.68",
+    "gross_shipped_value": "4.68",
+    "gross_shipped_cost": "2.54",
+    "gross_difference": "2.14",
+    "invoice_amount": "4.68",
+    "registered_paid": "4.68",
+    "receivable": "0.00",
+    "statement_reconciled": "4.68",
+    "cash_in_recorded": "4.68",
+    "cash_out_recorded": "0.00",
+    "net_cash_movement": "4.68",
+    "bank_balance": null,
+    "stock_quantity": "1.000",
+    "stock_value": "1.27",
+    "open_po_quantity": "6.000",
+    "open_po_value": "7.62",
+    "supplier_return_quantity": "1.000",
+    "supplier_return_carrying_cost": "1.27",
+    "supplier_claim_confirmed_amount": null,
+    "tasks_total": 1,
+    "tasks_done": 1,
+    "source_codes": [
+      "E2E-REQ-001",
+      "E2E-QUOTE-001",
+      "E2E-PO-001",
+      "E2E-RCV-001",
+      "E2E-RET-S-001",
+      "E2E-XFER-001",
+      "E2E-SHP-001",
+      "E2E-SO-001",
+      "E2E-INV-001",
+      "E2E-STMT-001"
+    ],
+    "still_open": [
+      "PO remaining six units",
+      "supplier claim unconfirmed"
+    ],
+    "do_not_claim": [
+      "company workflow entirely complete",
+      "AP debt",
+      "refund executed",
+      "net accounting profit",
+      "bank closing balance",
+      "real client approval"
+    ]
+  },
+  "non_numeric_runtime_binding": [
+    "real PKs come only from committed response/lookups by unique stable codes",
+    "receipt/shipment/transfer Movement IDs resolved through exact source FK+kind+reference, exactly one match",
+    "Task has no code field: capture its committed task_id",
+    "Counterparty has no code field: use explicit fixture map, never query by invented code",
+    "record timestamps/proxy/auth/CSRF/environment evidence must come from actual future run",
+    "do not assert OTD from synthetic business date if implementation uses real Movement.created_at; no timestamp backfill"
+  ],
+  "wider_tests_not_replaced": [
+    "EUR/USD/UAH broader currency suites",
+    "B02 imported PO/cutover",
+    "B03 cancellation/credit/reversal/fractional return",
+    "C01 permissions/history lifecycle",
+    "C03 partial/unrecognized/duplicate entries",
+    "all eleven unchanged full-verify gates"
+  ],
+  "read_contract_sha256": {
+    "tmp/B03_IMPLEMENTATION_CONTRACT_UA.md": "3717bbabbbde1bab4bb9756277c80a79b933afb74a77b0150aef1d16372b068d",
+    "tmp/C01_READY_PLAN_UA.md": "4d30f2309d3361ba5e5fd9bd4d74d7175ef57224f0af6943c55c7cf91e6007a4",
+    "tmp/C01_PLAN_REVIEW_UA.md": "2fb5f1738816dea9754830234a412e618da4a06c59fb2ae71f277786f913b850",
+    "tmp/C03_READY_PLAN_UA.md": "85e0470ce01905dc0ed7c5160232d5fc15fb39c875d74ac822afddca7f14cf4e",
+    "tmp/C03_PLAN_REVIEW_UA.md": "e74d60164a51336ee064a4508d117ae7c3cfd9044ba2fb280b562bd900699d9b",
+    "output/BoS_Plan_UA.md": "91c499c0c021050f0265713cb21fc7ccb38501628d71a508f3af274fb62b45f0"
+  },
+  "installation_provenance": {
+    "source_draft_sha256": "10e8b6e671db8e2656683ebfa16bfabc1a75989543e353b6c37d17e43e27616f",
+    "c03_contract_sha256": "d46f2b4ac9b39cc6f3442a8d843b23cc036a10cce22acd32969369ef3635362b",
+    "transformation": "Only format/status metadata and this provenance; all original oracle sections, source bytes and expected counts unchanged."
+  }
+}

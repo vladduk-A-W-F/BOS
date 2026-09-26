@@ -1,0 +1,3597 @@
+--- a/boss_project/demo_middleware.py
++++ b/boss_project/demo_middleware.py
+@@ -8,4 +8,8 @@
+     def __call__(self,request):
+         if request.META.get('REMOTE_ADDR') not in ('127.0.0.1','::1'):
+             return JsonResponse({'error':'Демонстрація доступна лише локально.'},status=403)
++        from boss_project.import_request_body import capture_import_body
++        rejected = capture_import_body(request)
++        if rejected is not None:
++            return rejected
+         return self.get_response(request)
+--- /dev/null
++++ b/boss_project/import_request_body.py
+@@ -0,0 +1,32 @@
++"""Bound the new import input before Django CSRF can parse multipart bodies.
++
++This reads only the stream presented by Django. HTTP framing rejected/truncated
++by the WSGI server is outside this adapter; it never reads a raw client socket.
++"""
++import io
++from django.http import JsonResponse
++
++IMPORT_PATH='/api/erp/import/preview/'
++MAX_BODY=160*1024
++
++
++def capture_import_body(request):
++    if request.path!=IMPORT_PATH or request.method!='POST':return None
++    def reject(status,message):
++        return JsonResponse({'valid':False,'proposal':None,'errors':[{'entity':None,'external_id':None,'row':None,'part':'request','field':'file','code':'BODY_LIMIT' if status==413 else 'BODY_FRAMING','message':message}]},status=status)
++    declared=request.META.get('CONTENT_LENGTH')
++    try:
++        length=None if declared in (None,'') else int(declared)
++        if length is not None and length<0:raise ValueError
++    except (TypeError,ValueError):return reject(400,'Некоректна довжина запиту.')
++    if length is not None and length>MAX_BODY:return reject(413,'Запит перевищує 160 KiB.')
++    if hasattr(request,'_body'):
++        raw=request._body
++    else:
++        if getattr(request,'_read_started',False):return reject(400,'Тіло імпорту вже прочитано до захисної перевірки.')
++        raw=request.read(MAX_BODY+1)
++    if len(raw)>MAX_BODY:return reject(413,'Запит перевищує 160 KiB.')
++    if length is not None and length!=len(raw):return reject(400,'Заявлена та фактична довжина потоку не збігаються.')
++    request._body=raw;request._stream=io.BytesIO(raw)
++    request.META['CONTENT_LENGTH']=str(len(raw))
++    return None
+--- a/boss_project/policy.py
++++ b/boss_project/policy.py
+@@ -4,7 +4,7 @@
+ from .identity import actor
+ 
+ 
+-CEO_ACTIONS = {'erp_opening', 'erp_payment', 'erp_apply_change', 'erp_resolve_job', 'erp_adjust'}
++CEO_ACTIONS = {'erp_import_batch', 'erp_opening', 'erp_payment', 'erp_apply_change', 'erp_resolve_job', 'erp_adjust'}
+ DIRECTORY = {'id', 'full_name', 'role', 'department', 'branch', 'branch_name', 'archived_at'}
+ TRANSACTION_FIELDS = {'id', 'date', 'direction', 'category', 'currency', 'contract', 'counterparty', 'branch', 'archived_at'}
+ 
+--- a/boss_project/server_config.py
++++ b/boss_project/server_config.py
+@@ -231,4 +231,8 @@
+         request.META['BOS_PROXY_PEER'] = peer
+         request.META['REMOTE_ADDR'] = client
+         request.META['HTTP_X_FORWARDED_PROTO'] = proto
++        from boss_project.import_request_body import capture_import_body
++        rejected = capture_import_body(request)
++        if rejected is not None:
++            return rejected
+         return self.get_response(request)
+--- /dev/null
++++ b/erp/import_views.py
+@@ -0,0 +1,161 @@
++"""CEO-only raw-byte input adapter for the bounded initial import."""
++import csv,hashlib,io,json
++from copy import deepcopy
++from functools import wraps
++from pathlib import Path
++from uuid import uuid4
++from datetime import timedelta
++
++from django.http import JsonResponse
++from django.views.decorators.http import require_GET,require_POST
++from django.db import IntegrityError,OperationalError
++from django.core.exceptions import ObjectDoesNotExist,ValidationError
++from boss_project.identity import actor,IdentityDenied
++from boss_project.data_rules import strict_json_loads
++from operations.service import Conflict,as_of
++from employees.models import Employee
++from . import importing as imp
++from .models import ImportBatch,ImportIdentity
++
++MAX_BODY=160*1024
++MAX_SOURCE=128*1024
++
++
++def failure(errors,status=422):
++    return JsonResponse(dict(valid=False,batch_id=None,namespace=None,semantic_sha256=None,proposal=None,
++        errors=errors,warnings=[],counts={'create':0,'reuse':0,'bind':0},mappings=[],source_control_totals=None,
++        planned_delta=None,live_before=None,projected_after=None,first_commit_receipt=None),status=status)
++
++
++def guarded(fn):
++    @wraps(fn)
++    def wrapped(request,*args,**kwargs):
++        try:
++            if actor(request).role!='ceo':raise PermissionError('Початковий імпорт доступний тільки керівнику.')
++            return fn(request,*args,**kwargs)
++        except IdentityDenied as exc:return JsonResponse({'error':str(exc)},status=exc.status)
++        except PermissionError as exc:return JsonResponse({'error':str(exc)},status=403)
++        except imp.InvalidBatch as exc:return failure(exc.errors,exc.status)
++        except (Conflict,IntegrityError,OperationalError):return failure([imp.error({},'batch','Дані або identity змінилися; потрібен новий перегляд.','IDENTITY_CONFLICT')],409)
++        except ObjectDoesNotExist:return failure([imp.error({},'reference','Запис недоступний.','MISSING_REFERENCE')],404)
++        except (ValueError,TypeError,KeyError,ValidationError,csv.Error) as exc:return failure([imp.error({},'batch',str(exc))],400)
++    return wrapped
++
++
++def decode(raw):
++    return strict_json_loads(raw.decode('utf-8-sig'))
++
++
++def read_input(request):
++    try:length=int(request.META.get('CONTENT_LENGTH') or 0)
++    except ValueError:length=0
++    if length>MAX_BODY:raise imp.InvalidBatch([imp.error({},'file','Запит перевищує160KiB.')],413)
++    raw=request._body if hasattr(request,'_body') else request.read(MAX_BODY+1)
++    if len(raw)>MAX_BODY:raise imp.InvalidBatch([imp.error({},'file','Запит перевищує160KiB.')],413)
++    if request.content_type=='application/json':
++        if len(raw)>MAX_SOURCE:raise imp.InvalidBatch([imp.error({},'file','Джерело перевищує128KiB.')],413)
++        return decode(raw),{'batch':hashlib.sha256(raw).hexdigest()},None
++    if request.content_type!='multipart/form-data':raise ValueError('Потрібен JSON або multipart/form-data.')
++    request._body=raw;request._stream=io.BytesIO(raw)
++    files=request.FILES;form=request.POST;keys=set(files)|set(form);parts={}
++    for key in keys:
++        if len(files.getlist(key))+len(form.getlist(key))!=1:raise ValueError('Multipart part повторено.')
++        parts[key]=files[key].read(MAX_SOURCE+1) if key in files else form[key].encode('utf-8')
++    if sum(map(len,parts.values()))>MAX_SOURCE:raise imp.InvalidBatch([imp.error({},'file','Сума manifest/files перевищує128KiB.')],413)
++    hashes={k:hashlib.sha256(v).hexdigest() for k,v in parts.items()}
++    extra=decode(parts.pop('bindings')) if 'bindings' in parts else []
++    if not isinstance(extra,list):raise ValueError('bindings має бути JSON array.')
++    if 'batch' in parts:
++        if set(parts)!={'batch'}:raise ValueError('batch не можна змішувати з manifest/CSV.')
++        value=decode(parts['batch'])
++        if not isinstance(value,dict) or not isinstance(value.get('bindings'),list):raise ValueError('Некоректний batch.')
++        value['bindings']+=extra;return value,hashes,None
++    if 'manifest' not in parts:raise ValueError('Потрібен manifest або batch.')
++    value=decode(parts.pop('manifest'))
++    if not isinstance(value,dict) or 'rows' in value or not isinstance(value.get('csv_files'),list):raise ValueError('Потрібен CSV manifest.')
++    specs=value.pop('csv_files');rows=[];locators={};wanted=set();entities=set()
++    for spec in specs:
++        if not isinstance(spec,dict) or set(spec)!={'entity','part'} or spec['entity'] not in imp.ENTITIES or spec['part']!='rows_'+spec['entity']:raise ValueError('Невідомий CSV part.')
++        entity,part=spec['entity'],spec['part']
++        if part in wanted or entity in entities:raise ValueError('Повторний CSV part.')
++        wanted.add(part);entities.add(entity)
++        if part not in parts:raise ValueError('Відсутній CSV part.')
++        reader=csv.reader(io.StringIO(parts[part].decode('utf-8-sig'),newline=''),strict=True)
++        try:headers=next(reader)
++        except StopIteration:raise ValueError('Порожній CSV без header.')
++        required=set(imp.REQUIRED[entity].split())|{'external_id'};allowed=required|set(imp.DEFAULTS[entity])
++        if len(headers)!=len(set(headers)) or set(headers)-allowed or not required<=set(headers):
++            raise imp.InvalidBatch([imp.error({'entity':entity},'header','Повторні, невідомі або відсутні заголовки.','DUPLICATE_HEADER')])
++        for index,values in enumerate(reader,2):
++            if len(values)!=len(headers):raise ValueError('CSV має зайві або відсутні cells.')
++            row={'entity':entity}
++            for key,text in zip(headers,values):
++                if text=='' and key in imp.DEFAULTS[entity]:continue
++                if key in ('document','required_documents','documents','source_documents'):row[key]=decode(text.encode())
++                elif key in ('owner_id','lead_days'):
++                    if not text.isdigit():raise ValueError('CSV ID/lead_days потребує цілого числа.')
++                    row[key]=int(text)
++                else:row[key]=text
++            rows.append(row);locators[(entity,row.get('external_id'))]={'row':index,'part':part}
++    if wanted!=set(parts):raise ValueError('Невідомі додаткові CSV parts.')
++    if not isinstance(value.get('bindings'),list):raise ValueError('bindings має бути array.')
++    value['bindings']+=extra;value['rows']=rows
++    return value,hashes,locators
++
++
++@require_POST
++@guarded
++def preview(request):
++    raw,hashes,locators=read_input(request)
++    return JsonResponse(imp.prepare(request,raw,parts=hashes,locators_override=locators))
++
++
++def template_batch(owner_id):
++    owner=Employee.objects.get(pk=owner_id)
++    if owner.archived_at is not None:raise ValueError('Відповідальний архівний.')
++    data=json.loads((Path(__file__).parent/'seed'/'initial_import_ua.json').read_text())
++    token=uuid4();data['batch_id']=str(token);data['namespace']='demo-'+token.hex[:12];data['cutover']=str(as_of())
++    for row in data['rows']:
++        if 'bos_code' in row:row['bos_code']=row['bos_code'].replace('B02-A-','IMP-'+token.hex[:8]+'-')
++        if row['entity']=='sales_order':row['owner_id']=owner.pk;row['due_date']=str(as_of()+timedelta(days=19))
++        if row['entity']=='purchase_open_balance':row['due_date']=row['original_due']=str(as_of()-timedelta(days=11))
++    return data
++
++
++@require_GET
++@guarded
++def template(request):
++    if set(request.GET)-{'owner_id','format'}:raise ValueError('Невідомі параметри шаблону.')
++    data=template_batch(int(request.GET['owner_id']));fmt=request.GET.get('format','json')
++    if fmt=='json':return JsonResponse(data,json_dumps_params={'ensure_ascii':False,'indent':2})
++    if fmt!='csv':raise ValueError('Потрібен format json/csv.')
++    manifest=deepcopy(data);rows=manifest.pop('rows');manifest['csv_files']=[];files=[]
++    for entity in imp.ENTITIES:
++        selected=[r for r in rows if r['entity']==entity]
++        if not selected:continue
++        headers=sorted({k for row in selected for k in row if k!='entity'});stream=io.StringIO(newline='');writer=csv.DictWriter(stream,fieldnames=headers);writer.writeheader()
++        for row in selected:writer.writerow({k:json.dumps(row[k],ensure_ascii=False) if isinstance(row[k],(dict,list)) or row[k] is None else row[k] for k in headers if k in row})
++        part='rows_'+entity;manifest['csv_files'].append(dict(entity=entity,part=part));files.append(dict(part=part,filename=part+'.csv',content_utf8=stream.getvalue()))
++    return JsonResponse(dict(manifest=manifest,files=files),json_dumps_params={'ensure_ascii':False})
++
++
++@require_GET
++@guarded
++def batch_detail(request,batch_id):
++    record=ImportBatch.objects.get(pk=batch_id)
++    targets=[]
++    wanted={(row['entity'],row['external_id']) for row in record.canonical_source['rows']+record.canonical_source['bindings']}
++    for identity in ImportIdentity.objects.filter(namespace=record.namespace).order_by('entity','external_id'):
++        if (identity.entity,identity.external_id) not in wanted:continue
++        model=imp.TARGET[identity.entity][0];obj=getattr(identity,model)
++        targets.append(dict(entity=identity.entity,external_id=identity.external_id,target_model=model,target_id=obj.pk))
++    return JsonResponse(dict(first_commit_receipt=record.receipt,current_targets=targets))
++
++
++@require_GET
++@guarded
++def export(request,batch_id):
++    record=ImportBatch.objects.get(pk=batch_id)
++    data=dict(format='bos.initial-import.receipt.v1',batch_id=str(record.pk),namespace=record.namespace,cutover=str(record.cutover),semantic_sha256=record.semantic_sha256,
++        source_part_sha256=record.source_part_sha256,canonical_source=record.canonical_source,first_commit_receipt=record.receipt)
++    response=JsonResponse(data,json_dumps_params={'ensure_ascii':False,'indent':2});response['Content-Disposition']='attachment; filename="BoS_import_'+str(record.pk)+'.json"';return response
+--- /dev/null
++++ b/erp/importing.py
+@@ -0,0 +1,515 @@
++"""Bounded initial import. No generic model writes, historical repair or file import."""
++from contextlib import contextmanager
++from functools import wraps
++from copy import deepcopy
++from datetime import date,timedelta
++from decimal import Decimal,ROUND_HALF_EVEN,localcontext
++from fractions import Fraction
++import hashlib,json,re
++from uuid import UUID,uuid4
++
++from django.db import connection,transaction
++from django.db.models import Sum
++from django.core.exceptions import ObjectDoesNotExist
++from django.utils import timezone
++from employees.models import Employee
++from finance.models import Counterparty
++from operations.models import ActionProposal,Configuration,Document
++from operations.service import Conflict,as_of
++from boss_project.identity import actor
++from boss_project.policy import Policy
++from boss_project.data_rules import field_values,text_value
++from .models import ImportBatch,ImportIdentity,Item,Location,Lot,Movement,SalesOrder,SalesLine,Purchase,Event
++
++D=Decimal
++ENTITIES=('counterparty','item','location','opening_lot','sales_order','sales_line','purchase_open_balance')
++TARGET={'counterparty':('counterparty',Counterparty),'item':('item',Item),'location':('location',Location),
++ 'opening_lot':('lot',Lot),'sales_order':('order',SalesOrder),'sales_line':('line',SalesLine),'purchase_open_balance':('purchase',Purchase)}
++REQUIRED={
++ 'counterparty':'name type','item':'bos_code name unit kind revision currency','location':'bos_code name',
++ 'opening_lot':'bos_code item_ref location_ref unit revision quantity unit_cost currency source_reference reason',
++ 'sales_order':'bos_code customer_ref owner_id due_date currency source_status',
++ 'sales_line':'order_ref item_ref unit revision quantity price',
++ 'purchase_open_balance':'bos_code item_ref supplier_ref unit revision source_order_code source_line_id original_quantity received_before_cutover remaining_quantity price original_extras remaining_extras currency original_due due_date source_reference'}
++DEFAULTS={'counterparty':dict(edrpou='',phone='',email='',address=''),
++ 'item':dict(method='buy',planned_cost='0.00',minimum='0.000',lead_days=7,material='',document=None,required_documents=[]),
++ 'location':dict(kind='warehouse'),'opening_lot':dict(documents={}),'sales_order':dict(notes=''),'sales_line':{},'purchase_open_balance':dict(source_documents={})}
++QFIELDS={'quantity','minimum','original_quantity','received_before_cutover','remaining_quantity'}
++MFIELDS={'price','unit_cost','original_extras','remaining_extras','planned_cost'}
++MONEY_KEYS=('opening_raw_value','opening_movement_cost','sales_open_value','purchase_original_value','purchase_cutover_open_value')
++CURRENCIES=('EUR','UAH','USD')
++REFS={'item_ref':'item','location_ref':'location','supplier_ref':'counterparty','customer_ref':'counterparty','order_ref':'sales_order'}
++ISSUED={}
++
++
++def digest(value):
++    return hashlib.sha256(json.dumps(value,sort_keys=True,ensure_ascii=False,separators=(',',':'),default=str).encode()).hexdigest()
++
++
++def decimal(value,places,positive=False):
++    if not isinstance(value,str) or not re.fullmatch(r'\d+(?:\.\d+)?',value) or len(value)>40:
++        raise ValueError('Потрібен десятковий рядок без exponent або коми.')
++    n=D(value);quantum=D(1).scaleb(-places)
++    if n>D('1000000000') or n!=n.quantize(quantum) or (positive and n<=0):
++        raise ValueError('Перевірте точність, кількість або місткість числа.')
++    return format(n,f'.{places}f')
++
++
++def external(value,maximum=120):
++    text_value(value,maximum=maximum)
++    if not value or value.strip()!=value:raise ValueError('Потрібен непорожній точний код без крайніх пробілів.')
++    return value
++
++
++def document_ref(value):
++    if not isinstance(value,dict) or set(value)!={'document_id','code','revision','checksum'}:raise ValueError('Потрібні точні ID/код/версія/checksum документа.')
++    if type(value['document_id']) is not int or value['document_id']<=0:raise ValueError('Некоректний ID документа.')
++    external(value['code'],80);external(value['revision'],40)
++    if not isinstance(value['checksum'],str) or not re.fullmatch('[a-f0-9]{64}',value['checksum']):raise ValueError('Потрібен SHA256 документа.')
++    return value
++
++
++class InvalidBatch(ValueError):
++    def __init__(self,errors,status=422):self.errors=errors;self.status=status;super().__init__('Перевірте рядки імпорту.')
++
++
++def error(row,field,message,code='BAD_VALUE',locators=None):
++    key=(row.get('entity') if isinstance(row.get('entity'),str) else None,row.get('external_id') if isinstance(row.get('external_id'),str) else None)
++    where=(locators or {}).get(key,{'row':None,'part':'json'})
++    return dict(entity=key[0],external_id=key[1],**where,field=field,code=code,message=str(message))
++
++
++def exact_arithmetic(fn):
++    @wraps(fn)
++    def wrapped(*args,**kwargs):
++        with localcontext() as ctx:
++            ctx.prec=50;ctx.rounding=ROUND_HALF_EVEN
++            return fn(*args,**kwargs)
++    return wrapped
++
++
++
++@exact_arithmetic
++def normalize(raw,collect=False):
++    keys={'format','batch_id','namespace','cutover','tax_basis','bindings','rows','expected_source_control_totals'}
++    if not isinstance(raw,dict) or set(raw)!=keys:raise InvalidBatch([error({},'batch','Невідомі або відсутні ключі пакета.')],400)
++    if raw['format']!='bos.initial-import.v1' or raw['tax_basis']!='excluding_VAT':raise InvalidBatch([error({},'format','Непідтриманий формат або податкова база.')],400)
++    try:
++        assert isinstance(raw['batch_id'],str)
++        token=UUID(raw['batch_id']);assert token.version==4 and str(token)==raw['batch_id']
++        assert isinstance(raw['namespace'],str) and re.fullmatch('[a-z][a-z0-9_-]{0,47}',raw['namespace'])
++        assert date.fromisoformat(raw['cutover']).isoformat()==raw['cutover']
++        assert isinstance(raw['rows'],list) and isinstance(raw['bindings'],list) and 1<=len(raw['rows'])+len(raw['bindings'])<=100
++    except (TypeError,ValueError,AssertionError):raise InvalidBatch([error({},'batch','Перевірте UUID4, namespace, дату та 1–100 рядків.')],400)
++    validate_controls(raw['expected_source_control_totals'])
++    out=deepcopy(raw);errors=[];seen=set();locators={};rows=[]
++    for number,source in enumerate(raw['rows'],1):
++        row=deepcopy(source)
++        if not isinstance(row,dict):errors.append(error({},'rows','Рядок має бути об’єктом.'));continue
++        key=(row.get('entity'),row.get('external_id'));field='row'
++        try:
++            if key[0] not in ENTITIES:raise ValueError('Невідомий вид рядка.')
++            external(key[1]);locators[key]={'row':number,'part':'json'}
++            if key in seen:errors.append(error(row,'external_id','Зовнішній ID повторено.','DUPLICATE_ID',locators));continue
++            seen.add(key)
++            required=set(REQUIRED[key[0]].split())|{'entity','external_id'};allowed=required|set(DEFAULTS[key[0]])
++            if set(row)-allowed or not required<=set(row):raise ValueError('Невідомі або відсутні поля рядка.')
++            row={**deepcopy(DEFAULTS[key[0]]),**row}
++            for field,value in list(row.items()):
++                if field in QFIELDS:row[field]=decimal(value,3,positive=field not in {'minimum','received_before_cutover'})
++                elif field in MFIELDS:row[field]=decimal(value,2)
++                elif field in REFS:external(value)
++                elif field=='bos_code':external(value,60)
++                elif field in ('source_order_code','source_line_id'):external(value,200)
++                elif field in ('revision','unit'):external(value,40 if field=='revision' else 20)
++                elif field in ('due_date','original_due'):
++                    if date.fromisoformat(value).isoformat()!=value:raise ValueError('Потрібна ISO дата.')
++                elif field=='currency' and value not in CURRENCIES:raise ValueError('Підтримано EUR,UAH,USD.')
++                elif isinstance(value,str):text_value(value,maximum=1000)
++            if 'owner_id' in row and (type(row['owner_id']) is not int or row['owner_id']<=0):raise ValueError('Потрібен ID відповідального.')
++            if key[0]=='counterparty' and row['type'] not in ('supplier','customer'):raise ValueError('Потрібен supplier/customer.')
++            if key[0]=='item':
++                if row['method']!='buy' or row['kind'] not in ('product','material','component'):raise ValueError('Перший профіль підтримує каталог buy.')
++                if type(row['lead_days']) is not int or not 0<=row['lead_days']<=730:raise ValueError('Перевірте lead_days.')
++                if not isinstance(row['required_documents'],list) or any(not isinstance(x,str) or not 1<=len(x)<=60 for x in row['required_documents']):raise ValueError('Перевірте види документів.')
++                if row['document'] is not None:document_ref(row['document'])
++            if key[0]=='location' and row['kind']!='warehouse':raise ValueError('Потрібен склад warehouse.')
++            if key[0]=='sales_order' and row['source_status'] not in ('quote','confirmed'):raise ValueError('Потрібен статус quote/confirmed.')
++            for field in ('documents','source_documents'):
++                if field in row:
++                    if not isinstance(row[field],dict):raise ValueError('Документи мають бути словником.')
++                    for kind,ref in row[field].items():external(kind,60);document_ref(ref)
++            if key[0]=='purchase_open_balance':
++                if D(row['original_quantity'])-D(row['received_before_cutover'])!=D(row['remaining_quantity']):raise ValueError('Початкова кількість мінус отримане не дорівнює залишку.')
++                if D(row['remaining_extras'])>D(row['original_extras']):raise ValueError('Витрати залишку перевищують первинні.')
++            for f in ('source_reference','reason'):
++                if f in row and (not isinstance(row[f],str) or not row[f].strip()):raise ValueError('Потрібне явне посилання та обґрунтування джерела.')
++            rows.append(row)
++        except (ValueError,TypeError,KeyError) as exc:errors.append(error(row,field,exc,locators=locators))
++    bindings=[]
++    for b in raw['bindings']:
++        try:
++            if not isinstance(b,dict) or set(b)!={'entity','external_id','target_id'} or b['entity'] not in ('item','counterparty','location'):raise ValueError('Невідома прив’язка.')
++            external(b['external_id']);key=(b['entity'],b['external_id'])
++            if key in seen:raise ValueError('ID рядка або прив’язки повторено.')
++            seen.add(key)
++            if type(b['target_id']) is not int or b['target_id']<=0:raise ValueError('Некоректний target ID.')
++            bindings.append(b)
++        except (ValueError,TypeError,KeyError) as exc:errors.append(error({},'bindings',exc))
++    out['rows']=sorted(rows,key=lambda r:(r['entity'],r['external_id']));out['bindings']=sorted(bindings,key=lambda r:(r['entity'],r['external_id']))
++    if collect:return out,locators,errors
++    if errors:raise InvalidBatch(errors)
++    return out,locators
++
++
++def source_totals(rows):
++    counts={entity:0 for entity in ENTITIES};money={c:{k:D(0) for k in MONEY_KEYS} for c in CURRENCIES};stock={}
++    orders={r['external_id']:r for r in rows if r['entity']=='sales_order'}
++    with localcontext() as ctx:
++        ctx.prec=50;ctx.rounding=ROUND_HALF_EVEN
++        for r in rows:
++            entity=r['entity'];counts[entity]+=1
++            if entity=='opening_lot':
++                raw=D(r['quantity'])*D(r['unit_cost']);m=money[r['currency']];m['opening_raw_value']+=raw;m['opening_movement_cost']+=raw.quantize(D('.01'))
++                key=tuple(r[k] for k in ('item_ref','location_ref','unit','revision','currency'));stock[key]=stock.get(key,D(0))+D(r['quantity'])
++            elif entity=='sales_line' and r['order_ref'] in orders:money[orders[r['order_ref']]['currency']]['sales_open_value']+=D(r['quantity'])*D(r['price'])
++            elif entity=='purchase_open_balance':
++                m=money[r['currency']];m['purchase_original_value']+=D(r['original_quantity'])*D(r['price'])+D(r['original_extras']);m['purchase_cutover_open_value']+=D(r['remaining_quantity'])*D(r['price'])+D(r['remaining_extras'])
++    return {'counts':counts,'money':[dict(currency=c,**{k:format(money[c][k],'.2f' if k=='opening_movement_cost' else '.5f') for k in MONEY_KEYS}) for c in CURRENCIES],
++        'stock':[dict(zip(('item_ref','location_ref','unit','revision','currency'),key),quantity=format(value,'.3f')) for key,value in sorted(stock.items())]}
++
++
++def semantic(batch):return digest({k:v for k,v in batch.items() if k!='batch_id'})
++
++def row_hash(batch,row):
++    data={'namespace':batch['namespace'],'cutover':batch['cutover'],'row':row}
++    if row['entity']=='sales_order':data['lines']=[r for r in batch['rows'] if r['entity']=='sales_line' and r['order_ref']==row['external_id']]
++    return digest(data)
++
++
++def fingerprint():
++    from .service import fingerprint as base
++    return digest({'erp':base(),'counterparties':list(Counterparty.objects.order_by('pk').values()),
++        'employees':json.loads(json.dumps(list(Employee.objects.order_by('pk').values()),default=str)),
++        'dataset':list(Configuration.objects.filter(key='dataset').values()),
++        'identities':list(ImportIdentity.objects.order_by('pk').values()),
++        'batches':list(ImportBatch.objects.order_by('pk').values('id','semantic_sha256'))})
++
++
++class ImportAuthority:
++    def __new__(cls,*args,**kwargs):raise TypeError('Контекст видає тільки імпортне погодження.')
++
++
++def assert_authority(authority,kind,hash_value,phase=None):
++    value=ISSUED.get(id(authority))
++    if (type(authority) is not ImportAuthority or not value or value['object'] is not authority or
++        value['kind']!=kind or value['hash']!=hash_value or (kind=='purchase' and digest(value['row'])!=value['row_hash']) or (phase is not None and value['phase']!=phase) or value['connection'] is not transaction.get_connection() or
++        not connection.in_atomic_block or not any(block is value['atomic'] for block in connection.atomic_blocks)):
++        raise PermissionError('Імпортний контекст відсутній, завершений або не відповідає рядку.')
++    return value
++
++
++@contextmanager
++def authority(kind,hash_value,principal,phase,row=None,parent=None):
++    if phase not in ('preview','apply') or not connection.in_atomic_block or principal.role!='ceo':raise PermissionError('Потрібне погодження керівника у транзакції.')
++    if parent is not None:
++        p=ISSUED.get(id(parent))
++        if not p or p['phase']!=phase or p['principal']!=principal:raise PermissionError('Інший контекст імпорту.')
++    token=object.__new__(ImportAuthority)
++    ISSUED[id(token)]={'object':token,'kind':kind,'hash':hash_value,'principal':principal,'phase':phase,'row':row,
++        'atomic':connection.atomic_blocks[-1],'connection':transaction.get_connection()}
++    if kind=='purchase':
++        ISSUED[id(token)]['row']=deepcopy(row);ISSUED[id(token)]['row_hash']=digest(row)
++    try:yield token
++    finally:ISSUED.pop(id(token),None)
++
++
++def historical_purchase(data,item,context,phase):
++    value=assert_authority(context,'purchase',digest(data),phase);
++    if phase not in ('preview','apply'):raise PermissionError('Невідома фаза імпорту.')
++    row=value['row'];batch=row['batch'];r=row['source']
++    # Admission is exact and issued by the coordinator; normal ERP input cannot mint it.
++    if item.unit!=r['unit'] or item.revision!=r['revision']:raise ValueError('Історична одиниця/версія не відповідає номенклатурі.')
++    snapshot={k:deepcopy(v) for k,v in r.items() if k not in ('entity','bos_code','item_ref','supplier_ref')}
++    snapshot.update(source='imported_open_balance',namespace=batch['namespace'],batch_id=batch['batch_id'],cutover=batch['cutover'],row_sha256=row_hash(batch,r),actor_id=value['principal'].user_id)
++    return {**data,'approval_snapshot':snapshot,'quote_id':None,'request_id':None,'production_id':None},r['original_due']
++
++
++def locked_references(batch):
++    cp_ids=set();employee_ids={r['owner_id'] for r in batch['rows'] if r['entity']=='sales_order'}
++    for b in batch['bindings']:
++        if b['entity']=='counterparty':cp_ids.add(b['target_id'])
++    cp_ids.update(ImportIdentity.objects.filter(namespace=batch['namespace'],counterparty_id__isnull=False).values_list('counterparty_id',flat=True))
++    list(Counterparty.objects.select_for_update().filter(pk__in=cp_ids).order_by('pk'))
++    list(Employee.objects.select_for_update().filter(pk__in=employee_ids).order_by('pk'))
++
++
++def checked_documents(values,policy):
++    result={}
++    from operations.private_storage import verified_document_bytes
++    from operations.service import newest
++    for kind,ref in values.items():
++        doc=policy.documents().get(pk=ref['document_id'])
++        if (doc.code,doc.revision,doc.checksum)!=(ref['code'],ref['revision'],ref['checksum']) or newest(doc.code).pk!=doc.pk or doc.status!='approved':
++            raise ValueError('Потрібна дозволена актуальна перевірена версія документа.')
++        verified_document_bytes(doc);result[kind]=doc.pk
++    return result
++
++
++def plan(batch,locators,policy):
++    existing={ (x.entity,x.external_id):x for x in ImportIdentity.objects.filter(namespace=batch['namespace']).select_related(*[x[0] for x in TARGET.values()])}
++    known=ImportBatch.objects.filter(pk=batch['batch_id']).first()
++    if known and known.semantic_sha256!=semantic(batch):raise Conflict('UUID пакета вже використано з іншим змістом.')
++    refs={key:getattr(obj,TARGET[obj.entity][0]) for key,obj in existing.items()}
++    new=[];reused=[];binds=[];binding_reused=[];errors=[];incoming={(r['entity'],r['external_id']):r for r in batch['rows']}
++    for b in batch['bindings']:
++        key=(b['entity'],b['external_id']);h=row_hash(batch,b)
++        if key in existing:
++            old=existing[key]
++            if old.row_sha256!=h or getattr(old,TARGET[b['entity']][0]+'_id')!=b['target_id']:raise Conflict('Змінено первинну прив’язку зовнішнього ID.')
++            policy.check_reference(TARGET[b['entity']][0]+'_id',b['target_id']);binding_reused.append(b)
++            continue
++        try:
++            obj=TARGET[b['entity']][1].objects.get(pk=b['target_id'])
++            if ImportIdentity.objects.filter(namespace=batch['namespace'],**{TARGET[b['entity']][0]+'_id':obj.pk}).exists():raise Conflict('Запис уже має зовнішній ID у цьому джерелі.')
++            policy.check_reference(TARGET[b['entity']][0]+'_id',obj.pk)
++            if b['entity']=='counterparty' and (not obj.is_active or obj.type not in ('supplier','customer')):raise ValueError('Потрібен активний supplier/customer.')
++            if b['entity']=='item' and (obj.method!='buy' or obj.kind not in ('product','material','component')):raise ValueError('Перший профіль підтримує каталог buy.')
++            if b['entity']=='location' and obj.kind!='warehouse':raise ValueError('Потрібен склад warehouse.')
++            refs[key]=obj;binds.append(b)
++        except (ObjectDoesNotExist,ValueError) as exc:errors.append(error(b,'target_id',str(exc),'MISSING_REFERENCE',locators))
++    for r in batch['rows']:
++        key=(r['entity'],r['external_id'])
++        if key in existing:
++            if existing[key].row_sha256!=row_hash(batch,r):raise Conflict('Зовнішній ID уже має інший первинний зміст або склад позицій.')
++            target=refs[key]
++            if target is None:raise Conflict('Первинне джерело імпорту відсутнє.')
++            policy.check_reference(TARGET[r['entity']][0]+'_id',target.pk);reused.append(r)
++        else:new.append(r)
++    def value(ref,field):
++        if ref in refs:return getattr(refs[ref],field)
++        return incoming[ref][field]
++    for r in new:
++        try:
++            for field,entity in REFS.items():
++                if field in r and (entity,r[field]) not in refs and (entity,r[field]) not in incoming:
++                    raise ValueError('Недоступне посилання '+field)
++            field_values(TARGET[r['entity']][1],{**r,**({'code':r['bos_code']} if 'bos_code' in r else {})})
++            if 'bos_code' in r and TARGET[r['entity']][1].objects.filter(code=r['bos_code']).exists():raise Conflict('Код BoS уже існує. Оберіть явне зіставлення або інший код.')
++            if 'item_ref' in r:
++                key=('item',r['item_ref'])
++                if value(key,'unit')!=r['unit'] or value(key,'revision')!=r['revision']:raise ValueError('Одиниця/версія не відповідає номенклатурі.')
++                if value(key,'method')!='buy' or value(key,'kind') not in ('product','material','component'):raise ValueError('Нові рядки потребують чинного каталогу buy.')
++            if 'location_ref' in r and value(('location',r['location_ref']),'kind')!='warehouse':raise ValueError('Нові залишки потребують чинного складу warehouse.')
++            for field,kind in (('supplier_ref','supplier'),('customer_ref','customer')):
++                if field in r and (value(('counterparty',r[field]),'type')!=kind or (('counterparty',r[field]) in refs and not refs[('counterparty',r[field])].is_active)):
++                    raise ValueError('Тип або активність контрагента не відповідає операції.')
++            if r['entity']=='sales_order':
++                owner=Employee.objects.get(pk=r['owner_id'])
++                if owner.archived_at is not None:raise ValueError('Відповідальний архівний.')
++                if not any(x['entity']=='sales_line' and x['order_ref']==r['external_id'] for x in batch['rows']):raise ValueError('Замовлення потребує позицій.')
++            if r['entity']=='sales_line':
++                key=('sales_order',r['order_ref'])
++                if key not in incoming:raise ValueError('Потрібна повна шапка цього пакета.')
++                if key in existing:raise Conflict('Додавання позицій до імпортованого замовлення не підтримано.')
++            if r['entity']=='item' and r['document'] is not None:checked_documents({'spec':r['document']},policy)
++            checked_documents(r.get('documents',r.get('source_documents',{})),policy)
++            if r['entity']=='opening_lot':
++                item=refs.get(('item',r['item_ref']));location=refs.get(('location',r['location_ref']))
++                if item and location and Lot.objects.filter(item=item,location=location).exists():raise Conflict('У групі номенклатура/склад уже є persisted партії: повторний зріз заборонено.')
++        except (ObjectDoesNotExist,ValueError,KeyError) as exc:errors.append(error(r,'reference',str(exc),'MISSING_REFERENCE',locators))
++    controls=source_totals(batch['rows'])
++    if errors:raise InvalidBatch(errors)
++    if controls!=batch['expected_source_control_totals']:raise InvalidBatch([error({},'expected_source_control_totals','Незалежні підсумки джерела не збігаються.','TOTALS_MISMATCH')])
++    return dict(batch=batch,refs=refs,new=new,reused=reused,binds=binds,binding_reused=binding_reused,source_control_totals=controls,known=known,locators=locators)
++
++
++def round_fraction(value):
++    scaled=value*100;whole,rem=divmod(scaled.numerator,scaled.denominator)
++    if rem*2>scaled.denominator or (rem*2==scaled.denominator and whole%2):whole+=1
++    return D((1 if whole<0 else 0,tuple(int(c) for c in str(abs(whole))),-2))
++
++
++@exact_arithmetic
++def live_totals(p):
++    money={c:{k:D(0) for k in ('inventory_raw_value','opening_movement_cost','sales_open_value','purchase_open_value')} for c in CURRENCIES};stock=[];groups=set()
++    from .service import free,usable
++    for r in p['batch']['rows']:
++        entity=r['entity'];obj=p['refs'].get((entity,r['external_id']))
++        if entity=='opening_lot':
++            item=p['refs'].get(('item',r['item_ref']));loc=p['refs'].get(('location',r['location_ref']))
++            key=tuple(r[k] for k in ('item_ref','location_ref','unit','revision','currency'))
++            if key in groups:continue
++            groups.add(key);physical=D(0);available=D(0)
++            if item and loc:
++                for lot in Lot.objects.filter(item=item,location=loc,revision=r['revision'],currency=r['currency']).select_related('item'):
++                    physical+=lot.quantity;available+=free(lot) if usable(lot) else D(0)
++                    money[lot.currency]['inventory_raw_value']+=lot.quantity*lot.unit_cost
++                    money[lot.currency]['opening_movement_cost']+=sum((m.cost for m in lot.movements.filter(kind='opening')),D(0))
++            stock.append(dict(zip(('item_ref','location_ref','unit','revision','currency'),key),physical=format(physical,'.3f'),available=format(available,'.3f')))
++        elif entity=='sales_line' and obj:
++            money[obj.order.currency]['sales_open_value']+=round_fraction(Fraction(obj.quantity-obj.shipped)*Fraction(obj.price))
++        elif entity=='purchase_open_balance' and obj:
++            money[obj.currency]['purchase_open_value']+=round_fraction(Fraction(obj.quantity-obj.received)*(Fraction(obj.price)+Fraction(obj.extras)/Fraction(obj.quantity)))
++    return {'scope':'batch_targets_and_opening_groups','money':[dict(currency=c,**{k:format(v,'.5f' if k=='inventory_raw_value' else '.2f') for k,v in money[c].items()}) for c in CURRENCIES],
++        'stock':sorted(stock,key=lambda r:tuple(r[k] for k in ('item_ref','location_ref','unit','revision','currency')))}
++
++
++def mappings(p,preview=False):
++    newkeys={(r['entity'],r['external_id']) for r in p['new']};out=[]
++    for row in p['batch']['rows']:
++        key=(row['entity'],row['external_id']);obj=p['refs'].get(key);new=key in newkeys
++        out.append(dict(entity=row['entity'],external_id=row['external_id'],**p['locators'].get(key,{'row':None,'part':'json'}),
++            decision='create' if new else 'reuse',target_model=TARGET[row['entity']][0],target_id=None if preview and new else obj.pk if obj else None,
++            bos_code=row.get('bos_code',''),display_name=row.get('name',row.get('source_order_code',row['external_id']))))
++    boundkeys={(r['entity'],r['external_id']) for r in p['binds']}
++    for row in p['batch']['bindings']:
++        key=(row['entity'],row['external_id']);obj=p['refs'][key]
++        out.append(dict(entity=row['entity'],external_id=row['external_id'],row=None,part='bindings',decision='bind' if key in boundkeys else 'reuse',
++            target_model=TARGET[row['entity']][0],target_id=obj.pk,bos_code=getattr(obj,'code',''),display_name=obj.name))
++    return out
++
++
++
++
++@exact_arithmetic
++def apply_batch(batch,context,phase):
++    a=assert_authority(context,'batch',semantic(batch),phase);
++    if phase not in ('preview','apply'):raise PermissionError('Невідома фаза імпорту.')
++    p=a['row'];principal=a['principal'];phase=a['phase'];refs=p['refs']
++    from .service import dispatch
++    def run(action,values,ctx=None):return dispatch({'action':'erp_'+action,**values},role='ceo',log=False,import_context=ctx,import_phase=phase)
++    record=ImportBatch.objects.create(id=batch['batch_id'],namespace=batch['namespace'],cutover=batch['cutover'],semantic_sha256=semantic(batch),canonical_source=batch,source_part_sha256=p.get('parts',{}),actor_id=principal.user_id)
++    def bind(row,obj):
++        refs[(row['entity'],row['external_id'])]=obj
++        return ImportIdentity.objects.create(namespace=batch['namespace'],entity=row['entity'],external_id=row['external_id'],row_sha256=row_hash(batch,row),source_row=row,first_batch=record,**{TARGET[row['entity']][0]:obj})
++    for b in p['binds']:bind(b,refs[(b['entity'],b['external_id'])])
++    for entity in ENTITIES:
++        for r in [row for row in p['new'] if row['entity']==entity]:
++            if entity=='sales_line':continue
++            data={k:deepcopy(v) for k,v in r.items() if k not in ('entity','external_id')}
++            if 'bos_code' in data:data['code']=data.pop('bos_code')
++            if entity=='counterparty':
++                obj=Counterparty(**data,is_active=True);obj.full_clean();obj.save(force_insert=True)
++            elif entity=='item':
++                doc=data.pop('document');data['document_id']=doc['document_id'] if doc else None
++                obj=Item.objects.get(pk=run('item',data)['item_id'])
++            elif entity=='location':obj=Location.objects.get(pk=run('location',data)['location_id'])
++            elif entity=='opening_lot':
++                data['item_id']=refs[('item',data.pop('item_ref'))].pk;data['location_id']=refs[('location',data.pop('location_ref'))].pk
++                data.pop('unit');data['reason']=data['reason']+' · '+data.pop('source_reference');data['documents']={k:v['document_id'] for k,v in data['documents'].items()}
++                obj=Lot.objects.get(pk=run('opening',data)['lot_id'])
++            elif entity=='sales_order':
++                lines=[x for x in batch['rows'] if x['entity']=='sales_line' and x['order_ref']==r['external_id']]
++                data['customer_id']=refs[('counterparty',data.pop('customer_ref'))].pk;status=data.pop('source_status')
++                data['lines']=[{'item_id':refs[('item',line['item_ref'])].pk,'quantity':line['quantity'],'price':line['price']} for line in lines]
++                obj=SalesOrder.objects.get(pk=run('order',data)['order_id'])
++                if status=='confirmed':run('confirm_order',{'order_id':obj.pk})
++                for line,target in zip(lines,obj.lines.order_by('pk'),strict=True):bind(line,target)
++            else:
++                data={'code':r['bos_code'],'item_id':refs[('item',r['item_ref'])].pk,'supplier_id':refs[('counterparty',r['supplier_ref'])].pk,
++                    'quantity':r['remaining_quantity'],'price':r['price'],'extras':r['remaining_extras'],'currency':r['currency'],'due_date':r['due_date'],'revision':r['revision']}
++                with authority('purchase',digest(data),principal,phase,{'batch':batch,'source':r},parent=context) as ctx:
++                    obj=Purchase.objects.get(pk=run('purchase',data,ctx)['purchase_id'])
++            bind(r,obj)
++    verify_created(p)
++    return {'batch_id':str(record.pk)}
++
++
++@exact_arithmetic
++def prepare(request,raw,parts=None,locators_override=None):
++    principal=actor(request)
++    if principal.role!='ceo':raise PermissionError('Початковий імпорт доступний лише керівнику.')
++    batch,locators,input_errors=normalize(raw,collect=True)
++    if locators_override:locators=locators_override
++    from .service import write_lock,dispatch
++    with transaction.atomic():
++        write_lock();locked_references(batch);principal=actor(request)
++        if principal.role!='ceo':raise PermissionError('Повноваження змінилися.')
++        if date.fromisoformat(batch['cutover'])>as_of():raise InvalidBatch([error({},'cutover','Дата зрізу не може бути в майбутньому.')])
++        if input_errors:
++            try:plan(batch,locators,Policy(request))
++            except InvalidBatch as exc:input_errors.extend(exc.errors)
++            except Conflict as exc:input_errors.append(error({},'batch',exc,'IDENTITY_CONFLICT'))
++            raise InvalidBatch(input_errors)
++        p=plan(batch,locators,Policy(request));p['parts']=parts or {};token=fingerprint();before=live_totals(p);delta=source_totals(p['new'])
++        if p['known'] is None:
++            with authority('batch',semantic(batch),principal,'preview',p) as ctx:
++                dispatch({'action':'erp_import_batch','batch':batch},role='ceo',log=False,import_context=ctx,import_phase='preview')
++        after=live_totals(p);mapping=mappings(p,preview=True);first=deepcopy(p['known'].receipt) if p['known'] else None
++        transaction.set_rollback(True)
++    if not request.session.session_key:request.session.create()
++    proposal=ActionProposal.objects.create(session_key=request.session.session_key,user_id=principal.user_id,role='ceo',
++        payload={'action':'erp_import_batch','batch':batch,'source_part_sha256':parts or {}},fingerprint=token,expires_at=timezone.now()+timedelta(minutes=10))
++    return dict(valid=True,batch_id=batch['batch_id'],namespace=batch['namespace'],semantic_sha256=semantic(batch),errors=[],warnings=[],
++        counts={'create':len(p['new']),'reuse':len(p['reused'])+len(p['binding_reused']),'bind':len(p['binds'])},mappings=mapping,
++        source_control_totals=p['source_control_totals'],planned_delta=delta,live_before=before,projected_after=after,
++        proposal={'id':str(proposal.pk),'expires_at':proposal.expires_at.isoformat()},first_commit_receipt=first)
++
++
++@exact_arithmetic
++def confirm_batch(request,payload):
++    principal=actor(request)
++    if principal.role!='ceo':raise PermissionError('Імпорт погоджує тільки керівник.')
++    batch,locators=normalize(payload['batch']);locked_references(batch);p=plan(batch,locators,Policy(request));p['parts']=payload.get('source_part_sha256',{})
++    if p['known']:
++        if not p['known'].receipt:raise Conflict('Незавершений імпорт.')
++        return p['known'].receipt
++    before=live_totals(p);delta=source_totals(p['new'])
++    from .service import dispatch
++    with authority('batch',semantic(batch),principal,'apply',p) as ctx:
++        dispatch({'action':'erp_import_batch','batch':batch},role='ceo',log=False,import_context=ctx,import_phase='apply')
++    result=dict(state='succeeded',batch_id=batch['batch_id'],namespace=batch['namespace'],semantic_sha256=semantic(batch),
++        counts={'create':len(p['new']),'reuse':len(p['reused'])+len(p['binding_reused']),'bind':len(p['binds'])},mappings=mappings(p),source_control_totals=p['source_control_totals'],
++        committed_delta=delta,live_before=before,live_after=live_totals(p),impact={'title':'Початковий імпорт','changes':[]})
++    event=Event.objects.create(action='erp_import_batch',payload=payload,result=result,role='ceo');result['erp_event_id']=event.pk
++    event.result=result;event.save(update_fields=['result']);ImportBatch.objects.filter(pk=batch['batch_id']).update(receipt=result)
++    return result
++
++
++def verify_created(p):
++    """Read actual persisted rows before commit; never trust dispatch's receipt."""
++    for r in p['new']:
++        entity=r['entity'];obj=p['refs'][(entity,r['external_id'])];obj.refresh_from_db()
++        wanted={}
++        if entity=='counterparty':wanted={k:r[k] for k in ('name','type','edrpou','phone','email','address')}
++        elif entity=='item':wanted={k:r[k] for k in ('name','unit','kind','method','revision','currency','minimum','planned_cost','material','lead_days','required_documents')};wanted.update(code=r['bos_code'],document_id=r['document']['document_id'] if r['document'] else None)
++        elif entity=='location':wanted=dict(code=r['bos_code'],name=r['name'],kind='warehouse')
++        elif entity=='opening_lot':
++            wanted=dict(code=r['bos_code'],quantity=r['quantity'],unit_cost=r['unit_cost'],currency=r['currency'],revision=r['revision'],quality='pending',item_id=p['refs'][('item',r['item_ref'])].pk,location_id=p['refs'][('location',r['location_ref'])].pk)
++            movements=list(obj.movements.all())
++            if len(movements)!=1 or movements[0].kind!='opening' or movements[0].quantity!=D(r['quantity']) or movements[0].cost!=round_fraction(Fraction(D(r['quantity']))*Fraction(D(r['unit_cost']))):raise ValueError('Фактичний початковий рух не відповідає джерелу.')
++        elif entity=='sales_order':wanted=dict(code=r['bos_code'],customer_id=p['refs'][('counterparty',r['customer_ref'])].pk,owner_id=r['owner_id'],due_date=date.fromisoformat(r['due_date']),currency=r['currency'],status=r['source_status'])
++        elif entity=='sales_line':wanted=dict(order_id=p['refs'][('sales_order',r['order_ref'])].pk,item_id=p['refs'][('item',r['item_ref'])].pk,revision=r['revision'],quantity=r['quantity'],price=r['price'],shipped=D(0),invoiced=D(0))
++        elif entity=='purchase_open_balance':
++            wanted=dict(code=r['bos_code'],item_id=p['refs'][('item',r['item_ref'])].pk,supplier_id=p['refs'][('counterparty',r['supplier_ref'])].pk,quantity=r['remaining_quantity'],received=D(0),price=r['price'],extras=r['remaining_extras'],currency=r['currency'],revision=r['revision'],due_date=date.fromisoformat(r['due_date']),original_due=date.fromisoformat(r['original_due']),status='ordered',quote_id=None,request_id=None,production_id=None)
++            if obj.approval_snapshot.get('row_sha256')!=row_hash(p['batch'],r) or obj.approval_snapshot.get('source')!='imported_open_balance' or obj.movement_set.exists():raise ValueError('Фактичний залишковий PO або його джерело не відповідають зрізу.')
++        for key,value in wanted.items():
++            actual=getattr(obj,key)
++            if isinstance(actual,D):value=D(value)
++            if actual!=value:raise ValueError('Фактичний запис не відповідає погодженому джерелу: '+entity+'.'+key)
++        identity=ImportIdentity.objects.get(namespace=p['batch']['namespace'],entity=entity,external_id=r['external_id'])
++        if identity.row_sha256!=row_hash(p['batch'],r) or getattr(identity,TARGET[entity][0]+'_id')!=obj.pk:raise ValueError('Журнал зовнішніх ID не відповідає фактичному запису.')
++
++
++def validate_controls(value):
++    try:
++        if not isinstance(value,dict) or set(value)!={'counts','money','stock'}:raise ValueError('Потрібні counts/money/stock.')
++        counts=value['counts']
++        if not isinstance(counts,dict) or set(counts)!=set(ENTITIES) or any(type(n) is not int or not 0<=n<=100 for n in counts.values()):raise ValueError('Контрольні counts мають бути цілими числами, не bool/float.')
++        if not isinstance(value['money'],list) or len(value['money'])!=3:raise ValueError('Потрібні три валюти.')
++        for currency,row in zip(CURRENCIES,value['money'],strict=True):
++            if not isinstance(row,dict) or set(row)!={'currency',*MONEY_KEYS} or row['currency']!=currency:raise ValueError('Некоректні money keys/currency order.')
++            for key in MONEY_KEYS:
++                places=2 if key=='opening_movement_cost' else 5
++                if not isinstance(row[key],str) or not re.fullmatch(r'(0|[1-9][0-9]*)\.[0-9]{'+str(places)+'}',row[key]) or len(row[key])>32:raise ValueError('Потрібні точні canonical грошові рядки.')
++        if not isinstance(value['stock'],list) or len(value['stock'])>100:raise ValueError('Неправильний stock controls.')
++        keys=[]
++        for row in value['stock']:
++            if not isinstance(row,dict) or set(row)!={'item_ref','location_ref','unit','revision','currency','quantity'}:raise ValueError('Некоректний stock group.')
++            for key in ('item_ref','location_ref'):external(row[key])
++            external(row['unit'],20);external(row['revision'],40)
++            if row['currency'] not in CURRENCIES or decimal(row['quantity'],3)!=row['quantity']:raise ValueError('Некоректна stock quantity/currency.')
++            keys.append(tuple(row[k] for k in ('item_ref','location_ref','unit','revision','currency')))
++        if keys!=sorted(set(keys)):raise ValueError('Stock groups мають бути унікальні й відсортовані.')
++    except (ValueError,TypeError,KeyError) as exc:raise InvalidBatch([error({},'expected_source_control_totals',exc)],422)
+--- /dev/null
++++ b/erp/migrations/0004_initial_import_ledger.py
+@@ -0,0 +1,60 @@
++# Generated by Django 6.0.5 on 2026-09-12 12:18
++
++import django.db.models.deletion
++from django.conf import settings
++from django.db import migrations, models
++
++
++def refuse_import_history_loss(apps,schema_editor):
++    alias=schema_editor.connection.alias
++    if apps.get_model('erp','ImportBatch').objects.using(alias).exists() or apps.get_model('erp','ImportIdentity').objects.using(alias).exists():
++        raise RuntimeError('Відкат B02 зупинено: він видалив би журнал походження імпорту.')
++
++
++class Migration(migrations.Migration):
++
++    dependencies = [
++        ('erp', '0003_purchase_source'),
++        ('finance', '0007_money_boundaries'),
++        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
++    ]
++
++    operations = [
++        migrations.CreateModel(
++            name='ImportBatch',
++            fields=[
++                ('id', models.UUIDField(editable=False, primary_key=True, serialize=False)),
++                ('namespace', models.CharField(max_length=48)),
++                ('cutover', models.DateField()),
++                ('semantic_sha256', models.CharField(max_length=64)),
++                ('canonical_source', models.JSONField()),
++                ('source_part_sha256', models.JSONField(default=dict)),
++                ('receipt', models.JSONField(null=True)),
++                ('created_at', models.DateTimeField(auto_now_add=True)),
++                ('actor', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL)),
++            ],
++        ),
++        migrations.CreateModel(
++            name='ImportIdentity',
++            fields=[
++                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
++                ('namespace', models.CharField(max_length=48)),
++                ('entity', models.CharField(max_length=32)),
++                ('external_id', models.CharField(max_length=120)),
++                ('row_sha256', models.CharField(max_length=64)),
++                ('source_row', models.JSONField()),
++                ('counterparty', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, to='finance.counterparty')),
++                ('first_batch', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='erp.importbatch')),
++                ('item', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, to='erp.item')),
++                ('line', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, to='erp.salesline')),
++                ('location', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, to='erp.location')),
++                ('lot', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, to='erp.lot')),
++                ('order', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, to='erp.salesorder')),
++                ('purchase', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, to='erp.purchase')),
++            ],
++            options={
++                'constraints': [models.UniqueConstraint(fields=('namespace', 'entity', 'external_id'), name='bos_import_external_identity'), models.UniqueConstraint(condition=models.Q(('counterparty__isnull', False)), fields=('namespace', 'counterparty'), name='bos_import_target_counterparty'), models.UniqueConstraint(condition=models.Q(('item__isnull', False)), fields=('namespace', 'item'), name='bos_import_target_item'), models.UniqueConstraint(condition=models.Q(('location__isnull', False)), fields=('namespace', 'location'), name='bos_import_target_location'), models.UniqueConstraint(condition=models.Q(('lot__isnull', False)), fields=('namespace', 'lot'), name='bos_import_target_lot'), models.UniqueConstraint(condition=models.Q(('order__isnull', False)), fields=('namespace', 'order'), name='bos_import_target_order'), models.UniqueConstraint(condition=models.Q(('line__isnull', False)), fields=('namespace', 'line'), name='bos_import_target_line'), models.UniqueConstraint(condition=models.Q(('purchase__isnull', False)), fields=('namespace', 'purchase'), name='bos_import_target_purchase'), models.CheckConstraint(condition=models.Q(models.Q(('counterparty__isnull', False), ('entity', 'counterparty'), ('item__isnull', True), ('line__isnull', True), ('location__isnull', True), ('lot__isnull', True), ('order__isnull', True), ('purchase__isnull', True)), models.Q(('counterparty__isnull', True), ('entity', 'item'), ('item__isnull', False), ('line__isnull', True), ('location__isnull', True), ('lot__isnull', True), ('order__isnull', True), ('purchase__isnull', True)), models.Q(('counterparty__isnull', True), ('entity', 'location'), ('item__isnull', True), ('line__isnull', True), ('location__isnull', False), ('lot__isnull', True), ('order__isnull', True), ('purchase__isnull', True)), models.Q(('counterparty__isnull', True), ('entity', 'opening_lot'), ('item__isnull', True), ('line__isnull', True), ('location__isnull', True), ('lot__isnull', False), ('order__isnull', True), ('purchase__isnull', True)), models.Q(('counterparty__isnull', True), ('entity', 'sales_order'), ('item__isnull', True), ('line__isnull', True), ('location__isnull', True), ('lot__isnull', True), ('order__isnull', False), ('purchase__isnull', True)), models.Q(('counterparty__isnull', True), ('entity', 'sales_line'), ('item__isnull', True), ('line__isnull', False), ('location__isnull', True), ('lot__isnull', True), ('order__isnull', True), ('purchase__isnull', True)), models.Q(('counterparty__isnull', True), ('entity', 'purchase_open_balance'), ('item__isnull', True), ('line__isnull', True), ('location__isnull', True), ('lot__isnull', True), ('order__isnull', True), ('purchase__isnull', False)), _connector='OR'), name='bos_import_target_kind')],
++            },
++        ),
++        migrations.RunPython(migrations.RunPython.noop, reverse_code=refuse_import_history_loss),
++    ]
+--- a/erp/models.py
++++ b/erp/models.py
+@@ -189,3 +189,45 @@
+     result=models.JSONField()
+     role=models.CharField(max_length=20)
+     created_at=models.DateTimeField(auto_now_add=True)
++
++
++class ImportBatch(models.Model):
++    """Immutable source receipt; ordinary business operations keep evolving."""
++    id = models.UUIDField(primary_key=True, editable=False)
++    namespace = models.CharField(max_length=48)
++    cutover = models.DateField()
++    semantic_sha256 = models.CharField(max_length=64)
++    canonical_source = models.JSONField()
++    source_part_sha256 = models.JSONField(default=dict)
++    actor = models.ForeignKey('auth.User', on_delete=models.PROTECT)
++    receipt = models.JSONField(null=True)
++    created_at = models.DateTimeField(auto_now_add=True)
++
++
++class ImportIdentity(models.Model):
++    namespace = models.CharField(max_length=48)
++    entity = models.CharField(max_length=32)
++    external_id = models.CharField(max_length=120)
++    row_sha256 = models.CharField(max_length=64)
++    source_row = models.JSONField()
++    first_batch = models.ForeignKey(ImportBatch, on_delete=models.PROTECT)
++    counterparty = models.ForeignKey('finance.Counterparty', null=True, on_delete=models.PROTECT)
++    item = models.ForeignKey(Item, null=True, on_delete=models.PROTECT)
++    location = models.ForeignKey(Location, null=True, on_delete=models.PROTECT)
++    lot = models.ForeignKey(Lot, null=True, on_delete=models.PROTECT)
++    order = models.ForeignKey(SalesOrder, null=True, on_delete=models.PROTECT)
++    line = models.ForeignKey(SalesLine, null=True, on_delete=models.PROTECT)
++    purchase = models.ForeignKey(Purchase, null=True, on_delete=models.PROTECT)
++
++    class Meta:
++        constraints = [models.UniqueConstraint(fields=['namespace','entity','external_id'],name='bos_import_external_identity')]
++        constraints += [models.UniqueConstraint(fields=['namespace', field], condition=models.Q(**{field+'__isnull':False}),name='bos_import_target_'+field)
++                        for field in ('counterparty','item','location','lot','order','line','purchase')]
++        constraints += [models.CheckConstraint(name='bos_import_target_kind', condition=
++            models.Q(entity='counterparty',counterparty__isnull=False,item__isnull=True,location__isnull=True,lot__isnull=True,order__isnull=True,line__isnull=True,purchase__isnull=True) |
++            models.Q(entity='item',counterparty__isnull=True,item__isnull=False,location__isnull=True,lot__isnull=True,order__isnull=True,line__isnull=True,purchase__isnull=True) |
++            models.Q(entity='location',counterparty__isnull=True,item__isnull=True,location__isnull=False,lot__isnull=True,order__isnull=True,line__isnull=True,purchase__isnull=True) |
++            models.Q(entity='opening_lot',counterparty__isnull=True,item__isnull=True,location__isnull=True,lot__isnull=False,order__isnull=True,line__isnull=True,purchase__isnull=True) |
++            models.Q(entity='sales_order',counterparty__isnull=True,item__isnull=True,location__isnull=True,lot__isnull=True,order__isnull=False,line__isnull=True,purchase__isnull=True) |
++            models.Q(entity='sales_line',counterparty__isnull=True,item__isnull=True,location__isnull=True,lot__isnull=True,order__isnull=True,line__isnull=False,purchase__isnull=True) |
++            models.Q(entity='purchase_open_balance',counterparty__isnull=True,item__isnull=True,location__isnull=True,lot__isnull=True,order__isnull=True,line__isnull=True,purchase__isnull=False))]
+--- /dev/null
++++ b/erp/seed/initial_import_ua.json
+@@ -0,0 +1,364 @@
++{
++  "format": "bos.initial-import.v1",
++  "batch_id": "2932ebd6-705e-4aea-8f82-9281280e6516",
++  "namespace": "synthetic-a",
++  "cutover": "2026-09-12",
++  "tax_basis": "excluding_VAT",
++  "bindings": [],
++  "rows": [
++    {
++      "entity": "counterparty",
++      "external_id": "supplier-eur",
++      "name": "B02 постачальник A · EUR",
++      "type": "supplier"
++    },
++    {
++      "entity": "counterparty",
++      "external_id": "customer-eur",
++      "name": "B02 клієнт A · EUR",
++      "type": "customer"
++    },
++    {
++      "entity": "item",
++      "external_id": "material-eur",
++      "bos_code": "B02-A-I-EUR",
++      "name": "B02 матеріал · EUR",
++      "unit": "кг",
++      "kind": "material",
++      "revision": "A",
++      "currency": "EUR"
++    },
++    {
++      "entity": "location",
++      "external_id": "warehouse-eur",
++      "bos_code": "B02-A-W-EUR",
++      "name": "B02 склад · EUR"
++    },
++    {
++      "entity": "opening_lot",
++      "external_id": "lot-one-eur",
++      "bos_code": "B02-A-L1-EUR",
++      "item_ref": "material-eur",
++      "location_ref": "warehouse-eur",
++      "unit": "кг",
++      "revision": "A",
++      "quantity": "1.250",
++      "unit_cost": "2.34",
++      "currency": "EUR",
++      "source_reference": "B02 зріз STOCK-1",
++      "reason": "Початковий синтетичний залишок"
++    },
++    {
++      "entity": "opening_lot",
++      "external_id": "lot-two-eur",
++      "bos_code": "B02-A-L2-EUR",
++      "item_ref": "material-eur",
++      "location_ref": "warehouse-eur",
++      "unit": "кг",
++      "revision": "A",
++      "quantity": "3.750",
++      "unit_cost": "2.34",
++      "currency": "EUR",
++      "source_reference": "B02 зріз STOCK-2",
++      "reason": "Початковий синтетичний залишок"
++    },
++    {
++      "entity": "sales_order",
++      "external_id": "sale-eur",
++      "bos_code": "B02-A-SO-EUR",
++      "customer_ref": "customer-eur",
++      "owner_id": 1,
++      "due_date": "2026-10-01",
++      "currency": "EUR",
++      "source_status": "confirmed"
++    },
++    {
++      "entity": "sales_line",
++      "external_id": "sale-line-eur",
++      "order_ref": "sale-eur",
++      "item_ref": "material-eur",
++      "unit": "кг",
++      "revision": "A",
++      "quantity": "2.500",
++      "price": "4.12"
++    },
++    {
++      "entity": "purchase_open_balance",
++      "external_id": "purchase-line-eur",
++      "bos_code": "B02-A-PO-EUR",
++      "item_ref": "material-eur",
++      "supplier_ref": "supplier-eur",
++      "unit": "кг",
++      "revision": "A",
++      "source_order_code": "SOURCE-PO-7-EUR",
++      "source_line_id": "1",
++      "original_quantity": "8.000",
++      "received_before_cutover": "3.000",
++      "remaining_quantity": "5.000",
++      "price": "1.23",
++      "original_extras": "0.80",
++      "remaining_extras": "0.40",
++      "currency": "EUR",
++      "original_due": "2026-09-01",
++      "due_date": "2026-09-01",
++      "source_reference": "B02 первинний реєстр закупівель"
++    },
++    {
++      "entity": "counterparty",
++      "external_id": "supplier-usd",
++      "name": "B02 постачальник A · USD",
++      "type": "supplier"
++    },
++    {
++      "entity": "counterparty",
++      "external_id": "customer-usd",
++      "name": "B02 клієнт A · USD",
++      "type": "customer"
++    },
++    {
++      "entity": "item",
++      "external_id": "material-usd",
++      "bos_code": "B02-A-I-USD",
++      "name": "B02 матеріал · USD",
++      "unit": "кг",
++      "kind": "material",
++      "revision": "A",
++      "currency": "USD"
++    },
++    {
++      "entity": "location",
++      "external_id": "warehouse-usd",
++      "bos_code": "B02-A-W-USD",
++      "name": "B02 склад · USD"
++    },
++    {
++      "entity": "opening_lot",
++      "external_id": "lot-one-usd",
++      "bos_code": "B02-A-L1-USD",
++      "item_ref": "material-usd",
++      "location_ref": "warehouse-usd",
++      "unit": "кг",
++      "revision": "A",
++      "quantity": "1.250",
++      "unit_cost": "2.34",
++      "currency": "USD",
++      "source_reference": "B02 зріз STOCK-1",
++      "reason": "Початковий синтетичний залишок"
++    },
++    {
++      "entity": "opening_lot",
++      "external_id": "lot-two-usd",
++      "bos_code": "B02-A-L2-USD",
++      "item_ref": "material-usd",
++      "location_ref": "warehouse-usd",
++      "unit": "кг",
++      "revision": "A",
++      "quantity": "3.750",
++      "unit_cost": "2.34",
++      "currency": "USD",
++      "source_reference": "B02 зріз STOCK-2",
++      "reason": "Початковий синтетичний залишок"
++    },
++    {
++      "entity": "sales_order",
++      "external_id": "sale-usd",
++      "bos_code": "B02-A-SO-USD",
++      "customer_ref": "customer-usd",
++      "owner_id": 1,
++      "due_date": "2026-10-01",
++      "currency": "USD",
++      "source_status": "confirmed"
++    },
++    {
++      "entity": "sales_line",
++      "external_id": "sale-line-usd",
++      "order_ref": "sale-usd",
++      "item_ref": "material-usd",
++      "unit": "кг",
++      "revision": "A",
++      "quantity": "2.500",
++      "price": "4.12"
++    },
++    {
++      "entity": "purchase_open_balance",
++      "external_id": "purchase-line-usd",
++      "bos_code": "B02-A-PO-USD",
++      "item_ref": "material-usd",
++      "supplier_ref": "supplier-usd",
++      "unit": "кг",
++      "revision": "A",
++      "source_order_code": "SOURCE-PO-7-USD",
++      "source_line_id": "1",
++      "original_quantity": "8.000",
++      "received_before_cutover": "3.000",
++      "remaining_quantity": "5.000",
++      "price": "1.23",
++      "original_extras": "0.80",
++      "remaining_extras": "0.40",
++      "currency": "USD",
++      "original_due": "2026-09-01",
++      "due_date": "2026-09-01",
++      "source_reference": "B02 первинний реєстр закупівель"
++    },
++    {
++      "entity": "counterparty",
++      "external_id": "supplier-uah",
++      "name": "B02 постачальник A · UAH",
++      "type": "supplier"
++    },
++    {
++      "entity": "counterparty",
++      "external_id": "customer-uah",
++      "name": "B02 клієнт A · UAH",
++      "type": "customer"
++    },
++    {
++      "entity": "item",
++      "external_id": "material-uah",
++      "bos_code": "B02-A-I-UAH",
++      "name": "B02 матеріал · UAH",
++      "unit": "кг",
++      "kind": "material",
++      "revision": "A",
++      "currency": "UAH"
++    },
++    {
++      "entity": "location",
++      "external_id": "warehouse-uah",
++      "bos_code": "B02-A-W-UAH",
++      "name": "B02 склад · UAH"
++    },
++    {
++      "entity": "opening_lot",
++      "external_id": "lot-one-uah",
++      "bos_code": "B02-A-L1-UAH",
++      "item_ref": "material-uah",
++      "location_ref": "warehouse-uah",
++      "unit": "кг",
++      "revision": "A",
++      "quantity": "1.250",
++      "unit_cost": "2.34",
++      "currency": "UAH",
++      "source_reference": "B02 зріз STOCK-1",
++      "reason": "Початковий синтетичний залишок"
++    },
++    {
++      "entity": "opening_lot",
++      "external_id": "lot-two-uah",
++      "bos_code": "B02-A-L2-UAH",
++      "item_ref": "material-uah",
++      "location_ref": "warehouse-uah",
++      "unit": "кг",
++      "revision": "A",
++      "quantity": "3.750",
++      "unit_cost": "2.34",
++      "currency": "UAH",
++      "source_reference": "B02 зріз STOCK-2",
++      "reason": "Початковий синтетичний залишок"
++    },
++    {
++      "entity": "sales_order",
++      "external_id": "sale-uah",
++      "bos_code": "B02-A-SO-UAH",
++      "customer_ref": "customer-uah",
++      "owner_id": 1,
++      "due_date": "2026-10-01",
++      "currency": "UAH",
++      "source_status": "confirmed"
++    },
++    {
++      "entity": "sales_line",
++      "external_id": "sale-line-uah",
++      "order_ref": "sale-uah",
++      "item_ref": "material-uah",
++      "unit": "кг",
++      "revision": "A",
++      "quantity": "2.500",
++      "price": "4.12"
++    },
++    {
++      "entity": "purchase_open_balance",
++      "external_id": "purchase-line-uah",
++      "bos_code": "B02-A-PO-UAH",
++      "item_ref": "material-uah",
++      "supplier_ref": "supplier-uah",
++      "unit": "кг",
++      "revision": "A",
++      "source_order_code": "SOURCE-PO-7-UAH",
++      "source_line_id": "1",
++      "original_quantity": "8.000",
++      "received_before_cutover": "3.000",
++      "remaining_quantity": "5.000",
++      "price": "1.23",
++      "original_extras": "0.80",
++      "remaining_extras": "0.40",
++      "currency": "UAH",
++      "original_due": "2026-09-01",
++      "due_date": "2026-09-01",
++      "source_reference": "B02 первинний реєстр закупівель"
++    }
++  ],
++  "expected_source_control_totals": {
++    "counts": {
++      "counterparty": 6,
++      "item": 3,
++      "location": 3,
++      "opening_lot": 6,
++      "sales_order": 3,
++      "sales_line": 3,
++      "purchase_open_balance": 3
++    },
++    "money": [
++      {
++        "currency": "EUR",
++        "opening_raw_value": "11.70000",
++        "opening_movement_cost": "11.70",
++        "sales_open_value": "10.30000",
++        "purchase_original_value": "10.64000",
++        "purchase_cutover_open_value": "6.55000"
++      },
++      {
++        "currency": "UAH",
++        "opening_raw_value": "11.70000",
++        "opening_movement_cost": "11.70",
++        "sales_open_value": "10.30000",
++        "purchase_original_value": "10.64000",
++        "purchase_cutover_open_value": "6.55000"
++      },
++      {
++        "currency": "USD",
++        "opening_raw_value": "11.70000",
++        "opening_movement_cost": "11.70",
++        "sales_open_value": "10.30000",
++        "purchase_original_value": "10.64000",
++        "purchase_cutover_open_value": "6.55000"
++      }
++    ],
++    "stock": [
++      {
++        "item_ref": "material-eur",
++        "location_ref": "warehouse-eur",
++        "unit": "кг",
++        "revision": "A",
++        "currency": "EUR",
++        "quantity": "5.000"
++      },
++      {
++        "item_ref": "material-uah",
++        "location_ref": "warehouse-uah",
++        "unit": "кг",
++        "revision": "A",
++        "currency": "UAH",
++        "quantity": "5.000"
++      },
++      {
++        "item_ref": "material-usd",
++        "location_ref": "warehouse-usd",
++        "unit": "кг",
++        "revision": "A",
++        "currency": "USD",
++        "quantity": "5.000"
++      }
++    ]
++  }
++}
+--- a/erp/service.py
++++ b/erp/service.py
+@@ -16,6 +16,7 @@
+ MODELS=[Item,Location,Lot,SalesOrder,SalesLine,Production,Reservation,Purchase,Movement,Inspection,ChangeOrder,InvoiceLink,OperatorEntry]
+ # req fields; optional values have explicit defaults, unknown fields rejected.
+ SCHEMAS={
++'import_batch':('batch','source_part_sha256'),
+ 'item':('code name unit kind method revision currency','material external_codes required_documents bom routing minimum lead_days planned_cost document_id'),
+ 'location':('code name kind','supplier_id'),
+ 'order':('code customer_id owner_id due_date currency lines','notes'),
+@@ -171,13 +172,16 @@
+     Configuration.objects.filter(pk=lock.pk).update(value={'revision':lock.value.get('revision',0)+1})
+ 
+ @transaction.atomic
+-def dispatch(payload,role='manager',log=True):
++def dispatch(payload,role='manager',log=True,*,import_context=None,import_phase=None):
+     if role not in ('ceo','manager'):raise PermissionError('Недостатньо прав.')
+     d=clean(payload);a=d.pop('action').removeprefix('erp_')
+     # Serialize ERP writes on SQLite; all work rolls back with the proposal receipt.
+     write_lock()
+     out={}
+-    if a=='item':
++    if a=='import_batch':
++        from .importing import apply_batch
++        out=apply_batch(d['batch'],import_context,import_phase)
++    elif a=='item':
+         if d['kind'] not in ('product','material','component') or d['method'] not in ('buy','make','subcontract'):raise ValueError('Невідомий тип номенклатури.')
+         if not isinstance(d['name'],str) or not 1<=len(d['name'])<=200 or not 1<=len(d['unit'])<=20:raise ValueError('Перевірте назву та одиницю.')
+         d['bom']=bom_clean(d.get('bom',[]));d['routing']=routing_clean(d.get('routing') or [{'name':'Виготовлення','instruction':'Виконати погоджену операцію','days':1}])
+@@ -211,8 +215,12 @@
+             job=Production.objects.get(pk=d['production_id'])
+             if item.pk not in [b['item_id'] for b in job.bom]:raise ValueError('Матеріал не входить до специфікації роботи.')
+         from .procurement import purchase_source
+-        d=purchase_source(d,item)
+-        obj=Purchase.objects.create(original_due=d['due_date'],**d);out={'purchase_id':obj.id,'code':obj.code}
++        if import_context is None:
++            d=purchase_source(d,item);original_due=d['due_date']
++        else:
++            from .importing import historical_purchase
++            d,original_due=historical_purchase(d,item,import_context,import_phase)
++        obj=Purchase.objects.create(original_due=original_due,**d);out={'purchase_id':obj.id,'code':obj.code}
+     elif a=='receive':
+         po=Purchase.objects.get(pk=d['purchase_id']);qty=D(d['quantity'])
+         if qty>po.quantity-po.received:raise ValueError('Надходження перевищує залишок замовлення.')
+--- a/erp/test_concurrency.py
++++ b/erp/test_concurrency.py
+@@ -69,6 +69,8 @@
+     },
+ }
+ 
++COVERAGE_MANIFEST['erp_proposal_http']['import_batch'] = {'inventory_ids': ['ERP-import_batch', 'CORE-erp-preview', 'CORE-execute', 'CORE-confirm', 'CORE-dispatch'], 'route': '/api/operations/confirm/', 'identity': 'same proposal_id', 'test': 'ERPImportConcurrencyTests.test_http_pair_import_batch', 'currencies': ['EUR', 'USD', 'UAH']}
++
+ BUSINESS_MODELS = (
+     Item, Location, Lot, SalesOrder, SalesLine, Production, Reservation, Purchase,
+     Movement, Inspection, ChangeOrder, InvoiceLink, OperatorEntry, Event,
+@@ -121,7 +123,7 @@
+             self.assertNotIn('memory', name.lower(), name)
+             self.assertNotEqual(name, ':memory:')
+         self.assertIn(connection.vendor, ('sqlite', 'postgresql'))
+-        self.assertEqual(set(ERP_ACTIONS), set(service.SCHEMAS),
++        self.assertEqual(set(ERP_ACTIONS)|{'import_batch'}, set(service.SCHEMAS),
+                          'Every current schema must remain in the explicit coverage manifest')
+         Configuration.objects.get_or_create(key='erp_write', defaults={'value': {'revision': 0}})
+         self.http = Client(enforce_csrf_checks=True, raise_request_exception=False)
+--- a/erp/test_full_data_transfer.py
++++ b/erp/test_full_data_transfer.py
+@@ -8,6 +8,7 @@
+ 
+ from django.test import SimpleTestCase
+ from scripts import check_data_transfer as runner
++from fixtures.synthetic.table_inventory import B02_TABLES
+ 
+ 
+ class FullDataTransferTests(SimpleTestCase):
+@@ -28,7 +29,8 @@
+             self.assertTrue(report['complete'])
+             self.assertEqual(report['backend'], backend)
+             self.assertTrue(report['source_unchanged'])
+-            self.assertEqual(report['table_count'], 45)
++            self.assertEqual(report['table_count'], 47)
++            self.assertEqual(set(report['tables']), B02_TABLES)
+             self.assertEqual(report['business_before']['facts'], report['business_after']['facts'])
+             self.assertTrue(report['files_preserved'])
+             self.assertTrue(report['sequences_preserved'])
+--- /dev/null
++++ b/erp/test_import_access.py
+@@ -0,0 +1,35 @@
++"""Additive four-route access matrix; all old gate-4 definitions remain intact."""
++import json
++import sys
++import tempfile
++from pathlib import Path
++from django.conf import settings
++from django.db import transaction
++from django.test import TestCase,override_settings
++from scripts import check_access as checker
++from scripts.access_fixtures import SweepFixtures
++
++
++@override_settings(BOS_DATA_MODE='working',DEBUG=False,PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'])
++class ImportAccessMatrixTests(TestCase):
++    def test_new_four_routes_all_five_roles_and_nine_methods(self):
++        sys.modules.setdefault('check_access',checker)
++        with tempfile.TemporaryDirectory(prefix='bos-b02-access-media-') as folder,override_settings(MEDIA_ROOT=Path(folder)):
++            fixtures=SweepFixtures('operations.test_access');fixtures.build();self.assertEqual(fixtures.issues,[])
++            routes=[r for r in checker.catalogue() if r['pattern'].startswith('api/erp/import/')]
++            self.assertEqual(len(routes),4);seen=[]
++            for row in routes:
++                for path in checker.materialize(row,fixtures):
++                    for role in checker.ROLES:
++                        for method in checker.METHODS:
++                            with self.subTest(path=path,role=role,method=method),transaction.atomic():
++                                client=fixtures.client(role);data,mode=fixtures.payload(row,path,method,role,client)
++                                before=fixtures.state_digest();body=json.dumps(data,ensure_ascii=False) if data is not None else ''
++                                response=client.generic(method,path+fixtures.query(row,path),body,content_type='application/json',HTTP_X_CSRFTOKEN=client.cookies[settings.CSRF_COOKIE_NAME].value)
++                                expected,_=checker.contract(row,path,method,role)
++                                self.assertIn(response.status_code,expected,response.content[:500])
++                                defects,_=checker.response_oracle(response,row,path,method,role,fixtures,'full');self.assertFalse(defects,defects)
++                                if method!='POST' or role!='ceo' or response.status_code!=200:self.assertEqual(fixtures.state_digest(),before)
++                                else:self.assertNotEqual(fixtures.state_digest(),before,'Valid preview must persist its proposal')
++                                seen.append((path,role,method));transaction.set_rollback(True)
++            self.assertEqual(len(seen),180)
+--- /dev/null
++++ b/erp/test_import_body.py
+@@ -0,0 +1,39 @@
++"""The B02 stream boundary, before multipart/CSRF parsing; no network framing claims."""
++import io
++from django.test import SimpleTestCase,RequestFactory,override_settings
++from boss_project.import_request_body import MAX_BODY,capture_import_body
++from boss_project.demo_middleware import LocalDemoGuard
++from boss_project.server_config import TrustedProxyMiddleware
++from erp.import_views import read_input
++
++
++class ImportBodyBoundaryTests(SimpleTestCase):
++    def stream(self,body,declared):
++        class Tracked(io.BytesIO):
++            def read(self,size=-1):self.requested.append(size);return super().read(size)
++        request=RequestFactory().post('/api/erp/import/preview/',b'{}',content_type='application/json')
++        stream=Tracked(body);stream.requested=[];request._stream=stream
++        if declared is None:request.META.pop('CONTENT_LENGTH',None)
++        else:request.META['CONTENT_LENGTH']=declared
++        return request,stream
++
++    def test_missing_or_forged_length_reads_at_most_limit_plus_one_before_parser(self):
++        for declared in (None,'1'):
++            request,stream=self.stream(b'x'*(MAX_BODY+1000),declared)
++            response=capture_import_body(request)
++            self.assertEqual(response.status_code,413)
++            self.assertEqual(stream.requested,[MAX_BODY+1]);self.assertEqual(stream.tell(),MAX_BODY+1)
++            self.assertFalse(hasattr(request,'_post'));self.assertFalse(hasattr(request,'_files'))
++        request,stream=self.stream(b'{}','1')
++        self.assertEqual(capture_import_body(request).status_code,400)
++        request,stream=self.stream(b'{}',None)
++        self.assertIsNone(capture_import_body(request));value,_,_=read_input(request);self.assertEqual(value,{})
++        self.assertEqual(stream.requested,[MAX_BODY+1])
++
++    @override_settings(BOS_TRUSTED_PROXY_IPS=['127.0.0.1','::1'])
++    def test_local_and_server_hooks_reject_before_downstream_parsing(self):
++        for middleware in (LocalDemoGuard,TrustedProxyMiddleware):
++            request,stream=self.stream(b'x'*(MAX_BODY+2),None)
++            request.META.update(REMOTE_ADDR='127.0.0.1',HTTP_X_FORWARDED_PROTO='https',HTTP_X_FORWARDED_FOR='127.0.0.1')
++            called=[];response=middleware(lambda r:called.append(r.POST))(request)
++            self.assertEqual(called,[]);self.assertEqual(response.status_code,413);self.assertEqual(stream.requested,[MAX_BODY+1])
+--- /dev/null
++++ b/erp/test_import_concurrency.py
+@@ -0,0 +1,99 @@
++"""Additional B02 concurrency evidence; the original A06 84/89 baseline stays intact."""
++from concurrent.futures import ThreadPoolExecutor
++from copy import deepcopy
++from datetime import date
++import json
++import threading
++from unittest.mock import patch
++from uuid import uuid4
++
++from django.db import connection,connections
++from django.test import Client,TransactionTestCase,override_settings
++from erp.test_initial_import import InitialImportFixture
++from erp.models import Purchase,Event,ImportBatch,ImportIdentity,Lot,Movement
++from operations.models import ActionProposal
++from finance.models import Counterparty
++from employees.models import Employee
++
++
++@override_settings(BOS_DATA_MODE='working',DEBUG=False,ANTHROPIC_API_KEY='',PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'])
++class ERPImportConcurrencyTests(InitialImportFixture,TransactionTestCase):
++    def twins(self):
++        result=[]
++        for _ in range(2):
++            client=Client(enforce_csrf_checks=True,raise_request_exception=False);client.cookies=deepcopy(self.http.cookies);result.append(client)
++        return result
++
++    def pair(self,previews):
++        barrier=threading.Barrier(2);clients=self.twins()
++        def worker(index):
++            connections.close_all()
++            try:
++                barrier.wait(timeout=10)
++                r=self.post('/api/operations/confirm/',{'proposal_id':previews[index]['proposal']['id'],'confirmed':True},clients[index])
++                return {'status':r.status_code,'json':r.json()}
++            finally:connections.close_all()
++        with ThreadPoolExecutor(max_workers=2) as pool:return list(pool.map(worker,range(2)))
++
++    def test_http_pair_import_batch(self):
++        for currency in ('EUR','USD','UAH'):
++            with self.subTest(currency=currency):
++                batch=self.batch(currency,currency);p=self.preview(batch);before_events=Event.objects.count();before_po=Purchase.objects.count()
++                results=self.pair([p,p]);statuses=[r['status'] for r in results]
++                self.assertIn(200,statuses,results);self.assertTrue(all(x in (200,409) for x in statuses),results)
++                good=next(r['json'] for r in results if r['status']==200)
++                for result in results:
++                    if result['status']==200:self.assertEqual(result['json'],good)
++                self.assertEqual(Event.objects.count(),before_events+1);self.assertEqual(Purchase.objects.count(),before_po+1)
++                self.assertEqual(ImportBatch.objects.filter(pk=batch['batch_id']).count(),1)
++                self.assertEqual(ImportIdentity.objects.filter(namespace=batch['namespace']).count(),9)
++                self.assertEqual(ImportBatch.objects.get(pk=batch['batch_id']).receipt,good)
++                after=self.state();replay=self.confirm(p);self.assertEqual(replay.status_code,200,replay.content);self.assertEqual(replay.json(),good);self.assertEqual(self.state(),after)
++                print('A06_PAIR '+json.dumps({'mode':'http','action':'import_batch','currency':currency,'workers':results},ensure_ascii=False))
++                print('A06_PASS '+json.dumps({'mode':'http','action':'import_batch','currency':currency,'inventory_id':'ERP-import_batch','erp_event_id':good['erp_event_id'],'statuses':statuses,'one_effect':True,'replay_unchanged':True},ensure_ascii=False))
++
++    def test_distinct_batches_same_source_ids_have_one_effect_and_stale_loser(self):
++        batch=self.batch();other=deepcopy(batch);other['batch_id']=str(uuid4());first=self.preview(batch);second=self.preview(other)
++        results=self.pair([first,second]);self.assertEqual(sorted(r['status'] for r in results),[200,409],results)
++        self.assertEqual(Purchase.objects.count(),1);self.assertEqual(Event.objects.count(),1);self.assertEqual(ImportIdentity.objects.count(),9)
++        self.assertEqual(Movement.objects.count(),2)
++        loser=results.index(next(r for r in results if r['status']==409));before=self.state()
++        self.assertEqual(self.confirm([first,second][loser]).status_code,409);self.assertEqual(self.state(),before)
++
++    def locked_crud(self,kind):
++        from erp import importing
++        batch=self.batch();supplier=Counterparty.objects.create(name='B02 lock source',type='supplier')
++        batch['rows']=[r for r in batch['rows'] if r['external_id']!='supplier'];batch['expected_source_control_totals']['counts']['counterparty']=1
++        batch['bindings']=[{'entity':'counterparty','external_id':'supplier','target_id':supplier.pk}]
++        preview=self.preview(batch);entered=threading.Event();attempted=threading.Event();done=threading.Event();checks=[]
++        original=importing.locked_references;once=[False]
++        def hold(value):
++            original(value)
++            if not once[0]:
++                once[0]=True;entered.set();self.assertTrue(attempted.wait(10),'Updater did not reach SQL')
++                checks.append(not done.wait(.1))
++        def updater():
++            connections.close_all()
++            def trace(execute,sql,params,many,context):
++                if sql.lstrip().upper().startswith('UPDATE'):attempted.set()
++                return execute(sql,params,many,context)
++            try:
++                self.assertTrue(entered.wait(10))
++                with connection.execute_wrapper(trace):
++                    if kind=='counterparty':Counterparty.objects.filter(pk=supplier.pk).update(type='customer')
++                    else:Employee.objects.filter(pk=self.owner.pk).delete()
++                done.set()
++            finally:connections.close_all()
++        client=self.twins()[0]
++        with ThreadPoolExecutor(max_workers=1) as pool:
++            future=pool.submit(updater)
++            with patch.object(importing,'locked_references',side_effect=hold):
++                response=self.post('/api/operations/confirm/',{'proposal_id':preview['proposal']['id'],'confirmed':True},client)
++            future.result(timeout=20)
++        self.assertEqual(response.status_code,200,response.content);self.assertEqual(checks,[True]);self.assertTrue(done.is_set())
++        self.assertEqual(Purchase.objects.count(),1)
++        if kind=='counterparty':self.assertEqual(Counterparty.objects.get(pk=supplier.pk).type,'customer')
++        else:self.assertIsNotNone(Employee.objects.get(pk=self.owner.pk).archived_at)
++
++    def test_counterparty_update_serializes_behind_import_reference_lock(self):self.locked_crud('counterparty')
++    def test_employee_archive_serializes_behind_import_reference_lock(self):self.locked_crud('employee')
+--- /dev/null
++++ b/erp/test_import_preservation.py
+@@ -0,0 +1,58 @@
++"""Real populated B02 provenance through migration refusal and full typed transfer."""
++import json
++import tempfile
++from pathlib import Path
++from uuid import uuid4
++from django.db import connection
++from django.db.migrations.executor import MigrationExecutor
++from django.test import TransactionTestCase,override_settings
++from django.conf import settings
++from erp.test_initial_import import InitialImportFixture
++from erp.models import ImportBatch,ImportIdentity,Purchase
++from scripts import data_transfer as transfer
++from scripts.schema_preflight import inspect_schema
++from scripts.reconcile_data import make_snapshot
++from scripts.check_data_transfer import sqlite_target
++
++
++@override_settings(BOS_DATA_MODE='working',DEBUG=False,PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'])
++class ImportPreservationTests(InitialImportFixture,TransactionTestCase):
++    def ledger(self):
++        return {m._meta.label:list(m.objects.order_by('pk').values()) for m in (ImportBatch,ImportIdentity)}
++
++    def test_populated_import_history_refuses_backward_migration_unchanged(self):
++        batch=self.batch();self.commit(batch);before=(self.state(),self.ledger())
++        with connection.cursor() as c:
++            c.execute("SELECT name,sql FROM sqlite_master WHERE sql IS NOT NULL ORDER BY name");schema=c.fetchall()
++            c.execute('SELECT * FROM django_migrations ORDER BY id');migrations=c.fetchall()
++        with self.assertRaisesRegex(RuntimeError,'журнал походження'):
++            MigrationExecutor(connection).migrate([('erp','0003_purchase_source')])
++        with connection.cursor() as c:
++            c.execute("SELECT name,sql FROM sqlite_master WHERE sql IS NOT NULL ORDER BY name");self.assertEqual(c.fetchall(),schema)
++            c.execute('SELECT * FROM django_migrations ORDER BY id');self.assertEqual(c.fetchall(),migrations)
++        self.assertEqual((self.state(),self.ledger()),before)
++
++    def test_populated_ledger_full_typed_transfer_preserves_source_receipts_and_ids(self):
++        from fixtures.synthetic.table_inventory import B02_TABLES
++        batch=self.batch();preview,receipt=self.commit(batch);before=(self.state(),self.ledger())
++        source=Path(str(connection.settings_dict['NAME']))
++        with tempfile.TemporaryDirectory(prefix='bos-b02-typed-') as folder:
++            work=Path(folder);snapshot=work/('check_'+uuid4().hex+'.sqlite3')
++            capture=make_snapshot(source,snapshot);self.assertTrue(capture['source_main_unchanged'])
++            bundle=work/'typed';manifest=transfer.export_snapshot(snapshot,settings.MEDIA_ROOT,bundle,inspect_schema=inspect_schema)
++            self.assertEqual(set(manifest['tables']),set(B02_TABLES))
++            self.assertEqual(manifest['tables']['erp_importbatch']['count'],1)
++            self.assertEqual(manifest['tables']['erp_importidentity']['count'],9)
++            target=sqlite_target(work,bundle/'media')
++            try:
++                transfer.import_to_disposable(bundle,target,verify_actual_schema=lambda row:inspect_schema(row.name))
++                restored=transfer.validate_snapshot(Path(target.name),bundle/'media',inspect_schema=inspect_schema)
++                for key in ('tables','sequences','media','media_references','logical_schema_hash'):self.assertEqual(restored[key],manifest[key],key)
++                cur=target.connection.cursor();cur.execute('SELECT id,receipt,canonical_source FROM erp_importbatch')
++                row=cur.fetchone();self.assertEqual(row[0],batch['batch_id'].replace('-',''))
++                self.assertEqual(json.loads(row[1]),receipt);self.assertEqual(json.loads(row[2]),ImportBatch.objects.get().canonical_source)
++                cur.execute('SELECT approval_snapshot FROM erp_purchase');self.assertEqual(json.loads(cur.fetchone()[0]),Purchase.objects.get().approval_snapshot)
++            finally:target.connection.close()
++            self.assertEqual(transfer.file_hash(snapshot),manifest['source_sha256'])
++        self.assertEqual((self.state(),self.ledger()),before)
++        replay=self.confirm(preview);self.assertEqual(replay.json(),receipt);self.assertEqual((self.state(),self.ledger()),before)
+--- /dev/null
++++ b/erp/test_initial_import.py
+@@ -0,0 +1,336 @@
++"""B02 real HTTP contract. All records/files belong to the isolated test database."""
++from copy import deepcopy
++from datetime import date
++from decimal import Decimal as D
++import csv
++import io
++import json
++import os
++from pathlib import Path
++from uuid import uuid4
++
++from django.conf import settings
++from django.core.files.uploadedfile import SimpleUploadedFile
++from django.db import connection
++from django.test import Client, TestCase, override_settings
++from employees.models import Employee
++from finance.models import Counterparty
++from operations.models import ActionProposal, Configuration
++from scripts.check_support import login_test_client
++from erp.models import Item, Location, Lot, Movement, Purchase, SalesOrder, SalesLine, Event
++
++
++class InitialImportFixture:
++    def setUp(self):
++        self.assertEqual(os.environ.get('DJANGO_SETTINGS_MODULE'), 'verification_settings')
++        self.assertTrue(Path(str(connection.settings_dict['NAME'])).name.startswith('check_'))
++        self.http = Client(enforce_csrf_checks=True, raise_request_exception=False)
++        self.user = login_test_client(self.http, 'ceo', capabilities=('view_document','export_workspace'))
++        self.owner = Employee.objects.create(full_name='B02 синтетичний відповідальний')
++        Configuration.objects.create(key='dataset', value={'as_of':'2026-09-12'})
++        Configuration.objects.get_or_create(key='erp_write', defaults={'value':{'revision':0}})
++
++    def batch(self, currency='EUR', suffix='A'):
++        code=lambda value:'B02-'+suffix+'-'+value
++        rows=[
++            {'entity':'counterparty','external_id':'supplier','name':'B02 постачальник '+suffix,'type':'supplier'},
++            {'entity':'counterparty','external_id':'customer','name':'B02 клієнт '+suffix,'type':'customer'},
++            {'entity':'item','external_id':'material','bos_code':code('I'),'name':'B02 матеріал','unit':'кг','kind':'material','revision':'A','currency':currency},
++            {'entity':'location','external_id':'warehouse','bos_code':code('W'),'name':'B02 склад'},
++            {'entity':'opening_lot','external_id':'lot-one','bos_code':code('L1'),'item_ref':'material','location_ref':'warehouse','unit':'кг','revision':'A','quantity':'1.250','unit_cost':'2.34','currency':currency,'source_reference':'B02 зріз STOCK-1','reason':'Початковий синтетичний залишок'},
++            {'entity':'opening_lot','external_id':'lot-two','bos_code':code('L2'),'item_ref':'material','location_ref':'warehouse','unit':'кг','revision':'A','quantity':'3.750','unit_cost':'2.34','currency':currency,'source_reference':'B02 зріз STOCK-2','reason':'Початковий синтетичний залишок'},
++            {'entity':'sales_order','external_id':'sale','bos_code':code('SO'),'customer_ref':'customer','owner_id':self.owner.pk,'due_date':'2026-10-01','currency':currency,'source_status':'confirmed'},
++            {'entity':'sales_line','external_id':'sale-line','order_ref':'sale','item_ref':'material','unit':'кг','revision':'A','quantity':'2.500','price':'4.12'},
++            {'entity':'purchase_open_balance','external_id':'purchase-line','bos_code':code('PO'),'item_ref':'material','supplier_ref':'supplier','unit':'кг','revision':'A','source_order_code':'SOURCE-PO-7','source_line_id':'1','original_quantity':'8.000','received_before_cutover':'3.000','remaining_quantity':'5.000','price':'1.23','original_extras':'0.80','remaining_extras':'0.40','currency':currency,'original_due':'2026-09-01','due_date':'2026-09-01','source_reference':'B02 первинний реєстр закупівель'}]
++        money=[]
++        for curr in ('EUR','UAH','USD'):
++            actual=curr==currency
++            money.append({'currency':curr,'opening_raw_value':'11.70000' if actual else '0.00000',
++                'opening_movement_cost':'11.70' if actual else '0.00','sales_open_value':'10.30000' if actual else '0.00000',
++                'purchase_original_value':'10.64000' if actual else '0.00000','purchase_cutover_open_value':'6.55000' if actual else '0.00000'})
++        return {'format':'bos.initial-import.v1','batch_id':str(uuid4()),'namespace':'synthetic-'+suffix.lower(),
++            'cutover':'2026-09-12','tax_basis':'excluding_VAT','bindings':[],'rows':rows,
++            'expected_source_control_totals':{'counts':{'counterparty':2,'item':1,'location':1,'opening_lot':2,'sales_order':1,'sales_line':1,'purchase_open_balance':1},
++                'money':money,'stock':[{'item_ref':'material','location_ref':'warehouse','unit':'кг','revision':'A','currency':currency,'quantity':'5.000'}]}}
++
++    def post(self,path,payload,client=None):
++        client=client or self.http
++        return client.post(path,json.dumps(payload,ensure_ascii=False),content_type='application/json',HTTP_X_CSRFTOKEN=client.cookies[settings.CSRF_COOKIE_NAME].value)
++
++    def state(self):
++        return {m._meta.label:list(m.objects.order_by('pk').values()) for m in
++            (Employee,Counterparty,Item,Location,Lot,Movement,Purchase,SalesOrder,SalesLine,Event)}
++
++    def preview(self,batch):
++        before=self.state();r=self.post('/api/erp/import/preview/',batch)
++        self.assertEqual(r.status_code,200,r.content);self.assertTrue(r.json()['valid'])
++        self.assertEqual(self.state(),before)
++        return r.json()
++
++    def confirm(self,preview):
++        return self.post('/api/operations/confirm/',{'proposal_id':preview['proposal']['id'],'confirmed':True})
++
++    def commit(self,batch):
++        p=self.preview(batch);r=self.confirm(p);self.assertEqual(r.status_code,200,r.content)
++        return p,r.json()
++
++    def multipart(self,batch):
++        manifest=deepcopy(batch);rows=manifest.pop('rows');manifest['csv_files']=[];parts={}
++        for entity in sorted({row['entity'] for row in rows}):
++            selected=[{k:v for k,v in row.items() if k!='entity'} for row in rows if row['entity']==entity]
++            stream=io.StringIO(newline='');writer=csv.DictWriter(stream,fieldnames=sorted({k for row in selected for k in row}));writer.writeheader();writer.writerows(selected)
++            part='rows_'+entity;manifest['csv_files'].append({'entity':entity,'part':part})
++            parts[part]=SimpleUploadedFile(part+'.csv',stream.getvalue().encode(),content_type='text/csv')
++        parts['manifest']=SimpleUploadedFile('manifest.json',json.dumps(manifest).encode(),content_type='application/json')
++        return parts
++
++
++@override_settings(BOS_DATA_MODE='working',DEBUG=False,ANTHROPIC_API_KEY='',PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'])
++class InitialImportTests(InitialImportFixture,TestCase):
++    def test_actual_three_currency_import_preserves_overdue_origin_and_pending_stock(self):
++        for currency in ('EUR','UAH','USD'):
++            with self.subTest(currency=currency):
++                batch=self.batch(currency,currency);p,r=self.commit(batch)
++                self.assertEqual(p['source_control_totals'],batch['expected_source_control_totals'])
++                self.assertTrue(all(row['target_id'] is None for row in p['mappings']))
++                self.assertEqual(r['counts']['create'],9)
++                po=Purchase.objects.get(code='B02-'+currency+'-PO')
++                self.assertEqual((po.quantity,po.received,po.extras,po.due_date,po.original_due),(D('5'),D('0'),D('.40'),date(2026,9,1),date(2026,9,1)))
++                self.assertEqual(po.approval_snapshot['source'],'imported_open_balance')
++                self.assertEqual(po.approval_snapshot['received_before_cutover'],'3.000')
++                self.assertFalse(Movement.objects.filter(purchase=po).exists())
++                lots=Lot.objects.filter(item=po.item)
++                self.assertEqual(sum(x.quantity for x in lots),D('5'));self.assertEqual(set(lots.values_list('quality',flat=True)),{'pending'})
++                self.assertEqual(Movement.objects.get(lot__code='B02-'+currency+'-L1').cost,D('2.92'))
++                self.assertTrue(all(row['target_id'] for row in r['mappings']))
++
++    def test_multiple_row_errors_and_totals_mismatch_never_commit(self):
++        batch=self.batch();batch['rows'][4]['quantity']='1.2501';batch['rows'][5]['location_ref']='missing';batch['rows'][8]['remaining_quantity']='6'
++        before=self.state();r=self.post('/api/erp/import/preview/',batch)
++        self.assertEqual(r.status_code,422,r.content);self.assertFalse(r.json()['valid']);self.assertIsNone(r.json()['proposal'])
++        self.assertGreaterEqual(len(r.json()['errors']),3);self.assertEqual(self.state(),before)
++        self.assertEqual(ActionProposal.objects.count(),0)
++        batch=self.batch();batch['expected_source_control_totals']['money'][0]['purchase_cutover_open_value']='7.00000'
++        r=self.post('/api/erp/import/preview/',batch);self.assertEqual(r.status_code,422,r.content)
++        self.assertIn('TOTALS_MISMATCH',[x['code'] for x in r.json()['errors']]);self.assertEqual(self.state(),before)
++
++    def test_exact_replay_after_actual_receipt_keeps_source_totals_and_current_rows(self):
++        batch=self.batch();p,receipt=self.commit(batch);po=Purchase.objects.get();location=Location.objects.get()
++        normal=self.post('/api/erp/preview/',{'action':'erp_receive','purchase_id':po.pk,'code':'B02-RECEIPT','location_id':location.pk,'quantity':'2'})
++        self.assertEqual(normal.status_code,200,normal.content)
++        accepted=self.post('/api/operations/confirm/',{'proposal_id':normal.json()['id'],'confirmed':True});self.assertEqual(accepted.status_code,200,accepted.content)
++        stable=self.state();again=self.confirm(p);self.assertEqual(again.status_code,200,again.content);self.assertEqual(again.json(),receipt);self.assertEqual(self.state(),stable)
++        preview=self.preview(batch);self.assertEqual(preview['counts']['create'],0);self.assertEqual(preview['source_control_totals'],batch['expected_source_control_totals'])
++        eur=next(x for x in preview['live_before']['money'] if x['currency']=='EUR');self.assertEqual(eur['purchase_open_value'],'3.93')
++        self.assertEqual(preview['live_before'],preview['projected_after'])
++        changed=deepcopy(batch);changed['rows'][-1]['price']='1.24'
++        denied=self.post('/api/erp/import/preview/',changed);self.assertEqual(denied.status_code,409,denied.content);self.assertEqual(self.state(),stable)
++
++    def test_json_csv_canonical_identity_and_whole_sales_composition(self):
++        batch=self.batch();batch['rows'][7]['quantity']='2.5';p,receipt=self.commit(batch)
++        second=deepcopy(batch);second['batch_id']=str(uuid4());second['rows'].reverse()
++        parts=self.multipart(second)
++        r=self.http.post('/api/erp/import/preview/',parts,HTTP_X_CSRFTOKEN=self.http.cookies[settings.CSRF_COOKIE_NAME].value)
++        self.assertEqual(r.status_code,200,r.content);self.assertEqual(r.json()['counts']['create'],0)
++        self.assertEqual(r.json()['semantic_sha256'],p['semantic_sha256'])
++        new=deepcopy(batch);new['batch_id']=str(uuid4());extra=deepcopy(new['rows'][7]);extra['external_id']='new-line';new['rows'].append(extra)
++        denied=self.post('/api/erp/import/preview/',new);self.assertEqual(denied.status_code,409,denied.content)
++        self.assertEqual(SalesLine.objects.count(),1)
++
++    def test_late_real_sql_failure_rolls_back_all_new_rows_and_receipt(self):
++        batch=self.batch();p=self.preview(batch);before=self.state()
++        with connection.cursor() as cursor:cursor.execute("CREATE TRIGGER b02_fail_po BEFORE INSERT ON erp_purchase BEGIN SELECT RAISE(ABORT,'own synthetic B02 failure'); END")
++        failed=self.confirm(p);self.assertEqual(failed.status_code,409,failed.content);self.assertEqual(self.state(),before)
++        self.assertIsNone(ActionProposal.objects.get(pk=p['proposal']['id']).receipt)
++        with connection.cursor() as cursor:cursor.execute('DROP TRIGGER b02_fail_po')
++        done=self.confirm(p);self.assertEqual(done.status_code,200,done.content);self.assertEqual(Purchase.objects.count(),1)
++
++    def test_import_does_not_bypass_normal_purchase_and_roles_or_stale_owner(self):
++        batch=self.batch();p=self.preview(batch)
++        Employee.objects.filter(pk=self.owner.pk).update(full_name='Змінено після preview')
++        self.assertEqual(self.confirm(p).status_code,409)
++        for role in ('manager','observer'):
++            client=Client(enforce_csrf_checks=True,raise_request_exception=False);login_test_client(client,role)
++            denied=self.post('/api/erp/import/preview/',batch,client);self.assertEqual(denied.status_code,403,denied.content)
++        _,_=self.commit(batch)
++        po=Purchase.objects.get()
++        raw={'action':'erp_purchase','code':'B02-NORMAL','item_id':po.item_id,'supplier_id':po.supplier_id,'quantity':'1','price':'1.23','currency':'EUR','due_date':'2026-09-01','revision':'A','direct_reason':'Нове погодження'}
++        denied=self.post('/api/erp/preview/',raw);self.assertEqual(denied.status_code,422,denied.content)
++        raw['source']='imported_open_balance';self.assertEqual(self.post('/api/erp/preview/',raw).status_code,422)
++
++    def test_persisted_opening_conflict_and_batch_source_export(self):
++        batch=self.batch();_,receipt=self.commit(batch);stable=self.state()
++        mixed=deepcopy(batch);mixed['batch_id']=str(uuid4());lot=deepcopy(mixed['rows'][4]);lot['external_id']='new-lot';lot['bos_code']='B02-NEW-LOT';mixed['rows'].append(lot)
++        denied=self.post('/api/erp/import/preview/',mixed);self.assertEqual(denied.status_code,409,denied.content);self.assertEqual(self.state(),stable)
++        detail=self.http.get('/api/erp/import/batches/'+batch['batch_id']+'/');self.assertEqual(detail.status_code,200,detail.content)
++        self.assertEqual(detail.json()['first_commit_receipt'],receipt)
++        export=self.http.get('/api/erp/import/batches/'+batch['batch_id']+'/export/');self.assertEqual(export.status_code,200,export.content)
++        self.assertEqual(export.json()['first_commit_receipt'],receipt);self.assertEqual(len(export.json()['canonical_source']['rows']),9)
++
++    def test_raw_duplicate_json_oversize_and_server_templates(self):
++        token=self.http.cookies[settings.CSRF_COOKIE_NAME].value
++        dup=self.http.post('/api/erp/import/preview/',b'{"format":"x","format":"y"}',content_type='application/json',HTTP_X_CSRFTOKEN=token)
++        self.assertEqual(dup.status_code,400,dup.content)
++        huge=self.http.post('/api/erp/import/preview/',b' '*200000,content_type='application/json',HTTP_X_CSRFTOKEN=token);self.assertEqual(huge.status_code,413,huge.content[:500])
++        response=self.http.get('/api/erp/import/template/',{'owner_id':self.owner.pk,'format':'json'});self.assertEqual(response.status_code,200,response.content)
++        self.preview(response.json())
++        response=self.http.get('/api/erp/import/template/',{'owner_id':self.owner.pk,'format':'csv'});self.assertEqual(response.status_code,200,response.content)
++        self.assertEqual(set(response.json()),{'manifest','files'})
++        wrapper=response.json();parts={'manifest':SimpleUploadedFile('manifest.json',json.dumps(wrapper['manifest'],ensure_ascii=False).encode())}
++        for item in wrapper['files']:parts[item['part']]=SimpleUploadedFile(item['filename'],item['content_utf8'].encode())
++        denied=self.http.post('/api/erp/import/preview/',parts);self.assertEqual(denied.status_code,403)
++        parts={'manifest':SimpleUploadedFile('manifest.json',json.dumps(wrapper['manifest'],ensure_ascii=False).encode())}
++        for item in wrapper['files']:parts[item['part']]=SimpleUploadedFile(item['filename'],item['content_utf8'].encode())
++        parsed=self.http.post('/api/erp/import/preview/',parts,HTTP_X_CSRFTOKEN=token)
++        self.assertEqual(parsed.status_code,200,parsed.content);self.assertEqual(parsed.json()['counts']['create'],27)
++        self.assertTrue(all(row['purchase_cutover_open_value']=='6.55000' for row in parsed.json()['source_control_totals']['money']))
++
++    def test_explicit_multipart_binding_keeps_raw_source_and_rejects_duplicate(self):
++        batch=self.batch();supplier=Counterparty.objects.create(name='Наявний B02 постачальник',type='supplier')
++        batch['rows']=[r for r in batch['rows'] if r['external_id']!='supplier'];batch['expected_source_control_totals']['counts']['counterparty']=1
++        raw=json.dumps(batch,ensure_ascii=False).encode();binding=[{'entity':'counterparty','external_id':'supplier','target_id':supplier.pk}]
++        parts={'batch':SimpleUploadedFile('batch.json',raw),'bindings':SimpleUploadedFile('bindings.json',json.dumps(binding).encode())}
++        response=self.http.post('/api/erp/import/preview/',parts,HTTP_X_CSRFTOKEN=self.http.cookies[settings.CSRF_COOKIE_NAME].value)
++        self.assertEqual(response.status_code,200,response.content);self.assertEqual(response.json()['counts']['bind'],1)
++        confirmed=self.confirm(response.json());self.assertEqual(confirmed.status_code,200,confirmed.content)
++        self.assertEqual(Purchase.objects.get().supplier_id,supplier.pk)
++        exported=self.http.get('/api/erp/import/batches/'+batch['batch_id']+'/export/').json()
++        import hashlib
++        self.assertEqual(exported['source_part_sha256']['batch'],hashlib.sha256(raw).hexdigest())
++        self.assertEqual(exported['canonical_source']['bindings'],binding)
++        batch['batch_id']=str(uuid4());batch['bindings']=binding
++        parts={'batch':SimpleUploadedFile('batch.json',json.dumps(batch).encode()),'bindings':SimpleUploadedFile('bindings.json',json.dumps(binding).encode())}
++        stable=self.state();denied=self.http.post('/api/erp/import/preview/',parts,HTTP_X_CSRFTOKEN=self.http.cookies[settings.CSRF_COOKIE_NAME].value)
++        self.assertEqual(denied.status_code,422,denied.content);self.assertEqual(self.state(),stable)
++
++    def test_forged_context_and_preview_phase_cannot_commit_historical_purchase(self):
++        from erp import importing,service
++        from django.db import transaction
++        from boss_project.identity import actor_for_user
++        batch=self.batch();self.commit(batch);po=Purchase.objects.get();principal=actor_for_user(self.user)
++        data={'code':'B02-FORGED','item_id':po.item_id,'supplier_id':po.supplier_id,'quantity':'1.000','price':'1.23','extras':'0.00','currency':'EUR','due_date':'2026-09-01','revision':'A'}
++        stable=self.state()
++        with self.assertRaises(TypeError):importing.ImportAuthority()
++        with self.assertRaises(PermissionError):service.dispatch({'action':'erp_purchase',**data},role='ceo',import_context=object())
++        with transaction.atomic():
++            with importing.authority('purchase',importing.digest(data),principal,'preview',{'batch':batch,'source':batch['rows'][-1]}) as ctx:
++                with self.assertRaises(PermissionError):service.dispatch({'action':'erp_purchase',**data},role='ceo',import_context=ctx,import_phase='apply')
++            with self.assertRaises(PermissionError):service.dispatch({'action':'erp_purchase',**data},role='ceo',import_context=ctx,import_phase='preview')
++        self.assertEqual(self.state(),stable)
++
++    def test_imported_source_projection_hides_commercial_values_from_observer(self):
++        batch=self.batch();self.commit(batch)
++        client=Client(enforce_csrf_checks=True,raise_request_exception=False);login_test_client(client,'observer')
++        response=client.get('/api/erp/snapshot/');self.assertEqual(response.status_code,200,response.content)
++        snapshot=response.json()['purchases'][0]['approval_snapshot']
++        self.assertEqual(snapshot['source'],'imported_open_balance')
++        self.assertEqual(snapshot['source_order_code'],'SOURCE-PO-7')
++        for key in ('price','remaining_extras','original_quantity','received_before_cutover','source_reference','actor_id'):self.assertNotIn(key,snapshot)
++        for suffix in ('','export/'):
++            response=client.get('/api/erp/import/batches/'+batch['batch_id']+'/'+suffix)
++            self.assertEqual(response.status_code,403,response.content)
++
++    def test_existing_source_document_bytes_and_versions_are_rechecked(self):
++        import hashlib
++        from operations.models import Document
++        raw=b'B02 exact source bytes'
++        doc=Document.objects.create(code='B02-DOC',revision='A',title='B02 первинний документ',content=raw,checksum=hashlib.sha256(raw).hexdigest(),status='approved',access_level='management')
++        batch=self.batch();batch['rows'][-1]['source_documents']={'primary':{'document_id':doc.pk,'code':doc.code,'revision':doc.revision,'checksum':doc.checksum}}
++        p=self.preview(batch);before=self.state()
++        Document.objects.filter(pk=doc.pk).update(content=b'Changed without changing declared checksum')
++        failed=self.confirm(p);self.assertIn(failed.status_code,(409,422),failed.content);self.assertEqual(self.state(),before)
++        Document.objects.filter(pk=doc.pk).update(content=raw)
++        _,_=self.commit(batch);snapshot=Purchase.objects.get().approval_snapshot
++        self.assertEqual(snapshot['source_documents']['primary']['checksum'],hashlib.sha256(raw).hexdigest())
++        denied=self.post('/api/operations/preview/',{'action':'erp_import_batch','batch':batch})
++        self.assertEqual(denied.status_code,422,denied.content)
++
++    def test_late_sql_value_tampering_is_detected_before_atomic_commit(self):
++        batch=self.batch();p=self.preview(batch);before=self.state()
++        with connection.cursor() as cursor:cursor.execute("CREATE TRIGGER b02_alter_po AFTER INSERT ON erp_purchase BEGIN UPDATE erp_purchase SET price=price+1 WHERE id=NEW.id; END")
++        failed=self.confirm(p);self.assertEqual(failed.status_code,422,failed.content);self.assertEqual(self.state(),before)
++        self.assertIsNone(ActionProposal.objects.get(pk=p['proposal']['id']).receipt)
++        with connection.cursor() as cursor:cursor.execute('DROP TRIGGER b02_alter_po')
++
++    def test_strict_uuid_text_and_control_count_types_refuse_without_http500(self):
++        for field,value in (('batch_id',1),('batch_id',None),('source_reference',1),('source_reference',None),('count',True),('count',1.0)):
++            with self.subTest(field=field,value=value):
++                batch=self.batch()
++                if field=='source_reference':batch['rows'][-1][field]=value
++                elif field=='count':batch['expected_source_control_totals']['counts']['item']=value
++                else:batch[field]=value
++                before=self.state();response=self.post('/api/erp/import/preview/',batch)
++                self.assertIn(response.status_code,(400,422),response.content[:800]);self.assertFalse(response.json()['valid']);self.assertEqual(self.state(),before)
++
++    def test_current_targets_include_reused_rows_without_reparenting_identities(self):
++        from erp.models import ImportIdentity
++        batch=self.batch();self.commit(batch);first={x.pk:x.first_batch_id for x in ImportIdentity.objects.all()}
++        replay=deepcopy(batch);replay['batch_id']=str(uuid4());self.commit(replay)
++        response=self.http.get('/api/erp/import/batches/'+replay['batch_id']+'/')
++        self.assertEqual(response.status_code,200,response.content)
++        self.assertEqual(len(response.json()['current_targets']),9)
++        self.assertEqual({x.pk:x.first_batch_id for x in ImportIdentity.objects.all()},first)
++        mixed=deepcopy(batch);mixed['batch_id']=str(uuid4())
++        item=deepcopy(mixed['rows'][2]);item['external_id']='second-item';item['bos_code']='B02-SECOND-I';mixed['rows'].append(item)
++        lot=deepcopy(mixed['rows'][4]);lot.update(external_id='second-item-lot',bos_code='B02-SECOND-LOT',item_ref='second-item',quantity='1.000',unit_cost='2.00');mixed['rows'].append(lot)
++        totals=mixed['expected_source_control_totals'];totals['counts']['item']+=1;totals['counts']['opening_lot']+=1
++        totals['money'][0]['opening_raw_value']='13.70000';totals['money'][0]['opening_movement_cost']='13.70'
++        totals['stock'].append({'item_ref':'second-item','location_ref':'warehouse','unit':'кг','revision':'A','currency':'EUR','quantity':'1.000'})
++        self.commit(mixed)
++        response=self.http.get('/api/erp/import/batches/'+mixed['batch_id']+'/')
++        self.assertEqual(response.status_code,200,response.content);self.assertEqual(len(response.json()['current_targets']),11)
++        self.assertEqual({x.pk:x.first_batch_id for x in ImportIdentity.objects.filter(pk__in=first)},first)
++
++    def test_binding_only_mapping_reuse_and_profile_validation(self):
++        from erp.importing import source_totals
++        from erp.models import ImportIdentity
++        supplier=Counterparty.objects.create(name='Наявний постачальник mapping',type='supplier')
++        batch=self.batch();batch['rows']=[];batch['bindings']=[{'entity':'counterparty','external_id':'bound','target_id':supplier.pk}]
++        batch['expected_source_control_totals']=source_totals([])
++        p=self.preview(batch)
++        self.assertEqual(p['counts'],{'create':0,'reuse':0,'bind':1})
++        self.assertEqual(len(p['mappings']),1)
++        self.assertEqual((p['mappings'][0]['decision'],p['mappings'][0]['target_id'],p['mappings'][0]['display_name']),('bind',supplier.pk,supplier.name))
++        response=self.confirm(p);self.assertEqual(response.status_code,200,response.content)
++        original=ImportIdentity.objects.get();first=original.first_batch_id
++        batch['batch_id']=str(uuid4());p=self.preview(batch)
++        self.assertEqual(p['counts'],{'create':0,'reuse':1,'bind':0});self.assertEqual(p['mappings'][0]['decision'],'reuse')
++        response=self.confirm(p);self.assertEqual(response.status_code,200,response.content)
++        detail=self.http.get('/api/erp/import/batches/'+batch['batch_id']+'/').json()
++        self.assertEqual(len(detail['current_targets']),1);self.assertEqual(detail['current_targets'][0]['target_id'],supplier.pk)
++        original.refresh_from_db();self.assertEqual(original.first_batch_id,first)
++        supplier.is_active=False;supplier.save(update_fields=['is_active'])
++        replay=self.preview(batch);self.assertEqual(self.confirm(replay).status_code,200)
++        batch['batch_id']=str(uuid4());batch['namespace']='new-profile-source'
++        denied=self.post('/api/erp/import/preview/',batch);self.assertEqual(denied.status_code,422,denied.content)
++        for entity,obj in [('location',Location.objects.create(code='B02-NOT-WAREHOUSE',name='Виробництво',kind='production')),('item',Item.objects.create(code='B02-MAKE',name='Вироблюване',method='make'))]:
++            batch['bindings']=[{'entity':entity,'external_id':'bound','target_id':obj.pk}]
++            denied=self.post('/api/erp/import/preview/',batch);self.assertEqual(denied.status_code,422,denied.content)
++
++    def test_new_rows_recheck_profile_of_reused_bindings(self):
++        from erp.importing import source_totals
++        item=Item.objects.create(code='B02-BOUND-ITEM',name='Наявний матеріал',method='buy',kind='material',unit='кг',revision='A')
++        location=Location.objects.create(code='B02-BOUND-WH',name='Наявний склад',kind='warehouse')
++        batch=self.batch();opening=deepcopy(batch['rows'][4]);batch['rows']=[]
++        batch['bindings']=[{'entity':'item','external_id':'material','target_id':item.pk},{'entity':'location','external_id':'warehouse','target_id':location.pk}]
++        batch['expected_source_control_totals']=source_totals([]);self.commit(batch)
++        for model,target,field,value in [(Location,location,'kind','production'),(Item,item,'method','make')]:
++            model.objects.filter(pk=target.pk).update(**{field:value})
++            changed=deepcopy(batch);changed['batch_id']=str(uuid4());changed['rows']=[opening];changed['expected_source_control_totals']=source_totals([opening])
++            before=self.state();denied=self.post('/api/erp/import/preview/',changed)
++            self.assertEqual(denied.status_code,422,denied.content);self.assertEqual(self.state(),before)
++            model.objects.filter(pk=target.pk).update(**{field:'warehouse' if field=='kind' else 'buy'})
++
++    def test_low_ambient_decimal_context_preserves_exact_http_totals(self):
++        from decimal import localcontext,ROUND_DOWN
++        from fractions import Fraction
++        from erp.importing import round_fraction
++        batch=self.batch();next(r for r in batch['rows'] if r['entity']=='sales_line')['price']='123456.78'
++        next(r for r in batch['expected_source_control_totals']['money'] if r['currency']=='EUR')['sales_open_value']='308641.95000'
++        with localcontext() as context:
++            context.prec=6;context.rounding=ROUND_DOWN
++            preview,receipt=self.commit(batch)
++            self.assertEqual(next(r for r in preview['source_control_totals']['money'] if r['currency']=='EUR')['sales_open_value'],'308641.95000')
++            self.assertEqual(next(r for r in receipt['live_after']['money'] if r['currency']=='EUR')['sales_open_value'],'308641.95')
++            self.assertEqual(round_fraction(Fraction('1234567.89')),D('1234567.89'))
++            self.assertEqual((context.prec,context.rounding),(6,ROUND_DOWN))
+--- a/erp/test_procurement_bridge.py
++++ b/erp/test_procurement_bridge.py
+@@ -469,10 +469,17 @@
+                    PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'])
+ class PurchaseSourceRollbackRefusalTests(BridgeFixture, TransactionTestCase):
+     def test_actual_approved_po_refuses_lossy_rollback_with_schema_and_rows_unchanged(self):
+-        _,_,po=self.buy(self.payload())
+         executor=MigrationExecutor(connection)
+         latest=executor.loader.graph.leaf_nodes()
+         self.addCleanup(lambda:MigrationExecutor(connection).migrate(latest))
++        # Exercise the exact B01 schema before creating its genuinely approved
++        # HTTP purchase. New empty B02 tables are a separate reversible stage;
++        # populated B02 rollback refusal has its own full-schema regression.
++        from erp.models import ImportBatch,ImportIdentity
++        self.assertFalse(ImportBatch.objects.exists())
++        self.assertFalse(ImportIdentity.objects.exists())
++        executor.migrate([('erp','0003_purchase_source')])
++        _,_,po=self.buy(self.payload())
+         def state():
+             with connection.cursor() as cursor:
+                 description=connection.introspection.get_table_description(cursor,'erp_purchase')
+--- a/erp/urls.py
++++ b/erp/urls.py
+@@ -1,3 +1,3 @@
+ from django.urls import path
+-from . import views
+-urlpatterns=[path('orders/<int:pk>/next/',views.next_action),path('snapshot/',views.snapshot),path('preview/',views.preview),path('export/',views.export),path('changes/<int:pk>/impact/',views.change_impact),path('orders/<int:pk>/draft/',views.draft)]
++from . import views, import_views
++urlpatterns=[path('import/preview/',import_views.preview,name='bos-import-preview'),path('import/template/',import_views.template,name='bos-import-template'),path('import/batches/<uuid:batch_id>/',import_views.batch_detail,name='bos-import-batch'),path('import/batches/<uuid:batch_id>/export/',import_views.export,name='bos-import-export'),path('orders/<int:pk>/next/',views.next_action),path('snapshot/',views.snapshot),path('preview/',views.preview),path('export/',views.export),path('changes/<int:pk>/impact/',views.change_impact),path('orders/<int:pk>/draft/',views.draft)]
+--- /dev/null
++++ b/fixtures/synthetic/table_inventory.py
+@@ -0,0 +1,3 @@
++"""Frozen baseline tables plus explicitly accepted additive B02 ledgers."""
++BASELINE_45_TABLES = frozenset(['ai_assistant_chatfile', 'ai_assistant_chatmessage', 'ai_assistant_claudeusagelog', 'ai_assistant_employeechangelog', 'ai_assistant_taskchangelog', 'auth_group', 'auth_group_permissions', 'auth_permission', 'auth_user', 'auth_user_groups', 'auth_user_user_permissions', 'branches_branch', 'django_admin_log', 'django_content_type', 'django_migrations', 'django_session', 'employees_employee', 'erp_changeorder', 'erp_event', 'erp_inspection', 'erp_invoicelink', 'erp_item', 'erp_location', 'erp_lot', 'erp_movement', 'erp_operatorentry', 'erp_production', 'erp_purchase', 'erp_reservation', 'erp_salesline', 'erp_salesorder', 'finance_contract', 'finance_counterparty', 'finance_financialintent', 'finance_salary', 'finance_transaction', 'operations_actionproposal', 'operations_auditevent', 'operations_configuration', 'operations_document', 'operations_invoice', 'operations_loginattempt', 'operations_procurementrequest', 'operations_supplierquote', 'tasks_task'])
++B02_TABLES = BASELINE_45_TABLES | frozenset({'erp_importbatch', 'erp_importidentity'})
+--- a/operations/projections.py
++++ b/operations/projections.py
+@@ -39,7 +39,7 @@
+             for row in data[name]:
+                 source = row.get('approval_snapshot')
+                 if isinstance(source, dict):
+-                    public = select(source, ('source','request_id','request_code','quote_id','quote_code'))
++                    public = select(source, ('source','request_id','request_code','quote_id','quote_code','batch_id','external_id','source_order_code','source_line_id'))
+                     public['source_documents'] = {kind:select(document, ('document_id','code'))
+                         for kind,document in source.get('source_documents',{}).items()}
+                     row['approval_snapshot'] = public
+--- a/operations/service.py
++++ b/operations/service.py
+@@ -74,6 +74,9 @@
+     raise ValueError('Доступні лише створення доручення та зміна його статусу.')
+ 
+ def fingerprint(payload):
++    if payload.get('action')=='erp_import_batch':
++        from erp.importing import fingerprint as batch_fingerprint
++        return batch_fingerprint()
+     if payload.get('action','').startswith('erp_'):
+         from erp.service import fingerprint as erp_fingerprint
+         return erp_fingerprint()
+@@ -84,6 +87,8 @@
+ 
+ @transaction.atomic
+ def preview(request,payload,snapshot_fingerprint=None):
++    if isinstance(payload,dict) and payload.get('action')=='erp_import_batch':
++        raise ValueError('Пакет імпорту потребує окремого перегляду файла.')
+     principal=actor(request);role=principal.role
+     if role not in ('ceo','manager'):raise PermissionError('Спостерігач не може змінювати записи.')
+     if not request.session.session_key:request.session.create()
+@@ -109,12 +114,19 @@
+         principal=actor(request)
+         if p.user_id != principal.user_id or principal.role != p.role:
+             raise PermissionError('Повноваження змінилися. Підготуйте нове погодження.')
++    if p.payload.get('action')=='erp_import_batch':
++        from erp.importing import locked_references
++        locked_references(p.payload['batch'])
+     policy=Policy(request);policy.action(p.payload)
+     if p.receipt:return projections.receipt(policy,p.receipt)
+     if p.expires_at<timezone.now() or p.fingerprint!=fingerprint(p.payload):raise Conflict('Дані або строк погодження змінилися. Підготуйте новий перегляд.')
+     # Compare-and-set claim; task, audit and receipt roll back together on failure.
+     if not ActionProposal.objects.filter(pk=p.pk,receipt__isnull=True).update(receipt={'state':'running'}):raise Conflict('Дія вже виконується. Повторіть запит.')
+     d=validate(p.payload)
++    if d['action']=='erp_import_batch':
++        from erp.importing import confirm_batch
++        receipt=confirm_batch(request,d);p.receipt=receipt;p.save(update_fields=['receipt'])
++        return projections.receipt(Policy(request),receipt)
+     if d['action'].startswith('erp_'):
+         from erp.service import dispatch
+         from erp.queries import snapshot
+--- a/scripts/access_fixtures.py
++++ b/scripts/access_fixtures.py
+@@ -154,6 +154,20 @@
+             {'auth', 'tasks', 'employees', 'finance', 'erp', 'operations', 'ai_assistant', 'branches'}
+             and m._meta.model_name != 'loginattempt']
+         self.baseline_proposal = self.preview_task(self.client('ceo'))
++        # B02 receipt fixture uses a genuine approved binding-only import; no
++        # earlier business rows/history are changed or synthesized as approvals.
++        from erp.importing import source_totals
++        from operations.service import as_of
++        from uuid import uuid4
++        batch={'format':'bos.initial-import.v1','batch_id':str(uuid4()),'namespace':'a04-import-fixture','cutover':str(as_of()),
++            'tax_basis':'excluding_VAT','rows':[],'bindings':[{'entity':'counterparty','external_id':'A04-IMPORT-BOUND','target_id':free_cp.pk}],
++            'expected_source_control_totals':source_totals([])}
++        client=self.client('ceo');csrf=client.cookies[settings.CSRF_COOKIE_NAME].value
++        preview=client.post('/api/erp/import/preview/',batch,content_type='application/json',HTTP_X_CSRFTOKEN=csrf)
++        if preview.status_code!=200:raise ValueError('import_fixture_preview_failed:'+str(preview.status_code))
++        receipt=client.post('/api/operations/confirm/',{'proposal_id':preview.json()['proposal']['id'],'confirmed':True},content_type='application/json',HTTP_X_CSRFTOKEN=csrf)
++        if receipt.status_code!=200:raise ValueError('import_fixture_confirm_failed:'+str(receipt.status_code))
++        self.import_batch_id=batch['batch_id']
+ 
+     def client(self, role):
+         client = Client(enforce_csrf_checks=True, raise_request_exception=False)
+@@ -169,7 +183,7 @@
+ 
+     def route_values(self, row):
+         pattern = row['pattern']
+-        values = {'format': 'json', 'url': '_a04_known_catchall_missing_'}
++        values = {'format': 'json', 'url': '_a04_known_catchall_missing_', 'batch_id': self.import_batch_id}
+         if pattern.startswith('admin/'):
+             model = row['model'] or ('auth.user' if 'auth/user/<id>' in pattern else None)
+             if model:
+@@ -197,6 +211,8 @@
+     def query(self, row, path):
+         if row['name'] == 'admin:autocomplete':
+             return '?app_label=finance&model_name=salary&field_name=employee&term=A04'
++        if path == '/api/erp/import/template/':
++            return '?owner_id='+str(self.seed.employee.pk)+'&format=json'
+         if path == '/api/operations/compare/':
+             return '?code=R01&quantity=3'
+         return ''
+@@ -235,6 +251,9 @@
+                          'contracts': 'name', 'transactions': 'description', 'salaries': 'amount'}[family]
+                 values = {field: values[field]}
+             return values, 'json'
++        if route == '/api/erp/import/preview/':
++            from erp.import_views import template_batch
++            return template_batch(self.seed.employee.pk), 'json'
+         if route == '/api/erp/preview/':
+             return {'action': 'erp_item', 'code': 'A04-NEW-ERP', 'name': 'A04 NEW ERP ITEM',
+                 'unit': 'шт.', 'kind': 'product', 'method': 'buy', 'revision': 'A', 'currency': 'EUR'}, 'json'
+@@ -431,6 +450,8 @@
+             return []
+         if role not in ('ceo', 'manager', 'observer'):
+             return []
++        if route.startswith('/api/erp/import/') and role=='ceo':
++            return ['bos.initial-import.v1'] if route.endswith('/template/') else ['a04-import-fixture','A04-IMPORT-BOUND'] if '/batches/' in route else ['\"valid\": true']
+         if route.startswith('/api/auth/') or route == '/api/runtime/status/':
+             return []
+         family = route.split('/')[2] if len(route.split('/')) > 2 else ''
+--- a/scripts/access_routes.json
++++ b/scripts/access_routes.json
+@@ -1,5 +1,5 @@
+ {
+-  "source": "Accepted ACCESS_AUDIT_UA + A03 auth additions; live resolver 2026-09-11; permissions are in check_access.py, not inferred from handlers; A09 server health additions 2026-09-12 (original patterns unchanged)",
++  "source": "Accepted ACCESS_AUDIT_UA + A03 auth additions; live resolver 2026-09-11; permissions are in check_access.py, not inferred from handlers; A09 server health additions 2026-09-12 (original patterns unchanged); B02 four explicit CEO-only initial-import routes (all previous patterns retained)",
+   "patterns": [
+     {
+       "actions": null,
+@@ -1615,6 +1615,42 @@
+       "actions": null,
+       "model": null,
+       "converters": {}
++    },
++    {
++      "pattern": "api/erp/import/preview/",
++      "name": "bos-import-preview",
++      "callback": "erp.import_views.preview",
++      "actions": null,
++      "model": null,
++      "converters": {}
++    },
++    {
++      "pattern": "api/erp/import/template/",
++      "name": "bos-import-template",
++      "callback": "erp.import_views.template",
++      "actions": null,
++      "model": null,
++      "converters": {}
++    },
++    {
++      "pattern": "api/erp/import/batches/<uuid:batch_id>/",
++      "name": "bos-import-batch",
++      "callback": "erp.import_views.batch_detail",
++      "actions": null,
++      "model": null,
++      "converters": {
++        "batch_id": "UUIDConverter"
++      }
++    },
++    {
++      "pattern": "api/erp/import/batches/<uuid:batch_id>/export/",
++      "name": "bos-import-export",
++      "callback": "erp.import_views.export",
++      "actions": null,
++      "model": null,
++      "converters": {
++        "batch_id": "UUIDConverter"
++      }
+     }
+   ],
+   "required_field_tests": [
+--- a/scripts/check_access.py
++++ b/scripts/check_access.py
+@@ -29,7 +29,9 @@
+ PUBLIC_AUTH = {'/api/auth/csrf/', '/api/auth/login/', '/api/auth/logout/', '/api/auth/me/'}
+ DRF_METADATA = {'/api/branches/', '/api/dashboard/summary/', '/api/dashboard/helicopter/',
+                 '/api/dashboard/activity/', '/api/chat/', '/api/meeting/protocol/', '/api/dictate/process/'}
++IMPORT_ROUTES={'/api/erp/import/preview/','/api/erp/import/template/','/api/erp/import/batches/{batch_id}/','/api/erp/import/batches/{batch_id}/export/'}
+ RAW_GET = {
++    '/api/erp/import/template/', '/api/erp/import/batches/{batch_id}/', '/api/erp/import/batches/{batch_id}/export/',
+     '/api/erp/orders/{pk}/next/', '/api/erp/snapshot/', '/api/erp/export/',
+     '/api/erp/changes/{pk}/impact/', '/api/erp/orders/{pk}/draft/',
+     '/api/operations/portfolio/', '/api/operations/status/', '/api/operations/requests/',
+@@ -40,6 +42,7 @@
+     '/api/dashboard/helicopter/', '/api/dashboard/activity/',
+ }
+ RAW_POST = {
++    '/api/erp/import/preview/',
+     '/api/erp/preview/', '/api/operations/requests/create/',
+     '/api/operations/quotes/create/', '/api/operations/documents/{pk}/review/',
+     '/api/operations/documents/upload/', '/api/operations/preview/',
+@@ -92,6 +95,7 @@
+         return '/api/'
+     path = re.sub(r'\.json/?$', '/', path)
+     path = re.sub(r'/\d+/', '/{pk}/', path)
++    path = re.sub(r'^/api/erp/import/batches/[0-9a-f-]{36}/', '/api/erp/import/batches/{batch_id}/', path)
+     if path.startswith('/api/operations/rfq/'):
+         path = '/api/operations/rfq/{code}/'
+     return path
+@@ -101,7 +105,7 @@
+     """Only explicitly known converters/regex are concretized; never use pk=1."""
+     pattern = row['pattern']
+     values = fixtures.route_values(row)
+-    known_converters = {'IntConverter', 'StringConverter', 'PathConverter', 'FormatSuffixConverter'}
++    known_converters = {'IntConverter', 'StringConverter', 'PathConverter', 'FormatSuffixConverter', 'UUIDConverter'}
+     if set(row['converters'].values()) - known_converters:
+         raise ValueError('unknown_converter:' + repr(row['converters']))
+     choices = [pattern]
+@@ -203,6 +207,8 @@
+     expected_method = 'GET' if route in RAW_GET else 'POST'
+     if method != expected_method:
+         return {403, 405}, 'unsupported_django_method'
++    if route in IMPORT_ROUTES and role != 'ceo':
++        return {403}, 'initial_import_ceo_only'
+     if route in EXPORTS and (role == 'observer' or variant == 'no_export'):
+         return {403}, 'separate_export_capability'
+     if route == '/api/operations/settings/' and role != 'ceo':
+--- a/scripts/check_concurrency.py
++++ b/scripts/check_concurrency.py
+@@ -20,9 +20,9 @@
+ import unittest
+ 
+ 
+-MIN_METHODS = 84
+-EXPECTED_SCHEMAS = 26
+-EXPECTED_ERP_RUNS = 89
++MIN_METHODS = 88
++EXPECTED_SCHEMAS = 27
++EXPECTED_ERP_RUNS = 92
+ 
+ 
+ def args_for_run():
+@@ -106,6 +106,15 @@
+ def validate_manifest(manifest):
+     if manifest.get('schema') != 1 or manifest.get('gate') != 5:
+         raise ValueError('Unsupported concurrency manifest schema/gate')
++    baseline = manifest['baseline_a06']
++    if hashlib.sha256(json.dumps(baseline,sort_keys=True,separators=(',',':')).encode()).hexdigest() != 'db06988865d19aff6aae73c1300c7127ff77df76a8c70a8ca3f5f1ab8c56f462':
++        raise ValueError('The accepted A06 84-method/89-record/26-action baseline changed')
++    for key in ('test_labels','required_test_ids','erp_schema_actions','required_erp_pass_records'):
++        if any(entry not in manifest[key] for entry in baseline[key]):
++            raise ValueError('An accepted A06 coverage entry was removed: '+key)
++    for family, entries in baseline['erp_coverage_manifest'].items():
++        if any(manifest['erp_coverage_manifest'][family].get(name) != entry for name,entry in entries.items()):
++            raise ValueError('An accepted A06 ERP coverage oracle changed')
+     ids = manifest['required_test_ids']
+     labels = manifest['test_labels']
+     actions = manifest['erp_schema_actions']
+@@ -117,10 +126,10 @@
+     if any(not any(test_id.startswith(label + '.') for label in labels) for test_id in ids):
+         raise ValueError('A required method is outside the explicitly selected modules')
+     if len(actions) != EXPECTED_SCHEMAS or len(set(actions)) != EXPECTED_SCHEMAS:
+-        raise ValueError('Exactly 26 accepted ERP action names are required')
++        raise ValueError('Exactly 26 accepted plus import_batch ERP actions are required')
+     keys = [(x['mode'], x['case'], x['currency']) for x in records]
+     if len(keys) != EXPECTED_ERP_RUNS or len(set(keys)) != EXPECTED_ERP_RUNS:
+-        raise ValueError('Exactly 89 unique accepted ERP case/currency records are required')
++        raise ValueError('Exactly 89 accepted plus 3 import currency records are required')
+     if any(x['test_id'] not in ids or x['mode'] not in ('http', 'orm')
+            or x['currency'] not in ('EUR', 'USD', 'UAH') for x in records):
+         raise ValueError('ERP records must bind an explicit method/mode/currency')
+--- a/scripts/check_restore.py
++++ b/scripts/check_restore.py
+@@ -12,6 +12,7 @@
+ ROOT=Path(__file__).resolve().parents[1]
+ sys.path.insert(0,str(ROOT))
+ from boss_project.version import VERSION
++from fixtures.synthetic.table_inventory import B02_TABLES
+ from scripts import install_server as installer
+ from scripts.package_server import package
+ from scripts.provision_runtime import provision_install
+@@ -47,7 +48,7 @@
+ u=get_user_model().objects.create_user('restore-ceo',password=password)
+ u.groups.add(Group.objects.get_or_create(name='ceo')[0])
+ u.user_permissions.add(*Permission.objects.filter(content_type__app_label='operations',codename__in=['view_document','download_document','export_workspace']))
+-Employee.objects.create(full_name='Тестова особа відновлення',role='Керівник',user=u)
++employee=Employee.objects.create(full_name='Тестова особа відновлення',role='Керівник',user=u)
+ party=Counterparty.objects.create(name='Синтетичний контрагент',type='customer')
+ ids=[]
+ for currency,value in [('EUR','17.39'),('USD','123.45'),('UAH','9801.07')]:
+@@ -60,11 +61,17 @@
+ private_document_storage.finalize(receipt)
+ legacy=b'Legacy synthetic\x00\xff'
+ Document.objects.create(code='RESTORE-002',revision='B',title='Тестовий BLOB',content=legacy,size=len(legacy),checksum=hashlib.sha256(legacy).hexdigest())
++# Additional B02 source; the original two documents and their bytes stay intact.
++import_blob=b'BoS synthetic approved import source\r\n'
++with transaction.atomic(durable=True):
++ import_file=private_document_storage.save_verified(import_blob,hashlib.sha256(import_blob).hexdigest(),legacy_blob_bytes=0)
++ import_document=Document.objects.create(code='RESTORE-IMPORT',revision='A',title='Синтетична підстава імпорту',filename='import.txt',original_file=import_file.name,size=len(import_blob),content=b'',checksum=import_file.checksum,status='approved')
++private_document_storage.finalize(import_file)
+ extra=Path(settings.MEDIA_ROOT)/'orphan.bin';extra.write_bytes(b'orphan retained');extra.chmod(0o600)
+ # This intentionally creates session history using the actual backend.
+ from django.contrib.sessions.backends.db import SessionStore
+ session=SessionStore();session['synthetic']='retained';session.save()
+-print(json.dumps({'user_id':u.pk,'document_id':document.pk,'transaction_ids':ids,'currencies':3,'amounts':['17.39','123.45','9801.07'],'stored_session_rows':Session.objects.count()}))
++print(json.dumps({'user_id':u.pk,'employee_id':employee.pk,'document_id':document.pk,'import_document':{'document_id':import_document.pk,'code':import_document.code,'revision':import_document.revision,'checksum':import_document.checksum},'transaction_ids':ids,'currencies':3,'amounts':['17.39','123.45','9801.07'],'stored_session_rows':Session.objects.count()}))
+ 
+ '''
+ 
+@@ -144,13 +151,30 @@
+       code,original_document=client.request('GET','/api/operations/documents/1/download/')
+       assert code==200,(code,original_document[:100])
+       check('original_real_TLS_login_document',document_sha256=hashlib.sha256(original_document).hexdigest())
++      status,body=client.request('GET','/api/erp/import/template/?format=json&owner_id='+str(report['seed']['employee_id']))
++      assert status==200,(status,body[:200])
++      import_package=json.loads(body)
++      for row in import_package['rows']:
++       if row['entity']=='purchase_open_balance':row['source_documents']={'specification':report['seed']['import_document']}
++      status,body=client.request('POST','/api/erp/import/preview/',import_package)
++      assert status==200,(status,body[:400])
++      preview=json.loads(body);assert preview['valid'] and preview['counts']['create']==len(import_package['rows'])
++      status,body=client.request('POST','/api/operations/confirm/',{'proposal_id':preview['proposal']['id'],'confirmed':True})
++      assert status==200,(status,body[:400])
++      import_receipt=json.loads(body);assert import_receipt['state']=='succeeded'
++      assert all(row['target_id'] for row in import_receipt['mappings'])
++      import_url='/api/erp/import/batches/'+import_package['batch_id']+'/export/'
++      status,original_import_export=client.request('GET',import_url);assert status==200
++      assert json.loads(original_import_export)['first_commit_receipt']==import_receipt
++      check('actual_TLS_import_populated_ledger_and_source_document',batch_id=import_package['batch_id'],mapping_count=len(import_receipt['mappings']),export_sha256=hashlib.sha256(original_import_export).hexdigest())
+       lease=owner.quiesce(str(uuid.uuid4()))
+       original_db=hashlib.sha256((target/'state/data/bos.sqlite3').read_bytes()).hexdigest()
+       original_media=inventory(installer,target/'state/private')
+       backup=work/'backup'
+       result=capture_backup(ledger=ledger,lease=lease,destination=backup)
+       manifest=inspect_backup(installer=installer,source=backup)
+-      assert len(manifest['proof']['logical']['tables'])==45
++      assert set(manifest['proof']['logical']['tables'])==B02_TABLES
++      assert len(manifest['proof']['logical']['tables'])==47
+       assert hashlib.sha256((target/'state/data/bos.sqlite3').read_bytes()).hexdigest()==original_db
+       assert inventory(installer,target/'state/private')==original_media
+       check('actual_quiescence_native_capture',**{k:v for k,v in result.items() if k!='complete'})
+@@ -180,6 +204,22 @@
+       assert code==200 and document==original_document
+       code,runtime_data=client.request('GET','/api/runtime/status/');assert code==200 and json.loads(runtime_data)['version']==VERSION
+       check('restored_real_TLS_login_document_and_version',new_cookie_namespace=True,document_sha256=hashlib.sha256(document).hexdigest(),version=VERSION)
++      status,restored_import_export=client.request('GET',import_url)
++      assert status==200 and restored_import_export==original_import_export
++      status,before_replay_snapshot=client.request('GET','/api/erp/snapshot/');assert status==200
++      status,body=client.request('POST','/api/erp/import/preview/',import_package)
++      assert status==200,(status,body[:400])
++      repeated=json.loads(body);assert repeated['counts']['create']==0 and repeated['first_commit_receipt']==import_receipt
++      assert repeated['live_before']==repeated['projected_after']
++      status,body=client.request('POST','/api/operations/confirm/',{'proposal_id':repeated['proposal']['id'],'confirmed':True})
++      assert status==200 and json.loads(body)==import_receipt
++      status,after_replay_snapshot=client.request('GET','/api/erp/snapshot/')
++      assert status==200 and json.loads(after_replay_snapshot)==json.loads(before_replay_snapshot)
++      status,export_after_replay=client.request('GET',import_url)
++      assert status==200 and export_after_replay==original_import_export
++      status,restored_source=client.request('GET','/api/operations/documents/'+str(report['seed']['import_document']['document_id'])+'/download/')
++      assert status==200 and hashlib.sha256(restored_source).hexdigest()==report['seed']['import_document']['checksum']
++      check('restored_import_receipt_identity_replay_and_private_source',export_sha256=hashlib.sha256(restored_import_export).hexdigest(),no_new_business_effects=True)
+       owner.quiesce(str(uuid.uuid4()))
+      check('all_owned_processes_stopped_and_source_backup_still_valid',backup_manifest_sha256=hashlib.sha256((backup/'MANIFEST.json').read_bytes()).hexdigest())
+      inspect_backup(installer=installer,source=backup)
+--- a/scripts/concurrency_manifest.json
++++ b/scripts/concurrency_manifest.json
+@@ -2,13 +2,14 @@
+   "schema": 1,
+   "gate": 5,
+   "accepted_on": "2026-09-11",
+-  "description": "Frozen A06 acceptance: 37 ERP + 4 document mutex + 3 adapters + 6 A02 payment + 34 financial methods. Root explicitly added the real duplicate monetary update regression to the accepted original 33 financial IDs. Edits require review; never regenerate at runtime.",
++  "description": "Frozen A06 acceptance: 37 ERP + 4 document mutex + 3 adapters + 6 A02 payment + 34 financial methods. Root explicitly added the real duplicate monetary update regression to the accepted original 33 financial IDs. Edits require review; never regenerate at runtime. B02 additive extension: original84/89/26 preserved by immutable baseline hash;4new methods/3currency records/import_batch.",
+   "test_labels": [
+     "erp.test_concurrency",
+     "operations.test_document_mutex",
+     "finance.test_intent_adapters",
+     "finance.test_payment_integrity",
+-    "finance.test_concurrency"
++    "finance.test_concurrency",
++    "erp.test_import_concurrency"
+   ],
+   "required_test_ids": [
+     "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_adjust",
+@@ -94,7 +95,11 @@
+     "operations.test_document_mutex.A06DocumentMutexTests.test_review_cannot_commit_inside_quality_critical_section",
+     "operations.test_document_mutex.A06DocumentMutexTests.test_review_locks_before_document_admission_reads_and_update",
+     "operations.test_document_mutex.A06DocumentMutexTests.test_upload_cannot_commit_inside_shipment_critical_section",
+-    "operations.test_document_mutex.A06DocumentMutexTests.test_upload_locks_before_document_admission_reads_and_insert"
++    "operations.test_document_mutex.A06DocumentMutexTests.test_upload_locks_before_document_admission_reads_and_insert",
++    "erp.test_import_concurrency.ERPImportConcurrencyTests.test_http_pair_import_batch",
++    "erp.test_import_concurrency.ERPImportConcurrencyTests.test_distinct_batches_same_source_ids_have_one_effect_and_stale_loser",
++    "erp.test_import_concurrency.ERPImportConcurrencyTests.test_counterparty_update_serializes_behind_import_reference_lock",
++    "erp.test_import_concurrency.ERPImportConcurrencyTests.test_employee_archive_serializes_behind_import_reference_lock"
+   ],
+   "erp_schema_actions": [
+     "item",
+@@ -122,7 +127,8 @@
+     "resolve_job",
+     "postpone",
+     "postpone_job",
+-    "adjust"
++    "adjust",
++    "import_batch"
+   ],
+   "erp_coverage_manifest": {
+     "erp_proposal_http": {
+@@ -546,6 +552,23 @@
+           "USD",
+           "UAH"
+         ]
++      },
++      "import_batch": {
++        "inventory_ids": [
++          "ERP-import_batch",
++          "CORE-erp-preview",
++          "CORE-execute",
++          "CORE-confirm",
++          "CORE-dispatch"
++        ],
++        "route": "/api/operations/confirm/",
++        "identity": "same proposal_id",
++        "test": "ERPImportConcurrencyTests.test_http_pair_import_batch",
++        "currencies": [
++          "EUR",
++          "USD",
++          "UAH"
++        ]
+       }
+     },
+     "erp_resource_orm": {
+@@ -1228,6 +1251,1253 @@
+       "case": "payment_dup",
+       "currency": "UAH",
+       "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment_dup"
++    },
++    {
++      "mode": "http",
++      "case": "import_batch",
++      "currency": "EUR",
++      "test_id": "erp.test_import_concurrency.ERPImportConcurrencyTests.test_http_pair_import_batch"
++    },
++    {
++      "mode": "http",
++      "case": "import_batch",
++      "currency": "USD",
++      "test_id": "erp.test_import_concurrency.ERPImportConcurrencyTests.test_http_pair_import_batch"
++    },
++    {
++      "mode": "http",
++      "case": "import_batch",
++      "currency": "UAH",
++      "test_id": "erp.test_import_concurrency.ERPImportConcurrencyTests.test_http_pair_import_batch"
+     }
+-  ]
++  ],
++  "baseline_a06": {
++    "test_labels": [
++      "erp.test_concurrency",
++      "operations.test_document_mutex",
++      "finance.test_intent_adapters",
++      "finance.test_payment_integrity",
++      "finance.test_concurrency"
++    ],
++    "required_test_ids": [
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_adjust",
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_apply_change",
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_attach",
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_change",
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_confirm_order",
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_finish",
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_invoice",
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item",
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_job",
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_location",
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_opening",
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_operator",
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_order",
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_payment",
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone",
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone_job",
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_purchase",
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_quality",
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_receive",
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_release",
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_reserve",
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_resolve_job",
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_return",
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_ship",
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_start",
++      "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_transfer",
++      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_adjust",
++      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_finish",
++      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_invoice",
++      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment",
++      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment_dup",
++      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_receive",
++      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_release",
++      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_reserve",
++      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_return",
++      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_ship",
++      "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_transfer",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_archive_and_restore_each_duplicate_command_has_one_audit_and_same_ids",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_different_keys_cannot_duplicate_one_salary_period",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_different_keys_identical_transaction_facts_remain_two_legitimate_rows",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_duplicate_money_update_has_one_audit_per_record_all_currencies",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_http_key_ascii_boundary_and_model_namespace",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_invalid_http_keys_are_400_without_writes",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_legacy_salary_helper_propagates_one_operation_key",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_legacy_transaction_helper_propagates_one_operation_key",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_mismatch_raises_explicit_intent_conflict_without_mutation",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_salary_equivalent_numbers_fk_and_explicit_defaults_replay",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_orm_transaction_equivalent_decimal_date_and_fk_forms_replay",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_required_http_header_missing_is_400_without_writes",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_role_revocation_is_checked_before_financial_intent_replay",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_audit_failure_rolls_back_intent_accrual_and_retries",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_create_racing_employee_archive_never_rewrites_history",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_create_replay_after_payment_does_not_reopen_or_add_expense",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_format_aliases_replay_one_intent",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_replay_after_archive_preserves_marker_and_id",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_changed_full_payload_is_409",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_concurrent_all_currencies",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_http_same_key_concurrent_mismatch_has_one_winner",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_salary_orm_same_key_concurrent_all_currencies",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_assignment_concurrent_salary_edit_has_one_update_audit",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_key_second_actor_creates_separate_legitimate_intent",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_salary_pay_racing_archive_preserves_one_serial_history",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_same_salary_pay_racing_edit_keeps_matching_expense_all_currencies",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_audit_failure_rolls_back_intent_money_and_retries",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_edit_racing_archive_keeps_one_historical_id",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_format_aliases_replay_one_intent",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_replay_after_archive_returns_fresh_historical_row",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_changed_full_payload_is_409",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_concurrent_all_currencies",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_http_same_key_concurrent_mismatch_has_one_winner",
++      "finance.test_concurrency.FinancialIntentConcurrencyTests.test_transaction_orm_same_key_concurrent_all_currencies",
++      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_http_missing_intent_does_not_create_ambiguous_money",
++      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_http_same_intent_returns_one_transaction",
++      "finance.test_intent_adapters.FinancialIntentAdapterTests.test_native_admin_supplies_stable_intent_and_resubmission_replays",
++      "finance.test_payment_integrity.PaymentIntegrityTests.test_each_currency_is_preserved",
++      "finance.test_payment_integrity.PaymentIntegrityTests.test_error_after_expense_insert_rolls_back_and_retry_succeeds",
++      "finance.test_payment_integrity.PaymentIntegrityTests.test_http_replay_returns_same_receipt_without_second_expense",
++      "finance.test_payment_integrity.PaymentIntegrityTests.test_inconsistent_paid_history_is_not_rewritten",
++      "finance.test_payment_integrity.PaymentIntegrityTests.test_two_concurrent_http_requests_return_identical_receipts",
++      "finance.test_payment_integrity.PaymentIntegrityTests.test_two_concurrent_stale_instances_produce_one_expense",
++      "operations.test_document_mutex.A06DocumentMutexTests.test_review_cannot_commit_inside_quality_critical_section",
++      "operations.test_document_mutex.A06DocumentMutexTests.test_review_locks_before_document_admission_reads_and_update",
++      "operations.test_document_mutex.A06DocumentMutexTests.test_upload_cannot_commit_inside_shipment_critical_section",
++      "operations.test_document_mutex.A06DocumentMutexTests.test_upload_locks_before_document_admission_reads_and_insert"
++    ],
++    "erp_schema_actions": [
++      "item",
++      "location",
++      "order",
++      "confirm_order",
++      "opening",
++      "purchase",
++      "receive",
++      "job",
++      "reserve",
++      "release",
++      "transfer",
++      "quality",
++      "attach",
++      "start",
++      "operator",
++      "finish",
++      "ship",
++      "return",
++      "invoice",
++      "payment",
++      "change",
++      "apply_change",
++      "resolve_job",
++      "postpone",
++      "postpone_job",
++      "adjust"
++    ],
++    "required_erp_pass_records": [
++      {
++        "mode": "http",
++        "case": "item",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item"
++      },
++      {
++        "mode": "http",
++        "case": "item",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item"
++      },
++      {
++        "mode": "http",
++        "case": "item",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_item"
++      },
++      {
++        "mode": "http",
++        "case": "location",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_location"
++      },
++      {
++        "mode": "http",
++        "case": "order",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_order"
++      },
++      {
++        "mode": "http",
++        "case": "order",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_order"
++      },
++      {
++        "mode": "http",
++        "case": "order",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_order"
++      },
++      {
++        "mode": "http",
++        "case": "confirm_order",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_confirm_order"
++      },
++      {
++        "mode": "http",
++        "case": "opening",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_opening"
++      },
++      {
++        "mode": "http",
++        "case": "opening",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_opening"
++      },
++      {
++        "mode": "http",
++        "case": "opening",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_opening"
++      },
++      {
++        "mode": "http",
++        "case": "purchase",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_purchase"
++      },
++      {
++        "mode": "http",
++        "case": "purchase",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_purchase"
++      },
++      {
++        "mode": "http",
++        "case": "purchase",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_purchase"
++      },
++      {
++        "mode": "http",
++        "case": "receive",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_receive"
++      },
++      {
++        "mode": "http",
++        "case": "receive",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_receive"
++      },
++      {
++        "mode": "http",
++        "case": "receive",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_receive"
++      },
++      {
++        "mode": "http",
++        "case": "job",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_job"
++      },
++      {
++        "mode": "http",
++        "case": "job",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_job"
++      },
++      {
++        "mode": "http",
++        "case": "job",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_job"
++      },
++      {
++        "mode": "http",
++        "case": "reserve",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_reserve"
++      },
++      {
++        "mode": "http",
++        "case": "reserve",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_reserve"
++      },
++      {
++        "mode": "http",
++        "case": "reserve",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_reserve"
++      },
++      {
++        "mode": "http",
++        "case": "release",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_release"
++      },
++      {
++        "mode": "http",
++        "case": "release",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_release"
++      },
++      {
++        "mode": "http",
++        "case": "release",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_release"
++      },
++      {
++        "mode": "http",
++        "case": "transfer",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_transfer"
++      },
++      {
++        "mode": "http",
++        "case": "transfer",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_transfer"
++      },
++      {
++        "mode": "http",
++        "case": "transfer",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_transfer"
++      },
++      {
++        "mode": "http",
++        "case": "quality",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_quality"
++      },
++      {
++        "mode": "http",
++        "case": "attach",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_attach"
++      },
++      {
++        "mode": "http",
++        "case": "start",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_start"
++      },
++      {
++        "mode": "http",
++        "case": "operator",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_operator"
++      },
++      {
++        "mode": "http",
++        "case": "finish",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_finish"
++      },
++      {
++        "mode": "http",
++        "case": "finish",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_finish"
++      },
++      {
++        "mode": "http",
++        "case": "finish",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_finish"
++      },
++      {
++        "mode": "http",
++        "case": "ship",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_ship"
++      },
++      {
++        "mode": "http",
++        "case": "ship",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_ship"
++      },
++      {
++        "mode": "http",
++        "case": "ship",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_ship"
++      },
++      {
++        "mode": "http",
++        "case": "return",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_return"
++      },
++      {
++        "mode": "http",
++        "case": "return",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_return"
++      },
++      {
++        "mode": "http",
++        "case": "return",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_return"
++      },
++      {
++        "mode": "http",
++        "case": "invoice",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_invoice"
++      },
++      {
++        "mode": "http",
++        "case": "invoice",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_invoice"
++      },
++      {
++        "mode": "http",
++        "case": "invoice",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_invoice"
++      },
++      {
++        "mode": "http",
++        "case": "payment",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_payment"
++      },
++      {
++        "mode": "http",
++        "case": "payment",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_payment"
++      },
++      {
++        "mode": "http",
++        "case": "payment",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_payment"
++      },
++      {
++        "mode": "http",
++        "case": "change",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_change"
++      },
++      {
++        "mode": "http",
++        "case": "apply_change",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_apply_change"
++      },
++      {
++        "mode": "http",
++        "case": "resolve_job",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_resolve_job"
++      },
++      {
++        "mode": "http",
++        "case": "postpone",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone"
++      },
++      {
++        "mode": "http",
++        "case": "postpone_job",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_postpone_job"
++      },
++      {
++        "mode": "http",
++        "case": "adjust",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_adjust"
++      },
++      {
++        "mode": "http",
++        "case": "adjust",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_adjust"
++      },
++      {
++        "mode": "http",
++        "case": "adjust",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPProposalConcurrencyTests.test_http_pair_adjust"
++      },
++      {
++        "mode": "orm",
++        "case": "reserve",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_reserve"
++      },
++      {
++        "mode": "orm",
++        "case": "reserve",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_reserve"
++      },
++      {
++        "mode": "orm",
++        "case": "reserve",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_reserve"
++      },
++      {
++        "mode": "orm",
++        "case": "release",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_release"
++      },
++      {
++        "mode": "orm",
++        "case": "release",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_release"
++      },
++      {
++        "mode": "orm",
++        "case": "release",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_release"
++      },
++      {
++        "mode": "orm",
++        "case": "receive",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_receive"
++      },
++      {
++        "mode": "orm",
++        "case": "receive",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_receive"
++      },
++      {
++        "mode": "orm",
++        "case": "receive",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_receive"
++      },
++      {
++        "mode": "orm",
++        "case": "transfer",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_transfer"
++      },
++      {
++        "mode": "orm",
++        "case": "transfer",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_transfer"
++      },
++      {
++        "mode": "orm",
++        "case": "transfer",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_transfer"
++      },
++      {
++        "mode": "orm",
++        "case": "finish",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_finish"
++      },
++      {
++        "mode": "orm",
++        "case": "finish",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_finish"
++      },
++      {
++        "mode": "orm",
++        "case": "finish",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_finish"
++      },
++      {
++        "mode": "orm",
++        "case": "ship",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_ship"
++      },
++      {
++        "mode": "orm",
++        "case": "ship",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_ship"
++      },
++      {
++        "mode": "orm",
++        "case": "ship",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_ship"
++      },
++      {
++        "mode": "orm",
++        "case": "return",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_return"
++      },
++      {
++        "mode": "orm",
++        "case": "return",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_return"
++      },
++      {
++        "mode": "orm",
++        "case": "return",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_return"
++      },
++      {
++        "mode": "orm",
++        "case": "adjust",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_adjust"
++      },
++      {
++        "mode": "orm",
++        "case": "adjust",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_adjust"
++      },
++      {
++        "mode": "orm",
++        "case": "adjust",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_adjust"
++      },
++      {
++        "mode": "orm",
++        "case": "invoice",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_invoice"
++      },
++      {
++        "mode": "orm",
++        "case": "invoice",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_invoice"
++      },
++      {
++        "mode": "orm",
++        "case": "invoice",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_invoice"
++      },
++      {
++        "mode": "orm",
++        "case": "payment",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment"
++      },
++      {
++        "mode": "orm",
++        "case": "payment",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment"
++      },
++      {
++        "mode": "orm",
++        "case": "payment",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment"
++      },
++      {
++        "mode": "orm",
++        "case": "payment_dup",
++        "currency": "EUR",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment_dup"
++      },
++      {
++        "mode": "orm",
++        "case": "payment_dup",
++        "currency": "USD",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment_dup"
++      },
++      {
++        "mode": "orm",
++        "case": "payment_dup",
++        "currency": "UAH",
++        "test_id": "erp.test_concurrency.ERPResourceConcurrencyTests.test_orm_contention_payment_dup"
++      }
++    ],
++    "erp_coverage_manifest": {
++      "erp_proposal_http": {
++        "item": {
++          "inventory_ids": [
++            "ERP-item",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_item",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        },
++        "location": {
++          "inventory_ids": [
++            "ERP-location",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_location",
++          "currencies": [
++            "EUR"
++          ]
++        },
++        "order": {
++          "inventory_ids": [
++            "ERP-order",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_order",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        },
++        "confirm_order": {
++          "inventory_ids": [
++            "ERP-confirm_order",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_confirm_order",
++          "currencies": [
++            "EUR"
++          ]
++        },
++        "opening": {
++          "inventory_ids": [
++            "ERP-opening",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_opening",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        },
++        "purchase": {
++          "inventory_ids": [
++            "ERP-purchase",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_purchase",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        },
++        "receive": {
++          "inventory_ids": [
++            "ERP-receive",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_receive",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        },
++        "job": {
++          "inventory_ids": [
++            "ERP-job",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_job",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        },
++        "reserve": {
++          "inventory_ids": [
++            "ERP-reserve",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_reserve",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        },
++        "release": {
++          "inventory_ids": [
++            "ERP-release",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_release",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        },
++        "transfer": {
++          "inventory_ids": [
++            "ERP-transfer",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_transfer",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        },
++        "quality": {
++          "inventory_ids": [
++            "ERP-quality",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_quality",
++          "currencies": [
++            "EUR"
++          ]
++        },
++        "attach": {
++          "inventory_ids": [
++            "ERP-attach",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_attach",
++          "currencies": [
++            "EUR"
++          ]
++        },
++        "start": {
++          "inventory_ids": [
++            "ERP-start",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_start",
++          "currencies": [
++            "EUR"
++          ]
++        },
++        "operator": {
++          "inventory_ids": [
++            "ERP-operator",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_operator",
++          "currencies": [
++            "EUR"
++          ]
++        },
++        "finish": {
++          "inventory_ids": [
++            "ERP-finish",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch",
++            "DEF-01"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_finish",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        },
++        "ship": {
++          "inventory_ids": [
++            "ERP-ship",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_ship",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        },
++        "return": {
++          "inventory_ids": [
++            "ERP-return",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_return",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        },
++        "invoice": {
++          "inventory_ids": [
++            "ERP-invoice",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_invoice",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        },
++        "payment": {
++          "inventory_ids": [
++            "ERP-payment",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_payment",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        },
++        "change": {
++          "inventory_ids": [
++            "ERP-change",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_change",
++          "currencies": [
++            "EUR"
++          ]
++        },
++        "apply_change": {
++          "inventory_ids": [
++            "ERP-apply_change",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_apply_change",
++          "currencies": [
++            "EUR"
++          ]
++        },
++        "resolve_job": {
++          "inventory_ids": [
++            "ERP-resolve_job",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_resolve_job",
++          "currencies": [
++            "EUR"
++          ]
++        },
++        "postpone": {
++          "inventory_ids": [
++            "ERP-postpone",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_postpone",
++          "currencies": [
++            "EUR"
++          ]
++        },
++        "postpone_job": {
++          "inventory_ids": [
++            "ERP-postpone_job",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_postpone_job",
++          "currencies": [
++            "EUR"
++          ]
++        },
++        "adjust": {
++          "inventory_ids": [
++            "ERP-adjust",
++            "CORE-erp-preview",
++            "CORE-execute",
++            "CORE-confirm",
++            "CORE-dispatch"
++          ],
++          "route": "/api/operations/confirm/",
++          "identity": "same proposal_id",
++          "test": "ERPProposalConcurrencyTests.test_http_pair_adjust",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        }
++      },
++      "erp_resource_orm": {
++        "reserve": {
++          "inventory_ids": [
++            "ERP-reserve",
++            "CORE-dispatch"
++          ],
++          "entrypoint": "erp.service.dispatch",
++          "test": "ERPResourceConcurrencyTests.test_orm_contention_reserve",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        },
++        "release": {
++          "inventory_ids": [
++            "ERP-release",
++            "CORE-dispatch"
++          ],
++          "entrypoint": "erp.service.dispatch",
++          "test": "ERPResourceConcurrencyTests.test_orm_contention_release",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        },
++        "receive": {
++          "inventory_ids": [
++            "ERP-receive",
++            "CORE-dispatch"
++          ],
++          "entrypoint": "erp.service.dispatch",
++          "test": "ERPResourceConcurrencyTests.test_orm_contention_receive",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        },
++        "transfer": {
++          "inventory_ids": [
++            "ERP-transfer",
++            "CORE-dispatch"
++          ],
++          "entrypoint": "erp.service.dispatch",
++          "test": "ERPResourceConcurrencyTests.test_orm_contention_transfer",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        },
++        "finish": {
++          "inventory_ids": [
++            "ERP-finish",
++            "CORE-dispatch"
++          ],
++          "entrypoint": "erp.service.dispatch",
++          "test": "ERPResourceConcurrencyTests.test_orm_contention_finish",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        },
++        "ship": {
++          "inventory_ids": [
++            "ERP-ship",
++            "CORE-dispatch"
++          ],
++          "entrypoint": "erp.service.dispatch",
++          "test": "ERPResourceConcurrencyTests.test_orm_contention_ship",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        },
++        "return": {
++          "inventory_ids": [
++            "ERP-return",
++            "CORE-dispatch"
++          ],
++          "entrypoint": "erp.service.dispatch",
++          "test": "ERPResourceConcurrencyTests.test_orm_contention_return",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        },
++        "adjust": {
++          "inventory_ids": [
++            "ERP-adjust",
++            "CORE-dispatch"
++          ],
++          "entrypoint": "erp.service.dispatch",
++          "test": "ERPResourceConcurrencyTests.test_orm_contention_adjust",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        },
++        "invoice": {
++          "inventory_ids": [
++            "ERP-invoice",
++            "CORE-dispatch"
++          ],
++          "entrypoint": "erp.service.dispatch",
++          "test": "ERPResourceConcurrencyTests.test_orm_contention_invoice",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        },
++        "payment": {
++          "inventory_ids": [
++            "ERP-payment",
++            "CORE-dispatch"
++          ],
++          "entrypoint": "erp.service.dispatch",
++          "test": "ERPResourceConcurrencyTests.test_orm_contention_payment",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        },
++        "payment_dup": {
++          "inventory_ids": [
++            "ERP-payment",
++            "CORE-dispatch"
++          ],
++          "entrypoint": "erp.service.dispatch",
++          "test": "ERPResourceConcurrencyTests.test_orm_contention_payment_dup",
++          "currencies": [
++            "EUR",
++            "USD",
++            "UAH"
++          ]
++        }
++      }
++    }
++  }
+ }

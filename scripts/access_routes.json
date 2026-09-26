@@ -1,0 +1,1955 @@
+{
+  "source": "Accepted ACCESS_AUDIT_UA + A03 auth additions; live resolver 2026-09-11; permissions are in check_access.py, not inferred from handlers; A09 server health additions 2026-09-12 (original patterns unchanged); B02 four explicit CEO-only initial-import routes (all previous patterns retained); B03 explicit read-only committed correction outcome route (all176 entries retained); C01 explicit task-history plain/format and owner proposal-status routes; all177 B03 records and57 required field IDs retained C03 adds8 named statement paths and2 DRF journal-summary definitions; no ledger admin registration. | 2026-09-20 BATCH-02 PLAN-LINKS-READ additive GET and field boundaries; historical writers85/12 unchanged. | 2026-09-20 VERTICAL-UA-DATA additive GET workpoints, visible-source role oracle; historical definitions and writers85/12 unchanged. | 2026-09-20 FLOW-READ-UI adds two scoped GET definitions; historical writers85/12 unchanged. | 2026-09-20 DOC-MATCH-READ-UI adds one CEO-only GET; synthetic read draft only; writers85/12 unchanged. | 2026-09-20 NETWORK-COMPOSITION adds three scoped GET definitions; physical point filters and separate export capability; historical records preserved. No access sweep claimed.",
+  "patterns": [
+    {
+      "actions": null,
+      "callback": "boss_project.server_health.liveness",
+      "converters": {},
+      "model": null,
+      "name": "bos-health-live",
+      "pattern": "health/live/"
+    },
+    {
+      "actions": null,
+      "callback": "boss_project.server_health.readiness",
+      "converters": {},
+      "model": null,
+      "name": "bos-health-ready",
+      "pattern": "health/ready/"
+    },
+    {
+      "pattern": "api/auth/csrf/",
+      "name": "bos-auth-csrf",
+      "callback": "boss_project.auth_views.csrf",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/auth/login/",
+      "name": "bos-auth-login",
+      "callback": "boss_project.auth_views.login",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/auth/logout/",
+      "name": "bos-auth-logout",
+      "callback": "boss_project.auth_views.logout",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/auth/me/",
+      "name": "bos-auth-me",
+      "callback": "boss_project.auth_views.me",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/auth/demo/",
+      "name": "bos-auth-demo",
+      "callback": "boss_project.auth_views.demo",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/erp/orders/<int:pk>/next/",
+      "name": "None",
+      "callback": "erp.views.next_action",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "pk": "IntConverter"
+      }
+    },
+    {
+      "pattern": "api/erp/snapshot/",
+      "name": "None",
+      "callback": "erp.views.snapshot",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/erp/preview/",
+      "name": "None",
+      "callback": "erp.views.preview",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/erp/export/",
+      "name": "None",
+      "callback": "erp.views.export",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/erp/changes/<int:pk>/impact/",
+      "name": "None",
+      "callback": "erp.views.change_impact",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "pk": "IntConverter"
+      }
+    },
+    {
+      "pattern": "api/erp/orders/<int:pk>/draft/",
+      "name": "None",
+      "callback": "erp.views.draft",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "pk": "IntConverter"
+      }
+    },
+    {
+      "pattern": "api/operations/portfolio/",
+      "name": "None",
+      "callback": "operations.views.portfolio",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/operations/requests/create/",
+      "name": "None",
+      "callback": "operations.views.request_create",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/operations/quotes/create/",
+      "name": "None",
+      "callback": "operations.views.quote_create",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/operations/documents/<int:pk>/review/",
+      "name": "None",
+      "callback": "operations.views.document_review",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "pk": "IntConverter"
+      }
+    },
+    {
+      "pattern": "api/operations/status/",
+      "name": "None",
+      "callback": "operations.views.status",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/operations/role/",
+      "name": "None",
+      "callback": "operations.views.role",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/operations/requests/",
+      "name": "None",
+      "callback": "operations.views.requests",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/operations/compare/",
+      "name": "None",
+      "callback": "operations.views.compare",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/operations/summary/",
+      "name": "None",
+      "callback": "operations.views.summary",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/operations/documents/",
+      "name": "None",
+      "callback": "operations.views.documents",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/operations/documents/upload/",
+      "name": "None",
+      "callback": "operations.views.upload",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/operations/documents/<int:pk>/",
+      "name": "None",
+      "callback": "operations.views.document",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "pk": "IntConverter"
+      }
+    },
+    {
+      "pattern": "api/operations/documents/<int:pk>/download/",
+      "name": "None",
+      "callback": "operations.views.download",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "pk": "IntConverter"
+      }
+    },
+    {
+      "pattern": "api/operations/preview/",
+      "name": "None",
+      "callback": "operations.views.preview",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/operations/confirm/",
+      "name": "None",
+      "callback": "operations.views.confirm",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/operations/audit/",
+      "name": "None",
+      "callback": "operations.views.audit",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/operations/export/",
+      "name": "None",
+      "callback": "operations.views.export",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/operations/rfq/<str:code>/",
+      "name": "None",
+      "callback": "operations.views.rfq",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "code": "StringConverter"
+      }
+    },
+    {
+      "pattern": "api/operations/settings/",
+      "name": "None",
+      "callback": "operations.views.settings_update",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/operations/chat/",
+      "name": "None",
+      "callback": "operations.views.chat",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "assets/<str:name>",
+      "name": "None",
+      "callback": "boss_project.refinement_views.asset",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "name": "StringConverter"
+      }
+    },
+    {
+      "pattern": "api/runtime/status/",
+      "name": "None",
+      "callback": "boss_project.refinement_views.runtime_status",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "",
+      "name": "None",
+      "callback": "django.views.generic.base.View.as_view.<locals>.view",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "admin/",
+      "name": "admin:index",
+      "callback": "django.contrib.admin.sites.AdminSite.index",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "admin/login/",
+      "name": "admin:login",
+      "callback": "django.contrib.admin.sites.AdminSite.login",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "admin/logout/",
+      "name": "admin:logout",
+      "callback": "django.contrib.admin.sites.AdminSite.logout",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "admin/password_change/",
+      "name": "admin:password_change",
+      "callback": "django.contrib.admin.sites.AdminSite.password_change",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "admin/password_change/done/",
+      "name": "admin:password_change_done",
+      "callback": "django.contrib.admin.sites.AdminSite.password_change_done",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "admin/autocomplete/",
+      "name": "admin:autocomplete",
+      "callback": "django.contrib.admin.sites.AdminSite.autocomplete_view",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "admin/jsi18n/",
+      "name": "admin:jsi18n",
+      "callback": "django.contrib.admin.sites.AdminSite.i18n_javascript",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "admin/r/<path:content_type_id>/<path:object_id>/",
+      "name": "admin:view_on_site",
+      "callback": "django.contrib.contenttypes.views.shortcut",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "content_type_id": "PathConverter",
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/auth/group/",
+      "name": "admin:auth_group_changelist",
+      "callback": "django.contrib.admin.options.ModelAdmin.changelist_view",
+      "actions": null,
+      "model": "auth.group",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/auth/group/add/",
+      "name": "admin:auth_group_add",
+      "callback": "django.contrib.admin.options.ModelAdmin.add_view",
+      "actions": null,
+      "model": "auth.group",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/auth/group/<path:object_id>/history/",
+      "name": "admin:auth_group_history",
+      "callback": "django.contrib.admin.options.ModelAdmin.history_view",
+      "actions": null,
+      "model": "auth.group",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/auth/group/<path:object_id>/delete/",
+      "name": "admin:auth_group_delete",
+      "callback": "django.contrib.admin.options.ModelAdmin.delete_view",
+      "actions": null,
+      "model": "auth.group",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/auth/group/<path:object_id>/change/",
+      "name": "admin:auth_group_change",
+      "callback": "django.contrib.admin.options.ModelAdmin.change_view",
+      "actions": null,
+      "model": "auth.group",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/auth/group/<path:object_id>/",
+      "name": "admin:None",
+      "callback": "django.views.generic.base.View.as_view.<locals>.view",
+      "actions": null,
+      "model": "auth.group",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/auth/user/<id>/password/",
+      "name": "admin:auth_user_password_change",
+      "callback": "django.contrib.auth.admin.UserAdmin.user_change_password",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "id": "StringConverter"
+      }
+    },
+    {
+      "pattern": "admin/auth/user/",
+      "name": "admin:auth_user_changelist",
+      "callback": "django.contrib.admin.options.ModelAdmin.changelist_view",
+      "actions": null,
+      "model": "auth.user",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/auth/user/add/",
+      "name": "admin:auth_user_add",
+      "callback": "django.contrib.auth.admin.UserAdmin.add_view",
+      "actions": null,
+      "model": "auth.user",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/auth/user/<path:object_id>/history/",
+      "name": "admin:auth_user_history",
+      "callback": "django.contrib.admin.options.ModelAdmin.history_view",
+      "actions": null,
+      "model": "auth.user",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/auth/user/<path:object_id>/delete/",
+      "name": "admin:auth_user_delete",
+      "callback": "django.contrib.admin.options.ModelAdmin.delete_view",
+      "actions": null,
+      "model": "auth.user",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/auth/user/<path:object_id>/change/",
+      "name": "admin:auth_user_change",
+      "callback": "django.contrib.admin.options.ModelAdmin.change_view",
+      "actions": null,
+      "model": "auth.user",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/auth/user/<path:object_id>/",
+      "name": "admin:None",
+      "callback": "django.views.generic.base.View.as_view.<locals>.view",
+      "actions": null,
+      "model": "auth.user",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/tasks/task/",
+      "name": "admin:tasks_task_changelist",
+      "callback": "django.contrib.admin.options.ModelAdmin.changelist_view",
+      "actions": null,
+      "model": "tasks.task",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/tasks/task/add/",
+      "name": "admin:tasks_task_add",
+      "callback": "django.contrib.admin.options.ModelAdmin.add_view",
+      "actions": null,
+      "model": "tasks.task",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/tasks/task/<path:object_id>/history/",
+      "name": "admin:tasks_task_history",
+      "callback": "django.contrib.admin.options.ModelAdmin.history_view",
+      "actions": null,
+      "model": "tasks.task",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/tasks/task/<path:object_id>/delete/",
+      "name": "admin:tasks_task_delete",
+      "callback": "django.contrib.admin.options.ModelAdmin.delete_view",
+      "actions": null,
+      "model": "tasks.task",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/tasks/task/<path:object_id>/change/",
+      "name": "admin:tasks_task_change",
+      "callback": "django.contrib.admin.options.ModelAdmin.change_view",
+      "actions": null,
+      "model": "tasks.task",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/tasks/task/<path:object_id>/",
+      "name": "admin:None",
+      "callback": "django.views.generic.base.View.as_view.<locals>.view",
+      "actions": null,
+      "model": "tasks.task",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/finance/counterparty/",
+      "name": "admin:finance_counterparty_changelist",
+      "callback": "django.contrib.admin.options.ModelAdmin.changelist_view",
+      "actions": null,
+      "model": "finance.counterparty",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/finance/counterparty/add/",
+      "name": "admin:finance_counterparty_add",
+      "callback": "django.contrib.admin.options.ModelAdmin.add_view",
+      "actions": null,
+      "model": "finance.counterparty",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/finance/counterparty/<path:object_id>/history/",
+      "name": "admin:finance_counterparty_history",
+      "callback": "django.contrib.admin.options.ModelAdmin.history_view",
+      "actions": null,
+      "model": "finance.counterparty",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/finance/counterparty/<path:object_id>/delete/",
+      "name": "admin:finance_counterparty_delete",
+      "callback": "django.contrib.admin.options.ModelAdmin.delete_view",
+      "actions": null,
+      "model": "finance.counterparty",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/finance/counterparty/<path:object_id>/change/",
+      "name": "admin:finance_counterparty_change",
+      "callback": "django.contrib.admin.options.ModelAdmin.change_view",
+      "actions": null,
+      "model": "finance.counterparty",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/finance/counterparty/<path:object_id>/",
+      "name": "admin:None",
+      "callback": "django.views.generic.base.View.as_view.<locals>.view",
+      "actions": null,
+      "model": "finance.counterparty",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/finance/contract/",
+      "name": "admin:finance_contract_changelist",
+      "callback": "django.contrib.admin.options.ModelAdmin.changelist_view",
+      "actions": null,
+      "model": "finance.contract",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/finance/contract/add/",
+      "name": "admin:finance_contract_add",
+      "callback": "django.contrib.admin.options.ModelAdmin.add_view",
+      "actions": null,
+      "model": "finance.contract",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/finance/contract/<path:object_id>/history/",
+      "name": "admin:finance_contract_history",
+      "callback": "django.contrib.admin.options.ModelAdmin.history_view",
+      "actions": null,
+      "model": "finance.contract",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/finance/contract/<path:object_id>/delete/",
+      "name": "admin:finance_contract_delete",
+      "callback": "django.contrib.admin.options.ModelAdmin.delete_view",
+      "actions": null,
+      "model": "finance.contract",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/finance/contract/<path:object_id>/change/",
+      "name": "admin:finance_contract_change",
+      "callback": "django.contrib.admin.options.ModelAdmin.change_view",
+      "actions": null,
+      "model": "finance.contract",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/finance/contract/<path:object_id>/",
+      "name": "admin:None",
+      "callback": "django.views.generic.base.View.as_view.<locals>.view",
+      "actions": null,
+      "model": "finance.contract",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/finance/transaction/",
+      "name": "admin:finance_transaction_changelist",
+      "callback": "boss_project.archive_admin.ArchiveAdmin.changelist_view",
+      "actions": null,
+      "model": "finance.transaction",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/finance/transaction/add/",
+      "name": "admin:finance_transaction_add",
+      "callback": "django.contrib.admin.options.ModelAdmin.add_view",
+      "actions": null,
+      "model": "finance.transaction",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/finance/transaction/<path:object_id>/history/",
+      "name": "admin:finance_transaction_history",
+      "callback": "django.contrib.admin.options.ModelAdmin.history_view",
+      "actions": null,
+      "model": "finance.transaction",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/finance/transaction/<path:object_id>/delete/",
+      "name": "admin:finance_transaction_delete",
+      "callback": "boss_project.archive_admin.ArchiveAdmin.delete_view",
+      "actions": null,
+      "model": "finance.transaction",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/finance/transaction/<path:object_id>/change/",
+      "name": "admin:finance_transaction_change",
+      "callback": "django.contrib.admin.options.ModelAdmin.change_view",
+      "actions": null,
+      "model": "finance.transaction",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/finance/transaction/<path:object_id>/",
+      "name": "admin:None",
+      "callback": "django.views.generic.base.View.as_view.<locals>.view",
+      "actions": null,
+      "model": "finance.transaction",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/finance/salary/",
+      "name": "admin:finance_salary_changelist",
+      "callback": "boss_project.archive_admin.ArchiveAdmin.changelist_view",
+      "actions": null,
+      "model": "finance.salary",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/finance/salary/add/",
+      "name": "admin:finance_salary_add",
+      "callback": "django.contrib.admin.options.ModelAdmin.add_view",
+      "actions": null,
+      "model": "finance.salary",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/finance/salary/<path:object_id>/history/",
+      "name": "admin:finance_salary_history",
+      "callback": "django.contrib.admin.options.ModelAdmin.history_view",
+      "actions": null,
+      "model": "finance.salary",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/finance/salary/<path:object_id>/delete/",
+      "name": "admin:finance_salary_delete",
+      "callback": "boss_project.archive_admin.ArchiveAdmin.delete_view",
+      "actions": null,
+      "model": "finance.salary",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/finance/salary/<path:object_id>/change/",
+      "name": "admin:finance_salary_change",
+      "callback": "django.contrib.admin.options.ModelAdmin.change_view",
+      "actions": null,
+      "model": "finance.salary",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/finance/salary/<path:object_id>/",
+      "name": "admin:None",
+      "callback": "django.views.generic.base.View.as_view.<locals>.view",
+      "actions": null,
+      "model": "finance.salary",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/employees/employee/",
+      "name": "admin:employees_employee_changelist",
+      "callback": "boss_project.archive_admin.ArchiveAdmin.changelist_view",
+      "actions": null,
+      "model": "employees.employee",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/employees/employee/add/",
+      "name": "admin:employees_employee_add",
+      "callback": "django.contrib.admin.options.ModelAdmin.add_view",
+      "actions": null,
+      "model": "employees.employee",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/employees/employee/<path:object_id>/history/",
+      "name": "admin:employees_employee_history",
+      "callback": "django.contrib.admin.options.ModelAdmin.history_view",
+      "actions": null,
+      "model": "employees.employee",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/employees/employee/<path:object_id>/delete/",
+      "name": "admin:employees_employee_delete",
+      "callback": "boss_project.archive_admin.ArchiveAdmin.delete_view",
+      "actions": null,
+      "model": "employees.employee",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/employees/employee/<path:object_id>/change/",
+      "name": "admin:employees_employee_change",
+      "callback": "django.contrib.admin.options.ModelAdmin.change_view",
+      "actions": null,
+      "model": "employees.employee",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/employees/employee/<path:object_id>/",
+      "name": "admin:None",
+      "callback": "django.views.generic.base.View.as_view.<locals>.view",
+      "actions": null,
+      "model": "employees.employee",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/ai_assistant/chatmessage/",
+      "name": "admin:ai_assistant_chatmessage_changelist",
+      "callback": "django.contrib.admin.options.ModelAdmin.changelist_view",
+      "actions": null,
+      "model": "ai_assistant.chatmessage",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/ai_assistant/chatmessage/add/",
+      "name": "admin:ai_assistant_chatmessage_add",
+      "callback": "django.contrib.admin.options.ModelAdmin.add_view",
+      "actions": null,
+      "model": "ai_assistant.chatmessage",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/ai_assistant/chatmessage/<path:object_id>/history/",
+      "name": "admin:ai_assistant_chatmessage_history",
+      "callback": "django.contrib.admin.options.ModelAdmin.history_view",
+      "actions": null,
+      "model": "ai_assistant.chatmessage",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/ai_assistant/chatmessage/<path:object_id>/delete/",
+      "name": "admin:ai_assistant_chatmessage_delete",
+      "callback": "django.contrib.admin.options.ModelAdmin.delete_view",
+      "actions": null,
+      "model": "ai_assistant.chatmessage",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/ai_assistant/chatmessage/<path:object_id>/change/",
+      "name": "admin:ai_assistant_chatmessage_change",
+      "callback": "django.contrib.admin.options.ModelAdmin.change_view",
+      "actions": null,
+      "model": "ai_assistant.chatmessage",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/ai_assistant/chatmessage/<path:object_id>/",
+      "name": "admin:None",
+      "callback": "django.views.generic.base.View.as_view.<locals>.view",
+      "actions": null,
+      "model": "ai_assistant.chatmessage",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/ai_assistant/taskchangelog/",
+      "name": "admin:ai_assistant_taskchangelog_changelist",
+      "callback": "django.contrib.admin.options.ModelAdmin.changelist_view",
+      "actions": null,
+      "model": "ai_assistant.taskchangelog",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/ai_assistant/taskchangelog/add/",
+      "name": "admin:ai_assistant_taskchangelog_add",
+      "callback": "django.contrib.admin.options.ModelAdmin.add_view",
+      "actions": null,
+      "model": "ai_assistant.taskchangelog",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/ai_assistant/taskchangelog/<path:object_id>/history/",
+      "name": "admin:ai_assistant_taskchangelog_history",
+      "callback": "django.contrib.admin.options.ModelAdmin.history_view",
+      "actions": null,
+      "model": "ai_assistant.taskchangelog",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/ai_assistant/taskchangelog/<path:object_id>/delete/",
+      "name": "admin:ai_assistant_taskchangelog_delete",
+      "callback": "django.contrib.admin.options.ModelAdmin.delete_view",
+      "actions": null,
+      "model": "ai_assistant.taskchangelog",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/ai_assistant/taskchangelog/<path:object_id>/change/",
+      "name": "admin:ai_assistant_taskchangelog_change",
+      "callback": "django.contrib.admin.options.ModelAdmin.change_view",
+      "actions": null,
+      "model": "ai_assistant.taskchangelog",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/ai_assistant/taskchangelog/<path:object_id>/",
+      "name": "admin:None",
+      "callback": "django.views.generic.base.View.as_view.<locals>.view",
+      "actions": null,
+      "model": "ai_assistant.taskchangelog",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/ai_assistant/employeechangelog/",
+      "name": "admin:ai_assistant_employeechangelog_changelist",
+      "callback": "django.contrib.admin.options.ModelAdmin.changelist_view",
+      "actions": null,
+      "model": "ai_assistant.employeechangelog",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/ai_assistant/employeechangelog/add/",
+      "name": "admin:ai_assistant_employeechangelog_add",
+      "callback": "django.contrib.admin.options.ModelAdmin.add_view",
+      "actions": null,
+      "model": "ai_assistant.employeechangelog",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/ai_assistant/employeechangelog/<path:object_id>/history/",
+      "name": "admin:ai_assistant_employeechangelog_history",
+      "callback": "django.contrib.admin.options.ModelAdmin.history_view",
+      "actions": null,
+      "model": "ai_assistant.employeechangelog",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/ai_assistant/employeechangelog/<path:object_id>/delete/",
+      "name": "admin:ai_assistant_employeechangelog_delete",
+      "callback": "django.contrib.admin.options.ModelAdmin.delete_view",
+      "actions": null,
+      "model": "ai_assistant.employeechangelog",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/ai_assistant/employeechangelog/<path:object_id>/change/",
+      "name": "admin:ai_assistant_employeechangelog_change",
+      "callback": "django.contrib.admin.options.ModelAdmin.change_view",
+      "actions": null,
+      "model": "ai_assistant.employeechangelog",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/ai_assistant/employeechangelog/<path:object_id>/",
+      "name": "admin:None",
+      "callback": "django.views.generic.base.View.as_view.<locals>.view",
+      "actions": null,
+      "model": "ai_assistant.employeechangelog",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/ai_assistant/chatfile/",
+      "name": "admin:ai_assistant_chatfile_changelist",
+      "callback": "django.contrib.admin.options.ModelAdmin.changelist_view",
+      "actions": null,
+      "model": "ai_assistant.chatfile",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/ai_assistant/chatfile/add/",
+      "name": "admin:ai_assistant_chatfile_add",
+      "callback": "django.contrib.admin.options.ModelAdmin.add_view",
+      "actions": null,
+      "model": "ai_assistant.chatfile",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/ai_assistant/chatfile/<path:object_id>/history/",
+      "name": "admin:ai_assistant_chatfile_history",
+      "callback": "django.contrib.admin.options.ModelAdmin.history_view",
+      "actions": null,
+      "model": "ai_assistant.chatfile",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/ai_assistant/chatfile/<path:object_id>/delete/",
+      "name": "admin:ai_assistant_chatfile_delete",
+      "callback": "django.contrib.admin.options.ModelAdmin.delete_view",
+      "actions": null,
+      "model": "ai_assistant.chatfile",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/ai_assistant/chatfile/<path:object_id>/change/",
+      "name": "admin:ai_assistant_chatfile_change",
+      "callback": "django.contrib.admin.options.ModelAdmin.change_view",
+      "actions": null,
+      "model": "ai_assistant.chatfile",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/ai_assistant/chatfile/<path:object_id>/",
+      "name": "admin:None",
+      "callback": "django.views.generic.base.View.as_view.<locals>.view",
+      "actions": null,
+      "model": "ai_assistant.chatfile",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/ai_assistant/claudeusagelog/",
+      "name": "admin:ai_assistant_claudeusagelog_changelist",
+      "callback": "django.contrib.admin.options.ModelAdmin.changelist_view",
+      "actions": null,
+      "model": "ai_assistant.claudeusagelog",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/ai_assistant/claudeusagelog/add/",
+      "name": "admin:ai_assistant_claudeusagelog_add",
+      "callback": "django.contrib.admin.options.ModelAdmin.add_view",
+      "actions": null,
+      "model": "ai_assistant.claudeusagelog",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/ai_assistant/claudeusagelog/<path:object_id>/history/",
+      "name": "admin:ai_assistant_claudeusagelog_history",
+      "callback": "django.contrib.admin.options.ModelAdmin.history_view",
+      "actions": null,
+      "model": "ai_assistant.claudeusagelog",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/ai_assistant/claudeusagelog/<path:object_id>/delete/",
+      "name": "admin:ai_assistant_claudeusagelog_delete",
+      "callback": "django.contrib.admin.options.ModelAdmin.delete_view",
+      "actions": null,
+      "model": "ai_assistant.claudeusagelog",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/ai_assistant/claudeusagelog/<path:object_id>/change/",
+      "name": "admin:ai_assistant_claudeusagelog_change",
+      "callback": "django.contrib.admin.options.ModelAdmin.change_view",
+      "actions": null,
+      "model": "ai_assistant.claudeusagelog",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/ai_assistant/claudeusagelog/<path:object_id>/",
+      "name": "admin:None",
+      "callback": "django.views.generic.base.View.as_view.<locals>.view",
+      "actions": null,
+      "model": "ai_assistant.claudeusagelog",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/branches/branch/",
+      "name": "admin:branches_branch_changelist",
+      "callback": "django.contrib.admin.options.ModelAdmin.changelist_view",
+      "actions": null,
+      "model": "branches.branch",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/branches/branch/add/",
+      "name": "admin:branches_branch_add",
+      "callback": "django.contrib.admin.options.ModelAdmin.add_view",
+      "actions": null,
+      "model": "branches.branch",
+      "converters": {}
+    },
+    {
+      "pattern": "admin/branches/branch/<path:object_id>/history/",
+      "name": "admin:branches_branch_history",
+      "callback": "django.contrib.admin.options.ModelAdmin.history_view",
+      "actions": null,
+      "model": "branches.branch",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/branches/branch/<path:object_id>/delete/",
+      "name": "admin:branches_branch_delete",
+      "callback": "django.contrib.admin.options.ModelAdmin.delete_view",
+      "actions": null,
+      "model": "branches.branch",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/branches/branch/<path:object_id>/change/",
+      "name": "admin:branches_branch_change",
+      "callback": "django.contrib.admin.options.ModelAdmin.change_view",
+      "actions": null,
+      "model": "branches.branch",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/branches/branch/<path:object_id>/",
+      "name": "admin:None",
+      "callback": "django.views.generic.base.View.as_view.<locals>.view",
+      "actions": null,
+      "model": "branches.branch",
+      "converters": {
+        "object_id": "PathConverter"
+      }
+    },
+    {
+      "pattern": "admin/^(?P<app_label>auth|tasks|finance|employees|ai_assistant|branches)/$",
+      "name": "admin:app_list",
+      "callback": "django.contrib.admin.sites.AdminSite.app_index",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "admin/(?P<url>.*)$",
+      "name": "admin:None",
+      "callback": "django.contrib.admin.sites.AdminSite.catch_all_view",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^tasks/$",
+      "name": "task-list",
+      "callback": "tasks.views.TaskViewSet",
+      "actions": {
+        "get": "list",
+        "post": "create"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^tasks\\.(?P<format>[a-z0-9]+)/?$",
+      "name": "task-list",
+      "callback": "tasks.views.TaskViewSet",
+      "actions": {
+        "get": "list",
+        "post": "create"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^tasks/(?P<pk>[^/.]+)/$",
+      "name": "task-detail",
+      "callback": "tasks.views.TaskViewSet",
+      "actions": {
+        "get": "retrieve",
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^tasks/(?P<pk>[^/.]+)\\.(?P<format>[a-z0-9]+)/?$",
+      "name": "task-detail",
+      "callback": "tasks.views.TaskViewSet",
+      "actions": {
+        "get": "retrieve",
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/",
+      "name": "api-root",
+      "callback": "rest_framework.routers.View.as_view.<locals>.view",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/<drf_format_suffix:format>",
+      "name": "api-root",
+      "callback": "rest_framework.routers.View.as_view.<locals>.view",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "format": "FormatSuffixConverter"
+      }
+    },
+    {
+      "pattern": "api/chat/",
+      "name": "None",
+      "callback": "ai_assistant.views.View.as_view.<locals>.view",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/chat/file/",
+      "name": "None",
+      "callback": "ai_assistant.views.chat_with_file",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/chat/history/",
+      "name": "None",
+      "callback": "ai_assistant.views.View.as_view.<locals>.view",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/meeting/protocol/",
+      "name": "None",
+      "callback": "ai_assistant.views.View.as_view.<locals>.view",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/dictate/process/",
+      "name": "None",
+      "callback": "ai_assistant.views.View.as_view.<locals>.view",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^employees/$",
+      "name": "employee-list",
+      "callback": "employees.views.EmployeeViewSet",
+      "actions": {
+        "get": "list",
+        "post": "create"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^employees\\.(?P<format>[a-z0-9]+)/?$",
+      "name": "employee-list",
+      "callback": "employees.views.EmployeeViewSet",
+      "actions": {
+        "get": "list",
+        "post": "create"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^employees/(?P<pk>[^/.]+)/$",
+      "name": "employee-detail",
+      "callback": "employees.views.EmployeeViewSet",
+      "actions": {
+        "get": "retrieve",
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^employees/(?P<pk>[^/.]+)\\.(?P<format>[a-z0-9]+)/?$",
+      "name": "employee-detail",
+      "callback": "employees.views.EmployeeViewSet",
+      "actions": {
+        "get": "retrieve",
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/",
+      "name": "api-root",
+      "callback": "rest_framework.routers.View.as_view.<locals>.view",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/<drf_format_suffix:format>",
+      "name": "api-root",
+      "callback": "rest_framework.routers.View.as_view.<locals>.view",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "format": "FormatSuffixConverter"
+      }
+    },
+    {
+      "pattern": "api/^counterparties/$",
+      "name": "counterparty-list",
+      "callback": "finance.views.CounterpartyViewSet",
+      "actions": {
+        "get": "list",
+        "post": "create"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^counterparties\\.(?P<format>[a-z0-9]+)/?$",
+      "name": "counterparty-list",
+      "callback": "finance.views.CounterpartyViewSet",
+      "actions": {
+        "get": "list",
+        "post": "create"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^counterparties/(?P<pk>[^/.]+)/$",
+      "name": "counterparty-detail",
+      "callback": "finance.views.CounterpartyViewSet",
+      "actions": {
+        "get": "retrieve",
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^counterparties/(?P<pk>[^/.]+)\\.(?P<format>[a-z0-9]+)/?$",
+      "name": "counterparty-detail",
+      "callback": "finance.views.CounterpartyViewSet",
+      "actions": {
+        "get": "retrieve",
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^contracts/$",
+      "name": "contract-list",
+      "callback": "finance.views.ContractViewSet",
+      "actions": {
+        "get": "list",
+        "post": "create"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^contracts\\.(?P<format>[a-z0-9]+)/?$",
+      "name": "contract-list",
+      "callback": "finance.views.ContractViewSet",
+      "actions": {
+        "get": "list",
+        "post": "create"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^contracts/(?P<pk>[^/.]+)/$",
+      "name": "contract-detail",
+      "callback": "finance.views.ContractViewSet",
+      "actions": {
+        "get": "retrieve",
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^contracts/(?P<pk>[^/.]+)\\.(?P<format>[a-z0-9]+)/?$",
+      "name": "contract-detail",
+      "callback": "finance.views.ContractViewSet",
+      "actions": {
+        "get": "retrieve",
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^transactions/$",
+      "name": "transaction-list",
+      "callback": "finance.views.TransactionViewSet",
+      "actions": {
+        "get": "list",
+        "post": "create"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^transactions\\.(?P<format>[a-z0-9]+)/?$",
+      "name": "transaction-list",
+      "callback": "finance.views.TransactionViewSet",
+      "actions": {
+        "get": "list",
+        "post": "create"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^transactions/(?P<pk>[^/.]+)/$",
+      "name": "transaction-detail",
+      "callback": "finance.views.TransactionViewSet",
+      "actions": {
+        "get": "retrieve",
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^transactions/(?P<pk>[^/.]+)\\.(?P<format>[a-z0-9]+)/?$",
+      "name": "transaction-detail",
+      "callback": "finance.views.TransactionViewSet",
+      "actions": {
+        "get": "retrieve",
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^salaries/$",
+      "name": "salary-list",
+      "callback": "finance.views.SalaryViewSet",
+      "actions": {
+        "get": "list",
+        "post": "create"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^salaries\\.(?P<format>[a-z0-9]+)/?$",
+      "name": "salary-list",
+      "callback": "finance.views.SalaryViewSet",
+      "actions": {
+        "get": "list",
+        "post": "create"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^salaries/(?P<pk>[^/.]+)/$",
+      "name": "salary-detail",
+      "callback": "finance.views.SalaryViewSet",
+      "actions": {
+        "get": "retrieve",
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^salaries/(?P<pk>[^/.]+)\\.(?P<format>[a-z0-9]+)/?$",
+      "name": "salary-detail",
+      "callback": "finance.views.SalaryViewSet",
+      "actions": {
+        "get": "retrieve",
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^salaries/(?P<pk>[^/.]+)/pay/$",
+      "name": "salary-pay",
+      "callback": "finance.views.SalaryViewSet",
+      "actions": {
+        "post": "pay"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^salaries/(?P<pk>[^/.]+)/pay\\.(?P<format>[a-z0-9]+)/?$",
+      "name": "salary-pay",
+      "callback": "finance.views.SalaryViewSet",
+      "actions": {
+        "post": "pay"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/",
+      "name": "api-root",
+      "callback": "rest_framework.routers.View.as_view.<locals>.view",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/<drf_format_suffix:format>",
+      "name": "api-root",
+      "callback": "rest_framework.routers.View.as_view.<locals>.view",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "format": "FormatSuffixConverter"
+      }
+    },
+    {
+      "pattern": "api/branches/",
+      "name": "None",
+      "callback": "branches.views.View.as_view.<locals>.view",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/dashboard/summary/",
+      "name": "None",
+      "callback": "branches.views.View.as_view.<locals>.view",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/dashboard/helicopter/",
+      "name": "None",
+      "callback": "branches.views.View.as_view.<locals>.view",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/dashboard/activity/",
+      "name": "None",
+      "callback": "branches.views.View.as_view.<locals>.view",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/erp/import/preview/",
+      "name": "bos-import-preview",
+      "callback": "erp.import_views.preview",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/erp/import/template/",
+      "name": "bos-import-template",
+      "callback": "erp.import_views.template",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/erp/import/batches/<uuid:batch_id>/",
+      "name": "bos-import-batch",
+      "callback": "erp.import_views.batch_detail",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "batch_id": "UUIDConverter"
+      }
+    },
+    {
+      "pattern": "api/erp/import/batches/<uuid:batch_id>/export/",
+      "name": "bos-import-export",
+      "callback": "erp.import_views.export",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "batch_id": "UUIDConverter"
+      }
+    },
+    {
+      "pattern": "api/erp/corrections/outcome/",
+      "name": "bos-correction-outcome",
+      "callback": "erp.correction_views.outcome",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^tasks/(?P<pk>[^/.]+)/history/$",
+      "name": "task-history",
+      "callback": "tasks.views.TaskViewSet",
+      "actions": {
+        "get": "history"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^tasks/(?P<pk>[^/.]+)/history\\.(?P<format>[a-z0-9]+)/?$",
+      "name": "task-history",
+      "callback": "tasks.views.TaskViewSet",
+      "actions": {
+        "get": "history"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/operations/task-proposals/<uuid:proposal_id>/",
+      "name": "task-proposal-status",
+      "callback": "tasks.history.proposal_status",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "proposal_id": "UUIDConverter"
+      }
+    },
+    {
+      "pattern": "api/statements/sources/",
+      "name": "statement-source",
+      "callback": "finance.statement_views.sources",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/statements/imports/",
+      "name": "statement-imports",
+      "callback": "finance.statement_views.imports",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/statements/imports/<uuid:pk>/",
+      "name": "statement-import-detail",
+      "callback": "finance.statement_views.import_detail",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "pk": "UUIDConverter"
+      }
+    },
+    {
+      "pattern": "api/statements/imports/<uuid:pk>/export/",
+      "name": "statement-export",
+      "callback": "finance.statement_views.export",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "pk": "UUIDConverter"
+      }
+    },
+    {
+      "pattern": "api/statements/lines/",
+      "name": "statement-lines",
+      "callback": "finance.statement_views.lines",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/statements/lines/<uuid:pk>/",
+      "name": "statement-line-detail",
+      "callback": "finance.statement_views.line_detail",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "pk": "UUIDConverter"
+      }
+    },
+    {
+      "pattern": "api/statements/lines/<uuid:pk>/candidates/",
+      "name": "statement-candidates",
+      "callback": "finance.statement_views.candidates",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "pk": "UUIDConverter"
+      }
+    },
+    {
+      "pattern": "api/statements/summary/",
+      "name": "statement-summary",
+      "callback": "finance.statement_views.summary",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^transactions/summary/$",
+      "name": "transaction-summary",
+      "callback": "finance.views.TransactionViewSet",
+      "actions": {
+        "get": "summary"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/^transactions/summary\\.(?P<format>[a-z0-9]+)/?$",
+      "name": "transaction-summary",
+      "callback": "finance.views.TransactionViewSet",
+      "actions": {
+        "get": "summary"
+      },
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/erp/orders/<int:pk>/trace/",
+      "name": "bos-order-trace",
+      "callback": "erp.views.order_trace",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "pk": "IntConverter"
+      }
+    },
+    {
+      "pattern": "api/erp/workpoints/",
+      "name": "bos-workpoints",
+      "callback": "erp.views.workpoints",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/erp/orders/<int:pk>/settlement/",
+      "name": "bos-order-settlement",
+      "callback": "erp.views.order_settlement",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "pk": "IntConverter"
+      }
+    },
+    {
+      "pattern": "api/erp/lines/<int:pk>/supply-options/",
+      "name": "bos-supply-options",
+      "callback": "erp.views.supply_options",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "pk": "IntConverter"
+      }
+    },
+    {
+      "pattern": "api/erp/purchases/<int:pk>/document-match/",
+      "name": "bos-document-match",
+      "callback": "erp.views.document_match",
+      "actions": null,
+      "model": null,
+      "converters": {
+        "pk": "IntConverter"
+      }
+    },
+    {
+      "pattern": "api/erp/network/",
+      "name": "bos-network",
+      "callback": "erp.network_views.snapshot",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/erp/network/export/",
+      "name": "bos-network-export",
+      "callback": "erp.network_views.export",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    },
+    {
+      "pattern": "api/erp/modules/",
+      "name": "bos-modules",
+      "callback": "erp.module_views.registry",
+      "actions": null,
+      "model": null,
+      "converters": {}
+    }
+  ],
+  "required_field_tests": [
+    "operations.test_access.A04AggregateReadTests.test_audit_payload_is_filtered_before_response",
+    "operations.test_access.A04AggregateReadTests.test_dashboard_activity_hides_hr_events_but_ceo_can_read_them",
+    "operations.test_access.A04AggregateReadTests.test_dashboard_summary_and_helicopter_have_no_financial_side_channel",
+    "operations.test_access.A04AggregateReadTests.test_hidden_erp_order_and_change_have_no_detail_draft_or_next_route",
+    "operations.test_access.A04AggregateReadTests.test_manager_snapshot_retains_allowed_procurement_prices_not_ceo_sources",
+    "operations.test_access.A04AggregateReadTests.test_observer_next_step_cannot_disclose_payment_amount_or_ceo_action",
+    "operations.test_access.A04AggregateReadTests.test_observer_snapshot_retains_operations_without_money_or_private_records",
+    "operations.test_access.A04AggregateReadTests.test_operations_summary_finance_is_filtered_for_non_ceo",
+    "operations.test_access.A04AssistantAccessTests.test_ceo_history_stays_private_after_same_owner_is_downgraded",
+    "operations.test_access.A04AssistantAccessTests.test_chat_history_is_owned_and_legacy_null_owner_never_leaks",
+    "operations.test_access.A04AssistantAccessTests.test_context_rechecks_actual_group_and_document_permission_without_cache",
+    "operations.test_access.A04AssistantAccessTests.test_context_without_principal_cannot_read_business_sources",
+    "operations.test_access.A04AssistantAccessTests.test_legacy_context_uses_request_and_ignores_global_finance_cache",
+    "operations.test_access.A04AssistantAccessTests.test_local_assistant_manager_keeps_allowed_comparison_but_no_closed_sources",
+    "operations.test_access.A04AssistantAccessTests.test_local_assistant_observer_has_no_financial_answer_or_hidden_sources",
+    "operations.test_access.A04AssistantAccessTests.test_observer_cannot_archive_chat_history",
+    "operations.test_access.A04AssistantAccessTests.test_own_history_delete_archives_preserving_foreign_rows_files_and_bytes",
+    "operations.test_access.A04AssistantAccessTests.test_private_chat_file_cannot_leak_through_other_history_or_public_media",
+    "operations.test_access.A04BoundaryReadTests.test_anonymous_cannot_read_any_current_business_get_surface",
+    "operations.test_access.A04BoundaryReadTests.test_head_options_and_json_aliases_do_not_expose_forbidden_salary_data",
+    "operations.test_access.A04DocumentReadTests.test_compare_keeps_allowed_quotes_without_hidden_rows_or_observer_prices",
+    "operations.test_access.A04DocumentReadTests.test_contract_details_aliases_respect_document_scope_and_financial_fields",
+    "operations.test_access.A04DocumentReadTests.test_document_classification_defaults_and_chat_owner_schema_exist",
+    "operations.test_access.A04DocumentReadTests.test_document_levels_filter_all_rows_for_each_role",
+    "operations.test_access.A04DocumentReadTests.test_document_permission_is_separate_from_business_role",
+    "operations.test_access.A04DocumentReadTests.test_download_capability_required_even_for_ceo_and_preserves_scope",
+    "operations.test_access.A04DocumentReadTests.test_hidden_versions_do_not_hide_visible_version_or_leak_metadata_hits",
+    "operations.test_access.A04DocumentReadTests.test_request_list_compare_and_rfq_share_document_scope",
+    "operations.test_access.A04DocumentReadTests.test_revoking_document_permissions_affects_existing_session_immediately",
+    "operations.test_access.A04ExportTests.test_ceo_and_manager_need_explicit_export_permission",
+    "operations.test_access.A04ExportTests.test_export_is_a_projection_of_allowed_data_not_an_unfiltered_database",
+    "operations.test_access.A04ExportTests.test_export_permission_revocation_applies_without_new_login",
+    "operations.test_access.A04ExportTests.test_observer_cannot_export_even_with_export_permission",
+    "operations.test_access.A04FinanceReadTests.test_ceo_retains_three_currency_finance_and_payroll_data",
+    "operations.test_access.A04FinanceReadTests.test_employee_directory_remains_useful_without_hr_fields",
+    "operations.test_access.A04FinanceReadTests.test_manager_transaction_whitelist_and_payroll_sources_excluded",
+    "operations.test_access.A04FinanceReadTests.test_observer_cannot_read_transaction_routes_or_aliases",
+    "operations.test_access.A04FinanceReadTests.test_observer_counterparties_have_no_financial_aggregates",
+    "operations.test_access.A04FinanceReadTests.test_payroll_forbidden_for_manager_observer_in_all_get_aliases",
+    "operations.test_access.A04ProposalAccessTests.test_confirm_rechecks_document_capability_after_preview",
+    "operations.test_access.A04ProposalAccessTests.test_hidden_document_references_cannot_be_previewed_via_either_adapter",
+    "operations.test_access.A04ProposalAccessTests.test_manager_cannot_preview_ceo_only_actions_on_either_adapter",
+    "operations.test_access.A04ProposalAccessTests.test_task_preview_cannot_reference_hidden_procurement_request",
+    "operations.test_access_boundaries.A04BoundaryTests.test_access_revision_changes_on_role_or_capability_revocation",
+    "operations.test_access_boundaries.A04BoundaryTests.test_business_roles_cannot_gain_private_admin_data_with_staff_flags",
+    "operations.test_access_boundaries.A04BoundaryTests.test_debug_cannot_open_private_media_bypassing_document_policy",
+    "operations.test_access_boundaries.A04BoundaryTests.test_non_ceo_cannot_infer_private_hr_through_ordering",
+    "operations.test_access_boundaries.A04BoundaryTests.test_technical_admin_can_read_but_not_rewrite_or_delete_chat_evidence",
+    "operations.test_blind_paths.A04BlindPathTests.test_blind_forms_cannot_create_or_relink_hidden_sources_or_versions",
+    "operations.test_blind_paths.A04BlindPathTests.test_browsable_html_and_metadata_share_the_same_field_and_fk_scope",
+    "operations.test_blind_paths.A04BlindPathTests.test_completed_proposal_replay_rechecks_document_permission",
+    "operations.test_blind_paths.A04BlindPathTests.test_nested_erp_ids_are_scoped_on_both_preview_adapters",
+    "operations.test_blind_paths.A04BlindPathTests.test_projected_rows_never_retain_hidden_foreign_ids",
+    "operations.test_document_contract_visibility.A04DocumentContractVisibilityTests.test_visible_document_cannot_disclose_a_now_hidden_contract_fk",
+    "operations.test_remaining_context.A04RemainingContextTests.test_replay_rechecks_scope_of_created_result_not_only_original_payload",
+    "operations.test_remaining_context.A04RemainingContextTests.test_visible_order_next_step_never_names_a_hidden_job_component",
+    "operations.test_review_response_projection.A04ReviewResponseProjectionTests.test_review_without_contract_change_still_uses_document_projection",
+    "erp.test_order_trace.OrderTraceTests.test_trace_decimal_sources_and_read_only",
+    "erp.test_order_trace.OrderTraceTests.test_ceo_manager_observer_field_allowlists",
+    "erp.test_order_trace.OrderTraceTests.test_hidden_reservation_is_null_not_zero_or_visible_sum",
+    "erp.test_order_trace.OrderTraceTests.test_only_allowed_invoice_links_and_historical_tasks",
+    "erp.test_order_trace.OrderTraceTests.test_current_role_refresh_and_neutral_not_found",
+    "erp.test_order_trace.OrderTraceTests.test_method_and_no_documents_contract",
+    "erp.test_order_trace.OrderTraceTests.test_unrelated_order_purchase_not_allocated",
+    "erp.test_order_trace.OrderTraceTests.test_partial_refs_keep_full_decimal_and_old_shipments",
+    "erp.test_order_trace.OrderTraceTests.test_reservation_change_between_reads_has_no_payload",
+    "erp.test_order_trace.OrderTraceTests.test_document_admission_change_between_reads_has_no_payload",
+    "erp.test_order_trace.OrderTraceTests.test_permission_change_between_reads_has_no_payload",
+    "erp.test_order_trace.OrderTraceTests.test_metadata_and_membership_changes_between_reads_have_no_payload",
+    "erp.test_order_trace.OrderTraceTests.test_revoked_identity_between_reads_uses_identity_denial",
+    "erp.test_order_trace.OrderTraceTests.test_hidden_latest_document_does_not_disclose_admission",
+    "erp.test_order_trace.OrderTraceTests.test_hidden_purchase_receipt_is_not_a_lot_origin",
+    "erp.test_order_trace.OrderTraceTests.test_physical_return_movement_does_not_reduce_gross_shipped",
+    "erp.test_order_trace.OrderTraceTests.test_snapshot_and_global_fingerprint_are_not_called",
+    "erp.test_order_trace.OrderTraceTests.test_hidden_shipment_keeps_admitted_line_quantity_without_source_leak",
+    "erp.test_workpoints.WorkpointTests.test_exact_currency_groups_sources_and_read_only",
+    "erp.test_workpoints.WorkpointTests.test_quantity_units_are_not_combined",
+    "erp.test_workpoints.WorkpointTests.test_private_ids_money_and_hidden_reservations_never_leak",
+    "erp.test_workpoints.WorkpointTests.test_non_document_role_does_not_gain_document_sources",
+    "erp.test_workpoints.WorkpointTests.test_credits_reversals_and_overpayment_keep_currency_sources",
+    "erp.test_workpoints.WorkpointTests.test_global_movement_cap_and_unassigned_legacy_sources",
+    "erp.test_workpoints.WorkpointTests.test_branch_delete_is_protected_and_pending_deleted_reference_refuses",
+    "erp.test_workpoints.WorkpointTests.test_branch_is_owning_order_not_fulfilment_location",
+    "erp.test_workpoints.WorkpointTests.test_preview_confirm_replay_and_optional_legacy_links",
+    "erp.test_workpoints.WorkpointTests.test_invalid_branch_observer_and_changed_branch_confirmation",
+    "erp.test_workpoints.WorkpointTests.test_source_and_access_change_fail_closed",
+    "erp.test_flow_projection_routes.FlowProjectionRouteTests.test_reads_are_get_only_and_anonymous_is_denied",
+    "erp.test_flow_projection_routes.FlowProjectionRouteTests.test_finance_ceo_only_and_restricted_supply_no_inference",
+    "erp.test_flow_projection_routes.FlowProjectionRouteTests.test_explicit_target_and_invalid_duplicate_query",
+    "erp.test_flow_projection_routes.FlowProjectionRouteTests.test_stale_and_hidden_reads_never_return_old_payload",
+    "erp.test_flow_projection_routes.FlowProjectionRouteTests.test_supply_reserve_uses_existing_preview_confirm_and_replay",
+    "erp.test_document_match_route.DocumentMatchRouteTests.test_verified_original_http_evidence_and_no_writes",
+    "erp.test_document_match_route.DocumentMatchRouteTests.test_ceo_gate_precedes_selection_and_other_methods_fail",
+    "erp.test_document_match_route.DocumentMatchRouteTests.test_explicit_selection_and_safe_unsupported_document",
+    "erp.test_document_match_route.DocumentMatchRouteTests.test_stale_source_and_missing_ids_never_return_draft"
+  ]
+}

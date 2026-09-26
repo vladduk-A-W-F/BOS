@@ -1,0 +1,32 @@
+{
+  "date": "2026-09-12T09:32:00.902147+00:00",
+  "scope": "A09 tmp-only NEW filesystem bootstrap and actual offline application provisioning",
+  "complete": false,
+  "bootstrap_tests": {
+    "methods": 9,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 0.12,
+    "log": "a09_install_bootstrap_owned_lock.log"
+  },
+  "actual_install": "a09_actual_install_1.json",
+  "actual_resume": "a09_actual_resume_2.json",
+  "source_package": "a09_source_package_1_provenance.json",
+  "artifact_sha256": {
+    "a09_install_server.py": "f52844981babb91d18d4ff646deeb287f15bdf82d88cc915acf14ec21c14a638",
+    "a09_provision_runtime.py": "1ebd073f617f1c089f7b624b5a84215d9ca91fc5df5c921b3171fae9d66abf13",
+    "a09_install_server_tests.py": "e66733cd6f50057f7b42a1e0abe8c7b0e6901ea143ada8692e28dcaf84465f33",
+    "a09_build_staged_package.py": "fd23563c85282c30e710725850fb0ffc8d952bdea4239b4f277d969a05bf192d",
+    "a09_actual_install_probe.py": "ba842e51932f1dbb83ae0a5e654ff4f01c02be5f5afb05265869fd10a40b6629",
+    "a09_actual_resume_probe.py": "a848faea6cf1dab77897c10ad1ddaa1289274cecc145687dc62922ba2eae2b87",
+    "A09_INSTALLER_PROTOCOL_UA.md": "fbca0ce0ba987595e449f2f6c59379d844ad38c6d1a71b76cd4c89a47b0bb0d5"
+  },
+  "unfinished": [
+    "canonical final A09 package CLI run",
+    "WSGI/TLS/proxy/health/log gate8",
+    "Windows locking/ACL",
+    "PostgreSQL",
+    "N to N+1 and full rollback",
+    "release"
+  ]
+}

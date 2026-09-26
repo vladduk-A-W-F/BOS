@@ -1,0 +1,37 @@
+{
+  "card": "PLAN-N1-REQUEST",
+  "date": "2026-09-20",
+  "review": "ACCEPT_SCOPED",
+  "reviewer": "bos_batch_review",
+  "runtime_source_sha256": "853ac1c0473c685961ebb488922fa4f93a981a8ef99115962bf45ee6f2fbe1c5",
+  "product_files": [
+    "operations/views.py",
+    "operations/test_request_lengths.py"
+  ],
+  "evidence": [
+    {
+      "file": "request-red.log",
+      "sha256": "1863a39c7da6634fe3b774b3926f0e807c67af486c377e6079ea7fa5871c8e97",
+      "bytes": 51674
+    },
+    {
+      "file": "request-green.log",
+      "sha256": "8d49e3457ab50cebc471042d6967d9d52631ca75999f7725f6daab2b74d37d83",
+      "bytes": 16103
+    },
+    {
+      "file": "serializer_lengths.json",
+      "sha256": "6bfad8301761f91e854985bac65d6cc482221de3e8408e2b14a27f57f4909fcf",
+      "bytes": 7729
+    },
+    {
+      "file": "static-probes.json",
+      "sha256": "639e7d9d58e6870c24336b93aa214bb056bdf00d4e536e48b2bfe7adee530ecd",
+      "bytes": 881
+    }
+  ],
+  "postgres16": "PENDING",
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "result_uk": "Сирі рядки code/part/revision/unit перевіряються за metadata до write_lock; без strip/truncate. Red: 36 failures у 2 методах. Green: 5/5 разом з чинними invoice boundary і hidden-document regressions, exit 0. PG16 ще не перевірено. Незалежний reviewer ACCEPT_SCOPED."
+}

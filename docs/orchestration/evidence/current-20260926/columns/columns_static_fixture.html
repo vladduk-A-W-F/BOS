@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="uk">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UI-COLUMN-CONTENT-01 static fixture</title>
+<script src="../../../../../assets/react.js"></script>
+<script src="../../../../../assets/react-dom.js"></script>
+<script src="../../../../../assets/babel.js"></script>
+<style>
+  *{box-sizing:border-box} body{margin:0;padding:24px;background:#0a0c10;color:#f4f6f8;font:14px system-ui,sans-serif}
+  main{max-width:1120px;margin:auto}.scope{color:#a7b1bf;font-size:12px;line-height:1.45;margin:0 0 18px}
+  h1{font-size:20px;margin:0 0 5px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.panel{border:1px solid #394455;background:#171a21;padding:14px;border-radius:8px;min-width:0}
+  .module-record{background:#202731;border:1px solid #425164;border-radius:8px;padding:12px;margin:10px 0;min-width:0}.module-record p{margin:7px 0;font-size:13px}.module-record-title{display:flex;justify-content:space-between;gap:10px;padding:0;border:0;background:transparent;color:#c1e1ff;font-weight:700;font-size:14px;text-align:left;width:100%;overflow-wrap:anywhere}.op-muted{color:#bdc9d8}.module-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:14px;margin:0}.module-facts>div{min-width:0}.module-facts dt{font-size:11px;color:#a7b1bf;margin-bottom:5px}.module-facts dd{margin:0;font-size:14px;color:#f4f6f8;overflow-wrap:anywhere}.network-registry-money{white-space:nowrap;font-variant-numeric:tabular-nums}.role{border-top:1px solid #394455;margin-top:14px;padding-top:12px;color:#bdc9d8}.action{display:inline-block;margin-top:8px;padding:7px 9px;border:1px solid #65758b;border-radius:6px;color:#e5f1ff}.off{color:#a7b1bf;font-size:13px}
+  @media(max-width:600px){body{padding:12px}.grid{grid-template-columns:1fr}.panel{padding:12px}.module-facts{grid-template-columns:1fr}.network-registry-money{white-space:normal}.scope{font-size:11px}}
+</style>
+<body><main id="root"></main>
+<script type="text/babel">
+const erpDate=x=>x?String(x).slice(0,10).split('-').reverse().join('.'):'—';
+const moduleMoney=(value,currency)=>{if(typeof value!=='string'||!/^\d+(?:\.\d{1,2})?$/.test(value))return 'Недоступно';const [whole,fraction='']=value.split('.');return whole.replace(/\B(?=(\d{3})+(?!\d))/g,'\u00a0')+','+fraction.padEnd(2,'0')+'\u00a0'+(currency==='UAH'?'грн':currency||'UAH');};
+const ERP_LABELS={};
+// Production functions copied from the candidate only for isolated visual QA.
+function moduleCell(column,row,currency){const value=row[column.key],missing=value==null||(typeof value==='string'&&value.trim()==='');if(missing)return ['date','datetime'].includes(column.type)?'Не встановлено':'Не вказано';if(column.type==='money')return <span className="network-registry-money">{moduleMoney(value,row.currency||currency)}</span>;if(['date','datetime'].includes(column.type))return erpDate(value);if(['process','kind','status','quality','effective_status','coordinate_basis'].includes(column.key))return ERP_LABELS[value]||({import:'Імпорт',purchase:'Закупівля',sale:'Продаж',export:'Експорт',point:'Координати точки',branch:'Центр філії',missing:'Не задано',in_transit:'У дорозі',held:'Утримано',released:'Знято'})[value]||String(value);return ['string','number','boolean'].includes(typeof value)?String(value):'Див. картку запису';}
+function ModuleRecordFacts({model,row,currency}){return <dl className="module-facts">{model.columns.filter(c=>c.key!==model.label_field&&row[c.key]!=null).map(c=><div key={c.key}><dt>{c.label}</dt><dd>{moduleCell(c,row,currency)}</dd></div>)}</dl>;}
+function CoreModuleSurfaceCard({model,row,role}){const title=String(row[model.label_field]||row.code||row.name||'№'+row[model.key]);const facts=[['item_name','Номенклатура'],['customer_name','Клієнт']].filter(([key])=>key!==model.label_field&&row[key]!=null&&!(typeof row[key]==='string'&&row[key].trim()===''));return <article className="module-record"><button type="button" className="module-record-title">{title}<span aria-hidden="true">↗</span></button>{facts.map(([key,label])=><p key={key}><span className="op-muted">{label}: </span>{row[key]}</p>)}{role==='ceo'?<span className="action">Відкрити запис</span>:<p className="off">Спостерігач: дії недоступні</p>}</article>;}
+const model={key:'id',label_field:'code',columns:[{key:'code',label:'Замовлення',type:'text'},{key:'item_name',label:'Номенклатура',type:'text'},{key:'customer_name',label:'Клієнт',type:'text'},{key:'due_date',label:'Строк',type:'date'},{key:'note',label:'Примітка',type:'text'},{key:'quantity',label:'Кількість',type:'quantity'},{key:'amount',label:'Сума',type:'money'}]};
+const row={id:1,code:'SO-001',item_name:'SO-001',customer_name:'SO-001',due_date:null,note:'',quantity:0,amount:'0.00',currency:'UAH'};
+const visibleFacts={...row,due_date:null,note:'',quantity:0,amount:'0.00'};
+function App(){return <><h1>Операційний реєстр · перевірка комірок</h1><p className="scope">Синтетична статична fixture. Відображено лише змінені CoreModuleSurface / ModuleRecordFacts; без live app, авторизації, БД чи мережі.</p><div className="grid"><section className="panel"><strong>Потік · CEO</strong><CoreModuleSurfaceCard model={model} row={row} role="ceo"/><strong>Потік · спостерігач</strong><CoreModuleSurfaceCard model={model} row={{...row,code:'SO-002',item_name:'Деталь з довгою назвою для перенесення тексту на вузькому екрані',customer_name:'Клієнт B'}} role="observer"/></section><section className="panel"><strong>Деталі запису</strong><p className="scope">Поле-заголовок «Замовлення» не дублюється. Окремі однойменні факти лишаються під своїми мітками.</p><ModuleRecordFacts model={model} row={visibleFacts} currency="UAH"/><p className="role">Перевірені fallback: дата, звичайний текст, нульова кількість і нульова сума.</p></section></div></>}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script></body></html>

@@ -1,0 +1,24 @@
+{
+  "scope": "Only previous failed CEO export surface, stronger exact agreed CSV reference/status oracle; no fullgate",
+  "source_root": "/workspace/scratch/c7b51e996a9f/tmp/c03_access_candidate/source",
+  "db": "/workspace/scratch/c7b51e996a9f/tmp/c03_access_candidate/evidence/check_db1c2f9babe240bfb589658ad25c26f6.sqlite3",
+  "result": {
+    "status": 200,
+    "leaks": [
+      "statement_export_refs_status_header_missing",
+      "missing_positive_anchor:c6bcf3a4c36fa49cabd81423cdbee06afa6ca03a7cae4eedc07b6d95de2a1754",
+      "missing_positive_anchor:f0858c15-534d-4517-9325-c10e87b6890d",
+      "missing_positive_anchor:6af0d8f9-2505-480d-ae71-cdfa8d5d6ba9",
+      "missing_positive_anchor:reconciled"
+    ],
+    "bytes": 582,
+    "passed": false,
+    "state_unchanged": true,
+    "header": "external_id,booking_date,direction,amount,currency,counterparty_external_id,invoice_reference,purpose"
+  },
+  "source_sha256": {
+    "scripts/access_fixtures.py": "85dc7ae5fbe0d1cb51b061fc90ecfd54369500ad74ae32ddf843d1c43429ecb8",
+    "scripts/check_access.py": "3170d8e0516466f7640152c92a774490556dddc5315d6e5146607afc91eac467",
+    "finance/statement_reads.py": "ae780329af52d0bed302a6220400dd70200c241450408952b6b919ed73abc4b5"
+  }
+}

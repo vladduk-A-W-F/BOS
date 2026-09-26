@@ -1,0 +1,39 @@
+{
+  "tests_run": 2,
+  "failures": 2,
+  "errors": 0,
+  "successful": false,
+  "evidence": [
+    {
+      "case": "test_invalid_configuration_refuses_before_bind_or_database",
+      "returncode": 1,
+      "records": [
+        {
+          "event": "a09.failure",
+          "exception": "FileNotFoundError"
+        },
+        {
+          "event": "a09.audit",
+          "attempts": []
+        }
+      ]
+    },
+    {
+      "case": "test_real_http_keeps_actual_peer_and_checks_forwarded_headers",
+      "returncode": -15,
+      "records": [
+        {
+          "event": "a09.failure",
+          "exception": "FileNotFoundError"
+        },
+        {
+          "event": "a09.audit",
+          "attempts": []
+        }
+      ],
+      "responses": [],
+      "stderr": ""
+    }
+  ],
+  "scope": "Real Waitress 3.0.2 loopback HTTP only; no TLS/production data/Windows/install acceptance"
+}

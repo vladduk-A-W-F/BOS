@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "source": "Exact whitelisted command output from this task session. Includes expected RED test before fix, GREEN after fix, build/domain/syntax checks and packaging. A diagnostic source-diff search exit 1 is preserved and is not counted as a test failure.",
+  "checks": [
+    {
+      "call_id": "call_10VRa8yF4B6YbM823lbhiSyr",
+      "timestamp": "2026-09-20T12:45:14.587Z",
+      "text_outputs": [
+        "Script completed\nWall time 2.6 seconds\nOutput:\n",
+        "{}",
+        "{\"chunk_id\":\"fdf31d\",\"wall_time_seconds\":0.6527281,\"exit_code\":1,\"original_token_count\":237,\"output\":\"node:assert:152\\r\\n  throw new AssertionError(obj);\\r\\n  ^\\r\\n\\r\\nAssertionError [ERR_ASSERTION]: Legacy link also works on an already loaded landing\\r\\n+ actual - expected\\r\\n\\r\\n+ []\\r\\n- [\\r\\n-   '/demo/#finance'\\r\\n- ]\\r\\n\\r\\n    at Object.<anonymous> (C:\\\\Users\\\\user\\\\Documents\\\\ChatGPT\\\\бос\\\\site\\\\tests\\\\landing-routing.cjs:22:8)\\r\\n    at Module._compile (node:internal/modules/cjs/loader:1872:14)\\r\\n    at Object..js (node:internal/modules/cjs/loader:2003:10)\\r\\n    at Module.load (node:internal/modules/cjs/loader:1594:32)\\r\\n    at Module._load (node:internal/modules/cjs/loader:1396:12)\\r\\n    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)\\r\\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\\r\\n    at node:internal/main/run_main_module:33:47 {\\r\\n  generatedMessage: false,\\r\\n  code: 'ERR_ASSERTION',\\r\\n  actual: [],\\r\\n  expected: [ '/demo/#finance' ],\\r\\n  operator: 'deepStrictEqual',\\r\\n  diff: 'simple'\\r\\n}\\r\\n\\r\\nNode.js v24.19.0\\r\\n\"}"
+      ]
+    },
+    {
+      "call_id": "call_xs083ffcFlTMfEugdTwczVrM",
+      "timestamp": "2026-09-20T12:45:24.453Z",
+      "text_outputs": [
+        "Script completed\nWall time 2.0 seconds\nOutput:\n",
+        "{}",
+        "{\"chunk_id\":\"ed87df\",\"wall_time_seconds\":0.7831966,\"exit_code\":0,\"original_token_count\":114,\"output\":\"PASS: initial legacy link, same-document hash changes, record suffixes, all 14 modules, and landing anchors.\\nwarning: in the working copy of 'public/landing.js', LF will be replaced by CRLF the next time Git touches it\\nwarning: in the working copy of 'public/landing.js', LF will be replaced by CRLF the next time Git touches it\\n public/landing.js | 4 +++-\\n 1 file changed, 3 insertions(+), 1 deletion(-)\\n M public/landing.js\\n?? tests/landing-routing.cjs\\n\"}"
+      ]
+    },
+    {
+      "call_id": "call_zWIlgVJJMMHNrGlDpmAHtYUw",
+      "timestamp": "2026-09-20T12:46:31.179Z",
+      "text_outputs": [
+        "Script completed\nWall time 2.8 seconds\nOutput:\n",
+        "{\"i\":0,\"status\":\"fulfilled\",\"value\":{\"chunk_id\":\"1c44bf\",\"wall_time_seconds\":1.120481,\"exit_code\":0,\"original_token_count\":9,\"output\":\"Built public/app.js\\nPackaged dist\\n\"}}",
+        "{\"i\":1,\"status\":\"fulfilled\",\"value\":{\"chunk_id\":\"ad8c84\",\"wall_time_seconds\":0.6786442,\"exit_code\":0,\"original_token_count\":113,\"output\":\"PASS: exact source totals, partial receipts, quality gate, competing reserves, production costs, partial shipment/invoice/payment, duplicate intent, overpayment, scenario propagation and task de-duplication. 20 committed operations.\\nPASS: initial legacy link, same-document hash changes, record suffixes, all 14 modules, and landing anchors.\\nwarning: in the working copy of 'public/landing.js', LF will be replaced by CRLF the next time Git touches it\\n\"}}",
+        "{\"chunk_id\":\"cbe848\",\"wall_time_seconds\":0.4191344,\"exit_code\":1,\"original_token_count\":82,\"output\":\"warning: in the working copy of 'public/landing.js', LF will be replaced by CRLF the next time Git touches it\\n4\\t4\\tREADME.md\\n1\\t1\\tpublic/app.js\\n1\\t1\\tpublic/demo/index.html\\n3\\t1\\tpublic/landing.js\\n2\\t2\\tsrc/app.jsx\\n M README.md\\n M public/app.js\\n M public/demo/index.html\\n M public/landing.js\\n M src/app.jsx\\n?? tests/landing-routing.cjs\\n\"}"
+      ]
+    },
+    {
+      "call_id": "call_B6GWWDDD7Fhws9izv8I1XtVZ",
+      "timestamp": "2026-09-20T12:49:49.104Z",
+      "text_outputs": [
+        "Script completed\nWall time 1.6 seconds\nOutput:\n",
+        "{\"chunk_id\":\"928d08\",\"wall_time_seconds\":0.1518277,\"exit_code\":0,\"original_token_count\":0,\"output\":\"\"}",
+        "{\"chunk_id\":\"22d5a1\",\"wall_time_seconds\":0.6716688,\"exit_code\":0,\"original_token_count\":9,\"output\":\"Built public/app.js\\nPackaged dist\\n\"}"
+      ]
+    },
+    {
+      "call_id": "call_pmWKdogvaue24MvUinPoVm3D",
+      "timestamp": "2026-09-20T12:55:53.201Z",
+      "text_outputs": [
+        "Script completed\nWall time 0.8 seconds\nOutput:\n",
+        "{\"chunk_id\":\"c7ab48\",\"wall_time_seconds\":0.2736792,\"exit_code\":0,\"original_token_count\":2,\"output\":\"static\\n\"}"
+      ]
+    },
+    {
+      "call_id": "call_4dIbEACZbulPIBHY8vWLSSj2",
+      "timestamp": "2026-09-20T12:56:03.577Z",
+      "text_outputs": [
+        "Script completed\nWall time 1.2 seconds\nOutput:\n",
+        "{\"chunk_id\":\"e1bd32\",\"wall_time_seconds\":0.6940279,\"exit_code\":0,\"original_token_count\":169,\"output\":\"dist/\\r\\ndist/.openai/\\r\\ndist/app.js\\r\\ndist/demo/\\r\\ndist/favicon.svg\\r\\ndist/index.html\\r\\ndist/landing.css\\r\\ndist/landing.js\\r\\ndist/model.js\\r\\ndist/seed.js\\r\\ndist/style.css\\r\\ndist/vendor/\\r\\ndist/vendor/react-dom.js\\r\\ndist/vendor/react.js\\r\\ndist/demo/index.html\\r\\ndist/.openai/hosting.json\\r\\n{\\\"project_id\\\":\\\"appgprj_6aa9057b8e5c8191abe7685fb7c9f145\\\",\\\"static\\\":{\\\"directory\\\":\\\"dist\\\"}}\\n\\r\\nAlgorithm       Hash                                                                   Path\\r\\n---------       ----                                                                   ----\\r\\nSHA256          9D44DB6827F3DDCD4366F5A6EE46A403399AFCC794661D33D5EAE56E49921EDC       C:\\\\Users\\\\user\\\\Documents\\\\ChatGPT…\\r\\n\\r\\n\"}"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1183 @@
+{
+  "schema": "bos.modules.v1",
+  "data": {
+    "schema": "bos.network.v1",
+    "endpoint": "/api/erp/network/",
+    "export_endpoint": "/api/erp/network/export/"
+  },
+  "views": [
+    {
+      "id": "control",
+      "type": "list",
+      "name": "Контроль"
+    },
+    {
+      "id": "flow",
+      "type": "kanban",
+      "name": "Потік"
+    },
+    {
+      "id": "network",
+      "type": "map",
+      "name": "Мережа"
+    },
+    {
+      "id": "focus",
+      "type": "inbox",
+      "name": "Фокус"
+    }
+  ],
+  "modules": [
+    {
+      "id": "operations",
+      "name": "Операції",
+      "depends": [],
+      "models": [
+        "points"
+      ],
+      "views": [
+        "control",
+        "flow",
+        "network",
+        "focus"
+      ],
+      "actions": [
+        "erp_location",
+        "erp_location_update"
+      ],
+      "menus": [
+        {
+          "id": "operations",
+          "name": "Операції",
+          "section": "erp",
+          "sub": "network"
+        }
+      ],
+      "permissions": {
+        "write": true,
+        "finance": true
+      },
+      "automations": []
+    },
+    {
+      "id": "warehouse",
+      "name": "Склад",
+      "depends": [
+        "operations"
+      ],
+      "models": [
+        "lots",
+        "transfers"
+      ],
+      "views": [
+        "control",
+        "flow",
+        "network",
+        "focus"
+      ],
+      "actions": [
+        "erp_opening",
+        "erp_quality",
+        "erp_attach",
+        "erp_transfer_dispatch",
+        "erp_transfer_receive"
+      ],
+      "menus": [
+        {
+          "id": "warehouse",
+          "name": "Склад",
+          "section": "erp",
+          "sub": "stock"
+        }
+      ],
+      "permissions": {
+        "write": true,
+        "finance": true
+      },
+      "automations": []
+    },
+    {
+      "id": "procurement",
+      "name": "Постачання",
+      "depends": [
+        "operations",
+        "warehouse"
+      ],
+      "models": [
+        "purchases"
+      ],
+      "views": [
+        "control",
+        "flow",
+        "network",
+        "focus"
+      ],
+      "actions": [
+        "erp_purchase",
+        "erp_receive",
+        "erp_postpone",
+        "erp_purchase_network"
+      ],
+      "menus": [
+        {
+          "id": "procurement",
+          "name": "Постачання",
+          "section": "erp",
+          "sub": "purchase"
+        }
+      ],
+      "permissions": {
+        "write": true,
+        "finance": true
+      },
+      "automations": []
+    },
+    {
+      "id": "sales",
+      "name": "Продажі",
+      "depends": [
+        "operations",
+        "warehouse"
+      ],
+      "models": [
+        "orders"
+      ],
+      "views": [
+        "control",
+        "flow",
+        "network",
+        "focus"
+      ],
+      "actions": [
+        "erp_order",
+        "erp_confirm_order",
+        "erp_order_network",
+        "erp_invoice"
+      ],
+      "menus": [
+        {
+          "id": "sales",
+          "name": "Продажі",
+          "section": "erp",
+          "sub": "sales"
+        }
+      ],
+      "permissions": {
+        "write": true,
+        "finance": true
+      },
+      "automations": []
+    },
+    {
+      "id": "production",
+      "name": "Виробництво",
+      "depends": [
+        "operations",
+        "warehouse"
+      ],
+      "models": [
+        "jobs"
+      ],
+      "views": [
+        "control",
+        "flow",
+        "network",
+        "focus"
+      ],
+      "actions": [
+        "erp_job",
+        "erp_start",
+        "erp_operator",
+        "erp_finish",
+        "erp_postpone_job"
+      ],
+      "menus": [
+        {
+          "id": "production",
+          "name": "Виробництво",
+          "section": "erp",
+          "sub": "production"
+        }
+      ],
+      "permissions": {
+        "write": true,
+        "finance": true
+      },
+      "automations": []
+    },
+    {
+      "id": "settlements",
+      "name": "Розрахунки",
+      "depends": [
+        "operations",
+        "sales"
+      ],
+      "models": [
+        "invoices",
+        "retentions"
+      ],
+      "views": [
+        "control",
+        "flow",
+        "network",
+        "focus"
+      ],
+      "actions": [
+        "erp_payment",
+        "erp_hold_payment",
+        "erp_release_payment"
+      ],
+      "menus": [
+        {
+          "id": "settlements",
+          "name": "Розрахунки",
+          "section": "erp",
+          "sub": "network"
+        }
+      ],
+      "permissions": {
+        "write": true,
+        "finance": true
+      },
+      "automations": []
+    }
+  ],
+  "models": [
+    {
+      "id": "points",
+      "name": "Робочі точки",
+      "source": {
+        "rows": "rows.points",
+        "django": "erp.Location"
+      },
+      "key": "id",
+      "label_field": "name",
+      "status_field": null,
+      "columns": [
+        {
+          "key": "code",
+          "label": "Код",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "name",
+          "label": "Точка",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "branch_name",
+          "label": "Філія",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "kind",
+          "label": "Тип",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "address",
+          "label": "Адреса",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "lot_count",
+          "label": "Партії",
+          "type": "integer",
+          "finance": false
+        },
+        {
+          "key": "coordinate_basis",
+          "label": "Джерело координат",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "inventory_value",
+          "label": "Запас",
+          "type": "money",
+          "finance": true
+        }
+      ],
+      "relations": [],
+      "actions": [
+        "erp_location",
+        "erp_location_update"
+      ],
+      "views": [
+        "control",
+        "flow",
+        "network",
+        "focus"
+      ],
+      "default_view": "control"
+    },
+    {
+      "id": "lots",
+      "name": "Складські партії",
+      "source": {
+        "rows": "rows.lots",
+        "django": "erp.Lot"
+      },
+      "key": "id",
+      "label_field": "code",
+      "status_field": "quality",
+      "columns": [
+        {
+          "key": "code",
+          "label": "Партія",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "item_name",
+          "label": "Номенклатура",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "location_name",
+          "label": "Точка",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "quantity",
+          "label": "На складі",
+          "type": "quantity",
+          "finance": false
+        },
+        {
+          "key": "available",
+          "label": "Доступно для операцій",
+          "type": "quantity",
+          "finance": false
+        },
+        {
+          "key": "quality",
+          "label": "Якість",
+          "type": "status",
+          "finance": false
+        },
+        {
+          "key": "currency",
+          "label": "Валюта",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "value",
+          "label": "Вартість",
+          "type": "money",
+          "finance": true
+        }
+      ],
+      "relations": [
+        {
+          "field": "location_id",
+          "target": "points"
+        }
+      ],
+      "actions": [
+        "erp_opening",
+        "erp_quality",
+        "erp_attach",
+        "erp_transfer_dispatch"
+      ],
+      "views": [
+        "control",
+        "flow",
+        "network",
+        "focus"
+      ],
+      "default_view": "control"
+    },
+    {
+      "id": "purchases",
+      "name": "Постачання",
+      "source": {
+        "rows": "rows.purchases",
+        "django": "erp.Purchase"
+      },
+      "key": "id",
+      "label_field": "code",
+      "status_field": "effective_status",
+      "columns": [
+        {
+          "key": "code",
+          "label": "Замовлення",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "process",
+          "label": "Процес",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "supplier_name",
+          "label": "Постачальник",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "item_name",
+          "label": "Номенклатура",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "location_name",
+          "label": "Приймання",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "open_quantity",
+          "label": "Ще прийняти",
+          "type": "quantity",
+          "finance": false
+        },
+        {
+          "key": "effective_status",
+          "label": "Стан",
+          "type": "status",
+          "finance": false
+        },
+        {
+          "key": "due_date",
+          "label": "Строк",
+          "type": "date",
+          "finance": false
+        },
+        {
+          "key": "currency",
+          "label": "Валюта",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "price",
+          "label": "Ціна",
+          "type": "money",
+          "finance": true
+        }
+      ],
+      "relations": [
+        {
+          "field": "destination_id",
+          "target": "points"
+        },
+        {
+          "field": "production_id",
+          "target": "jobs"
+        }
+      ],
+      "actions": [
+        "erp_purchase",
+        "erp_receive",
+        "erp_postpone",
+        "erp_purchase_network"
+      ],
+      "views": [
+        "control",
+        "flow",
+        "network",
+        "focus"
+      ],
+      "default_view": "control"
+    },
+    {
+      "id": "orders",
+      "name": "Продажі",
+      "source": {
+        "rows": "rows.orders",
+        "django": "erp.SalesOrder"
+      },
+      "key": "id",
+      "label_field": "code",
+      "status_field": "status",
+      "columns": [
+        {
+          "key": "code",
+          "label": "Замовлення",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "process",
+          "label": "Процес",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "customer_name",
+          "label": "Клієнт",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "location_name",
+          "label": "Виконання",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "status",
+          "label": "Стан",
+          "type": "status",
+          "finance": false
+        },
+        {
+          "key": "open_line_count",
+          "label": "Рядки до виконання",
+          "type": "integer",
+          "finance": false
+        },
+        {
+          "key": "due_date",
+          "label": "Строк",
+          "type": "date",
+          "finance": false
+        },
+        {
+          "key": "currency",
+          "label": "Валюта",
+          "type": "text",
+          "finance": false
+        }
+      ],
+      "relations": [
+        {
+          "field": "fulfillment_location_id",
+          "target": "points"
+        }
+      ],
+      "actions": [
+        "erp_order",
+        "erp_confirm_order",
+        "erp_order_network",
+        "erp_invoice"
+      ],
+      "views": [
+        "control",
+        "flow",
+        "network",
+        "focus"
+      ],
+      "default_view": "control"
+    },
+    {
+      "id": "jobs",
+      "name": "Виробництво",
+      "source": {
+        "rows": "rows.jobs",
+        "django": "erp.Production"
+      },
+      "key": "id",
+      "label_field": "code",
+      "status_field": "status",
+      "columns": [
+        {
+          "key": "code",
+          "label": "Робота",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "item_name",
+          "label": "Виріб",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "location_name",
+          "label": "Точка",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "quantity",
+          "label": "План",
+          "type": "quantity",
+          "finance": false
+        },
+        {
+          "key": "produced",
+          "label": "Випуск",
+          "type": "quantity",
+          "finance": false
+        },
+        {
+          "key": "status",
+          "label": "Стан",
+          "type": "status",
+          "finance": false
+        },
+        {
+          "key": "due_date",
+          "label": "Строк",
+          "type": "date",
+          "finance": false
+        },
+        {
+          "key": "currency",
+          "label": "Валюта",
+          "type": "text",
+          "finance": false
+        }
+      ],
+      "relations": [
+        {
+          "field": "location_id",
+          "target": "points"
+        }
+      ],
+      "actions": [
+        "erp_job",
+        "erp_start",
+        "erp_operator",
+        "erp_finish",
+        "erp_postpone_job"
+      ],
+      "views": [
+        "control",
+        "flow",
+        "network",
+        "focus"
+      ],
+      "default_view": "control"
+    },
+    {
+      "id": "transfers",
+      "name": "Переміщення",
+      "source": {
+        "rows": "rows.transfers",
+        "django": "erp.StockTransfer"
+      },
+      "key": "id",
+      "label_field": "code",
+      "status_field": "status",
+      "columns": [
+        {
+          "key": "code",
+          "label": "Переміщення",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "item_name",
+          "label": "Номенклатура",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "source_location_name",
+          "label": "Звідки",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "destination_name",
+          "label": "Куди",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "quantity",
+          "label": "Кількість",
+          "type": "quantity",
+          "finance": false
+        },
+        {
+          "key": "status",
+          "label": "Стан",
+          "type": "status",
+          "finance": false
+        },
+        {
+          "key": "due_date",
+          "label": "Строк",
+          "type": "date",
+          "finance": false
+        },
+        {
+          "key": "currency",
+          "label": "Валюта",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "total_cost",
+          "label": "Вартість",
+          "type": "money",
+          "finance": true
+        }
+      ],
+      "relations": [
+        {
+          "field": "source_lot_id",
+          "target": "lots"
+        },
+        {
+          "field": "received_lot_id",
+          "target": "lots"
+        },
+        {
+          "field": "source_location_id",
+          "target": "points"
+        },
+        {
+          "field": "destination_id",
+          "target": "points"
+        }
+      ],
+      "actions": [
+        "erp_transfer_receive"
+      ],
+      "views": [
+        "control",
+        "flow",
+        "network",
+        "focus"
+      ],
+      "default_view": "control"
+    },
+    {
+      "id": "invoices",
+      "name": "Рахунки",
+      "source": {
+        "rows": "rows.invoices",
+        "django": "operations.Invoice"
+      },
+      "key": "invoice_id",
+      "label_field": "code",
+      "status_field": null,
+      "columns": [
+        {
+          "key": "code",
+          "label": "Рахунок",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "customer_name",
+          "label": "Клієнт",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "due_date",
+          "label": "Строк",
+          "type": "date",
+          "finance": false
+        },
+        {
+          "key": "receivable",
+          "label": "Залишилось сплатити",
+          "type": "money",
+          "finance": true
+        },
+        {
+          "key": "retained",
+          "label": "Утримано",
+          "type": "money",
+          "finance": true
+        },
+        {
+          "key": "collectible",
+          "label": "Доступно до оплати",
+          "type": "money",
+          "finance": true
+        },
+        {
+          "key": "currency",
+          "label": "Валюта",
+          "type": "text",
+          "finance": false
+        }
+      ],
+      "relations": [
+        {
+          "field": "order_id",
+          "target": "orders"
+        }
+      ],
+      "actions": [
+        "erp_payment",
+        "erp_hold_payment"
+      ],
+      "views": [
+        "control",
+        "flow",
+        "network",
+        "focus"
+      ],
+      "default_view": "control"
+    },
+    {
+      "id": "retentions",
+      "name": "Утримання",
+      "source": {
+        "rows": "rows.retentions",
+        "django": "erp.PaymentRetention"
+      },
+      "key": "id",
+      "label_field": "code",
+      "status_field": "status",
+      "columns": [
+        {
+          "key": "code",
+          "label": "Утримання",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "invoice_id",
+          "label": "Рахунок",
+          "type": "integer",
+          "finance": false
+        },
+        {
+          "key": "amount",
+          "label": "Сума",
+          "type": "money",
+          "finance": true
+        },
+        {
+          "key": "status",
+          "label": "Стан",
+          "type": "status",
+          "finance": false
+        },
+        {
+          "key": "reason",
+          "label": "Підстава",
+          "type": "text",
+          "finance": false
+        },
+        {
+          "key": "created_at",
+          "label": "Створено",
+          "type": "datetime",
+          "finance": false
+        },
+        {
+          "key": "released_at",
+          "label": "Знято",
+          "type": "datetime",
+          "finance": false
+        },
+        {
+          "key": "currency",
+          "label": "Валюта",
+          "type": "text",
+          "finance": false
+        }
+      ],
+      "relations": [
+        {
+          "field": "invoice_id",
+          "target": "invoices"
+        }
+      ],
+      "actions": [
+        "erp_release_payment"
+      ],
+      "views": [
+        "control",
+        "flow",
+        "network",
+        "focus"
+      ],
+      "default_view": "control"
+    }
+  ],
+  "actions": [
+    {
+      "id": "erp_location",
+      "name": "Нова точка",
+      "model": "points",
+      "ui_action": "location",
+      "presets": {},
+      "preview_endpoint": "/api/erp/preview/",
+      "confirm_endpoint": "/api/operations/confirm/",
+      "authorization": "rechecked_by_existing_writer"
+    },
+    {
+      "id": "erp_location_update",
+      "name": "Реквізити точки",
+      "model": "points",
+      "ui_action": "location_update",
+      "presets": {
+        "location_id": "id"
+      },
+      "preview_endpoint": "/api/erp/preview/",
+      "confirm_endpoint": "/api/operations/confirm/",
+      "authorization": "rechecked_by_existing_writer"
+    },
+    {
+      "id": "erp_opening",
+      "name": "Початкова партія",
+      "model": "lots",
+      "ui_action": "opening",
+      "presets": {},
+      "preview_endpoint": "/api/erp/preview/",
+      "confirm_endpoint": "/api/operations/confirm/",
+      "authorization": "rechecked_by_existing_writer"
+    },
+    {
+      "id": "erp_quality",
+      "name": "Перевірити якість",
+      "model": "lots",
+      "ui_action": "quality",
+      "presets": {
+        "lot_id": "id"
+      },
+      "preview_endpoint": "/api/erp/preview/",
+      "confirm_endpoint": "/api/operations/confirm/",
+      "authorization": "rechecked_by_existing_writer"
+    },
+    {
+      "id": "erp_attach",
+      "name": "Додати документ партії",
+      "model": "lots",
+      "ui_action": "attach",
+      "presets": {
+        "lot_id": "id"
+      },
+      "preview_endpoint": "/api/erp/preview/",
+      "confirm_endpoint": "/api/operations/confirm/",
+      "authorization": "rechecked_by_existing_writer"
+    },
+    {
+      "id": "erp_transfer_dispatch",
+      "name": "Відправити переміщення",
+      "model": "lots",
+      "ui_action": "transfer_dispatch",
+      "presets": {
+        "lot_id": "id"
+      },
+      "preview_endpoint": "/api/erp/preview/",
+      "confirm_endpoint": "/api/operations/confirm/",
+      "authorization": "rechecked_by_existing_writer"
+    },
+    {
+      "id": "erp_purchase",
+      "name": "Нова закупівля",
+      "model": "purchases",
+      "ui_action": "purchase",
+      "presets": {},
+      "preview_endpoint": "/api/erp/preview/",
+      "confirm_endpoint": "/api/operations/confirm/",
+      "authorization": "rechecked_by_existing_writer"
+    },
+    {
+      "id": "erp_receive",
+      "name": "Прийняти поставку",
+      "model": "purchases",
+      "ui_action": "receive",
+      "presets": {
+        "purchase_id": "id",
+        "location_id": "destination_id"
+      },
+      "preview_endpoint": "/api/erp/preview/",
+      "confirm_endpoint": "/api/operations/confirm/",
+      "authorization": "rechecked_by_existing_writer"
+    },
+    {
+      "id": "erp_postpone",
+      "name": "Змінити строк поставки",
+      "model": "purchases",
+      "ui_action": "postpone",
+      "presets": {
+        "purchase_id": "id"
+      },
+      "preview_endpoint": "/api/erp/preview/",
+      "confirm_endpoint": "/api/operations/confirm/",
+      "authorization": "rechecked_by_existing_writer"
+    },
+    {
+      "id": "erp_purchase_network",
+      "name": "Реквізити постачання",
+      "model": "purchases",
+      "ui_action": "purchase_network",
+      "presets": {
+        "purchase_id": "id"
+      },
+      "preview_endpoint": "/api/erp/preview/",
+      "confirm_endpoint": "/api/operations/confirm/",
+      "authorization": "rechecked_by_existing_writer"
+    },
+    {
+      "id": "erp_order",
+      "name": "Новий продаж",
+      "model": "orders",
+      "ui_action": "order",
+      "presets": {},
+      "preview_endpoint": "/api/erp/preview/",
+      "confirm_endpoint": "/api/operations/confirm/",
+      "authorization": "rechecked_by_existing_writer"
+    },
+    {
+      "id": "erp_confirm_order",
+      "name": "Підтвердити продаж",
+      "model": "orders",
+      "ui_action": "confirm_order",
+      "presets": {
+        "order_id": "id"
+      },
+      "preview_endpoint": "/api/erp/preview/",
+      "confirm_endpoint": "/api/operations/confirm/",
+      "authorization": "rechecked_by_existing_writer"
+    },
+    {
+      "id": "erp_order_network",
+      "name": "Реквізити продажу",
+      "model": "orders",
+      "ui_action": "order_network",
+      "presets": {
+        "order_id": "id"
+      },
+      "preview_endpoint": "/api/erp/preview/",
+      "confirm_endpoint": "/api/operations/confirm/",
+      "authorization": "rechecked_by_existing_writer"
+    },
+    {
+      "id": "erp_invoice",
+      "name": "Рахунок за відвантаження",
+      "model": "orders",
+      "ui_action": "invoice",
+      "presets": {
+        "order_id": "id"
+      },
+      "preview_endpoint": "/api/erp/preview/",
+      "confirm_endpoint": "/api/operations/confirm/",
+      "authorization": "rechecked_by_existing_writer"
+    },
+    {
+      "id": "erp_job",
+      "name": "Нова виробнича робота",
+      "model": "jobs",
+      "ui_action": "job",
+      "presets": {},
+      "preview_endpoint": "/api/erp/preview/",
+      "confirm_endpoint": "/api/operations/confirm/",
+      "authorization": "rechecked_by_existing_writer"
+    },
+    {
+      "id": "erp_start",
+      "name": "Розпочати виробництво",
+      "model": "jobs",
+      "ui_action": "start",
+      "presets": {
+        "production_id": "id"
+      },
+      "preview_endpoint": "/api/erp/preview/",
+      "confirm_endpoint": "/api/operations/confirm/",
+      "authorization": "rechecked_by_existing_writer"
+    },
+    {
+      "id": "erp_operator",
+      "name": "Записати виконання",
+      "model": "jobs",
+      "ui_action": "operator",
+      "presets": {
+        "production_id": "id"
+      },
+      "preview_endpoint": "/api/erp/preview/",
+      "confirm_endpoint": "/api/operations/confirm/",
+      "authorization": "rechecked_by_existing_writer"
+    },
+    {
+      "id": "erp_finish",
+      "name": "Випустити партію",
+      "model": "jobs",
+      "ui_action": "finish",
+      "presets": {
+        "production_id": "id",
+        "location_id": "location_id"
+      },
+      "preview_endpoint": "/api/erp/preview/",
+      "confirm_endpoint": "/api/operations/confirm/",
+      "authorization": "rechecked_by_existing_writer"
+    },
+    {
+      "id": "erp_postpone_job",
+      "name": "Змінити строк роботи",
+      "model": "jobs",
+      "ui_action": "postpone_job",
+      "presets": {
+        "production_id": "id"
+      },
+      "preview_endpoint": "/api/erp/preview/",
+      "confirm_endpoint": "/api/operations/confirm/",
+      "authorization": "rechecked_by_existing_writer"
+    },
+    {
+      "id": "erp_transfer_receive",
+      "name": "Прийняти переміщення",
+      "model": "transfers",
+      "ui_action": "transfer_receive",
+      "presets": {
+        "transfer_id": "id"
+      },
+      "preview_endpoint": "/api/erp/preview/",
+      "confirm_endpoint": "/api/operations/confirm/",
+      "authorization": "rechecked_by_existing_writer"
+    },
+    {
+      "id": "erp_payment",
+      "name": "Зареєструвати оплату",
+      "model": "invoices",
+      "ui_action": "payment",
+      "presets": {
+        "invoice_id": "invoice_id"
+      },
+      "preview_endpoint": "/api/erp/preview/",
+      "confirm_endpoint": "/api/operations/confirm/",
+      "authorization": "rechecked_by_existing_writer"
+    },
+    {
+      "id": "erp_hold_payment",
+      "name": "Встановити утримання",
+      "model": "invoices",
+      "ui_action": "hold_payment",
+      "presets": {
+        "invoice_id": "invoice_id"
+      },
+      "preview_endpoint": "/api/erp/preview/",
+      "confirm_endpoint": "/api/operations/confirm/",
+      "authorization": "rechecked_by_existing_writer"
+    },
+    {
+      "id": "erp_release_payment",
+      "name": "Зняти утримання",
+      "model": "retentions",
+      "ui_action": "release_payment",
+      "presets": {
+        "retention_id": "id"
+      },
+      "preview_endpoint": "/api/erp/preview/",
+      "confirm_endpoint": "/api/operations/confirm/",
+      "authorization": "rechecked_by_existing_writer"
+    }
+  ],
+  "automations": [],
+  "permissions": {
+    "role": "ceo",
+    "write": true,
+    "finance": true,
+    "export": true
+  },
+  "configuration": {
+    "mode": "server_owned",
+    "mutable": false,
+    "scope": "navigation_composition"
+  }
+}

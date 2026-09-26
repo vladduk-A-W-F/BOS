@@ -1,0 +1,2430 @@
+{
+  "items": [
+    {
+      "id": 1,
+      "code": "MAT-101",
+      "name": "Навчальна сталева заготовка",
+      "unit": "кг",
+      "kind": "material",
+      "method": "buy",
+      "revision": "A",
+      "document_id": null,
+      "material": "",
+      "external_codes": {},
+      "required_documents": [
+        "certificate"
+      ],
+      "bom": [],
+      "routing": [
+        {
+          "name": "Виготовлення",
+          "instruction": "Виконати погоджену операцію",
+          "days": 1
+        }
+      ],
+      "minimum": "8.000",
+      "lead_days": 7,
+      "planned_cost": "12.00",
+      "currency": "EUR"
+    },
+    {
+      "id": 2,
+      "code": "FAST-101",
+      "name": "Кріпильний елемент",
+      "unit": "шт.",
+      "kind": "component",
+      "method": "buy",
+      "revision": "A",
+      "document_id": null,
+      "material": "",
+      "external_codes": {},
+      "required_documents": [],
+      "bom": [],
+      "routing": [
+        {
+          "name": "Виготовлення",
+          "instruction": "Виконати погоджену операцію",
+          "days": 1
+        }
+      ],
+      "minimum": "20.000",
+      "lead_days": 3,
+      "planned_cost": "2.00",
+      "currency": "EUR"
+    },
+    {
+      "id": 3,
+      "code": "DEMO-101",
+      "name": "Навчальний монтажний вузол",
+      "unit": "шт.",
+      "kind": "product",
+      "method": "subcontract",
+      "revision": "A",
+      "document_id": 14,
+      "material": "Сталь",
+      "external_codes": {
+        "Код клієнта": "CLIENT-101",
+        "Код постачальника": "SUP-101"
+      },
+      "required_documents": [
+        "certificate"
+      ],
+      "bom": [
+        {
+          "item_id": 1,
+          "quantity": "0.8"
+        },
+        {
+          "item_id": 2,
+          "quantity": "2"
+        }
+      ],
+      "routing": [
+        {
+          "name": "Виготовлення",
+          "instruction": "Виконати операцію за погодженим кресленням.",
+          "days": 2
+        },
+        {
+          "name": "Покриття",
+          "instruction": "Зафіксувати завершення покриття та зауваження.",
+          "days": 2
+        },
+        {
+          "name": "Контроль",
+          "instruction": "Перевірити комплектність і передати результат якості.",
+          "days": 1
+        }
+      ],
+      "minimum": "0.000",
+      "lead_days": 7,
+      "planned_cost": "40.00",
+      "currency": "EUR"
+    }
+  ],
+  "locations": [
+    {
+      "id": 1,
+      "code": "WH-01",
+      "name": "Основний склад · комірки А1–А3",
+      "kind": "warehouse",
+      "supplier_id": null
+    },
+    {
+      "id": 2,
+      "code": "SHOP-01",
+      "name": "Власна виробнича дільниця",
+      "kind": "production",
+      "supplier_id": null
+    },
+    {
+      "id": 3,
+      "code": "VENDOR-A",
+      "name": "Матеріали у підрядника A",
+      "kind": "supplier",
+      "supplier_id": 1
+    }
+  ],
+  "lots": [
+    {
+      "id": 1,
+      "code": "LOT-MAT",
+      "item_id": 1,
+      "location_id": 1,
+      "revision": "A",
+      "quantity": "24.000",
+      "quality": "approved",
+      "unit_cost": "12.00",
+      "currency": "EUR",
+      "documents": {
+        "certificate": 16
+      },
+      "reserved": "0",
+      "available": "24.000",
+      "missing_documents": []
+    },
+    {
+      "id": 2,
+      "code": "LOT-FAST",
+      "item_id": 2,
+      "location_id": 1,
+      "revision": "A",
+      "quantity": "60.000",
+      "quality": "approved",
+      "unit_cost": "2.00",
+      "currency": "EUR",
+      "documents": {},
+      "reserved": "0",
+      "available": "60.000",
+      "missing_documents": []
+    },
+    {
+      "id": 3,
+      "code": "LOT-FG-OK",
+      "item_id": 3,
+      "location_id": 1,
+      "revision": "A",
+      "quantity": "10.000",
+      "quality": "approved",
+      "unit_cost": "40.00",
+      "currency": "EUR",
+      "documents": {
+        "certificate": 16
+      },
+      "reserved": "10",
+      "available": "0.000",
+      "missing_documents": []
+    },
+    {
+      "id": 4,
+      "code": "LOT-FG-HOLD",
+      "item_id": 3,
+      "location_id": 1,
+      "revision": "A",
+      "quantity": "10.000",
+      "quality": "blocked",
+      "unit_cost": "40.00",
+      "currency": "EUR",
+      "documents": {},
+      "reserved": "0",
+      "available": "0",
+      "missing_documents": [
+        "certificate"
+      ]
+    },
+    {
+      "id": 5,
+      "code": "LOT-SO-090",
+      "item_id": 3,
+      "location_id": 1,
+      "revision": "A",
+      "quantity": "0.000",
+      "quality": "approved",
+      "unit_cost": "37.00",
+      "currency": "EUR",
+      "documents": {
+        "certificate": 16
+      },
+      "reserved": "0",
+      "available": "0.000",
+      "missing_documents": []
+    },
+    {
+      "id": 6,
+      "code": "LOT-SO-091",
+      "item_id": 3,
+      "location_id": 1,
+      "revision": "A",
+      "quantity": "0.000",
+      "quality": "approved",
+      "unit_cost": "38.00",
+      "currency": "EUR",
+      "documents": {
+        "certificate": 16
+      },
+      "reserved": "0",
+      "available": "0.000",
+      "missing_documents": []
+    },
+    {
+      "id": 7,
+      "code": "LOT-SO-092",
+      "item_id": 3,
+      "location_id": 1,
+      "revision": "A",
+      "quantity": "0.000",
+      "quality": "approved",
+      "unit_cost": "39.00",
+      "currency": "EUR",
+      "documents": {
+        "certificate": 16
+      },
+      "reserved": "0",
+      "available": "0.000",
+      "missing_documents": []
+    }
+  ],
+  "orders": [
+    {
+      "id": 1,
+      "code": "SO-101",
+      "customer_id": 4,
+      "owner_id": 2,
+      "due_date": "2026-09-30",
+      "currency": "EUR",
+      "status": "confirmed",
+      "notes": ""
+    },
+    {
+      "id": 2,
+      "code": "SO-102",
+      "customer_id": 4,
+      "owner_id": 2,
+      "due_date": "2026-09-25",
+      "currency": "EUR",
+      "status": "confirmed",
+      "notes": ""
+    },
+    {
+      "id": 3,
+      "code": "SO-090",
+      "customer_id": 4,
+      "owner_id": 2,
+      "due_date": "2026-09-30",
+      "currency": "EUR",
+      "status": "confirmed",
+      "notes": "Синтетичний завершений приклад: показує зв’язок поставки, рахунку, оплати й собівартості."
+    },
+    {
+      "id": 4,
+      "code": "SO-091",
+      "customer_id": 4,
+      "owner_id": 2,
+      "due_date": "2026-09-30",
+      "currency": "EUR",
+      "status": "confirmed",
+      "notes": "Синтетичний завершений приклад: показує зв’язок поставки, рахунку, оплати й собівартості."
+    },
+    {
+      "id": 5,
+      "code": "SO-092",
+      "customer_id": 4,
+      "owner_id": 2,
+      "due_date": "2026-09-30",
+      "currency": "EUR",
+      "status": "confirmed",
+      "notes": "Синтетичний завершений приклад: показує зв’язок поставки, рахунку, оплати й собівартості."
+    }
+  ],
+  "lines": [
+    {
+      "id": 1,
+      "order_id": 1,
+      "item_id": 3,
+      "revision": "A",
+      "quantity": "50.000",
+      "price": "120.00",
+      "shipped": "0.000",
+      "invoiced": "0.000"
+    },
+    {
+      "id": 2,
+      "order_id": 2,
+      "item_id": 3,
+      "revision": "A",
+      "quantity": "5.000",
+      "price": "125.00",
+      "shipped": "0.000",
+      "invoiced": "0.000"
+    },
+    {
+      "id": 3,
+      "order_id": 3,
+      "item_id": 3,
+      "revision": "A",
+      "quantity": "12.000",
+      "price": "120.00",
+      "shipped": "12.000",
+      "invoiced": "12.000"
+    },
+    {
+      "id": 4,
+      "order_id": 4,
+      "item_id": 3,
+      "revision": "A",
+      "quantity": "8.000",
+      "price": "125.00",
+      "shipped": "8.000",
+      "invoiced": "8.000"
+    },
+    {
+      "id": 5,
+      "order_id": 5,
+      "item_id": 3,
+      "revision": "A",
+      "quantity": "10.000",
+      "price": "120.00",
+      "shipped": "10.000",
+      "invoiced": "10.000"
+    }
+  ],
+  "jobs": [
+    {
+      "id": 1,
+      "code": "MO-101",
+      "line_id": 1,
+      "item_id": 3,
+      "quantity": "40.000",
+      "produced": "0.000",
+      "revision": "A",
+      "bom": [
+        {
+          "item_id": 1,
+          "quantity": "0.8"
+        },
+        {
+          "item_id": 2,
+          "quantity": "2"
+        }
+      ],
+      "routing": [
+        {
+          "name": "Виготовлення",
+          "instruction": "Виконати операцію за погодженим кресленням.",
+          "days": 2
+        },
+        {
+          "name": "Покриття",
+          "instruction": "Зафіксувати завершення покриття та зауваження.",
+          "days": 2
+        },
+        {
+          "name": "Контроль",
+          "instruction": "Перевірити комплектність і передати результат якості.",
+          "days": 1
+        }
+      ],
+      "location_id": 3,
+      "owner_id": 3,
+      "due_date": "2026-09-24",
+      "status": "planned",
+      "needs_review": false,
+      "planned_cost": "1600.00",
+      "actual_cost": "0.00",
+      "currency": "EUR"
+    }
+  ],
+  "reservations": [
+    {
+      "id": 1,
+      "lot_id": 3,
+      "line_id": 1,
+      "production_id": null,
+      "quantity": "10.000"
+    },
+    {
+      "id": 2,
+      "lot_id": 5,
+      "line_id": 3,
+      "production_id": null,
+      "quantity": "0.000"
+    },
+    {
+      "id": 3,
+      "lot_id": 6,
+      "line_id": 4,
+      "production_id": null,
+      "quantity": "0.000"
+    },
+    {
+      "id": 4,
+      "lot_id": 7,
+      "line_id": 5,
+      "production_id": null,
+      "quantity": "0.000"
+    }
+  ],
+  "purchases": [
+    {
+      "id": 1,
+      "code": "PO-MAT",
+      "item_id": 1,
+      "supplier_id": 1,
+      "quantity": "8.000",
+      "received": "0.000",
+      "price": "12.00",
+      "extras": "0.00",
+      "currency": "EUR",
+      "due_date": "2026-09-16",
+      "original_due": "2026-09-16",
+      "revision": "A",
+      "production_id": 1,
+      "request_id": null,
+      "status": "ordered"
+    },
+    {
+      "id": 2,
+      "code": "PO-FAST",
+      "item_id": 2,
+      "supplier_id": 1,
+      "quantity": "20.000",
+      "received": "0.000",
+      "price": "2.00",
+      "extras": "0.00",
+      "currency": "EUR",
+      "due_date": "2026-09-12",
+      "original_due": "2026-09-12",
+      "revision": "A",
+      "production_id": 1,
+      "request_id": null,
+      "status": "ordered"
+    }
+  ],
+  "inspections": [
+    {
+      "id": 1,
+      "lot_id": 1,
+      "result": "approved",
+      "note": "Навчальна перевірка",
+      "inspector_id": 3,
+      "created_at": "2026-09-10T21:58:38.355Z"
+    },
+    {
+      "id": 2,
+      "lot_id": 2,
+      "result": "approved",
+      "note": "Навчальна перевірка",
+      "inspector_id": 3,
+      "created_at": "2026-09-10T21:58:38.359Z"
+    },
+    {
+      "id": 3,
+      "lot_id": 3,
+      "result": "approved",
+      "note": "Навчальна перевірка",
+      "inspector_id": 3,
+      "created_at": "2026-09-10T21:58:38.365Z"
+    },
+    {
+      "id": 4,
+      "lot_id": 4,
+      "result": "blocked",
+      "note": "Немає сертифіката; відвантаження заблоковано",
+      "inspector_id": 3,
+      "created_at": "2026-09-10T21:58:38.369Z"
+    },
+    {
+      "id": 5,
+      "lot_id": 5,
+      "result": "approved",
+      "note": "Навчальна перевірка комплектності",
+      "inspector_id": 3,
+      "created_at": "2026-09-10T21:58:38.388Z"
+    },
+    {
+      "id": 6,
+      "lot_id": 6,
+      "result": "approved",
+      "note": "Навчальна перевірка комплектності",
+      "inspector_id": 3,
+      "created_at": "2026-09-10T21:58:38.406Z"
+    },
+    {
+      "id": 7,
+      "lot_id": 7,
+      "result": "approved",
+      "note": "Навчальна перевірка комплектності",
+      "inspector_id": 3,
+      "created_at": "2026-09-10T21:58:38.424Z"
+    }
+  ],
+  "changes": [
+    {
+      "id": 1,
+      "code": "ECO-101",
+      "item_id": 3,
+      "document_id": 15,
+      "target_revision": "B",
+      "reason": "Навчальний сценарій зміни контролю поверхні після запуску підготовки.",
+      "status": "draft",
+      "disposition": "",
+      "created_at": "2026-09-10T21:58:38.376Z"
+    }
+  ],
+  "operator_entries": [],
+  "movements": [
+    {
+      "id": 10,
+      "lot_id": 7,
+      "quantity": "-10.000",
+      "kind": "shipment",
+      "reference": "SHIP-SO-092",
+      "reason": "",
+      "line_id": 5,
+      "production_id": null,
+      "purchase_id": null,
+      "cost": "390.00",
+      "created_at": "2026-09-10T21:58:38.433Z"
+    },
+    {
+      "id": 9,
+      "lot_id": 7,
+      "quantity": "10.000",
+      "kind": "opening",
+      "reference": "LOT-SO-092",
+      "reason": "Навчальний приклад завершеної поставки",
+      "line_id": null,
+      "production_id": null,
+      "purchase_id": null,
+      "cost": "390.00",
+      "created_at": "2026-09-10T21:58:38.422Z"
+    },
+    {
+      "id": 8,
+      "lot_id": 6,
+      "quantity": "-8.000",
+      "kind": "shipment",
+      "reference": "SHIP-SO-091",
+      "reason": "",
+      "line_id": 4,
+      "production_id": null,
+      "purchase_id": null,
+      "cost": "304.00",
+      "created_at": "2026-09-10T21:58:38.413Z"
+    },
+    {
+      "id": 7,
+      "lot_id": 6,
+      "quantity": "8.000",
+      "kind": "opening",
+      "reference": "LOT-SO-091",
+      "reason": "Навчальний приклад завершеної поставки",
+      "line_id": null,
+      "production_id": null,
+      "purchase_id": null,
+      "cost": "304.00",
+      "created_at": "2026-09-10T21:58:38.403Z"
+    },
+    {
+      "id": 6,
+      "lot_id": 5,
+      "quantity": "-12.000",
+      "kind": "shipment",
+      "reference": "SHIP-SO-090",
+      "reason": "",
+      "line_id": 3,
+      "production_id": null,
+      "purchase_id": null,
+      "cost": "444.00",
+      "created_at": "2026-09-10T21:58:38.394Z"
+    },
+    {
+      "id": 5,
+      "lot_id": 5,
+      "quantity": "12.000",
+      "kind": "opening",
+      "reference": "LOT-SO-090",
+      "reason": "Навчальний приклад завершеної поставки",
+      "line_id": null,
+      "production_id": null,
+      "purchase_id": null,
+      "cost": "444.00",
+      "created_at": "2026-09-10T21:58:38.386Z"
+    },
+    {
+      "id": 4,
+      "lot_id": 4,
+      "quantity": "10.000",
+      "kind": "opening",
+      "reference": "LOT-FG-HOLD",
+      "reason": "Початковий залишок",
+      "line_id": null,
+      "production_id": null,
+      "purchase_id": null,
+      "cost": "400.00",
+      "created_at": "2026-09-10T21:58:38.367Z"
+    },
+    {
+      "id": 3,
+      "lot_id": 3,
+      "quantity": "10.000",
+      "kind": "opening",
+      "reference": "LOT-FG-OK",
+      "reason": "Початковий залишок",
+      "line_id": null,
+      "production_id": null,
+      "purchase_id": null,
+      "cost": "400.00",
+      "created_at": "2026-09-10T21:58:38.363Z"
+    },
+    {
+      "id": 2,
+      "lot_id": 2,
+      "quantity": "60.000",
+      "kind": "opening",
+      "reference": "LOT-FAST",
+      "reason": "Початковий залишок",
+      "line_id": null,
+      "production_id": null,
+      "purchase_id": null,
+      "cost": "120.00",
+      "created_at": "2026-09-10T21:58:38.357Z"
+    },
+    {
+      "id": 1,
+      "lot_id": 1,
+      "quantity": "24.000",
+      "kind": "opening",
+      "reference": "LOT-MAT",
+      "reason": "Початковий залишок",
+      "line_id": null,
+      "production_id": null,
+      "purchase_id": null,
+      "cost": "288.00",
+      "created_at": "2026-09-10T21:58:38.352Z"
+    }
+  ],
+  "events": [
+    {
+      "id": 46,
+      "action": "erp_invoice",
+      "payload": {
+        "action": "erp_invoice",
+        "order_id": 5,
+        "code": "INV-SO-092",
+        "due_date": "2026-10-10"
+      },
+      "result": {
+        "invoice_id": 6,
+        "code": "INV-SO-092",
+        "amount": "1200.00"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.437Z"
+    },
+    {
+      "id": 45,
+      "action": "erp_ship",
+      "payload": {
+        "action": "erp_ship",
+        "lot_id": 7,
+        "line_id": 5,
+        "quantity": "10",
+        "reference": "SHIP-SO-092"
+      },
+      "result": {
+        "line_id": 5,
+        "shipped": "10",
+        "reference": "SHIP-SO-092"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.434Z"
+    },
+    {
+      "id": 44,
+      "action": "erp_reserve",
+      "payload": {
+        "action": "erp_reserve",
+        "lot_id": 7,
+        "line_id": 5,
+        "quantity": "10"
+      },
+      "result": {
+        "reservation_id": 4,
+        "quantity": "10"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.426Z"
+    },
+    {
+      "id": 43,
+      "action": "erp_quality",
+      "payload": {
+        "action": "erp_quality",
+        "lot_id": 7,
+        "result": "approved",
+        "inspector_id": 3,
+        "note": "Навчальна перевірка комплектності"
+      },
+      "result": {
+        "inspection_id": 7,
+        "lot_id": 7,
+        "quality": "approved"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.424Z"
+    },
+    {
+      "id": 42,
+      "action": "erp_opening",
+      "payload": {
+        "action": "erp_opening",
+        "code": "LOT-SO-092",
+        "item_id": 3,
+        "location_id": 1,
+        "quantity": "10",
+        "unit_cost": "39",
+        "currency": "EUR",
+        "revision": "A",
+        "documents": {
+          "certificate": 16
+        },
+        "reason": "Навчальний приклад завершеної поставки"
+      },
+      "result": {
+        "lot_id": 7,
+        "code": "LOT-SO-092",
+        "quality": "pending"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.422Z"
+    },
+    {
+      "id": 41,
+      "action": "erp_confirm_order",
+      "payload": {
+        "action": "erp_confirm_order",
+        "order_id": 5
+      },
+      "result": {
+        "order_id": 5,
+        "status": "confirmed"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.420Z"
+    },
+    {
+      "id": 40,
+      "action": "erp_order",
+      "payload": {
+        "action": "erp_order",
+        "code": "SO-092",
+        "customer_id": 4,
+        "owner_id": 2,
+        "due_date": "2026-09-30",
+        "currency": "EUR",
+        "lines": [
+          {
+            "item_id": 3,
+            "quantity": "10",
+            "price": "120"
+          }
+        ],
+        "notes": "Синтетичний завершений приклад: показує зв’язок поставки, рахунку, оплати й собівартості."
+      },
+      "result": {
+        "order_id": 5,
+        "code": "SO-092"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.418Z"
+    },
+    {
+      "id": 39,
+      "action": "erp_payment",
+      "payload": {
+        "action": "erp_payment",
+        "invoice_id": 5,
+        "amount": "600",
+        "reference": "PAY-SO-091"
+      },
+      "result": {
+        "invoice_id": 5,
+        "paid": "600.00",
+        "note": "Локальний обліковий запис; банківська операція не виконується."
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.417Z"
+    },
+    {
+      "id": 38,
+      "action": "erp_invoice",
+      "payload": {
+        "action": "erp_invoice",
+        "order_id": 4,
+        "code": "INV-SO-091",
+        "due_date": "2026-10-10"
+      },
+      "result": {
+        "invoice_id": 5,
+        "code": "INV-SO-091",
+        "amount": "1000.00"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.416Z"
+    },
+    {
+      "id": 37,
+      "action": "erp_ship",
+      "payload": {
+        "action": "erp_ship",
+        "lot_id": 6,
+        "line_id": 4,
+        "quantity": "8",
+        "reference": "SHIP-SO-091"
+      },
+      "result": {
+        "line_id": 4,
+        "shipped": "8",
+        "reference": "SHIP-SO-091"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.414Z"
+    },
+    {
+      "id": 36,
+      "action": "erp_reserve",
+      "payload": {
+        "action": "erp_reserve",
+        "lot_id": 6,
+        "line_id": 4,
+        "quantity": "8"
+      },
+      "result": {
+        "reservation_id": 3,
+        "quantity": "8"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.410Z"
+    },
+    {
+      "id": 35,
+      "action": "erp_quality",
+      "payload": {
+        "action": "erp_quality",
+        "lot_id": 6,
+        "result": "approved",
+        "inspector_id": 3,
+        "note": "Навчальна перевірка комплектності"
+      },
+      "result": {
+        "inspection_id": 6,
+        "lot_id": 6,
+        "quality": "approved"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.406Z"
+    },
+    {
+      "id": 34,
+      "action": "erp_opening",
+      "payload": {
+        "action": "erp_opening",
+        "code": "LOT-SO-091",
+        "item_id": 3,
+        "location_id": 1,
+        "quantity": "8",
+        "unit_cost": "38",
+        "currency": "EUR",
+        "revision": "A",
+        "documents": {
+          "certificate": 16
+        },
+        "reason": "Навчальний приклад завершеної поставки"
+      },
+      "result": {
+        "lot_id": 6,
+        "code": "LOT-SO-091",
+        "quality": "pending"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.404Z"
+    },
+    {
+      "id": 33,
+      "action": "erp_confirm_order",
+      "payload": {
+        "action": "erp_confirm_order",
+        "order_id": 4
+      },
+      "result": {
+        "order_id": 4,
+        "status": "confirmed"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.400Z"
+    },
+    {
+      "id": 32,
+      "action": "erp_order",
+      "payload": {
+        "action": "erp_order",
+        "code": "SO-091",
+        "customer_id": 4,
+        "owner_id": 2,
+        "due_date": "2026-09-30",
+        "currency": "EUR",
+        "lines": [
+          {
+            "item_id": 3,
+            "quantity": "8",
+            "price": "125"
+          }
+        ],
+        "notes": "Синтетичний завершений приклад: показує зв’язок поставки, рахунку, оплати й собівартості."
+      },
+      "result": {
+        "order_id": 4,
+        "code": "SO-091"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.400Z"
+    },
+    {
+      "id": 31,
+      "action": "erp_payment",
+      "payload": {
+        "action": "erp_payment",
+        "invoice_id": 4,
+        "amount": "1440",
+        "reference": "PAY-SO-090"
+      },
+      "result": {
+        "invoice_id": 4,
+        "paid": "1440.00",
+        "note": "Локальний обліковий запис; банківська операція не виконується."
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.398Z"
+    },
+    {
+      "id": 30,
+      "action": "erp_invoice",
+      "payload": {
+        "action": "erp_invoice",
+        "order_id": 3,
+        "code": "INV-SO-090",
+        "due_date": "2026-10-10"
+      },
+      "result": {
+        "invoice_id": 4,
+        "code": "INV-SO-090",
+        "amount": "1440.00"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.396Z"
+    },
+    {
+      "id": 29,
+      "action": "erp_ship",
+      "payload": {
+        "action": "erp_ship",
+        "lot_id": 5,
+        "line_id": 3,
+        "quantity": "12",
+        "reference": "SHIP-SO-090"
+      },
+      "result": {
+        "line_id": 3,
+        "shipped": "12",
+        "reference": "SHIP-SO-090"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.394Z"
+    },
+    {
+      "id": 28,
+      "action": "erp_reserve",
+      "payload": {
+        "action": "erp_reserve",
+        "lot_id": 5,
+        "line_id": 3,
+        "quantity": "12"
+      },
+      "result": {
+        "reservation_id": 2,
+        "quantity": "12"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.391Z"
+    },
+    {
+      "id": 27,
+      "action": "erp_quality",
+      "payload": {
+        "action": "erp_quality",
+        "lot_id": 5,
+        "result": "approved",
+        "inspector_id": 3,
+        "note": "Навчальна перевірка комплектності"
+      },
+      "result": {
+        "inspection_id": 5,
+        "lot_id": 5,
+        "quality": "approved"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.388Z"
+    },
+    {
+      "id": 26,
+      "action": "erp_opening",
+      "payload": {
+        "action": "erp_opening",
+        "code": "LOT-SO-090",
+        "item_id": 3,
+        "location_id": 1,
+        "quantity": "12",
+        "unit_cost": "37",
+        "currency": "EUR",
+        "revision": "A",
+        "documents": {
+          "certificate": 16
+        },
+        "reason": "Навчальний приклад завершеної поставки"
+      },
+      "result": {
+        "lot_id": 5,
+        "code": "LOT-SO-090",
+        "quality": "pending"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.386Z"
+    },
+    {
+      "id": 25,
+      "action": "erp_confirm_order",
+      "payload": {
+        "action": "erp_confirm_order",
+        "order_id": 3
+      },
+      "result": {
+        "order_id": 3,
+        "status": "confirmed"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.383Z"
+    },
+    {
+      "id": 24,
+      "action": "erp_order",
+      "payload": {
+        "action": "erp_order",
+        "code": "SO-090",
+        "customer_id": 4,
+        "owner_id": 2,
+        "due_date": "2026-09-30",
+        "currency": "EUR",
+        "lines": [
+          {
+            "item_id": 3,
+            "quantity": "12",
+            "price": "120"
+          }
+        ],
+        "notes": "Синтетичний завершений приклад: показує зв’язок поставки, рахунку, оплати й собівартості."
+      },
+      "result": {
+        "order_id": 3,
+        "code": "SO-090"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.382Z"
+    },
+    {
+      "id": 23,
+      "action": "erp_change",
+      "payload": {
+        "action": "erp_change",
+        "code": "ECO-101",
+        "item_id": 3,
+        "document_id": 15,
+        "target_revision": "B",
+        "reason": "Навчальний сценарій зміни контролю поверхні після запуску підготовки."
+      },
+      "result": {
+        "change_id": 1,
+        "code": "ECO-101"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.377Z"
+    },
+    {
+      "id": 22,
+      "action": "erp_purchase",
+      "payload": {
+        "action": "erp_purchase",
+        "code": "PO-FAST",
+        "item_id": 2,
+        "supplier_id": 1,
+        "quantity": "20",
+        "price": "2",
+        "currency": "EUR",
+        "due_date": "2026-09-12",
+        "revision": "A",
+        "production_id": 1
+      },
+      "result": {
+        "purchase_id": 2,
+        "code": "PO-FAST"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.375Z"
+    },
+    {
+      "id": 21,
+      "action": "erp_purchase",
+      "payload": {
+        "action": "erp_purchase",
+        "code": "PO-MAT",
+        "item_id": 1,
+        "supplier_id": 1,
+        "quantity": "8",
+        "price": "12",
+        "currency": "EUR",
+        "due_date": "2026-09-16",
+        "revision": "A",
+        "production_id": 1
+      },
+      "result": {
+        "purchase_id": 1,
+        "code": "PO-MAT"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.374Z"
+    },
+    {
+      "id": 20,
+      "action": "erp_reserve",
+      "payload": {
+        "action": "erp_reserve",
+        "lot_id": 3,
+        "quantity": "10",
+        "line_id": 1
+      },
+      "result": {
+        "reservation_id": 1,
+        "quantity": "10"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.372Z"
+    },
+    {
+      "id": 19,
+      "action": "erp_quality",
+      "payload": {
+        "action": "erp_quality",
+        "lot_id": 4,
+        "result": "blocked",
+        "inspector_id": 3,
+        "note": "Немає сертифіката; відвантаження заблоковано"
+      },
+      "result": {
+        "inspection_id": 4,
+        "lot_id": 4,
+        "quality": "blocked"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.369Z"
+    },
+    {
+      "id": 18,
+      "action": "erp_opening",
+      "payload": {
+        "action": "erp_opening",
+        "code": "LOT-FG-HOLD",
+        "item_id": 3,
+        "location_id": 1,
+        "quantity": "10",
+        "unit_cost": "40",
+        "currency": "EUR",
+        "revision": "A",
+        "documents": {}
+      },
+      "result": {
+        "lot_id": 4,
+        "code": "LOT-FG-HOLD",
+        "quality": "pending"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.367Z"
+    },
+    {
+      "id": 17,
+      "action": "erp_quality",
+      "payload": {
+        "action": "erp_quality",
+        "lot_id": 3,
+        "result": "approved",
+        "inspector_id": 3,
+        "note": "Навчальна перевірка"
+      },
+      "result": {
+        "inspection_id": 3,
+        "lot_id": 3,
+        "quality": "approved"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.366Z"
+    },
+    {
+      "id": 16,
+      "action": "erp_opening",
+      "payload": {
+        "action": "erp_opening",
+        "code": "LOT-FG-OK",
+        "item_id": 3,
+        "location_id": 1,
+        "quantity": "10",
+        "unit_cost": "40",
+        "currency": "EUR",
+        "revision": "A",
+        "documents": {
+          "certificate": 16
+        }
+      },
+      "result": {
+        "lot_id": 3,
+        "code": "LOT-FG-OK",
+        "quality": "pending"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.363Z"
+    },
+    {
+      "id": 15,
+      "action": "erp_quality",
+      "payload": {
+        "action": "erp_quality",
+        "lot_id": 2,
+        "result": "approved",
+        "inspector_id": 3,
+        "note": "Навчальна перевірка"
+      },
+      "result": {
+        "inspection_id": 2,
+        "lot_id": 2,
+        "quality": "approved"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.360Z"
+    },
+    {
+      "id": 14,
+      "action": "erp_opening",
+      "payload": {
+        "action": "erp_opening",
+        "code": "LOT-FAST",
+        "item_id": 2,
+        "location_id": 1,
+        "quantity": "60",
+        "unit_cost": "2",
+        "currency": "EUR",
+        "revision": "A",
+        "documents": {}
+      },
+      "result": {
+        "lot_id": 2,
+        "code": "LOT-FAST",
+        "quality": "pending"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.357Z"
+    },
+    {
+      "id": 13,
+      "action": "erp_quality",
+      "payload": {
+        "action": "erp_quality",
+        "lot_id": 1,
+        "result": "approved",
+        "inspector_id": 3,
+        "note": "Навчальна перевірка"
+      },
+      "result": {
+        "inspection_id": 1,
+        "lot_id": 1,
+        "quality": "approved"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.355Z"
+    },
+    {
+      "id": 12,
+      "action": "erp_opening",
+      "payload": {
+        "action": "erp_opening",
+        "code": "LOT-MAT",
+        "item_id": 1,
+        "location_id": 1,
+        "quantity": "24",
+        "unit_cost": "12",
+        "currency": "EUR",
+        "revision": "A",
+        "documents": {
+          "certificate": 16
+        }
+      },
+      "result": {
+        "lot_id": 1,
+        "code": "LOT-MAT",
+        "quality": "pending"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.353Z"
+    },
+    {
+      "id": 11,
+      "action": "erp_job",
+      "payload": {
+        "action": "erp_job",
+        "code": "MO-101",
+        "item_id": 3,
+        "quantity": "40",
+        "location_id": 3,
+        "owner_id": 3,
+        "due_date": "2026-09-24",
+        "line_id": 1
+      },
+      "result": {
+        "production_id": 1,
+        "code": "MO-101"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.350Z"
+    },
+    {
+      "id": 10,
+      "action": "erp_confirm_order",
+      "payload": {
+        "action": "erp_confirm_order",
+        "order_id": 2
+      },
+      "result": {
+        "order_id": 2,
+        "status": "confirmed"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.347Z"
+    },
+    {
+      "id": 9,
+      "action": "erp_order",
+      "payload": {
+        "action": "erp_order",
+        "code": "SO-102",
+        "customer_id": 4,
+        "owner_id": 2,
+        "due_date": "2026-09-25",
+        "currency": "EUR",
+        "lines": [
+          {
+            "item_id": 3,
+            "quantity": "5",
+            "price": "125"
+          }
+        ]
+      },
+      "result": {
+        "order_id": 2,
+        "code": "SO-102"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.346Z"
+    },
+    {
+      "id": 8,
+      "action": "erp_confirm_order",
+      "payload": {
+        "action": "erp_confirm_order",
+        "order_id": 1
+      },
+      "result": {
+        "order_id": 1,
+        "status": "confirmed"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.344Z"
+    },
+    {
+      "id": 7,
+      "action": "erp_order",
+      "payload": {
+        "action": "erp_order",
+        "code": "SO-101",
+        "customer_id": 4,
+        "owner_id": 2,
+        "due_date": "2026-09-30",
+        "currency": "EUR",
+        "lines": [
+          {
+            "item_id": 3,
+            "quantity": "50",
+            "price": "120"
+          }
+        ]
+      },
+      "result": {
+        "order_id": 1,
+        "code": "SO-101"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.343Z"
+    },
+    {
+      "id": 6,
+      "action": "erp_item",
+      "payload": {
+        "action": "erp_item",
+        "code": "DEMO-101",
+        "name": "Навчальний монтажний вузол",
+        "unit": "шт.",
+        "kind": "product",
+        "method": "subcontract",
+        "revision": "A",
+        "currency": "EUR",
+        "material": "Сталь",
+        "document_id": 14,
+        "external_codes": {
+          "Код клієнта": "CLIENT-101",
+          "Код постачальника": "SUP-101"
+        },
+        "required_documents": [
+          "certificate"
+        ],
+        "planned_cost": "40",
+        "bom": [
+          {
+            "item_id": 1,
+            "quantity": "0.8"
+          },
+          {
+            "item_id": 2,
+            "quantity": "2"
+          }
+        ],
+        "routing": [
+          {
+            "name": "Виготовлення",
+            "instruction": "Виконати операцію за погодженим кресленням.",
+            "days": 2
+          },
+          {
+            "name": "Покриття",
+            "instruction": "Зафіксувати завершення покриття та зауваження.",
+            "days": 2
+          },
+          {
+            "name": "Контроль",
+            "instruction": "Перевірити комплектність і передати результат якості.",
+            "days": 1
+          }
+        ]
+      },
+      "result": {
+        "item_id": 3,
+        "code": "DEMO-101"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.341Z"
+    },
+    {
+      "id": 5,
+      "action": "erp_item",
+      "payload": {
+        "action": "erp_item",
+        "code": "FAST-101",
+        "name": "Кріпильний елемент",
+        "unit": "шт.",
+        "kind": "component",
+        "method": "buy",
+        "revision": "A",
+        "currency": "EUR",
+        "minimum": "20",
+        "lead_days": 3,
+        "planned_cost": "2"
+      },
+      "result": {
+        "item_id": 2,
+        "code": "FAST-101"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.340Z"
+    },
+    {
+      "id": 4,
+      "action": "erp_item",
+      "payload": {
+        "action": "erp_item",
+        "code": "MAT-101",
+        "name": "Навчальна сталева заготовка",
+        "unit": "кг",
+        "kind": "material",
+        "method": "buy",
+        "revision": "A",
+        "currency": "EUR",
+        "required_documents": [
+          "certificate"
+        ],
+        "minimum": "8",
+        "lead_days": 7,
+        "planned_cost": "12"
+      },
+      "result": {
+        "item_id": 1,
+        "code": "MAT-101"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.340Z"
+    },
+    {
+      "id": 3,
+      "action": "erp_location",
+      "payload": {
+        "action": "erp_location",
+        "code": "VENDOR-A",
+        "name": "Матеріали у підрядника A",
+        "kind": "supplier",
+        "supplier_id": 1
+      },
+      "result": {
+        "location_id": 3,
+        "code": "VENDOR-A"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.339Z"
+    },
+    {
+      "id": 2,
+      "action": "erp_location",
+      "payload": {
+        "action": "erp_location",
+        "code": "SHOP-01",
+        "name": "Власна виробнича дільниця",
+        "kind": "production"
+      },
+      "result": {
+        "location_id": 2,
+        "code": "SHOP-01"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.338Z"
+    },
+    {
+      "id": 1,
+      "action": "erp_location",
+      "payload": {
+        "action": "erp_location",
+        "code": "WH-01",
+        "name": "Основний склад · комірки А1–А3",
+        "kind": "warehouse"
+      },
+      "result": {
+        "location_id": 1,
+        "code": "WH-01"
+      },
+      "role": "ceo",
+      "created_at": "2026-09-10T21:58:38.337Z"
+    }
+  ],
+  "employees": [
+    {
+      "id": 3,
+      "full_name": "Іван Тестовий",
+      "role": "Інженер"
+    },
+    {
+      "id": 6,
+      "full_name": "Анна Макетна",
+      "role": "Координатор складу"
+    },
+    {
+      "id": 2,
+      "full_name": "Марія Прикладова",
+      "role": "Менеджер закупівель"
+    },
+    {
+      "id": 5,
+      "full_name": "Олег Зразковий",
+      "role": "Менеджер продажів"
+    },
+    {
+      "id": 1,
+      "full_name": "Олексій Демонстраційний",
+      "role": "Керівник"
+    },
+    {
+      "id": 4,
+      "full_name": "Олена Навчальна",
+      "role": "Фінансовий менеджер"
+    }
+  ],
+  "partners": [
+    {
+      "id": 4,
+      "name": "Навчальний клієнт 1",
+      "type": "customer"
+    },
+    {
+      "id": 5,
+      "name": "Навчальний клієнт 2",
+      "type": "customer"
+    },
+    {
+      "id": 6,
+      "name": "Навчальний клієнт 3",
+      "type": "customer"
+    },
+    {
+      "id": 1,
+      "name": "Навчальний постачальник A",
+      "type": "supplier"
+    },
+    {
+      "id": 2,
+      "name": "Навчальний постачальник B",
+      "type": "supplier"
+    },
+    {
+      "id": 3,
+      "name": "Навчальний постачальник C",
+      "type": "supplier"
+    }
+  ],
+  "requests": [
+    {
+      "id": 1,
+      "code": "R01",
+      "part": "DEMO-001"
+    },
+    {
+      "id": 2,
+      "code": "R02",
+      "part": "DEMO-002"
+    },
+    {
+      "id": 3,
+      "code": "R03",
+      "part": "DEMO-003"
+    }
+  ],
+  "documents": [
+    {
+      "id": 16,
+      "code": "ERP-CERT",
+      "revision": "1",
+      "title": "Навчальний сертифікат партій",
+      "status": "approved"
+    },
+    {
+      "id": 15,
+      "code": "ERP-SPEC",
+      "revision": "B",
+      "title": "Зміна специфікації DEMO-101",
+      "status": "approved"
+    },
+    {
+      "id": 14,
+      "code": "ERP-SPEC",
+      "revision": "A",
+      "title": "Навчальна специфікація DEMO-101",
+      "status": "approved"
+    },
+    {
+      "id": 13,
+      "code": "D-CASH",
+      "revision": "1",
+      "title": "Навчальна виписка",
+      "status": "approved"
+    },
+    {
+      "id": 12,
+      "code": "Q33",
+      "revision": "A",
+      "title": "Пропозиція Q33",
+      "status": "supplier_quote"
+    },
+    {
+      "id": 11,
+      "code": "Q32",
+      "revision": "A",
+      "title": "Пропозиція Q32",
+      "status": "supplier_quote"
+    },
+    {
+      "id": 10,
+      "code": "Q31",
+      "revision": "A",
+      "title": "Пропозиція Q31",
+      "status": "supplier_quote"
+    },
+    {
+      "id": 9,
+      "code": "Q23",
+      "revision": "A",
+      "title": "Пропозиція Q23",
+      "status": "supplier_quote"
+    },
+    {
+      "id": 8,
+      "code": "Q22",
+      "revision": "B",
+      "title": "Пропозиція Q22",
+      "status": "supplier_quote"
+    },
+    {
+      "id": 7,
+      "code": "Q21",
+      "revision": "B",
+      "title": "Пропозиція Q21",
+      "status": "supplier_quote"
+    },
+    {
+      "id": 6,
+      "code": "Q13",
+      "revision": "A",
+      "title": "Пропозиція Q13",
+      "status": "supplier_quote"
+    },
+    {
+      "id": 5,
+      "code": "Q12",
+      "revision": "A",
+      "title": "Пропозиція Q12",
+      "status": "supplier_quote"
+    },
+    {
+      "id": 4,
+      "code": "Q11",
+      "revision": "A",
+      "title": "Пропозиція Q11",
+      "status": "supplier_quote"
+    },
+    {
+      "id": 3,
+      "code": "D03",
+      "revision": "A",
+      "title": "Специфікація DEMO-003",
+      "status": "approved"
+    },
+    {
+      "id": 2,
+      "code": "D02",
+      "revision": "B",
+      "title": "Специфікація DEMO-002",
+      "status": "approved"
+    },
+    {
+      "id": 1,
+      "code": "D01",
+      "revision": "A",
+      "title": "Специфікація DEMO-001",
+      "status": "approved"
+    }
+  ],
+  "replenishment": [
+    {
+      "item_id": 1,
+      "code": "MAT-101",
+      "unit": "кг",
+      "minimum": "8.000",
+      "available": "24.000",
+      "incoming": "8.000",
+      "suggested": "0"
+    },
+    {
+      "item_id": 2,
+      "code": "FAST-101",
+      "unit": "шт.",
+      "minimum": "20.000",
+      "available": "60.000",
+      "incoming": "20.000",
+      "suggested": "0"
+    }
+  ],
+  "plans": [
+    {
+      "line_id": 1,
+      "item": "DEMO-101",
+      "remaining": "50.000",
+      "reserved": "10.000",
+      "free": "0.000",
+      "shortage": "40.000",
+      "materials": [
+        {
+          "item_id": 1,
+          "code": "MAT-101",
+          "name": "Навчальна сталева заготовка",
+          "unit": "кг",
+          "need": "32.0000",
+          "available": "24.000",
+          "expected": "8.000",
+          "before_due": "8.000",
+          "deficit": "0"
+        },
+        {
+          "item_id": 2,
+          "code": "FAST-101",
+          "name": "Кріпильний елемент",
+          "unit": "шт.",
+          "need": "80.000",
+          "available": "60.000",
+          "expected": "20.000",
+          "before_due": "20.000",
+          "deficit": "0"
+        }
+      ],
+      "jobs": [
+        {
+          "code": "MO-101",
+          "quantity": "40.000",
+          "due_date": "2026-09-24",
+          "needs_review": false
+        }
+      ],
+      "estimated_date": "2026-09-29",
+      "reasons": [],
+      "simulation": true,
+      "basis": "Календарні дні, наявні залишки та строки. Не враховує завантаження обладнання; інші замовлення можуть використати ще не зарезервовані надходження."
+    },
+    {
+      "line_id": 2,
+      "item": "DEMO-101",
+      "remaining": "5.000",
+      "reserved": "0",
+      "free": "0.000",
+      "shortage": "5.000",
+      "materials": [
+        {
+          "item_id": 1,
+          "code": "MAT-101",
+          "name": "Навчальна сталева заготовка",
+          "unit": "кг",
+          "need": "4.0000",
+          "available": "24.000",
+          "expected": "8.000",
+          "before_due": "8.000",
+          "deficit": "0"
+        },
+        {
+          "item_id": 2,
+          "code": "FAST-101",
+          "name": "Кріпильний елемент",
+          "unit": "шт.",
+          "need": "10.000",
+          "available": "60.000",
+          "expected": "20.000",
+          "before_due": "20.000",
+          "deficit": "0"
+        }
+      ],
+      "jobs": [],
+      "estimated_date": "2026-09-14",
+      "reasons": [],
+      "simulation": true,
+      "basis": "Календарні дні, наявні залишки та строки. Не враховує завантаження обладнання; інші замовлення можуть використати ще не зарезервовані надходження."
+    },
+    {
+      "line_id": 3,
+      "item": "DEMO-101",
+      "remaining": "0.000",
+      "reserved": "0.000",
+      "free": "0.000",
+      "shortage": "0",
+      "materials": [
+        {
+          "item_id": 1,
+          "code": "MAT-101",
+          "name": "Навчальна сталева заготовка",
+          "unit": "кг",
+          "need": "0.0",
+          "available": "24.000",
+          "expected": "8.000",
+          "before_due": "8.000",
+          "deficit": "0"
+        },
+        {
+          "item_id": 2,
+          "code": "FAST-101",
+          "name": "Кріпильний елемент",
+          "unit": "шт.",
+          "need": "0",
+          "available": "60.000",
+          "expected": "20.000",
+          "before_due": "20.000",
+          "deficit": "0"
+        }
+      ],
+      "jobs": [],
+      "estimated_date": "2026-09-09",
+      "reasons": [],
+      "simulation": true,
+      "basis": "Календарні дні, наявні залишки та строки. Не враховує завантаження обладнання; інші замовлення можуть використати ще не зарезервовані надходження."
+    },
+    {
+      "line_id": 4,
+      "item": "DEMO-101",
+      "remaining": "0.000",
+      "reserved": "0.000",
+      "free": "0.000",
+      "shortage": "0",
+      "materials": [
+        {
+          "item_id": 1,
+          "code": "MAT-101",
+          "name": "Навчальна сталева заготовка",
+          "unit": "кг",
+          "need": "0.0",
+          "available": "24.000",
+          "expected": "8.000",
+          "before_due": "8.000",
+          "deficit": "0"
+        },
+        {
+          "item_id": 2,
+          "code": "FAST-101",
+          "name": "Кріпильний елемент",
+          "unit": "шт.",
+          "need": "0",
+          "available": "60.000",
+          "expected": "20.000",
+          "before_due": "20.000",
+          "deficit": "0"
+        }
+      ],
+      "jobs": [],
+      "estimated_date": "2026-09-09",
+      "reasons": [],
+      "simulation": true,
+      "basis": "Календарні дні, наявні залишки та строки. Не враховує завантаження обладнання; інші замовлення можуть використати ще не зарезервовані надходження."
+    },
+    {
+      "line_id": 5,
+      "item": "DEMO-101",
+      "remaining": "0.000",
+      "reserved": "0.000",
+      "free": "0.000",
+      "shortage": "0",
+      "materials": [
+        {
+          "item_id": 1,
+          "code": "MAT-101",
+          "name": "Навчальна сталева заготовка",
+          "unit": "кг",
+          "need": "0.0",
+          "available": "24.000",
+          "expected": "8.000",
+          "before_due": "8.000",
+          "deficit": "0"
+        },
+        {
+          "item_id": 2,
+          "code": "FAST-101",
+          "name": "Кріпильний елемент",
+          "unit": "шт.",
+          "need": "0",
+          "available": "60.000",
+          "expected": "20.000",
+          "before_due": "20.000",
+          "deficit": "0"
+        }
+      ],
+      "jobs": [],
+      "estimated_date": "2026-09-09",
+      "reasons": [],
+      "simulation": true,
+      "basis": "Календарні дні, наявні залишки та строки. Не враховує завантаження обладнання; інші замовлення можуть використати ще не зарезервовані надходження."
+    }
+  ],
+  "invoices": [
+    {
+      "invoice_id": 4,
+      "order_id": 3,
+      "lines": [
+        {
+          "line_id": 3,
+          "quantity": "12.000",
+          "price": "120.00"
+        }
+      ],
+      "code": "INV-SO-090",
+      "amount": "1440.00",
+      "paid": "1440.00",
+      "open": "0.00",
+      "due_date": "2026-10-10",
+      "currency": "EUR"
+    },
+    {
+      "invoice_id": 5,
+      "order_id": 4,
+      "lines": [
+        {
+          "line_id": 4,
+          "quantity": "8.000",
+          "price": "125.00"
+        }
+      ],
+      "code": "INV-SO-091",
+      "amount": "1000.00",
+      "paid": "600.00",
+      "open": "400.00",
+      "due_date": "2026-10-10",
+      "currency": "EUR"
+    },
+    {
+      "invoice_id": 6,
+      "order_id": 5,
+      "lines": [
+        {
+          "line_id": 5,
+          "quantity": "10.000",
+          "price": "120.00"
+        }
+      ],
+      "code": "INV-SO-092",
+      "amount": "1200.00",
+      "paid": "0.00",
+      "open": "1200.00",
+      "due_date": "2026-10-10",
+      "currency": "EUR"
+    }
+  ],
+  "costs": [
+    {
+      "order_id": 1,
+      "code": "SO-101",
+      "order_value": "6000.00000",
+      "shipped_value": "0.00000",
+      "shipped_cost": "0",
+      "gross_margin": "0.00000",
+      "currency": "EUR",
+      "basis": "Різниця вартості відвантаження й облікової собівартості; без податків та загальних витрат. Повернення показані окремо."
+    },
+    {
+      "order_id": 2,
+      "code": "SO-102",
+      "order_value": "625.00000",
+      "shipped_value": "0.00000",
+      "shipped_cost": "0",
+      "gross_margin": "0.00000",
+      "currency": "EUR",
+      "basis": "Різниця вартості відвантаження й облікової собівартості; без податків та загальних витрат. Повернення показані окремо."
+    },
+    {
+      "order_id": 3,
+      "code": "SO-090",
+      "order_value": "1440.00000",
+      "shipped_value": "1440.00000",
+      "shipped_cost": "444",
+      "gross_margin": "996.00000",
+      "currency": "EUR",
+      "basis": "Різниця вартості відвантаження й облікової собівартості; без податків та загальних витрат. Повернення показані окремо."
+    },
+    {
+      "order_id": 4,
+      "code": "SO-091",
+      "order_value": "1000.00000",
+      "shipped_value": "1000.00000",
+      "shipped_cost": "304",
+      "gross_margin": "696.00000",
+      "currency": "EUR",
+      "basis": "Різниця вартості відвантаження й облікової собівартості; без податків та загальних витрат. Повернення показані окремо."
+    },
+    {
+      "order_id": 5,
+      "code": "SO-092",
+      "order_value": "1200.00000",
+      "shipped_value": "1200.00000",
+      "shipped_cost": "390",
+      "gross_margin": "810.00000",
+      "currency": "EUR",
+      "basis": "Різниця вартості відвантаження й облікової собівартості; без податків та загальних витрат. Повернення показані окремо."
+    }
+  ],
+  "supplier_scores": [
+    {
+      "supplier_id": 1,
+      "name": "Навчальний постачальник A",
+      "orders": 2,
+      "receipts": 0,
+      "on_time_pct": null,
+      "inspections": 0,
+      "nonconformities": 0,
+      "rescheduled": 0,
+      "basis": "OTD за подіями приймання; невідповідності за записами перевірок. Без історії оцінка не обчислюється."
+    },
+    {
+      "supplier_id": 2,
+      "name": "Навчальний постачальник B",
+      "orders": 0,
+      "receipts": 0,
+      "on_time_pct": null,
+      "inspections": 0,
+      "nonconformities": 0,
+      "rescheduled": 0,
+      "basis": "OTD за подіями приймання; невідповідності за записами перевірок. Без історії оцінка не обчислюється."
+    },
+    {
+      "supplier_id": 3,
+      "name": "Навчальний постачальник C",
+      "orders": 0,
+      "receipts": 0,
+      "on_time_pct": null,
+      "inspections": 0,
+      "nonconformities": 0,
+      "rescheduled": 0,
+      "basis": "OTD за подіями приймання; невідповідності за записами перевірок. Без історії оцінка не обчислюється."
+    }
+  ],
+  "as_of": "2026-09-09",
+  "summary": {
+    "orders": 5,
+    "jobs": 1,
+    "blocked_lots": 1,
+    "late_purchases": 0,
+    "review_jobs": 0
+  },
+  "synthetic": true,
+  "product": "BoS",
+  "tools": {
+    "erp_item": {
+      "required": [
+        "code",
+        "name",
+        "unit",
+        "kind",
+        "method",
+        "revision",
+        "currency"
+      ],
+      "optional": [
+        "material",
+        "external_codes",
+        "required_documents",
+        "bom",
+        "routing",
+        "minimum",
+        "lead_days",
+        "planned_cost",
+        "document_id"
+      ]
+    },
+    "erp_location": {
+      "required": [
+        "code",
+        "name",
+        "kind"
+      ],
+      "optional": [
+        "supplier_id"
+      ]
+    },
+    "erp_order": {
+      "required": [
+        "code",
+        "customer_id",
+        "owner_id",
+        "due_date",
+        "currency",
+        "lines"
+      ],
+      "optional": [
+        "notes"
+      ]
+    },
+    "erp_confirm_order": {
+      "required": [
+        "order_id"
+      ],
+      "optional": []
+    },
+    "erp_opening": {
+      "required": [
+        "code",
+        "item_id",
+        "location_id",
+        "quantity",
+        "unit_cost",
+        "currency",
+        "revision"
+      ],
+      "optional": [
+        "documents",
+        "reason"
+      ]
+    },
+    "erp_purchase": {
+      "required": [
+        "code",
+        "item_id",
+        "supplier_id",
+        "quantity",
+        "price",
+        "currency",
+        "due_date",
+        "revision"
+      ],
+      "optional": [
+        "extras",
+        "production_id",
+        "request_id"
+      ]
+    },
+    "erp_receive": {
+      "required": [
+        "purchase_id",
+        "code",
+        "location_id",
+        "quantity"
+      ],
+      "optional": [
+        "documents"
+      ]
+    },
+    "erp_job": {
+      "required": [
+        "code",
+        "item_id",
+        "quantity",
+        "location_id",
+        "owner_id",
+        "due_date"
+      ],
+      "optional": [
+        "line_id"
+      ]
+    },
+    "erp_reserve": {
+      "required": [
+        "lot_id",
+        "quantity"
+      ],
+      "optional": [
+        "line_id",
+        "production_id"
+      ]
+    },
+    "erp_release": {
+      "required": [
+        "reservation_id",
+        "quantity"
+      ],
+      "optional": []
+    },
+    "erp_transfer": {
+      "required": [
+        "lot_id",
+        "quantity",
+        "location_id",
+        "code",
+        "reason"
+      ],
+      "optional": [
+        "production_id"
+      ]
+    },
+    "erp_quality": {
+      "required": [
+        "lot_id",
+        "result",
+        "inspector_id",
+        "note"
+      ],
+      "optional": []
+    },
+    "erp_attach": {
+      "required": [
+        "lot_id",
+        "kind",
+        "document_id"
+      ],
+      "optional": []
+    },
+    "erp_start": {
+      "required": [
+        "production_id"
+      ],
+      "optional": []
+    },
+    "erp_operator": {
+      "required": [
+        "production_id",
+        "operation",
+        "operator_id",
+        "result",
+        "minutes",
+        "defects"
+      ],
+      "optional": [
+        "note"
+      ]
+    },
+    "erp_finish": {
+      "required": [
+        "production_id",
+        "quantity",
+        "code",
+        "location_id",
+        "labor_cost"
+      ],
+      "optional": [
+        "documents"
+      ]
+    },
+    "erp_ship": {
+      "required": [
+        "line_id",
+        "lot_id",
+        "quantity",
+        "reference"
+      ],
+      "optional": []
+    },
+    "erp_return": {
+      "required": [
+        "line_id",
+        "lot_id",
+        "quantity",
+        "code",
+        "location_id",
+        "reason"
+      ],
+      "optional": []
+    },
+    "erp_invoice": {
+      "required": [
+        "order_id",
+        "code",
+        "due_date"
+      ],
+      "optional": []
+    },
+    "erp_payment": {
+      "required": [
+        "invoice_id",
+        "amount",
+        "reference"
+      ],
+      "optional": []
+    },
+    "erp_change": {
+      "required": [
+        "code",
+        "item_id",
+        "document_id",
+        "target_revision",
+        "reason"
+      ],
+      "optional": []
+    },
+    "erp_apply_change": {
+      "required": [
+        "change_id",
+        "disposition"
+      ],
+      "optional": []
+    },
+    "erp_resolve_job": {
+      "required": [
+        "production_id",
+        "disposition"
+      ],
+      "optional": []
+    },
+    "erp_postpone": {
+      "required": [
+        "purchase_id",
+        "due_date",
+        "reason"
+      ],
+      "optional": []
+    },
+    "erp_postpone_job": {
+      "required": [
+        "production_id",
+        "due_date",
+        "reason"
+      ],
+      "optional": []
+    },
+    "erp_adjust": {
+      "required": [
+        "lot_id",
+        "delta",
+        "reason"
+      ],
+      "optional": []
+    }
+  },
+  "instruction": "Навчальний приклад. Для виконання використовуй ID з поточної бази, а не цього файла. Лише одна дія після перевірки й погодження."
+}

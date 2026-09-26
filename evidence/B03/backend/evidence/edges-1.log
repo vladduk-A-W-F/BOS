@@ -1,0 +1,89 @@
+Creating test database for alias 'default' ('/workspace/scratch/c7b51e996a9f/tmp/b03_candidate/check_edges.sqlite3_django_test')...
+Destroying old test database for alias 'default' ('/workspace/scratch/c7b51e996a9f/tmp/b03_candidate/check_edges.sqlite3_django_test')...
+Found 15 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: django_filters, messages, rest_framework, staticfiles
+  Apply all migrations: admin, ai_assistant, auth, branches, contenttypes, employees, erp, finance, operations, sessions, tasks
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying ai_assistant.0001_initial... OK
+  Applying ai_assistant.0002_taskchangelog... OK
+  Applying ai_assistant.0003_claudeusagelog... OK
+  Applying ai_assistant.0004_employeechangelog... OK
+  Applying ai_assistant.0005_chatfile... OK
+  Applying ai_assistant.0006_alter_chatmessage_created_at_and_more... OK
+  Applying ai_assistant.0007_employeechangelog_undone_at... OK
+  Applying ai_assistant.0008_chatmessage_archived_at_chatmessage_user_and_more... OK
+  Applying ai_assistant.0009_private_documents... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying branches.0001_initial... OK
+  Applying branches.0002_branch_short_name... OK
+  Applying branches.0003_fill_short_names... OK
+  Applying employees.0001_initial... OK
+  Applying employees.0002_alter_employee_department... OK
+  Applying employees.0003_employee_branch... OK
+  Applying employees.0004_employee_archived_at... OK
+  Applying employees.0005_employee_user... OK
+  Applying tasks.0001_initial... OK
+  Applying tasks.0002_alter_task_priority... OK
+  Applying tasks.0003_alter_task_deadline_alter_task_priority_and_more... OK
+  Applying tasks.0004_task_branch... OK
+  Applying finance.0001_initial... OK
+  Applying finance.0002_alter_salary_unique_together_alter_contract_status_and_more... OK
+  Applying finance.0003_transaction_branch... OK
+  Applying operations.0001_initial... OK
+  Applying operations.0002_actionproposal_user... OK
+  Applying operations.0003_loginattempt... OK
+  Applying operations.0004_alter_document_options_document_access_level... OK
+  Applying operations.0005_invoice_boundaries... OK
+  Applying operations.0006_private_documents... OK
+  Applying finance.0004_salary_archived_at_transaction_archived_at_and_more... OK
+  Applying finance.0005_alter_transaction_branch_alter_transaction_contract_and_more... OK
+  Applying finance.0006_financialintent... OK
+  Applying finance.0007_money_boundaries... OK
+  Applying erp.0001_initial... OK
+  Applying erp.0002_row_boundaries... OK
+  Applying erp.0003_purchase_source... OK
+  Applying erp.0004_initial_import_ledger... OK
+  Applying erp.0005_source_corrections... OK
+  Applying sessions.0001_initial...test_actual_http_correction_under_low_decimal_context_is_exact (erp.test_corrections.CorrectionTests.test_actual_http_correction_under_low_decimal_context_is_exact) ... ok
+test_cancel_remaining_releases_newest_own_reserves_without_gross_or_stock_rewrite (erp.test_corrections.CorrectionTests.test_cancel_remaining_releases_newest_own_reserves_without_gross_or_stock_rewrite) ... ok
+test_cancelled_component_purchase_does_not_delay_bom_plan (erp.test_corrections.CorrectionTests.test_cancelled_component_purchase_does_not_delay_bom_plan) ... ok
+test_cent_invoice_basis_zero_and_nonzero_budgets_return_then_reversal (erp.test_corrections.CorrectionTests.test_cent_invoice_basis_zero_and_nonzero_budgets_return_then_reversal) ... ok
+test_commercial_and_physical_credit_share_money_cap_without_silent_clamp (erp.test_corrections.CorrectionTests.test_commercial_and_physical_credit_share_money_cap_without_silent_clamp) ... ok
+test_credit_and_full_reversal_share_settlement_without_rewriting_invoice_or_cash (erp.test_corrections.CorrectionTests.test_credit_and_full_reversal_share_settlement_without_rewriting_invoice_or_cash) ... ok
+test_exact_customer_return_creates_blocked_lot_and_preserves_legacy_aggregate_cap (erp.test_corrections.CorrectionTests.test_exact_customer_return_creates_blocked_lot_and_preserves_legacy_aggregate_cap) ... ok
+test_expired_proposal_new_login_and_old_history_recover_only_original_readonly_result (erp.test_corrections.CorrectionTests.test_expired_proposal_new_login_and_old_history_recover_only_original_readonly_result) ... ok
+test_historical_return_source_scope_controls_rows_claims_events_replay_and_outcome (erp.test_corrections.CorrectionTests.test_historical_return_source_scope_controls_rows_claims_events_replay_and_outcome) ... ok
+test_imported_po_uses_only_current_quantity_and_keeps_import_receipt (erp.test_corrections.CorrectionTests.test_imported_po_uses_only_current_quantity_and_keeps_import_receipt) ... ok
+test_late_sql_failure_rolls_back_return_claim_event_and_same_intent_can_retry (erp.test_corrections.CorrectionTests.test_late_sql_failure_rolls_back_return_claim_event_and_same_intent_can_retry) ... ok
+test_source_cost_is_conserved_across_three_split_returns_in_every_currency (erp.test_corrections.CorrectionTests.test_source_cost_is_conserved_across_three_split_returns_in_every_currency) ... ok
+test_supplier_return_keeps_receipt_gross_pending_claim_and_no_cash (erp.test_corrections.CorrectionTests.test_supplier_return_keeps_receipt_gross_pending_claim_and_no_cash) ... ok
+test_supplier_return_preview_keeps_existing_source_lot (erp.test_corrections.CorrectionTests.test_supplier_return_preview_keeps_existing_source_lot) ... ok
+test_zero_supplier_confirmation_is_distinct_from_pending_and_has_verified_source (erp.test_corrections.CorrectionTests.test_zero_supplier_confirmation_is_distinct_from_pending_and_has_verified_source) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 12.295s
+
+OK
+Destroying test database for alias 'default' ('/workspace/scratch/c7b51e996a9f/tmp/b03_candidate/check_edges.sqlite3_django_test')...
+ OK
+System check identified no issues (0 silenced).

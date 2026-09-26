@@ -1,0 +1,27 @@
+{
+  "scope": "actual A09 supervisor missing A10 control",
+  "expected": "private control endpoint and quiesce RPC",
+  "actual_https_ready": {
+    "live": 200,
+    "ready": 200
+  },
+  "control_receipt_exists": false,
+  "red_observed": true,
+  "stopped": {
+    "event": "bos.bundle.stopped",
+    "installation_id": "6ae68f74-c09a-4176-9fc7-cacd6f93c93a",
+    "children": [
+      {
+        "runtime": "caddy",
+        "exit_code": 0,
+        "forced": false
+      },
+      {
+        "runtime": "waitress",
+        "exit_code": 0,
+        "forced": false
+      }
+    ]
+  },
+  "process_exit": 0
+}

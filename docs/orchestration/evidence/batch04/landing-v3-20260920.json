@@ -1,0 +1,112 @@
+{
+  "schema": 1,
+  "status": "PUBLISHED_ACCEPT_SCOPED_LANDING_NAVIGATION",
+  "acceptance_scope": "landing_and_navigation_only",
+  "landing_navigation_acceptance": true,
+  "full_transactional_demo_e2e": false,
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "source_repository_is_separate_from_github": true,
+  "source_commit": "ce0322034971a1ddc5cd66470e3792bb26f56493",
+  "version": {
+    "id": "appgprj_6aa9057b8e5c8191abe7685fb7c9f145~appgver_0c7af09216588191a7e3a35d030c8efc",
+    "project_id": "appgprj_6aa9057b8e5c8191abe7685fb7c9f145",
+    "version_number": 3,
+    "source": {
+      "commit_sha": "ce0322034971a1ddc5cd66470e3792bb26f56493"
+    },
+    "archive_storage": {
+      "archive_format": "tar",
+      "sediment_file_id": "file_00000000ce6c8210945d01a454303322",
+      "content_hash": "sha256:3a3b5bc4743db4834352a79447e099c344a50d9ea4d345373c1a95efc200a5dd",
+      "size_bytes": 358400,
+      "file_count": 12
+    },
+    "screenshot_url": null,
+    "deployment_id": null
+  },
+  "deployment": {
+    "id": "appgdep_6aafd80d7dc48191bd0e9f2d4b5711b3",
+    "project_id": "appgprj_6aa9057b8e5c8191abe7685fb7c9f145",
+    "title": "BoS · Industrial Workspace",
+    "version_id": "appgprj_6aa9057b8e5c8191abe7685fb7c9f145~appgver_0c7af09216588191a7e3a35d030c8efc",
+    "type": "publish",
+    "status": "succeeded",
+    "url": "https://business-operating-system.vladduk134.chatgpt.site",
+    "screenshot_asset_pointer": null,
+    "provider_deployment_id": "site---6aa9057b8e5c8191abe7685fb7c9f145",
+    "failure_message": null,
+    "env_set_revision": 0,
+    "updated_at": "2026-09-20T12:56:59.878586+00:00"
+  },
+  "access": {
+    "id": "appgprj_6aa9057b8e5c8191abe7685fb7c9f145",
+    "latest_version_number": 3,
+    "url": "https://business-operating-system.vladduk134.chatgpt.site",
+    "access_mode": "public",
+    "revision": 2,
+    "updated_at": "2026-09-20T11:50:53.890750+00:00"
+  },
+  "access_changed": false,
+  "local_archive_sha256": "9d44db6827f3ddcd4366f5a6ee46a403399afcc794661d33d5eae56e49921edc",
+  "archive_hash_note": "Local gzip hash differs from Sites normalized tar content_hash; native save reported 12 files.",
+  "packaging": {
+    "build": "node build.cjs",
+    "normalizer": "official prepare-site-build.cjs",
+    "archive": "Windows tar -czf",
+    "reason": "Official JS package wrapper could not start its Bash subprocess; Bash absent. Used its official normalization helper with the same dist archive contract.",
+    "domain_model_seed_storage_unchanged": true
+  },
+  "checks": {
+    "desktop_tabs_and_keyboard": "PASS_V2_UNCHANGED_CODE",
+    "mobile_viewports": [
+      {
+        "width": 390,
+        "height": 844,
+        "document_scroll_width": 375
+      },
+      {
+        "width": 320,
+        "height": 740,
+        "document_scroll_width": 305
+      }
+    ],
+    "mobile_interactions": "PASS",
+    "return_link": "PASS_V3",
+    "legacy_hashchange_live_routes": [
+      "orders",
+      "procurement",
+      "production",
+      "finance"
+    ],
+    "legacy_initial_load_with_suffix": "PASS /#orders/SO-101 -> /demo/#orders/SO-101 (suffix preserved; record auto-open not claimed)",
+    "legacy_unit_all_14_modules": "PASS",
+    "anchors": "PASS #product stays on landing",
+    "search_accessible_name": "PASS Знайти в BoS",
+    "settings_access_text": "PASS neutral description",
+    "domain_test": "PASS 20 committed operations on isolated in-memory synthetic data, not browser/backend E2E",
+    "linked_scenarios": "PASS read-only SO101/MO101/POFAST and SO090/invoice/shipment/payment references",
+    "preview_cancel": "PASS proposed payment 100, receivables 1600->1500 preview, cancelled and unchanged after reload",
+    "viewport_override_reset": true
+  },
+  "resolved_findings": [
+    "legacy links ignored same-document hashchange",
+    "mobile heading words glued across hidden br",
+    "mobile search button lacked accessible name",
+    "demo copy asserted private access despite existing public policy"
+  ],
+  "console": {
+    "clean_console_claimed": false,
+    "observed": "Six asynchronous listener/message-channel errors in browser log, two after v3 publication; no failed UI action observed in postpublication QA.",
+    "classification": "Origin not conclusively established; not used as proof of a clean console."
+  },
+  "evidence": {
+    "observations": "docs/orchestration/evidence/batch04/browser-v3-observations-20260920.json",
+    "checks": "docs/orchestration/evidence/batch04/site-v3-checks-20260920.json",
+    "prior_partial": "docs/orchestration/evidence/batch04/browser-followup-20260920.json",
+    "observations_sha256": "57768c11c3f82e5ab8a60531aaaa3f084c593a3195799551f4ce93217191e9d5",
+    "observation_count": 24,
+    "checks_sha256": "4734c122d1dc1999545ef55f57b2fa6bc6a890d687d802c6fd0a631c34e5987f"
+  },
+  "review": "ACCEPT_SCOPED"
+}

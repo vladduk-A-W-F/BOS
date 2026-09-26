@@ -1,0 +1,715 @@
+{
+  "source": "evidence/A04/before.log",
+  "groups": {
+    "test_context_rechecks_actual_group_and_document_permission_without_cache": [
+      {
+        "kind": "ERROR",
+        "problem": "TypeError: _build_finance_context() takes 0 positional arguments but 1 was given"
+      }
+    ],
+    "test_context_without_principal_cannot_read_business_sources": [
+      {
+        "kind": "ERROR",
+        "problem": "TypeError: _build_tasks_context() takes 0 positional arguments but 1 was given"
+      },
+      {
+        "kind": "ERROR",
+        "problem": "TypeError: _build_employees_context() takes 0 positional arguments but 1 was given"
+      },
+      {
+        "kind": "ERROR",
+        "problem": "TypeError: _build_finance_context() takes 0 positional arguments but 1 was given"
+      }
+    ],
+    "test_legacy_context_uses_request_and_ignores_global_finance_cache": [
+      {
+        "kind": "ERROR",
+        "problem": "TypeError: _build_finance_context() takes 0 positional arguments but 1 was given"
+      }
+    ],
+    "test_audit_payload_is_filtered_before_response": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04_CEO_DOCUMENT_SECRET' unexpectedly found in '{\"items\": [{\"id\": \"44511564-4847-4606-85f9-0ce2f87b644e\", \"action\": \"erp_payment\", \"task_id\": null, \"payload\": {\"invoice_id\": 1, \"amount\": \"77771.13\", \"document_id\": 3, \"note\": \"A04_CEO_DOCUMENT_SECRET\"}, \"created_at\": \"2026-09-11T19:41:51.292Z\"}]}'"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04_CEO_DOCUMENT_SECRET' unexpectedly found in '{\"items\": [{\"id\": \"44511564-4847-4606-85f9-0ce2f87b644e\", \"action\": \"erp_payment\", \"task_id\": null, \"payload\": {\"invoice_id\": 1, \"amount\": \"77771.13\", \"document_id\": 3, \"note\": \"A04_CEO_DOCUMENT_SECRET\"}, \"created_at\": \"2026-09-11T19:41:51.292Z\"}]}'"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: {'amount'} is not false : {'amount'}"
+      }
+    ],
+    "test_dashboard_activity_hides_hr_events_but_ceo_can_read_them": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04_HR_EVENT_SECRET' unexpectedly found in '[{\"icon\": \"task_update\", \"text\": \"Співробітника A04_HR_EVENT_SECRET змінено\", \"time\": \"2026-09-11T19:41:51.292266+00:00\"}]'"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04_HR_EVENT_SECRET' unexpectedly found in '[{\"icon\": \"task_update\", \"text\": \"Співробітника A04_HR_EVENT_SECRET змінено\", \"time\": \"2026-09-11T19:41:51.292266+00:00\"}]'"
+      }
+    ],
+    "test_dashboard_summary_and_helicopter_have_no_financial_side_channel": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: {'cash_flow', 'net_profit', 'net_margin', 'payable', 'expenses', 'ebitda', 'revenue_pct', 'receivable', 'revenue'} is not false : {'cash_flow', 'net_profit', 'net_margin', 'payable', 'expenses', 'ebitda', 'revenue_pct', 'receivable', 'revenue'}"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'finance' unexpectedly found in ['finance', 'tasks', 'branches', 'team']"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: {'cash_flow', 'net_profit', 'net_margin', 'payable', 'expenses', 'ebitda', 'revenue_pct', 'receivable', 'revenue'} is not false : {'cash_flow', 'net_profit', 'net_margin', 'payable', 'expenses', 'ebitda', 'revenue_pct', 'receivable', 'revenue'}"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'finance' unexpectedly found in ['finance', 'tasks', 'branches', 'team']"
+      }
+    ],
+    "test_hidden_erp_order_and_change_have_no_detail_draft_or_next_route": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 404 : ('/api/erp/orders/2/next/', 200, '{\"title\": \"Зарезервувати готову продукцію\", \"why\": \"Закріпіть доступну партію за цим замовленням.\", \"payload\": {\"action\": \"erp_reserve\", \"lot_id\": 2, \"line_id\": 2, \"quantity\": \"7.000\"}}')"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 404 : ('/api/erp/orders/2/draft/', 200, 'BoS · Чернетка уточнення щодо A04-SO-HIDDEN\\nНе надіслано\\n\\nПросимо підтвердити доступність, строк і комплектність документів для замовлення.\\n\\nA04-HIDDEN-ITEM: залишок до поставки 7.000; розрахункова дата 2026-09-11; уточнити остаточний графік')"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 404 : ('/api/erp/changes/2/impact/', 200, '{\"change\": \"A04-HIDDEN-CHANGE\", \"revision\": \"A\", \"jobs\": [], \"orders\": [{\"id\": 2, \"code\": \"A04-SO-HIDDEN\", \"due_date\": \"2026-12-10\"}]}')"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 404 : ('/api/erp/orders/2/next/', 200, '{\"title\": \"Зарезервувати готову продукцію\", \"why\": \"Закріпіть доступну партію за цим замовленням.\", \"payload\": {\"action\": \"erp_reserve\", \"lot_id\": 2, \"line_id\": 2, \"quantity\": \"7.000\"}}')"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 404 : ('/api/erp/orders/2/draft/', 200, 'BoS · Чернетка уточнення щодо A04-SO-HIDDEN\\nНе надіслано\\n\\nПросимо підтвердити доступність, строк і комплектність документів для замовлення.\\n\\nA04-HIDDEN-ITEM: залишок до поставки 7.000; розрахункова дата 2026-09-11; уточнити остаточний графік')"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 404 : ('/api/erp/changes/2/impact/', 200, '{\"change\": \"A04-HIDDEN-CHANGE\", \"revision\": \"A\", \"jobs\": [], \"orders\": [{\"id\": 2, \"code\": \"A04-SO-HIDDEN\", \"due_date\": \"2026-12-10\"}]}')"
+      }
+    ],
+    "test_manager_snapshot_retains_allowed_procurement_prices_not_ceo_sources": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04_CEO_DOCUMENT_SECRET' unexpectedly found in '{\"items\": [{\"id\": 1, \"code\": \"A04-ITEM\", \"name\": \"Виріб A04\", \"unit\": \"шт.\", \"kind\": \"product\", \"method\": \"buy\", \"revision\": \"A\", \"document_id\": 1, \"material\": \"\", \"external_codes\": {}, \"required_documents\": [], \"bom\": [], \"routing\": [], \"minimum\": \"0.000"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04_CEO_VERSION_SECRET' unexpectedly found in '{\"items\": [{\"id\": 1, \"code\": \"A04-ITEM\", \"name\": \"Виріб A04\", \"unit\": \"шт.\", \"kind\": \"product\", \"method\": \"buy\", \"revision\": \"A\", \"document_id\": 1, \"material\": \"\", \"external_codes\": {}, \"required_documents\": [], \"bom\": [], \"routing\": [], \"minimum\": \"0.000\""
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 2 unexpectedly found in [1, 2]"
+      }
+    ],
+    "test_observer_next_step_cannot_disclose_payment_amount_or_ceo_action": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: {'amount'} is not false : {'amount'}"
+      }
+    ],
+    "test_observer_snapshot_retains_operations_without_money_or_private_records": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: {'amount', 'unit_cost', 'order_value', 'stock_value', 'planned_cost', 'cost', 'paid', 'purchase_open', 'receivable', 'shipped_cost', 'extras', 'open', 'shipped_value', 'gross_margin', 'price'} is not false : {'amount', 'unit_cost', 'order_value', 'stock_value', 'planned_cost', 'cost', 'paid', 'purchase_"
+      }
+    ],
+    "test_operations_summary_finance_is_filtered_for_non_ceo": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: {'amount', 'open', 'paid', 'receivables'} is not false : {'amount', 'open', 'paid', 'receivables'}"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: {'amount', 'open', 'paid', 'receivables'} is not false : {'amount', 'open', 'paid', 'receivables'}"
+      }
+    ],
+    "test_ceo_history_stays_private_after_same_owner_is_downgraded": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04_PRIOR_CEO_ONLY' unexpectedly found in '[{\"id\": 1, \"role\": \"assistant\", \"content\": \"A04_PRIOR_CEO_ONLY 77771.13\", \"created_at\": \"2026-09-11T21:41:51.510274+02:00\", \"file_name\": null}]'"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: '77771.13' unexpectedly found in '[{\"id\": 1, \"role\": \"assistant\", \"content\": \"A04_PRIOR_CEO_ONLY 77771.13\", \"created_at\": \"2026-09-11T21:41:51.510274+02:00\", \"file_name\": null}]'"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04_PRIOR_CEO_ONLY' unexpectedly found in '[{\"id\": 1, \"role\": \"assistant\", \"content\": \"A04_PRIOR_CEO_ONLY 77771.13\", \"created_at\": \"2026-09-11T21:41:51.510274+02:00\", \"file_name\": null}]'"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: '77771.13' unexpectedly found in '[{\"id\": 1, \"role\": \"assistant\", \"content\": \"A04_PRIOR_CEO_ONLY 77771.13\", \"created_at\": \"2026-09-11T21:41:51.510274+02:00\", \"file_name\": null}]'"
+      }
+    ],
+    "test_chat_history_is_owned_and_legacy_null_owner_never_leaks": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04_MANAGER_CHAT_OWN' unexpectedly found in '[{\"id\": 1, \"role\": \"assistant\", \"content\": \"A04_CEO_CHAT_PRIVATE\", \"created_at\": \"2026-09-11T21:41:51.574665+02:00\", \"file_name\": null}, {\"id\": 2, \"role\": \"assistant\", \"content\": \"A04_MANAGER_CHAT_OWN\", \"created_at\": \"2026-09-11T21:41:51.580544+02:00\", \"file"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04_OBSERVER_CHAT_OWN' unexpectedly found in '[{\"id\": 1, \"role\": \"assistant\", \"content\": \"A04_CEO_CHAT_PRIVATE\", \"created_at\": \"2026-09-11T21:41:51.574665+02:00\", \"file_name\": null}, {\"id\": 2, \"role\": \"assistant\", \"content\": \"A04_MANAGER_CHAT_OWN\", \"created_at\": \"2026-09-11T21:41:51.580544+02:00\", \"fil"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04_LEGACY_UNOWNED_CHAT_SECRET' unexpectedly found in '[{\"id\": 1, \"role\": \"assistant\", \"content\": \"A04_CEO_CHAT_PRIVATE\", \"created_at\": \"2026-09-11T21:41:51.574665+02:00\", \"file_name\": null}, {\"id\": 2, \"role\": \"assistant\", \"content\": \"A04_MANAGER_CHAT_OWN\", \"created_at\": \"2026-09-11T21:41:51.580544+02:"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04_CEO_CHAT_PRIVATE' unexpectedly found in '[{\"id\": 1, \"role\": \"assistant\", \"content\": \"A04_CEO_CHAT_PRIVATE\", \"created_at\": \"2026-09-11T21:41:51.574665+02:00\", \"file_name\": null}, {\"id\": 2, \"role\": \"assistant\", \"content\": \"A04_MANAGER_CHAT_OWN\", \"created_at\": \"2026-09-11T21:41:51.580544+02:00\", \"file"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04_OBSERVER_CHAT_OWN' unexpectedly found in '[{\"id\": 1, \"role\": \"assistant\", \"content\": \"A04_CEO_CHAT_PRIVATE\", \"created_at\": \"2026-09-11T21:41:51.574665+02:00\", \"file_name\": null}, {\"id\": 2, \"role\": \"assistant\", \"content\": \"A04_MANAGER_CHAT_OWN\", \"created_at\": \"2026-09-11T21:41:51.580544+02:00\", \"fil"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04_LEGACY_UNOWNED_CHAT_SECRET' unexpectedly found in '[{\"id\": 1, \"role\": \"assistant\", \"content\": \"A04_CEO_CHAT_PRIVATE\", \"created_at\": \"2026-09-11T21:41:51.574665+02:00\", \"file_name\": null}, {\"id\": 2, \"role\": \"assistant\", \"content\": \"A04_MANAGER_CHAT_OWN\", \"created_at\": \"2026-09-11T21:41:51.580544+02:"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04_CEO_CHAT_PRIVATE' unexpectedly found in '[{\"id\": 1, \"role\": \"assistant\", \"content\": \"A04_CEO_CHAT_PRIVATE\", \"created_at\": \"2026-09-11T21:41:51.574665+02:00\", \"file_name\": null}, {\"id\": 2, \"role\": \"assistant\", \"content\": \"A04_MANAGER_CHAT_OWN\", \"created_at\": \"2026-09-11T21:41:51.580544+02:00\", \"file"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04_MANAGER_CHAT_OWN' unexpectedly found in '[{\"id\": 1, \"role\": \"assistant\", \"content\": \"A04_CEO_CHAT_PRIVATE\", \"created_at\": \"2026-09-11T21:41:51.574665+02:00\", \"file_name\": null}, {\"id\": 2, \"role\": \"assistant\", \"content\": \"A04_MANAGER_CHAT_OWN\", \"created_at\": \"2026-09-11T21:41:51.580544+02:00\", \"file"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04_LEGACY_UNOWNED_CHAT_SECRET' unexpectedly found in '[{\"id\": 1, \"role\": \"assistant\", \"content\": \"A04_CEO_CHAT_PRIVATE\", \"created_at\": \"2026-09-11T21:41:51.574665+02:00\", \"file_name\": null}, {\"id\": 2, \"role\": \"assistant\", \"content\": \"A04_MANAGER_CHAT_OWN\", \"created_at\": \"2026-09-11T21:41:51.580544+02:"
+      }
+    ],
+    "test_local_assistant_manager_keeps_allowed_comparison_but_no_closed_sources": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'Q12' unexpectedly found in '{\"mode\": \"local_scenario\", \"sources\": [{\"id\": 1, \"label\": \"Q11\"}, {\"id\": 3, \"label\": \"Q12\"}, {\"id\": 2, \"label\": \"Q13\"}], \"text\": \"Q11: 13825.24 EUR; відповідає вимогам\\\\nQ12: 13828.24 EUR; відповідає вимогам\\\\nQ13: 13831.24 EUR; відповідає вимогам\\\\nРекомендація: Q11. Без ПД"
+      }
+    ],
+    "test_local_assistant_observer_has_no_financial_answer_or_hidden_sources": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: '77771.13' unexpectedly found in '{\"mode\": \"local_scenario\", \"sources\": [], \"text\": \"Зріз: 2026-09-11. Прострочених доручень: 1. Дебіторська заборгованість EUR: 77771.13, прострочено 77771.13. Дебіторська заборгованість UAH: 99993.35, прострочено 99993.35. Дебіторська заборгованість USD: 88882.24, прост"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: '88882.24' unexpectedly found in '{\"mode\": \"local_scenario\", \"sources\": [], \"text\": \"Зріз: 2026-09-11. Прострочених доручень: 1. Дебіторська заборгованість EUR: 77771.13, прострочено 77771.13. Дебіторська заборгованість UAH: 99993.35, прострочено 99993.35. Дебіторська заборгованість USD: 88882.24, прост"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: '99993.35' unexpectedly found in '{\"mode\": \"local_scenario\", \"sources\": [], \"text\": \"Зріз: 2026-09-11. Прострочених доручень: 1. Дебіторська заборгованість EUR: 77771.13, прострочено 77771.13. Дебіторська заборгованість UAH: 99993.35, прострочено 99993.35. Дебіторська заборгованість USD: 88882.24, прост"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: '123456.78' unexpectedly found in '{\"mode\": \"local_scenario\", \"sources\": [], \"text\": \"Зріз: 2026-09-11. Прострочених доручень: 1. Дебіторська заборгованість EUR: 77771.13, прострочено 77771.13. Дебіторська заборгованість UAH: 99993.35, прострочено 99993.35. Дебіторська заборгованість USD: 88882.24, прос"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: '77771.13' unexpectedly found in '{\"mode\": \"local_scenario\", \"sources\": [], \"text\": \"Зріз: 2026-09-11. Прострочених доручень: 1. Дебіторська заборгованість EUR: 77771.13, прострочено 77771.13. Дебіторська заборгованість UAH: 99993.35, прострочено 99993.35. Дебіторська заборгованість USD: 88882.24, прост"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: '88882.24' unexpectedly found in '{\"mode\": \"local_scenario\", \"sources\": [], \"text\": \"Зріз: 2026-09-11. Прострочених доручень: 1. Дебіторська заборгованість EUR: 77771.13, прострочено 77771.13. Дебіторська заборгованість UAH: 99993.35, прострочено 99993.35. Дебіторська заборгованість USD: 88882.24, прост"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: '99993.35' unexpectedly found in '{\"mode\": \"local_scenario\", \"sources\": [], \"text\": \"Зріз: 2026-09-11. Прострочених доручень: 1. Дебіторська заборгованість EUR: 77771.13, прострочено 77771.13. Дебіторська заборгованість UAH: 99993.35, прострочено 99993.35. Дебіторська заборгованість USD: 88882.24, прост"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: '123456.78' unexpectedly found in '{\"mode\": \"local_scenario\", \"sources\": [], \"text\": \"Зріз: 2026-09-11. Прострочених доручень: 1. Дебіторська заборгованість EUR: 77771.13, прострочено 77771.13. Дебіторська заборгованість UAH: 99993.35, прострочено 99993.35. Дебіторська заборгованість USD: 88882.24, прос"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: '77771.13' unexpectedly found in '{\"mode\": \"local_scenario\", \"sources\": [], \"text\": \"A04-SO-OPEN: відвантаження 26172.84000, собівартість 17287.9200000000, різниця 8884.9200000000 EUR.\\\\nA04-SO-HIDDEN: відвантаження 0.00000, собівартість 0, різниця 0.00000 EUR.\\\\nA04-INV-EUR: до оплати 77771.13 EUR до 2"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: '88882.24' unexpectedly found in '{\"mode\": \"local_scenario\", \"sources\": [], \"text\": \"A04-SO-OPEN: відвантаження 26172.84000, собівартість 17287.9200000000, різниця 8884.9200000000 EUR.\\\\nA04-SO-HIDDEN: відвантаження 0.00000, собівартість 0, різниця 0.00000 EUR.\\\\nA04-INV-EUR: до оплати 77771.13 EUR до 2"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: '99993.35' unexpectedly found in '{\"mode\": \"local_scenario\", \"sources\": [], \"text\": \"A04-SO-OPEN: відвантаження 26172.84000, собівартість 17287.9200000000, різниця 8884.9200000000 EUR.\\\\nA04-SO-HIDDEN: відвантаження 0.00000, собівартість 0, різниця 0.00000 EUR.\\\\nA04-INV-EUR: до оплати 77771.13 EUR до 2"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04-SO-HIDDEN' unexpectedly found in '{\"mode\": \"local_scenario\", \"sources\": [], \"text\": \"A04-SO-OPEN: відвантаження 26172.84000, собівартість 17287.9200000000, різниця 8884.9200000000 EUR.\\\\nA04-SO-HIDDEN: відвантаження 0.00000, собівартість 0, різниця 0.00000 EUR.\\\\nA04-INV-EUR: до оплати 77771.13 EUR"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: '77771.13' unexpectedly found in '{\"mode\": \"local_scenario\", \"sources\": [], \"text\": \"A04-SO-OPEN: відвантаження 26172.84000, собівартість 17287.9200000000, різниця 8884.9200000000 EUR.\\\\nA04-SO-HIDDEN: відвантаження 0.00000, собівартість 0, різниця 0.00000 EUR.\\\\nA04-INV-EUR: до оплати 77771.13 EUR до 2"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: '88882.24' unexpectedly found in '{\"mode\": \"local_scenario\", \"sources\": [], \"text\": \"A04-SO-OPEN: відвантаження 26172.84000, собівартість 17287.9200000000, різниця 8884.9200000000 EUR.\\\\nA04-SO-HIDDEN: відвантаження 0.00000, собівартість 0, різниця 0.00000 EUR.\\\\nA04-INV-EUR: до оплати 77771.13 EUR до 2"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: '99993.35' unexpectedly found in '{\"mode\": \"local_scenario\", \"sources\": [], \"text\": \"A04-SO-OPEN: відвантаження 26172.84000, собівартість 17287.9200000000, різниця 8884.9200000000 EUR.\\\\nA04-SO-HIDDEN: відвантаження 0.00000, собівартість 0, різниця 0.00000 EUR.\\\\nA04-INV-EUR: до оплати 77771.13 EUR до 2"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'Q12' unexpectedly found in '{\"mode\": \"local_scenario\", \"sources\": [{\"id\": 1, \"label\": \"Q11\"}, {\"id\": 3, \"label\": \"Q12\"}, {\"id\": 2, \"label\": \"Q13\"}], \"text\": \"Q11: 13825.24 EUR; відповідає вимогам\\\\nQ12: 13828.24 EUR; відповідає вимогам\\\\nQ13: 13831.24 EUR; відповідає вимогам\\\\nРекомендація: Q11. Без ПД"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: '13825.24' unexpectedly found in '{\"mode\": \"local_scenario\", \"sources\": [{\"id\": 1, \"label\": \"Q11\"}, {\"id\": 3, \"label\": \"Q12\"}, {\"id\": 2, \"label\": \"Q13\"}], \"text\": \"Q11: 13825.24 EUR; відповідає вимогам\\\\nQ12: 13828.24 EUR; відповідає вимогам\\\\nQ13: 13831.24 EUR; відповідає вимогам\\\\nРекомендація: Q11. Б"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'R02:' unexpectedly found in '{\"mode\": \"local_scenario\", \"sources\": [], \"text\": \"R02: відповідальна особа — Синтетичний Працівник A04. Джерело: картка заявки.\"}'"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04-SO-HIDDEN' unexpectedly found in '{\"mode\": \"local_scenario\", \"sources\": [], \"text\": \"Замовлення A04-SO-HIDDEN · клієнт Покупець A04 · до 2026-12-10\\\\nA04-HIDDEN-ITEM: поставити ще 7.000, придатний резерв 0, вільно 10.000, забезпечити 0.\\\\nРозрахункова дата 2026-09-11. Погодьте остаточний строк із в"
+      }
+    ],
+    "test_own_history_delete_archives_preserving_foreign_rows_files_and_bytes": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: Items in the second set but not the first:"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: Items in the second set but not the first:"
+      }
+    ],
+    "test_private_chat_file_cannot_leak_through_other_history_or_public_media": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04_FILE_MESSAGE_PRIVATE' unexpectedly found in '[{\"id\": 1, \"role\": \"assistant\", \"content\": \"A04_FILE_MESSAGE_PRIVATE\", \"created_at\": \"2026-09-11T21:41:51.719364+02:00\", \"file_name\": \"A04_PRIVATE_CHAT_FILENAME.txt\"}]'"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04_PRIVATE_CHAT_FILENAME.txt' unexpectedly found in '[{\"id\": 1, \"role\": \"assistant\", \"content\": \"A04_FILE_MESSAGE_PRIVATE\", \"created_at\": \"2026-09-11T21:41:51.719364+02:00\", \"file_name\": \"A04_PRIVATE_CHAT_FILENAME.txt\"}]'"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04_FILE_MESSAGE_PRIVATE' unexpectedly found in '[{\"id\": 1, \"role\": \"assistant\", \"content\": \"A04_FILE_MESSAGE_PRIVATE\", \"created_at\": \"2026-09-11T21:41:51.719364+02:00\", \"file_name\": \"A04_PRIVATE_CHAT_FILENAME.txt\"}]'"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04_PRIVATE_CHAT_FILENAME.txt' unexpectedly found in '[{\"id\": 1, \"role\": \"assistant\", \"content\": \"A04_FILE_MESSAGE_PRIVATE\", \"created_at\": \"2026-09-11T21:41:51.719364+02:00\", \"file_name\": \"A04_PRIVATE_CHAT_FILENAME.txt\"}]'"
+      }
+    ],
+    "test_compare_keeps_allowed_quotes_without_hidden_rows_or_observer_prices": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'Q12' unexpectedly found in {'Q13', 'Q11', 'Q12'}"
+      }
+    ],
+    "test_contract_details_aliases_respect_document_scope_and_financial_fields": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 3 unexpectedly found in {1, 2, 3}"
+      }
+    ],
+    "test_document_classification_defaults_and_chat_owner_schema_exist": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'access_level' not found in {'id': <django.db.models.fields.BigAutoField: id>, 'code': <django.db.models.fields.CharField: code>, 'revision': <django.db.models.fields.CharField: revision>, 'title': <django.db.models.fields.CharField: title>, 'filename': <django.db.models.fields.CharField: filename>, 'co"
+      }
+    ],
+    "test_document_levels_filter_all_rows_for_each_role": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: Items in the first set but not the second:"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: Items in the first set but not the second:"
+      }
+    ],
+    "test_document_permission_is_separate_from_business_role": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 403"
+      }
+    ],
+    "test_download_capability_required_even_for_ceo_and_preserves_scope": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 403"
+      }
+    ],
+    "test_hidden_versions_do_not_hide_visible_version_or_leak_metadata_hits": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: Lists differ: [6] != [5]"
+      }
+    ],
+    "test_request_list_compare_and_rfq_share_document_scope": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'R02' unexpectedly found in {'A04-HIDDEN-VERSION-REQUEST', 'R02', 'R03', 'R01'}"
+      }
+    ],
+    "test_revoking_document_permissions_affects_existing_session_immediately": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 404 : ('/api/operations/documents/1/', 200, '{\"id\": 1, \"code\": \"A04-OPEN\", \"revision\": \"A\", \"title\": \"A04-OPEN\", \"status\": \"approved\", \"filename\": \"A04-OPEN.txt\", \"checksum\": \"04f4ee86f4939fcb1a3df6977a75a919f72dbcf63d118ca12b8c2ea4b4486dd6\", \"contract_id\": 1, \"created_at\": \"2026-09-11T19:41:51.8"
+      }
+    ],
+    "test_ceo_and_manager_need_explicit_export_permission": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 403"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 403"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 403"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 403"
+      }
+    ],
+    "test_export_is_a_projection_of_allowed_data_not_an_unfiltered_database": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04_CEO_DOCUMENT_SECRET' unexpectedly found in '{\"items\": [{\"id\": 1, \"code\": \"A04-ITEM\", \"name\": \"Виріб A04\", \"unit\": \"шт.\", \"kind\": \"product\", \"method\": \"buy\", \"revision\": \"A\", \"document_id\": 1, \"material\": \"\", \"external_codes\": {}, \"required_documents\": [], \"bom\": [], \"routing\": [], \"minimum\": \"0.000"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04_CEO_VERSION_SECRET' unexpectedly found in '{\"items\": [{\"id\": 1, \"code\": \"A04-ITEM\", \"name\": \"Виріб A04\", \"unit\": \"шт.\", \"kind\": \"product\", \"method\": \"buy\", \"revision\": \"A\", \"document_id\": 1, \"material\": \"\", \"external_codes\": {}, \"required_documents\": [], \"bom\": [], \"routing\": [], \"minimum\": \"0.000\""
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 3 unexpectedly found in [6, 5, 4, 3, 2, 1]"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04_CEO_DOCUMENT_SECRET' unexpectedly found in '{\"product\": \"BoS\", \"mode\": \"working\", \"summary\": {\"as_of\": \"2026-09-11\", \"overdue_tasks\": [{\"id\": 1, \"title\": \"Відкрите доручення A04\", \"assignee\": \"Синтетичний Працівник A04\", \"deadline\": \"2026-09-10\"}], \"receivables\": {\"EUR\": {\"open\": \"77771.13\", \"overd"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 'A04_CEO_VERSION_SECRET' unexpectedly found in '{\"product\": \"BoS\", \"mode\": \"working\", \"summary\": {\"as_of\": \"2026-09-11\", \"overdue_tasks\": [{\"id\": 1, \"title\": \"Відкрите доручення A04\", \"assignee\": \"Синтетичний Працівник A04\", \"deadline\": \"2026-09-10\"}], \"receivables\": {\"EUR\": {\"open\": \"77771.13\", \"overdu"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 3 unexpectedly found in [6, 5, 4, 3, 2, 1]"
+      }
+    ],
+    "test_export_permission_revocation_applies_without_new_login": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 403"
+      }
+    ],
+    "test_observer_cannot_export_even_with_export_permission": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 403"
+      }
+    ],
+    "test_employee_directory_remains_useful_without_hr_fields": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: {'birthday', 'kpi', 'email', 'phone'} is not false"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: {'birthday', 'kpi', 'email', 'phone'} is not false"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: {'birthday', 'kpi', 'email', 'phone'} is not false"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: {'birthday', 'kpi', 'email', 'phone'} is not false"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: {'birthday', 'kpi', 'email', 'phone'} is not false"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: {'birthday', 'kpi', 'email', 'phone'} is not false"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: {'birthday', 'kpi', 'email', 'phone'} is not false"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: {'birthday', 'kpi', 'email', 'phone'} is not false"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: {'birthday', 'kpi', 'email', 'phone'} is not false"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: {'birthday', 'kpi', 'email', 'phone'} is not false"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: {'birthday', 'kpi', 'email', 'phone'} is not false"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: {'birthday', 'kpi', 'email', 'phone'} is not false"
+      }
+    ],
+    "test_manager_transaction_whitelist_and_payroll_sources_excluded": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: False is not true"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: False is not true"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: False is not true"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: False is not true : {'amount', 'contract_number', 'counterparty_name', 'branch_name', 'description', 'created_at'}"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: False is not true : {'amount', 'contract_number', 'counterparty_name', 'branch_name', 'description', 'created_at'}"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: False is not true : {'amount', 'contract_number', 'counterparty_name', 'branch_name', 'description', 'created_at'}"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: False is not true : {'amount', 'contract_number', 'counterparty_name', 'branch_name', 'description', 'created_at'}"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: False is not true : {'amount', 'contract_number', 'counterparty_name', 'branch_name', 'description', 'created_at'}"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: False is not true : {'amount', 'contract_number', 'counterparty_name', 'branch_name', 'description', 'created_at'}"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: False is not true : {'amount', 'contract_number', 'counterparty_name', 'branch_name', 'description', 'created_at'}"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: False is not true : {'amount', 'contract_number', 'counterparty_name', 'branch_name', 'description', 'created_at'}"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: False is not true : {'amount', 'contract_number', 'counterparty_name', 'branch_name', 'description', 'created_at'}"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 404 : ('/api/transactions/2/', 200, '{\"id\":2,\"direction\":\"out\",\"amount\":\"23761.41\",\"currency\":\"EUR\",\"date\":\"2026-09-11\",\"description\":\"Зарплата Синтетичний Працівник A04 2026-01\",\"category\":\"salary\",\"counterparty\":null,\"counterparty_name\":null,\"contract\":null,\"contract_number\":null,\"branch\":1,\"br"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 404 : ('/api/transactions/2.json', 200, '{\"id\":2,\"direction\":\"out\",\"amount\":\"23761.41\",\"currency\":\"EUR\",\"date\":\"2026-09-11\",\"description\":\"Зарплата Синтетичний Працівник A04 2026-01\",\"category\":\"salary\",\"counterparty\":null,\"counterparty_name\":null,\"contract\":null,\"contract_number\":null,\"branch\":1"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 404 : ('/api/transactions/2.json/', 200, '{\"id\":2,\"direction\":\"out\",\"amount\":\"23761.41\",\"currency\":\"EUR\",\"date\":\"2026-09-11\",\"description\":\"Зарплата Синтетичний Працівник A04 2026-01\",\"category\":\"salary\",\"counterparty\":null,\"counterparty_name\":null,\"contract\":null,\"contract_number\":null,\"branch\":"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 404 : ('/api/transactions/4/', 200, '{\"id\":4,\"direction\":\"out\",\"amount\":\"23862.52\",\"currency\":\"USD\",\"date\":\"2026-09-11\",\"description\":\"Зарплата Синтетичний Працівник A04 2026-02\",\"category\":\"salary\",\"counterparty\":null,\"counterparty_name\":null,\"contract\":null,\"contract_number\":null,\"branch\":1,\"br"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 404 : ('/api/transactions/4.json', 200, '{\"id\":4,\"direction\":\"out\",\"amount\":\"23862.52\",\"currency\":\"USD\",\"date\":\"2026-09-11\",\"description\":\"Зарплата Синтетичний Працівник A04 2026-02\",\"category\":\"salary\",\"counterparty\":null,\"counterparty_name\":null,\"contract\":null,\"contract_number\":null,\"branch\":1"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 404 : ('/api/transactions/4.json/', 200, '{\"id\":4,\"direction\":\"out\",\"amount\":\"23862.52\",\"currency\":\"USD\",\"date\":\"2026-09-11\",\"description\":\"Зарплата Синтетичний Працівник A04 2026-02\",\"category\":\"salary\",\"counterparty\":null,\"counterparty_name\":null,\"contract\":null,\"contract_number\":null,\"branch\":"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 404 : ('/api/transactions/6/', 200, '{\"id\":6,\"direction\":\"out\",\"amount\":\"23963.63\",\"currency\":\"UAH\",\"date\":\"2026-09-11\",\"description\":\"Зарплата Синтетичний Працівник A04 2026-03\",\"category\":\"salary\",\"counterparty\":null,\"counterparty_name\":null,\"contract\":null,\"contract_number\":null,\"branch\":1,\"br"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 404 : ('/api/transactions/6.json', 200, '{\"id\":6,\"direction\":\"out\",\"amount\":\"23963.63\",\"currency\":\"UAH\",\"date\":\"2026-09-11\",\"description\":\"Зарплата Синтетичний Працівник A04 2026-03\",\"category\":\"salary\",\"counterparty\":null,\"counterparty_name\":null,\"contract\":null,\"contract_number\":null,\"branch\":1"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 404 : ('/api/transactions/6.json/', 200, '{\"id\":6,\"direction\":\"out\",\"amount\":\"23963.63\",\"currency\":\"UAH\",\"date\":\"2026-09-11\",\"description\":\"Зарплата Синтетичний Працівник A04 2026-03\",\"category\":\"salary\",\"counterparty\":null,\"counterparty_name\":null,\"contract\":null,\"contract_number\":null,\"branch\":"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 404 : ('/api/transactions/7/', 200, '{\"id\":7,\"direction\":\"out\",\"amount\":\"91827.36\",\"currency\":\"USD\",\"date\":\"2026-09-11\",\"description\":\"A04_UNLINKED_PAYROLL_SECRET\",\"category\":\"salary\",\"counterparty\":null,\"counterparty_name\":null,\"contract\":null,\"contract_number\":null,\"branch\":null,\"branch_name\":n"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 404 : ('/api/transactions/7.json', 200, '{\"id\":7,\"direction\":\"out\",\"amount\":\"91827.36\",\"currency\":\"USD\",\"date\":\"2026-09-11\",\"description\":\"A04_UNLINKED_PAYROLL_SECRET\",\"category\":\"salary\",\"counterparty\":null,\"counterparty_name\":null,\"contract\":null,\"contract_number\":null,\"branch\":null,\"branch_nam"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 404 : ('/api/transactions/7.json/', 200, '{\"id\":7,\"direction\":\"out\",\"amount\":\"91827.36\",\"currency\":\"USD\",\"date\":\"2026-09-11\",\"description\":\"A04_UNLINKED_PAYROLL_SECRET\",\"category\":\"salary\",\"counterparty\":null,\"counterparty_name\":null,\"contract\":null,\"contract_number\":null,\"branch\":null,\"branch_na"
+      }
+    ],
+    "test_observer_cannot_read_transaction_routes_or_aliases": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 not found in (403, 404)"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 not found in (403, 404)"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 not found in (403, 404)"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 not found in (403, 404)"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 not found in (403, 404)"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 not found in (403, 404)"
+      }
+    ],
+    "test_observer_counterparties_have_no_financial_aggregates": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: {'balance', 'total_debit', 'total_credit'} is not false : {'balance', 'total_debit', 'total_credit'}"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: {'balance', 'total_debit', 'total_credit'} is not false : {'balance', 'total_debit', 'total_credit'}"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: {'balance', 'total_debit', 'total_credit'} is not false : {'balance', 'total_debit', 'total_credit'}"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: {'balance', 'total_debit', 'total_credit'} is not false : {'balance', 'total_debit', 'total_credit'}"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: {'balance', 'total_debit', 'total_credit'} is not false : {'balance', 'total_debit', 'total_credit'}"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: {'balance', 'total_debit', 'total_credit'} is not false : {'balance', 'total_debit', 'total_credit'}"
+      }
+    ],
+    "test_payroll_forbidden_for_manager_observer_in_all_get_aliases": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 not found in (403, 404)"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 not found in (403, 404)"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 not found in (403, 404)"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 not found in (403, 404)"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 not found in (403, 404)"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 not found in (403, 404)"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 not found in (403, 404)"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 not found in (403, 404)"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 not found in (403, 404)"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 not found in (403, 404)"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 not found in (403, 404)"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 not found in (403, 404)"
+      }
+    ],
+    "test_confirm_rechecks_document_capability_after_preview": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 not found in (403, 404)"
+      }
+    ],
+    "test_hidden_document_references_cannot_be_previewed_via_either_adapter": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 404 : {\"id\": \"bcf2f60a-ac1b-4781-8e47-0581c70e789e\", \"payload\": {\"action\": \"erp_attach\", \"lot_id\": 1, \"kind\": \"certificate\", \"document_id\": 3}, \"expires_at\": \"2026-09-11T19:51:52.562954+00:00\", \"effect\": {\"lot_id\": 1, \"document_id\": 3}, \"impact\": [{\"kind\": \"lots\", \"id\": 1, \"code\": \"A04-LOT\", \"fie"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 404 : {\"id\": \"c30abeb1-23ae-4782-b663-03973fec02c8\", \"payload\": {\"action\": \"erp_attach\", \"lot_id\": 1, \"kind\": \"certificate\", \"document_id\": 3}, \"expires_at\": \"2026-09-11T19:51:52.569865+00:00\"}"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: Tuples differ: (2, 1, {}) != (0, 1, {})"
+      }
+    ],
+    "test_manager_cannot_preview_ceo_only_actions_on_either_adapter": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 403 : {\"id\": \"649c25cb-ac08-4955-a349-6e1d65f11792\", \"payload\": {\"action\": \"erp_payment\", \"invoice_id\": 1, \"amount\": \"1\", \"reference\": \"A04-UNAUTHORIZED-PAY\"}, \"expires_at\": \"2026-09-11T19:51:52.613226+00:00\", \"effect\": {\"invoice_id\": 1, \"paid\": \"1.00\", \"note\": \"\\u041b\\u043e\\u043a\\u0430\\u043b\\u04"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 403 : {\"id\": \"3f9023a5-39a2-4358-925f-29ab644b4ee4\", \"payload\": {\"action\": \"erp_opening\", \"item_id\": 1, \"location_id\": 1, \"code\": \"A04-UNAUTHORIZED-OPENING\", \"revision\": \"A\", \"quantity\": \"2\", \"unit_cost\": \"1\", \"currency\": \"EUR\", \"documents\": {}}, \"expires_at\": \"2026-09-11T19:51:52.651903+00:00\", "
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 403 : {\"id\": \"9e4c46c9-7c05-46a8-a408-68ff9aa4a6a2\", \"payload\": {\"action\": \"erp_payment\", \"invoice_id\": 1, \"amount\": \"1\", \"reference\": \"A04-UNAUTHORIZED-PAY\"}, \"expires_at\": \"2026-09-11T19:51:52.658483+00:00\"}"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 403 : {\"id\": \"0fbe64a2-e0d5-4e2d-ad7a-7bf229b7702d\", \"payload\": {\"action\": \"erp_opening\", \"item_id\": 1, \"location_id\": 1, \"code\": \"A04-UNAUTHORIZED-OPENING\", \"revision\": \"A\", \"quantity\": \"2\", \"unit_cost\": \"1\", \"currency\": \"EUR\", \"documents\": {}}, \"expires_at\": \"2026-09-11T19:51:52.664491+00:00\"}"
+      },
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: Tuples differ: (4, 2, Decimal('0.00')) != (0, 2, Decimal('0.00'))"
+      }
+    ],
+    "test_task_preview_cannot_reference_hidden_procurement_request": [
+      {
+        "kind": "FAIL",
+        "problem": "AssertionError: 200 != 404"
+      }
+    ]
+  }
+}

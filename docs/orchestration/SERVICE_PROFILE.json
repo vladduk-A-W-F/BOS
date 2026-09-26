@@ -1,0 +1,56 @@
+{
+  "schema": "bos.service-profile.v1",
+  "date": "2026-09-20",
+  "product": "BoS",
+  "delivery_model": "managed_isolated_company_installation",
+  "ui_language": "uk",
+  "tenant_boundary": {
+    "code": "per_company",
+    "database": "per_company",
+    "documents": "private_per_company",
+    "secrets": "per_company",
+    "session_cookie": "per_company",
+    "shared_database_tenancy": false
+  },
+  "presentation": {
+    "site_project_id": "appgprj_6aa9057b8e5c8191abe7685fb7c9f145",
+    "audience": "owner_private",
+    "landing_path": "/",
+    "demo_path": "/demo/",
+    "demo_persistence": "browser_localStorage",
+    "demo_uses_django_backend": false
+  },
+  "release": {
+    "technical_ready": false,
+    "pilot_allowed": false,
+    "production_activation_allowed": false,
+    "source_package_manifest": "docs/orchestration/evidence/batch03/BOS_PACKAGE.json"
+  },
+  "onboarding": {
+    "phase": "synthetic_process_preparation",
+    "company": null,
+    "process_owner": null,
+    "technical_operator": null,
+    "first_process": null,
+    "target_origin": null,
+    "data_import_allowed": false
+  },
+  "assistant": {
+    "mode": "planned",
+    "external_api_enabled": false,
+    "project": null,
+    "budget": null
+  },
+  "customer_connectors": {
+    "enabled": [],
+    "selection": "after_system_and_data_scope_confirmed"
+  },
+  "blocking_acceptance": [
+    "supported_first_admin_bootstrap",
+    "A09_request_limit",
+    "A10_activation_upgrade_rollback",
+    "P06_full_product_acceptance",
+    "target_host_TLS_and_operational_ownership"
+  ],
+  "note": "Descriptive handoff manifest, not executable configuration or production authorization."
+}

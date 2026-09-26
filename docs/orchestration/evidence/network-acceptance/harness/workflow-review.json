@@ -1,0 +1,32 @@
+{
+  "card": "NETWORK-CONTINUATION-CI",
+  "reviewer": "integration_diagnosis",
+  "reviewed_at": "2026-09-20T14:19:19.069863+00:00",
+  "verdict": "ACCEPT_SCOPED_SOURCE_FOR_ONE_GUARDED_HOSTED_RUN",
+  "workflow_sha256": "df9932b23a0b6cedb3eca5d9bcb7def6f7d7461b021eca7060939070bacfb1b2",
+  "pg_harness_sha256": "a62da45ce2de76c3ab37d88de8770b5eb4659181bc945b9a191ac341f026fa1f",
+  "browser_independent_review": "execution/network-browser-review/review.json",
+  "runtime_sha256": "c15dfe0e3aeefde2fd4fa7af0e9dd2c7c04072a59b185554b821576b4c2111ca",
+  "findings": [],
+  "static_yaml": "PASS",
+  "embedded_python_ast": "PASS",
+  "embedded_python_blocks": [
+    "scope:Токен одного погодженого коміту",
+    "postgres:Докази, включно з невиконаним запуском",
+    "browser:Require preinstalled Chrome without downloads",
+    "browser:Finalize available evidence"
+  ],
+  "checked": [
+    "Only push on explicit feature branch/CI paths with exact commit token and first attempt",
+    "Repository/ref/SHA/event checks plus runtime digest pin in guarded harnesses",
+    "Read-only contents permission, pinned checkout/setup/artifact actions, no persisted credentials",
+    "Separate fresh hosted PG16 and preinstalled-Chrome-only jobs, bounded timeouts, no suite/discovery/download fallback",
+    "Raw logs, guarded finalization and always-upload artifacts; absent/unrun scenario cannot become accepted",
+    "Browser fragment matches independently reviewed behavior; final execution/screenshots still require evidence review"
+  ],
+  "application_tests_run_by_reviewer": 0,
+  "pg_executed": false,
+  "browser_executed": false,
+  "technical_ready": false,
+  "pilot_allowed": false
+}

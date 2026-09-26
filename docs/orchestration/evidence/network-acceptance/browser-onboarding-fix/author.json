@@ -1,0 +1,39 @@
+{
+  "card": "NETWORK-BROWSER-ONBOARDING-TEST-DEFECT",
+  "cause": "Fresh real authenticated browser users reach existing Onboarding before .bos-navbar; harness skipped required UI selection.",
+  "failure_run_id": "35516516284",
+  "failure_candidate_sha": "b54b621bfa7b81a63546edc8936b8a84df619da5",
+  "runtime_sha256": "c15dfe0e3aeefde2fd4fa7af0e9dd2c7c04072a59b185554b821576b4c2111ca",
+  "changes": [
+    "Expect existing onboarding prompt",
+    "Click existing production industry tile",
+    "Click existing start-work button",
+    "Assert normal onboarding completed before navbar/navigation",
+    "Correct wrapped SELECT label selectors, whose option text makes exact get_by_label miss; use existing unique title prefix and native child control with strict matching"
+  ],
+  "allowlist": [
+    ".github/ci/network_browser_acceptance.py"
+  ],
+  "auth_bypass": false,
+  "storage_injection": false,
+  "test_expectations_weakened": false,
+  "browser_invocations_this_fix": 0,
+  "actual_browser_invocations_prior": 1,
+  "workflow_invocations_prior": 2,
+  "remaining_workflow_invocations": 1,
+  "harness_sha256": "40688a9da9ccc70cdce78f98b600df856491fecf882538956f3660bc2e11ea90",
+  "status": "PREPARED_NOT_RUN",
+  "runtime_files_changed": false,
+  "primary_source": "https://raw.githubusercontent.com/microsoft/playwright/main/packages/injected/src/selectorUtils.ts",
+  "primary_source_installed": "/execution/venv/lib/python3.12/site-packages/playwright/driver/package/lib/coreBundle.js (1.63.0)",
+  "static_selector_review": {
+    "native_controls": "Button renders native button; Input native input; Select native select",
+    "onboarding": "existing choice tile then conditional start button for all three fresh contexts",
+    "navigation": "ERP role=button, network submenu role=button",
+    "filters": "branch, point, currency label wraps select; helper asserts exact immediate label then strict native control",
+    "forms": "transfer dispatch, receive, quality, hold, release, payment labels matched to ERP_ACTIONS and renderer; all fields input/select",
+    "dialogs": "native dialog showModal, preview/confirm/close, Escape focus return assertions remain unchanged",
+    "exports": "CSV semicolon parser and exact IDs/currency/value comparison remain unchanged",
+    "execution": "static review only; no browser or fixture invocations"
+  }
+}

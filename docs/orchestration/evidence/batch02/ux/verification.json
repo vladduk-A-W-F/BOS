@@ -1,0 +1,55 @@
+{
+  "stages": [
+    {
+      "stage": "build",
+      "command": [
+        "node",
+        "execution/batch02/ux/source/scripts/build_frontend.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.589,
+      "log_sha256": "5e1be244d86252be29a87d7836f440e45abdc205e6a354534e5f850449864290"
+    },
+    {
+      "stage": "syntax",
+      "command": [
+        "node",
+        "--check",
+        "execution/batch02/ux/source/assets/app.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.096,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "stage": "behavior",
+      "command": [
+        "node",
+        "execution/batch02/ux/test_trace_behavior.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.395,
+      "log_sha256": "d6816183de71f8ea9332d498c581f0de2aa9c2fad19cb70ba4a7783bedba5c2f"
+    }
+  ],
+  "scope": "Scoped local Babel build, JS syntax, controlled actual component behavior; not browser UI acceptance",
+  "source_files": {
+    "frontend/boss_app_source.html": {
+      "before": "217ef22b26ef0b551bf6be8588f350eee5928d7a2bf6146571d655e48e35c4e3",
+      "after": "81767f87d4e7eacf7a28dddbfcb6e54a8c903bf905d0b69850034ce3eac75eeb"
+    },
+    "frontend/boss_app_html.html": {
+      "before": "e215f02aa69d5931cbc41dca742fd850a02c471d07d45fc66a75c9aa3e244937",
+      "after": "6faa6d98e0758be4d75691b563745dea087b8224415862ea5064dd9d81de7f9d"
+    },
+    "assets/app.js": {
+      "before": "0285afed1b3a34eefc9bfdd406fda7a8a058ae5317707195fea5d938af7c29bd",
+      "after": "30338b999c3ce645ab205d288dfee2988d02695f72dce724ece92fecede51e6f"
+    }
+  },
+  "browser_run": false,
+  "ui_gate_pass": false,
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "previous_17_case_candidate": "before-origin-check/"
+}

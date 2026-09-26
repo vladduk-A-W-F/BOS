@@ -1,0 +1,724 @@
+{
+  "test": "operations.test_document_mutex.A06DocumentMutexTests.test_upload_cannot_commit_inside_shipment_critical_section",
+  "backend": "sqlite",
+  "trace": [
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_configuration",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_configuration\".\"id\", \"operations_configuration\".\"key\", \"operations_configuration\".\"value\" from \"operations_configuration\" where \"operations_configuration\".\"key\" = %s limit 21",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "update",
+      "table": "operations_configuration",
+      "erp_mutex": true,
+      "atomic": true,
+      "sql": "update \"operations_configuration\" set \"value\" = %s where \"operations_configuration\".\"id\" = %s",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_lot",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"erp_lot\".\"id\", \"erp_lot\".\"code\", \"erp_lot\".\"item_id\", \"erp_lot\".\"location_id\", \"erp_lot\".\"revision\", \"erp_lot\".\"quantity\", \"erp_lot\".\"quality\", \"erp_lot\".\"unit_cost\", \"erp_lot\".\"currency\", \"erp_lot\".\"documents\" from \"erp_lot\" order by \"erp_lot\".\"id\" asc",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_reservation",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"erp_reservation\".\"id\", \"erp_reservation\".\"lot_id\", \"erp_reservation\".\"line_id\", \"erp_reservation\".\"production_id\", \"erp_reservation\".\"quantity\" from \"erp_reservation\" order by \"erp_reservation\".\"id\" asc",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_movement",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"erp_movement\".\"id\", \"erp_movement\".\"lot_id\", \"erp_movement\".\"quantity\", \"erp_movement\".\"kind\", \"erp_movement\".\"reference\", \"erp_movement\".\"reason\", \"erp_movement\".\"line_id\", \"erp_movement\".\"production_id\", \"erp_movement\".\"purchase_id\", \"erp_movement\".\"cost\", \"erp_movement\".\"created_at\" from \"erp_movement\" order by \"erp_movement\".\"id\" asc",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_inspection",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"erp_inspection\".\"id\", \"erp_inspection\".\"lot_id\", \"erp_inspection\".\"result\", \"erp_inspection\".\"note\", \"erp_inspection\".\"inspector_id\", \"erp_inspection\".\"created_at\" from \"erp_inspection\" order by \"erp_inspection\".\"id\" asc",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_document\".\"id\" as \"id\", \"operations_document\".\"checksum\" as \"checksum\", \"operations_document\".\"status\" as \"status\" from \"operations_document\" order by \"operations_document\".\"id\" asc",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_lot",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"erp_lot\".\"id\", \"erp_lot\".\"code\", \"erp_lot\".\"item_id\", \"erp_lot\".\"location_id\", \"erp_lot\".\"revision\", \"erp_lot\".\"quantity\", \"erp_lot\".\"quality\", \"erp_lot\".\"unit_cost\", \"erp_lot\".\"currency\", \"erp_lot\".\"documents\" from \"erp_lot\" order by \"erp_lot\".\"id\" asc",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_reservation",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"erp_reservation\".\"id\", \"erp_reservation\".\"lot_id\", \"erp_reservation\".\"line_id\", \"erp_reservation\".\"production_id\", \"erp_reservation\".\"quantity\" from \"erp_reservation\" order by \"erp_reservation\".\"id\" asc",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_inspection",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"erp_inspection\".\"id\", \"erp_inspection\".\"lot_id\", \"erp_inspection\".\"result\", \"erp_inspection\".\"note\", \"erp_inspection\".\"inspector_id\", \"erp_inspection\".\"created_at\" from \"erp_inspection\" order by \"erp_inspection\".\"id\" asc",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_movement",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"erp_movement\".\"id\", \"erp_movement\".\"lot_id\", \"erp_movement\".\"quantity\", \"erp_movement\".\"kind\", \"erp_movement\".\"reference\", \"erp_movement\".\"reason\", \"erp_movement\".\"line_id\", \"erp_movement\".\"production_id\", \"erp_movement\".\"purchase_id\", \"erp_movement\".\"cost\", \"erp_movement\".\"created_at\" from \"erp_movement\" order by \"erp_movement\".\"id\" desc limit 300",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_document\".\"id\" as \"id\", \"operations_document\".\"code\" as \"code\", \"operations_document\".\"revision\" as \"revision\", \"operations_document\".\"title\" as \"title\", \"operations_document\".\"status\" as \"status\" from \"operations_document\" order by \"operations_document\".\"created_at\" desc",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_lot",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"erp_lot\".\"id\", \"erp_lot\".\"code\", \"erp_lot\".\"item_id\", \"erp_lot\".\"location_id\", \"erp_lot\".\"revision\", \"erp_lot\".\"quantity\", \"erp_lot\".\"quality\", \"erp_lot\".\"unit_cost\", \"erp_lot\".\"currency\", \"erp_lot\".\"documents\", \"erp_item\".\"id\", \"erp_item\".\"code\", \"erp_item\".\"name\", \"erp_item\".\"unit\", \"erp_item\".\"kind\", \"erp_item\".\"method\", \"erp_item\".\"revision\", \"erp_item\".\"document_id\", \"erp_item\".\"material\", \"erp_item\".\"external_codes\", \"erp_item\".\"required_documents\", \"erp_item\".\"bom\", \"erp_item\".\"routing\", \"erp_item\".\"minimum\", \"erp_item\".\"lead_days\", \"erp_item\".\"planned_cost\", \"erp_item\".\"currency\" from \"erp_lot\" inner join \"erp_item\" on (\"erp_lot\".\"item_id\" = \"erp_item\".\"id\") where \"erp_lot\".\"id\" = %s limit 21",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_reservation",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select (cast(sum(\"erp_reservation\".\"quantity\") as numeric)) as \"n\" from \"erp_reservation\" where \"erp_reservation\".\"lot_id\" = %s",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"id\" = %s order by \"operations_document\".\"created_at\" desc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"code\" = %s order by \"operations_document\".\"id\" desc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_reservation",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select (cast(sum(\"erp_reservation\".\"quantity\") as numeric)) as \"n\" from \"erp_reservation\" where \"erp_reservation\".\"lot_id\" = %s",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"id\" = %s order by \"operations_document\".\"created_at\" desc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"code\" = %s order by \"operations_document\".\"id\" desc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_configuration",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_configuration\".\"id\", \"operations_configuration\".\"key\", \"operations_configuration\".\"value\" from \"operations_configuration\" where \"operations_configuration\".\"key\" = %s order by \"operations_configuration\".\"id\" asc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_reservation",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"erp_reservation\".\"id\", \"erp_reservation\".\"lot_id\", \"erp_reservation\".\"line_id\", \"erp_reservation\".\"production_id\", \"erp_reservation\".\"quantity\", \"erp_lot\".\"id\", \"erp_lot\".\"code\", \"erp_lot\".\"item_id\", \"erp_lot\".\"location_id\", \"erp_lot\".\"revision\", \"erp_lot\".\"quantity\", \"erp_lot\".\"quality\", \"erp_lot\".\"unit_cost\", \"erp_lot\".\"currency\", \"erp_lot\".\"documents\", \"erp_item\".\"id\", \"erp_item\".\"code\", \"erp_item\".\"name\", \"erp_item\".\"unit\", \"erp_item\".\"kind\", \"erp_item\".\"method\", \"erp_item\".\"revision\", \"erp_item\".\"document_id\", \"erp_item\".\"material\", \"erp_item\".\"external_codes\", \"erp_item\".\"required_documents\", \"erp_item\".\"bom\", \"erp_item\".\"routing\", \"erp_item\".\"minimum\", \"erp_item\".\"lead_days\", \"erp_item\".\"planned_cost\", \"erp_item\".\"currency\" from \"erp_reservation\" inner join \"erp_lot\" on (\"erp_reservation\".\"lot_id\" = \"erp_lot\".\"id\") inner join \"erp_item\" on (\"erp_lot\".\"item_id\" = \"erp_item\".\"id\") where \"erp_reservation\".\"line_id\" = %s",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"id\" = %s order by \"operations_document\".\"created_at\" desc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"code\" = %s order by \"operations_document\".\"id\" desc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_lot",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"erp_lot\".\"id\", \"erp_lot\".\"code\", \"erp_lot\".\"item_id\", \"erp_lot\".\"location_id\", \"erp_lot\".\"revision\", \"erp_lot\".\"quantity\", \"erp_lot\".\"quality\", \"erp_lot\".\"unit_cost\", \"erp_lot\".\"currency\", \"erp_lot\".\"documents\", \"erp_item\".\"id\", \"erp_item\".\"code\", \"erp_item\".\"name\", \"erp_item\".\"unit\", \"erp_item\".\"kind\", \"erp_item\".\"method\", \"erp_item\".\"revision\", \"erp_item\".\"document_id\", \"erp_item\".\"material\", \"erp_item\".\"external_codes\", \"erp_item\".\"required_documents\", \"erp_item\".\"bom\", \"erp_item\".\"routing\", \"erp_item\".\"minimum\", \"erp_item\".\"lead_days\", \"erp_item\".\"planned_cost\", \"erp_item\".\"currency\" from \"erp_lot\" inner join \"erp_item\" on (\"erp_lot\".\"item_id\" = \"erp_item\".\"id\") where (\"erp_lot\".\"item_id\" = %s and \"erp_lot\".\"revision\" = %s)",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"id\" = %s order by \"operations_document\".\"created_at\" desc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"code\" = %s order by \"operations_document\".\"id\" desc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_reservation",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select (cast(sum(\"erp_reservation\".\"quantity\") as numeric)) as \"n\" from \"erp_reservation\" where \"erp_reservation\".\"lot_id\" = %s",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_movement",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select (cast(sum(\"erp_movement\".\"cost\") as numeric)) as \"n\" from \"erp_movement\" inner join \"erp_salesline\" on (\"erp_movement\".\"line_id\" = \"erp_salesline\".\"id\") where (\"erp_movement\".\"kind\" = %s and \"erp_salesline\".\"order_id\" = %s)",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_configuration",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_configuration\".\"id\", \"operations_configuration\".\"key\", \"operations_configuration\".\"value\" from \"operations_configuration\" where \"operations_configuration\".\"key\" = %s order by \"operations_configuration\".\"id\" asc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_lot",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"erp_lot\".\"id\", \"erp_lot\".\"code\", \"erp_lot\".\"item_id\", \"erp_lot\".\"location_id\", \"erp_lot\".\"revision\", \"erp_lot\".\"quantity\", \"erp_lot\".\"quality\", \"erp_lot\".\"unit_cost\", \"erp_lot\".\"currency\", \"erp_lot\".\"documents\", \"erp_item\".\"id\", \"erp_item\".\"code\", \"erp_item\".\"name\", \"erp_item\".\"unit\", \"erp_item\".\"kind\", \"erp_item\".\"method\", \"erp_item\".\"revision\", \"erp_item\".\"document_id\", \"erp_item\".\"material\", \"erp_item\".\"external_codes\", \"erp_item\".\"required_documents\", \"erp_item\".\"bom\", \"erp_item\".\"routing\", \"erp_item\".\"minimum\", \"erp_item\".\"lead_days\", \"erp_item\".\"planned_cost\", \"erp_item\".\"currency\" from \"erp_lot\" inner join \"erp_item\" on (\"erp_lot\".\"item_id\" = \"erp_item\".\"id\") where \"erp_lot\".\"quantity\" > %s",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"id\" = %s order by \"operations_document\".\"created_at\" desc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"code\" = %s order by \"operations_document\".\"id\" desc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_configuration",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_configuration\".\"id\", \"operations_configuration\".\"key\", \"operations_configuration\".\"value\" from \"operations_configuration\" where \"operations_configuration\".\"key\" = %s order by \"operations_configuration\".\"id\" asc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_configuration",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_configuration\".\"id\", \"operations_configuration\".\"key\", \"operations_configuration\".\"value\" from \"operations_configuration\" where \"operations_configuration\".\"key\" = %s limit 21",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "update",
+      "table": "operations_configuration",
+      "erp_mutex": true,
+      "atomic": true,
+      "sql": "update \"operations_configuration\" set \"value\" = %s where \"operations_configuration\".\"id\" = %s",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_lot",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"erp_lot\".\"id\", \"erp_lot\".\"code\", \"erp_lot\".\"item_id\", \"erp_lot\".\"location_id\", \"erp_lot\".\"revision\", \"erp_lot\".\"quantity\", \"erp_lot\".\"quality\", \"erp_lot\".\"unit_cost\", \"erp_lot\".\"currency\", \"erp_lot\".\"documents\" from \"erp_lot\" where \"erp_lot\".\"id\" = %s limit 21",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"id\" = %s order by \"operations_document\".\"created_at\" desc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"code\" = %s order by \"operations_document\".\"id\" desc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_reservation",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"erp_reservation\".\"id\", \"erp_reservation\".\"lot_id\", \"erp_reservation\".\"line_id\", \"erp_reservation\".\"production_id\", \"erp_reservation\".\"quantity\" from \"erp_reservation\" where (\"erp_reservation\".\"line_id\" = %s and \"erp_reservation\".\"lot_id\" = %s) order by \"erp_reservation\".\"id\" asc",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "update",
+      "table": "erp_reservation",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "update \"erp_reservation\" set \"lot_id\" = %s, \"line_id\" = %s, \"production_id\" = null, \"quantity\" = %s where \"erp_reservation\".\"id\" = %s",
+      "completed": true
+    },
+    {
+      "worker": "document",
+      "operation": "select",
+      "table": "operations_configuration",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_configuration\".\"id\", \"operations_configuration\".\"key\", \"operations_configuration\".\"value\" from \"operations_configuration\" where \"operations_configuration\".\"key\" = %s limit 21",
+      "completed": true
+    },
+    {
+      "worker": "document",
+      "operation": "update",
+      "table": "operations_configuration",
+      "erp_mutex": true,
+      "atomic": true,
+      "sql": "update \"operations_configuration\" set \"value\" = %s where \"operations_configuration\".\"id\" = %s",
+      "completed": false
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_reservation",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select (cast(sum(\"erp_reservation\".\"quantity\") as numeric)) as \"n\" from \"erp_reservation\" where \"erp_reservation\".\"lot_id\" = %s",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "update",
+      "table": "erp_lot",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "update \"erp_lot\" set \"quantity\" = %s where \"erp_lot\".\"id\" = %s",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "insert",
+      "table": "erp_movement",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "insert into \"erp_movement\" (\"lot_id\", \"quantity\", \"kind\", \"reference\", \"reason\", \"line_id\", \"production_id\", \"purchase_id\", \"cost\", \"created_at\") values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) returning \"erp_movement\".\"id\"",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_lot",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"erp_lot\".\"id\", \"erp_lot\".\"code\", \"erp_lot\".\"item_id\", \"erp_lot\".\"location_id\", \"erp_lot\".\"revision\", \"erp_lot\".\"quantity\", \"erp_lot\".\"quality\", \"erp_lot\".\"unit_cost\", \"erp_lot\".\"currency\", \"erp_lot\".\"documents\" from \"erp_lot\" order by \"erp_lot\".\"id\" asc",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_reservation",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"erp_reservation\".\"id\", \"erp_reservation\".\"lot_id\", \"erp_reservation\".\"line_id\", \"erp_reservation\".\"production_id\", \"erp_reservation\".\"quantity\" from \"erp_reservation\" order by \"erp_reservation\".\"id\" asc",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_inspection",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"erp_inspection\".\"id\", \"erp_inspection\".\"lot_id\", \"erp_inspection\".\"result\", \"erp_inspection\".\"note\", \"erp_inspection\".\"inspector_id\", \"erp_inspection\".\"created_at\" from \"erp_inspection\" order by \"erp_inspection\".\"id\" asc",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_movement",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"erp_movement\".\"id\", \"erp_movement\".\"lot_id\", \"erp_movement\".\"quantity\", \"erp_movement\".\"kind\", \"erp_movement\".\"reference\", \"erp_movement\".\"reason\", \"erp_movement\".\"line_id\", \"erp_movement\".\"production_id\", \"erp_movement\".\"purchase_id\", \"erp_movement\".\"cost\", \"erp_movement\".\"created_at\" from \"erp_movement\" order by \"erp_movement\".\"id\" desc limit 300",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_document\".\"id\" as \"id\", \"operations_document\".\"code\" as \"code\", \"operations_document\".\"revision\" as \"revision\", \"operations_document\".\"title\" as \"title\", \"operations_document\".\"status\" as \"status\" from \"operations_document\" order by \"operations_document\".\"created_at\" desc",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_lot",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"erp_lot\".\"id\", \"erp_lot\".\"code\", \"erp_lot\".\"item_id\", \"erp_lot\".\"location_id\", \"erp_lot\".\"revision\", \"erp_lot\".\"quantity\", \"erp_lot\".\"quality\", \"erp_lot\".\"unit_cost\", \"erp_lot\".\"currency\", \"erp_lot\".\"documents\", \"erp_item\".\"id\", \"erp_item\".\"code\", \"erp_item\".\"name\", \"erp_item\".\"unit\", \"erp_item\".\"kind\", \"erp_item\".\"method\", \"erp_item\".\"revision\", \"erp_item\".\"document_id\", \"erp_item\".\"material\", \"erp_item\".\"external_codes\", \"erp_item\".\"required_documents\", \"erp_item\".\"bom\", \"erp_item\".\"routing\", \"erp_item\".\"minimum\", \"erp_item\".\"lead_days\", \"erp_item\".\"planned_cost\", \"erp_item\".\"currency\" from \"erp_lot\" inner join \"erp_item\" on (\"erp_lot\".\"item_id\" = \"erp_item\".\"id\") where \"erp_lot\".\"id\" = %s limit 21",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_reservation",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select (cast(sum(\"erp_reservation\".\"quantity\") as numeric)) as \"n\" from \"erp_reservation\" where \"erp_reservation\".\"lot_id\" = %s",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"id\" = %s order by \"operations_document\".\"created_at\" desc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"code\" = %s order by \"operations_document\".\"id\" desc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_reservation",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select (cast(sum(\"erp_reservation\".\"quantity\") as numeric)) as \"n\" from \"erp_reservation\" where \"erp_reservation\".\"lot_id\" = %s",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"id\" = %s order by \"operations_document\".\"created_at\" desc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"code\" = %s order by \"operations_document\".\"id\" desc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_configuration",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_configuration\".\"id\", \"operations_configuration\".\"key\", \"operations_configuration\".\"value\" from \"operations_configuration\" where \"operations_configuration\".\"key\" = %s order by \"operations_configuration\".\"id\" asc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_reservation",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"erp_reservation\".\"id\", \"erp_reservation\".\"lot_id\", \"erp_reservation\".\"line_id\", \"erp_reservation\".\"production_id\", \"erp_reservation\".\"quantity\", \"erp_lot\".\"id\", \"erp_lot\".\"code\", \"erp_lot\".\"item_id\", \"erp_lot\".\"location_id\", \"erp_lot\".\"revision\", \"erp_lot\".\"quantity\", \"erp_lot\".\"quality\", \"erp_lot\".\"unit_cost\", \"erp_lot\".\"currency\", \"erp_lot\".\"documents\", \"erp_item\".\"id\", \"erp_item\".\"code\", \"erp_item\".\"name\", \"erp_item\".\"unit\", \"erp_item\".\"kind\", \"erp_item\".\"method\", \"erp_item\".\"revision\", \"erp_item\".\"document_id\", \"erp_item\".\"material\", \"erp_item\".\"external_codes\", \"erp_item\".\"required_documents\", \"erp_item\".\"bom\", \"erp_item\".\"routing\", \"erp_item\".\"minimum\", \"erp_item\".\"lead_days\", \"erp_item\".\"planned_cost\", \"erp_item\".\"currency\" from \"erp_reservation\" inner join \"erp_lot\" on (\"erp_reservation\".\"lot_id\" = \"erp_lot\".\"id\") inner join \"erp_item\" on (\"erp_lot\".\"item_id\" = \"erp_item\".\"id\") where \"erp_reservation\".\"line_id\" = %s",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"id\" = %s order by \"operations_document\".\"created_at\" desc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"code\" = %s order by \"operations_document\".\"id\" desc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_lot",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"erp_lot\".\"id\", \"erp_lot\".\"code\", \"erp_lot\".\"item_id\", \"erp_lot\".\"location_id\", \"erp_lot\".\"revision\", \"erp_lot\".\"quantity\", \"erp_lot\".\"quality\", \"erp_lot\".\"unit_cost\", \"erp_lot\".\"currency\", \"erp_lot\".\"documents\", \"erp_item\".\"id\", \"erp_item\".\"code\", \"erp_item\".\"name\", \"erp_item\".\"unit\", \"erp_item\".\"kind\", \"erp_item\".\"method\", \"erp_item\".\"revision\", \"erp_item\".\"document_id\", \"erp_item\".\"material\", \"erp_item\".\"external_codes\", \"erp_item\".\"required_documents\", \"erp_item\".\"bom\", \"erp_item\".\"routing\", \"erp_item\".\"minimum\", \"erp_item\".\"lead_days\", \"erp_item\".\"planned_cost\", \"erp_item\".\"currency\" from \"erp_lot\" inner join \"erp_item\" on (\"erp_lot\".\"item_id\" = \"erp_item\".\"id\") where (\"erp_lot\".\"item_id\" = %s and \"erp_lot\".\"revision\" = %s)",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"id\" = %s order by \"operations_document\".\"created_at\" desc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"code\" = %s order by \"operations_document\".\"id\" desc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_reservation",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select (cast(sum(\"erp_reservation\".\"quantity\") as numeric)) as \"n\" from \"erp_reservation\" where \"erp_reservation\".\"lot_id\" = %s",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_movement",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select (cast(sum(\"erp_movement\".\"cost\") as numeric)) as \"n\" from \"erp_movement\" inner join \"erp_salesline\" on (\"erp_movement\".\"line_id\" = \"erp_salesline\".\"id\") where (\"erp_movement\".\"kind\" = %s and \"erp_salesline\".\"order_id\" = %s)",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_configuration",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_configuration\".\"id\", \"operations_configuration\".\"key\", \"operations_configuration\".\"value\" from \"operations_configuration\" where \"operations_configuration\".\"key\" = %s order by \"operations_configuration\".\"id\" asc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "erp_lot",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"erp_lot\".\"id\", \"erp_lot\".\"code\", \"erp_lot\".\"item_id\", \"erp_lot\".\"location_id\", \"erp_lot\".\"revision\", \"erp_lot\".\"quantity\", \"erp_lot\".\"quality\", \"erp_lot\".\"unit_cost\", \"erp_lot\".\"currency\", \"erp_lot\".\"documents\", \"erp_item\".\"id\", \"erp_item\".\"code\", \"erp_item\".\"name\", \"erp_item\".\"unit\", \"erp_item\".\"kind\", \"erp_item\".\"method\", \"erp_item\".\"revision\", \"erp_item\".\"document_id\", \"erp_item\".\"material\", \"erp_item\".\"external_codes\", \"erp_item\".\"required_documents\", \"erp_item\".\"bom\", \"erp_item\".\"routing\", \"erp_item\".\"minimum\", \"erp_item\".\"lead_days\", \"erp_item\".\"planned_cost\", \"erp_item\".\"currency\" from \"erp_lot\" inner join \"erp_item\" on (\"erp_lot\".\"item_id\" = \"erp_item\".\"id\") where \"erp_lot\".\"quantity\" > %s",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"id\" = %s order by \"operations_document\".\"created_at\" desc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_document",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_document\".\"id\", \"operations_document\".\"access_level\", \"operations_document\".\"code\", \"operations_document\".\"revision\", \"operations_document\".\"title\", \"operations_document\".\"filename\", \"operations_document\".\"content\", \"operations_document\".\"text\", \"operations_document\".\"sections\", \"operations_document\".\"status\", \"operations_document\".\"checksum\", \"operations_document\".\"contract_id\", \"operations_document\".\"created_at\" from \"operations_document\" where \"operations_document\".\"code\" = %s order by \"operations_document\".\"id\" desc limit 1",
+      "completed": true
+    },
+    {
+      "worker": "erp",
+      "operation": "select",
+      "table": "operations_configuration",
+      "erp_mutex": false,
+      "atomic": true,
+      "sql": "select \"operations_configuration\".\"id\", \"operations_configuration\".\"key\", \"operations_configuration\".\"value\" from \"operations_configuration\" where \"operations_configuration\".\"key\" = %s order by \"operations_configuration\".\"id\" asc limit 1",
+      "completed": true
+    }
+  ],
+  "database_version": "3.53.1",
+  "interleaving": {
+    "kind": "upload",
+    "erp": {
+      "status": 200,
+      "body": {
+        "state": "succeeded",
+        "line_id": 3,
+        "shipped": "7",
+        "reference": "A06-DOC-SHIP",
+        "erp_event_id": 2,
+        "impact": [
+          {
+            "kind": "lots",
+            "id": 3,
+            "code": "A06-DOC-L",
+            "field": "quantity",
+            "label": "Фізичний залишок",
+            "before": "10.000",
+            "after": "3.000",
+            "currency": "EUR"
+          },
+          {
+            "kind": "lots",
+            "id": 3,
+            "code": "A06-DOC-L",
+            "field": "reserved",
+            "label": "У резерві",
+            "before": "10",
+            "after": "3",
+            "currency": "EUR"
+          },
+          {
+            "kind": "lines",
+            "id": 3,
+            "code": "A06-DOC-SO · A06-DOC-M",
+            "field": "shipped",
+            "label": "Відвантажено",
+            "before": "0.000",
+            "after": "7.000",
+            "currency": ""
+          },
+          {
+            "kind": "reservations",
+            "id": 3,
+            "code": "Резерв · A06-DOC-L",
+            "field": "quantity",
+            "label": "Кількість резерву",
+            "before": "10.000",
+            "after": "3.000",
+            "currency": ""
+          }
+        ]
+      }
+    },
+    "document": {
+      "status": 409,
+      "body": {
+        "error": "Дані змінилися або дія вже виконується. Оновіть перегляд."
+      }
+    },
+    "document_committed_inside_paused_section": false,
+    "erp_mutex_updates": 2
+  },
+  "document_retry": {
+    "status": 201,
+    "body": {
+      "id": 4,
+      "code": "A06-CERT",
+      "revision": "B",
+      "title": "Синтетичний сертифікат B",
+      "status": "needs_review",
+      "filename": "a06-cert-b.txt",
+      "checksum": "8e49849de3eb8c38840499c5bd3eda80bbc1c3b1cd6680d7a769de1a386e6b11",
+      "contract_id": null,
+      "created_at": "2026-09-11T20:40:43.741596+00:00",
+      "current": true
+    }
+  }
+}

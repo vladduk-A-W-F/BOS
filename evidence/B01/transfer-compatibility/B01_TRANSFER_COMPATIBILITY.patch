@@ -1,0 +1,132 @@
+--- a/fixtures/synthetic/transfer.py
++++ b/fixtures/synthetic/transfer.py
+@@ -247,7 +247,8 @@
+     returned = _run('return', line_id=line.pk, lot_id=output, quantity='1.000', code=code('RETURN'),
+         location_id=store, reason='Синтетичне повернення без прихованого коригування рахунку')
+     po = _run('purchase', code=code('PO'), item_id=material, supplier_id=supplier.pk,
+-        quantity='10.000', price='2.00', extras='10.00', currency=currency, due_date='2026-10-01', revision='B')
++        quantity='10.000', price='2.00', extras='10.00', currency=currency, due_date='2026-10-01', revision='B',
++        direct_reason='Синтетична пряма закупівля матеріалу для перевірки перенесення та часткового приймання.')
+     received = _run('receive', purchase_id=po['purchase_id'], code=code('RECEIPT'), location_id=store,
+         quantity='7.000', documents={'cert': 1001})
+     refs.update(order=order, line=line.pk, reserve_sales=sales_reserve,
+--- a/operations/test_document_migration.py
++++ b/operations/test_document_migration.py
+@@ -67,7 +67,93 @@
+         self._case('bound_conflicts')
+ 
+ 
++def historical_highwater_case(source_db, source_media, work):
++    """Create actual pre-A08/pre-B01 history; never erase a newer PO approval."""
++    import hashlib
++    from scripts import check_document_migration as runner
++    from scripts.data_transfer import media_manifest
++    from scripts.reconcile_data import source_files
++
++    source_before = {'database': source_files(source_db), 'media': media_manifest(source_media)}
++    # This subprocess creates a NEW historical fixture, rather than downgrading
++    # the populated latest fixture and deleting its legitimate B01 snapshots.
++    work.mkdir(mode=0o700)
++    historical_db = work / ('check_' + uuid4().hex + '.sqlite3')
++    with historical_db.open('xb'):
++        pass
++    historical_media = work / 'historical-media'
++    historical_media.mkdir(mode=0o700)
++    runner.configure(historical_db, historical_media)
++    from django.db import connection, connections
++    from django.db.migrations.executor import MigrationExecutor
++
++    executor = MigrationExecutor(connection)
++    previous = {'operations': '0005_invoice_boundaries',
++        'ai_assistant': '0008_chatmessage_archived_at_chatmessage_user_and_more',
++        'erp': '0002_row_boundaries'}
++    targets = [(app, previous.get(app, migration))
++               for app, migration in executor.loader.graph.leaf_nodes()]
++    executor.migrate(targets)
++    historical = executor.loader.project_state(targets).apps
++    DocumentBefore = historical.get_model('operations', 'Document')
++    MessageBefore = historical.get_model('ai_assistant', 'ChatMessage')
++    FileBefore = historical.get_model('ai_assistant', 'ChatFile')
++    for pk in (7, 1001, 90001):
++        content = ('Синтетичний історичний документ ' + str(pk)).encode()
++        DocumentBefore.objects.create(pk=pk, code='A08-LEGACY-' + str(pk), revision='B',
++            title='Історичний оригінал', filename=str(pk) + '.txt', content=content,
++            text=content.decode(), sections=[{'page': 1, 'text': 'Точні первинні дані ЇЄҐ'}],
++            checksum=hashlib.sha256(content).hexdigest(), status='approved', access_level='management')
++    message = MessageBefore.objects.create(role='user', content='Історичне повідомлення')
++    chat_bytes = b'Synthetic historical chat bytes\x00\xff'
++    chat_path = historical_media / 'legacy-chat.bin'
++    with chat_path.open('xb') as stream:
++        stream.write(chat_bytes)
++    FileBefore.objects.create(chat_message_id=message.pk, original_name='legacy-chat.bin',
++        file='legacy-chat.bin', mime_type='application/octet-stream', size=len(chat_bytes),
++        parsed_text='Історичний зміст без вигаданого checksum')
++    with connection.cursor() as cursor:
++        cursor.execute('PRAGMA table_info(erp_purchase)')
++        assert not {'quote_id', 'approval_snapshot'} & {row[1] for row in cursor.fetchall()}
++        cursor.execute('PRAGMA table_info(operations_document)')
++        assert not {'original_file', 'size'} & {row[1] for row in cursor.fetchall()}
++        cursor.execute('PRAGMA table_info(ai_assistant_chatfile)')
++        assert 'checksum' not in {row[1] for row in cursor.fetchall()}
++        cursor.execute("UPDATE sqlite_sequence SET seq=400001 WHERE name='operations_document'")
++        cursor.execute("UPDATE sqlite_sequence SET seq=500001 WHERE name='ai_assistant_chatfile'")
++    connections.close_all()
++
++    historical_before = {'database': source_files(historical_db), 'media': media_manifest(historical_media)}
++    owned, db, media, _ = runner.new_owned_copy(historical_db, historical_media, work / 'upgrade')
++    runner.configure(db, media)
++    owned.assert_owned(connection, media)
++    before, files_before = runner._rows(connection), media_manifest(media)
++    executor = MigrationExecutor(connection)
++    a08_targets = [(app, '0006_private_documents' if app == 'operations' else
++                    '0009_private_documents' if app == 'ai_assistant' else migration)
++                   for app, migration in targets]
++    executor.migrate(a08_targets)
++    # Preserve the original complete row, migration-recorder and high-water
++    # oracle; apply only the A08 migrations that this scenario is testing.
++    runner._preserve(before, runner._rows(connection), schema=True)
++    assert media_manifest(media) == files_before
++    owned.assert_owned(connection, media)
++    DocumentAfter = executor.loader.project_state(a08_targets).apps.get_model('operations', 'Document')
++    new = DocumentAfter.objects.create(code='A08-HIGHWATER', revision='A', title='Синтетичний наступний ID',
++        content=b'', text='', checksum=hashlib.sha256(b'').hexdigest())
++    assert new.pk == 400002
++    connections.close_all()
++    assert {'database': source_files(source_db), 'media': media_manifest(source_media)} == source_before
++    assert {'database': source_files(historical_db), 'media': media_manifest(historical_media)} == historical_before
++    return {'case': 'highwater', 'passed': True, 'input_unchanged': True,
++        'details': {'document_high_water': 400001, 'chat_high_water': 500001,
++            'actual_next_document_id': new.pk, 'historical_schema_created': True,
++            'b01_source_fields_never_created_or_erased': True, 'historical_media_unchanged': True}}
++
++
+ def run_case(name, source_db, source_media, work):
++    if name == 'highwater':
++        return historical_highwater_case(source_db, source_media, work)
+     from scripts import check_document_migration as runner
+     from scripts.data_transfer import media_manifest
+     from scripts.reconcile_data import source_files
+@@ -241,23 +327,6 @@
+             rejected(lambda: apply_plan(plan, owned_copy=owned))
+         assert state() == before
+         details = {'legacy_bytes_counted': usage['legacy_blob_bytes'], 'all_or_nothing': True}
+-    elif name == 'highwater':
+-        owned.assert_owned(connection, media)
+-        call_command('migrate', 'operations', '0005_invoice_boundaries', verbosity=0, interactive=False)
+-        owned.assert_owned(connection, media)
+-        call_command('migrate', 'ai_assistant', '0008_chatmessage_archived_at_chatmessage_user_and_more', verbosity=0, interactive=False)
+-        with connection.cursor() as cursor:
+-            cursor.execute("UPDATE sqlite_sequence SET seq=400001 WHERE name='operations_document'")
+-            cursor.execute("UPDATE sqlite_sequence SET seq=500001 WHERE name='ai_assistant_chatfile'")
+-        before = runner._rows(connection)
+-        owned.assert_owned(connection, media)
+-        call_command('migrate', verbosity=0, interactive=False)
+-        runner._preserve(before, runner._rows(connection), schema=True)
+-        owned.assert_owned(connection, media)
+-        new = Document.objects.create(code='A08-HIGHWATER', revision='A', title='Синтетичний наступний ID',
+-            content=b'', text='', checksum=hashlib.sha256(b'').hexdigest())
+-        assert new.pk == 400002
+-        details = {'document_high_water': 400001, 'chat_high_water': 500001, 'actual_next_document_id': new.pk}
+     elif name == 'missing_mutex':
+         from operations.models import Configuration
+         owned.assert_owned(connection, media)

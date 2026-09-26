@@ -1,0 +1,32 @@
+{
+  "date": "2026-09-12T09:32:33.468977+00:00",
+  "candidate": "/workspace/scratch/c7b51e996a9f/tmp/a09_server_candidate_20260912T093109Z",
+  "base_git_head": "cdebfd697d2e94ad33b9cadace4855c2635a3722",
+  "candidate_and_test_source_hashes_unchanged": true,
+  "configuration": {
+    "methods": 12,
+    "subprocess_probes": 62,
+    "db_socket_attempts": 0
+  },
+  "health_logging": {
+    "methods": 7,
+    "scenarios": 12,
+    "in_process_http_requests": 17,
+    "request_phase_sqlite": "mode=ro, PRAGMA/SELECT only; actual synthetic migration during setup"
+  },
+  "waitress": {
+    "methods": 2,
+    "real_loopback_http_requests": 7,
+    "invalid_config_bind_db_attempts": 0,
+    "valid_bind_host": "127.0.0.1",
+    "valid_db_attempts": 0,
+    "sigterm_exit_code": 0
+  },
+  "total_methods": 21,
+  "gate8_accepted": false,
+  "limits": [
+    "Full installer/TLS/PG/Windows not accepted by this subset",
+    "Root separate Caddy TLS proof pending",
+    "New health routes need gate4 inventory/crawl integration"
+  ]
+}

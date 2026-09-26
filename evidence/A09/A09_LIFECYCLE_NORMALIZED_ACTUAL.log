@@ -1,0 +1,64 @@
+{
+  "complete": true,
+  "scope": "actual synthetic loopback lifecycle, not release acceptance",
+  "work": "/workspace/scratch/c7b51e996a9f/tmp/a09-lifecycle-midkfs3b",
+  "checks": [
+    "actual isolated venv, all pinned dependencies, migrations and collectstatic",
+    "missing TLS refuses before listener or lifecycle directory creation",
+    "real pinned Waitress + Caddy, verified TLS and both health routes 200",
+    "second actual CLI process refused by instance OS lock; first stays alive",
+    "different registered installation ID refused; running company unchanged",
+    "SIGTERM gracefully stops both own children, no forced kill; all three ports close",
+    "restart acquires released lock, health returns 200, existing business media preserved",
+    "occupied HTTPS port refuses, own startup children cleaned, unrelated listener survives",
+    "all actual Caddy stdout/stderr persisted only allowlist schema; real private URI/header canary absent"
+  ],
+  "package": {
+    "version": "0.2.8-dev",
+    "source_sha256": "9e0c71d5a28b2699d566c5a620279388b9aae88276480bb38dcb8284c08268af",
+    "files": 250,
+    "database_files": 0,
+    "output": "/workspace/scratch/c7b51e996a9f/tmp/a09-lifecycle-midkfs3b/package"
+  },
+  "first_stop": {
+    "event": "bos.bundle.stopped",
+    "installation_id": "6ae68f74-c09a-4176-9fc7-cacd6f93c93a",
+    "children": [
+      {
+        "runtime": "caddy",
+        "exit_code": 0,
+        "forced": false
+      },
+      {
+        "runtime": "waitress",
+        "exit_code": 0,
+        "forced": false
+      }
+    ]
+  },
+  "second_stop": {
+    "event": "bos.bundle.stopped",
+    "installation_id": "6ae68f74-c09a-4176-9fc7-cacd6f93c93a",
+    "children": [
+      {
+        "runtime": "caddy",
+        "exit_code": 0,
+        "forced": false
+      },
+      {
+        "runtime": "waitress",
+        "exit_code": 0,
+        "forced": false
+      }
+    ]
+  },
+  "normalized_proxy_lines": 65,
+  "lifecycle_sha256": "977edb02fd1a2ad1eaab82bc4fd3ba590de6efe223bff1a03ec72cbc93544591",
+  "all_owned_processes_stopped": true,
+  "installation_id": "6ae68f74-c09a-4176-9fc7-cacd6f93c93a",
+  "source_sha256": "9e0c71d5a28b2699d566c5a620279388b9aae88276480bb38dcb8284c08268af",
+  "ports": {
+    "https": 38745,
+    "http": 45735
+  }
+}

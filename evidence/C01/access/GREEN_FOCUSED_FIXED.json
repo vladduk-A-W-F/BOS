@@ -1,0 +1,267 @@
+{
+  "scope": "Real in-process Django HTTP requests on a newly owned synthetic SQLite/media; no socket server/browser/fullgate/fullverify/A09",
+  "project_root": "/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/source",
+  "db": "/workspace/scratch/c7b51e996a9f/tmp/c01_access_candidate/evidence/check_a137f97fc8d849158406c368564821c8.sqlite3",
+  "source_files": {
+    "scripts/access_fixtures.py": "6d787e06862fba2149b946a7950b95f02b0877b82cb30ad6c73cd16b6e62b323",
+    "scripts/check_access.py": "09bf3747924b0bb2c685538a0c5a2806bb25277a63b4e71d22c13d228ef7c27e",
+    "scripts/access_routes.json": "182639ea19916ca2c8f4a7c51b1b936e6bcf19d7148f5328b1166d5ca73d8597",
+    "tasks/models.py": "142b7ba1c03ed38bed0d08f5e453e71f929d963c56d09f372153a34f14e7280f",
+    "tasks/views.py": "02ae775aad1e8a6a26a814613c8598bba23e8336f22ec3cf80e1533a41176db4"
+  },
+  "checks": [
+    {
+      "name": "raw Task writes + aliases denied without mutation: ceo",
+      "passed": true
+    },
+    {
+      "name": "raw Task writes + aliases denied without mutation: manager",
+      "passed": true
+    },
+    {
+      "name": "legacy read retains row and adds explicit nullable C01 projections",
+      "passed": true
+    },
+    {
+      "name": "real task history and format suffix routes read existing task",
+      "passed": true
+    },
+    {
+      "name": "actual pending proposal outcome owner200 foreign404 read only",
+      "passed": true
+    },
+    {
+      "name": "positive controlled create/done/archive/history/restore preserves row/result and replay",
+      "passed": true
+    },
+    {
+      "name": "explicit180 resolver records include history aliases and proposal status",
+      "passed": true
+    }
+  ],
+  "actual_http": [
+    {
+      "method": "POST",
+      "path": "/api/tasks/",
+      "status": 403
+    },
+    {
+      "method": "PUT",
+      "path": "/api/tasks/2/",
+      "status": 403
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/tasks/2/",
+      "status": 403
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/tasks/2/",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/api/tasks.json",
+      "status": 403
+    },
+    {
+      "method": "PUT",
+      "path": "/api/tasks/2.json",
+      "status": 403
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/tasks/2.json",
+      "status": 403
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/tasks/2.json",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/api/tasks.json/",
+      "status": 403
+    },
+    {
+      "method": "PUT",
+      "path": "/api/tasks/2.json/",
+      "status": 403
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/tasks/2.json/",
+      "status": 403
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/tasks/2.json/",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/api/tasks/",
+      "status": 403
+    },
+    {
+      "method": "PUT",
+      "path": "/api/tasks/2/",
+      "status": 403
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/tasks/2/",
+      "status": 403
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/tasks/2/",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/api/tasks.json",
+      "status": 403
+    },
+    {
+      "method": "PUT",
+      "path": "/api/tasks/2.json",
+      "status": 403
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/tasks/2.json",
+      "status": 403
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/tasks/2.json",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/api/tasks.json/",
+      "status": 403
+    },
+    {
+      "method": "PUT",
+      "path": "/api/tasks/2.json/",
+      "status": 403
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/tasks/2.json/",
+      "status": 403
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/tasks/2.json/",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/tasks/2/",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/tasks/2/history/",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/tasks/2/history.json",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/tasks/2/history.json/",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/operations/task-proposals/f62311c0-7f96-4b2c-a369-507cfc1ddbdd/",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/operations/task-proposals/f62311c0-7f96-4b2c-a369-507cfc1ddbdd/",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/operations/task-proposals/f62311c0-7f96-4b2c-a369-507cfc1ddbdd/",
+      "status": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/operations/preview/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/operations/confirm/",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/tasks/9/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/operations/preview/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/operations/confirm/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/operations/preview/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/operations/confirm/",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/tasks/",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/tasks/?archived=true",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/tasks/9/history/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/operations/preview/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/operations/confirm/",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/operations/confirm/",
+      "status": 200
+    }
+  ],
+  "passed": 7,
+  "failed": 0,
+  "full_gate_run": false
+}

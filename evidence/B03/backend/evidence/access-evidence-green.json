@@ -1,0 +1,1111 @@
+{
+  "scope": "Only B03 outcome access extension; not gate4/fullverify/browser/PG acceptance",
+  "phase": "green",
+  "runtime": "/workspace/scratch/c7b51e996a9f/tmp/b03_access_candidate/runtime_green_d418ebc6842c4d0bbd71bf29187a1dd8",
+  "database_vendor": "sqlite",
+  "source_files": {
+    "scripts/access_fixtures.py": "ffaf01886f3e42d1e6616036edcf03f671c26cf75d22d04e1b29c730e0efac26",
+    "scripts/check_access.py": "b6c8ac6c9747d8f256e046bd2bbc1a71bfec1308d73a86983d4bf289a5a0821b",
+    "scripts/access_routes.json": "0e360a8d2d45a20c09c628be56debc7d0d5962ccf53a4038f6132397cb4ead7c",
+    "erp/correction_views.py": "adb8e918db83dc217319cfc62f721b9b4fa94a9ed19aa6e63ecd7f74862e2dd5",
+    "erp/corrections.py": "590f986c528b27293fda666e50b3f8e3daeeeb3d2c0d74c48b80fb8972f95705"
+  },
+  "cases": [
+    {
+      "role": "anonymous",
+      "variant": "full",
+      "method": "GET",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        401
+      ],
+      "policy": "anonymous_business_denied",
+      "status": 401,
+      "response_bytes": 106,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "error": "Увійдіть до BoS.",
+        "code": "identity_denied"
+      }
+    },
+    {
+      "role": "anonymous",
+      "variant": "full",
+      "method": "HEAD",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        401
+      ],
+      "policy": "anonymous_business_denied",
+      "status": 401,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "anonymous",
+      "variant": "full",
+      "method": "OPTIONS",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        401
+      ],
+      "policy": "anonymous_business_denied",
+      "status": 401,
+      "response_bytes": 106,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "error": "Увійдіть до BoS.",
+        "code": "identity_denied"
+      }
+    },
+    {
+      "role": "anonymous",
+      "variant": "full",
+      "method": "POST",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        401
+      ],
+      "policy": "anonymous_business_denied",
+      "status": 401,
+      "response_bytes": 106,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "error": "Увійдіть до BoS.",
+        "code": "identity_denied"
+      }
+    },
+    {
+      "role": "anonymous",
+      "variant": "full",
+      "method": "PUT",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        401
+      ],
+      "policy": "anonymous_business_denied",
+      "status": 401,
+      "response_bytes": 106,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "error": "Увійдіть до BoS.",
+        "code": "identity_denied"
+      }
+    },
+    {
+      "role": "anonymous",
+      "variant": "full",
+      "method": "PATCH",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        401
+      ],
+      "policy": "anonymous_business_denied",
+      "status": 401,
+      "response_bytes": 106,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "error": "Увійдіть до BoS.",
+        "code": "identity_denied"
+      }
+    },
+    {
+      "role": "anonymous",
+      "variant": "full",
+      "method": "DELETE",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        401
+      ],
+      "policy": "anonymous_business_denied",
+      "status": 401,
+      "response_bytes": 106,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "error": "Увійдіть до BoS.",
+        "code": "identity_denied"
+      }
+    },
+    {
+      "role": "anonymous",
+      "variant": "full",
+      "method": "TRACE",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        401
+      ],
+      "policy": "anonymous_business_denied",
+      "status": 401,
+      "response_bytes": 106,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "error": "Увійдіть до BoS.",
+        "code": "identity_denied"
+      }
+    },
+    {
+      "role": "anonymous",
+      "variant": "full",
+      "method": "CONNECT",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        401
+      ],
+      "policy": "anonymous_business_denied",
+      "status": 401,
+      "response_bytes": 106,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "error": "Увійдіть до BoS.",
+        "code": "identity_denied"
+      }
+    },
+    {
+      "role": "ceo",
+      "variant": "full",
+      "method": "GET",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        200
+      ],
+      "policy": "correction_outcome_committed_read_only",
+      "status": 200,
+      "response_bytes": 1773,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "state": "succeeded",
+        "action": "erp_return_supplier",
+        "operation_id": "e89afb74-6cb4-439d-8940-b9582ab645ac",
+        "receipt": {
+          "state": "succeeded",
+          "action": "erp_return_supplier",
+          "operation_id": "e89afb74-6cb4-439d-8940-b9582ab645ac",
+          "erp_event_id": 5,
+          "actor_id": 1,
+          "actor_role": "ceo",
+          "impact": [
+            {
+              "kind": "lots",
+              "id": 3,
+              "code": "A04-B03-RECEIPT",
+              "field": "quantity",
+              "label": "Фізичний залишок",
+              "before": "2.000",
+              "after": "1.000",
+              "currency": "EUR"
+            },
+            {
+              "kind": "purchases",
+              "id": 2,
+              "code": "A04-B03-PO",
+              "field": "returned_quantity",
+              "label": "Повернуто постачальнику",
+              "before": "0.000",
+              "after": "1.000",
+              "currency": "EUR"
+            },
+            {
+              "kind": "goods_returns",
+              "id": 1,
+              "code": "A04-B03-RETURN",
+              "field": "quantity",
+              "label": "Фізично повернуто",
+              "before": null,
+              "after": "1.000",
+              "currency": "EUR"
+            },
+            {
+              "kind": "goods_returns",
+              "id": 1,
+              "code": "A04-B03-RETURN",
+              "field": "allocated_cost",
+              "label": "Джерельна облікова вартість",
+              "before": null,
+              "after": "73429.17",
+              "currency": "EUR"
+            },
+            {
+              "kind": "supplier_claims",
+              "id": 1,
+              "code": "CLM-e89afb746cb4439d8940b9582ab645ac",
+              "field": "record_kind",
+              "label": "Стан вимоги",
+              "before": null,
+              "after": "pending",
+              "currency": "EUR"
+            }
+          ],
+          "goods_return_id": 1,
+          "receipt_id": 2,
+          "movement_id": 3,
+          "lot_id": 3,
+          "quantity": "1.000",
+          "currency": "EUR",
+          "allocated_cost": "73429.17",
+          "claim_id": 1
+        }
+      }
+    },
+    {
+      "role": "ceo",
+      "variant": "full",
+      "method": "HEAD",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "ceo",
+      "variant": "full",
+      "method": "OPTIONS",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "ceo",
+      "variant": "full",
+      "method": "POST",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "ceo",
+      "variant": "full",
+      "method": "PUT",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "ceo",
+      "variant": "full",
+      "method": "PATCH",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "ceo",
+      "variant": "full",
+      "method": "DELETE",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "ceo",
+      "variant": "full",
+      "method": "TRACE",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "ceo",
+      "variant": "full",
+      "method": "CONNECT",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "manager",
+      "variant": "full",
+      "method": "GET",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        200
+      ],
+      "policy": "correction_outcome_committed_read_only",
+      "status": 200,
+      "response_bytes": 1418,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "state": "succeeded",
+        "action": "erp_return_supplier",
+        "operation_id": "e89afb74-6cb4-439d-8940-b9582ab645ac",
+        "receipt": {
+          "goods_return_id": 1,
+          "state": "succeeded",
+          "erp_event_id": 5,
+          "movement_id": 3,
+          "claim_id": 1,
+          "actor_role": "ceo",
+          "lot_id": 3,
+          "currency": "EUR",
+          "quantity": "1.000",
+          "action": "erp_return_supplier",
+          "impact": [
+            {
+              "kind": "lots",
+              "id": 3,
+              "code": "A04-B03-RECEIPT",
+              "field": "quantity",
+              "label": "Фізичний залишок",
+              "before": "2.000",
+              "after": "1.000",
+              "currency": "EUR"
+            },
+            {
+              "kind": "purchases",
+              "id": 2,
+              "code": "A04-B03-PO",
+              "field": "returned_quantity",
+              "label": "Повернуто постачальнику",
+              "before": "0.000",
+              "after": "1.000",
+              "currency": "EUR"
+            },
+            {
+              "kind": "goods_returns",
+              "id": 1,
+              "code": "A04-B03-RETURN",
+              "field": "quantity",
+              "label": "Фізично повернуто",
+              "before": null,
+              "after": "1.000",
+              "currency": "EUR"
+            },
+            {
+              "kind": "supplier_claims",
+              "id": 1,
+              "code": "CLM-e89afb746cb4439d8940b9582ab645ac",
+              "field": "record_kind",
+              "label": "Стан вимоги",
+              "before": null,
+              "after": "pending",
+              "currency": "EUR"
+            }
+          ],
+          "operation_id": "e89afb74-6cb4-439d-8940-b9582ab645ac",
+          "receipt_id": 2
+        }
+      }
+    },
+    {
+      "role": "manager",
+      "variant": "full",
+      "method": "HEAD",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "manager",
+      "variant": "full",
+      "method": "OPTIONS",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "manager",
+      "variant": "full",
+      "method": "POST",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "manager",
+      "variant": "full",
+      "method": "PUT",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "manager",
+      "variant": "full",
+      "method": "PATCH",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "manager",
+      "variant": "full",
+      "method": "DELETE",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "manager",
+      "variant": "full",
+      "method": "TRACE",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "manager",
+      "variant": "full",
+      "method": "CONNECT",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "observer",
+      "variant": "full",
+      "method": "GET",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        403
+      ],
+      "policy": "correction_outcome_observer_denied",
+      "status": 403,
+      "response_bytes": 181,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "error": "Ця дія недоступна для вашої ролі."
+      }
+    },
+    {
+      "role": "observer",
+      "variant": "full",
+      "method": "HEAD",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "observer",
+      "variant": "full",
+      "method": "OPTIONS",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "observer",
+      "variant": "full",
+      "method": "POST",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        403
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 403,
+      "response_bytes": 210,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "error": "Спостерігач не може змінювати записи."
+      }
+    },
+    {
+      "role": "observer",
+      "variant": "full",
+      "method": "PUT",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        403
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 403,
+      "response_bytes": 210,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "error": "Спостерігач не може змінювати записи."
+      }
+    },
+    {
+      "role": "observer",
+      "variant": "full",
+      "method": "PATCH",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        403
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 403,
+      "response_bytes": 210,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "error": "Спостерігач не може змінювати записи."
+      }
+    },
+    {
+      "role": "observer",
+      "variant": "full",
+      "method": "DELETE",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        403
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 403,
+      "response_bytes": 210,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "error": "Спостерігач не може змінювати записи."
+      }
+    },
+    {
+      "role": "observer",
+      "variant": "full",
+      "method": "TRACE",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        403
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 403,
+      "response_bytes": 210,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "error": "Спостерігач не може змінювати записи."
+      }
+    },
+    {
+      "role": "observer",
+      "variant": "full",
+      "method": "CONNECT",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        403
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 403,
+      "response_bytes": 210,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "error": "Спостерігач не може змінювати записи."
+      }
+    },
+    {
+      "role": "technical_admin",
+      "variant": "full",
+      "method": "GET",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        403
+      ],
+      "policy": "staff_is_not_business_role",
+      "status": 403,
+      "response_bytes": 321,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "error": "Для облікового запису потрібна одна призначена роль BoS.",
+        "code": "identity_denied"
+      }
+    },
+    {
+      "role": "technical_admin",
+      "variant": "full",
+      "method": "HEAD",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        403
+      ],
+      "policy": "staff_is_not_business_role",
+      "status": 403,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "technical_admin",
+      "variant": "full",
+      "method": "OPTIONS",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        403
+      ],
+      "policy": "staff_is_not_business_role",
+      "status": 403,
+      "response_bytes": 321,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "error": "Для облікового запису потрібна одна призначена роль BoS.",
+        "code": "identity_denied"
+      }
+    },
+    {
+      "role": "technical_admin",
+      "variant": "full",
+      "method": "POST",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        403
+      ],
+      "policy": "staff_is_not_business_role",
+      "status": 403,
+      "response_bytes": 321,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "error": "Для облікового запису потрібна одна призначена роль BoS.",
+        "code": "identity_denied"
+      }
+    },
+    {
+      "role": "technical_admin",
+      "variant": "full",
+      "method": "PUT",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        403
+      ],
+      "policy": "staff_is_not_business_role",
+      "status": 403,
+      "response_bytes": 321,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "error": "Для облікового запису потрібна одна призначена роль BoS.",
+        "code": "identity_denied"
+      }
+    },
+    {
+      "role": "technical_admin",
+      "variant": "full",
+      "method": "PATCH",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        403
+      ],
+      "policy": "staff_is_not_business_role",
+      "status": 403,
+      "response_bytes": 321,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "error": "Для облікового запису потрібна одна призначена роль BoS.",
+        "code": "identity_denied"
+      }
+    },
+    {
+      "role": "technical_admin",
+      "variant": "full",
+      "method": "DELETE",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        403
+      ],
+      "policy": "staff_is_not_business_role",
+      "status": 403,
+      "response_bytes": 321,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "error": "Для облікового запису потрібна одна призначена роль BoS.",
+        "code": "identity_denied"
+      }
+    },
+    {
+      "role": "technical_admin",
+      "variant": "full",
+      "method": "TRACE",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        403
+      ],
+      "policy": "staff_is_not_business_role",
+      "status": 403,
+      "response_bytes": 321,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "error": "Для облікового запису потрібна одна призначена роль BoS.",
+        "code": "identity_denied"
+      }
+    },
+    {
+      "role": "technical_admin",
+      "variant": "full",
+      "method": "CONNECT",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        403
+      ],
+      "policy": "staff_is_not_business_role",
+      "status": 403,
+      "response_bytes": 321,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "error": "Для облікового запису потрібна одна призначена роль BoS.",
+        "code": "identity_denied"
+      }
+    },
+    {
+      "role": "manager",
+      "variant": "no_documents",
+      "method": "GET",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        404
+      ],
+      "policy": "correction_outcome_source_unavailable",
+      "status": 404,
+      "response_bytes": 37,
+      "leaks": [],
+      "business_state_unchanged": true,
+      "response": {
+        "state": "unknown",
+        "receipt": null
+      }
+    },
+    {
+      "role": "manager",
+      "variant": "no_documents",
+      "method": "HEAD",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "manager",
+      "variant": "no_documents",
+      "method": "OPTIONS",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "manager",
+      "variant": "no_documents",
+      "method": "POST",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "manager",
+      "variant": "no_documents",
+      "method": "PUT",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "manager",
+      "variant": "no_documents",
+      "method": "PATCH",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "manager",
+      "variant": "no_documents",
+      "method": "DELETE",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "manager",
+      "variant": "no_documents",
+      "method": "TRACE",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    },
+    {
+      "role": "manager",
+      "variant": "no_documents",
+      "method": "CONNECT",
+      "route": "/api/erp/corrections/outcome/",
+      "passed": true,
+      "expectation": [
+        405
+      ],
+      "policy": "correction_outcome_unsupported_read_only",
+      "status": 405,
+      "response_bytes": 0,
+      "leaks": [],
+      "business_state_unchanged": true
+    }
+  ],
+  "failures": [],
+  "fixture": {
+    "issues": [],
+    "http": [
+      {
+        "action": "erp_purchase",
+        "phase": "preview",
+        "status": 200
+      },
+      {
+        "action": "erp_purchase",
+        "phase": "confirm",
+        "status": 200
+      },
+      {
+        "action": "erp_receive",
+        "phase": "preview",
+        "status": 200
+      },
+      {
+        "action": "erp_receive",
+        "phase": "confirm",
+        "status": 200
+      },
+      {
+        "action": "erp_return_supplier",
+        "phase": "preview",
+        "status": 200
+      },
+      {
+        "action": "erp_return_supplier",
+        "phase": "confirm",
+        "status": 200
+      }
+    ],
+    "source_ids": {
+      "purchase_id": 2,
+      "receipt_id": 2,
+      "lot_id": 3,
+      "goods_return_id": 1,
+      "movement_id": 3,
+      "claim_id": 1,
+      "erp_event_id": 5
+    },
+    "action": "erp_return_supplier",
+    "operation_id": "e89afb74-6cb4-439d-8940-b9582ab645ac",
+    "ceo_allocated_cost_control": "73429.17"
+  },
+  "catalogue": {
+    "original_entries": 176,
+    "manifest_entries": 177,
+    "actual_entries": 177,
+    "old_entries_literal_equal": true,
+    "required_field_tests_unchanged": true,
+    "unknown_actual": [],
+    "missing_actual": []
+  },
+  "totals": {
+    "executed": 54,
+    "passed": 54,
+    "failed": 0
+  },
+  "complete_in_scoped_boundary": true
+}

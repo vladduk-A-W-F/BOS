@@ -1,0 +1,936 @@
+{
+  "scope": "Actual extracted OperationsAssistant.importAction, B03 validators/role functions, full CorrectionActionDialog and BoSActionDialog JSX compiled in memory with bundled Babel. Minimal React hooks/element objects; lifecycle effects deliberately NOT invoked. Snapshot read is a local data stub. No network, backend, database, DOM, browser or gate10 acceptance.",
+  "source_file": "/workspace/scratch/c7b51e996a9f/tmp/b03_ui_root_candidate/frontend/boss_app_source.html",
+  "source_sha256": "f00fe5165592b9e8a8a71fda7d16c2f70ba61620a94a864c7ef3eb4dc1635c60",
+  "runner_sha256": "7db939df55cc0077ba379c3264229a7d1479cdf3659d0625d84535fe2bac602f",
+  "extracted_sha256": {
+    "importAction": "ce52d3a4c550c03a9f6fb1b1c4077582da4516c2b5dee9b74bbd70b1c0a0ed10",
+    "helpers": "e9d7935125da893fce1cd0ee0b88e8494a42bb58e09eee54645d02d24a935686",
+    "roles": "81c8950b1bf95f0f40b50ca2eadc5adb31de18609ebcedefceffadd5a83a0cfd",
+    "dialogs": "1772a5a305415fdfeda78189185e4d7cdc43f66f5a83b56eaaee789adae3d1c6"
+  },
+  "old_evidence_preserved": [
+    {
+      "file": "/workspace/scratch/c7b51e996a9f/tmp/B03_ASSISTANT_ENTRY_RED.json",
+      "sha256": "b5792852b732e2e2b1bdf77b01c4b19f591ad5605872735f5455378e0b1fe873"
+    },
+    {
+      "file": "/workspace/scratch/c7b51e996a9f/tmp/B03_ASSISTANT_ENTRY_GREEN.json",
+      "sha256": "a1276c5a21a2abbb887957acf14abe4c0119e983c3c90a64a239d2242008ef9e"
+    }
+  ],
+  "trace": {
+    "snapshot_reads": 12,
+    "network_calls": 0,
+    "effects_invoked": 0,
+    "random_uuid_calls": 0
+  },
+  "checks": [
+    {
+      "name": "frozen source identity and existing red/green remain distinct preserved evidence",
+      "passed": true
+    },
+    {
+      "name": "actual importAction accepts cancel_remaining",
+      "passed": true,
+      "observed": {
+        "type": "cancel_remaining",
+        "operation_id": "a0000000-0000-4000-8000-000000000001"
+      }
+    },
+    {
+      "name": "actual importAction accepts return_supplier",
+      "passed": true,
+      "observed": {
+        "type": "return_supplier",
+        "operation_id": "a0000000-0000-4000-8000-000000000001"
+      }
+    },
+    {
+      "name": "actual importAction accepts return_from_shipment",
+      "passed": true,
+      "observed": {
+        "type": "return_from_shipment",
+        "operation_id": "a0000000-0000-4000-8000-000000000001"
+      }
+    },
+    {
+      "name": "actual importAction accepts credit_invoice",
+      "passed": true,
+      "observed": {
+        "type": "credit_invoice",
+        "operation_id": "a0000000-0000-4000-8000-000000000001"
+      }
+    },
+    {
+      "name": "actual importAction accepts reverse_credit",
+      "passed": true,
+      "observed": {
+        "type": "reverse_credit",
+        "operation_id": "a0000000-0000-4000-8000-000000000001"
+      }
+    },
+    {
+      "name": "actual importAction accepts confirm_supplier_claim",
+      "passed": true,
+      "observed": {
+        "type": "confirm_supplier_claim",
+        "operation_id": "a0000000-0000-4000-8000-000000000001"
+      }
+    },
+    {
+      "name": "actual importAction accepts sales_cancel",
+      "passed": true,
+      "observed": {
+        "type": "cancel_remaining",
+        "operation_id": "a0000000-0000-4000-8000-000000000001"
+      }
+    },
+    {
+      "name": "actual importAction accepts return_credit",
+      "passed": true,
+      "observed": {
+        "type": "credit_invoice",
+        "operation_id": "a0000000-0000-4000-8000-000000000001"
+      }
+    },
+    {
+      "name": "reject extra top key cancel_remaining",
+      "passed": true,
+      "observed": {
+        "error": "Дія містить зайві поля."
+      }
+    },
+    {
+      "name": "reject extra top key return_supplier",
+      "passed": true,
+      "observed": {
+        "error": "Дія містить зайві поля."
+      }
+    },
+    {
+      "name": "reject extra top key return_from_shipment",
+      "passed": true,
+      "observed": {
+        "error": "Дія містить зайві поля."
+      }
+    },
+    {
+      "name": "reject extra top key credit_invoice",
+      "passed": true,
+      "observed": {
+        "error": "Дія містить зайві поля."
+      }
+    },
+    {
+      "name": "reject extra top key reverse_credit",
+      "passed": true,
+      "observed": {
+        "error": "Дія містить зайві поля."
+      }
+    },
+    {
+      "name": "reject extra top key confirm_supplier_claim",
+      "passed": true,
+      "observed": {
+        "error": "Дія містить зайві поля."
+      }
+    },
+    {
+      "name": "reject extra top key sales_cancel",
+      "passed": true,
+      "observed": {
+        "error": "Дія містить зайві поля."
+      }
+    },
+    {
+      "name": "reject extra top key return_credit",
+      "passed": true,
+      "observed": {
+        "error": "Дія містить зайві поля."
+      }
+    },
+    {
+      "name": "reject extra nested allocation key credit_invoice",
+      "passed": true,
+      "observed": {
+        "error": "Позиція коригування містить невідомі поля."
+      }
+    },
+    {
+      "name": "reject extra nested allocation key return_credit",
+      "passed": true,
+      "observed": {
+        "error": "Позиція коригування містить невідомі поля."
+      }
+    },
+    {
+      "name": "reject bool ID cancel_remaining.purchase_id",
+      "passed": true,
+      "observed": {
+        "error": "Ідентифікатор джерела має бути додатним цілим числом."
+      }
+    },
+    {
+      "name": "reject bool ID return_supplier.receipt_id",
+      "passed": true,
+      "observed": {
+        "error": "Ідентифікатор джерела має бути додатним цілим числом."
+      }
+    },
+    {
+      "name": "reject bool ID return_from_shipment.shipment_id",
+      "passed": true,
+      "observed": {
+        "error": "Ідентифікатор джерела має бути додатним цілим числом."
+      }
+    },
+    {
+      "name": "reject bool ID return_from_shipment.location_id",
+      "passed": true,
+      "observed": {
+        "error": "Ідентифікатор джерела має бути додатним цілим числом."
+      }
+    },
+    {
+      "name": "reject bool ID credit_invoice.invoice_id",
+      "passed": true,
+      "observed": {
+        "error": "Ідентифікатор джерела має бути додатним цілим числом."
+      }
+    },
+    {
+      "name": "reject bool ID credit_invoice.source_document_id",
+      "passed": true,
+      "observed": {
+        "error": "Ідентифікатор джерела має бути додатним цілим числом."
+      }
+    },
+    {
+      "name": "reject bool ID reverse_credit.credit_id",
+      "passed": true,
+      "observed": {
+        "error": "Ідентифікатор джерела має бути додатним цілим числом."
+      }
+    },
+    {
+      "name": "reject bool ID confirm_supplier_claim.claim_id",
+      "passed": true,
+      "observed": {
+        "error": "Ідентифікатор джерела має бути додатним цілим числом."
+      }
+    },
+    {
+      "name": "reject bool ID confirm_supplier_claim.source_document_id",
+      "passed": true,
+      "observed": {
+        "error": "Ідентифікатор джерела має бути додатним цілим числом."
+      }
+    },
+    {
+      "name": "reject bool ID sales_cancel.line_id",
+      "passed": true,
+      "observed": {
+        "error": "Ідентифікатор джерела має бути додатним цілим числом."
+      }
+    },
+    {
+      "name": "reject bool ID return_credit.invoice_id",
+      "passed": true,
+      "observed": {
+        "error": "Ідентифікатор джерела має бути додатним цілим числом."
+      }
+    },
+    {
+      "name": "reject bool nested ID credit_invoice.invoice_line_index",
+      "passed": true,
+      "observed": {
+        "error": "Номер позиції рахунку має бути цілим числом від нуля."
+      }
+    },
+    {
+      "name": "reject bool nested ID return_credit.invoice_line_index",
+      "passed": true,
+      "observed": {
+        "error": "Номер позиції рахунку має бути цілим числом від нуля."
+      }
+    },
+    {
+      "name": "reject bool nested ID return_credit.return_id",
+      "passed": true,
+      "observed": {
+        "error": "Оберіть конкретне повернення товару."
+      }
+    },
+    {
+      "name": "reject JSON number Q cancel_remaining",
+      "passed": true,
+      "observed": {
+        "error": "Кількість: десятковий рядок, до 3 знаків після крапки."
+      }
+    },
+    {
+      "name": "reject JSON number Q return_supplier",
+      "passed": true,
+      "observed": {
+        "error": "Кількість: десятковий рядок, до 3 знаків після крапки."
+      }
+    },
+    {
+      "name": "reject JSON number Q return_from_shipment",
+      "passed": true,
+      "observed": {
+        "error": "Кількість: десятковий рядок, до 3 знаків після крапки."
+      }
+    },
+    {
+      "name": "reject JSON number Q sales_cancel",
+      "passed": true,
+      "observed": {
+        "error": "Кількість: десятковий рядок, до 3 знаків після крапки."
+      }
+    },
+    {
+      "name": "reject JSON number Q return-credit allocation",
+      "passed": true,
+      "observed": {
+        "error": "Кількість: десятковий рядок, до 3 знаків після крапки."
+      }
+    },
+    {
+      "name": "reject JSON number M commercial allocation",
+      "passed": true,
+      "observed": {
+        "error": "Сума: десятковий рядок, до 2 знаків після крапки."
+      }
+    },
+    {
+      "name": "reject JSON number M supplier claim",
+      "passed": true,
+      "observed": {
+        "error": "Сума: десятковий рядок, до 2 знаків після крапки."
+      }
+    },
+    {
+      "name": "reject missing UUID cancel_remaining",
+      "passed": true,
+      "observed": {
+        "error": "Ідентифікатор, номер, причина й дата мають бути текстом."
+      }
+    },
+    {
+      "name": "reject malformed UUID cancel_remaining",
+      "passed": true,
+      "observed": {
+        "error": "Не вдалося створити ідентифікатор операції."
+      }
+    },
+    {
+      "name": "reject UUID wrong version cancel_remaining",
+      "passed": true,
+      "observed": {
+        "error": "Не вдалося створити ідентифікатор операції."
+      }
+    },
+    {
+      "name": "reject missing UUID return_supplier",
+      "passed": true,
+      "observed": {
+        "error": "Ідентифікатор, номер, причина й дата мають бути текстом."
+      }
+    },
+    {
+      "name": "reject malformed UUID return_supplier",
+      "passed": true,
+      "observed": {
+        "error": "Не вдалося створити ідентифікатор операції."
+      }
+    },
+    {
+      "name": "reject UUID wrong version return_supplier",
+      "passed": true,
+      "observed": {
+        "error": "Не вдалося створити ідентифікатор операції."
+      }
+    },
+    {
+      "name": "reject missing UUID return_from_shipment",
+      "passed": true,
+      "observed": {
+        "error": "Ідентифікатор, номер, причина й дата мають бути текстом."
+      }
+    },
+    {
+      "name": "reject malformed UUID return_from_shipment",
+      "passed": true,
+      "observed": {
+        "error": "Не вдалося створити ідентифікатор операції."
+      }
+    },
+    {
+      "name": "reject UUID wrong version return_from_shipment",
+      "passed": true,
+      "observed": {
+        "error": "Не вдалося створити ідентифікатор операції."
+      }
+    },
+    {
+      "name": "reject missing UUID credit_invoice",
+      "passed": true,
+      "observed": {
+        "error": "Ідентифікатор, номер, причина й дата мають бути текстом."
+      }
+    },
+    {
+      "name": "reject malformed UUID credit_invoice",
+      "passed": true,
+      "observed": {
+        "error": "Не вдалося створити ідентифікатор операції."
+      }
+    },
+    {
+      "name": "reject UUID wrong version credit_invoice",
+      "passed": true,
+      "observed": {
+        "error": "Не вдалося створити ідентифікатор операції."
+      }
+    },
+    {
+      "name": "reject missing UUID reverse_credit",
+      "passed": true,
+      "observed": {
+        "error": "Ідентифікатор, номер, причина й дата мають бути текстом."
+      }
+    },
+    {
+      "name": "reject malformed UUID reverse_credit",
+      "passed": true,
+      "observed": {
+        "error": "Не вдалося створити ідентифікатор операції."
+      }
+    },
+    {
+      "name": "reject UUID wrong version reverse_credit",
+      "passed": true,
+      "observed": {
+        "error": "Не вдалося створити ідентифікатор операції."
+      }
+    },
+    {
+      "name": "reject missing UUID confirm_supplier_claim",
+      "passed": true,
+      "observed": {
+        "error": "Ідентифікатор, номер, причина й дата мають бути текстом."
+      }
+    },
+    {
+      "name": "reject malformed UUID confirm_supplier_claim",
+      "passed": true,
+      "observed": {
+        "error": "Не вдалося створити ідентифікатор операції."
+      }
+    },
+    {
+      "name": "reject UUID wrong version confirm_supplier_claim",
+      "passed": true,
+      "observed": {
+        "error": "Не вдалося створити ідентифікатор операції."
+      }
+    },
+    {
+      "name": "reject missing UUID sales_cancel",
+      "passed": true,
+      "observed": {
+        "error": "Ідентифікатор, номер, причина й дата мають бути текстом."
+      }
+    },
+    {
+      "name": "reject malformed UUID sales_cancel",
+      "passed": true,
+      "observed": {
+        "error": "Не вдалося створити ідентифікатор операції."
+      }
+    },
+    {
+      "name": "reject UUID wrong version sales_cancel",
+      "passed": true,
+      "observed": {
+        "error": "Не вдалося створити ідентифікатор операції."
+      }
+    },
+    {
+      "name": "reject missing UUID return_credit",
+      "passed": true,
+      "observed": {
+        "error": "Ідентифікатор, номер, причина й дата мають бути текстом."
+      }
+    },
+    {
+      "name": "reject malformed UUID return_credit",
+      "passed": true,
+      "observed": {
+        "error": "Не вдалося створити ідентифікатор операції."
+      }
+    },
+    {
+      "name": "reject UUID wrong version return_credit",
+      "passed": true,
+      "observed": {
+        "error": "Не вдалося створити ідентифікатор операції."
+      }
+    },
+    {
+      "name": "observer denied cancel_remaining",
+      "passed": true,
+      "observed": {
+        "error": "Ваш обліковий запис має доступ лише для перегляду."
+      }
+    },
+    {
+      "name": "observer denied return_supplier",
+      "passed": true,
+      "observed": {
+        "error": "Ваш обліковий запис має доступ лише для перегляду."
+      }
+    },
+    {
+      "name": "observer denied return_from_shipment",
+      "passed": true,
+      "observed": {
+        "error": "Ваш обліковий запис має доступ лише для перегляду."
+      }
+    },
+    {
+      "name": "observer denied credit_invoice",
+      "passed": true,
+      "observed": {
+        "error": "Ваш обліковий запис має доступ лише для перегляду."
+      }
+    },
+    {
+      "name": "observer denied reverse_credit",
+      "passed": true,
+      "observed": {
+        "error": "Ваш обліковий запис має доступ лише для перегляду."
+      }
+    },
+    {
+      "name": "observer denied confirm_supplier_claim",
+      "passed": true,
+      "observed": {
+        "error": "Ваш обліковий запис має доступ лише для перегляду."
+      }
+    },
+    {
+      "name": "observer denied sales_cancel",
+      "passed": true,
+      "observed": {
+        "error": "Ваш обліковий запис має доступ лише для перегляду."
+      }
+    },
+    {
+      "name": "observer denied return_credit",
+      "passed": true,
+      "observed": {
+        "error": "Ваш обліковий запис має доступ лише для перегляду."
+      }
+    },
+    {
+      "name": "explicit write denied cancel_remaining",
+      "passed": true,
+      "observed": {
+        "error": "Ваш обліковий запис має доступ лише для перегляду."
+      }
+    },
+    {
+      "name": "explicit write denied return_supplier",
+      "passed": true,
+      "observed": {
+        "error": "Ваш обліковий запис має доступ лише для перегляду."
+      }
+    },
+    {
+      "name": "explicit write denied return_from_shipment",
+      "passed": true,
+      "observed": {
+        "error": "Ваш обліковий запис має доступ лише для перегляду."
+      }
+    },
+    {
+      "name": "explicit write denied credit_invoice",
+      "passed": true,
+      "observed": {
+        "error": "Ваш обліковий запис має доступ лише для перегляду."
+      }
+    },
+    {
+      "name": "explicit write denied reverse_credit",
+      "passed": true,
+      "observed": {
+        "error": "Ваш обліковий запис має доступ лише для перегляду."
+      }
+    },
+    {
+      "name": "explicit write denied confirm_supplier_claim",
+      "passed": true,
+      "observed": {
+        "error": "Ваш обліковий запис має доступ лише для перегляду."
+      }
+    },
+    {
+      "name": "explicit write denied sales_cancel",
+      "passed": true,
+      "observed": {
+        "error": "Ваш обліковий запис має доступ лише для перегляду."
+      }
+    },
+    {
+      "name": "explicit write denied return_credit",
+      "passed": true,
+      "observed": {
+        "error": "Ваш обліковий запис має доступ лише для перегляду."
+      }
+    },
+    {
+      "name": "manager financial role denied credit_invoice",
+      "passed": true,
+      "observed": {
+        "error": "Ця дія недоступна вашому обліковому запису."
+      }
+    },
+    {
+      "name": "manager financial role denied reverse_credit",
+      "passed": true,
+      "observed": {
+        "error": "Ця дія недоступна вашому обліковому запису."
+      }
+    },
+    {
+      "name": "manager financial role denied confirm_supplier_claim",
+      "passed": true,
+      "observed": {
+        "error": "Ця дія недоступна вашому обліковому запису."
+      }
+    },
+    {
+      "name": "manager financial role denied return_credit",
+      "passed": true,
+      "observed": {
+        "error": "Ця дія недоступна вашому обліковому запису."
+      }
+    },
+    {
+      "name": "manager operational action retained cancel_remaining",
+      "passed": true,
+      "observed": {
+        "action": "erp_cancel_remaining",
+        "operation_id": "a0000000-0000-4000-8000-000000000001",
+        "code": "КР-NODE-1",
+        "business_date": "2026-09-12",
+        "reason": "Погоджено джерельний результат",
+        "purchase_id": 19,
+        "quantity": "1.000",
+        "cancel_source": "purchase"
+      }
+    },
+    {
+      "name": "manager operational action retained return_supplier",
+      "passed": true,
+      "observed": {
+        "action": "erp_return_supplier",
+        "operation_id": "a0000000-0000-4000-8000-000000000001",
+        "code": "КР-NODE-1",
+        "business_date": "2026-09-12",
+        "reason": "Погоджено джерельний результат",
+        "receipt_id": 23,
+        "quantity": "1.000"
+      }
+    },
+    {
+      "name": "manager operational action retained return_from_shipment",
+      "passed": true,
+      "observed": {
+        "action": "erp_return_from_shipment",
+        "operation_id": "a0000000-0000-4000-8000-000000000001",
+        "code": "КР-NODE-1",
+        "business_date": "2026-09-12",
+        "reason": "Погоджено джерельний результат",
+        "shipment_id": 31,
+        "quantity": "1.000",
+        "location_id": 4
+      }
+    },
+    {
+      "name": "manager operational action retained sales_cancel",
+      "passed": true,
+      "observed": {
+        "action": "erp_cancel_remaining",
+        "operation_id": "a0000000-0000-4000-8000-000000000001",
+        "code": "КР-NODE-1",
+        "business_date": "2026-09-12",
+        "reason": "Погоджено джерельний результат",
+        "line_id": 27,
+        "quantity": "0.001",
+        "cancel_source": "sales"
+      }
+    },
+    {
+      "name": "reject cancellation both target types",
+      "passed": true,
+      "observed": {
+        "error": "Оберіть одну позицію продажу або одну закупівлю."
+      }
+    },
+    {
+      "name": "reject cancellation missing target type",
+      "passed": true,
+      "observed": {
+        "error": "Оберіть одну позицію продажу або одну закупівлю."
+      }
+    },
+    {
+      "name": "reject unknown action",
+      "passed": true,
+      "observed": {
+        "error": "Невідома ERP-дія."
+      }
+    },
+    {
+      "name": "reject invalid JSON shape null",
+      "passed": true,
+      "observed": {
+        "error": "Потрібен об’єкт дії."
+      }
+    },
+    {
+      "name": "reject invalid JSON shape []",
+      "passed": true,
+      "observed": {
+        "error": "Потрібен об’єкт дії."
+      }
+    },
+    {
+      "name": "reject invalid JSON shape {\"action\":false}",
+      "passed": true,
+      "observed": {
+        "error": "Потрібен об’єкт дії."
+      }
+    },
+    {
+      "name": "reject invalid JSON shape {broken",
+      "passed": true,
+      "observed": {
+        "error": "Expected property name or '}' in JSON at position 1 (line 1 column 2)"
+      }
+    },
+    {
+      "name": "actual dialog initial operation_id and change preserve imported intent cancel_remaining",
+      "passed": true,
+      "observed": {
+        "initial": "a0000000-0000-4000-8000-000000000001",
+        "after_change": "a0000000-0000-4000-8000-000000000001"
+      }
+    },
+    {
+      "name": "actual dialog initial operation_id and change preserve imported intent return_supplier",
+      "passed": true,
+      "observed": {
+        "initial": "a0000000-0000-4000-8000-000000000001",
+        "after_change": "a0000000-0000-4000-8000-000000000001"
+      }
+    },
+    {
+      "name": "actual dialog initial operation_id and change preserve imported intent return_from_shipment",
+      "passed": true,
+      "observed": {
+        "initial": "a0000000-0000-4000-8000-000000000001",
+        "after_change": "a0000000-0000-4000-8000-000000000001"
+      }
+    },
+    {
+      "name": "actual dialog initial operation_id and change preserve imported intent credit_invoice",
+      "passed": true,
+      "observed": {
+        "initial": "a0000000-0000-4000-8000-000000000001",
+        "after_change": "a0000000-0000-4000-8000-000000000001"
+      }
+    },
+    {
+      "name": "actual dialog initial operation_id and change preserve imported intent reverse_credit",
+      "passed": true,
+      "observed": {
+        "initial": "a0000000-0000-4000-8000-000000000001",
+        "after_change": "a0000000-0000-4000-8000-000000000001"
+      }
+    },
+    {
+      "name": "actual dialog initial operation_id and change preserve imported intent confirm_supplier_claim",
+      "passed": true,
+      "observed": {
+        "initial": "a0000000-0000-4000-8000-000000000001",
+        "after_change": "a0000000-0000-4000-8000-000000000001"
+      }
+    },
+    {
+      "name": "actual dialog initial operation_id and change preserve imported intent sales_cancel",
+      "passed": true,
+      "observed": {
+        "initial": "a0000000-0000-4000-8000-000000000001",
+        "after_change": "a0000000-0000-4000-8000-000000000001"
+      }
+    },
+    {
+      "name": "actual dialog initial operation_id and change preserve imported intent return_credit",
+      "passed": true,
+      "observed": {
+        "initial": "a0000000-0000-4000-8000-000000000001",
+        "after_change": "a0000000-0000-4000-8000-000000000001"
+      }
+    },
+    {
+      "name": "actual dialog recovery operation_id has precedence over preset",
+      "passed": true,
+      "observed": {
+        "intent": "b0000000-0000-4000-8000-000000000002"
+      }
+    },
+    {
+      "name": "actual new blank dialog has no invented operation ID before preview",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog routes new cancel_remaining to CorrectionActionDialog",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog routes new return_supplier to CorrectionActionDialog",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog routes new return_from_shipment to CorrectionActionDialog",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog routes new credit_invoice to CorrectionActionDialog",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog routes new reverse_credit to CorrectionActionDialog",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog routes new confirm_supplier_claim to CorrectionActionDialog",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old item route",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old location route",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old order route",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old confirm_order route",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old opening route",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old purchase route",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old receive route",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old job route",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old reserve route",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old release route",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old transfer route",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old attach route",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old quality route",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old start route",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old operator route",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old finish route",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old ship route",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old return route",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old invoice route",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old payment route",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old change route",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old apply_change route",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old resolve_job route",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old postpone route",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old postpone_job route",
+      "passed": true
+    },
+    {
+      "name": "actual BoSActionDialog preserves old adjust route",
+      "passed": true
+    },
+    {
+      "name": "no frontend/source or existing six-case evidence bytes changed",
+      "passed": true
+    }
+  ],
+  "passed": 138,
+  "failed": 0
+}

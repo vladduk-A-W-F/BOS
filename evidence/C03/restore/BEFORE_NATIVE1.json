@@ -1,0 +1,46 @@
+{
+  "status": "draft_not_run",
+  "base_sha256": "f3741cab1d8db32549fbf2df901eb230fa155727b9325ce426795a5dfe22d8ef",
+  "files": {
+    "scripts/restore_statements_fixture.py": "56c8ccf860c4f3c6237e8ce1f2a6dd1408a3091197e163da35f1e1ac694d2cb7",
+    "scripts/check_restore.py": "c64c0aba33ea1958f1841754d34e96c3c40fb66499fca649d29f8055d609357c"
+  },
+  "checks_old": [
+    "fresh_offline_install_and_independent_three_currency_fixture",
+    "all_owned_processes_stopped_and_source_backup_still_valid",
+    "late_admission_failure_keeps_new_target_unlaunchable",
+    "original_real_TLS_login_document",
+    "actual_TLS_import_populated_ledger_and_source_document",
+    "actual_TLS_tasks_FK_result_archive_and_history",
+    "actual_TLS_six_populated_correction_ledgers",
+    "actual_quiescence_native_capture",
+    "corrupt_backup_refused",
+    "existing_installation_restore_refused_without_writes",
+    "new_installation_native_restore",
+    "original_same_N_resumed",
+    "restored_real_TLS_login_document_and_version",
+    "restored_import_receipt_identity_replay_and_private_source",
+    "restored_six_correction_ledgers_source_history_and_intent_replay",
+    "restored_Task_legacy_NULL_FK_result_archive_history_and_owner_receipts"
+  ],
+  "checks_added": [
+    "actual_TLS_statements_three_currencies_create_link_and_allocate",
+    "restored_statements_exact_source_ledgers_three_currencies_and_receipts"
+  ],
+  "tables": {
+    "old": 53,
+    "new": 56
+  },
+  "amount_oracle": {
+    "new_cash_EUR": "4.56",
+    "journal_EUR": "21.95",
+    "existing_cash_USD": "123.45",
+    "allocated_USD": "2.34",
+    "unallocated_USD": "121.11",
+    "existing_cash_UAH": "9801.07"
+  },
+  "source_only": true,
+  "core_checkpoint_sha256": "86be441eca09e2bea33420fda70b2d97261a77c345ac13e9646fd1f2d4f772ed",
+  "source_copy": "/workspace/scratch/c7b51e996a9f/tmp/c03_restore_candidate/source",
+  "wire_preflight": "Removed unsupported SalesLine revision key before first actual run; original erp_order accepts item_id/quantity/price only."
+}

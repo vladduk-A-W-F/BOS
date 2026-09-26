@@ -1,0 +1,19 @@
+# A03: фінальний незалежний висновок
+
+**Консенсус у межах A03:** після захисту Employee.user, спільного DB bucket і унікального UUID ticket нових підтверджених блокерів у перевіреному identity/auth/session/proposal scope не залишилося. Приймання повного verify визначається його фактичними результатами; це не висновок про всю A04 матрицю або готовність BoS до серверного запуску.
+
+1. **Stale Employee.user виправлено в коді.** `Employee.command_fields` додає user до archived_at. Звичайний save виключає захищені name та attname з UPDATE і перечитує їх; явний update_fields із user/user_id відхиляється. INSERT із user залишається дозволеним для узгодженого fixture, а nullable OneToOne зберігає DB uniqueness. Root має окремі справжні serializer і ModelForm регресії; я їх не дублював.
+
+2. **Первинний ліміт входу справді мав race.** Незалежний red probe отримав вісім 401 і ще один 401 після завершення всіх потоків за 0.41 секунди. Тепер reserve працює з LoginAttempt у БД: створення bucket поза read/modify транзакцією, перший SQL усередині — no-op UPDATE, після нього читання і резервування. Таким чином SQLite отримує write-lock до читання, а PostgreSQL — блокування рядка. PostgreSQL runtime у цьому огляді не запускався.
+
+3. **Міжпроцесність перевірено справжнім HTTP.** Незалежний probe створює нову синтетичну SQLite і шість окремих Python-процесів із власними Django clients та справжнім CSRF. Результат: п’ять 401, один 429; наступний запит після завершення всіх процесів — 429. Це не LocMemCache, не спільний Python-об’єкт і не мок. Відтворення: `tmp/a03_rate_process_probe.py`; факти: `tmp/a03_rate_process_probe_result.json`.
+
+4. **Додатковий ABA дефект ticket закритий.** Раніше послідовність A=reserve, B=reserve, success(B), C=reserve, success(A) стирала C: attempts 1 → 0. Тепер кожен reserve записує новий UUID у тій самій транзакції, а succeeded робить умовний UPDATE за key і UUID. Повторний незалежний ORM probe без моків отримав різні ticket A/C і attempts 1 → 1. Red JSON збережено в `tmp/a03_ticket_aba_probe_before.json`; green — `tmp/a03_ticket_aba_probe_result.json`; регресія — `tmp/a03_ticket_aba_regression.py`.
+
+5. **Identity і авторство відповідають погодженому контракту.** Перечитуються active User, рівно одна канонічна Group та архівний стан прив’язаного Employee. Payload/session role і посада Employee не дають повноважень. Login використовує Django authenticate/login та CSRF; CEO не стає staff/superuser. Link-команда використовує явні ID і відхиляє чужий мапінг. Proposal перевіряє user, session і актуальну роль до receipt; legacy proposal без автора відхиляється. ERP повторює перевірку після mutex.
+
+6. **Demo/working розділено в поточному A03 контрактi.** Demo використовує окремих реальних User з unusable password і session marker; working повертає 404 для demo/role endpoint та відхиляє позначену demo-сесію. Для наступного upgrade/server етапу окремо перевірити походження користувачів при перенесенні БД: persisted User не має окремого типу demo. Зовнішній обхід поточного механізму в цьому огляді не доведено.
+
+7. **Два неблокувальні продовження для UI/A04.** `operations.errors` зводить PermissionError до 403 і може втратити IdentityDenied зі статусом 401 після очікування. AuthGate реагує на 401, але identity-denied 403 не знімає вже відкритий App. Нової серверної видачі даних цим не доведено; варто окремо позначити identity denial та перевірити екран після відкликання ролі, не роблячи logout через кожну бізнесову 403.
+
+8. **Межі незалежної перевірки.** Checkout не змінювався; реальні БД не відкривалися. Виконувалися лише нові тимчасові синтетичні БД, після probe вони видаляються. Загальні 151 + 5 та нові 35 тестів перевіряє root; їхній результат не підміняється цим оглядом. Майбутні червоні gates A04, PostgreSQL, Windows, upgrade та browser залишаються окремими вимогами.

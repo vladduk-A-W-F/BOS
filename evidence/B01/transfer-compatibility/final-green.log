@@ -1,0 +1,29 @@
+test_full_model_transfer_preserves_money_stock_files_ids_and_replays (erp.test_full_data_transfer.FullDataTransferTests.test_full_model_transfer_preserves_money_stock_files_ids_and_replays) ... ok
+test_missing_referenced_file_is_a_written_refusal_without_source_changes (erp.test_preflight_missing_media.PreflightMissingMediaTests.test_missing_referenced_file_is_a_written_refusal_without_source_changes) ... ok
+test_all_legacy_bytes_remain_charged_to_migration_quota (operations.test_document_migration.A08DocumentMigrationTests.test_all_legacy_bytes_remain_charged_to_migration_quota) ... Found 11 test(s).
+Skipping setup of unused database(s): default.
+System check identified no issues (0 silenced).
+BOS_A07_TRANSFER {"backend": "sqlite", "complete": true, "table_count": 45, "source_sha256": "059ed6b1d59f25af7c415ad0c05e0208ce4d89a99de0556cf024d99efdbbd4d2", "source_unchanged": true, "accounting_totals": {"stock": {"lot_count": 12, "movement_count": 18, "recorded_cost_basis_by_currency": {"EUR": "39", "USD": "39", "UAH": "39"}, "quantity_by_item": {"1": {"stock": "13", "movements": "13"}, "2": {"stock": "2", "movements": "2"}, "3": {"stock": "13", "movements": "13"}, "4": {"stock": "2", "movements": "2"}, "5": {"stock": "13", "movements": "13"}, "6": {"stock": "2", "movements": "2"}}}, "finance": {"salary_rows": 3, "transaction_rows": 6, "salary_amounts": [{"currency": "EUR", "status": "paid", "amount": "100"}, {"currency": "UAH", "status": "paid", "amount": "100"}, {"currency": "USD", "status": "paid", "amount": "100"}], "transaction_amounts": [{"currency": "EUR", "direction": "in", "amount": "200"}, {"currency": "EUR", "direction": "out", "amount": "100"}, {"currency": "UAH", "direction": "in", "amount": "200"}, {"currency": "UAH", "direction": "out", "amount": "100"}, {"currency": "USD", "direction": "in", "amount": "200"}, {"currency": "USD", "direction": "out", "amount": "100"}]}}, "next_ids": [90002, 90003], "http_receipt_equal": true, "not_checked": ["real_customer_data", "postgresql", "production_cutover", "A09_A10_installation_upgrade"]}
+BOS_A08_DOCUMENT_CASE {"case": "quota", "passed": true, "input_unchanged": true, "details": {"legacy_bytes_counted": 382, "all_or_nothing": true}}
+ok
+test_all_source_conflicts_are_reported_before_writing (operations.test_document_migration.A08DocumentMigrationTests.test_all_source_conflicts_are_reported_before_writing) ... BOS_A08_DOCUMENT_CASE {"case": "all_conflicts", "passed": true, "input_unchanged": true, "details": {"findings": [{"model": "operations.Document", "id": 7, "reason": "DOCUMENT_BYTES_SIZE_OR_CHECKSUM_INVALID"}, {"model": "operations.Document", "id": 1001, "reason": "DOCUMENT_BYTES_SIZE_OR_CHECKSUM_INVALID"}, {"model": "ai_assistant.ChatFile", "id": 1, "reason": "CHAT_BYTES_SIZE_OR_CHECKSUM_INVALID"}], "rows_and_files_unchanged": true, "refusal_report_saved": true}}
+ok
+test_bound_missing_corrupt_and_null_size_never_use_legacy_fallback (operations.test_document_migration.A08DocumentMigrationTests.test_bound_missing_corrupt_and_null_size_never_use_legacy_fallback) ... BOS_A08_DOCUMENT_CASE {"case": "bound_conflicts", "passed": true, "input_unchanged": true, "details": {"bound_missing_corrupt_null_size_ids": [7, 1001, 90001], "legacy_fallback": false}}
+ok
+test_forged_wrong_copy_attached_and_cross_plan_refused (operations.test_document_migration.A08DocumentMigrationTests.test_forged_wrong_copy_attached_and_cross_plan_refused) ... BOS_A08_DOCUMENT_CASE {"case": "ownership", "passed": true, "input_unchanged": true, "details": {"constructor_forged_wrong_database_wrong_media_attached_cross_plan": "refused"}}
+ok
+test_known_chat_checksum_deletion_refuses_old_plan (operations.test_document_migration.A08DocumentMigrationTests.test_known_chat_checksum_deletion_refuses_old_plan) ... BOS_A08_DOCUMENT_CASE {"case": "chat_checksum", "passed": true, "input_unchanged": true, "details": {"declared_checksum_deletion_refused_without_repair": true}}
+ok
+test_late_sql_failure_rolls_back_rows_and_only_new_files (operations.test_document_migration.A08DocumentMigrationTests.test_late_sql_failure_rolls_back_rows_and_only_new_files) ... BOS_A08_DOCUMENT_CASE {"case": "rollback", "passed": true, "input_unchanged": true, "details": {"rows_and_files_unchanged_after_late_sql_failure": true}}
+ok
+test_missing_mutex_creation_is_the_only_allowed_new_row (operations.test_document_migration.A08DocumentMigrationTests.test_missing_mutex_creation_is_the_only_allowed_new_row) ... BOS_A08_DOCUMENT_CASE {"case": "missing_mutex", "passed": true, "input_unchanged": true, "details": {"full_rehearsal_without_existing_mutex": true, "new_files": 3}}
+ok
+test_mixed_files_replay_restore_and_typed_transfer (operations.test_document_migration.A08DocumentMigrationTests.test_mixed_files_replay_restore_and_typed_transfer) ... BOS_A08_DOCUMENT_CASE {"case": "mixed", "passed": true, "input_unchanged": true, "details": {"tables": 45, "new_files": 3, "replay_new_files": 0, "restored_exact_bytes": 4, "typed_transfer_exact_bytes": 4}}
+ok
+test_nullable_schema_upgrade_preserves_highwater_and_existing_rows (operations.test_document_migration.A08DocumentMigrationTests.test_nullable_schema_upgrade_preserves_highwater_and_existing_rows) ... BOS_A08_DOCUMENT_CASE {"case": "highwater", "passed": true, "input_unchanged": true, "details": {"document_high_water": 400001, "chat_high_water": 500001, "actual_next_document_id": 400002, "historical_schema_created": true, "b01_source_fields_never_created_or_erased": true, "historical_media_unchanged": true}}
+ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 19.621s
+
+OK

@@ -1,0 +1,38 @@
+{
+  "time": "2026-09-11T21:50:09.105122+00:00",
+  "before": {
+    "time": "2026-09-11T21:49:01.839243+00:00",
+    "head": "5bf3dbfc267038c0e7821c6c56b2df3ff273384f",
+    "sha256": {
+      "scripts/preflight_data.py": "d946602d8c8dc3c299fb73d7cc4725aa3eb3ae25d87d1527348d7ff53bc3a965",
+      "scripts/schema_preflight.py": "30b40d2d75f2f11a92a54a484bb9116228a19e35f2e3fa9d25524982c342df41",
+      "scripts/data_transfer.py": "8e0456ea7a89988050c86333e2cffa3e0b82a5742033b805c448c858c04d4be3",
+      "scripts/reconcile_data.py": "e472f772172ed64a5341bd30457d6d575178851d8b7b3d3d6d9ba62bcc08d586"
+    },
+    "test_sha256": "75570ebbd718d1ed99fe332364c084d18e9d2fb9e3ba4a6e17b458c0f7499f0c"
+  },
+  "after": {
+    "time": "2026-09-11T21:50:09.105122+00:00",
+    "sha256": {
+      "scripts/preflight_data.py": "d946602d8c8dc3c299fb73d7cc4725aa3eb3ae25d87d1527348d7ff53bc3a965",
+      "scripts/schema_preflight.py": "30b40d2d75f2f11a92a54a484bb9116228a19e35f2e3fa9d25524982c342df41",
+      "scripts/data_transfer.py": "8e0456ea7a89988050c86333e2cffa3e0b82a5742033b805c448c858c04d4be3",
+      "scripts/reconcile_data.py": "e472f772172ed64a5341bd30457d6d575178851d8b7b3d3d6d9ba62bcc08d586"
+    },
+    "test_sha256": "75570ebbd718d1ed99fe332364c084d18e9d2fb9e3ba4a6e17b458c0f7499f0c",
+    "scope_unchanged": true
+  },
+  "test_ids": [
+    "erp.test_data_preflight.DataPreflightAdmissionTests.test_complete_intent_document_and_archived_file_are_accepted_without_changing_bytes",
+    "erp.test_data_preflight.DataPreflightAdmissionTests.test_committed_financial_intent_without_source_is_refused_without_repair",
+    "erp.test_data_preflight.DataPreflightAdmissionTests.test_equal_amount_date_expenses_remain_candidates_and_keep_distinct_ids",
+    "erp.test_data_preflight.DataPreflightAdmissionTests.test_known_incomplete_historical_schema_is_explicitly_refused_without_new_tables"
+  ],
+  "target": "erp/test_data_preflight.py",
+  "methods": 4,
+  "seconds": 4.84,
+  "exit_code": 0,
+  "backend": "sqlite",
+  "postgres_status": "НЕ ЗАПУЩЕНО",
+  "source_kind": "independent verification of existing preflight implementation; not pre-fix red"
+}

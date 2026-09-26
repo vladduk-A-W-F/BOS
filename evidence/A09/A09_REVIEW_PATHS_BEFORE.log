@@ -1,0 +1,51 @@
+test_nonisolated_and_aliased_paths_refused (__main__.A09ServerConfigurationTests.test_nonisolated_and_aliased_paths_refused) ... 
+  test_nonisolated_and_aliased_paths_refused (__main__.A09ServerConfigurationTests.test_nonisolated_and_aliased_paths_refused) (index=10) ... FAIL
+test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) ... 
+  test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) (key='SESSION_COOKIE_NAME') ... FAIL
+  test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) (key='CSRF_COOKIE_NAME') ... FAIL
+test_root_requires_owner_read_and_search (__main__.A09ServerConfigurationTests.test_root_requires_owner_read_and_search) ... ok
+test_readonly_root_with_provisioned_children_is_valid (__main__.A09ServerConfigurationTests.test_readonly_root_with_provisioned_children_is_valid) ... ok
+
+======================================================================
+FAIL: test_nonisolated_and_aliased_paths_refused (__main__.A09ServerConfigurationTests.test_nonisolated_and_aliased_paths_refused) (index=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 205, in test_nonisolated_and_aliased_paths_refused
+    self.refused(arrange=arrange)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 140, in refused
+    self.assertEqual(result['status'], 'refused', result)
+AssertionError: 'started' != 'refused'
+- started
++ refused
+ : {'attempts': [], 'status': 'started', 'callable': True, 'mode': 'working', 'cookie': 'bos_session_2db64ae0e3e14f7a8c8b1fd2ee2c11c2', 'secret_sha': '4573830610e328d117777cec6c42de8fd6d2691a2eb110f7fc733f14a1b09457', 'settings': 'server_settings', 'installed_apps': 15, 'local': {'secret_unchanged': True, 'guard_unchanged': True, 'permission_unchanged': True}, 'case': 'test_nonisolated_and_aliased_paths_refused', 'mutation': None, 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) (key='SESSION_COOKIE_NAME')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 219, in test_effective_configuration_is_checked_after_module_import
+    self.refused(mutation=mutation)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 140, in refused
+    self.assertEqual(result['status'], 'refused', result)
+AssertionError: 'started' != 'refused'
+- started
++ refused
+ : {'attempts': [], 'status': 'started', 'callable': True, 'mode': 'working', 'cookie': 'sessionid', 'secret_sha': '23506bca743326c386f7157703e0ada7160218263ad2fec13906ded1d6149e42', 'settings': 'server_settings', 'installed_apps': 15, 'local': {'secret_unchanged': True, 'guard_unchanged': True, 'permission_unchanged': True}, 'case': 'test_effective_configuration_is_checked_after_module_import', 'mutation': 'SESSION_COOKIE_NAME', 'environment_keys_changed': []}
+
+======================================================================
+FAIL: test_effective_configuration_is_checked_after_module_import (__main__.A09ServerConfigurationTests.test_effective_configuration_is_checked_after_module_import) (key='CSRF_COOKIE_NAME')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 219, in test_effective_configuration_is_checked_after_module_import
+    self.refused(mutation=mutation)
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 140, in refused
+    self.assertEqual(result['status'], 'refused', result)
+AssertionError: 'started' != 'refused'
+- started
++ refused
+ : {'attempts': [], 'status': 'started', 'callable': True, 'mode': 'working', 'cookie': 'bos_session_34d04ac7fb374971836897fb6c46ee27', 'secret_sha': 'b81d345c58956d2e7895ae8f21578edd46d3669945eb584e2c4a0e622a95f346', 'settings': 'server_settings', 'installed_apps': 15, 'local': {'secret_unchanged': True, 'guard_unchanged': True, 'permission_unchanged': True}, 'case': 'test_effective_configuration_is_checked_after_module_import', 'mutation': 'CSRF_COOKIE_NAME', 'environment_keys_changed': []}
+
+----------------------------------------------------------------------
+Ran 4 tests in 2.228s
+
+FAILED (failures=3)

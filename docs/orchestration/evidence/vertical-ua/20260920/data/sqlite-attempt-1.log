@@ -1,0 +1,35 @@
+Traceback (most recent call last):
+  File "D:\3\Codex\2026-09-20\bos-execution\work\bos-fullgit-20260920\manage.py", line 22, in <module>
+    main()
+  File "D:\3\Codex\2026-09-20\bos-execution\work\bos-fullgit-20260920\manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "D:\3\Codex\2026-09-20\bos-execution\work\vertical-ua\venv\Lib\site-packages\django\core\management\__init__.py", line 443, in execute_from_command_line
+    utility.execute()
+  File "D:\3\Codex\2026-09-20\bos-execution\work\vertical-ua\venv\Lib\site-packages\django\core\management\__init__.py", line 437, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "D:\3\Codex\2026-09-20\bos-execution\work\vertical-ua\venv\Lib\site-packages\django\core\management\commands\test.py", line 24, in run_from_argv
+    super().run_from_argv(argv)
+  File "D:\3\Codex\2026-09-20\bos-execution\work\vertical-ua\venv\Lib\site-packages\django\core\management\base.py", line 420, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "D:\3\Codex\2026-09-20\bos-execution\work\vertical-ua\venv\Lib\site-packages\django\core\management\base.py", line 464, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\3\Codex\2026-09-20\bos-execution\work\vertical-ua\venv\Lib\site-packages\django\core\management\commands\test.py", line 63, in handle
+    failures = test_runner.run_tests(test_labels)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\3\Codex\2026-09-20\bos-execution\work\vertical-ua\venv\Lib\site-packages\django\test\runner.py", line 1120, in run_tests
+    suite = self.build_suite(test_labels)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\3\Codex\2026-09-20\bos-execution\work\vertical-ua\venv\Lib\site-packages\django\test\runner.py", line 976, in build_suite
+    tests = self.load_tests_for_label(label, discover_kwargs)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\3\Codex\2026-09-20\bos-execution\work\vertical-ua\venv\Lib\site-packages\django\test\runner.py", line 934, in load_tests_for_label
+    tests = self.test_loader.loadTestsFromName(label)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\unittest\loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\3\Codex\2026-09-20\bos-execution\work\bos-fullgit-20260920\erp\test_workpoints.py", line 179
+    self.assertEqual((lot.quantity, service.reserved(lot)), (Decimal('3.000'), Decimal('3.000'))
+                    ^
+SyntaxError: '(' was never closed

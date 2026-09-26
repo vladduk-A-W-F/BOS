@@ -1,0 +1,1811 @@
+{
+  "date": "2026-09-11",
+  "task": "0.1",
+  "repository": "/workspace/sites/bos-original-refined",
+  "mode": "Аналіз коду без змін; діагностичні записи лише в нову синтетичну базу.",
+  "canonical_defect_count": 12,
+  "known_defect_sites": [
+    "DEF-01",
+    "DEF-02"
+  ],
+  "additional_defect_sites": [
+    "DEF-03",
+    "DEF-04",
+    "DEF-05",
+    "DEF-06",
+    "DEF-07",
+    "DEF-08",
+    "DEF-09",
+    "DEF-10",
+    "DEF-11",
+    "DEF-12"
+  ],
+  "stop_condition": {
+    "section": "8.6",
+    "threshold": 5,
+    "triggered": true,
+    "required_action": "Не починати виправлення; погодити розширений обсяг A05"
+  },
+  "counting_rule": "Рахується канонічне місце: один serializer або одна registration/purpose admin. URL aliases, viewset→serializer і pay→mark_paid не подвоюються; single/bulk delete одного model admin згруповані.",
+  "verdict_row_counts": {
+    "ризик": 55,
+    "перевірено локально": 15,
+    "дефект": 15
+  },
+  "coverage": {
+    "erp_schema_actions": 26,
+    "inventory_rows": 85,
+    "sections": {
+      "ERP": 26,
+      "Обгортки": 9,
+      "Фінанси/API": 15,
+      "Admin": 12,
+      "Документи/закупівлі": 5,
+      "Legacy AI": 14,
+      "Службові команди": 4
+    },
+    "orm_write_search": [
+      "create",
+      "save",
+      "update",
+      "delete",
+      "get_or_create",
+      "update_or_create",
+      "bulk_create",
+      "bulk_update"
+    ],
+    "framework_inherited_writers": true,
+    "admin_registry_inspected": true,
+    "legacy_handlers_included": true
+  },
+  "evidence": {
+    "probe": "evidence/INVENTORY/probe.py",
+    "full_output": "evidence/INVENTORY/DETAILS.json",
+    "prior_audit": "evidence/INVENTORY/PRIOR/DATA_AUDIT_UA.md",
+    "probe_cases": 18,
+    "probe_exit_zero_means": "Заявлені дефекти відтворені; НЕ acceptance",
+    "root_repeat": "evidence/INVENTORY/ROOT_RUN.json"
+  },
+  "a05_estimate": {
+    "previous_days": [
+      3,
+      5
+    ],
+    "revised_days": [
+      6.0,
+      10.0
+    ],
+    "increment_days": [
+      3,
+      5
+    ],
+    "groups": [
+      {
+        "group": "Фінансові serializer/API команди: поля нарахування й проводки, create/update та replay; DEF-03/DEF-04",
+        "days_min": 1.5,
+        "days_max": 2.5,
+        "includes": "Єдина доменна перевірка й адаптери; базовий mark_paid race не включений"
+      },
+      {
+        "group": "Збереження історії і джерела при API видаленні; DEF-05/DEF-06/DEF-07",
+        "days_min": 1.0,
+        "days_max": 1.5,
+        "includes": "Контрольоване архівування/відмова з узгодженим бізнесовим результатом; не виправлення історичної БД"
+      },
+      {
+        "group": "Admin save/delete/single/bulk на тих самих командах; DEF-08–DEF-12",
+        "days_min": 1.0,
+        "days_max": 2.0,
+        "includes": "Власна adapter-поверхня admin, без повторної реалізації фінансової логіки"
+      },
+      {
+        "group": "Решта CRUD/document/RFQ writer adapters і legacy AI до того самого write-контракту",
+        "days_min": 1.0,
+        "days_max": 2.0,
+        "includes": "Зберегти поточний режим LLM; не запускати платну модель; без RFQ→PO workflow B01"
+      },
+      {
+        "group": "Цільові справжні DRF/admin перевірки всіх writer сімейств і повторів; звірка inventory",
+        "days_min": 1.5,
+        "days_max": 2.0,
+        "includes": "Тестування результатів адаптерів; не рольова матриця A04, не PostgreSQL contention A06, не DB-migration A07"
+      }
+    ],
+    "excludes": [
+      "A01: repeated-lot finish fix",
+      "A02: protected single salary payout",
+      "A03: User↔Employee identity",
+      "A04: role policies/data access matrix",
+      "A06: lock order, PostgreSQL concurrency and fingerprint",
+      "A07: DB constraints, type lengths/Decimal and migrations",
+      "B01: RFQ to Purchase workflow",
+      "B03: full returns/corrections workflow",
+      "0.5: client historical data reconciliation/repair"
+    ]
+  },
+  "other_estimates": [
+    {
+      "finding": "Salary.mark_paid omits currency",
+      "days": [
+        0.25,
+        0.5
+      ],
+      "task": "A02",
+      "already_counted_writer": "DEF-02",
+      "note": "Додаткова перевірка валюти; не додаткове місце і не A05"
+    }
+  ],
+  "not_run": [
+    "PostgreSQL",
+    "HTTP concurrency",
+    "Windows",
+    "browser",
+    "production/client financial reconciliation 0.5",
+    "external LLM",
+    "verify",
+    "full functional test suite this audit"
+  ],
+  "rows": [
+    {
+      "id": "ERP-item",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[item]",
+      "lines": "154–160",
+      "reads": "BOM-компоненти; довідники, ціни, валюта",
+      "writes": "Item",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "ризик",
+      "note": "Складського руху немає; окремі межі довжини/Decimal належать A07.",
+      "evidence": [
+        "статичний огляд erp/service.py"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ERP-location",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[location]",
+      "lines": "161–164",
+      "reads": "Постачальник для місця supplier",
+      "writes": "Location",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "ризик",
+      "note": "Руху немає; виклик статично під спільним mutex.",
+      "evidence": [
+        "статичний огляд erp/service.py"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ERP-order",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[order]",
+      "lines": "165–173",
+      "reads": "Customer, Employee, Item.revision; рядки, ціни",
+      "writes": "SalesOrder + SalesLine",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "ризик",
+      "note": "Одне замовлення й усі рядки атомарні; приймання конкурентності окремо не запускалося.",
+      "evidence": [
+        "статичний огляд erp/service.py"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ERP-confirm_order",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[confirm_order]",
+      "lines": "174–177",
+      "reads": "SalesOrder.status",
+      "writes": "SalesOrder.status",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "ризик",
+      "note": "Є перевірка quote; окреме повторне підтвердження не досліджувалося.",
+      "evidence": [
+        "статичний огляд erp/service.py"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ERP-opening",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[opening]",
+      "lines": "178–181",
+      "reads": "Item, Location; початкова кількість і ціна",
+      "writes": "newlot → Lot + Movement",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "ризик",
+      "note": "Створення початкового залишку входить у protected dispatch; окремий HTTP opening у новому probe не запускався.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:finish_repeated_lot (початковий баланс — синтетична fixture, не окремий opening endpoint)",
+        "evidence/INVENTORY/PRIOR/DATA_AUDIT_UA.md:матриця ERP"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ERP-purchase",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[purchase]",
+      "lines": "182–187",
+      "reads": "Item, Supplier, Production.bom; умови закупівлі",
+      "writes": "Purchase",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "ризик",
+      "note": "Не створює приходу; зв’язок із RFQ/quote — окремий B01, не гонка залишків.",
+      "evidence": [
+        "статичний огляд erp/service.py"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ERP-receive",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[receive]",
+      "lines": "188–193",
+      "reads": "Purchase.quantity/received/price/extras; місце",
+      "writes": "Lot + Movement(receipt) + Purchase.received/status",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "перевірено локально",
+      "note": "Локальне паралельне відтворення попереднього аудиту: один успіх, один SQLite conflict. Вартісне округлення окремо не приймалося.",
+      "evidence": [
+        "evidence/INVENTORY/PRIOR/DATA_AUDIT_UA.md:receive"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ERP-job",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[job]",
+      "lines": "194–207",
+      "reads": "Item.bom/routing/cost; SalesLine.shipped; інші Production",
+      "writes": "Production",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "ризик",
+      "note": "Агрегація незавершеної потреби під mutex; окрема конкурентна перевірка не запускалася.",
+      "evidence": [
+        "статичний огляд erp/service.py"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ERP-reserve",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[reserve]",
+      "lines": "208–224",
+      "reads": "Lot, SUM Reservation, потреба SalesLine/Production, документи",
+      "writes": "Reservation",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "перевірено локально",
+      "note": "Два послідовні резерви тієї самої партії дозволені; на цьому кроці залишок не списується. Дефект виникає у finish.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:finish_repeated_lot",
+        "evidence/INVENTORY/PRIOR/DATA_AUDIT_UA.md:reserve"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ERP-release",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[release]",
+      "lines": "225–228",
+      "reads": "Reservation.quantity",
+      "writes": "Reservation.quantity",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "перевірено локально",
+      "note": "Нульовий резерв зберігається законно; попередній SQLite race не показав дубля.",
+      "evidence": [
+        "evidence/INVENTORY/PRIOR/DATA_AUDIT_UA.md:release"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ERP-transfer",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[transfer]",
+      "lines": "229–235",
+      "reads": "Lot.quantity, резерви, ціна, місце та job",
+      "writes": "Movement(out/in), вихідна Lot, нова Lot",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "перевірено локально",
+      "note": "Усі ефекти в dispatch atomic; попередній аудит відтворив повний rollback при конфлікті коду нової партії.",
+      "evidence": [
+        "evidence/INVENTORY/PRIOR/DATA_AUDIT_UA.md:transfer,rollback_after_move"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ERP-quality",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[quality]",
+      "lines": "238–244",
+      "reads": "Lot; чинність документів; inspector",
+      "writes": "Lot.quality + Inspection",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "ризик",
+      "note": "Документні writers обходять mutex: їх взаємодія з якістю/відвантаженням — неперевірений ризик A06.",
+      "evidence": [
+        "статичний огляд erp/service.py"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ERP-attach",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[attach]",
+      "lines": "236–237",
+      "reads": "Lot.documents; Document",
+      "writes": "Lot.documents",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "ризик",
+      "note": "Зміна набору документів під mutex, але зовнішні зміни Document — поза ним; A06.",
+      "evidence": [
+        "статичний огляд erp/service.py"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ERP-start",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[start]",
+      "lines": "245–251",
+      "reads": "Production.status/BOM; Reservation; придатність Lot",
+      "writes": "Production.status",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "перевірено локально",
+      "note": "У новому probe фактично пройшов start після двох резервів; це не повна перевірка всіх станів.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:finish_repeated_lot"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ERP-operator",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[operator]",
+      "lines": "252–260",
+      "reads": "Production.status; попередні OperatorEntry; Employee",
+      "writes": "OperatorEntry",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "перевірено локально",
+      "note": "У новому probe фактично записано завершену операцію; право кожної ролі ще не прийняте.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:finish_repeated_lot"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ERP-finish",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[finish]",
+      "lines": "261–278",
+      "reads": "Production; окремі застарілі r.lot для повторних резервів",
+      "writes": "Reservation, Lot.quantity, consume/production Movement, job.produced/cost",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "дефект",
+      "note": "Після резервів 5+5 з партії10: produced10, залишок5, сума рухів0. Mutex не усуває stale ORM усередині одного виклику.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:finish_repeated_lot"
+      ],
+      "canonical_defect_site": "DEF-01"
+    },
+    {
+      "id": "ERP-ship",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[ship]",
+      "lines": "279–288",
+      "reads": "SalesLine, Lot, Reservation, документи/валюта",
+      "writes": "Reservation, Lot, shipment Movement, SalesLine.shipped",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "перевірено локально",
+      "note": "Локальна паралельна пара попереднього аудиту серіалізувалась; документи потребують спільного lock-контракту.",
+      "evidence": [
+        "evidence/INVENTORY/PRIOR/DATA_AUDIT_UA.md:ship"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ERP-return",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[return]",
+      "lines": "289–296",
+      "reads": "SUM shipment/return по line+lot",
+      "writes": "Нова blocked Lot + return Movement",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "перевірено локально",
+      "note": "Історію shipped/invoiced навмисно не переписує; кредит-нота — окремий процес, не прихований дефект.",
+      "evidence": [
+        "evidence/INVENTORY/PRIOR/DATA_AUDIT_UA.md:return"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ERP-invoice",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[invoice]",
+      "lines": "297–304",
+      "reads": "Order/SalesLine shipped−invoiced та price",
+      "writes": "SalesLine.invoiced + Invoice + InvoiceLink",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "перевірено локально",
+      "note": "Грошова гонка локально не відтворилась. Окремо доведено: clean допускає code31 при model max30; це дефект контракту типів A07, не додатковий RMW writer.",
+      "evidence": [
+        "evidence/INVENTORY/PRIOR/DATA_AUDIT_UA.md:invoice,sqlite_invoice_code_over_model_limit"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ERP-payment",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[payment]",
+      "lines": "305–309",
+      "reads": "Invoice.amount/paid; Event.payload.reference",
+      "writes": "Invoice.paid + Event(erp_payment)",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "перевірено локально",
+      "note": "Є mutex і перевірка reference; Invoice та Event — локальний факт оплати, не Transaction і не банківський переказ. UNIQUE scalar key відсутній: A07.",
+      "evidence": [
+        "evidence/INVENTORY/PRIOR/DATA_AUDIT_UA.md:payment,payment_dup"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ERP-change",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[change]",
+      "lines": "310–313",
+      "reads": "Item; чинний approved Document",
+      "writes": "ChangeOrder",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "ризик",
+      "note": "Руху немає; конкурентна заміна документа не запускалася.",
+      "evidence": [
+        "статичний огляд erp/service.py"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ERP-apply_change",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[apply_change]",
+      "lines": "314–321",
+      "reads": "ChangeOrder, Document, Item, відкриті Production",
+      "writes": "Item.revision/document, Production.needs_review, ChangeOrder",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "ризик",
+      "note": "Інженерний writer впливає на дозволені складські дії; role ceo перевіряється. Документна гонка — A06.",
+      "evidence": [
+        "статичний огляд erp/service.py"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ERP-resolve_job",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[resolve_job]",
+      "lines": "322–326",
+      "reads": "Production.needs_review",
+      "writes": "Production.needs_review",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "ризик",
+      "note": "Дозвіл продовжити стару версію; mutex наявний, окреме приймання не запускалося.",
+      "evidence": [
+        "статичний огляд erp/service.py"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ERP-postpone",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[postpone]",
+      "lines": "327–330",
+      "reads": "Purchase",
+      "writes": "Purchase.due_date",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "ризик",
+      "note": "Дата постачання під mutex; не створює приходу або оплати.",
+      "evidence": [
+        "статичний огляд erp/service.py"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ERP-postpone_job",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[postpone_job]",
+      "lines": "327–330",
+      "reads": "Production",
+      "writes": "Production.due_date",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "ризик",
+      "note": "Дата виробництва під mutex; не створює руху.",
+      "evidence": [
+        "статичний огляд erp/service.py"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ERP-adjust",
+      "section": "ERP",
+      "module": "erp/service.py",
+      "function": "dispatch[adjust]",
+      "lines": "331–336",
+      "reads": "Lot.quantity; SUM Reservation",
+      "writes": "Lot.quantity + adjustment Movement",
+      "atomic": "Так: dispatch @atomic",
+      "lock": "UPDATE Configuration[erp_write] до предметних читань",
+      "proposal_confirm": "Так для поточного HTTP; service/seed можуть викликати напряму",
+      "idempotency": "receipt/CAS одного proposal_id; не ключ довільного payload",
+      "verdict": "перевірено локально",
+      "note": "Локальна гонка попереднього аудиту серіалізується; неправильний порядок fingerprint щодо lock — окремий ризик A06.",
+      "evidence": [
+        "evidence/INVENTORY/PRIOR/DATA_AUDIT_UA.md:adjust"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "CORE-move",
+      "section": "Обгортки",
+      "module": "erp/service.py",
+      "function": "move",
+      "lines": "97–102",
+      "reads": "Переданий Lot.quantity + SUM Reservation",
+      "writes": "Lot.quantity + Movement",
+      "atomic": "У поточних production callers: так; власного atomic немає",
+      "lock": "Успадкований M; helper не блокує сам",
+      "proposal_confirm": "Через dispatch callers",
+      "idempotency": "Через caller",
+      "verdict": "перевірено локально",
+      "note": "Є перевірки new>=0 та new>=reserved; precondition: актуальний ORM-об’єкт. Порушення precondition у finish уже враховане DEF-01. Прямого HTTP/admin/legacy caller немає.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:finish_repeated_lot",
+        "evidence/INVENTORY/PRIOR/DATA_AUDIT_UA.md:rollback_after_move"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "CORE-newlot",
+      "section": "Обгортки",
+      "module": "erp/service.py",
+      "function": "newlot",
+      "lines": "104–107",
+      "reads": "Item, documents, ціна/кількість",
+      "writes": "Lot, далі move→Movement",
+      "atomic": "Через dispatch",
+      "lock": "Через dispatch",
+      "proposal_confirm": "Через dispatch",
+      "idempotency": "UNIQUE code + receipt caller",
+      "verdict": "перевірено локально",
+      "note": "accepted_documents викликається, але його список missing не відхиляє creation: нова партія pending; не названо помилкою дозволене приймання з карантином.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:finish_repeated_lot"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "CORE-dispatch",
+      "section": "Обгортки",
+      "module": "erp/service.py",
+      "function": "dispatch (спільна частина)",
+      "lines": "146–153,337–339",
+      "reads": "Configuration[erp_write]; далі за гілкою",
+      "writes": "Mutex revision; Event; гілка ERP",
+      "atomic": "Так @atomic",
+      "lock": "M до предметних читань",
+      "proposal_confirm": "Не примушує сам; production HTTP входить через confirm",
+      "idempotency": "receipt у execute; власного operation_id немає",
+      "verdict": "перевірено локально",
+      "note": "Усі 26 гілок перелічені окремо. Не дублює DEF-01; direct service є в seed. Відсутність select_for_update не означає відсутність серіалізації.",
+      "evidence": [
+        "evidence/INVENTORY/PRIOR/DATA_AUDIT_UA.md:матриця ERP",
+        "evidence/INVENTORY/DETAILS.json:finish_repeated_lot"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "CORE-preview-effect",
+      "section": "Обгортки",
+      "module": "erp/service.py",
+      "function": "preview_effect",
+      "lines": "341–345",
+      "reads": "Стан dispatch",
+      "writes": "Тимчасові ERP записи з примусовим rollback",
+      "atomic": "Так",
+      "lock": "M через dispatch",
+      "proposal_confirm": "Лише симуляція",
+      "idempotency": "Не зберігає результат",
+      "verdict": "ризик",
+      "note": "Production caller не знайдений; helper присутній. Самостійне приймання не запускалося.",
+      "evidence": [
+        "статичний огляд call sites"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "CORE-erp-preview",
+      "section": "Обгортки",
+      "module": "erp/views.py",
+      "function": "preview",
+      "lines": "18–24",
+      "reads": "fingerprint + before snapshot ДО M",
+      "writes": "Тимчасовий dispatch, rollback; далі ActionProposal",
+      "atomic": "Так для симуляції; proposal поза ним",
+      "lock": "M пізніше fingerprint/before",
+      "proposal_confirm": "Створює proposal",
+      "idempotency": "Новий proposal кожного preview",
+      "verdict": "ризик",
+      "note": "Порядок читань перед mutex доведений кодом. Наслідок для двох PostgreSQL транзакцій не відтворено; це ризик A06, а не доведена SQLite корупція.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:request_trace",
+        "erp/views.py:20–23"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "CORE-proposal",
+      "section": "Обгортки",
+      "module": "operations/service.py",
+      "function": "preview",
+      "lines": "79–85",
+      "reads": "role/session; validate + fingerprint",
+      "writes": "ActionProposal",
+      "atomic": "Немає outer atomic; INSERT атомарний",
+      "lock": "Немає",
+      "proposal_confirm": "Створює proposal",
+      "idempotency": "UUID; повтор створює інший proposal",
+      "verdict": "ризик",
+      "note": "Не проводить склад або гроші; відсутність спільного lock належить узгодженню snapshot A06.",
+      "evidence": [
+        "статичний огляд operations/service.py"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "CORE-execute",
+      "section": "Обгортки",
+      "module": "operations/service.py",
+      "function": "execute",
+      "lines": "87–112",
+      "reads": "Proposal, role, expiry, fingerprint; snapshot",
+      "writes": "CAS receipt; ERP/Event або Task/Audit; final receipt",
+      "atomic": "Так @atomic",
+      "lock": "CAS proposal; ERP mutex лише після fingerprint/before",
+      "proposal_confirm": "Так; session-bound proposal",
+      "idempotency": "receipt early return + CAS receipt IS NULL",
+      "verdict": "ризик",
+      "note": "Ідемпотентність одного proposal вже є і новим HTTP повтором підтверджена. Ризик A06: різні proposals можуть перевірити fingerprint до спільного mutex; PostgreSQL не запускали.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:finish_repeated_lot",
+        "evidence/INVENTORY/PRIOR/DATA_AUDIT_UA.md:rollback_after_move"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "CORE-ops-preview",
+      "section": "Обгортки",
+      "module": "operations/views.py",
+      "function": "preview",
+      "lines": "99",
+      "reads": "Payload/session через service.preview",
+      "writes": "ActionProposal через service.preview",
+      "atomic": "Як caller preview",
+      "lock": "Як caller preview",
+      "proposal_confirm": "Так",
+      "idempotency": "Як caller preview",
+      "verdict": "ризик",
+      "note": "Маршрут-обгортка CORE-proposal; не додатковий writer чи дефект.",
+      "evidence": [
+        "operations/urls.py:3"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "CORE-confirm",
+      "section": "Обгортки",
+      "module": "operations/views.py",
+      "function": "confirm",
+      "lines": "103–106",
+      "reads": "confirmed + proposal_id",
+      "writes": "Через execute",
+      "atomic": "Через execute",
+      "lock": "Через execute",
+      "proposal_confirm": "Вимагає confirmed is True",
+      "idempotency": "Через execute",
+      "verdict": "перевірено локально",
+      "note": "Маршрут-обгортка CORE-execute; той самий finish дефект не рахується знову.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:request_trace"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "DEF-02",
+      "section": "Фінанси/API",
+      "module": "finance/models.py",
+      "function": "Salary.mark_paid",
+      "lines": "153–189",
+      "reads": "self.status/amount/currency; Employee/branch; дата",
+      "writes": "Transaction + Salary.status/date/transaction",
+      "atomic": "Лише create+save; paid check ДО atomic",
+      "lock": "Немає; self отриманий раніше",
+      "proposal_confirm": "Ні",
+      "idempotency": "Лише self.status; старі об’єкти та reset обходять",
+      "verdict": "дефект",
+      "note": "Два потоки дають дві витрати100; nullable OneToOne не створює обов’язкового джерела на Transaction. Додатково currency не передано: EUR→UAH. Це одне канонічне місце.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:salary_concurrent_payment",
+        "evidence/INVENTORY/DETAILS.json:salary_payment_currency"
+      ],
+      "canonical_defect_site": "DEF-02"
+    },
+    {
+      "id": "API-pay",
+      "section": "Фінанси/API",
+      "module": "finance/views.py",
+      "function": "SalaryViewSet.pay",
+      "lines": "31–39",
+      "reads": "get_object із select_related employee/transaction",
+      "writes": "Через Salary.mark_paid",
+      "atomic": "Тільки всередині mark_paid",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "Як mark_paid",
+      "verdict": "дефект",
+      "note": "Alias DEF-02: той самий дефект не рахується ще раз. HTTP pay реально використано для fixtures виплат.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:request_trace"
+      ],
+      "canonical_defect_site": "DEF-02"
+    },
+    {
+      "id": "DEF-03",
+      "section": "Фінанси/API",
+      "module": "finance/serializers.py",
+      "function": "SalarySerializer.create / update (успадковані)",
+      "lines": "42–49",
+      "reads": "Вхідні amount/currency/status/transaction/employee; instance на update",
+      "writes": "Salary напряму; Transaction не синхронізує",
+      "atomic": "Немає request-wide atomic",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "UNIQUE employee+period захищає лише новий місяць",
+      "verdict": "дефект",
+      "note": "POST status=paid дає201 без проводки; PATCH amount дає200 при незмінній проводці; PATCH pending → pay створює другий expense. Create/update одного serializer консервативно згруповано.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:salary_serializer_create_paid",
+        "evidence/INVENTORY/DETAILS.json:salary_serializer_update_paid",
+        "evidence/INVENTORY/DETAILS.json:salary_serializer_reopen_then_pay"
+      ],
+      "canonical_defect_site": "DEF-03"
+    },
+    {
+      "id": "API-salary-adapter",
+      "section": "Фінанси/API",
+      "module": "finance/views.py",
+      "function": "SalaryViewSet.create / update / partial_update",
+      "lines": "27–29",
+      "reads": "DRF request/instance; select_related salary",
+      "writes": "Через SalarySerializer.save",
+      "atomic": "Немає outer atomic",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "Через serializer",
+      "verdict": "дефект",
+      "note": "Alias DEF-03: ModelViewSet маршрути POST/PUT/PATCH ведуть до того самого serializer.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:drf_write_routes"
+      ],
+      "canonical_defect_site": "DEF-03"
+    },
+    {
+      "id": "API-transaction-create",
+      "section": "Фінанси/API",
+      "module": "finance/serializers.py",
+      "function": "TransactionSerializer.create (успадкований)",
+      "lines": "32–39",
+      "reads": "FK та вхідний факт платежу",
+      "writes": "Transaction",
+      "atomic": "Один INSERT; outer atomic немає",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "Немає operation/proposal key",
+      "verdict": "ризик",
+      "note": "Прямий mutable ledger обхід A05; для окремого ручного факту відсутність RMW-lock сама по собі не доводить корупцію. Повтор HTTP create не має узгодженого replay-контракту.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:serializer_fields"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "DEF-04",
+      "section": "Фінанси/API",
+      "module": "finance/serializers.py",
+      "function": "TransactionSerializer.update (успадкований)",
+      "lines": "32–39",
+      "reads": "Transaction instance; writable amount/direction/currency",
+      "writes": "Переписує Transaction, не звіряє Salary",
+      "atomic": "Немає request-wide atomic",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "Немає",
+      "verdict": "дефект",
+      "note": "PATCH витратної проводки зарплати100 на дохід300 повертає200; Salary лишається paid100.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:transaction_serializer_update_salary_expense"
+      ],
+      "canonical_defect_site": "DEF-04"
+    },
+    {
+      "id": "API-transaction-adapter",
+      "section": "Фінанси/API",
+      "module": "finance/views.py",
+      "function": "TransactionViewSet.update / partial_update",
+      "lines": "22–24",
+      "reads": "get_object Transaction",
+      "writes": "Через TransactionSerializer.save",
+      "atomic": "Немає outer atomic",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "Немає",
+      "verdict": "дефект",
+      "note": "Alias DEF-04: маршрути update не окреме місце корупції. Create описаний окремо як ризик.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:drf_write_routes"
+      ],
+      "canonical_defect_site": "DEF-04"
+    },
+    {
+      "id": "DEF-05",
+      "section": "Фінанси/API",
+      "module": "finance/views.py",
+      "function": "SalaryViewSet.destroy / perform_destroy (успадковані)",
+      "lines": "27–29",
+      "reads": "Salary instance та залежності Collector",
+      "writes": "DELETE Salary; Transaction лишається",
+      "atomic": "DELETE має ORM transaction; get_object раніше",
+      "lock": "Немає предметного lock",
+      "proposal_confirm": "Ні",
+      "idempotency": "Повтор DELETE→404; не фінансова ідемпотентність",
+      "verdict": "дефект",
+      "note": "DELETE paid Salary дає204, історію нарахування втрачено, витрата не має джерела.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:salary_api_destroy"
+      ],
+      "canonical_defect_site": "DEF-05"
+    },
+    {
+      "id": "DEF-06",
+      "section": "Фінанси/API",
+      "module": "finance/views.py",
+      "function": "TransactionViewSet.destroy / perform_destroy (успадковані)",
+      "lines": "22–24",
+      "reads": "Transaction та reverse Salary",
+      "writes": "DELETE Transaction; Salary.transaction SET_NULL",
+      "atomic": "ORM deletion atomic; get_object раніше",
+      "lock": "Немає предметного lock",
+      "proposal_confirm": "Ні",
+      "idempotency": "Повтор DELETE→404",
+      "verdict": "дефект",
+      "note": "DELETE зарплатної Transaction дає204, Salary лишається paid з transaction=NULL.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:transaction_api_destroy"
+      ],
+      "canonical_defect_site": "DEF-06"
+    },
+    {
+      "id": "DEF-07",
+      "section": "Фінанси/API",
+      "module": "employees/views.py",
+      "function": "EmployeeViewSet.destroy / perform_destroy (успадковані)",
+      "lines": "8–19",
+      "reads": "Employee + пов’язані Salary",
+      "writes": "CASCADE Salary; витрати Transaction лишаються",
+      "atomic": "ORM deletion atomic; get_object раніше",
+      "lock": "Немає предметного lock",
+      "proposal_confirm": "Ні",
+      "idempotency": "Повтор DELETE→404",
+      "verdict": "дефект",
+      "note": "Для працівника без ERP PROTECT-залежностей DELETE дає204 і знищує його payroll history. Наявність інших PROTECT FK не захищає всіх працівників.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:employee_api_destroy_salary_cascade"
+      ],
+      "canonical_defect_site": "DEF-07"
+    },
+    {
+      "id": "API-contract-save",
+      "section": "Фінанси/API",
+      "module": "finance/serializers.py",
+      "function": "ContractSerializer.create / update (успадковані)",
+      "lines": "24–29",
+      "reads": "Contract instance/FK; amount/currency/status",
+      "writes": "Contract",
+      "atomic": "Немає outer atomic",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "Немає; number не UNIQUE",
+      "verdict": "ризик",
+      "note": "Грошові умови напряму змінюються через ContractViewSet17–19; рухів не створює. Немає доведеного payroll/stock розходження; включити контракт запису A05.",
+      "evidence": [
+        "finance/views.py:17–19",
+        "finance/models.py:53–77"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "API-counterparty-save",
+      "section": "Фінанси/API",
+      "module": "finance/serializers.py",
+      "function": "CounterpartySerializer.create / update (успадковані)",
+      "lines": "5–21",
+      "reads": "Counterparty, на update queryset із total_debit/credit",
+      "writes": "Довідникові поля Counterparty",
+      "atomic": "Немає outer atomic",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "Немає",
+      "verdict": "ризик",
+      "note": "Агрегати total_debit/credit є read-only і не зберігаються. Зміна довідника впливає на атрибуцію фінансів, але не списує баланс.",
+      "evidence": [
+        "finance/views.py:12–14",
+        "finance/serializers.py:6–8"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "API-contract-delete",
+      "section": "Фінанси/API",
+      "module": "finance/views.py",
+      "function": "ContractViewSet.destroy / perform_destroy",
+      "lines": "17–19",
+      "reads": "Contract, related Transaction/Document",
+      "writes": "DELETE Contract; SET_NULL Transaction.contract/Document.contract",
+      "atomic": "ORM deletion atomic",
+      "lock": "Немає предметного lock",
+      "proposal_confirm": "Ні",
+      "idempotency": "404 після видалення",
+      "verdict": "ризик",
+      "note": "Статично встановлена втрата посилань при видаленні. Окремий сценарій історичної атрибуції не запускався; це ризик A05, не доданий підтверджений monetary defect.",
+      "evidence": [
+        "finance/models.py:108",
+        "operations/models.py:14"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "API-counterparty-delete",
+      "section": "Фінанси/API",
+      "module": "finance/views.py",
+      "function": "CounterpartyViewSet.destroy / perform_destroy",
+      "lines": "12–14",
+      "reads": "Counterparty, contracts, транзакції; ERP PROTECT",
+      "writes": "CASCADE Contract; SET_NULL фінансових посилань",
+      "atomic": "ORM deletion atomic",
+      "lock": "Немає предметного lock",
+      "proposal_confirm": "Ні",
+      "idempotency": "404 після видалення",
+      "verdict": "ризик",
+      "note": "ERP Purchase/Invoice/SalesOrder можуть заборонити delete; без них FK атрибуція змінюється. HTTP окремо не відтворювався.",
+      "evidence": [
+        "finance/models.py:69,107–108",
+        "erp/models.py:43,90",
+        "operations/models.py:59"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "API-employee-save",
+      "section": "Фінанси/API",
+      "module": "employees/serializers.py",
+      "function": "EmployeeSerializer.create / update (успадковані)",
+      "lines": "6–30",
+      "reads": "Employee, branch",
+      "writes": "Employee; наступна Salary.mark_paid читає Employee",
+      "atomic": "Немає outer atomic",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "Немає",
+      "verdict": "ризик",
+      "note": "Записує довідник, а не нарахування; історичні проводки не переписує напряму. Контракт actor/policy належить A03/A04/A05.",
+      "evidence": [
+        "employees/views.py:8–19"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "DEF-08",
+      "section": "Admin",
+      "module": "finance/admin.py",
+      "function": "Salary ModelAdmin.save_model / save_form",
+      "lines": "7",
+      "reads": "Salary + форма/FK",
+      "writes": "Salary.save()",
+      "atomic": "save/change: admin.changeform_view @atomic; delete_view також atomic; bulk — ORM Collector atomic",
+      "lock": "Немає ERP/Salary lock",
+      "proposal_confirm": "Ні; admin submit не proposal",
+      "idempotency": "Немає",
+      "verdict": "дефект",
+      "note": "Збереження status=paid без Transaction через справжню admin форму проходить302.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:salary_admin_save_model"
+      ],
+      "canonical_defect_site": "DEF-08"
+    },
+    {
+      "id": "DEF-09",
+      "section": "Admin",
+      "module": "finance/admin.py",
+      "function": "Transaction ModelAdmin.save_model / save_form",
+      "lines": "6",
+      "reads": "Transaction + форма/FK",
+      "writes": "Transaction.save()",
+      "atomic": "save/change: admin.changeform_view @atomic; delete_view також atomic; bulk — ORM Collector atomic",
+      "lock": "Немає ERP/Salary lock",
+      "proposal_confirm": "Ні; admin submit не proposal",
+      "idempotency": "Немає",
+      "verdict": "дефект",
+      "note": "Зарплатна витрата100 переписується на дохід400 через admin302; сума Salary не змінюється.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:transaction_admin_save_model"
+      ],
+      "canonical_defect_site": "DEF-09"
+    },
+    {
+      "id": "ADMIN-contract-save",
+      "section": "Admin",
+      "module": "finance/admin.py",
+      "function": "Contract ModelAdmin.save_model / save_form",
+      "lines": "5",
+      "reads": "Contract + форма/FK",
+      "writes": "Contract.save()",
+      "atomic": "save/change: admin.changeform_view @atomic; delete_view також atomic; bulk — ORM Collector atomic",
+      "lock": "Немає ERP/Salary lock",
+      "proposal_confirm": "Ні; admin submit не proposal",
+      "idempotency": "Немає",
+      "verdict": "ризик",
+      "note": "Пряме збереження amount/currency/status; не спільний фінансовий command. Окремий грошовий дефект не відтворювався.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:admin_registry"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ADMIN-counterparty-save",
+      "section": "Admin",
+      "module": "finance/admin.py",
+      "function": "Counterparty ModelAdmin.save_model / save_form",
+      "lines": "4",
+      "reads": "Counterparty + форма/FK",
+      "writes": "Counterparty.save()",
+      "atomic": "save/change: admin.changeform_view @atomic; delete_view також atomic; bulk — ORM Collector atomic",
+      "lock": "Немає ERP/Salary lock",
+      "proposal_confirm": "Ні; admin submit не proposal",
+      "idempotency": "Немає",
+      "verdict": "ризик",
+      "note": "Зміна довідника впливає на атрибуцію, руху не створює; policy/proposal контракт відсутній.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:admin_registry"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ADMIN-employee-save",
+      "section": "Admin",
+      "module": "employees/admin.py",
+      "function": "Employee ModelAdmin.save_model / save_form",
+      "lines": "5–14",
+      "reads": "Employee + форма/FK",
+      "writes": "Employee.save()",
+      "atomic": "save/change: admin.changeform_view @atomic; delete_view також atomic; bulk — ORM Collector atomic",
+      "lock": "Немає ERP/Salary lock",
+      "proposal_confirm": "Ні; admin submit не proposal",
+      "idempotency": "Немає",
+      "verdict": "ризик",
+      "note": "Зміна Employee/branch впливає на майбутню виплату; проведень безпосередньо немає.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:admin_registry"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ADMIN-branch-save",
+      "section": "Admin",
+      "module": "branches/admin.py",
+      "function": "Branch ModelAdmin.save_model / save_form",
+      "lines": "6–11",
+      "reads": "Branch + форма/FK",
+      "writes": "Branch.save()",
+      "atomic": "save/change: admin.changeform_view @atomic; delete_view також atomic; bulk — ORM Collector atomic",
+      "lock": "Немає ERP/Salary lock",
+      "proposal_confirm": "Ні; admin submit не proposal",
+      "idempotency": "Немає",
+      "verdict": "ризик",
+      "note": "Оргструктура визначає групування фінансів; save_model і list_editable не записують amount.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:admin_registry"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "DEF-10",
+      "section": "Admin",
+      "module": "finance/admin.py",
+      "function": "Salary ModelAdmin.delete_model / delete_queryset",
+      "lines": "7",
+      "reads": "Salary та Collector залежностей",
+      "writes": "DELETE Salary + CASCADE/SET_NULL",
+      "atomic": "save/change: admin.changeform_view @atomic; delete_view також atomic; bulk — ORM Collector atomic",
+      "lock": "Немає предметного lock",
+      "proposal_confirm": "Ні; admin confirmation не ActionProposal",
+      "idempotency": "404/empty queryset після delete",
+      "verdict": "дефект",
+      "note": "Single і bulk delete знищують джерело витрати; обидва фактично302. Одне місце реєстрації, не дві оцінки.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:salary_admin_delete_single",
+        "evidence/INVENTORY/DETAILS.json:salary_admin_delete_bulk"
+      ],
+      "canonical_defect_site": "DEF-10"
+    },
+    {
+      "id": "DEF-11",
+      "section": "Admin",
+      "module": "finance/admin.py",
+      "function": "Transaction ModelAdmin.delete_model / delete_queryset",
+      "lines": "6",
+      "reads": "Transaction та Collector залежностей",
+      "writes": "DELETE Transaction + CASCADE/SET_NULL",
+      "atomic": "save/change: admin.changeform_view @atomic; delete_view також atomic; bulk — ORM Collector atomic",
+      "lock": "Немає предметного lock",
+      "proposal_confirm": "Ні; admin confirmation не ActionProposal",
+      "idempotency": "404/empty queryset після delete",
+      "verdict": "дефект",
+      "note": "Single і bulk delete лишають Salary paid без Transaction; обидва302.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:transaction_admin_delete_single",
+        "evidence/INVENTORY/DETAILS.json:transaction_admin_delete_bulk"
+      ],
+      "canonical_defect_site": "DEF-11"
+    },
+    {
+      "id": "DEF-12",
+      "section": "Admin",
+      "module": "employees/admin.py",
+      "function": "Employee ModelAdmin.delete_model / delete_queryset",
+      "lines": "5–14",
+      "reads": "Employee та Collector залежностей",
+      "writes": "DELETE Employee + CASCADE/SET_NULL",
+      "atomic": "save/change: admin.changeform_view @atomic; delete_view також atomic; bulk — ORM Collector atomic",
+      "lock": "Немає предметного lock",
+      "proposal_confirm": "Ні; admin confirmation не ActionProposal",
+      "idempotency": "404/empty queryset після delete",
+      "verdict": "дефект",
+      "note": "Single і bulk delete каскадно видаляють Salary, витрата лишається; обидва302.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:employee_admin_delete_single",
+        "evidence/INVENTORY/DETAILS.json:employee_admin_delete_bulk"
+      ],
+      "canonical_defect_site": "DEF-12"
+    },
+    {
+      "id": "ADMIN-contract-delete",
+      "section": "Admin",
+      "module": "finance/admin.py",
+      "function": "Contract ModelAdmin.delete_model / delete_queryset",
+      "lines": "5",
+      "reads": "Contract та Collector залежностей",
+      "writes": "DELETE Contract + CASCADE/SET_NULL",
+      "atomic": "save/change: admin.changeform_view @atomic; delete_view також atomic; bulk — ORM Collector atomic",
+      "lock": "Немає предметного lock",
+      "proposal_confirm": "Ні; admin confirmation не ActionProposal",
+      "idempotency": "404/empty queryset після delete",
+      "verdict": "ризик",
+      "note": "Видалення знімає Transaction.contract і Document.contract; окреме відтворення не запускалося.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:admin_registry"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ADMIN-counterparty-delete",
+      "section": "Admin",
+      "module": "finance/admin.py",
+      "function": "Counterparty ModelAdmin.delete_model / delete_queryset",
+      "lines": "4",
+      "reads": "Counterparty та Collector залежностей",
+      "writes": "DELETE Counterparty + CASCADE/SET_NULL",
+      "atomic": "save/change: admin.changeform_view @atomic; delete_view також atomic; bulk — ORM Collector atomic",
+      "lock": "Немає предметного lock",
+      "proposal_confirm": "Ні; admin confirmation не ActionProposal",
+      "idempotency": "404/empty queryset після delete",
+      "verdict": "ризик",
+      "note": "Видаляє contracts та знімає посилання, якщо немає ERP PROTECT; окреме відтворення не запускалося.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:admin_registry"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "ADMIN-branch-delete",
+      "section": "Admin",
+      "module": "branches/admin.py",
+      "function": "Branch ModelAdmin.delete_model / delete_queryset",
+      "lines": "6–11",
+      "reads": "Branch та Collector залежностей",
+      "writes": "DELETE Branch + CASCADE/SET_NULL",
+      "atomic": "save/change: admin.changeform_view @atomic; delete_view також atomic; bulk — ORM Collector atomic",
+      "lock": "Немає предметного lock",
+      "proposal_confirm": "Ні; admin confirmation не ActionProposal",
+      "idempotency": "404/empty queryset після delete",
+      "verdict": "ризик",
+      "note": "CASCADE дочірніх Branch + SET_NULL Transaction.branch/Employee.branch; атрибуція змінюється, сума не зникає. Не запускалося.",
+      "evidence": [
+        "evidence/INVENTORY/DETAILS.json:admin_registry"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "OPS-upload",
+      "section": "Документи/закупівлі",
+      "module": "operations/views.py",
+      "function": "upload",
+      "lines": "91–95",
+      "reads": "Файл; metadata; parse/checksum",
+      "writes": "Document (нова версія)",
+      "atomic": "Один INSERT; outer atomic немає",
+      "lock": "Немає ERP mutex",
+      "proposal_confirm": "Ні",
+      "idempotency": "UNIQUE(code,revision), без receipt",
+      "verdict": "ризик",
+      "note": "Версія документа змінює newest і придатність Lot; запис не координується з ERP writers. PostgreSQL interleaving не відтворено; A06.",
+      "evidence": [
+        "operations/models.py:17",
+        "evidence/INVENTORY/PRIOR/DATA_AUDIT_UA.md:документні writers"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "OPS-review",
+      "section": "Документи/закупівлі",
+      "module": "operations/views.py",
+      "function": "document_review",
+      "lines": "220–226",
+      "reads": "Document.checksum/text; newest; Contract",
+      "writes": "Document.status/contract",
+      "atomic": "Немає read+write atomic",
+      "lock": "Немає",
+      "proposal_confirm": "Ні; checksum — передумова, не proposal",
+      "idempotency": "Немає operation key",
+      "verdict": "ризик",
+      "note": "Між перевіркою newest і save може змінитися версія. Поточне паралельне відтворення відсутнє; не видається за підтверджений дефект залишків.",
+      "evidence": [
+        "operations/views.py:221–225"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "OPS-request",
+      "section": "Документи/закупівлі",
+      "module": "operations/views.py",
+      "function": "request_create",
+      "lines": "183–195",
+      "reads": "Employee, Document, newest; кількість/валюта",
+      "writes": "ProcurementRequest",
+      "atomic": "Немає outer atomic",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "UNIQUE code; без повторного receipt",
+      "verdict": "ризик",
+      "note": "Передетап закупівлі; грошового чи складського руху немає. Актуальність документа читається поза lock.",
+      "evidence": [
+        "operations/views.py:190–194"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "OPS-quote",
+      "section": "Документи/закупівлі",
+      "module": "operations/views.py",
+      "function": "quote_create",
+      "lines": "199–216",
+      "reads": "Request, Supplier, Document; ціна/умови",
+      "writes": "SupplierQuote",
+      "atomic": "Немає outer atomic",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "UNIQUE code; без receipt",
+      "verdict": "ризик",
+      "note": "Умови відокремлені від Purchase; RFQ→PO є B01. Немає другого складського приходу.",
+      "evidence": [
+        "operations/views.py:203–215"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "OPS-settings",
+      "section": "Документи/закупівлі",
+      "module": "operations/views.py",
+      "function": "settings_update",
+      "lines": "132–141",
+      "reads": "Configuration[organization]",
+      "writes": "Configuration[organization]",
+      "atomic": "get_or_create внутрішній atomic; merge/save поза спільним atomic",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "Повтор значень, без operation key",
+      "verdict": "ризик",
+      "note": "Цей writer НЕ змінює cash або erp_write: key жорстко organization. Lost update налаштувань можливий, фінансова RMW корупція не заявляється.",
+      "evidence": [
+        "operations/views.py:133,141"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "AI-create-transaction",
+      "section": "Legacy AI",
+      "module": "ai_assistant/views.py",
+      "function": "_create_transaction",
+      "lines": "523–531",
+      "reads": "Counterparty, amount/direction",
+      "writes": "Transaction",
+      "atomic": "Один INSERT; outer atomic немає",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "Немає",
+      "verdict": "ризик",
+      "note": "HTTP LLM POST блокує LocalDemoGuard (порожній ANTHROPIC_API_KEY); service callable з Python. Може створити будь-яку amount без ModelSerializer/full_clean; validation/idempotency шляху потребує A05 до активації.",
+      "evidence": [
+        "ai_assistant/views.py:523–531",
+        "boss_project/demo_middleware.py:11–13",
+        "demo_settings.py:18"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "AI-create-salary",
+      "section": "Legacy AI",
+      "module": "ai_assistant/views.py",
+      "function": "_create_salary",
+      "lines": "567–574",
+      "reads": "Employee, amount/period",
+      "writes": "Salary",
+      "atomic": "Один INSERT; outer atomic немає",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "UNIQUE employee+period",
+      "verdict": "ризик",
+      "note": "HTTP LLM POST блокує LocalDemoGuard (порожній ANTHROPIC_API_KEY); service callable з Python. Параметри period/amount без доменної валідації; default pending. Невалідні значення не відтворювалися через недоступний HTTP.",
+      "evidence": [
+        "ai_assistant/views.py:567–574",
+        "boss_project/demo_middleware.py:11–13",
+        "demo_settings.py:18"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "AI-pay-salary",
+      "section": "Legacy AI",
+      "module": "ai_assistant/views.py",
+      "function": "_pay_salary",
+      "lines": "577–581",
+      "reads": "Salary.objects.get",
+      "writes": "Через mark_paid",
+      "atomic": "Лише mark_paid inner atomic",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "Лише stale status",
+      "verdict": "ризик",
+      "note": "HTTP LLM POST блокує LocalDemoGuard (порожній ANTHROPIC_API_KEY); service callable з Python. Використовує DEF-02; додаткового поточного місця в count немає.",
+      "evidence": [
+        "ai_assistant/views.py:577–581",
+        "boss_project/demo_middleware.py:11–13",
+        "demo_settings.py:18"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "AI-create-contract",
+      "section": "Legacy AI",
+      "module": "ai_assistant/views.py",
+      "function": "_create_contract",
+      "lines": "548–554",
+      "reads": "Counterparty + умови",
+      "writes": "Contract",
+      "atomic": "Один INSERT",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "Немає",
+      "verdict": "ризик",
+      "note": "HTTP LLM POST блокує LocalDemoGuard (порожній ANTHROPIC_API_KEY); service callable з Python. Грошові умови напряму; не проводить склад.",
+      "evidence": [
+        "ai_assistant/views.py:548–554",
+        "boss_project/demo_middleware.py:11–13",
+        "demo_settings.py:18"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "AI-create-counterparty",
+      "section": "Legacy AI",
+      "module": "ai_assistant/views.py",
+      "function": "_create_counterparty",
+      "lines": "498–502",
+      "reads": "Args",
+      "writes": "Counterparty",
+      "atomic": "Один INSERT",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "Немає",
+      "verdict": "ризик",
+      "note": "HTTP LLM POST блокує LocalDemoGuard (порожній ANTHROPIC_API_KEY); service callable з Python. Довідниковий writer; не створює транзакції.",
+      "evidence": [
+        "ai_assistant/views.py:498–502",
+        "boss_project/demo_middleware.py:11–13",
+        "demo_settings.py:18"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "AI-delete-counterparty",
+      "section": "Legacy AI",
+      "module": "ai_assistant/views.py",
+      "function": "_delete_counterparty",
+      "lines": "515–520",
+      "reads": "Counterparty + Collector",
+      "writes": "DELETE Counterparty; CASCADE Contract; SET_NULL tx links",
+      "atomic": "ORM deletion atomic; SELECT раніше",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "Немає",
+      "verdict": "ризик",
+      "note": "HTTP LLM POST блокує LocalDemoGuard (порожній ANTHROPIC_API_KEY); service callable з Python. PROTECT ERP може відхилити частину delete; історична атрибуція без нього змінюється.",
+      "evidence": [
+        "ai_assistant/views.py:515–520",
+        "boss_project/demo_middleware.py:11–13",
+        "demo_settings.py:18"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "AI-create-employee",
+      "section": "Legacy AI",
+      "module": "ai_assistant/views.py",
+      "function": "_create_employee",
+      "lines": "359–372",
+      "reads": "Args",
+      "writes": "Employee + EmployeeChangeLog",
+      "atomic": "Немає спільного atomic",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "Немає",
+      "verdict": "ризик",
+      "note": "HTTP LLM POST блокує LocalDemoGuard (порожній ANTHROPIC_API_KEY); service callable з Python. Payroll ще не створюється; audit може не збігтися при помилці після Employee.create.",
+      "evidence": [
+        "ai_assistant/views.py:359–372",
+        "boss_project/demo_middleware.py:11–13",
+        "demo_settings.py:18"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "AI-update-employee",
+      "section": "Legacy AI",
+      "module": "ai_assistant/views.py",
+      "function": "_update_employee",
+      "lines": "375–390",
+      "reads": "Employee + before",
+      "writes": "Employee + EmployeeChangeLog",
+      "atomic": "Немає спільного atomic",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "Немає",
+      "verdict": "ризик",
+      "note": "HTTP LLM POST блокує LocalDemoGuard (порожній ANTHROPIC_API_KEY); service callable з Python. Змінює дані, які читатиме виплата; не створює руху прямо.",
+      "evidence": [
+        "ai_assistant/views.py:375–390",
+        "boss_project/demo_middleware.py:11–13",
+        "demo_settings.py:18"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "AI-delete-employee",
+      "section": "Legacy AI",
+      "module": "ai_assistant/views.py",
+      "function": "_delete_employee",
+      "lines": "393–404",
+      "reads": "Employee + before + related Salary",
+      "writes": "EmployeeChangeLog + DELETE Employee/CASCADE Salary",
+      "atomic": "Немає outer atomic; DELETE atomic",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "Немає",
+      "verdict": "ризик",
+      "note": "HTTP LLM POST блокує LocalDemoGuard (порожній ANTHROPIC_API_KEY); service callable з Python. Та сама cascade-проблема DEF-07, але цей entrypoint зараз не доступний через LLM HTTP.",
+      "evidence": [
+        "ai_assistant/views.py:393–404",
+        "boss_project/demo_middleware.py:11–13",
+        "demo_settings.py:18"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "AI-undo",
+      "section": "Legacy AI",
+      "module": "ai_assistant/views.py",
+      "function": "_undo_last_change",
+      "lines": "417–495",
+      "reads": "Останній Task/EmployeeChangeLog; before",
+      "writes": "У employee-гілці delete/create/update Employee + delete log; cascade Salary",
+      "atomic": "Немає outer atomic",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "Немає; останній log глобальний",
+      "verdict": "ризик",
+      "note": "HTTP LLM POST блокує LocalDemoGuard (порожній ANTHROPIC_API_KEY); service callable з Python. Undo(create employee) може каскадно видалити зарплати; undo(delete) відновлює лише Employee з новим ID, Salary не відновлює. Зараз dormant.",
+      "evidence": [
+        "ai_assistant/views.py:417–495",
+        "boss_project/demo_middleware.py:11–13",
+        "demo_settings.py:18"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "AI-dispatcher",
+      "section": "Legacy AI",
+      "module": "ai_assistant/views.py",
+      "function": "execute_tool",
+      "lines": "621–656",
+      "reads": "Handler map + args",
+      "writes": "Виклик writer; ловить винятки після можливих commits",
+      "atomic": "Немає",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "tool_use_id не використовується",
+      "verdict": "ризик",
+      "note": "HTTP LLM POST блокує LocalDemoGuard (порожній ANTHROPIC_API_KEY); service callable з Python. Мережевий tool_use_id не стає фінансовим idempotency key; обгортка не окремий writer у count.",
+      "evidence": [
+        "ai_assistant/views.py:621–656",
+        "boss_project/demo_middleware.py:11–13",
+        "demo_settings.py:18"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "AI-loop",
+      "section": "Legacy AI",
+      "module": "ai_assistant/views.py",
+      "function": "_run_tool_loop",
+      "lines": "841–891",
+      "reads": "Модельні tool_use; контекст",
+      "writes": "execute_tool для кожного model instruction",
+      "atomic": "Немає загального atomic",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "Немає",
+      "verdict": "ризик",
+      "note": "HTTP LLM POST блокує LocalDemoGuard (порожній ANTHROPIC_API_KEY); service callable з Python. Неочікувана зовнішня помилка після effect не відкотить уже записану фінансову операцію; не перевірялося з моделлю.",
+      "evidence": [
+        "ai_assistant/views.py:841–891",
+        "boss_project/demo_middleware.py:11–13",
+        "demo_settings.py:18"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "AI-chat",
+      "section": "Legacy AI",
+      "module": "ai_assistant/views.py",
+      "function": "ChatView.post",
+      "lines": "935–986",
+      "reads": "Повідомлення/історія; finance context",
+      "writes": "ChatMessage; через tool loop → writers",
+      "atomic": "Немає загального atomic",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "Немає",
+      "verdict": "ризик",
+      "note": "HTTP LLM POST блокує LocalDemoGuard (порожній ANTHROPIC_API_KEY); service callable з Python. При exception видаляє user_msg, не відкочує доменні зміни; цей LLM endpoint нині блокується до виконання.",
+      "evidence": [
+        "ai_assistant/views.py:935–986",
+        "boss_project/demo_middleware.py:11–13",
+        "demo_settings.py:18"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "AI-chat-file",
+      "section": "Legacy AI",
+      "module": "ai_assistant/views.py",
+      "function": "chat_with_file",
+      "lines": "1177–1278",
+      "reads": "Файл/історія/finance context",
+      "writes": "ChatFile/ChatMessage; через tool loop → writers",
+      "atomic": "Немає загального atomic",
+      "lock": "Немає",
+      "proposal_confirm": "Ні",
+      "idempotency": "Немає",
+      "verdict": "ризик",
+      "note": "HTTP LLM POST блокує LocalDemoGuard (порожній ANTHROPIC_API_KEY); service callable з Python. Фінансовий доступ лише через той самий legacy dispatcher; поточний POST недоступний без ключа.",
+      "evidence": [
+        "ai_assistant/views.py:1177–1278",
+        "boss_project/demo_middleware.py:11–13",
+        "demo_settings.py:18"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "CLI-bos-demo",
+      "section": "Службові команди",
+      "module": "operations/management/commands/seed_bos_demo.py",
+      "function": "Command.handle / doc",
+      "lines": "15–46",
+      "reads": "Перевірка demo/порожньої БД; synthetic JSON",
+      "writes": "Invoice.amount/paid; cash snapshot; Request/Quote/Document; довідники",
+      "atomic": "Так @atomic",
+      "lock": "Немає ERP mutex",
+      "proposal_confirm": "Ні; seed",
+      "idempotency": "dataset marker; UNIQUE code",
+      "verdict": "ризик",
+      "note": "Службовий synthetic writer, не production HTTP. Лише demo; не переписує наявний dataset. Саме тут є прямі початкові Invoice і Configuration[cash]. Не запускали.",
+      "evidence": [
+        "статичний огляд seed"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "CLI-erp-demo",
+      "section": "Службові команди",
+      "module": "erp/management/commands/seed_erp_demo.py",
+      "function": "Command.handle / act / doc",
+      "lines": "14–44",
+      "reads": "demo/dataset; synthetic records",
+      "writes": "Document; ERP через dispatch; erp_dataset",
+      "atomic": "Так @atomic",
+      "lock": "ERP частина має M",
+      "proposal_confirm": "Ні; seed",
+      "idempotency": "dataset marker",
+      "verdict": "ризик",
+      "note": "Demo-only command; direct Document insert поза mutex, але ERP actions всередині нього. Не production write endpoint; не запускали.",
+      "evidence": [
+        "статичний огляд seed"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "CLI-workspace",
+      "section": "Службові команди",
+      "module": "erp/management/commands/seed_bos_workspace.py",
+      "function": "Command.handle / act",
+      "lines": "14–30",
+      "reads": "demo/dataset; наявна ERP synthetic база",
+      "writes": "ERP dispatch; workspace_dataset",
+      "atomic": "Так @atomic",
+      "lock": "ERP частина M",
+      "proposal_confirm": "Ні; seed",
+      "idempotency": "dataset marker",
+      "verdict": "ризик",
+      "note": "Demo-only service caller dispatch без proposal. Не запускали.",
+      "evidence": [
+        "статичний огляд seed"
+      ],
+      "canonical_defect_site": null
+    },
+    {
+      "id": "CLI-branches",
+      "section": "Службові команди",
+      "module": "branches/management/commands/seed_branches.py",
+      "function": "Command.handle / upsert",
+      "lines": "81–115",
+      "reads": "Branch; reset option",
+      "writes": "DELETE Branch дерево; SET_NULL Transaction.branch; upsert",
+      "atomic": "Так @atomic",
+      "lock": "update_or_create має ORM row lock; немає ERP mutex",
+      "proposal_confirm": "Ні; CLI",
+      "idempotency": "Повтор upsert по code; --reset руйнівний",
+      "verdict": "ризик",
+      "note": "На відміну від інших seeds, немає BOS_DATA_MODE guard. --reset може змінити історичну атрибуцію; не запускали. До production package це окремий guard/command-контракт A05/A09, не нове фактично відтворене розходження грошей.",
+      "evidence": [
+        "branches/management/commands/seed_branches.py:81–91"
+      ],
+      "canonical_defect_site": null
+    }
+  ]
+}

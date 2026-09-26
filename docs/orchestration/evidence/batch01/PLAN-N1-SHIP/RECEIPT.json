@@ -1,0 +1,37 @@
+{
+  "card": "PLAN-N1-SHIP",
+  "date": "2026-09-20",
+  "review": "ACCEPT_SCOPED",
+  "reviewer": "bos_batch_review",
+  "runtime_source_sha256": "b9722ed16722cee83de6d7b30d9cac7077488237bd5f3020c60709e851ab859d",
+  "product_files": [
+    "erp/service.py",
+    "erp/test_shipping_reference_lengths.py"
+  ],
+  "evidence": [
+    {
+      "file": "ship-red.log",
+      "sha256": "241724238cf6dfe1b5a2e955c99f5db4ff01136d6d24411d08f442a577814742",
+      "bytes": 44546
+    },
+    {
+      "file": "ship-green.log",
+      "sha256": "54174dd9c1f5bbf10689dbeb13aff48053f34a0538488a76bee2e366a7c3942c",
+      "bytes": 4406
+    },
+    {
+      "file": "ship-files.json",
+      "sha256": "bebbd3032fb254cb7e76c3a3dc0465733f4f20d2626bcf8d8e9220877112a939",
+      "bytes": 371
+    },
+    {
+      "file": "SHIP_RESULT_UA.md",
+      "sha256": "67c8a560d7d9feec50646f94b8f598bb8d6d9243acba5b68c6379cc051c874fb",
+      "bytes": 7766
+    }
+  ],
+  "postgres16": "PENDING",
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "result_uk": "ship додано до наявної metadata-валідації Movement: raw100 і бізнес-правило stripped60, без обрізання. Red: 24 failures; green: 2/2 методи, 27 позитивних комбінацій + 36 відмов, service/2 preview/stored confirm/replay. PG16 ще не перевірено. Незалежний reviewer ACCEPT_SCOPED."
+}

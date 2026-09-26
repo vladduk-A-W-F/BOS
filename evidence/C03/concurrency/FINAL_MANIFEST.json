@@ -1,0 +1,104 @@
+{
+  "format": "bos.c03-g5-scoped-candidate.v1",
+  "status": "scoped_green_sqlite_not_canonical_acceptance",
+  "source_root": "/workspace/scratch/c7b51e996a9f/tmp/c03_concurrency_candidate",
+  "base_checkpoint": {
+    "path": "/workspace/scratch/c7b51e996a9f/tmp/c03_candidate/CORE_CHECKPOINT_2.json",
+    "sha256": "f5b2a962b1e70fa959c83b9ea8571337256d9837ba447ac69e17006d49bf02f2",
+    "package_source_sha256": "6387158eb680adbe635608d49e9dbdeb6d64b66630705d1e6903e6aaea668b27"
+  },
+  "files": {
+    "finance/test_statement_concurrency.py": "d216e553b1dba7e2044e0035f8ba2960c22f2b74c756e9599d6067705e7dcd04",
+    "scripts/check_concurrency.py": "a633790452d52d74abb720b8d616f981b7197e9fc2f3fd817699c2ea47581f3d",
+    "scripts/concurrency_manifest.json": "c69d36fadbdeb5c30430ba3faf4d96792853ecdecff64ef3e99bb14cae971bb7",
+    "erp/test_concurrency.py": "b0730a1ad57327bc1cb84f55f2040e022cd2365b1a6cddd7ba3c4e405a0e3897"
+  },
+  "base_files": {
+    "finance/test_statement_concurrency.py": null,
+    "scripts/check_concurrency.py": "3e38d664c381194d87a6938c81e6b4933ca7342699dbea0135b4d8071eb5518d",
+    "scripts/concurrency_manifest.json": "73cf474223acb546206614e4317f7d5890f6373590320c514f08ae3cabea0243",
+    "erp/test_concurrency.py": "a3e2648532cad7da29729908c000e632392c25fae1fbf59b90858654fd44f411"
+  },
+  "scope": {
+    "exact_deliverables": 4,
+    "erp_test_change": "one schema-set assertion line only; all other bytes unchanged",
+    "other_base_package_files_unchanged": true,
+    "old_methods": 104,
+    "old_erp_records": 110,
+    "old_actions": 33,
+    "old_coverage_baseline_sha256": "0910ff83b62173df7eedfd4c1cfb1f52fefe178c265f3e2915d7fce6da9ee214",
+    "baseline_a06_b02_b03_unchanged": true,
+    "candidate_equals_executed_files": true
+  },
+  "actual_run": {
+    "report": "reports/GATE5_1.json",
+    "exit_code": 0,
+    "methods_discovered": 109,
+    "methods_started": 109,
+    "methods_finished": 109,
+    "methods_succeeded": 109,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "erp_records": 116,
+    "schema_actions": 35,
+    "held_transaction_currency_records": 3,
+    "database": {
+      "requested_backend": "sqlite",
+      "base_name": "/workspace/scratch/c7b51e996a9f/tmp/c03_concurrency_candidate/check_0aab4ac1e53042c486f01a205481cf61.sqlite3",
+      "expected_test_name": "/workspace/scratch/c7b51e996a9f/tmp/c03_concurrency_candidate/check_0aab4ac1e53042c486f01a205481cf61.sqlite3_django_test",
+      "actual_vendor": "sqlite",
+      "actual_test_name": "/workspace/scratch/c7b51e996a9f/tmp/c03_concurrency_candidate/check_0aab4ac1e53042c486f01a205481cf61.sqlite3_django_test",
+      "version": "3.53.1",
+      "engine_verified": true
+    },
+    "python": "/workspace/scratch/c7b51e996a9f/demo-check-env/bin/python -B",
+    "python_version": "3.12.14",
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "BOS_TEST_DEPENDENCIES": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages",
+      "BOS_VERIFY_DB": "sqlite",
+      "BOS_TEST_DB_NAME": "/workspace/scratch/c7b51e996a9f/tmp/c03_concurrency_candidate/check_0aab4ac1e53042c486f01a205481cf61.sqlite3",
+      "BOS_TEST_MEDIA": "/workspace/scratch/c7b51e996a9f/tmp/c03_concurrency_candidate/gate5_media"
+    },
+    "cwd": "/workspace/scratch/c7b51e996a9f/tmp/c03_concurrency_candidate/source",
+    "argv": [
+      "scripts/check_concurrency.py",
+      "--output",
+      "/workspace/scratch/c7b51e996a9f/tmp/c03_concurrency_candidate/reports/GATE5_1.json"
+    ]
+  },
+  "source_database_sha256_proof": {
+    "before": {
+      "db.sqlite3": "ec6b89ac86011906881ab686581a0b96f63f17741873c355d2cb459896db02d5",
+      "BoS_Demo.sqlite3": "58fcd32532c6abebfa95ad06ae18d76ddccac2242fb25dc64350ad3203bd0dc8"
+    },
+    "after": {
+      "db.sqlite3": "ec6b89ac86011906881ab686581a0b96f63f17741873c355d2cb459896db02d5",
+      "BoS_Demo.sqlite3": "58fcd32532c6abebfa95ad06ae18d76ddccac2242fb25dc64350ad3203bd0dc8"
+    },
+    "unchanged": true,
+    "method": "Read-only SHA-256 of original files; no SQLite connection or backup inspection."
+  },
+  "evidence": {
+    "reports/BASELINE.json": "20178427e72c9651c6d4ea86308279d6f468ef6491a8176b1b5adb18259ce481",
+    "reports/BASELINE_RED.json": "85afcb1a4b5c51695b4c1f8358babd10fd1b7d9a3138f7aa9342ae7649111e2f",
+    "reports/BASELINE_RED.log": "892eabb6f2363faa15eb9021e5055d94b1b8b78778fbc10579229f1e2eed08cb",
+    "reports/CHECKPOINT_2_VERIFIED.json": "80f14e611683aa965d860408292de9c7af66dffafd009e610020c2f42fa5fff6",
+    "reports/FOCUSED_1.log": "e5a953ee91fd51983db4fe7450e0724aaf35ac5d993a510bc890b9b03da18a63",
+    "reports/FOCUSED_2.log": "cda5f67fe96fa83c0989eb36264a106cf0ac9bf3fa4e4bf0653625c981a75ecb",
+    "reports/GATE5_1.json": "4a981db396c4ca654849c8147680fc87976902694a22a1a50232832539840498",
+    "reports/GATE5_1.log": "b9cc421096aba767d4ba61b224e299ddef7b1ea9cc2b01fa6ce0c861cc94941a",
+    "reports/SOURCE_DB_AFTER.json": "0642058c3dacec0ed314defadbc218afccc865b9158849789a0c7f6788bc600c",
+    "reports/SOURCE_DB_BEFORE.json": "6ca0ad772c23bca2b1fb2bcd797d5bf3eb34a8803e3456b396989cfd0b55a80e",
+    "reports/STATIC_INVARIANTS.json": "88b717cb68ac54acf2ae036a0ae043a576b7a25056a4e015e8cb78b095ea81f3"
+  },
+  "review": {
+    "SCOPED_REVIEW_UA.md": "18416a48c4e096757e81f95248b30e33e3fffaae1708a7eefcf1b3625a228b42"
+  },
+  "limitations": [
+    "PostgreSQL not executed",
+    "No full verify / browser / Windows / A09 / canonical writes",
+    "Parent must independently review and perform final integrated C03 full acceptance"
+  ]
+}

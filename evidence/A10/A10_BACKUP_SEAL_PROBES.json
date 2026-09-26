@@ -1,0 +1,66 @@
+{
+  "scope": "four owned filesystem seal-helper scenarios; no capture/lease/restore acceptance",
+  "backup_sha256": "2b703cd0a7cb8a8e9f3254e827bc4a10955a6c17a25b798da68dad4c6b5eb9e7",
+  "cases": [
+    {
+      "case": "file_fsync_failure",
+      "work": "/tmp/bos-a10-seal-3xvz0dbo",
+      "injected": [
+        "file_fsync"
+      ],
+      "error": {
+        "type": "OSError",
+        "errno": 5
+      },
+      "complete_marker_exists": false,
+      "pending_marker_exists": false,
+      "inspect_backup_accepted": false,
+      "source_unchanged": true,
+      "passed": true
+    },
+    {
+      "case": "directory_open_failure",
+      "work": "/tmp/bos-a10-seal-72zxs3e0",
+      "injected": [
+        "directory_open"
+      ],
+      "error": {
+        "type": "OSError",
+        "errno": 24
+      },
+      "complete_marker_exists": false,
+      "pending_marker_exists": false,
+      "inspect_backup_accepted": false,
+      "source_unchanged": true,
+      "passed": true
+    },
+    {
+      "case": "directory_fsync_failure",
+      "work": "/tmp/bos-a10-seal-7t7mxdw6",
+      "injected": [
+        "directory_fsync"
+      ],
+      "error": {
+        "type": "OSError",
+        "errno": 5
+      },
+      "complete_marker_exists": false,
+      "pending_marker_exists": false,
+      "inspect_backup_accepted": false,
+      "source_unchanged": true,
+      "passed": true
+    },
+    {
+      "case": "positive",
+      "work": "/tmp/bos-a10-seal-qvrgpet0",
+      "injected": [],
+      "error": null,
+      "complete_marker_exists": true,
+      "pending_marker_exists": false,
+      "inspect_backup_accepted": true,
+      "source_unchanged": true,
+      "passed": true
+    }
+  ],
+  "complete": true
+}

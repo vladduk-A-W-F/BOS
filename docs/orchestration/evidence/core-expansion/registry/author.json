@@ -1,0 +1,53 @@
+{
+  "card": "CORE-MODULE-REGISTRY",
+  "status": "AUTHOR_READY_FOR_REVIEW",
+  "baseline_runtime_sha256": "c15dfe0e3aeefde2fd4fa7af0e9dd2c7c04072a59b185554b821576b4c2111ca",
+  "candidate_source_sha256": "242e272786b2d09dc79ee22c83c4f2b69d2792b602be00a1350a34d60d0cef54",
+  "files": {
+    "erp/module_registry.py": "405e8de2faffbf74133b6c1d803f908c8e1f002f2af6d73b38938589c5d6d807",
+    "erp/module_views.py": "50f3aa08d3eaf864e9c52a5f629bf1e25acd4bf3a926e17ab09c4fb3ab6bd297",
+    "erp/urls.py": "100a7a77ec66852e31dce10c5ef0e78d14e1d7617b3021860f66bc5b224194b7",
+    "erp/test_module_registry.py": "eb17d5a4190814ddce359f01a58a282ef97659bf42cdcc9e46cb5f2a6b47e5d6",
+    "docs/MODULE_DEVELOPER_CONTRACT_UA.md": "5dfc72a6ccb469ca4f14bc5e33bac14a174db19de184f161b7567cce90aabf8c"
+  },
+  "patch_sha256": "989cd826eb7f33f290ae7dfafeeb7efd04d9f124648bdd0320b21fcd75059775",
+  "tests": [
+    {
+      "invocation": 1,
+      "scope": "erp.test_module_registry",
+      "count": 8,
+      "exit_code": 0,
+      "seconds": 0.335,
+      "raw": "test1/raw.log",
+      "role_contract": "initial delegated strict finance-model suppression"
+    },
+    {
+      "invocation": 2,
+      "scope": "erp.test_module_registry",
+      "count": 8,
+      "exit_code": 0,
+      "seconds": 0.321,
+      "raw": "test2/raw.log",
+      "role_contract": "root-directed preserve Policy-visible invoice metadata; retentions remain hidden"
+    }
+  ],
+  "invocations_used": 2,
+  "invocation_limit": 3,
+  "historical_suites_run": false,
+  "remote_ci_run": false,
+  "browser_run": false,
+  "postgres_run": false,
+  "canonical_writes": false,
+  "decisions": [
+    "Django remains source; metadata-only GET plus no-store; no business writer/data query used",
+    "Frozen descriptors reference actual network projection rows and existing command/form names",
+    "Server configuration controls navigation composition only, not authorization or backend uninstall",
+    "Unknown composition/dependencies/writers fail closed before partial catalogue",
+    "Invoice public metadata preserved for nonCEO; finance columns/actions and retentions hidden",
+    "No automatic actions, dynamic SQL, accounting-engine or Decimal changes"
+  ],
+  "ui_contract_fixtures": "catalogs/{ceo,manager,observer}.json rendered from registry.build with explicit synthetic capabilities; HTTP auth independently tested",
+  "reviewer": "business_scenarios pending",
+  "technical_ready": false,
+  "pilot_allowed": false
+}

@@ -1,0 +1,97 @@
+{
+  "tests_run": 2,
+  "failures": 0,
+  "errors": 0,
+  "successful": true,
+  "evidence": [
+    {
+      "case": "test_invalid_configuration_refuses_before_bind_or_database",
+      "returncode": 2,
+      "records": [
+        {
+          "event": "a09.audit",
+          "attempts": []
+        }
+      ]
+    },
+    {
+      "case": "test_real_http_keeps_actual_peer_and_checks_forwarded_headers",
+      "returncode": 0,
+      "records": [
+        {
+          "event": "bos.server.bound",
+          "host": "127.0.0.1",
+          "port": 40753,
+          "version": "0.2.8-dev",
+          "runtime": "waitress",
+          "runtime_version": "3.0.2"
+        },
+        {
+          "event": "a09.audit",
+          "attempts": [
+            {
+              "event": "socket.bind",
+              "address": [
+                "127.0.0.1",
+                0
+              ]
+            }
+          ]
+        }
+      ],
+      "responses": [
+        {
+          "case": "valid",
+          "source_address": "127.0.0.1",
+          "status": 200,
+          "expected": 200,
+          "secure_cookie": true
+        },
+        {
+          "case": "forged-actual-peer",
+          "source_address": "127.0.0.2",
+          "status": 403,
+          "expected": 403,
+          "secure_cookie": false
+        },
+        {
+          "case": "no-proxy-headers",
+          "source_address": "127.0.0.1",
+          "status": 400,
+          "expected": 400,
+          "secure_cookie": false
+        },
+        {
+          "case": "ambiguous-proto",
+          "source_address": "127.0.0.1",
+          "status": 400,
+          "expected": 400,
+          "secure_cookie": false
+        },
+        {
+          "case": "wrong-host",
+          "source_address": "127.0.0.1",
+          "status": 400,
+          "expected": 400,
+          "secure_cookie": false
+        },
+        {
+          "case": "ignored-forwarded-host",
+          "source_address": "127.0.0.1",
+          "status": 200,
+          "expected": 200,
+          "secure_cookie": true
+        },
+        {
+          "case": "http-redirect",
+          "source_address": "127.0.0.1",
+          "status": 301,
+          "expected": 301,
+          "secure_cookie": false
+        }
+      ],
+      "stderr": ""
+    }
+  ],
+  "scope": "Real Waitress 3.0.2 loopback HTTP only; no TLS/production data/Windows/install acceptance"
+}

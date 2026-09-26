@@ -1,0 +1,201 @@
+{
+  "schema": "bos.root-linked-synthetic-chain-acceptance.v1",
+  "at_utc": "2026-09-21T07:56:52.753907+00:00",
+  "decision": "ACCEPT_EXACT_SECOND_SOURCE_BOUND_SYNTHETIC_CHAIN",
+  "manifest": {
+    "path": "D:/3/BOSDev/reports/independent_review/linked-loader-execution-attempt2-20260921/MANIFEST.json",
+    "sha256": "9e37533706bb33c9117cb2b1d2c3182ebcbaff8d6c48f6aa0deba1c856b2ac66",
+    "bytes": 10770
+  },
+  "outcome": {
+    "path": "D:/3/BOSDev/reports/independent_review/linked-loader-execution-attempt2-20260921/OUTCOME.json",
+    "sha256": "594c15b55ef184fab8cf724a3a887fcec69c040f5bcdc5e9a2e9bfdb1492d420",
+    "bytes": 11997
+  },
+  "foreign_review": {
+    "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/linked-loader-second-attempt-independent-review/REVIEW.json",
+    "sha256": "372c26de02a1c3dcd9be572a9b3570017de9aaa90761b1d7f431ae198ea2e5e0",
+    "bytes": 8173
+  },
+  "foreign_audit": {
+    "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/linked-loader-second-attempt-independent-review/AUDIT.json",
+    "sha256": "be12312c608bd11221380944b9d9cf0c6e4ed81cce37b0ab46703cb1d250a466",
+    "bytes": 38500
+  },
+  "source": {
+    "commit": "954608682837966a9e0c63ad8760294d53c8a187",
+    "file_count": 426,
+    "current_vector_sha256": "7f5531953684f89bf8942d937c648a3a21c65e40e0f40b0ad8f64e38592cd4e6",
+    "canonical_runtime_sha256": "2e8eb75f98f1ae5e45bbea5d381e1ea493773c4dd4bffdfcea8b434c8c0976ab",
+    "before_after_equal": true,
+    "full_dependency_sweep_repeated": false
+  },
+  "actual_counts": {
+    "attempt": 2,
+    "previous_loader_attempts": 1,
+    "new_loader_invocations": 1,
+    "total_loader_invocations": 2,
+    "scenario_steps": 10,
+    "confirmed_transitions": 12,
+    "typed_aliases": 31,
+    "fresh_policy_reopen_actors": 2,
+    "original_launched_process_exit": 0,
+    "original_outer_capture_exit": 0,
+    "original_host_exit": 0,
+    "target_elapsed_seconds": 46.45300000000134,
+    "capture_elapsed_seconds": 47.17200000000594,
+    "held_process_pid": 38984,
+    "normal_exit": true,
+    "timeout": false,
+    "kill": false,
+    "automatic_retry": false
+  },
+  "business_summary": {
+    "procurement": {
+      "purchase_id": 1,
+      "quantity": "3.000",
+      "price": "20.00",
+      "amount": "60.00",
+      "currency": "UAH",
+      "request_id": 1,
+      "quote_id": 1
+    },
+    "receipt_and_registration": {
+      "receipt_movement_id": 1,
+      "lot_id": 1,
+      "received_quality": "pending",
+      "registration_id": 1,
+      "registration_document_id": 4,
+      "registration_amount": "60.00",
+      "quality_after_registration": "pending"
+    },
+    "quality_and_shipment": {
+      "inspection_id": 1,
+      "quality": "approved",
+      "reserved": "3.000",
+      "shipped": "3.000",
+      "shipment_movement_id": 2,
+      "final_stock": "0.000",
+      "final_reserved": "0.000"
+    },
+    "customer_settlement": {
+      "invoice_id": 1,
+      "amount": "300.00",
+      "paid": "120.00",
+      "open": "180.00",
+      "currency": "UAH",
+      "payment_event_id": 10,
+      "payment_reference": "MVP-PAY-01"
+    },
+    "same_task_handoff": {
+      "task_id": 1,
+      "branch_id": 1,
+      "previous_assignee_id": 2,
+      "recipient_id": 3,
+      "state": "sent",
+      "history_entries": 2,
+      "original_source_refs_preserved": true,
+      "expected_result_nonempty": true,
+      "actual_task_result": "",
+      "actual_result_recorded": false
+    },
+    "reopen": "Two fresh Policy reads, users1 and3, both CEO; identical Task/source/history and complete registration/settlement DTOs."
+  },
+  "evidence_integrity": {
+    "manifest_rows": 44,
+    "outer_rows": 12,
+    "runtime_rows": 32,
+    "independently_rehashed_safe_rows": 39,
+    "DB_and_private_rows_metadata_only": 5,
+    "DB_or_private_payload_read_by_reviewer": false,
+    "fresh_historical_source_files_verified": 426,
+    "full_dependency_payload_sweep_repeated": false,
+    "final_hash_drift": false
+  },
+  "ownership": {
+    "database_connections_closed_reported": true,
+    "closed_evidence_matches_finally_source": true,
+    "held_original_Popen_exit_verified": true,
+    "runtime_preserved": true,
+    "server_started": false,
+    "loader_started_child_process": false,
+    "independent_base_child_PID_identity_record": "NOT_RECORDED; no claim beyond launched held process"
+  },
+  "shared_worktree": {
+    "unchanged": false,
+    "observed_raw_change": "5c256ee9ef11e0563cf9a2c48fd5671480c3708d493420f50b4c46ef8c17bb53 -> 14328224e05ee7b0659b239a610b3418c26748d80e0e7b1c4824477ae011f366",
+    "observed_head_index_app_HTML_unchanged": true,
+    "concurrent_native_apply_refs": [
+      {
+        "path": "D:\\3\\BOSDev\\reports\\implementation\\menu-build-attempt1-20260921\\RAW_APPLY_EVIDENCE_V2.json",
+        "sha256": "6c4337a928a5a7cb118ea845c4efc0d7bdaf5fbda692c9bb69db5328f711e1cd",
+        "bytes": 1898
+      },
+      {
+        "path": "D:\\3\\BOSDev\\reports\\implementation\\menu-build-attempt1-20260921\\PRE_APPLY_EVIDENCE_AUTHORITATIVE.json",
+        "sha256": "fac2a5f61aee88ec54bf390ea29b075eb55851b7d3422f521792ff0875c23c39",
+        "bytes": 3258
+      },
+      {
+        "path": "D:\\3\\BOSDev\\reports\\implementation\\menu-build-attempt1-20260921\\RAW_APPLY_V2_CHECK.stdout.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "D:\\3\\BOSDev\\reports\\implementation\\menu-build-attempt1-20260921\\RAW_APPLY_V2_CHECK.stderr.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "D:\\3\\BOSDev\\reports\\implementation\\menu-build-attempt1-20260921\\RAW_APPLY_V2.stdout.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "D:\\3\\BOSDev\\reports\\implementation\\menu-build-attempt1-20260921\\RAW_APPLY_V2.stderr.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    ],
+    "concurrent_root_authorization": {
+      "path": "D:\\3\\BOSDev\\reports\\root\\MENU-V4-FIRST-BUILD-EXECUTION-APPROVAL-20260921.json",
+      "sha256": "0d56349e663910e060a2abfba3fdf0251682ef1ff5424cee65bc69405868f3a6",
+      "bytes": 4903
+    },
+    "attribution_limit": "Original native writer apply record is contemporaneous and matches post-source/index. Corroborates the separately authorized apply; this review is not a process filesystem-write trace and does not claim exclusive causality."
+  },
+  "history": {
+    "attempt1": "FAIL preserved",
+    "attempt1_actual_sys_orig_argv": "NOT_RECORDED",
+    "first_fail_refs": [
+      {
+        "path": "D:\\3\\BOSDev\\reports\\migration_composition\\linked-loader-execution-attempt1-20260921\\MANIFEST.json",
+        "sha256": "a07d70271614fcadd03212979c0a0e4dcacaae35125bb106cbe3734ef929229d",
+        "bytes": 3302
+      },
+      {
+        "path": "D:\\3\\BOSDev\\reports\\migration_composition\\linked-loader-execution-attempt1-20260921\\OUTCOME.json",
+        "sha256": "9d9fb03b73bb814632510d1483e28937f7c0e868c0f31da04e5ecbc18a665022",
+        "bytes": 4628
+      }
+    ]
+  },
+  "limits": [
+    "Accepted historical HOME954 source/service synthetic chain only; not current frontend or full MVP.",
+    "Actual calls were in-process decorated views and services, not network HTTP or browser UI.",
+    "All actors are CEO; manager/observer permissions are not demonstrated.",
+    "Fresh reads are in-process Policy reopens; this is not a separate-process database restore/restart test.",
+    "Reviewer inspected immutable DTO/transition/process evidence, not the DB or private blobs.",
+    "Supplier registration does not constitute payable/payment posting; customer payment is a local accounting record, not a bank operation.",
+    "Shared changed during separate native writer activity. Concurrent original apply evidence corroborates attribution, but exclusive filesystem causality is not proven."
+  ],
+  "source_author": "C",
+  "executor": "A",
+  "foreign_reviewer": "B",
+  "execution_authorized": false,
+  "repeat_authorized": false,
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "MVP": false,
+  "next": "Deliver accepted source-scoped evidence and actual ID map to implementation/packaging. Preserve runtime and immutable inputs. Reuse this accepted service coverage; remaining current-source UI/roles/restart/business completion evidence stays owned by existing PLAN-LINKS and final MVP criteria."
+}

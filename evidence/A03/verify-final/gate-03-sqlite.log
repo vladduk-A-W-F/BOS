@@ -1,0 +1,216 @@
+BOS_DATABASE {"vendor": "sqlite", "version": "3.53.1"}
+Склад: 250/1000
+Склад: 500/1000
+Склад: 750/1000
+Склад: 1000/1000
+Виплати: 1000/1000
+Повторні погодження: 1000/1000
+{
+  "gate": 3,
+  "date": "2026-09-11T19:32:34.266875+00:00",
+  "backend": "sqlite",
+  "seed": 20260911,
+  "minimum_runs": 1000,
+  "results": [
+    {
+      "invariant": "movement_balance",
+      "runs": 1000,
+      "status": "ПРОЙДЕНО"
+    },
+    {
+      "invariant": "nonnegative_stock",
+      "runs": 1000,
+      "status": "ПРОЙДЕНО"
+    },
+    {
+      "invariant": "one_salary_expense",
+      "runs": 1000,
+      "status": "ПРОЙДЕНО"
+    },
+    {
+      "invariant": "proposal_replay",
+      "runs": 1000,
+      "status": "ПРОЙДЕНО"
+    },
+    {
+      "invariant": "role_access",
+      "runs": 1000,
+      "status": "ПОМИЛКА"
+    }
+  ],
+  "counts": {
+    "stock_steps": 12012,
+    "movement_balance": 1000,
+    "nonnegative_stock": 1000,
+    "one_salary_expense": 1000,
+    "replay_requests": 2485,
+    "proposal_replay": 1000,
+    "role_access": 1000
+  },
+  "operation_outcomes": {
+    "adjust:applied": 856,
+    "transfer:rejected": 652,
+    "finish:applied": 877,
+    "reserve:rejected": 1863,
+    "transfer:applied": 1371,
+    "release:applied": 573,
+    "quality:applied": 2021,
+    "adjust:rejected": 1083,
+    "finish:rejected": 1183,
+    "release:rejected": 1475,
+    "reserve:applied": 58
+  },
+  "role_failed_sequences": 625,
+  "role_samples": [
+    {
+      "run": 0,
+      "role": "observer",
+      "forbidden_responses": [
+        {
+          "path": "/api/employees/1/",
+          "status": 200
+        },
+        {
+          "path": "/api/salaries/1/",
+          "status": 200
+        },
+        {
+          "path": "/api/salaries.json",
+          "status": 200
+        },
+        {
+          "path": "/api/salaries/",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "run": 1,
+      "role": "manager",
+      "forbidden_responses": [
+        {
+          "path": "/api/salaries.json",
+          "status": 200
+        },
+        {
+          "path": "/api/salaries/",
+          "status": 200
+        },
+        {
+          "path": "/api/employees/1/",
+          "status": 200
+        },
+        {
+          "path": "/api/salaries/1/",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "run": 4,
+      "role": "observer",
+      "forbidden_responses": [
+        {
+          "path": "/api/employees/1/",
+          "status": 200
+        },
+        {
+          "path": "/api/salaries/1/",
+          "status": 200
+        },
+        {
+          "path": "/api/salaries.json",
+          "status": 200
+        },
+        {
+          "path": "/api/salaries/",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "run": 5,
+      "role": "observer",
+      "forbidden_responses": [
+        {
+          "path": "/api/employees/1/",
+          "status": 200
+        },
+        {
+          "path": "/api/salaries/1/",
+          "status": 200
+        },
+        {
+          "path": "/api/salaries/",
+          "status": 200
+        },
+        {
+          "path": "/api/salaries.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "run": 6,
+      "role": "manager",
+      "forbidden_responses": [
+        {
+          "path": "/api/salaries.json",
+          "status": 200
+        },
+        {
+          "path": "/api/salaries/",
+          "status": 200
+        },
+        {
+          "path": "/api/employees/1/",
+          "status": 200
+        },
+        {
+          "path": "/api/salaries/1/",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "run": 8,
+      "role": "observer",
+      "forbidden_responses": [
+        {
+          "path": "/api/employees/1/",
+          "status": 200
+        },
+        {
+          "path": "/api/salaries/",
+          "status": 200
+        },
+        {
+          "path": "/api/salaries.json",
+          "status": 200
+        },
+        {
+          "path": "/api/salaries/1/",
+          "status": 200
+        }
+      ]
+    }
+  ],
+  "role_coverage": {
+    "observer:/api/employees/1/": 306,
+    "observer:/api/salaries/1/": 306,
+    "observer:/api/salaries.json": 306,
+    "observer:/api/salaries/": 306,
+    "manager:/api/salaries.json": 319,
+    "manager:/api/salaries/": 319,
+    "manager:/api/employees/1/": 319,
+    "manager:/api/salaries/1/": 319,
+    "anonymous:/api/salaries/": 375,
+    "anonymous:/api/salaries/1/": 375,
+    "anonymous:/api/employees/1/": 375,
+    "anonymous:/api/salaries.json": 375
+  },
+  "complete": false,
+  "scope": "Синтетичні випадкові складські/зарплатні/HTTP-послідовності. Повний обхід маршрутів — окремий критерій 4. A03/A04 ще не реалізовані."
+}
+
+--- STDERR ---

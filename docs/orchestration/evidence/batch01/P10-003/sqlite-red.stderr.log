@@ -1,0 +1,127 @@
+test_accepts_django_memory_sqlite_database (erp.test_initial_import_isolation.InitialImportIsolationTests.test_accepts_django_memory_sqlite_database) ... FAIL
+test_accepts_exact_file_sqlite_test_database (erp.test_initial_import_isolation.InitialImportIsolationTests.test_accepts_exact_file_sqlite_test_database) ... ok
+test_accepts_exact_postgres_test_database (erp.test_initial_import_isolation.InitialImportIsolationTests.test_accepts_exact_postgres_test_database) ... FAIL
+test_postgres_requires_disposable_marker_and_exact_source_name (erp.test_initial_import_isolation.InitialImportIsolationTests.test_postgres_requires_disposable_marker_and_exact_source_name) ... ok
+test_rejects_environment_or_loaded_working_profile (erp.test_initial_import_isolation.InitialImportIsolationTests.test_rejects_environment_or_loaded_working_profile) ... FAIL
+test_rejects_live_connection_to_source_despite_test_settings (erp.test_initial_import_isolation.InitialImportIsolationTests.test_rejects_live_connection_to_source_despite_test_settings) ... FAIL
+test_rejects_source_and_unrelated_databases (erp.test_initial_import_isolation.InitialImportIsolationTests.test_rejects_source_and_unrelated_databases) ... 
+  test_rejects_source_and_unrelated_databases (erp.test_initial_import_isolation.InitialImportIsolationTests.test_rejects_source_and_unrelated_databases) (backend='sqlite', active='/synthetic/check_0123456789abcdef0123456789abcdef.sqlite3') ... FAIL
+  test_rejects_source_and_unrelated_databases (erp.test_initial_import_isolation.InitialImportIsolationTests.test_rejects_source_and_unrelated_databases) (backend='sqlite', active='/synthetic/check_0123456789abcdef0123456789abcdef.sqlite3_other') ... FAIL
+test_rejects_sqlite_source_aliases_without_changing_source_bytes (erp.test_initial_import_isolation.InitialImportIsolationTests.test_rejects_sqlite_source_aliases_without_changing_source_bytes) ... 
+  test_rejects_sqlite_source_aliases_without_changing_source_bytes (erp.test_initial_import_isolation.InitialImportIsolationTests.test_rejects_sqlite_source_aliases_without_changing_source_bytes) (kind='symlink') ... FAIL
+  test_rejects_sqlite_source_aliases_without_changing_source_bytes (erp.test_initial_import_isolation.InitialImportIsolationTests.test_rejects_sqlite_source_aliases_without_changing_source_bytes) (kind='hardlink') ... FAIL
+test_rejects_unissued_sqlite_source_name (erp.test_initial_import_isolation.InitialImportIsolationTests.test_rejects_unissued_sqlite_source_name) ... FAIL
+test_rejects_unknown_or_mismatched_backend (erp.test_initial_import_isolation.InitialImportIsolationTests.test_rejects_unknown_or_mismatched_backend) ... FAIL
+
+======================================================================
+FAIL: test_accepts_django_memory_sqlite_database (erp.test_initial_import_isolation.InitialImportIsolationTests.test_accepts_django_memory_sqlite_database)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/pg_guard/source/erp/test_initial_import_isolation.py", line 73, in test_accepts_django_memory_sqlite_database
+    fixture_module.InitialImportFixture.setUp(fixture)
+  File "/workspace/scratch/4dbe5b4c73ee/execution/pg_guard/source/erp/test_initial_import.py", line 26, in setUp
+    self.assertTrue(Path(str(connection.settings_dict['NAME'])).name.startswith('check_'))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_accepts_exact_postgres_test_database (erp.test_initial_import_isolation.InitialImportIsolationTests.test_accepts_exact_postgres_test_database)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/pg_guard/source/erp/test_initial_import_isolation.py", line 60, in test_accepts_exact_postgres_test_database
+    fixture_module.InitialImportFixture.setUp(fixture)
+  File "/workspace/scratch/4dbe5b4c73ee/execution/pg_guard/source/erp/test_initial_import.py", line 26, in setUp
+    self.assertTrue(Path(str(connection.settings_dict['NAME'])).name.startswith('check_'))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_rejects_environment_or_loaded_working_profile (erp.test_initial_import_isolation.InitialImportIsolationTests.test_rejects_environment_or_loaded_working_profile)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/pg_guard/source/erp/test_initial_import_isolation.py", line 79, in test_rejects_environment_or_loaded_working_profile
+    self.assert_refused_before_writes(backend='sqlite', loaded_profile='demo_settings')
+  File "/workspace/scratch/4dbe5b4c73ee/execution/pg_guard/source/erp/test_initial_import_isolation.py", line 53, in assert_refused_before_writes
+    with self.assertRaises((AssertionError, RuntimeError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>) not raised
+
+======================================================================
+FAIL: test_rejects_live_connection_to_source_despite_test_settings (erp.test_initial_import_isolation.InitialImportIsolationTests.test_rejects_live_connection_to_source_despite_test_settings)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/pg_guard/source/erp/test_initial_import_isolation.py", line 102, in test_rejects_live_connection_to_source_despite_test_settings
+    self.assert_refused_before_writes(backend='sqlite',
+  File "/workspace/scratch/4dbe5b4c73ee/execution/pg_guard/source/erp/test_initial_import_isolation.py", line 53, in assert_refused_before_writes
+    with self.assertRaises((AssertionError, RuntimeError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>) not raised
+
+======================================================================
+FAIL: test_rejects_source_and_unrelated_databases (erp.test_initial_import_isolation.InitialImportIsolationTests.test_rejects_source_and_unrelated_databases) (backend='sqlite', active='/synthetic/check_0123456789abcdef0123456789abcdef.sqlite3')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/pg_guard/source/erp/test_initial_import_isolation.py", line 87, in test_rejects_source_and_unrelated_databases
+    self.assert_refused_before_writes(backend=backend, source=source, active=active)
+  File "/workspace/scratch/4dbe5b4c73ee/execution/pg_guard/source/erp/test_initial_import_isolation.py", line 53, in assert_refused_before_writes
+    with self.assertRaises((AssertionError, RuntimeError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>) not raised
+
+======================================================================
+FAIL: test_rejects_source_and_unrelated_databases (erp.test_initial_import_isolation.InitialImportIsolationTests.test_rejects_source_and_unrelated_databases) (backend='sqlite', active='/synthetic/check_0123456789abcdef0123456789abcdef.sqlite3_other')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/pg_guard/source/erp/test_initial_import_isolation.py", line 87, in test_rejects_source_and_unrelated_databases
+    self.assert_refused_before_writes(backend=backend, source=source, active=active)
+  File "/workspace/scratch/4dbe5b4c73ee/execution/pg_guard/source/erp/test_initial_import_isolation.py", line 53, in assert_refused_before_writes
+    with self.assertRaises((AssertionError, RuntimeError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>) not raised
+
+======================================================================
+FAIL: test_rejects_sqlite_source_aliases_without_changing_source_bytes (erp.test_initial_import_isolation.InitialImportIsolationTests.test_rejects_sqlite_source_aliases_without_changing_source_bytes) (kind='symlink')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/pg_guard/source/erp/test_initial_import_isolation.py", line 119, in test_rejects_sqlite_source_aliases_without_changing_source_bytes
+    self.assert_refused_before_writes(backend='sqlite', source=str(source))
+  File "/workspace/scratch/4dbe5b4c73ee/execution/pg_guard/source/erp/test_initial_import_isolation.py", line 53, in assert_refused_before_writes
+    with self.assertRaises((AssertionError, RuntimeError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>) not raised
+
+======================================================================
+FAIL: test_rejects_sqlite_source_aliases_without_changing_source_bytes (erp.test_initial_import_isolation.InitialImportIsolationTests.test_rejects_sqlite_source_aliases_without_changing_source_bytes) (kind='hardlink')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/pg_guard/source/erp/test_initial_import_isolation.py", line 119, in test_rejects_sqlite_source_aliases_without_changing_source_bytes
+    self.assert_refused_before_writes(backend='sqlite', source=str(source))
+  File "/workspace/scratch/4dbe5b4c73ee/execution/pg_guard/source/erp/test_initial_import_isolation.py", line 53, in assert_refused_before_writes
+    with self.assertRaises((AssertionError, RuntimeError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>) not raised
+
+======================================================================
+FAIL: test_rejects_unissued_sqlite_source_name (erp.test_initial_import_isolation.InitialImportIsolationTests.test_rejects_unissued_sqlite_source_name)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/pg_guard/source/erp/test_initial_import_isolation.py", line 98, in test_rejects_unissued_sqlite_source_name
+    self.assert_refused_before_writes(backend='sqlite', source='/synthetic/check_working.sqlite3')
+  File "/workspace/scratch/4dbe5b4c73ee/execution/pg_guard/source/erp/test_initial_import_isolation.py", line 53, in assert_refused_before_writes
+    with self.assertRaises((AssertionError, RuntimeError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>) not raised
+
+======================================================================
+FAIL: test_rejects_unknown_or_mismatched_backend (erp.test_initial_import_isolation.InitialImportIsolationTests.test_rejects_unknown_or_mismatched_backend)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/4dbe5b4c73ee/execution/pg_guard/source/erp/test_initial_import_isolation.py", line 90, in test_rejects_unknown_or_mismatched_backend
+    self.assert_refused_before_writes(backend='sqlite', environment={'BOS_VERIFY_DB': 'unknown'})
+  File "/workspace/scratch/4dbe5b4c73ee/execution/pg_guard/source/erp/test_initial_import_isolation.py", line 53, in assert_refused_before_writes
+    with self.assertRaises((AssertionError, RuntimeError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>) not raised
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.046s
+
+FAILED (failures=10)

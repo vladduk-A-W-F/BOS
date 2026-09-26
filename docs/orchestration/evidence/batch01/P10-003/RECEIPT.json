@@ -1,0 +1,57 @@
+{
+  "card": "P10-003",
+  "date": "2026-09-20",
+  "review": "ACCEPT_SCOPED",
+  "reviewer": "bos_batch_review",
+  "runtime_source_sha256": "91d45e1f2db639471d94cfdeb15ea949c5baaa66fcfb1da79a51f722af165098",
+  "product_files": [
+    "erp/test_initial_import.py",
+    "erp/test_initial_import_isolation.py"
+  ],
+  "evidence": [
+    {
+      "file": "sqlite-red.stdout.log",
+      "sha256": "780368df5b53546db8e30a9c36f759fdba3c557e691ee7492d01925a0014b50b",
+      "bytes": 113
+    },
+    {
+      "file": "sqlite-red.stderr.log",
+      "sha256": "9f598a0314c1075c350d6d468d5f9a1ee06822444e33ae82e644621c9780f6ff",
+      "bytes": 12140
+    },
+    {
+      "file": "sqlite-attempt1.stdout.log",
+      "sha256": "564c6a0fb5bffd70e06220b5dd44b64730e3d17290bc49d6b2f5a966caccc9e2",
+      "bytes": 3520
+    },
+    {
+      "file": "sqlite-attempt1.stderr.log",
+      "sha256": "11263c42519dbacb88e97f0220e4501c75257612d2616eea7c9912a92bcc77ca",
+      "bytes": 3276
+    },
+    {
+      "file": "sqlite-attempt1-receipt.json",
+      "sha256": "90db9a9cfe90519c4666c3f65bf0f31d98959a9b3f470713f3c75f24b0e65964",
+      "bytes": 823
+    },
+    {
+      "file": "sqlite-green.stdout.log",
+      "sha256": "564c6a0fb5bffd70e06220b5dd44b64730e3d17290bc49d6b2f5a966caccc9e2",
+      "bytes": 3520
+    },
+    {
+      "file": "sqlite-green.stderr.log",
+      "sha256": "4ed2a773ef5a9db379d480147f05e180f9fe1c04372068d5f40de029291246ea",
+      "bytes": 2442
+    },
+    {
+      "file": "sqlite-green-receipt.json",
+      "sha256": "280146b922cf0fade9ff35f5ca6879af50ea235fa9b840b220f753e1d7be3f1a",
+      "bytes": 717
+    }
+  ],
+  "postgres16": "PENDING",
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "result_uk": "Guard: 10 ізольованих boundary tests; справжній SQLite HTTP import: 1. Разом 11/11, exit 0. Baseline red збережено; невдалий проміжний запуск також збережено. PG16 ще не перевірено. Незалежний reviewer ACCEPT_SCOPED."
+}

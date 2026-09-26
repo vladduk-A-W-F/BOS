@@ -1,0 +1,140 @@
+test_absent_empty_corrupt_and_pending_database_are_unavailable (__main__.A09HealthAndLoggingTests.test_absent_empty_corrupt_and_pending_database_are_unavailable) ... BOS_A09_HEALTH_LOG {"case": "ready_missing", "started": true, "answers": [{"method": "get", "status": 404, "body": null, "correlation": null, "cache_control": null, "allow": null, "response_sha256": "5547992afdadb59737c5c0feb1a35dff294cd27145bf290c031737ecf8a2577d"}], "files_unchanged": true, "io": [], "query_verbs": [], "stderr_lines": []}
+
+  test_absent_empty_corrupt_and_pending_database_are_unavailable (__main__.A09HealthAndLoggingTests.test_absent_empty_corrupt_and_pending_database_are_unavailable) (case='ready_missing') ... FAIL
+BOS_A09_HEALTH_LOG {"case": "ready_empty", "started": true, "answers": [{"method": "get", "status": 404, "body": null, "correlation": null, "cache_control": null, "allow": null, "response_sha256": "5547992afdadb59737c5c0feb1a35dff294cd27145bf290c031737ecf8a2577d"}], "files_unchanged": true, "io": [], "query_verbs": [], "stderr_lines": []}
+  test_absent_empty_corrupt_and_pending_database_are_unavailable (__main__.A09HealthAndLoggingTests.test_absent_empty_corrupt_and_pending_database_are_unavailable) (case='ready_empty') ... FAIL
+BOS_A09_HEALTH_LOG {"case": "ready_corrupt", "started": true, "answers": [{"method": "get", "status": 404, "body": null, "correlation": null, "cache_control": null, "allow": null, "response_sha256": "5547992afdadb59737c5c0feb1a35dff294cd27145bf290c031737ecf8a2577d"}], "files_unchanged": true, "io": [], "query_verbs": [], "stderr_lines": []}
+  test_absent_empty_corrupt_and_pending_database_are_unavailable (__main__.A09HealthAndLoggingTests.test_absent_empty_corrupt_and_pending_database_are_unavailable) (case='ready_corrupt') ... FAIL
+BOS_A09_HEALTH_LOG {"case": "ready_pending", "started": true, "answers": [{"method": "get", "status": 404, "body": null, "correlation": null, "cache_control": null, "allow": null, "response_sha256": "5547992afdadb59737c5c0feb1a35dff294cd27145bf290c031737ecf8a2577d"}], "files_unchanged": true, "io": [], "query_verbs": [], "stderr_lines": []}
+  test_absent_empty_corrupt_and_pending_database_are_unavailable (__main__.A09HealthAndLoggingTests.test_absent_empty_corrupt_and_pending_database_are_unavailable) (case='ready_pending') ... FAIL
+test_configuration_refusal_is_sanitized_and_structured_before_io (__main__.A09HealthAndLoggingTests.test_configuration_refusal_is_sanitized_and_structured_before_io) ... BOS_A09_HEALTH_LOG {"case": "configuration_refused", "exception": "ImproperlyConfigured", "io": [], "query_verbs": [], "stderr_lines": []}
+FAIL
+test_liveness_without_database_has_no_database_io (__main__.A09HealthAndLoggingTests.test_liveness_without_database_has_no_database_io) ... BOS_A09_HEALTH_LOG {"case": "live_missing", "started": true, "answers": [{"method": "get", "status": 404, "body": null, "correlation": null, "cache_control": null, "allow": null, "response_sha256": "5547992afdadb59737c5c0feb1a35dff294cd27145bf290c031737ecf8a2577d"}], "files_unchanged": true, "io": [], "query_verbs": [], "stderr_lines": []}
+FAIL
+test_missing_file_and_readonly_media_are_unavailable (__main__.A09HealthAndLoggingTests.test_missing_file_and_readonly_media_are_unavailable) ... BOS_A09_HEALTH_LOG {"case": "ready_media_missing", "started": true, "answers": [{"method": "get", "status": 404, "body": null, "correlation": null, "cache_control": null, "allow": null, "response_sha256": "5547992afdadb59737c5c0feb1a35dff294cd27145bf290c031737ecf8a2577d"}], "files_unchanged": true, "io": [], "query_verbs": [], "stderr_lines": []}
+
+  test_missing_file_and_readonly_media_are_unavailable (__main__.A09HealthAndLoggingTests.test_missing_file_and_readonly_media_are_unavailable) (case='ready_media_missing') ... FAIL
+BOS_A09_HEALTH_LOG {"case": "ready_media_file", "started": true, "answers": [{"method": "get", "status": 404, "body": null, "correlation": null, "cache_control": null, "allow": null, "response_sha256": "5547992afdadb59737c5c0feb1a35dff294cd27145bf290c031737ecf8a2577d"}], "files_unchanged": true, "io": [], "query_verbs": [], "stderr_lines": []}
+  test_missing_file_and_readonly_media_are_unavailable (__main__.A09HealthAndLoggingTests.test_missing_file_and_readonly_media_are_unavailable) (case='ready_media_file') ... FAIL
+BOS_A09_HEALTH_LOG {"case": "ready_media_readonly", "started": true, "answers": [{"method": "get", "status": 404, "body": null, "correlation": null, "cache_control": null, "allow": null, "response_sha256": "5547992afdadb59737c5c0feb1a35dff294cd27145bf290c031737ecf8a2577d"}], "files_unchanged": true, "io": [], "query_verbs": [], "stderr_lines": []}
+  test_missing_file_and_readonly_media_are_unavailable (__main__.A09HealthAndLoggingTests.test_missing_file_and_readonly_media_are_unavailable) (case='ready_media_readonly') ... FAIL
+test_public_health_rejects_post_without_dependency_io (__main__.A09HealthAndLoggingTests.test_public_health_rejects_post_without_dependency_io) ... BOS_A09_HEALTH_LOG {"case": "methods", "started": true, "answers": [{"method": "post", "status": 404, "body": null, "correlation": null, "cache_control": null, "allow": null, "response_sha256": "5547992afdadb59737c5c0feb1a35dff294cd27145bf290c031737ecf8a2577d"}, {"method": "post", "status": 404, "body": null, "correlation": null, "cache_control": null, "allow": null, "response_sha256": "5547992afdadb59737c5c0feb1a35dff294cd27145bf290c031737ecf8a2577d"}], "files_unchanged": true, "io": [], "query_verbs": [], "stderr_lines": []}
+FAIL
+test_readiness_fully_migrated_uses_only_readonly_selects (__main__.A09HealthAndLoggingTests.test_readiness_fully_migrated_uses_only_readonly_selects) ... BOS_A09_HEALTH_LOG {"case": "ready_healthy", "started": true, "answers": [{"method": "get", "status": 404, "body": null, "correlation": null, "cache_control": null, "allow": null, "response_sha256": "5547992afdadb59737c5c0feb1a35dff294cd27145bf290c031737ecf8a2577d"}], "files_unchanged": true, "io": [], "query_verbs": [], "stderr_lines": []}
+FAIL
+test_real_request_error_and_access_logs_never_include_private_canaries (__main__.A09HealthAndLoggingTests.test_real_request_error_and_access_logs_never_include_private_canaries) ... FAIL
+
+======================================================================
+FAIL: test_absent_empty_corrupt_and_pending_database_are_unavailable (__main__.A09HealthAndLoggingTests.test_absent_empty_corrupt_and_pending_database_are_unavailable) (case='ready_missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_runtime_draft/tests/test_server_health_logging.py", line 232, in test_absent_empty_corrupt_and_pending_database_are_unavailable
+    self.assertEqual(result['answers'][0]['status'], 503)
+AssertionError: 404 != 503
+
+======================================================================
+FAIL: test_absent_empty_corrupt_and_pending_database_are_unavailable (__main__.A09HealthAndLoggingTests.test_absent_empty_corrupt_and_pending_database_are_unavailable) (case='ready_empty')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_runtime_draft/tests/test_server_health_logging.py", line 232, in test_absent_empty_corrupt_and_pending_database_are_unavailable
+    self.assertEqual(result['answers'][0]['status'], 503)
+AssertionError: 404 != 503
+
+======================================================================
+FAIL: test_absent_empty_corrupt_and_pending_database_are_unavailable (__main__.A09HealthAndLoggingTests.test_absent_empty_corrupt_and_pending_database_are_unavailable) (case='ready_corrupt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_runtime_draft/tests/test_server_health_logging.py", line 232, in test_absent_empty_corrupt_and_pending_database_are_unavailable
+    self.assertEqual(result['answers'][0]['status'], 503)
+AssertionError: 404 != 503
+
+======================================================================
+FAIL: test_absent_empty_corrupt_and_pending_database_are_unavailable (__main__.A09HealthAndLoggingTests.test_absent_empty_corrupt_and_pending_database_are_unavailable) (case='ready_pending')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_runtime_draft/tests/test_server_health_logging.py", line 232, in test_absent_empty_corrupt_and_pending_database_are_unavailable
+    self.assertEqual(result['answers'][0]['status'], 503)
+AssertionError: 404 != 503
+
+======================================================================
+FAIL: test_configuration_refusal_is_sanitized_and_structured_before_io (__main__.A09HealthAndLoggingTests.test_configuration_refusal_is_sanitized_and_structured_before_io)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_runtime_draft/tests/test_server_health_logging.py", line 267, in test_configuration_refusal_is_sanitized_and_structured_before_io
+    self.assertTrue(any(row['event'] == 'configuration_refused' and row['status'] == 503 for row in logs))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_liveness_without_database_has_no_database_io (__main__.A09HealthAndLoggingTests.test_liveness_without_database_has_no_database_io)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_runtime_draft/tests/test_server_health_logging.py", line 217, in test_liveness_without_database_has_no_database_io
+    self.assertEqual(result['answers'][0]['status'], 200)
+AssertionError: 404 != 200
+
+======================================================================
+FAIL: test_missing_file_and_readonly_media_are_unavailable (__main__.A09HealthAndLoggingTests.test_missing_file_and_readonly_media_are_unavailable) (case='ready_media_missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_runtime_draft/tests/test_server_health_logging.py", line 239, in test_missing_file_and_readonly_media_are_unavailable
+    self.assertEqual(result['answers'][0]['status'], 503)
+AssertionError: 404 != 503
+
+======================================================================
+FAIL: test_missing_file_and_readonly_media_are_unavailable (__main__.A09HealthAndLoggingTests.test_missing_file_and_readonly_media_are_unavailable) (case='ready_media_file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_runtime_draft/tests/test_server_health_logging.py", line 239, in test_missing_file_and_readonly_media_are_unavailable
+    self.assertEqual(result['answers'][0]['status'], 503)
+AssertionError: 404 != 503
+
+======================================================================
+FAIL: test_missing_file_and_readonly_media_are_unavailable (__main__.A09HealthAndLoggingTests.test_missing_file_and_readonly_media_are_unavailable) (case='ready_media_readonly')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_runtime_draft/tests/test_server_health_logging.py", line 239, in test_missing_file_and_readonly_media_are_unavailable
+    self.assertEqual(result['answers'][0]['status'], 503)
+AssertionError: 404 != 503
+
+======================================================================
+FAIL: test_public_health_rejects_post_without_dependency_io (__main__.A09HealthAndLoggingTests.test_public_health_rejects_post_without_dependency_io)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_runtime_draft/tests/test_server_health_logging.py", line 244, in test_public_health_rejects_post_without_dependency_io
+    self.assertEqual([row['status'] for row in result['answers']], [405, 405])
+AssertionError: Lists differ: [404, 404] != [405, 405]
+
+First differing element 0:
+404
+405
+
+- [404, 404]
+?    ^    ^
+
++ [405, 405]
+?    ^    ^
+
+
+======================================================================
+FAIL: test_readiness_fully_migrated_uses_only_readonly_selects (__main__.A09HealthAndLoggingTests.test_readiness_fully_migrated_uses_only_readonly_selects)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_runtime_draft/tests/test_server_health_logging.py", line 223, in test_readiness_fully_migrated_uses_only_readonly_selects
+    self.assertEqual(result['answers'][0]['status'], 200)
+AssertionError: 404 != 200
+
+======================================================================
+FAIL: test_real_request_error_and_access_logs_never_include_private_canaries (__main__.A09HealthAndLoggingTests.test_real_request_error_and_access_logs_never_include_private_canaries)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_runtime_draft/tests/test_server_health_logging.py", line 249, in test_real_request_error_and_access_logs_never_include_private_canaries
+    result = self.invoke('logs')
+             ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_runtime_draft/tests/test_server_health_logging.py", line 203, in invoke
+    self.assertNotIn(value, run.stdout + run.stderr, 'Private synthetic canary leaked')
+AssertionError: 'A09_PRIVATE_PASSWORD_161877d73bd74abc8ec5d7a4bc5416b7' unexpectedly found in '{"case": "logs", "started": true, "answers": [{"method": "post", "status": 200, "body": {"ok": true}, "correlation": null, "cache_control": null, "allow": null, "response_sha256": "6bc0da1f42f96fc37b8bd7ed20ba57606d2a0da5cda2b135c7854fbdc985b8a3"}, {"method": "post", "status": 500, "body": null, "correlation": null, "cache_control": null, "allow": null, "response_sha256": "fd62a53afdd49595ccd111b6ac06466a1690e7c8da4aeb0e884b5e0f4e937624"}, {"method": "get", "status": 404, "body": null, "correlation": null, "cache_control": null, "allow": null, "response_sha256": "5547992afdadb59737c5c0feb1a35dff294cd27145bf290c031737ecf8a2577d"}, {"method": "get", "status": 400, "body": null, "correlation": null, "cache_control": null, "allow": null, "response_sha256": "65b0d4aef304dcf46bffd8a20b46f7fc441e2ab0848ea3197caf713de1babb63"}, {"method": "get", "status": 403, "body": {"error": "Пряме підключення до сервера BoS заборонено."}, "correlation": null, "cache_control": null, "allow": null, "response_sha256": "1aea30f91d54a257c9c529fe9ecc7d787200efe719aa3a70729f1578fe06b80b"}, {"method": "get", "status": 301, "body": null, "correlation": null, "cache_control": null, "allow": null, "response_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}], "files_unchanged": true, "io": [], "query_verbs": []}\nPrivate body b\'{"password": "A09_PRIVATE_PASSWORD_161877d73bd74abc8ec5d7a4bc5416b7", "body": "A09_PRIVATE_BODY_e12108c0310b4109aa16be1a1e835bcd\\\\nFAKE_LOG_RECORD", "filename": "A09_PRIVATE_FILENAME_efc13119955146dd89ae4478aafb0254"}\' and headers {\'Cookie\': \'private=A09_PRIVATE_COOKIE_8fd5d0ec47214a178a6fd6e01fee5d4f\', \'Content-Length\': \'216\', \'Content-Type\': \'application/json\', \'Host\': \'bos.example.test:8443\', \'Authorization\': \'Bearer A09_PRIVATE_AUTHORIZATION_8dfd2f43a41a4e0780be75f5528b967b\', \'X-Bos-Request-Id\': \'A09_PRIVATE_CORRELATION_3353bba7b0c94aca920e120d776f4479\', \'X-Forwarded-Proto\': \'https\'}\nPrivate query token=A09_PRIVATE_QUERY_25397a62e16544bfbdadb6c04d25f74e\nPrivate traceback\nTraceback (most recent call last):\n  File "/tmp/bos_a09_runtime_xan_tx1g/overlay/a09_runtime_urls.py", line 21, in echo\n    raise ValueError(\'private failure \' + request.body.decode(\'utf-8\', errors=\'replace\'))\nValueError: private failure {"password": "A09_PRIVATE_PASSWORD_161877d73bd74abc8ec5d7a4bc5416b7", "body": "A09_PRIVATE_BODY_e12108c0310b4109aa16be1a1e835bcd\\nFAKE_LOG_RECORD", "filename": "A09_PRIVATE_FILENAME_efc13119955146dd89ae4478aafb0254"}\n' : Private synthetic canary leaked
+
+----------------------------------------------------------------------
+Ran 7 tests in 15.836s
+
+FAILED (failures=12)

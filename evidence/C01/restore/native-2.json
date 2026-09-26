@@ -1,0 +1,180 @@
+{
+  "gate": 7,
+  "complete": true,
+  "version": "0.2.13-dev",
+  "synthetic_work": "/tmp/bos-restore-check-zzm8gq9e",
+  "scope": "actual same-N TLS, capture, clean restore and restored HTTPS; no upgrade/rollback or Windows/PG",
+  "checks": [
+    {
+      "case": "fresh_offline_install_and_independent_three_currency_fixture",
+      "passed": true
+    },
+    {
+      "case": "original_real_TLS_login_document",
+      "passed": true,
+      "document_sha256": "bba0159323a4d10c1954fea3eb175e0b9a10eb26a76b80dcf4a0f310264f2111"
+    },
+    {
+      "case": "actual_TLS_import_populated_ledger_and_source_document",
+      "passed": true,
+      "batch_id": "7b1bace9-c5af-42b4-8045-7d4ee6bc9c52",
+      "mapping_count": 27,
+      "export_sha256": "1b2e1e7bd8b2db8bc2b8492219de032a761d1888d502ceef0a1b23c81b31e81f"
+    },
+    {
+      "case": "actual_TLS_tasks_FK_result_archive_and_history",
+      "passed": true,
+      "tasks": 4,
+      "receipts": 6,
+      "state_sha256": "551364c0f3ea62ef611a453bd3b86c208066ed806a3c8c0a3bc2bd5532a092f0"
+    },
+    {
+      "case": "actual_TLS_six_populated_correction_ledgers",
+      "passed": true,
+      "counts": {
+        "cancellations": 2,
+        "cancellation_releases": 1,
+        "goods_returns": 2,
+        "supplier_claims": 2,
+        "invoice_adjustments": 2,
+        "invoice_adjustment_lines": 2
+      },
+      "snapshot_sha256": "db6aaa04e571c7901d41724a82667230fdfd068d4d5b51cbed70c9169a122073"
+    },
+    {
+      "case": "actual_quiescence_native_capture",
+      "passed": true,
+      "scope": "capture_only",
+      "installation_id": "8da34852-51fd-48f3-94ad-c56dd3183716",
+      "operation_id": "6f9eb483-1108-4ca6-8112-16d626f5ac1f",
+      "version": "0.2.13-dev",
+      "manifest_sha256": "83684b0d06b982219e2fe16a31edf09989ad7ab26c5b498c23d529c8ae9f7e6e",
+      "database_sha256": "c0922c916737d15d8101a1b79ae3081b81370b45d1f1257d5c2569eeda153e08",
+      "private_files": 3,
+      "elapsed_seconds": 5.158,
+      "lease_retained": true,
+      "restore_verified": false
+    },
+    {
+      "case": "corrupt_backup_refused",
+      "passed": true
+    },
+    {
+      "case": "existing_installation_restore_refused_without_writes",
+      "passed": true
+    },
+    {
+      "case": "new_installation_native_restore",
+      "passed": true,
+      "scope": "clean_restore_data_and_code_only",
+      "installation_id": "ea522748-1125-4cbd-95a0-2aece5130c18",
+      "source_installation_id": "8da34852-51fd-48f3-94ad-c56dd3183716",
+      "version": "0.2.13-dev",
+      "database_sha256": "c0922c916737d15d8101a1b79ae3081b81370b45d1f1257d5c2569eeda153e08",
+      "private_files": 3,
+      "tables": 53,
+      "elapsed_seconds": 31.699,
+      "backup_unchanged": true,
+      "post_restore_http_verified": false,
+      "identity_policy": "new installation UUID, secret and cookie namespace; stored identities/history unchanged"
+    },
+    {
+      "case": "original_same_N_resumed",
+      "passed": true,
+      "health": {
+        "live": 200,
+        "ready": 200
+      }
+    },
+    {
+      "case": "restored_real_TLS_login_document_and_version",
+      "passed": true,
+      "new_cookie_namespace": true,
+      "document_sha256": "bba0159323a4d10c1954fea3eb175e0b9a10eb26a76b80dcf4a0f310264f2111",
+      "version": "0.2.13-dev"
+    },
+    {
+      "case": "restored_import_receipt_identity_replay_and_private_source",
+      "passed": true,
+      "export_sha256": "1b2e1e7bd8b2db8bc2b8492219de032a761d1888d502ceef0a1b23c81b31e81f",
+      "no_new_business_effects": true
+    },
+    {
+      "case": "restored_six_correction_ledgers_source_history_and_intent_replay",
+      "passed": true,
+      "correction_actions": 7,
+      "six_populated_ledgers": {
+        "cancellations": 2,
+        "cancellation_releases": 1,
+        "goods_returns": 2,
+        "supplier_claims": 2,
+        "invoice_adjustments": 2,
+        "invoice_adjustment_lines": 2
+      },
+      "snapshot_sha256": "db6aaa04e571c7901d41724a82667230fdfd068d4d5b51cbed70c9169a122073",
+      "new_business_effects": 0
+    },
+    {
+      "case": "restored_Task_legacy_NULL_FK_result_archive_history_and_owner_receipts",
+      "passed": true,
+      "tasks": 4,
+      "task_proposals": 6,
+      "state_sha256": "551364c0f3ea62ef611a453bd3b86c208066ed806a3c8c0a3bc2bd5532a092f0",
+      "history_preserved": true,
+      "new_session_read_receipts": true,
+      "old_session_execution_refused": true,
+      "new_business_effects": 0
+    },
+    {
+      "case": "all_owned_processes_stopped_and_source_backup_still_valid",
+      "passed": true,
+      "backup_manifest_sha256": "83684b0d06b982219e2fe16a31edf09989ad7ab26c5b498c23d529c8ae9f7e6e"
+    },
+    {
+      "case": "late_admission_failure_keeps_new_target_unlaunchable",
+      "passed": true
+    }
+  ],
+  "management_code_sha256": {
+    "maintenance_control": "4e9b33059b6faa7bb8a03a6dedecfc08d29493e0f0333fb231920c6e80714223",
+    "generation_ledger": "b68298be377367ae8bfcddd3ec44cfff446dcd9dc0698864a9a822ea6b8df3f1",
+    "backup_server": "27430b053bf714b09b89214278454144b6587040754f0db8d1d79f874e0cbed8",
+    "restore_server": "baaf64239df69dd0a2c19bcab7b67044af3ad19cd9790f7d95e0b47f5b323eb0",
+    "managed_runtime": "be7e26c107248ff3dc13d86acf700a9d84784f82df386b36d2e9e855ec181840"
+  },
+  "package": {
+    "version": "0.2.13-dev",
+    "source_sha256": "0832a8409cf8a9b436bf1562cacb2c9cdb6c257db252948cbd9809c84c5103a7",
+    "files": 295,
+    "database_files": 0,
+    "output": "/tmp/bos-restore-check-zzm8gq9e/package"
+  },
+  "seed": {
+    "user_id": 1,
+    "employee_id": 1,
+    "second_employee_id": 2,
+    "legacy_task_ids": [
+      1,
+      2
+    ],
+    "document_id": 1,
+    "import_document": {
+      "document_id": 3,
+      "code": "RESTORE-IMPORT",
+      "revision": "A",
+      "checksum": "1d6432f290d6c0d47600c86dca7b826d164703272398541293ba648634c05acd"
+    },
+    "transaction_ids": [
+      1,
+      2,
+      3
+    ],
+    "currencies": 3,
+    "amounts": [
+      "17.39",
+      "123.45",
+      "9801.07"
+    ],
+    "stored_session_rows": 1
+  }
+}

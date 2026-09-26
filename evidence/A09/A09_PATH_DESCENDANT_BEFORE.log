@@ -1,0 +1,19 @@
+test_private_media_cannot_descend_from_database_file (__main__.A09ServerConfigurationTests.test_private_media_cannot_descend_from_database_file) ... FAIL
+
+======================================================================
+FAIL: test_private_media_cannot_descend_from_database_file (__main__.A09ServerConfigurationTests.test_private_media_cannot_descend_from_database_file)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 206, in test_private_media_cannot_descend_from_database_file
+    self.refused(arrange=lambda e, root, temp: e.update(
+  File "/workspace/scratch/c7b51e996a9f/tmp/a09_server_draft/tests/test_server_config.py", line 128, in refused
+    self.assertEqual(result['status'], 'refused', result)
+AssertionError: 'started' != 'refused'
+- started
++ refused
+ : {'attempts': [], 'status': 'started', 'callable': True, 'mode': 'working', 'cookie': 'bos_session_b50ebdb498f842a99a9f7a39cd9a6b87', 'secret_sha': '1ef41c5bae50f4c7caeab6a3f623b70e7b0e073a00b741a04863406095c2ab67', 'settings': 'server_settings', 'installed_apps': 15, 'local': {'secret_unchanged': True, 'guard_unchanged': True, 'permission_unchanged': True}, 'case': 'test_private_media_cannot_descend_from_database_file', 'mutation': None, 'environment_keys_changed': []}
+
+----------------------------------------------------------------------
+Ran 1 test in 0.259s
+
+FAILED (failures=1)
