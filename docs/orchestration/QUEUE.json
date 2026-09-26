@@ -1,9 +1,32 @@
 {
   "schema": 1,
+  "current_baseline_manifest": "docs/orchestration/CURRENT_BASELINE.json",
+  "current_delivery": "FINAL-CURRENT-20260926",
+  "automatic_execution_allowed": false,
   "launch_gate": "FREEZE_FOR_OWNER_REVIEW",
   "all_tasks_require_owner_plan_review": false,
   "rules": "PLAN-* є запропонованими ключами; не перейменовувати історичні P-ID. Залежності необхідні, але не замінюють external_prerequisites.",
   "tasks": [
+    {
+      "id": "FINAL-CURRENT-20260926",
+      "title": "Consolidate current main baseline and freeze snapshot",
+      "owner": "bos_architect",
+      "depends_on": ["UI-COLUMN-CONTENT-01"],
+      "status": "MERGE_CANDIDATE_ACCEPT_SCOPED",
+      "card": "docs/orchestration/cards/FINAL-CURRENT-20260926.md",
+      "evidence": "docs/orchestration/CURRENT_BASELINE.json",
+      "automatic_execution_allowed": false
+    },
+    {
+      "id": "UI-COLUMN-CONTENT-01",
+      "title": "Clarify module column text without losing semantic facts",
+      "owner": "bos_implementer",
+      "depends_on": [],
+      "status": "ACCEPT_SCOPED",
+      "card": "docs/orchestration/cards/UI-COLUMN-CONTENT-01.md",
+      "evidence": "docs/orchestration/evidence/current-20260926/columns/",
+      "automatic_execution_allowed": false
+    },
     {
       "id": "P10-003",
       "title": "P06-F02: backend-aware isolation guard",
