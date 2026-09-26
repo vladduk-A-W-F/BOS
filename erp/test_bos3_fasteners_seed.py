@@ -1,9 +1,11 @@
-"""Focused contract tests for the isolated BoS 3.0 fasteners fixture."""
+"""Run only through verification_settings with a new explicit isolated SQLite path."""
 from io import StringIO
 import os
 from decimal import Decimal
+from pathlib import Path
 from unittest.mock import patch
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.core.management.base import CommandError
@@ -20,6 +22,23 @@ from erp.service import fingerprint
 class Bos3FastenersSeedTests(TestCase):
     username = 'bos3-owner-test'
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        configured = os.environ.get('BOS_TEST_DB_NAME')
+        if (os.environ.get('DJANGO_SETTINGS_MODULE') != 'verification_settings'
+                or getattr(settings, 'SETTINGS_MODULE', None) != 'verification_settings'
+                or os.environ.get('BOS_VERIFY_DB', 'sqlite') != 'sqlite'
+                or not configured):
+            raise RuntimeError('B30-QH01 requires verification_settings and explicit BOS_TEST_DB_NAME SQLite.')
+        configured_path = Path(configured)
+        actual_path = Path(str(connection.settings_dict['NAME']))
+        if not configured_path.is_absolute() or 'bos3-fasteners' not in configured_path.name.lower():
+            raise RuntimeError('B30-QH01 requires a new absolute BOS_TEST_DB_NAME containing bos3-fasteners.')
+        expected_test_path = Path(str(configured_path.resolve()) + '_django_test')
+        if actual_path.resolve() != expected_test_path.resolve():
+            raise RuntimeError('B30-QH01 database binding differs from explicit verification SQLite test path.')
+
     def setUp(self):
         self.owner = get_user_model().objects.create_user(username=self.username, password='unused-test-password')
         self.environment = {
@@ -29,11 +48,9 @@ class Bos3FastenersSeedTests(TestCase):
             'BOS3_TRAINING_OWNER_USERNAME': self.username,
             'BOS3_TRAINING_INSTALLATION_ID': 'test-installation-bos3',
         }
-        self.database_settings = {**connection.settings_dict,
-            'NAME': 'C:/tmp/bos3-fasteners-seed-test.sqlite3'}
 
     def seed(self):
-        with patch.dict(os.environ, self.environment, clear=False), patch.object(connection, 'settings_dict', self.database_settings):
+        with patch.dict(os.environ, self.environment, clear=False):
             call_command('seed_bos3_fasteners', owner_username=self.username, stdout=StringIO())
 
     def test_creates_three_coherent_case_states_and_marker(self):
@@ -42,6 +59,8 @@ class Bos3FastenersSeedTests(TestCase):
         self.assertEqual((marker['id'], marker['schema'], marker['synthetic'], marker['as_of']),
             ('bos3-fasteners-uk-v1', 1, True, '2026-09-30'))
         self.assertEqual(marker['owner_user_id'], self.owner.pk)
+        organization = Configuration.objects.get(key='organization').value
+        self.assertEqual(organization['name'], 'ТОВ «МайстерКріплення» · навчальна фабрика')
         self.assertEqual(Employee.objects.get(user=self.owner).department, 'Продажі')
         c1 = marker['source_map']['BOS3-CASE-01']
         self.assertEqual((SalesOrder.objects.get(pk=c1['order_id']).lines.get(pk=c1['line_id']).quantity,
@@ -66,15 +85,23 @@ class Bos3FastenersSeedTests(TestCase):
         self.assertEqual(fingerprint(), before)
         other = get_user_model().objects.create_user(username='bos3-other-test', password='unused-test-password')
         changed = {**self.environment, 'BOS3_TRAINING_OWNER_USERNAME': other.username}
-        with patch.dict(os.environ, changed, clear=False), patch.object(connection, 'settings_dict', self.database_settings):
+        with patch.dict(os.environ, changed, clear=False):
             with self.assertRaises(CommandError):
                 call_command('seed_bos3_fasteners', owner_username=other.username, stdout=StringIO())
         self.assertEqual(fingerprint(), before)
 
     def test_missing_guard_refuses_before_writing_business_rows(self):
         without_enable = {key: value for key, value in self.environment.items() if key != 'BOS3_TRAINING_ENABLED'}
-        with patch.dict(os.environ, without_enable, clear=True), patch.object(connection, 'settings_dict', self.database_settings):
+        with patch.dict(os.environ, without_enable, clear=True):
             with self.assertRaises(CommandError):
                 call_command('seed_bos3_fasteners', owner_username=self.username, stdout=StringIO())
         self.assertFalse(Configuration.objects.exists())
+        self.assertFalse(SalesLine.objects.exists())
+
+    def test_existing_organization_refuses_without_replacing_identity(self):
+        original = {'name': 'Existing synthetic organization'}
+        Configuration.objects.create(key='organization', value=original)
+        with self.assertRaises(CommandError):
+            self.seed()
+        self.assertEqual(Configuration.objects.get(key='organization').value, original)
         self.assertFalse(SalesLine.objects.exists())

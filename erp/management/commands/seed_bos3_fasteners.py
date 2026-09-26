@@ -74,7 +74,7 @@ class Command(BaseCommand):
         return user, installation_id, hashlib.sha256(str(database_path).encode('utf-8')).hexdigest()
 
     def assert_empty_target(self):
-        if Configuration.objects.filter(key__in=(MANIFEST_KEY, 'dataset', 'erp_dataset', 'ua_workpoints_dataset')).exists():
+        if Configuration.objects.filter(key__in=(MANIFEST_KEY, 'dataset', 'erp_dataset', 'ua_workpoints_dataset', 'organization')).exists():
             raise CommandError('Fixture або legacy seed уже присутній; автоматичне перезаписування заборонене.')
         models = (Branch, Employee, Counterparty, Contract, Transaction, Document,
                   ProcurementRequest, SupplierQuote, Invoice, AuditEvent, Task, Item, Location,
@@ -105,6 +105,9 @@ class Command(BaseCommand):
         branch = Branch.objects.create(code=data['company']['code'], name=data['company']['name'],
             short_name='МайстерКріплення', type='headquarters', status='green',
             employee_count=len(data['people']))
+        Configuration.objects.create(key='organization', value={
+            'name': data['company']['name'], 'description': data['company']['note'],
+            'industry': 'Навчальна фабрика метизів', 'timezone': 'Europe/Kyiv'})
         people = {}
         for row in data['people']:
             people[row['key']] = Employee.objects.create(full_name=row['name'], role=row['role'],
