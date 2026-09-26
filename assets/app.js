@@ -18227,7 +18227,7 @@ function ERPNetwork({
     className: "network-heading"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
     className: "network-eyebrow"
-  }, "\u0420\u041E\u0411\u041E\u0427\u0406 \u0414\u0410\u041D\u0406 BoS"), /*#__PURE__*/React.createElement("h3", null, "\u0412\u0456\u0434 \u0444\u0456\u043B\u0456\u0457 \u0434\u043E \u043A\u043E\u0436\u043D\u043E\u0457 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0457"), /*#__PURE__*/React.createElement("p", {
+  }, window.BOS_RUNTIME?.mode === 'demo' ? 'Навчальні записи BoS' : 'РОБОЧІ ДАНІ BoS'), /*#__PURE__*/React.createElement("h3", null, "\u0412\u0456\u0434 \u0444\u0456\u043B\u0456\u0457 \u0434\u043E \u043A\u043E\u0436\u043D\u043E\u0457 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0457"), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
   }, "\u0421\u043A\u043B\u0430\u0434, \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043D\u043D\u044F, \u043F\u0440\u043E\u0434\u0430\u0436\u0456 \u0439 \u0440\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043A\u0438 \u0437 \u043F\u043E\u0442\u043E\u0447\u043D\u043E\u0457 \u0431\u0430\u0437\u0438. \u0414\u0456\u044F \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442\u044C \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0443 \u0442\u0430 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F.")), /*#__PURE__*/React.createElement("span", {
     className: "erp-status"
@@ -21251,23 +21251,243 @@ function BoSHome({
 function BoSProductGuide({
   onNavigate
 }) {
-  const features = [['Виконання замовлення', 'Показує, що вже є, чого бракує та яку операцію можна виконати наступною. Менеджер переходить до заповненої форми з картки замовлення.', 'erp', 'sales', 'Відкрити продажі'], ['Матеріали й склад', 'Партії, резерви та якість в одному місці. Видно, чому фізичний запас ще не можна відвантажити і для кого він зарезервований.', 'erp', 'stock', 'Відкрити склад'], ['Виробництво й підрядники', 'Пов’язує матеріали, операції, виконавця та випуск. Не дозволяє почати без потрібного резерву або списати більше наявного.', 'erp', 'production', 'Відкрити виробництво'], ['Закупівлі та документи', 'Допомагає порівняти ціну разом з додатковими витратами, строками й вимогами; джерело відкривається поряд із висновком.', 'finance', 'procurement', 'Порівняти пропозиції'], ['Якість та зміни', 'Показує комплектність документів, дозволи партій та вплив нової версії креслення на незавершені роботи.', 'erp', 'quality', 'Відкрити якість'], ['Розрахунки й контроль', 'У «Вертольоті» показник веде до доступних джерел. У «Сьогодні» — робочі кроки з окремою перевіркою та погодженням.', 'heli', null, 'Відкрити показники']];
+  const cases = [{
+    id: 'BOS3-CASE-01',
+    title: '50 комплектів без необґрунтованої обіцянки',
+    client: 'ТОВ «Промінь-Сервіс»',
+    need: '50 умовних монтажних комплектів М10',
+    owner_role: 'Менеджер продажів',
+    next_action: 'Уточнити строк після перевірки SO-101 і забезпечення',
+    stage: 'draft_after_source_check',
+    source_codes: ['SO-101', 'DEMO-101', 'FAST-101', 'MAT-101'],
+    problem: 'Клієнт умовно просить 50 комплектів. Перед обіцянкою треба відрізнити замовлену кількість від придатного вільного запасу та резерву.',
+    result: 'Навчальний результат: є підстава для розмови про строк, але комерційна обіцянка не є фактичною поставкою.',
+    handoffs: ['Продажі → Планування', 'Планування → Склад'],
+    roles: 'Керівник і менеджер переходять за доступними джерелами; спостерігач працює лише з читанням.',
+    steps: [{
+      label: 'Перевірити основу замовлення',
+      section: 'erp',
+      sub: 'sales',
+      destination: 'ERP / Продажі',
+      check: 'Знайдіть SO-101: 50 виробів, відповідального та строк.'
+    }, {
+      label: 'Побачити придатний запас і резерв',
+      section: 'erp',
+      sub: 'stock',
+      destination: 'ERP / Склад',
+      check: 'Не ототожнюйте фізичний запас з доступним для відвантаження.'
+    }, {
+      label: 'Відкрити робочий наступний крок',
+      section: 'dash',
+      sub: null,
+      destination: 'Сьогодні',
+      check: 'Перевірте заповнені поля і «Було → Стане» перед погодженням.'
+    }]
+  }, {
+    id: 'BOS3-CASE-02',
+    title: 'Не зірвати комплектування через дефіцит',
+    client: 'ПП «РемБуд-Лаб»',
+    need: 'Закрити матеріальну потребу для 40 умовних комплектів',
+    owner_role: 'Керівник планування',
+    next_action: 'Звірити PO-MAT і PO-FAST до оновлення строку клієнту',
+    stage: 'risk_review',
+    source_codes: ['MO-101', 'PO-MAT', 'PO-FAST', 'LOT-FG-HOLD'],
+    problem: 'MO-101 має забезпечити решту 40 комплектів. Є 24 кг заготовки та 60 кріпильних елементів; 8 кг і 20 шт. очікуються. LOT-FG-HOLD заблокована.',
+    result: 'Навчальний результат: закупівля, приймання, допуск якості, резерв і відвантаження є різними фактами.',
+    handoffs: ['Планування → Закупки', 'Закупки → Склад', 'Склад → Виробництво', 'Виробництво → Якість', 'Якість → Логістика'],
+    roles: 'Керівник бачить повний маршрут; менеджер і спостерігач бачать лише розділи та факти, дозволені їхній ролі.',
+    steps: [{
+      label: 'Перевірити виробничу потребу',
+      section: 'erp',
+      sub: 'production',
+      destination: 'ERP / Виробництво',
+      check: 'Відкрийте MO-101 і відрізніть запланований випуск від фактичного.'
+    }, {
+      label: 'Звірити очікувані поставки',
+      section: 'erp',
+      sub: 'purchase',
+      destination: 'ERP / Постачання',
+      check: 'Знайдіть PO-MAT і PO-FAST; строк не дорівнює фактичному прийманню.'
+    }, {
+      label: 'Перевірити партії на складі',
+      section: 'erp',
+      sub: 'stock',
+      destination: 'ERP / Склад',
+      check: 'LOT-FG-HOLD заблокована й не є придатним запасом для відвантаження.'
+    }, {
+      label: 'Перевірити рішення якості',
+      section: 'erp',
+      sub: 'quality',
+      destination: 'ERP / Якість і зміни',
+      check: 'Допуск якості є окремим рішенням з документом-підставою, а не прийманням.'
+    }, {
+      label: 'Повернутися до наступного кроку',
+      section: 'dash',
+      sub: null,
+      destination: 'Сьогодні',
+      check: 'Проведення можливе лише після preview та явного погодження.'
+    }]
+  }, {
+    id: 'BOS3-CASE-03',
+    title: 'Після відвантаження не втратити оплату',
+    client: 'ТОВ «Контур-Монтаж»',
+    need: 'Наступний контакт за синтетичним відкритим рахунком',
+    owner_role: 'Керівник продажів',
+    next_action: 'Призначити контакт після перевірки рахунку та джерела',
+    stage: 'collection_follow_up_draft',
+    source_codes: ['SO-090', 'SO-091', 'SO-092'],
+    problem: 'SO-090, SO-091 і SO-092 — готові синтетичні приклади повної, часткової та відсутньої оплати.',
+    result: 'Навчальний результат: запис оплати не є банківським переказом, а позначка контакту не закриває борг.',
+    handoffs: ['Логістика → Фінанси', 'Фінанси → Продажі', 'Продажі → HR і керівник'],
+    roles: 'Розмір фінансових даних і доступ до джерел залежать від чинної ролі; нових ролей навчання не створює.',
+    steps: [{
+      label: 'Відкрити показник і джерело',
+      section: 'heli',
+      sub: null,
+      destination: 'Вертоліт',
+      check: 'Відкрийте доступний показник та його конкретний рахунок-джерело.'
+    }, {
+      label: 'Перевірити фінансовий контекст',
+      section: 'erp',
+      sub: 'costs',
+      destination: 'ERP / Фінансовий результат',
+      check: 'Відрізніть рахунок, облікову оплату і відкритий залишок.'
+    }, {
+      label: 'Зафіксувати відповідального за контакт',
+      section: 'hr',
+      sub: 'tasks',
+      destination: 'HR / Доручення',
+      check: 'Доручення не реєструє оплату й не закриває фінансовий борг.'
+    }]
+  }];
+  const fallbackProgress = {
+    caseId: cases[0].id,
+    step: 0
+  };
+  const [storedProgress, setStoredProgress] = useLocalState('bos.training.v3', fallbackProgress);
+  const rawProgress = storedProgress && typeof storedProgress === 'object' && !Array.isArray(storedProgress) ? storedProgress : {};
+  const active = cases.find(item => item.id === rawProgress.caseId) || cases[0];
+  const rawStep = Number.isSafeInteger(rawProgress.step) ? rawProgress.step : 0;
+  const activeStep = Math.max(0, Math.min(rawStep, active.steps.length - 1));
+  const normalizedProgress = {
+    caseId: active.id,
+    step: activeStep
+  };
+  const storedProgressJSON = JSON.stringify(storedProgress),
+    normalizedProgressJSON = JSON.stringify(normalizedProgress);
+  useEffect(() => {
+    if (storedProgressJSON !== normalizedProgressJSON) setStoredProgress(normalizedProgress);
+  }, [storedProgressJSON, normalizedProgressJSON]);
+  const preview = {
+    schema: 'bos.training.crm-handoff.v1',
+    synthetic: true,
+    crm_record_created: false,
+    case_id: active.id,
+    client: active.client,
+    need: active.need,
+    owner_role: active.owner_role,
+    next_action: active.next_action,
+    stage: active.stage,
+    source_codes: active.source_codes
+  };
+  const stageLabels = {
+    draft_after_source_check: 'Чернетка після перевірки джерел',
+    risk_review: 'Перевірка ризику строку',
+    collection_follow_up_draft: 'Чернетка контакту щодо оплати'
+  };
+  const previewFields = [['Клієнт', preview.client], ['Потреба', preview.need], ['Відповідальна роль', preview.owner_role], ['Наступна дія', preview.next_action], ['Етап чернетки', stageLabels[preview.stage] || preview.stage], ['Коди джерел', preview.source_codes.join(', ')]];
+  const saveProgress = next => {
+    try {
+      localStorage.setItem(bosStorageKey('bos.training.v3'), JSON.stringify(next));
+    } catch {
+      window.dispatchEvent(new CustomEvent('boss:notice', {
+        detail: 'Не вдалося зберегти прогрес навчання в браузері.'
+      }));
+    }
+    setStoredProgress(next);
+  };
+  const openStep = (step, index) => {
+    saveProgress({
+      caseId: active.id,
+      step: index
+    });
+    onNavigate(step.section, step.sub);
+  };
+  const changeCase = id => saveProgress({
+    caseId: id,
+    step: 0
+  });
+  const download = () => {
+    const url = URL.createObjectURL(new Blob([JSON.stringify(preview, null, 2)], {
+        type: 'application/json'
+      })),
+      link = document.createElement('a');
+    link.href = url;
+    link.download = active.id.toLowerCase() + '-crm-handoff.json';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
   return /*#__PURE__*/React.createElement("div", {
     className: "bos-home"
-  }, /*#__PURE__*/React.createElement("h1", null, "\u042F\u043A BoS \u0441\u043F\u0440\u043E\u0449\u0443\u0454 \u0440\u043E\u0431\u043E\u0442\u0443"), /*#__PURE__*/React.createElement("p", null, "BoS \u0437\u0432\u2019\u044F\u0437\u0443\u0454 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F, \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456, \u0441\u043A\u043B\u0430\u0434, \u0432\u0438\u0440\u043E\u0431\u043D\u0438\u0446\u0442\u0432\u043E \u0442\u0430 \u0440\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043A\u0438. \u0417\u0430\u043C\u0456\u0441\u0442\u044C \u043F\u043E\u0432\u0442\u043E\u0440\u043D\u043E\u0433\u043E \u043F\u043E\u0448\u0443\u043A\u0443 \u0432 \u0440\u0456\u0437\u043D\u0438\u0445 \u0441\u043F\u0438\u0441\u043A\u0430\u0445 \u0432\u0438 \u0432\u0456\u0434\u043A\u0440\u0438\u0432\u0430\u0454\u0442\u0435 \u0437\u0430\u043F\u0438\u0441, \u0431\u0430\u0447\u0438\u0442\u0435 \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0456 \u0434\u0430\u043D\u0456 \u0439 \u043F\u0435\u0440\u0435\u0445\u043E\u0434\u0438\u0442\u0435 \u0434\u043E \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u043E\u0457 \u0434\u0456\u0457."), /*#__PURE__*/React.createElement("div", {
-    className: "bos-guide-grid"
-  }, features.map(([title, text, section, sub, cta]) => /*#__PURE__*/React.createElement(Card, {
-    key: title
-  }, /*#__PURE__*/React.createElement("h2", null, title), /*#__PURE__*/React.createElement("p", null, text), /*#__PURE__*/React.createElement(Button, {
-    onClick: () => onNavigate(section, sub)
-  }, cta)))), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, "\u0421\u043F\u0440\u043E\u0431\u0443\u0439\u0442\u0435 \u043D\u0430 \u0437\u0430\u043F\u043E\u0432\u043D\u0435\u043D\u043E\u043C\u0443 \u043F\u0440\u0438\u043A\u043B\u0430\u0434\u0456"), /*#__PURE__*/React.createElement("p", null, "SO-101: 50 \u0432\u0438\u0440\u043E\u0431\u0456\u0432. \u0427\u0430\u0441\u0442\u0438\u043D\u0430 \u0432\u0436\u0435 \u0432 \u0440\u0435\u0437\u0435\u0440\u0432\u0456, \u0440\u0435\u0448\u0442\u0443 \u043F\u043E\u0442\u0440\u0456\u0431\u043D\u043E \u0432\u0438\u0433\u043E\u0442\u043E\u0432\u0438\u0442\u0438. \u0412\u0456\u0434\u043A\u0440\u0438\u0439\u0442\u0435 \xAB\u0421\u044C\u043E\u0433\u043E\u0434\u043D\u0456\xBB, \u043D\u0430\u0442\u0438\u0441\u043D\u0456\u0442\u044C \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u0438\u0439 \u043A\u0440\u043E\u043A, \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u0442\u0435 \u0437\u0430\u043F\u043E\u0432\u043D\u0435\u043D\u0456 \u043F\u043E\u043B\u044F \u0442\u0430 \u0442\u0430\u0431\u043B\u0438\u0446\u044E \xAB\u0411\u0443\u043B\u043E \u2192 \u0421\u0442\u0430\u043D\u0435\xBB. \u041F\u0456\u0441\u043B\u044F \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F BoS \u043F\u043E\u043A\u0430\u0436\u0435 \u0444\u0430\u043A\u0442\u0438\u0447\u043D\u0456 \u0437\u043C\u0456\u043D\u0438 \u0442\u0430 \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u0443 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u044E."), /*#__PURE__*/React.createElement(Button, {
-    variant: "primary",
-    onClick: () => onNavigate('dash')
-  }, "\u041F\u0440\u043E\u0439\u0442\u0438 \u0440\u043E\u0431\u043E\u0447\u0438\u0439 \u0446\u0438\u043A\u043B")), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, "\u0429\u043E \u0440\u043E\u0431\u0438\u0442\u044C \u0430\u0441\u0438\u0441\u0442\u0435\u043D\u0442"), /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u044F\u0441\u043D\u044E\u0454 \u0441\u0442\u0430\u043D \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u044C, \u043C\u0430\u0442\u0435\u0440\u0456\u0430\u043B\u0456\u0432 \u0456 \u0440\u0430\u0445\u0443\u043D\u043A\u0456\u0432 \u0437\u0430 \u043F\u043E\u0442\u043E\u0447\u043D\u0438\u043C\u0438 \u0437\u0430\u043F\u0438\u0441\u0430\u043C\u0438. \u0423 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u0456\u0439 \u0432\u0435\u0440\u0441\u0456\u0457 \u043F\u0440\u0430\u0446\u044E\u044E\u0442\u044C \u0432\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u0456 \u0441\u0446\u0435\u043D\u0430\u0440\u0456\u0457. \u0414\u043B\u044F \u0432\u0456\u043B\u044C\u043D\u043E\u0433\u043E \u0430\u043D\u0430\u043B\u0456\u0437\u0443 \u043C\u043E\u0436\u043D\u0430 \u043F\u0435\u0440\u0435\u0434\u0430\u0442\u0438 \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442 \u0443 ChatGPT \u0442\u0430 \u043F\u043E\u0432\u0435\u0440\u043D\u0443\u0442\u0438 \u0437\u0430\u043F\u0440\u043E\u043F\u043E\u043D\u043E\u0432\u0430\u043D\u0443 \u0434\u0456\u044E \u043D\u0430 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0443 \u0439 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F."), /*#__PURE__*/React.createElement(Button, {
-    onClick: () => onNavigate('ai', 'aichat')
-  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u0430\u0441\u0438\u0441\u0442\u0435\u043D\u0442\u0430"), /*#__PURE__*/React.createElement("p", {
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", null, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0430 \u043C\u043E\u0434\u0435\u043B\u044C BoS 3.0"), /*#__PURE__*/React.createElement("p", null, "\u0422\u0440\u0438 \u0443\u043C\u043E\u0432\u043D\u0456 \u043A\u0435\u0439\u0441\u0438 \u0444\u0430\u0431\u0440\u0438\u043A\u0438 \u043C\u0435\u0442\u0438\u0437\u0456\u0432 \u043F\u0440\u043E\u0432\u043E\u0434\u044F\u0442\u044C \u0447\u0435\u0440\u0435\u0437 \u043F\u043E\u0442\u043E\u0447\u043D\u0456 \u0444\u0443\u043D\u043A\u0446\u0456\u0457 BoS. \u0426\u0435 \u043D\u0435 \u0442\u0435\u0445\u043D\u0456\u0447\u043D\u0430 \u0432\u0435\u0440\u0441\u0456\u044F 3.0: \u043E\u0441\u043D\u043E\u0432\u0430 \u0437\u0430\u0441\u0442\u043E\u0441\u0443\u043D\u043A\u0443 \u043B\u0438\u0448\u0430\u0454\u0442\u044C\u0441\u044F v18, \u0430 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u0443\u0440\u043E\u043A\u0443 \u043D\u0435 \u043E\u0437\u043D\u0430\u0447\u0430\u0454 \u0432\u0438\u043A\u043E\u043D\u0430\u043D\u0443 \u0431\u0456\u0437\u043D\u0435\u0441-\u043E\u043F\u0435\u0440\u0430\u0446\u0456\u044E.")), /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("h2", null, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0430 \u043D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0430 \u0456 \u043C\u0435\u0436\u0456"), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
-  }, "\u041F\u043E\u043A\u0430\u0437\u043D\u0438\u043A\u0438 \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u043E\u0457 \u043A\u043E\u043C\u043F\u0430\u043D\u0456\u0457 \u0454 \u043F\u0440\u0438\u043A\u043B\u0430\u0434\u0430\u043C\u0438, \u0430 \u043D\u0435 \u0432\u0438\u043C\u0456\u0440\u044F\u043D\u043E\u044E \u0435\u043A\u043E\u043D\u043E\u043C\u0456\u0454\u044E \u043A\u043B\u0456\u0454\u043D\u0442\u0456\u0432. \u0414\u0435\u043C\u043E \u0432\u0438\u043A\u043E\u0440\u0438\u0441\u0442\u043E\u0432\u0443\u0454 \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0456 \u0430\u043A\u0430\u0443\u043D\u0442\u0438; \u0440\u043E\u0431\u043E\u0447\u0438\u0439 \u043F\u0440\u043E\u0444\u0456\u043B\u044C \u2014 \u0432\u0445\u0456\u0434 \u0456\u0437 \u043F\u0440\u0438\u0437\u043D\u0430\u0447\u0435\u043D\u0438\u043C\u0438 \u043F\u0440\u0430\u0432\u0430\u043C\u0438. CSV-\u0432\u0438\u043F\u0438\u0441\u043A\u0438 \u0456\u043C\u043F\u043E\u0440\u0442\u0443\u044E\u0442\u044C\u0441\u044F \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u043E; \u0431\u0430\u043D\u043A\u0456\u0432\u0441\u044C\u043A\u0456 \u043F\u0435\u0440\u0435\u043A\u0430\u0437\u0438 \u0442\u0430 \u0437\u043E\u0432\u043D\u0456\u0448\u043D\u044F \u043C\u043E\u0434\u0435\u043B\u044C \u043D\u0435 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0456. \u0417\u0430\u0433\u0430\u043B\u044C\u043D\u0435 \u0441\u0435\u0440\u0432\u0435\u0440\u043D\u0435 \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F \u0449\u0435 \u043D\u0435 \u043F\u0440\u043E\u0439\u0434\u0435\u043D\u043E.")));
+  }, "DEMO-101 \u2014 \u043F\u043E\u044F\u0441\u043D\u044E\u0432\u0430\u043B\u044C\u043D\u0430 \u0430\u043D\u0430\u043B\u043E\u0433\u0456\u044F \u043C\u043E\u043D\u0442\u0430\u0436\u043D\u043E\u0433\u043E \u043A\u043E\u043C\u043F\u043B\u0435\u043A\u0442\u0443 \u041C10; FAST-101 \u2014 \u0433\u0430\u0439\u043A\u0430 \u041C10 \u0434\u043B\u044F \u043A\u043E\u043C\u043F\u043B\u0435\u043A\u0442\u0443, 2 \u0448\u0442. \u043D\u0430 \u043A\u043E\u043C\u043F\u043B\u0435\u043A\u0442; MAT-101 \u2014 \u0441\u0442\u0430\u043B\u0435\u0432\u0430 \u0437\u0430\u0433\u043E\u0442\u043E\u0432\u043A\u0430 \u043A\u0440\u043E\u043D\u0448\u0442\u0435\u0439\u043D\u0430, 0,8 \u043A\u0433 \u043D\u0430 \u043A\u043E\u043C\u043F\u043B\u0435\u043A\u0442, \u0430 \u043D\u0435 \u043C\u0430\u0441\u0430 \u043E\u043A\u0440\u0435\u043C\u043E\u0433\u043E \u0431\u043E\u043B\u0442\u0430. \u0411\u043E\u043B\u0442 \u041C10 \u0456 \u0448\u0430\u0439\u0431\u0430 10 \u2014 \u043B\u0438\u0448\u0435 \u043C\u0430\u0439\u0431\u0443\u0442\u043D\u0456 \u043F\u0440\u0438\u043A\u043B\u0430\u0434\u0438 CRM, \u043D\u0435 \u043D\u0430\u044F\u0432\u043D\u0456 \u0441\u043A\u043B\u0430\u0434\u0441\u044C\u043A\u0456 \u0437\u0430\u043F\u0438\u0441\u0438. \u041D\u0430\u0437\u0432\u0438 \u0442\u0430 \u0441\u043A\u043B\u0430\u0434 \u0434\u0435\u043C\u043E-\u0434\u0430\u043D\u0438\u0445 \u043D\u0435 \u0437\u043C\u0456\u043D\u044E\u044E\u0442\u044C\u0441\u044F.")), /*#__PURE__*/React.createElement("label", {
+    className: "op-toolbar"
+  }, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0438\u0439 \u043A\u0435\u0439\u0441", /*#__PURE__*/React.createElement(Select, {
+    "aria-label": "\u041E\u0431\u0435\u0440\u0456\u0442\u044C \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0438\u0439 \u043A\u0435\u0439\u0441",
+    value: active.id,
+    onChange: event => changeCase(event.target.value)
+  }, cases.map(item => /*#__PURE__*/React.createElement("option", {
+    key: item.id,
+    value: item.id
+  }, item.id, " \xB7 ", item.title)))), /*#__PURE__*/React.createElement("section", {
+    className: "bos-training-case",
+    "aria-labelledby": "bos-training-active"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "erp-row"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
+    id: "bos-training-active"
+  }, active.title), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, active.id, " \xB7 \u0443\u043C\u043E\u0432\u043D\u0438\u0439 \u043A\u043B\u0456\u0454\u043D\u0442: ", active.client)), /*#__PURE__*/React.createElement("span", {
+    className: "erp-status"
+  }, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0438\u0439 \u043A\u0435\u0439\u0441")), /*#__PURE__*/React.createElement("h3", null, "\u041F\u0440\u043E\u0431\u043B\u0435\u043C\u0430"), /*#__PURE__*/React.createElement("p", null, active.problem), /*#__PURE__*/React.createElement("h3", null, "\u0429\u043E \u043C\u0430\u0454 \u0441\u0442\u0430\u0442\u0438 \u0437\u0440\u043E\u0437\u0443\u043C\u0456\u043B\u0438\u043C"), /*#__PURE__*/React.createElement("p", null, active.result), /*#__PURE__*/React.createElement("h3", null, "\u041F\u0435\u0440\u0435\u0434\u0430\u0447\u0430 \u043C\u0456\u0436 \u0432\u0456\u0434\u0434\u0456\u043B\u0430\u043C\u0438"), /*#__PURE__*/React.createElement("div", {
+    className: "bos-training-handoffs"
+  }, active.handoffs.map(item => /*#__PURE__*/React.createElement("span", {
+    key: item
+  }, item))), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, active.roles), /*#__PURE__*/React.createElement("h3", null, "\u041C\u0430\u0440\u0448\u0440\u0443\u0442 \u0443\u0440\u043E\u043A\u0443"), active.steps.map((step, index) => {
+    const allowed = bosCanView(step.section, step.sub);
+    return /*#__PURE__*/React.createElement("div", {
+      className: "bos-training-step",
+      key: step.destination
+    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, index + 1, ". ", step.label), /*#__PURE__*/React.createElement("p", {
+      className: "op-muted"
+    }, step.destination), /*#__PURE__*/React.createElement("p", null, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0430: ", step.check)), /*#__PURE__*/React.createElement(Button, {
+      variant: activeStep === index ? 'primary' : 'subtle',
+      disabled: !allowed,
+      title: allowed ? 'Відкрити наявний розділ' : 'Недоступно поточній ролі',
+      onClick: () => openStep(step, index)
+    }, allowed ? 'Відкрити крок' : 'Недоступно цій ролі'));
+  })), /*#__PURE__*/React.createElement("section", {
+    className: "bos-training-preview",
+    "aria-labelledby": "bos-crm-preview"
+  }, /*#__PURE__*/React.createElement("h2", {
+    id: "bos-crm-preview"
+  }, "\u0427\u0435\u0440\u043D\u0435\u0442\u043A\u0430 \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0456 \u0434\u043E CRM"), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041B\u0438\u0448\u0435 \u0443\u043C\u043E\u0432\u043D\u0456 \u0434\u0430\u043D\u0456 \u043E\u0431\u0440\u0430\u043D\u043E\u0433\u043E \u043A\u0435\u0439\u0441\u0443. \u041F\u0435\u0440\u0435\u0433\u043B\u044F\u0434 \u0442\u0430 \u0435\u043A\u0441\u043F\u043E\u0440\u0442 \u043D\u0435 \u0441\u0442\u0432\u043E\u0440\u044E\u044E\u0442\u044C CRM-\u0437\u0430\u043F\u0438\u0441, \u043D\u0435 \u043D\u0430\u0434\u0441\u0438\u043B\u0430\u044E\u0442\u044C \u0434\u0430\u043D\u0456 \u0439 \u043D\u0435 \u0437\u043C\u0456\u043D\u044E\u044E\u0442\u044C BoS."), /*#__PURE__*/React.createElement("dl", null, previewFields.map(([label, value]) => /*#__PURE__*/React.createElement(React.Fragment, {
+    key: label
+  }, /*#__PURE__*/React.createElement("dt", null, label), /*#__PURE__*/React.createElement("dd", null, value)))), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0422\u0435\u0445\u043D\u0456\u0447\u043D\u0456 \u043F\u043E\u0437\u043D\u0430\u0447\u043A\u0438 \u0435\u043A\u0441\u043F\u043E\u0440\u0442\u0443: \u0441\u0445\u0435\u043C\u0430 ", preview.schema, "; \u0441\u0438\u043D\u0442\u0435\u0442\u0438\u0447\u043D\u0456 \u0434\u0430\u043D\u0456: ", preview.synthetic ? 'Так' : 'Ні', "; CRM-\u0437\u0430\u043F\u0438\u0441 \u0441\u0442\u0432\u043E\u0440\u0435\u043D\u043E: ", preview.crm_record_created ? 'Так' : 'Ні', "."), /*#__PURE__*/React.createElement(Button, {
+    onClick: download
+  }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0438\u0442\u0438 JSON-\u0447\u0435\u0440\u043D\u0435\u0442\u043A\u0443")), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041F\u0440\u043E\u0433\u0440\u0435\u0441 \u0443\u0440\u043E\u043A\u0443 \u0437\u0431\u0435\u0440\u0456\u0433\u0430\u0454\u0442\u044C\u0441\u044F \u043B\u0438\u0448\u0435 \u0432 \u0446\u044C\u043E\u043C\u0443 \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0456 \u0434\u043B\u044F \u043F\u043E\u0442\u043E\u0447\u043D\u043E\u0433\u043E \u043E\u0431\u043B\u0456\u043A\u043E\u0432\u043E\u0433\u043E \u0437\u0430\u043F\u0438\u0441\u0443 \u0442\u0430 \u043D\u0435 \u0454 \u0441\u0442\u0430\u043D\u043E\u043C \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F, \u0432\u0438\u0440\u043E\u0431\u043D\u0438\u0446\u0442\u0432\u0430, \u0441\u043A\u043B\u0430\u0434\u0443, \u0440\u0430\u0445\u0443\u043D\u043A\u0443 \u0430\u0431\u043E CRM. \u0420\u0435\u0430\u043B\u044C\u043D\u0430 CRM \u2014 \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u0438\u0439 \u043E\u043A\u0440\u0435\u043C\u0438\u0439 \u0435\u0442\u0430\u043F \u0456\u0437 \u043C\u043E\u0434\u0435\u043B\u043B\u044E \u0434\u0430\u043D\u0438\u0445, \u043F\u0440\u0430\u0432\u0430\u043C\u0438, \u043C\u0456\u0433\u0440\u0430\u0446\u0456\u044F\u043C\u0438 \u0442\u0430 \u0441\u0438\u043D\u0442\u0435\u0442\u0438\u0447\u043D\u0438\u043C\u0438 \u0442\u0435\u0441\u0442\u0430\u043C\u0438."));
 }
 function BoSReadOnlyRecords({
   title,
@@ -21943,12 +22163,12 @@ function AuthGate() {
     "aria-labelledby": "bos-start-guide-title"
   }, /*#__PURE__*/React.createElement("h2", {
     id: "bos-start-guide-title"
-  }, "\u041F\u043E\u0447\u0430\u0442\u043E\u043A \u0440\u043E\u0431\u043E\u0442\u0438"), /*#__PURE__*/React.createElement("p", null, "\u041A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u043C\u0430\u0440\u0448\u0440\u0443\u0442 \u0434\u043B\u044F \u0437\u0430\u043F\u043E\u0432\u043D\u0435\u043D\u043E\u0433\u043E \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u043E\u0433\u043E \u043F\u0440\u0438\u043A\u043B\u0430\u0434\u0443."), /*#__PURE__*/React.createElement("div", {
+  }, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0430 \u043C\u043E\u0434\u0435\u043B\u044C BoS 3.0"), /*#__PURE__*/React.createElement("p", null, "\u0422\u0440\u0438 \u0443\u043C\u043E\u0432\u043D\u0456 \u043A\u0435\u0439\u0441\u0438: \u043E\u0431\u0491\u0440\u0443\u043D\u0442\u043E\u0432\u0430\u043D\u0430 \u043E\u0431\u0456\u0446\u044F\u043D\u043A\u0430 \u043A\u043B\u0456\u0454\u043D\u0442\u0443, \u043A\u043E\u043C\u043F\u043B\u0435\u043A\u0442\u0443\u0432\u0430\u043D\u043D\u044F \u0431\u0435\u0437 \u0434\u0435\u0444\u0456\u0446\u0438\u0442\u0443 \u0442\u0430 \u043A\u043E\u043D\u0442\u0440\u043E\u043B\u044C \u0432\u0456\u0434\u043A\u0440\u0438\u0442\u043E\u0457 \u043E\u043F\u043B\u0430\u0442\u0438. \u0426\u0435 \u043D\u0430\u0432\u0447\u0430\u043D\u043D\u044F \u043D\u0430 \u043F\u043E\u0442\u043E\u0447\u043D\u0438\u0445 \u0434\u0435\u043C\u043E-\u0434\u0430\u043D\u0438\u0445, \u043D\u0435 \u0442\u0435\u0445\u043D\u0456\u0447\u043D\u0430 \u0432\u0435\u0440\u0441\u0456\u044F 3.0."), /*#__PURE__*/React.createElement("div", {
     className: "bos-start-steps"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "1. \u0412\u0435\u0440\u0442\u043E\u043B\u0456\u0442"), /*#__PURE__*/React.createElement("span", null, "\u0412\u0456\u0434\u043A\u0440\u0438\u0439\u0442\u0435 \u043F\u043E\u043A\u0430\u0437\u043D\u0438\u043A \u0456 \u0439\u043E\u0433\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430.")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "2. \u0421\u044C\u043E\u0433\u043E\u0434\u043D\u0456"), /*#__PURE__*/React.createElement("span", null, "\u0417\u043D\u0430\u0439\u0434\u0456\u0442\u044C SO-101 \u0442\u0430 \u0432\u0456\u0434\u043A\u0440\u0438\u0439\u0442\u0435 \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u0438\u0439 \u043A\u0440\u043E\u043A.")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "3. \u041F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("span", null, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0442\u0435 \xAB\u0411\u0443\u043B\u043E \u2192 \u0421\u0442\u0430\u043D\u0435\xBB, \u043F\u043E\u0442\u0456\u043C \u044F\u0432\u043D\u043E \u043F\u043E\u0433\u043E\u0434\u044C\u0442\u0435 \u0434\u0456\u044E."))), /*#__PURE__*/React.createElement("a", {
     className: "bos-start-pdf",
     href: "/help/start.pdf"
-  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u043F\u0430\u043C\u2019\u044F\u0442\u043A\u0443 PDF")), /*#__PURE__*/React.createElement("details", {
+  }, "\u041F\u0430\u043C\u2019\u044F\u0442\u043A\u0430 \u0432\u0445\u043E\u0434\u0443 \u0439 \u043F\u0435\u0440\u0448\u043E\u0457 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0438 (PDF)")), /*#__PURE__*/React.createElement("details", {
     className: "bos-auth-secondary"
   }, /*#__PURE__*/React.createElement("summary", null, "\u0423\u0432\u0456\u0439\u0442\u0438 \u0437 \u043B\u043E\u0433\u0456\u043D\u043E\u043C \u0456 \u043F\u0430\u0440\u043E\u043B\u0435\u043C"), passwordForm)) : passwordForm, error && /*#__PURE__*/React.createElement("p", {
     role: "alert",
