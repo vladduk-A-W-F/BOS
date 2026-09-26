@@ -1,0 +1,50 @@
+{
+  "fixture_id": "bos3-fasteners-uk-v1",
+  "schema_version": 1,
+  "synthetic": true,
+  "as_of": "2026-09-30",
+  "currency": "UAH",
+  "company": {
+    "code": "B3-MK",
+    "name": "ТОВ «МайстерКріплення» · навчальна фабрика",
+    "note": "Усі особи, компанії, документи і суми в цьому fixture вигадані."
+  },
+  "people": [
+    {"key": "sales", "name": "Олена Марченко", "role": "Менеджер продажів", "department": "Продажі"},
+    {"key": "planning", "name": "Андрій Романюк", "role": "Планувальник", "department": "Планування"},
+    {"key": "procurement", "name": "Наталія Білик", "role": "Менеджер закупівель", "department": "Закупівлі"},
+    {"key": "warehouse", "name": "Дмитро Левченко", "role": "Координатор складу", "department": "Склад"},
+    {"key": "production", "name": "Максим Гордієнко", "role": "Майстер комплектації", "department": "Виробництво"},
+    {"key": "quality", "name": "Ірина Савчук", "role": "Інженер якості", "department": "Якість"},
+    {"key": "logistics", "name": "Сергій Дорошенко", "role": "Координатор логістики", "department": "Логістика"},
+    {"key": "finance", "name": "Леся Мельник", "role": "Фінансовий менеджер", "department": "Фінанси"},
+    {"key": "crm", "name": "Тарас Кравченко", "role": "CRM-координатор", "department": "CRM"},
+    {"key": "leader", "name": "Марія Коваль", "role": "Керівник навчальної компанії", "department": "Управління"}
+  ],
+  "counterparties": [
+    {"key": "budmontazh", "name": "ТОВ «БудМонтаж Захід» · навчальний клієнт", "type": "customer"},
+    {"key": "karkas", "name": "ТОВ «КаркасПроєкт» · навчальний клієнт", "type": "customer"},
+    {"key": "fasad", "name": "ТОВ «ФасадСервіс» · навчальний клієнт", "type": "customer"},
+    {"key": "washerprom", "name": "ТОВ «ШайбаПром» · навчальний постачальник", "type": "supplier"},
+    {"key": "galvanika", "name": "ТОВ «Гальваніка-Навчальна» · навчальний постачальник", "type": "supplier"}
+  ],
+  "items": [
+    {"key": "bolt_m10", "code": "B3-BOLT-M10-80-ZN", "name": "Болт M10×80 оцинкований", "unit": "шт.", "kind": "component", "method": "buy", "planned_cost": "6.20"},
+    {"key": "nut_m10", "code": "B3-NUT-M10-ZN", "name": "Гайка M10", "unit": "шт.", "kind": "component", "method": "buy", "planned_cost": "1.80"},
+    {"key": "wash_m10", "code": "B3-WASH-M10-ZN", "name": "Шайба 10", "unit": "шт.", "kind": "component", "method": "buy", "planned_cost": "0.70"},
+    {"key": "kit_m10", "code": "B3-KIT-M10-80", "name": "Монтажний комплект M10×80", "unit": "компл.", "kind": "product", "method": "make", "planned_cost": "12.00"},
+    {"key": "bolt_m12", "code": "B3-BOLT-M12-100-ZN", "name": "Болт M12×100 оцинкований", "unit": "шт.", "kind": "component", "method": "buy", "planned_cost": "8.80"},
+    {"key": "nut_m12", "code": "B3-NUT-M12-ZN", "name": "Гайка M12", "unit": "шт.", "kind": "component", "method": "buy", "planned_cost": "2.40"},
+    {"key": "wash_m12", "code": "B3-WASH-M12-ZN", "name": "Шайба 12", "unit": "шт.", "kind": "component", "method": "buy", "planned_cost": "0.90"},
+    {"key": "kit_m12", "code": "B3-KIT-M12-100", "name": "Монтажний комплект M12×100", "unit": "компл.", "kind": "product", "method": "make", "planned_cost": "16.40"}
+  ],
+  "locations": [
+    {"key": "production", "code": "B3-LOC-PROD", "name": "Дільниця комплектації · навчальна", "kind": "production"},
+    {"key": "warehouse", "code": "B3-LOC-WH", "name": "Склад готової продукції · навчальний", "kind": "warehouse"}
+  ],
+  "cases": {
+    "C1": {"anchor": "2026-09-28", "order": "B3-C1-SO-101", "purchase": "B3-C1-PO-101", "production": "B3-C1-MO-101", "customer": "budmontazh", "internal_plan_confirmation": true, "customer_promise": false},
+    "C2": {"anchor": "2026-09-29", "order": "B3-C2-SO-202", "shipment_reference": "B3-C2-SHP-202", "customer": "karkas"},
+    "C3": {"anchor": "2026-09-30", "order": "B3-C3-SO-303", "shipment_reference": "B3-C3-SHP-303", "invoice": "B3-C3-INV-303", "payment_reference": "B3-C3-PAY-303", "customer": "fasad"}
+  }
+}
