@@ -26,8 +26,12 @@ class Bos3FastenersSeedTests(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         configured = os.environ.get('BOS_TEST_DB_NAME')
+        # Match the existing isolated-import guard through override_settings.
+        profile = settings._wrapped
+        while getattr(profile, 'SETTINGS_MODULE', None) is None and hasattr(profile, 'default_settings'):
+            profile = profile.default_settings
         if (os.environ.get('DJANGO_SETTINGS_MODULE') != 'verification_settings'
-                or getattr(settings, 'SETTINGS_MODULE', None) != 'verification_settings'
+                or getattr(profile, 'SETTINGS_MODULE', None) != 'verification_settings'
                 or os.environ.get('BOS_VERIFY_DB', 'sqlite') != 'sqlite'
                 or not configured):
             raise RuntimeError('B30-QH01 requires verification_settings and explicit BOS_TEST_DB_NAME SQLite.')
