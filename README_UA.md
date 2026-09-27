@@ -1,6 +1,6 @@
 # BoS · локальна клієнтська демонстрація
 
-Ця гілка: **BoS 3.0 / 0.3.0-dev.1**, окрема локальна передверсія з навчальними даними. Її [локальний launcher](docs/learning/BOS3_LOCAL_SERVER.md) не використовує старі демо-бази або команди запуску нижче. Production-готовність не підтверджено.
+Ця гілка: **BoS 3.0 / 0.3.0-dev.2**, кандидат з брошурою перед входом і трьома окремими навчальними кейсами. Встановлений сервер зафіксовано окремо в [runtime receipt](docs/orchestration/bos3/LOCAL_RUNTIME_RECEIPT.json); build не дорівнює доставці. Її [локальний launcher](docs/learning/BOS3_LOCAL_SERVER.md) не використовує старі демо-бази або команди запуску нижче. [Діюча черга](docs/orchestration/bos3/ACTIVE_WORK_PLAN_RU.md). Production-готовність не підтверджено.
 
 Збережена основна версія в main: **BoS v18 / 0.2.18-current**, PR #8 об'єднано. Нумерований snapshot: `bos-v18-current-2026-09-26`. Публікація та межі перевірок: [звіт v18](docs/orchestration/V18_CURRENT_RU.md) і [manifest](docs/orchestration/CURRENT_BASELINE.json). Історичні інструкції запуску нижче не є новим дозволом на production/upgrade або свідченням повного приймання.
 
