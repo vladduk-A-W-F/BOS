@@ -6,6 +6,8 @@
 
 ## Настройка разработки и следующий шаг
 
+B30-UXD03-PREP завершён: existing design передал exact e710 контракт, независимый bos3_candidate_review дал ACCEPT_SCOPED_DOCUMENTARY_PREPARATION без P0-P2. Evidence: evidence/uxd03-prep-20260927/REVIEW_RU.md. Очередь отдела и исполнитель уже существуют; новые compact-card факты можно реализовывать только отдельной карточкой, waiting требует UXD03-WAIT-01. Реализация не назначена. Следующий обязательный шаг недели: ответ на один уже заданный вопрос B30-12 revision9, затем final manifest и независимая проверка pins; до ответа запусков нет.
+
 B30-12 revision9 получил ACCEPT_SCOPED_READY_TO_ASK_OWNER_EXCEPTION, NOT_EXECUTION. Владельцу один раз задан точный вопрос: отдельная synthetic SQLite schema/owner/CEO/один seed и один in-process server-contract прогон трёх кейсов/прогресса, без браузера/сети/повторов/данных сайта. Ответ ещё не получен. После ответа потребуются final manifest с фактическим decision ID и отдельный immutable hash pin-review; до этого запуск запрещён. Source proof checkout e710 чистый и отдельный, БД не создана. Revision8 содержит erratum о неверном static finding importre; никакого runtime FAIL не было. B30-UXD03-PREP продолжает существующий design, не блокируется этим вопросом.
 
 Revision7 B30-12: полный harness написан, но независимый REVISE_BEFORE_OWNER_QUESTION выявил3P1: moving canonical вместо exacte710, недостающие integrity/authorization guards, неполные per-write receipt/state assertions. Root выделяет отдельный source checkout без БД/тестов; тот же QA дорабатывает только свой scratch. Одновременно incoming full-readiness e710 matrix проверяется bos3_candidate_review; общий S1/S2/S3+UXD01–08+11gates scope не заменяется учебными кейсами. Runtime не меняется.
@@ -49,9 +51,9 @@ ARCH-01: root SQLite proposal исправляется на bos3-fasteners-f55-r
 ## Точная база
 
 - Canonical: C:/Users/user/.codex/worktrees/bos-consolidation-plan/repo, codex/bos3-prerelease-20260927; исходный SHA этого пакета dd88f28c0779394a70cc1625a6995c6a46f84810.
-- Выданный runtime: C:/Users/user/.codex/worktrees/bos3-local-runtime/repo, f55a15de4006d10c0d7c65f8a2ca8499fbb99819 / dev.3. Фактический exact-pin maintenance и entry receipt: LOCAL_RUNTIME_RECEIPT.json. Следующие обычные reviewed local обновления разрешены в принятом объёме без нового вопроса.
+- Выданный runtime: C:/Users/user/.codex/worktrees/bos3-local-runtime/repo, e710eb568717dfe3ede945feb899f030bd5ad1ab / dev.4. Фактический exact-pin maintenance и single HTML receipt: LOCAL_RUNTIME_RECEIPT.json. Dev.4 browser/JS/login/lessons не проверены; исторический dev.3 entry не переносится. Обычные reviewed local обновления разрешены в принятом объёме без нового вопроса.
 - Реализация UI: C:/Users/user/.codex/worktrees/bos3-entry-flow/repo обновлена на defd1fc12545053159a3a888013d096c79157fd3. Шесть прежних файлов совпали с canonical по SHA-256 и сохранены отдельным stash перед switch; stash не применять повторно. Старые WIP не являются базой новых задач.
-- Текущий продуктовый кандидат 0.3.0-dev.3: f55a15de4006d10c0d7c65f8a2ca8499fbb99819; UI commit aee8d0ee41afd5cba256a0b4a4deddadf7af6e4e. Паспорт LIGHT_PREVIEW_CANDIDATE.json. Runtime теперь совпадает с dev.3 / f55; dev.1 сохранён как runtime-before.json в evidence доставки. Новый код, выдача на ПК и принятый rc являются разными состояниями.
+- Текущий продуктовый кандидат 0.3.0-dev.4: 7018cca86337da19361951782cffecb09811a89a; immutable source с паспортом e710eb568717dfe3ede945feb899f030bd5ad1ab. Паспорт DESIGN_DEV4_CANDIDATE.json. LIGHT_PREVIEW_CANDIDATE.json и f55/dev.3 ниже являются историей. Новый код, выдача на ПК и принятый rc являются разными состояниями.
 - Предыдущий dev.2 / ae966d3 сохранён в CANDIDATE_MANIFEST.json и CANDIDATE_ACCEPTANCE_RU.md как историческое доказательство, не текущий product pin. Его maintenance runner нельзя выполнять для dev.3 без нового pin/allowlist и review.
 
 ## Текущий пакет светлого превью
@@ -84,7 +86,7 @@ ARCH-01: root SQLite proposal исправляется на bos3-fasteners-f55-r
 | B30-CTRL | root | PUBLISHED_TO_PR10 | 0bdfa47; план, CONTROL_STATE и внешний пакет синхронизированы; automation действует в том же чате | Не дублировать прежний контроль без изменения источников |
 | B30-12 | root; bos3_fixture_impl provenance; bos3_crm_impl evidence; bos3_candidate_review independent review | PACKAGED_SCOPED_FULL_QA_OPEN | CANDIDATE_MANIFEST.json, CANDIDATE_ACCEPTANCE_RU.md, evidence/candidate-20260927/REVIEW_RU.md; ACCEPT_SCOPED_EVIDENCE_PACKAGING_ONLY | Полная QA и owner acceptance остаются открытыми; следующий шаг требует решения/нового факта, не повторного аудита |
 
-## Следующие действия текущего кандидата
+## История следующих действий dev.3, уже выполнено
 
 1. Независимая сверка LIGHT_PREVIEW_CANDIDATE.json и статическая подготовка maintenance для точного f55a15d завершены. Принятый объём зафиксирован в LIGHT_PREVIEW_CANDIDATE_RU.md. Не выполнять старый ae966d3 runner.
 2. Доставка f55 и один desktop/mobile entry приняты независимо. Сохранить выданную версию и raw evidence; owner feedback по фактическому интерфейсу ещё не получен.

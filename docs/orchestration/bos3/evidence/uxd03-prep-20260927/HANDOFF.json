@@ -1,0 +1,377 @@
+{
+  "schema": "bos.uxd03-prep.handoff.v1",
+  "card": "B30-UXD03-PREP",
+  "prepared_at_utc": "2026-09-27T15:42:58.828658+00:00",
+  "status": "PREPARED_FOR_INDEPENDENT_REVIEW",
+  "author": "bos3-product-design preparation worker",
+  "reviewer": "bos3_candidate_review",
+  "review_status": "PENDING",
+  "canonical_integrator_thread_id": "01a0dd56-ca2d-79c0-b159-bde80074a026",
+  "scope": "Read-only source-bound contract preparation. Only two output documents; no implementation or product validation.",
+  "source": {
+    "workspace": "C:/Users/user/.codex/worktrees/bos3-product-design/repo",
+    "head": "e710eb568717dfe3ede945feb899f030bd5ad1ab",
+    "detached": true,
+    "clean_before": true,
+    "clean_after": true,
+    "inspection": "static source reads and Git/file hashes only",
+    "reported_runtime_pins": "Integrator-reported product7018/runtimee710/docsHEAD234f276; not independently inspected or accepted here"
+  },
+  "input_delta": {
+    "path": "D:/3/BOSDev/evidence/bos3-readiness-20260927/UXD_SOURCE_DELTA_E710.json",
+    "sha256": "f2aa61266a83d77498b114d6e922bba28c17ee25cdfd5fea82b744304596650c",
+    "source_commit": "e710eb568717dfe3ede945feb899f030bd5ad1ab",
+    "hash_comparisons": [
+      {
+        "path": "assets/app.js",
+        "expected_sha256": "e193d08b31e16b3c2100fa14414aa87a4c8f5946da7396081503fa353920f8d9",
+        "actual_sha256": "e193d08b31e16b3c2100fa14414aa87a4c8f5946da7396081503fa353920f8d9",
+        "match": true
+      },
+      {
+        "path": "boss_project/version.py",
+        "expected_sha256": "9740188c7ab0bd77915c22f908712d0559d81574201e8ef99b0693cea4af390c",
+        "actual_sha256": "9740188c7ab0bd77915c22f908712d0559d81574201e8ef99b0693cea4af390c",
+        "match": true
+      },
+      {
+        "path": "docs/design/evidence-20260927/QA_REPORT.md",
+        "expected_sha256": "a2735f8d9356ba96870b2549cf531d6234cf21e06efc47f4d6761f832c031340",
+        "actual_sha256": "a2735f8d9356ba96870b2549cf531d6234cf21e06efc47f4d6761f832c031340",
+        "match": true
+      },
+      {
+        "path": "docs/orchestration/bos3/DESIGN_DEV4_CANDIDATE.json",
+        "expected_sha256": "b41e71852bf6a24316d5854ec8da26661359b3e7ebe2ddd615a5c511f6d8b0f0",
+        "actual_sha256": "b41e71852bf6a24316d5854ec8da26661359b3e7ebe2ddd615a5c511f6d8b0f0",
+        "match": true
+      },
+      {
+        "path": "frontend/bos_design.css",
+        "expected_sha256": "79fc5209bb5c781b3ae052b6aa920e5171d405cc9aa6a6e8c2b6daa99aed4977",
+        "actual_sha256": "79fc5209bb5c781b3ae052b6aa920e5171d405cc9aa6a6e8c2b6daa99aed4977",
+        "match": true
+      },
+      {
+        "path": "frontend/boss_app_html.html",
+        "expected_sha256": "33a8372fb84a83f6c4d3e51cbb6ac3524b74ac5d47ff9b85d9bb808c988a69f5",
+        "actual_sha256": "33a8372fb84a83f6c4d3e51cbb6ac3524b74ac5d47ff9b85d9bb808c988a69f5",
+        "match": true
+      },
+      {
+        "path": "frontend/boss_app_source.html",
+        "expected_sha256": "0fe2a86c6fe4cda53f83507f9eafe4be1a066be193c133cf5b9f2a45d63884e8",
+        "actual_sha256": "0fe2a86c6fe4cda53f83507f9eafe4be1a066be193c133cf5b9f2a45d63884e8",
+        "match": true
+      },
+      {
+        "path": "scripts/build_frontend.cjs",
+        "expected_sha256": "fe7c38f0d8bb48b7fdbdd56851deeab209c2a30cfb311b897a879e0f3e285f1f",
+        "actual_sha256": "fe7c38f0d8bb48b7fdbdd56851deeab209c2a30cfb311b897a879e0f3e285f1f",
+        "match": true
+      },
+      {
+        "path": "tasks/handoffs.py",
+        "expected_sha256": "5365a898eeb4d5db606e8f9d10ccc25fc1a84bc6ec663ffac27e9c5f76039a7f",
+        "actual_sha256": "5365a898eeb4d5db606e8f9d10ccc25fc1a84bc6ec663ffac27e9c5f76039a7f",
+        "match": true
+      },
+      {
+        "path": "tasks/queries.py",
+        "expected_sha256": "c259a1cb70d5f27e8d52b58336bf42633833ff6745b2493820e4ebdc239195ec",
+        "actual_sha256": "c259a1cb70d5f27e8d52b58336bf42633833ff6745b2493820e4ebdc239195ec",
+        "match": true
+      }
+    ]
+  },
+  "source_files": [
+    {
+      "path": "boss_project/identity.py",
+      "git_blob_sha1": "943000aa89ce3736258d97829a37f39a6550782c",
+      "sha256": "20ffca4ca027940ec18ea2f7b984d9d87f7e3df617ddeace3c15a771650da117",
+      "read_scope": "25-50; server identity"
+    },
+    {
+      "path": "boss_project/policy.py",
+      "git_blob_sha1": "d85898d7c981c79791049ce7239a5293a40c5362",
+      "sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1",
+      "read_scope": "8,39,56,83,91,140,186,278,288; object scope and role projections"
+    },
+    {
+      "path": "boss_project/archive.py",
+      "git_blob_sha1": "ac3fd21850ac66d1fddffc1871d029cb94acbf32",
+      "sha256": "4335414912971d03c5a44ed0d213a162886dac85610edce4510eb670ade3a1b7",
+      "read_scope": "ArchiveViewSetMixin; archive semantics"
+    },
+    {
+      "path": "boss_project/settings.py",
+      "git_blob_sha1": "981a11edcc02dd60e32272af68575c5ff9db28d4",
+      "sha256": "f5dc83426c660f4e1d123c621a120e5d7bca141730ea7e78fa603f9341b09d73",
+      "read_scope": "demo settings import"
+    },
+    {
+      "path": "branches/serializers.py",
+      "git_blob_sha1": "2437cc3cefc7dfd0296c30045a94de9b9d0a9205",
+      "sha256": "69f6d6f0b247d6d0d5f230e4b216101ae3d9a40430732cf93a91b351924f376d",
+      "read_scope": "branch directory projection"
+    },
+    {
+      "path": "branches/urls.py",
+      "git_blob_sha1": "6098c7811c1c534efa25339fb8be082a4e04e1e5",
+      "sha256": "d0e5b0b5150f1a16ee78da2169b6496479bdd8b94ccc5fab31528d9b48f9cb7f",
+      "read_scope": "branch routes"
+    },
+    {
+      "path": "branches/views.py",
+      "git_blob_sha1": "d639df1eb5fe4ad8a777162a1c6cf5d819af0bf5",
+      "sha256": "81d1630af90c5f58b827825ac35fe5402a626d9fa47cdbd22a2f3ca83d7d829e",
+      "read_scope": "58-62; tree"
+    },
+    {
+      "path": "demo_settings.py",
+      "git_blob_sha1": "bd6a3bbf82f2ce6c6e4163e1d4d234f66c822592",
+      "sha256": "02054e659626cd804c7a3ce7a847f984338975c9b0288c1ba19c90987fa0a19f",
+      "read_scope": "8,12,19,24; authentication and middleware configuration"
+    },
+    {
+      "path": "employees/models.py",
+      "git_blob_sha1": "ec37fcf81057c7a5c3b8513d0774c7a7916b0747",
+      "sha256": "2fe80f61ea13a1ad95baccae79ee7f460bc26a8621ee4b2ba7e29ea8421fc297",
+      "read_scope": "employee user/branch links"
+    },
+    {
+      "path": "employees/serializers.py",
+      "git_blob_sha1": "1f77e873e8d3438a15d90fe3f0809f65d1e72fc6",
+      "sha256": "a6a9e00f79a663fa63527b91477d7781ae83f82190cc0981d9337f0bbdbc9f82",
+      "read_scope": "policy fields_for"
+    },
+    {
+      "path": "employees/views.py",
+      "git_blob_sha1": "3195afdb1188e2136799f834fcc2ad35bfc61170",
+      "sha256": "21a3433e4ffafc060eda5496f3ced1eb09a7586fffb82468ab85d3b0484f55bd",
+      "read_scope": "employee directory queryset and ordering"
+    },
+    {
+      "path": "erp/queries.py",
+      "git_blob_sha1": "d1a979acadbdd8f47fd51ccef659ffddf0e8b33f",
+      "sha256": "5d77ff3b95ce3053be27340f6fa94da18490226487d8e8dc60ecd98525a294b8",
+      "read_scope": "83-138; snapshot(policy)"
+    },
+    {
+      "path": "erp/urls.py",
+      "git_blob_sha1": "e17a8263e7ebd9a58dd2656b1568a338dfdc5934",
+      "sha256": "dd89167bda90ebccdce8a334a1088bf28c757a7a4dff04f8ed1d3fce7f1e0127",
+      "read_scope": "snapshot route"
+    },
+    {
+      "path": "erp/views.py",
+      "git_blob_sha1": "df0c607e3645ba5bd0e231509a53ab3ca62f4ea7",
+      "sha256": "fb40eadca4b62730880c53f042dbb9a609a75795157124db40fc460c87da83cc",
+      "read_scope": "16-19; snapshot and policy"
+    },
+    {
+      "path": "frontend/bos_design.css",
+      "git_blob_sha1": "580417d86db5d023b4519b64e358db6fb0640cb4",
+      "sha256": "79fc5209bb5c781b3ae052b6aa920e5171d405cc9aa6a6e8c2b6daa99aed4977",
+      "read_scope": "3-10,22,139,551-556; tokens, focus, card"
+    },
+    {
+      "path": "frontend/boss_app_source.html",
+      "git_blob_sha1": "55082b16acd1b7c625bd4e8fbaecd3e350ceee50",
+      "sha256": "0fe2a86c6fe4cda53f83507f9eafe4be1a066be193c133cf5b9f2a45d63884e8",
+      "read_scope": "2443-2463,3690,3740,3750-3783,3825,3841-3869; queue and guarded detail/history/source"
+    },
+    {
+      "path": "operations/middleware.py",
+      "git_blob_sha1": "cbd688aee207ab5146f6e00754c1a5430a92ff39",
+      "sha256": "10193f1ba1ed107f6563ddae6b7dd5a9fcefdf5c77a42643ce60cd95f55f568c",
+      "read_scope": "LocalRoleGuard identity/revision/unsafe protections"
+    },
+    {
+      "path": "operations/projections.py",
+      "git_blob_sha1": "f35bed9d759f0441ab68d1fd2d55b02712754dcb",
+      "sha256": "f80ac3f74bac52e25148d2c530e728d430e6a79422da7405725693e075c8f4e2",
+      "read_scope": "42,87,111,130; snapshot/comparison/audit/receipt"
+    },
+    {
+      "path": "operations/service.py",
+      "git_blob_sha1": "64e74153947d47db19cba3bb370d3a078da412d4",
+      "sha256": "73f865cf65914f585fb5f4eccb9706fdb56c1b20a55545f4dfe047deadccb223",
+      "read_scope": "targeted task command dispatch references; not a full service audit"
+    },
+    {
+      "path": "operations/urls.py",
+      "git_blob_sha1": "3c0e8bc4f6623f48a82a15a361620a393b01f148",
+      "sha256": "47d6b30fcd463c30854c1d62e19b2a7284a34a70b55d09955813c8f24a32ab87",
+      "read_scope": "status/compare/document/preview/confirm/task-proposal routes"
+    },
+    {
+      "path": "operations/views.py",
+      "git_blob_sha1": "286fd54751fe224cce1e4b59296c0ff5a2a4c756",
+      "sha256": "a79e00c4550a0e8b44f873f008680bf2a9f99d34c2318e23d5e8d5c897d23a77",
+      "read_scope": "68,91,115,121,163,167,174; protected routes"
+    },
+    {
+      "path": "tasks/commands.py",
+      "git_blob_sha1": "3031855111a1906004b0bf628e097520b181e6cd",
+      "sha256": "a70afb3f52a3f327ebc601e420ee386553002c3911463bbe680eef66dc72503e",
+      "read_scope": "18-19,84; actions/fields/prepare"
+    },
+    {
+      "path": "tasks/filters.py",
+      "git_blob_sha1": "74a463142023339d37dbc70f28d463266e08dd5d",
+      "sha256": "c87ea7c94f34b2a574db758e10ede1260f9f0538e9da0bf3f11519e6082ddcfe",
+      "read_scope": "status/priority/assignee/category/deadline filters"
+    },
+    {
+      "path": "tasks/handoffs.py",
+      "git_blob_sha1": "b7eb291bc8b4821865e72651f3f411d5c31facc8",
+      "sha256": "5365a898eeb4d5db606e8f9d10ccc25fc1a84bc6ec663ffac27e9c5f76039a7f",
+      "read_scope": "17-103; exact payload, role/source validation, transfer, latest"
+    },
+    {
+      "path": "tasks/history.py",
+      "git_blob_sha1": "a7c1479eff5f733ccc302a17612575a971f8e4a7",
+      "sha256": "7ace3476863ce36516411c8cd078555f6538f0dfcea44e0079c95e63818306c4",
+      "read_scope": "17-65; history whitelist, cursor, proposal receipt"
+    },
+    {
+      "path": "tasks/models.py",
+      "git_blob_sha1": "0c1a3e6ac6d4d4ac8a9e7f9bb2984b9997a6de4a",
+      "sha256": "142b7ba1c03ed38bed0d08f5e453e71f929d963c56d09f372153a34f14e7280f",
+      "read_scope": "11-16,47-50; status and task fields"
+    },
+    {
+      "path": "tasks/queries.py",
+      "git_blob_sha1": "312458b38bcb3d7318e12bef34e782c4e5c4dd30",
+      "sha256": "c259a1cb70d5f27e8d52b58336bf42633833ff6745b2493820e4ebdc239195ec",
+      "read_scope": "6-65; overdue, accumulated refs, visibility, list projection"
+    },
+    {
+      "path": "tasks/serializers.py",
+      "git_blob_sha1": "7c316ff4b54dc5d62a371720495b8aee6edd029a",
+      "sha256": "5058cbed6a4662c37c93333a705c9fd8f8963ae6010e88483bcb9dc85fc77726",
+      "read_scope": "5-10; same projection for list/detail"
+    },
+    {
+      "path": "tasks/urls.py",
+      "git_blob_sha1": "839352c8c0023b2b9eeebb776ad9c1e381b11d0b",
+      "sha256": "8d6faaed0d2506e5bc8a1fbe040cfb46194c3e59a07391d3f2bb318fab9c3e6c",
+      "read_scope": "task router"
+    },
+    {
+      "path": "tasks/views.py",
+      "git_blob_sha1": "4de2dc40b66c9cd077ab3f62bc29b19ef21bf379",
+      "sha256": "00dd7280d82d389aae4120cc65b5af74e6551eb7217e69f4ce948bd182a4a3de",
+      "read_scope": "14-43; policy-first department filter and protected history"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "D:/3/BOSDev/qa-scratch/bos3-uxd03-prep-20260927/UXD03_CONTRACT_RU.md",
+      "sha256": "0a8f0f64cc566db6d855d37d7905a7fa98be682a37527d7ea59a53355de7735e",
+      "purpose": "Russian source-bound contract, three-role matrix, minimal card, future allowlist and waiting decision"
+    },
+    {
+      "path": "D:/3/BOSDev/qa-scratch/bos3-uxd03-prep-20260927/HANDOFF.json",
+      "purpose": "Source identity and artifact handoff manifest",
+      "self_hash": "Returned separately after writing; deliberately not embedded"
+    }
+  ],
+  "facts": {
+    "existing_real_department_queue": true,
+    "department_filter": "Policy.tasks() then assignee_employee__branch_id and type=department; not Task.branch and not an access grant",
+    "A_list_safe_existing": [
+      "id/title/category",
+      "assignee_id/assignee_name/assignee",
+      "deadline/status/is_overdue/archived/priority",
+      "order_id/order_code",
+      "handoff.schema/state/current/recipient.employee_id/recipient.department snapshot"
+    ],
+    "B_guarded_detail_history": [
+      "GET /api/tasks/<id>/",
+      "GET /api/tasks/<id>/history/?limit=20&cursor=...",
+      "C01TaskSource validates task source membership, then ERP snapshot or operations compare and optional protected document",
+      "actor-owned task-proposal receipt with current policy"
+    ],
+    "C_absent": [
+      "waiting state",
+      "waiting cause",
+      "waiting participant/dependency identity",
+      "personal acceptance of handoff"
+    ],
+    "card_gap": "Current list already supplies order link and handoff facts, but queue card does not display them. Assignee already exists on card.",
+    "current_handoff_semantics": "Current assignment compatibility only; neither personal acceptance nor waiting nor unfinished status.",
+    "list_projection_limit": "Task list and detail share project. Result and detailed handoff are already in permitted responses; card display whitelist does not add API secrecy.",
+    "role_boundaries": {
+      "ceo": "All tasks before list filters; protected detail and document/download rules still apply.",
+      "manager": "All accumulated task source refs must be readable; valid empty refs may pass. No implicit own-department read restriction. Handoff requires current assignee; generic update does not inherit this restriction.",
+      "observer": "Same task-ref scope algorithm under narrower document policy; no writes. Same task field projection after object scope."
+    }
+  },
+  "waiting_decision": {
+    "id": "UXD03-WAIT-01",
+    "status": "OWNER_INTEGRATOR_SEMANTICS_REQUIRED_BEFORE_WAITING_IMPLEMENTATION",
+    "decision_needed": [
+      "persistent task status versus orthogonal dependency blocker",
+      "who may start/end waiting",
+      "participant or dependency type and mandatory cause",
+      "visibility by role/source",
+      "deadline/overdue effect",
+      "transfer/archive/completion effects",
+      "audit and confirm replay semantics"
+    ],
+    "without_decision": "Display existing facts only; no frontend waiting, waiting counter, invented cause or fake acceptance.",
+    "with_waiting_in_scope": "Separate explicit server command/data/projection/policy contract; persistent schema/migration or explicitly approved event projection. Neither is authorized by this UI contract."
+  },
+  "future_implementation_allowlist": {
+    "authorization": "PROPOSED_ONLY_NOT_EXECUTED",
+    "editable": [
+      "frontend/boss_app_source.html (Tasks compact-card presentation only)",
+      "frontend/bos_design.css (associated card styles only)"
+    ],
+    "generated_after_separate_authorization": [
+      "frontend/boss_app_html.html",
+      "assets/app.js"
+    ],
+    "excluded": [
+      "backend/model/policy/projection/routes",
+      "migrations",
+      "DB/seed/reset",
+      "runtime/hosting",
+      "waiting implementation",
+      "other full-readiness UXD requirements"
+    ]
+  },
+  "checks": {
+    "head_matches": true,
+    "all_10_delta_hashes_match": true,
+    "source_files_hashed": 30,
+    "source_tree_clean_after": true,
+    "artifact_json_parsed": true,
+    "product_tests": 0,
+    "builds": 0,
+    "browser_runs": 0,
+    "http_requests": 0,
+    "runtime_changes": 0,
+    "db_operations": 0,
+    "seeds": 0,
+    "migrations": 0,
+    "resets": 0,
+    "subagents_spawned": 0,
+    "code_changes": false,
+    "product_checks_claimed_pass": false
+  },
+  "acceptance": {
+    "independent_static_review": "PENDING bos3_candidate_review",
+    "UXD03_accepted": false,
+    "cross_role_security_accepted": false,
+    "waiting_implemented": false,
+    "release_scope_expanded": false,
+    "readiness_changed": false,
+    "TECHNICAL_READY": false,
+    "PILOT_ALLOWED": false,
+    "MVP": false
+  },
+  "next_action": "Independent source-bound review by bos3_candidate_review. Sole integrator controls any future implementation and classification of dynamic checks; this preparation neither blocks priorities 1-4 nor grants a release gate."
+}

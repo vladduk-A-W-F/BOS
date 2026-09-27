@@ -6,6 +6,8 @@
 
 ## Текущая работа настройки
 
+B30-UXD03-PREP завершён автором 15:43:26Z, turn01a0e37d-ca24-7101-a9f9-e685f1ab4754. Reviewer bos3_candidate_review дал ACCEPT_SCOPED_DOCUMENTARY_PREPARATION; точные артефакты и verdict: evidence/uxd03-prep-20260927/. Design больше не занят этой карточкой. Waiting semantics требует отдельного решения, UI-реализация пока не назначена. QA revision9 ожидает фактический ответ на уже заданный вопрос; новых запусков нет. Записи о продолжающейся подготовке ниже являются историей.
+
 QA author01a0c05d... завершил revision9 статически; independent start_overview_review ACCEPT_SCOPED_READY_TO_ASK_OWNER_EXCEPTION, NOT_EXECUTION. Root запросил одно точное исключение bootstrap+learning run; owner ответ ожидается, новых запусков0. Автор не выполняет harness самостоятельно. Следующий получатель после фактического ответа: root формирует finalmanifest, reviewer проверяет ID/hash/value, затем root определяет единственного исполнителя. Existing design B30-UXD03-PREP всё ещё работает в своём output-only scope.
 
 Новое независимое B30-UXD03-PREP: existing design01a0bffa-3fc7-7bc2-9868-86164c6e0315, ранее чистая отдельная bos3-product-design/repo переведена root на detached e710, прежняя branch38c63af сохранена. Только source read-only и два output файла в qa-scratch/bos3-uxd03-prep-20260927; reviewer bos3_candidate_review, check-in15мин. Разделить существующие list-safe факты, guarded detail/history и отсутствующие waiting semantics, без реализации. QA получил отдельный чистый immutable bos3-learning-proof/repo e710; его scratch и будущая DB не изменялись root, executions0.
@@ -29,7 +31,7 @@ QA scope revision3 принят start_overview_review только как уто
 
 - Единственный интегратор: root чата «Подготовить план консолидации BoS», 01a0dd56-ca2d-79c0-b159-bde80074a026.
 - Canonical: C:/Users/user/.codex/worktrees/bos-consolidation-plan/repo, codex/bos3-prerelease-20260927.
-- Исходная база нового светлого превью: defd1fc12545053159a3a888013d096c79157fd3. Текущий продукт и выданный runtime: dev.3 / f55a15de4006d10c0d7c65f8a2ca8499fbb99819; UI aee8d0ee41afd5cba256a0b4a4deddadf7af6e4e. Предыдущие dev.2 и dev.1 сохранены исторически. Docs/dev-tool HEAD не заменяет product pin.
+- Текущий продукт: dev.4 / 7018cca86337da19361951782cffecb09811a89a; выданный immutable runtime/source+manifest e710eb568717dfe3ede945feb899f030bd5ad1ab. Исторические defd1fc/aee8d0e/f55 и dev.1-dev.3 сохранены с их исходными scopes. Docs/dev-tool HEAD не заменяет product pin. Dev.4 delivery подтверждён, browser/JS/login/lessons на нём не приняты.
 - Не больше четырёх одновременно работающих исполнителей; новые чаты, второй интегратор и scheduler не создаются. Автор не принимает собственный код.
 
 ## Почему отделы оставались на старой версии
