@@ -21327,8 +21327,7 @@ function Bos3CaseCards({
   caseStates = {},
   onSelect,
   compact = false,
-  selectedSlug = null,
-  publicPreview = false
+  selectedSlug = null
 }) {
   return /*#__PURE__*/React.createElement("div", {
     className: "bos3-case-grid"
@@ -21352,7 +21351,7 @@ function Bos3CaseCards({
     }, item.id), /*#__PURE__*/React.createElement("span", {
       className: "bos3-status",
       "data-status": status
-    }, publicPreview ? 'Навчальний сценарій' : bos3StatusLabel(status)), /*#__PURE__*/React.createElement("h3", null, item.title), presentation.client && /*#__PURE__*/React.createElement("p", null, presentation.client), presentation.product && /*#__PURE__*/React.createElement("p", null, presentation.product), !compact && /*#__PURE__*/React.createElement("p", null, item.goal), Array.isArray(presentation.metrics) && presentation.metrics.length > 0 && /*#__PURE__*/React.createElement("div", {
+    }, bos3StatusLabel(status)), /*#__PURE__*/React.createElement("h3", null, item.title), presentation.client && /*#__PURE__*/React.createElement("p", null, presentation.client), presentation.product && /*#__PURE__*/React.createElement("p", null, presentation.product), !compact && /*#__PURE__*/React.createElement("p", null, item.goal), Array.isArray(presentation.metrics) && presentation.metrics.length > 0 && /*#__PURE__*/React.createElement("div", {
       className: "bos3-case-meta"
     }, presentation.metrics.map(metric => /*#__PURE__*/React.createElement("span", {
       key: metric.label
@@ -21403,34 +21402,149 @@ function Bos3AreaGrid({
     }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u043A\u0435\u0439\u0441") : null;
   }))));
 }
+function Bos3PreviewCaseSelector({
+  content,
+  selectedSlug,
+  onSelect
+}) {
+  return /*#__PURE__*/React.createElement("nav", {
+    className: "bos-preview-cases",
+    "aria-label": "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0456 \u043A\u0435\u0439\u0441\u0438"
+  }, content.cases.map(item => /*#__PURE__*/React.createElement("a", {
+    className: "bos-preview-case",
+    key: item.id,
+    href: bos3Href(item.slug),
+    "aria-current": selectedSlug === item.slug ? 'true' : undefined,
+    onClick: event => {
+      event.preventDefault();
+      onSelect(item.slug);
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "bos-preview-case-icon",
+    "aria-hidden": "true"
+  }, ICONS.contracts), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, item.id), /*#__PURE__*/React.createElement("span", null, item.title)))));
+}
+function Bos3PreviewChart({
+  chart
+}) {
+  const bars = Array.isArray(chart?.bars) ? chart.bars : [],
+    total = Number(chart?.total);
+  if (!chart || !Number.isFinite(total) || total <= 0 || !bars.length) return null;
+  const unit = chart.unit || '',
+    summary = [chart.title, chart.context, 'Основа діаграми: ' + total + ' ' + unit, ...bars.map(bar => bar.label + ': ' + bar.value + ' ' + unit)].filter(Boolean).join('. '),
+    note = chart.note;
+  return /*#__PURE__*/React.createElement("section", {
+    className: "bos-preview-chart",
+    "aria-label": chart.title
+  }, /*#__PURE__*/React.createElement("h3", null, chart.title), chart.context && /*#__PURE__*/React.createElement("p", null, chart.context), /*#__PURE__*/React.createElement("p", {
+    className: "bos-preview-chart-total"
+  }, "\u041E\u0441\u043D\u043E\u0432\u0430 \u0434\u0456\u0430\u0433\u0440\u0430\u043C\u0438: ", total, " ", unit), /*#__PURE__*/React.createElement("div", {
+    role: "img",
+    "aria-label": summary
+  }, bars.map(bar => {
+    const value = Number(bar.value),
+      width = Math.max(0, Math.min(100, value / total * 100));
+    return /*#__PURE__*/React.createElement("div", {
+      className: "bos-preview-chart-row",
+      key: bar.label
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "bos-preview-chart-label"
+    }, bar.label), /*#__PURE__*/React.createElement("span", {
+      className: "bos-preview-chart-track",
+      "aria-hidden": "true"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "bos-preview-chart-fill",
+      "data-tone": bar.tone || 'blue',
+      style: {
+        width: width + '%'
+      }
+    })), /*#__PURE__*/React.createElement("strong", {
+      className: "bos-preview-chart-value"
+    }, bar.value, " ", unit));
+  })), note && /*#__PURE__*/React.createElement("p", {
+    className: "bos-preview-chart-note"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "bos-preview-icon",
+    "aria-hidden": "true"
+  }, ICONS.alertTriangle), note.label, ": ", note.value, " ", note.unit || unit));
+}
 function Bos3EntryCase({
   caseDef,
   onRequestSignIn
 }) {
   const presentation = caseDef.presentation || {},
+    metrics = Array.isArray(presentation.metrics) ? presentation.metrics : [],
     handoffs = Array.isArray(presentation.handoffs) ? presentation.handoffs : [];
+  const [activeIndex, setActiveIndex] = useState(0);
+  useEffect(() => setActiveIndex(0), [caseDef.id]);
+  const active = handoffs[activeIndex] || null,
+    next = handoffs[activeIndex + 1] || null;
   return /*#__PURE__*/React.createElement("section", {
-    className: "bos3-entry-case",
+    className: "bos-preview-window",
     "aria-labelledby": "bos3-entry-case-title"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bos-preview-window-bar"
+  }, /*#__PURE__*/React.createElement("strong", null, caseDef.id), /*#__PURE__*/React.createElement("span", null, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0438\u0439 \u0441\u0446\u0435\u043D\u0430\u0440\u0456\u0439")), /*#__PURE__*/React.createElement("div", {
+    className: "bos-preview-window-body"
+  }, /*#__PURE__*/React.createElement("header", {
+    className: "bos-preview-title"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
     className: "bos3-kicker"
-  }, "\u041E\u0431\u0440\u0430\u043D\u0438\u0439 \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0438\u0439 \u043A\u0435\u0439\u0441 \xB7 ", caseDef.id), /*#__PURE__*/React.createElement("h2", {
+  }, presentation.client || 'Навчальний клієнт'), /*#__PURE__*/React.createElement("h2", {
     id: "bos3-entry-case-title"
-  }, caseDef.title), presentation.client && /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0438\u0439 \u043A\u043B\u0456\u0454\u043D\u0442:"), " ", presentation.client), presentation.product && /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, "\u041F\u043E\u0437\u0438\u0446\u0456\u044F:"), " ", presentation.product), /*#__PURE__*/React.createElement("p", null, presentation.baseline || caseDef.story_intro), presentation.effect ? /*#__PURE__*/React.createElement("p", null, presentation.effect) : /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, "\u041E\u0447\u0456\u043A\u0443\u0432\u0430\u043D\u0438\u0439 \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0438\u0439 \u0435\u0444\u0435\u043A\u0442:"), " ", caseDef.goal), /*#__PURE__*/React.createElement("div", {
-    className: "bos3-case-meta"
-  }, caseDef.departments.map(department => /*#__PURE__*/React.createElement("span", {
-    key: department
-  }, department))), /*#__PURE__*/React.createElement("div", {
+  }, caseDef.title), presentation.product && /*#__PURE__*/React.createElement("p", null, presentation.product)), /*#__PURE__*/React.createElement("span", {
+    className: "bos-preview-badge"
+  }, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0456 \u0434\u0430\u043D\u0456")), metrics.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "bos-preview-facts"
+  }, metrics.map(metric => /*#__PURE__*/React.createElement("div", {
+    className: "bos-preview-fact",
+    key: metric.label
+  }, /*#__PURE__*/React.createElement("span", null, metric.label), /*#__PURE__*/React.createElement("strong", null, metric.value)))), /*#__PURE__*/React.createElement(Bos3PreviewChart, {
+    chart: presentation.chart
+  }), /*#__PURE__*/React.createElement("section", {
+    className: "bos-preview-source",
+    "aria-label": "\u041F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0456 \u0444\u0430\u043A\u0442\u0438"
+  }, /*#__PURE__*/React.createElement("h3", null, "\u041F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0456 \u0444\u0430\u043A\u0442\u0438"), /*#__PURE__*/React.createElement("p", null, presentation.baseline || caseDef.story_intro)), /*#__PURE__*/React.createElement("section", {
+    className: "bos-preview-source",
+    "aria-label": "\u041E\u0447\u0456\u043A\u0443\u0432\u0430\u043D\u0438\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442"
+  }, /*#__PURE__*/React.createElement("h3", null, "\u041E\u0447\u0456\u043A\u0443\u0432\u0430\u043D\u0438\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442"), /*#__PURE__*/React.createElement("p", null, presentation.effect || caseDef.goal)), handoffs.length > 0 && /*#__PURE__*/React.createElement("section", {
+    className: "bos-preview-path",
+    "aria-label": "\u041F\u0435\u0440\u0435\u0434\u0430\u0447\u0456 \u043C\u0456\u0436 \u0432\u0456\u0434\u0434\u0456\u043B\u0430\u043C\u0438"
+  }, /*#__PURE__*/React.createElement("h3", null, "\u041F\u0435\u0440\u0435\u0434\u0430\u0447\u0456 \u043C\u0456\u0436 \u0432\u0456\u0434\u0434\u0456\u043B\u0430\u043C\u0438"), /*#__PURE__*/React.createElement("div", {
+    className: "bos-preview-path-layout"
+  }, /*#__PURE__*/React.createElement("div", null, handoffs.map((handoff, index) => /*#__PURE__*/React.createElement("button", {
+    className: "bos-preview-stage",
+    type: "button",
+    key: handoff.step_id || handoff.department,
+    "aria-pressed": activeIndex === index,
+    onClick: () => setActiveIndex(index)
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "bos-preview-stage-index"
+  }, index + 1), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("strong", null, handoff.department), /*#__PURE__*/React.createElement("span", {
+    className: "bos-preview-stage-action"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "bos-preview-icon",
+    "aria-hidden": "true"
+  }, ICONS.chevronRight), handoff.action)), /*#__PURE__*/React.createElement("small", null, activeIndex === index ? 'Відкрито' : 'Переглянути')))), active && /*#__PURE__*/React.createElement("div", {
+    className: "bos-preview-detail"
+  }, /*#__PURE__*/React.createElement("h3", null, active.department), /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("span", {
+    className: "bos-preview-icon",
+    "aria-hidden": "true"
+  }, ICONS.check), /*#__PURE__*/React.createElement("span", null, active.control)), next && /*#__PURE__*/React.createElement("p", {
+    className: "bos-preview-next"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "bos-preview-icon",
+    "aria-hidden": "true"
+  }, ICONS.tasks), /*#__PURE__*/React.createElement("span", null, "\u041D\u0430\u0441\u0442\u0443\u043F\u043D\u0430 \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0430: ", next.department))))), /*#__PURE__*/React.createElement("div", {
     className: "bos3-entry-focus"
-  }, /*#__PURE__*/React.createElement(Button, {
-    variant: "primary",
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "bos-light-button",
+    type: "button",
     onClick: onRequestSignIn
-  }, "\u0423\u0432\u0456\u0439\u0442\u0438 \u0434\u043B\u044F \u043F\u0440\u043E\u0445\u043E\u0434\u0436\u0435\u043D\u043D\u044F"))), /*#__PURE__*/React.createElement("div", {
-    className: "bos3-entry-levels",
-    "aria-label": "\u0420\u0456\u0432\u043D\u0456 \u043F\u0440\u043E\u0445\u043E\u0434\u0436\u0435\u043D\u043D\u044F"
-  }, handoffs.length ? handoffs.map(handoff => /*#__PURE__*/React.createElement("div", {
-    key: handoff.step_id || handoff.department
-  }, /*#__PURE__*/React.createElement("strong", null, handoff.department), /*#__PURE__*/React.createElement("span", null, handoff.action), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("strong", null, "\u041A\u043E\u043D\u0442\u0440\u043E\u043B\u044C:"), " ", handoff.control))) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "1. \u0414\u0436\u0435\u0440\u0435\u043B\u0430 \u0442\u0430 \u0437\u0432'\u044F\u0437\u043A\u0438"), /*#__PURE__*/React.createElement("span", null, "\u041F\u0456\u0441\u043B\u044F \u0432\u0445\u043E\u0434\u0443 \u0432\u0456\u0434\u043A\u0440\u0438\u0439\u0442\u0435 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0437\u0430\u043F\u0438\u0441\u0438 \u0442\u0430 \u0437\u0432\u0456\u0440\u0442\u0435 \u0444\u0430\u043A\u0442\u0438.")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "2. \u0412\u0456\u0434\u0434\u0456\u043B\u0438 \u0442\u0430 \u043A\u043E\u043D\u0442\u0440\u043E\u043B\u044C"), /*#__PURE__*/React.createElement("span", null, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0438\u0439 \u043C\u0430\u0440\u0448\u0440\u0443\u0442 \u043F\u043E\u043A\u0430\u0437\u0443\u0454 \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0456 \u043C\u0456\u0436 ", caseDef.departments.join(', '), ".")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "3. \u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u0456 CRM"), /*#__PURE__*/React.createElement("span", null, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0430 \u0432\u0456\u0434\u0431\u0443\u0432\u0430\u0454\u0442\u044C\u0441\u044F \u0441\u0435\u0440\u0432\u0435\u0440\u043E\u043C; CRM-\u043A\u0430\u0440\u0442\u043A\u0430 \u043C\u043E\u0436\u043B\u0438\u0432\u0430 \u043B\u0438\u0448\u0435 \u043F\u0456\u0441\u043B\u044F \u0447\u0435\u0440\u043D\u0435\u0442\u043A\u0438, preview \u0456 \u044F\u0432\u043D\u043E\u0433\u043E \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043D\u044F.")))));
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "bos-preview-icon",
+    "aria-hidden": "true"
+  }, ICONS.contracts), "\u041F\u043E\u0447\u0430\u0442\u0438 \u043D\u0430\u0432\u0447\u0430\u043D\u043D\u044F"))));
 }
 function Bos3Brochure({
   compact = false,
@@ -21450,48 +21564,48 @@ function Bos3Brochure({
     onSelectCase?.(slug);
   };
   const selected = entry ? content.cases.find(item => item.slug === selectedSlug) || content.cases[0] || null : null;
-  const hero = entry ? /*#__PURE__*/React.createElement("section", {
-    className: "bos3-entry-hero"
-  }, /*#__PURE__*/React.createElement("img", {
-    src: "/assets/bos3-fasteners-entry.png",
-    alt: "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0430 \u0456\u043B\u044E\u0441\u0442\u0440\u0430\u0446\u0456\u044F \u043A\u0440\u0456\u043F\u0438\u043B\u044C\u043D\u0438\u0445 \u0432\u0438\u0440\u043E\u0431\u0456\u0432 \u0434\u043B\u044F BoS 3.0"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "bos3-entry-hero-copy"
-  }, /*#__PURE__*/React.createElement("p", {
-    className: "bos3-kicker"
-  }, content.training_notice), /*#__PURE__*/React.createElement("h1", null, content.brand), /*#__PURE__*/React.createElement("p", null, content.summary), /*#__PURE__*/React.createElement("p", {
-    className: "bos3-entry-caption"
-  }, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0430 \u0456\u043B\u044E\u0441\u0442\u0440\u0430\u0446\u0456\u044F: \u043A\u0440\u0456\u043F\u043B\u0435\u043D\u043D\u044F \u0439 \u0432\u0438\u043C\u0456\u0440\u044E\u0432\u0430\u043B\u044C\u043D\u0438\u0439 \u0456\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442."))) : /*#__PURE__*/React.createElement("div", {
+  const hero = /*#__PURE__*/React.createElement("div", {
     className: "bos3-hero"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
     className: "bos3-kicker"
   }, content.training_notice), compact ? /*#__PURE__*/React.createElement("h2", null, content.brand) : /*#__PURE__*/React.createElement("h1", null, content.brand), /*#__PURE__*/React.createElement("p", null, content.summary)), /*#__PURE__*/React.createElement("div", {
     className: "bos3-hero-aside"
   }, /*#__PURE__*/React.createElement("strong", null, content.company), "\u0422\u0440\u0438 \u043D\u0435\u0437\u0430\u043B\u0435\u0436\u043D\u0456 \u043A\u0435\u0439\u0441\u0438 \u0434\u043B\u044F \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0438 \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0438\u0445 \u0444\u0430\u043A\u0442\u0456\u0432. \u0412\u043E\u043D\u0438 \u043D\u0435 \u0437\u043C\u0456\u043D\u044E\u044E\u0442\u044C \u0440\u043E\u0431\u043E\u0447\u0456 \u0434\u0430\u043D\u0456."));
-  if (entry) return /*#__PURE__*/React.createElement("section", {
+  if (entry) return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("header", {
+    className: "bos-light-header"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bos-light-brand"
+  }, content.brand, /*#__PURE__*/React.createElement("small", null, "\u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0430 BoS")), /*#__PURE__*/React.createElement("button", {
+    className: "bos-light-button",
+    type: "button",
+    onClick: onRequestSignIn
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "bos-preview-icon",
+    "aria-hidden": "true"
+  }, ICONS.dashboard), "\u0412\u0445\u0456\u0434")), /*#__PURE__*/React.createElement("section", {
     className: "bos3-start",
-    "aria-label": "\u041D\u0430\u0432\u0447\u0430\u043D\u043D\u044F BoS 3.0"
-  }, hero, /*#__PURE__*/React.createElement("div", {
-    className: "bos3-section-heading"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", null, "\u0422\u0440\u0438 \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0456 \u043A\u0435\u0439\u0441\u0438"), /*#__PURE__*/React.createElement("p", null, "\u041E\u0431\u0435\u0440\u0456\u0442\u044C \u0431\u0443\u0434\u044C-\u044F\u043A\u0438\u0439 \u043C\u0430\u0440\u0448\u0440\u0443\u0442. \u041F\u0435\u0440\u0435\u0433\u043B\u044F\u0434 \u0431\u0440\u043E\u0448\u0443\u0440\u0438 \u043D\u0435 \u043E\u0437\u043D\u0430\u0447\u0430\u0454 \u0432\u0438\u043A\u043E\u043D\u0430\u043D\u043D\u044F \u043A\u0440\u043E\u043A\u0456\u0432."))), /*#__PURE__*/React.createElement(Bos3CaseCards, {
+    "aria-label": "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0435 \u043F\u0440\u0435\u0432\u2019\u044E BoS 3.0"
+  }, /*#__PURE__*/React.createElement("header", {
+    className: "bos-preview-head"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "bos3-kicker"
+  }, content.training_notice), /*#__PURE__*/React.createElement("h1", null, "\u041F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0456 \u0440\u0456\u0448\u0435\u043D\u043D\u044F \u0434\u043E \u0434\u0456\u0457"), /*#__PURE__*/React.createElement("p", null, content.summary)), /*#__PURE__*/React.createElement("img", {
+    className: "bos-preview-object",
+    src: "/assets/bos3-fasteners-entry.png",
+    alt: "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0430 \u0456\u043B\u044E\u0441\u0442\u0440\u0430\u0446\u0456\u044F \u043A\u0440\u0456\u043F\u0438\u043B\u044C\u043D\u0438\u0445 \u0432\u0438\u0440\u043E\u0431\u0456\u0432"
+  })), /*#__PURE__*/React.createElement(Bos3PreviewCaseSelector, {
     content: content,
-    onSelect: selectCase,
     selectedSlug: selected?.slug || null,
-    publicPreview: true
-  }), selected && /*#__PURE__*/React.createElement("details", {
-    className: "bos3-entry-scenario",
-    open: true
-  }, /*#__PURE__*/React.createElement("summary", null, "\u0421\u0446\u0435\u043D\u0430\u0440\u0456\u0439, \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0456 \u0442\u0430 \u043A\u043E\u043D\u0442\u0440\u043E\u043B\u044C \xB7 ", selected.id), /*#__PURE__*/React.createElement(Bos3EntryCase, {
+    onSelect: selectCase
+  }), selected && /*#__PURE__*/React.createElement(Bos3EntryCase, {
     caseDef: selected,
     onRequestSignIn: onRequestSignIn
-  })), /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement("div", {
     className: "bos3-section-heading"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", null, "11 \u0440\u043E\u0431\u043E\u0447\u0438\u0445 \u043E\u0431\u043B\u0430\u0441\u0442\u0435\u0439"), /*#__PURE__*/React.createElement("p", null, "\u041F\u0456\u0441\u043B\u044F \u0432\u0445\u043E\u0434\u0443 \u043C\u0430\u0440\u0448\u0440\u0443\u0442 \u043F\u043E\u043A\u0430\u0436\u0435 \u043B\u0438\u0448\u0435 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0432\u0430\u0448\u0456\u0439 \u0440\u043E\u043B\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430 \u0442\u0430 \u043A\u043E\u043D\u0442\u0440\u043E\u043B\u044C."))), /*#__PURE__*/React.createElement(Bos3AreaGrid, {
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", null, "11 \u0440\u043E\u0431\u043E\u0447\u0438\u0445 \u043E\u0431\u043B\u0430\u0441\u0442\u0435\u0439"), /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430 \u0442\u0430 \u043A\u043E\u043D\u0442\u0440\u043E\u043B\u044C \u0437\u0430\u043B\u0435\u0436\u0430\u0442\u044C \u0432\u0456\u0434 \u0440\u043E\u043B\u0456 \u043F\u0456\u0441\u043B\u044F \u0432\u0445\u043E\u0434\u0443."))), /*#__PURE__*/React.createElement(Bos3AreaGrid, {
     content: content,
     onOpenCase: selectCase
-  }), /*#__PURE__*/React.createElement("p", {
-    className: "bos3-note"
-  }, "\u0421\u0442\u0430\u0442\u0443\u0441 \u043A\u0435\u0439\u0441\u0443, \u0444\u0430\u043A\u0442\u0438, \u0441\u0435\u0440\u0432\u0435\u0440\u043D\u0430 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0430 \u0442\u0430 CRM-\u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0430 \u0437\u2019\u044F\u0432\u043B\u044F\u044E\u0442\u044C\u0441\u044F \u043B\u0438\u0448\u0435 \u0432 \u0430\u0443\u0442\u0435\u043D\u0442\u0438\u0444\u0456\u043A\u043E\u0432\u0430\u043D\u0456\u0439 \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0456\u0439 \u0441\u0435\u0441\u0456\u0457."));
+  })));
   return /*#__PURE__*/React.createElement("section", {
     className: compact ? 'bos3-auth-guide' : 'bos3-start',
     "aria-label": "\u041D\u0430\u0432\u0447\u0430\u043D\u043D\u044F BoS 3.0"
@@ -23212,6 +23326,30 @@ function AuthGate() {
     variant: "primary",
     disabled: busy
   }, busy ? 'Зачекайте…' : 'Увійти'));
+  const entryPasswordForm = /*#__PURE__*/React.createElement("form", {
+    className: "bos-light-login-form",
+    onSubmit: event => {
+      event.preventDefault();
+      preserveSelectedCase();
+      enter(false);
+    }
+  }, /*#__PURE__*/React.createElement("label", null, "\u041B\u043E\u0433\u0456\u043D", /*#__PURE__*/React.createElement("input", {
+    autoComplete: "username",
+    value: username,
+    onChange: event => setUsername(event.target.value),
+    required: true,
+    disabled: busy
+  })), /*#__PURE__*/React.createElement("label", null, "\u041F\u0430\u0440\u043E\u043B\u044C", /*#__PURE__*/React.createElement("input", {
+    type: "password",
+    autoComplete: "current-password",
+    value: password,
+    onChange: event => setPassword(event.target.value),
+    required: true,
+    disabled: busy
+  })), /*#__PURE__*/React.createElement("button", {
+    type: "submit",
+    disabled: busy
+  }, busy ? 'Зачекайте…' : 'Увійти'));
   if (ready) return /*#__PURE__*/React.createElement(App, null);
   if (trainingEnabled) return /*#__PURE__*/React.createElement("main", {
     className: "bos-entry-shell"
@@ -23222,27 +23360,31 @@ function AuthGate() {
     onRequestSignIn: openSignIn,
     showBrochurePdf: false
   }), /*#__PURE__*/React.createElement("section", {
-    className: "bos3-entry-login",
+    className: "bos-light-login",
     ref: signInRef,
     "aria-labelledby": "bos-sign-in"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bos-light-login-inner"
   }, /*#__PURE__*/React.createElement("p", {
     className: "bos3-kicker"
   }, "\u041F\u0435\u0440\u0441\u043E\u043D\u0430\u043B\u044C\u043D\u0438\u0439 \u0434\u043E\u0441\u0442\u0443\u043F"), /*#__PURE__*/React.createElement("h2", {
     id: "bos-sign-in"
-  }, selectedDefinition ? 'Продовжити: ' + selectedDefinition.title : 'Увійти до навчальної BoS'), /*#__PURE__*/React.createElement("p", null, selectedDefinition ? 'Після входу відкриється обраний маршрут; факти, перевірка та прогрес будуть доступні лише у вашій навчальній сесії.' : 'Увійдіть, щоб почати навчальну сесію з доступними вашій ролі джерелами.'), passwordForm, error && /*#__PURE__*/React.createElement("p", {
+  }, selectedDefinition ? 'Продовжити: ' + selectedDefinition.title : 'Увійти до навчальної BoS'), /*#__PURE__*/React.createElement("p", null, selectedDefinition ? 'Обраний сценарій відкриється у вашій навчальній сесії.' : 'Увійдіть, щоб відкрити доступні вашій ролі джерела.'), entryPasswordForm, error && /*#__PURE__*/React.createElement("p", {
     role: "alert",
     style: {
-      color: T.red,
+      color: '#B42318',
       fontSize: 14,
       lineHeight: 1.5,
       marginTop: 16
     }
-  }, error), !mode && !busy && /*#__PURE__*/React.createElement(Button, {
+  }, error), !mode && !busy && /*#__PURE__*/React.createElement("button", {
+    className: "bos-light-button",
+    type: "button",
     onClick: bootstrap,
     style: {
       marginTop: 14
     }
-  }, "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0438 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043D\u044F")));
+  }, "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0438 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043D\u044F"))));
   return /*#__PURE__*/React.createElement("main", {
     style: {
       height: '100vh',
