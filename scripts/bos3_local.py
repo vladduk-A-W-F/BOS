@@ -104,10 +104,24 @@ def validate_root(source, paths):
         raise LocalError('A source default database cannot become the local training database.')
 
 
+def native_windows_powershell_environment(base_env=None):
+    """Use only the native Windows PowerShell module catalog for system probes."""
+    source_env = os.environ if base_env is None else base_env
+    system_root = Path(source_env.get('SystemRoot', ''))
+    executable = system_root / 'System32' / 'WindowsPowerShell' / 'v1.0' / 'powershell.exe'
+    modules = system_root / 'System32' / 'WindowsPowerShell' / 'v1.0' / 'Modules'
+    if not system_root.is_absolute() or not executable.is_file() or not modules.is_dir():
+        raise LocalError('Native Windows PowerShell executable or module catalog is unavailable.')
+    native_env = source_env.copy()
+    native_env['PSModulePath'] = str(modules)
+    return str(executable), native_env
+
+
 def current_user_sid():
-    result = subprocess.run(['powershell', '-NoProfile', '-NonInteractive', '-Command',
+    powershell, native_env = native_windows_powershell_environment()
+    result = subprocess.run([powershell, '-NoProfile', '-NonInteractive', '-Command',
         '[Console]::Out.Write([System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value)'],
-        capture_output=True, text=True, encoding='utf-8', timeout=15)
+        env=native_env, capture_output=True, text=True, encoding='utf-8', timeout=15)
     sid = result.stdout.strip()
     if result.returncode or not sid.startswith('S-1-'):
         raise LocalError('Current Windows user identity cannot be verified for local instance ACL.')
@@ -144,7 +158,8 @@ if (-not $seen[$current] -or -not $seen['S-1-5-18']) { exit 7 }
 '''
     verify_env = os.environ.copy()
     verify_env['BOS3_ACL_VERIFY_PATH'] = str(path)
-    checked = subprocess.run(['powershell', '-NoProfile', '-NonInteractive', '-Command', verify], env=verify_env,
+    powershell, native_env = native_windows_powershell_environment(verify_env)
+    checked = subprocess.run([powershell, '-NoProfile', '-NonInteractive', '-Command', verify], env=native_env,
         capture_output=True, text=True, encoding='utf-8', timeout=15)
     if checked.returncode:
         raise LocalError('Effective local instance ACL could not be verified.')
@@ -340,7 +355,8 @@ def process_command_line(pid):
         raise LocalError('Process receipt PID is malformed.')
     command = ('$p=Get-CimInstance Win32_Process -Filter "ProcessId = ' + str(pid)
         + '"; if ($null -ne $p) {[Console]::Out.Write($p.CommandLine)}')
-    result = subprocess.run(['powershell', '-NoProfile', '-NonInteractive', '-Command', command],
+    powershell, native_env = native_windows_powershell_environment()
+    result = subprocess.run([powershell, '-NoProfile', '-NonInteractive', '-Command', command], env=native_env,
         capture_output=True, text=True, encoding='utf-8', timeout=15)
     if result.returncode:
         raise LocalError('Process command line cannot be verified.')
@@ -368,9 +384,10 @@ def launch_via_powershell(args, cwd, env, paths):
         'stdout': str(paths['logs'] / 'server.stdout.log'),
         'stderr': str(paths['logs'] / 'server.stderr.log')}
     encoded = __import__('base64').b64encode(json.dumps(spec).encode('utf-8')).decode('ascii')
-    result = subprocess.run(['powershell', '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
+    powershell, native_env = native_windows_powershell_environment(env)
+    result = subprocess.run([powershell, '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
         '-File', str(SOURCE / 'scripts' / 'bos3-local.ps1'), '-InternalLaunch', '-LaunchSpec', encoded],
-        env=env, capture_output=True, text=True, encoding='utf-8', timeout=30)
+        env=native_env, capture_output=True, text=True, encoding='utf-8', timeout=30)
     if result.returncode or not result.stdout.strip().isdigit():
         raise LocalError('Hidden local server process could not be created.')
     return int(result.stdout.strip())

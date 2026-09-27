@@ -33,6 +33,12 @@ file exists. Otherwise provide a concrete interpreter path, for example
 `scripts/bos3-local.ps1 init -PythonPath D:/tools/bos3/python.exe`; it never
 falls back to an arbitrary `PATH` Python.
 
+For its own ACL, process-identity and hidden-launch probes, the controller calls
+only `%SystemRoot%/System32/WindowsPowerShell/v1.0/powershell.exe` with a copied,
+subprocess-local `PSModulePath` pinned to that native PowerShell `Modules`
+directory. This avoids inheriting incompatible bundled shell modules and does
+not change the user's global environment or execution policy.
+
 The command creates a new SQLite database named `bos3-fasteners.sqlite3`, a
 random personal CEO username/password, a random Django secret and the synthetic
 fasteners fixture. The CEO is active but neither staff nor superuser; it receives
