@@ -6,6 +6,8 @@
 
 ## Настройка разработки и следующий шаг
 
+Паспорт DESIGN_DEV4_CANDIDATE.json принят bos3_candidate_review: ACCEPT_SCOPED_EVIDENCE_PACKAGING, 91/91 точных Git blob hashes. Product7018cca86337da19361951782cffecb09811a89a; отдельный commit паспорта станет immutable runtime source для установки. Это не browser/lesson PASS. Следующий шаг: независимая проверка финальных pins и процедуры доставки.
+
 Актуально 27.09, 15:04Z: dev.4 package принят независимым bos3_candidate_review (ACCEPT_SCOPED_B30_DESIGN_PACK_DEV4), root включает пять файлов и raw PDF evidence. Новая поставка ещё не выполнена. Maintenance template F45E8358 принят start_overview_review только как шаблон; следующий шаг root: exact candidate/manifest/allowlist и независимая pin-delta проверка, затем ordinary owner-local update по действующему разрешению. Runtime пока f55. QA revision4 REVISE_BEFORE_OWNER_EXCEPTION: исправить preview mapping, подготовить безопасный exact isolated bootstrap/harness и полный C1 completion; тот же QA назначен, запусков нет.
 
 Следующая конкретная работа после design integration0cdd3ef: B30-DESIGN-PACK (existing writer, новая isolated bos3-dev4-pack/repo от exact0cdd3ef, толькоversion/README/учебный registry version/PDF/связанные compiled artifacts еслинеобходимо) и B30-DESIGN-DELIVERY-PREP (bos3_fixture_impl, отдельный output qa-scratch/bos3-dev4-delivery-20260927, static guarded runner). Reviewer start_overview_review/bos3_candidate_review независимые. Existing dirty packaging/validation/development worktrees сохранены. Target runtime pin дляdev4 ещёPENDING; текущий f55 не перезапускать. ARCH-02 documentary38c63af принят и переносится безbuild/browser.
