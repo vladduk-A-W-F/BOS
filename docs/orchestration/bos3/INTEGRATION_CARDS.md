@@ -1,5 +1,19 @@
 # BoS 3.0 Integration Cards
 
+## B30-12: Candidate Evidence Packaging
+
+Product pin ae966d3e70d951318f7c13dc5488cd9cc6d663c3; observed documentation
+baseline 0bdfa473f31c592221d486e8ce00d89dd7d9411e. Author root, read-only
+provenance bos3_fixture_impl, evidence applicability bos3_crm_impl. Independent
+review bos3_candidate_review: ACCEPT_SCOPED_EVIDENCE_PACKAGING_ONLY.
+Allowlist: CANDIDATE_MANIFEST.json, CANDIDATE_ACCEPTANCE_RU.md, ACTIVE_WORK_PLAN_RU.md,
+CONTROL_STATE.json, this ledger, evidence/candidate-20260927/REVIEW_RU.md.
+Ten delivery artifacts are pinned by Git blob and checkout-byte SHA-256; old
+training/fixture/runtime evidence is kept separate from exact entry proof.
+No product code, tests, builds, browser, DB or lifecycle execution. JSON parsing
+and documentation whitespace checks only. B30-12 full QA, B30-12R release
+acceptance and owner GO remain open. See the manifest and review for exact scope.
+
 ## B30-04F: Brochure-First Entry and Case Handoffs
 
 Author start_overview_implementation in isolated bos3-entry-flow from dd88f28.

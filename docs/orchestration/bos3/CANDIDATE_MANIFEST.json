@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "observed_on": "2026-09-27",
+  "card": "B30-12",
+  "status": "PREPARED_EVIDENCE_SNAPSHOT_NOT_RELEASE_ACCEPTANCE",
+  "packaging_review": {"reviewer":"bos3_candidate_review","verdict":"ACCEPT_SCOPED_EVIDENCE_PACKAGING_ONLY","record":"evidence/candidate-20260927/REVIEW_RU.md","release_acceptance":false},
+  "repository": "vladduk-A-W-F/BOS",
+  "branch": "codex/bos3-prerelease-20260927",
+  "documentation_observed_commit": "0bdfa473f31c592221d486e8ce00d89dd7d9411e",
+  "product": {
+    "version": "0.3.0-dev.2",
+    "commit": "ae966d3e70d951318f7c13dc5488cd9cc6d663c3",
+    "git_tree": "ff9d0b5bdc25233d01c9686d3dc76d5cd5bf5eee",
+    "path": "C:/Users/user/.codex/worktrees/bos-consolidation-plan/repo",
+    "owner_accepted": false,
+    "deployed": false
+  },
+  "runtime_reference": {
+    "version": "0.3.0-dev.1",
+    "commit": "33d7d387aa582c04339a91ae94361948ea67904c",
+    "receipt": "LOCAL_RUNTIME_RECEIPT.json",
+    "checkout_head_matches_receipt": true,
+    "checkout_git_clean_observed": true,
+    "live_availability_checked_in_this_card": false,
+    "receipt_is_not_product_candidate_acceptance": true
+  },
+  "provenance": {
+    "collector": "bos3_fixture_impl",
+    "integrator": "root",
+    "classification": "READ_ONLY_PACKAGING_NOT_TEST_EXECUTION",
+    "product_pin_object_type": "commit",
+    "product_pin_object_check_exit": 0,
+    "product_pin_to_documentation_head_delivery_diff_exit": 0,
+    "delivery_worktree_to_head_diff_exit": 0,
+    "git_blob_basis": "identical blobs at product pin and observed documentation head",
+    "sha256_basis": "observed checkout bytes, including their line endings",
+    "artifact_scope": "10 changed delivery paths; not a complete repository or dependency inventory"
+  },
+  "artifacts": [
+    {"path":"frontend/boss_app_source.html","git_blob":"f465be95c00dbc1ddacf483b94a2b9aa8e053046","sha256":"9bfa50102d880077a112cc7c570faff73efcd7e277ad36b01b09355538dea12e"},
+    {"path":"frontend/boss_app_html.html","git_blob":"82ef02408c205bcadfa2109bdde24c91620a0146","sha256":"0f83a1a0ea8adc4d1cce30d323597614362b51e20442b3a08390d3861e7a4655"},
+    {"path":"frontend/bos3_content.json","git_blob":"e4ecc9ba443eef8816c498dea09269a3ac47f437","sha256":"90f7880b78de4c6e1ae60ca85c8e43968bbeb24e029c50235c5374bff8166d2a"},
+    {"path":"assets/app.js","git_blob":"bfff631fd8b4462bd9a815200ad5a0004a266110","sha256":"c7583f647b105b0eb3a40ec1bd8e42a19c6457155755149c353153572d57f610"},
+    {"path":"assets/bos3-fasteners-entry.png","git_blob":"a52503314174d31093095369be8b231071fe1bb3","sha256":"2c500193c6313964c61ac6ce19047541b62ed38b79c3293c9d10d9869bfb67bb"},
+    {"path":"boss_project/refinement_views.py","git_blob":"ddf0063cb27fb0c52f1304b76609afd742a6473a","sha256":"9cad6084c2e00620005a7e5995b851017dbfaeba28a3a5e9bbf271996c926404"},
+    {"path":"scripts/build_bos3_brochure.py","git_blob":"7e7969c92691d096e3738c498718b05109d0df25","sha256":"1885bac669b2798544e7f359e5755bd1efd90b5602d3b7f6fcce49c158172800"},
+    {"path":"docs/BoS_3_0_Start_UA.pdf","git_blob":"cbe979a8f5989a022b30ae5caab94582507487af","sha256":"33c69beaf9662891be6d3fe5cd4997f4ac2ed236f7b430d8aae6153a9d236083"},
+    {"path":"docs/BoS_3_0_Start_UA.manifest.json","git_blob":"f45902a224116d4cc788d74c355db71825660dad","sha256":"f573821eecadcb6e49939a1011812d9c6e1f4e1b075c2fdc596752bef6df3a89"},
+    {"path":"boss_project/version.py","git_blob":"91ecae2437441f241a1db85821f6dc9ad6dfca52","sha256":"cb335a27975980ac1041dd6acf70c05638e55064a86f183181a0f7e31c003fc2"}
+  ],
+  "evidence_applicability": [
+    {"area":"brochure_content_pdf","status":"EXACT_ARTIFACT_STATIC_VISUAL_SCOPE","evidence":["B30_04C_REVIEW_RU.md","../../BoS_3_0_Start_UA.manifest.json"],"does_not_prove":["HTTP availability","authentication","browser layout","delivery"]},
+    {"area":"entry_ui_and_build","status":"EXACT_ARTIFACT_AST_BUILD_SCOPE","evidence":["evidence/entry-20260927/B30-04F-attempt-1-RECEIPT.md","evidence/entry-20260927/B30-04F-frontend-build-1-RECEIPT.md","evidence/entry-20260927/REVIEW_RU.md"],"checks_passed":7,"test_exit":0,"build_exit":0,"does_not_prove":["browser","ERP or CRM execution","runtime"]},
+    {"area":"server_lessons_crm","status":"HISTORICAL_SCOPED_RESULTS_NOT_FINAL_CANDIDATE_PROOF","evidence":["evidence/new-server-qa/B30-TRAINING-QA-ATTEMPT-1-RECEIPT.md","evidence/new-server-qa/B30-QH02-OBSERVER-RETRY-RECEIPT.md","evidence/new-server-qa/B30-NEW-QA-ATTEMPT-2-RECEIPT.md"],"source_basis":"a445ac0 plus hash-scoped uncommitted files; some current source hashes differ","final_candidate_dynamic_acceptance":false},
+    {"area":"fixture","status":"FAIL_INCOMPLETE_3_OF_3_CORRECTION_STATIC_ONLY","evidence":["evidence/new-server-qa/B30-QH01-STATIC-DIAGNOSIS.md"],"retry_allowed":false,"requires_explicit_owner_exception_for_same_problem":true},
+    {"area":"owner_local_access_restart","status":"HISTORICAL_DEV1_RUNTIME_ONLY","evidence":["LOCAL_RUNTIME_RECEIPT.json","evidence/local-runtime/B30-11-FINAL-EVIDENCE-REVIEW.md"],"candidate_delivery_allowed_without_owner_answer":false},
+    {"area":"browser_three_case_journey","status":"NOT_EXECUTED_ON_PRODUCT_CANDIDATE","evidence":[],"pending_entry_only_question_covers_full_journey":false}
+  ],
+  "historical_raw_evidence": {
+    "verified_by": "bos3_crm_impl",
+    "local_git_tracking_and_recorded_hashes_match": true,
+    "remote_availability_queried_in_this_card": false,
+    "base_path": "evidence/new-server-qa/",
+    "files": [
+      {"path":"training-attempt-1.raw.log","sha256":"dac1b7ed05b6e3ff2c015a92bc751f48d346cd42b691efced11b0ff5ed3642c4"},
+      {"path":"training-attempt-1.native-exit.txt","sha256":"ed99e2e25075b2e604284bb280498eecf8fcf24193ce73838cf24fc56be53c97"},
+      {"path":"training-attempt-2-qh02.raw.log","sha256":"e3089e3ff75360b62f805d43a40ad678b3f25fb4fd5b6d3393da423716f69f87"},
+      {"path":"training-attempt-2-qh02.native-exit.txt","sha256":"50ecf457c4dd72b28211f3b189582bdbd20a9966ca052072d330c6008c9682e0"},
+      {"path":"attempt-2.raw.log","sha256":"d30e8004e74df65528c5dec2074490bf7b90f7273d71c4ed6951cdba89a38524"}
+    ]
+  },
+  "decisions": {
+    "entry_browser_check": "PENDING_EXPLICIT_OWNER_ANSWER_B30_04F_ONE_BROWSER_ENTRY_CHECK",
+    "controlled_local_update": "PENDING_EXPLICIT_OWNER_ANSWER_B30_04D_ONE_LOCAL_UPDATE_RESTART",
+    "full_three_case_dynamic_acceptance": "NOT_AUTHORIZED_BY_ENTRY_ONLY_QUESTION",
+    "reset_contract": "UNRESOLVED_NO_DATABASE_RESET_ALLOWED"
+  },
+  "acceptance_record": "CANDIDATE_ACCEPTANCE_RU.md",
+  "readiness": {"technical_ready":false,"pilot_allowed":false,"mvp":false},
+  "frozen_11_gates_changed": false,
+  "test_or_build_runs_in_this_card": 0,
+  "runtime_lifecycle_operations_in_this_card": 0
+}
