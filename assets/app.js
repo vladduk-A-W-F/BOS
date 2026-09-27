@@ -11818,7 +11818,8 @@ const OP_STATUS = {
 };
 function DocViewer({
   id,
-  onClose
+  onClose,
+  readOnly = false
 }) {
   const [doc, setDoc] = useState(null),
     [error, setError] = useState('');
@@ -11878,7 +11879,7 @@ function DocViewer({
     }
   }, p.text))), !doc.text && /*#__PURE__*/React.createElement("p", null, "\u0422\u0435\u043A\u0441\u0442 \u043D\u0435 \u0440\u043E\u0437\u043F\u0456\u0437\u043D\u0430\u043D\u043E. \u041F\u043E\u0442\u0440\u0456\u0431\u0435\u043D OCR \u0430\u0431\u043E \u0440\u0443\u0447\u043D\u0430 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0430.")), /*#__PURE__*/React.createElement("div", {
     className: "actions"
-  }, bosCan('write') && doc?.current && doc.status === 'needs_review' && /*#__PURE__*/React.createElement(Button, {
+  }, !readOnly && bosCan('write') && doc?.current && doc.status === 'needs_review' && /*#__PURE__*/React.createElement(Button, {
     onClick: async () => {
       try {
         await opFetch('documents/' + doc.id + '/review/', {
@@ -20008,6 +20009,20 @@ function BoSInspector({
     }) : baseTable(m[3], rows), /*#__PURE__*/React.createElement("p", {
       className: "op-muted"
     }, "\u041D\u0430\u0442\u0438\u0441\u043D\u0456\u0442\u044C \u0440\u044F\u0434\u043E\u043A, \u0449\u043E\u0431 \u043F\u0435\u0440\u0435\u0439\u0442\u0438 \u0432\u0456\u0434 \u043F\u0456\u0434\u0441\u0443\u043C\u043A\u0443 \u0434\u043E \u043A\u043E\u043D\u043A\u0440\u0435\u0442\u043D\u043E\u0433\u043E \u0437\u0430\u043F\u0438\u0441\u0443."));
+  } else if (kind === 'monitor-list') {
+    const valid = ['orders', 'jobs', 'quality'].includes(key) && selection.monitorOrigin === key,
+      rows = valid ? monitorRows(data, key) : [],
+      recordKind = key === 'quality' ? 'lots' : key;
+    title = {
+      orders: 'Замовлення у виконанні',
+      jobs: 'Відкриті роботи',
+      quality: 'Партії без допуску'
+    }[key] || 'Показник недоступний';
+    body = valid ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, "\u0417\u0430\u043F\u0438\u0441\u0456\u0432 \u0443 \u0446\u044C\u043E\u043C\u0443 \u043F\u043E\u043A\u0430\u0437\u043D\u0438\u043A\u0443: ", /*#__PURE__*/React.createElement("strong", null, rows.length), ". \u0421\u043F\u0438\u0441\u043E\u043A \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u0430\u0454 \u043F\u0456\u0434\u0440\u0430\u0445\u0443\u043D\u043A\u0443 \u0437 \u0442\u043E\u0433\u043E \u0441\u0430\u043C\u043E\u0433\u043E \u0447\u0438\u0442\u0430\u043D\u043D\u044F, \u0431\u0435\u0437 \u043E\u043A\u0440\u0435\u043C\u043E\u0433\u043E \u0444\u0456\u043B\u044C\u0442\u0440\u0430 \u0444\u0456\u043B\u0456\u0457 \u0447\u0438 \u043F\u0435\u0440\u0456\u043E\u0434\u0443."), rows.length ? baseTable(recordKind, rows) : /*#__PURE__*/React.createElement("p", {
+      role: "status"
+    }, "\u0417\u0430 \u0443\u043C\u043E\u0432\u0430\u043C\u0438 \u0446\u044C\u043E\u0433\u043E \u043F\u043E\u043A\u0430\u0437\u043D\u0438\u043A\u0430 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u043D\u0435\u043C\u0430\u0454."), /*#__PURE__*/React.createElement("p", {
+      className: "op-muted"
+    }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0439\u0442\u0435 \u0437\u0430\u043F\u0438\u0441, \u0449\u043E\u0431 \u043F\u0435\u0440\u0435\u0433\u043B\u044F\u043D\u0443\u0442\u0438 \u0444\u0430\u043A\u0442\u0438 \u0439 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430. \u0417\u043C\u0456\u043D\u0438 \u0437 \u0446\u044C\u043E\u0433\u043E \u043F\u0435\u0440\u0435\u0433\u043B\u044F\u0434\u0443 \u043D\u0435 \u0432\u0438\u043A\u043E\u043D\u0443\u044E\u0442\u044C\u0441\u044F.")) : /*#__PURE__*/React.createElement("p", null, "\u041E\u043D\u043E\u0432\u0456\u0442\u044C \u043C\u043E\u043D\u0456\u0442\u043E\u0440\u0438\u043D\u0433 \u0456 \u043E\u0431\u0435\u0440\u0456\u0442\u044C \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0439 \u043F\u043E\u043A\u0430\u0437\u043D\u0438\u043A.");
   } else if (kind === 'list') {
     title = selection.title;
     const rows = key === 'orders' ? data.orders.filter(o => o.status === 'confirmed') : key === 'tasks' ? (data.home?.tasks || []).filter(t => !t.archived && (selection.overdue ? t.is_overdue === true : t.status !== 'done')) : key === 'lots' ? data.lots.filter(l => Number(l.quantity) > 0 && (l.quality !== 'approved' || l.missing_documents.length)) : data.jobs.filter(j => j.status !== 'done' && (!selection.review || j.needs_review));
@@ -20283,8 +20298,11 @@ function BoSInspector({
     })
   }, "\u041F\u043E\u0432\u0435\u0440\u043D\u0443\u0442\u0438\u0441\u044F \u0434\u043E \u0437\u0430\u0431\u0435\u0437\u043F\u0435\u0447\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement(Button, {
     onClick: () => ref.current.close()
-  }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438")), body, doc && /*#__PURE__*/React.createElement(DocViewer, {
+  }, selection.monitorOrigin ? kind === 'monitor-list' ? 'До моніторингу' : 'До списку показника' : 'Закрити')), selection.monitorOrigin && /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041F\u0435\u0440\u0435\u0433\u043B\u044F\u0434 \u0456\u0437 \u043C\u043E\u043D\u0456\u0442\u043E\u0440\u0438\u043D\u0433\u0443 \xB7 \u043B\u0438\u0448\u0435 \u0447\u0438\u0442\u0430\u043D\u043D\u044F. \u041F\u043E\u0432\u0435\u0440\u043D\u0435\u043D\u043D\u044F \u0432\u0435\u0434\u0435 \u0434\u043E \u0442\u043E\u0433\u043E \u0441\u0430\u043C\u043E\u0433\u043E \u0441\u043F\u0438\u0441\u043A\u0443 \u043F\u043E\u0442\u043E\u0447\u043D\u043E\u0433\u043E \u0447\u0438\u0442\u0430\u043D\u043D\u044F. \u041E\u043A\u0440\u0435\u043C\u0435 \u043F\u0435\u0440\u0435\u0447\u0438\u0442\u0443\u0432\u0430\u043D\u043D\u044F \u0434\u0436\u0435\u0440\u0435\u043B\u0430 \u0437\u0430\u0432\u0435\u0440\u0448\u0443\u0454 \u0446\u0435\u0439 \u0448\u043B\u044F\u0445."), body, doc && /*#__PURE__*/React.createElement(DocViewer, {
     id: doc,
+    readOnly: readOnly,
     onClose: () => setDoc(null)
   }));
 }
@@ -20784,8 +20802,17 @@ function homeSnapshotShape(value, financial) {
   if (value.costs !== undefined && !array(value.costs, x => pk(x.order_id) && fields(x, ['code', 'currency', 'order_value', 'shipped_value', 'shipped_cost', 'gross_margin']))) return false;
   return true;
 }
+function monitorRows(data, key) {
+  if (!data) return [];
+  if (key === 'orders') return data.orders.filter(order => data.lines.some(line => line.order_id === order.id && b03Positive(b03OpenLine(line))));
+  if (key === 'jobs') return data.jobs.filter(job => job.status !== 'done');
+  if (key === 'quality') return data.lots.filter(lot => Number(lot.quantity) > 0 && (lot.quality !== 'approved' || lot.missing_documents.length));
+  return [];
+}
 function homeSelectionVisible(selection, data) {
   if (!selection || !data) return false;
+  if (selection.kind === 'monitor-list') return ['orders', 'jobs', 'quality'].includes(selection.key) && selection.monitorOrigin === selection.key;
+  if (selection.monitorOrigin !== undefined && (!['orders', 'jobs', 'quality'].includes(selection.monitorOrigin) || ['metric', 'list'].includes(selection.kind))) return false;
   if (selection.kind === 'metric') return bosCan('finance') && BOS_METRICS.some(x => x[0] === selection.key) && data.home.financial.some(x => x.currency === selection.currency && homeKnownNumber(x[selection.key]));
   if (selection.kind === 'list') return ['jobs', 'lots', 'tasks', 'orders'].includes(selection.key);
   return Number.isSafeInteger(selection.id) && Array.isArray(data[selection.kind]) && !!b03FindRecord(data, selection.kind, selection.id);
@@ -20803,7 +20830,8 @@ function BosGlobalMonitor({
   currency,
   onCurrency,
   onRefresh,
-  onNavigate
+  onNavigate,
+  onInspect
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const stateLabel = busy ? 'Оновлюємо дані' : ready ? status === 'empty' ? 'Доступних записів немає' : 'Дані прочитано' : status === 'stale' ? 'Потрібне оновлення' : status === 'denied' || status === 'context-drift' ? 'Перевірте доступ' : 'Дані недоступні';
@@ -20860,7 +20888,7 @@ function BosGlobalMonitor({
     type: "button",
     className: "bos-monitor-open",
     disabled: !ready || !metric.allowed,
-    onClick: () => onNavigate(metric.section, metric.sub)
+    onClick: () => metric.monitorKey ? onInspect(metric.monitorKey) : onNavigate(metric.section, metric.sub)
   }, /*#__PURE__*/React.createElement("span", {
     className: "bos-monitor-metric-label"
   }, metric.label, /*#__PURE__*/React.createElement("span", {
@@ -20886,7 +20914,7 @@ function BosGlobalMonitor({
     className: "bos-monitor-foot"
   }, /*#__PURE__*/React.createElement("details", null, /*#__PURE__*/React.createElement("summary", null, ready && readTime ? /*#__PURE__*/React.createElement(React.Fragment, null, "\u041F\u0440\u043E\u0447\u0438\u0442\u0430\u043D\u043E ", /*#__PURE__*/React.createElement("time", {
     dateTime: at
-  }, readTime)) : readTime ? 'Попереднє читання — показники приховано' : 'Джерело та час даних'), /*#__PURE__*/React.createElement("p", null, "\u0414\u0436\u0435\u0440\u0435\u043B\u043E, \u043E\u0445\u043E\u043F\u043B\u0435\u043D\u043D\u044F \u0442\u0430 \u0441\u043F\u043E\u0441\u0456\u0431 \u043F\u0456\u0434\u0440\u0430\u0445\u0443\u043D\u043A\u0443 \u043D\u0430\u0432\u0435\u0434\u0435\u043D\u0456 \u043E\u043A\u0440\u0435\u043C\u043E \u0434\u043B\u044F \u043A\u043E\u0436\u043D\u043E\u0433\u043E \u043F\u043E\u043A\u0430\u0437\u043D\u0438\u043A\u0430. \u0427\u0430\u0441 \u0447\u0438\u0442\u0430\u043D\u043D\u044F \u2014 \u0437\u0430 \u0433\u043E\u0434\u0438\u043D\u043D\u0438\u043A\u043E\u043C \u0446\u044C\u043E\u0433\u043E \u043F\u0440\u0438\u0441\u0442\u0440\u043E\u044E, \u043D\u0435 \u0447\u0430\u0441 \u0437\u043C\u0456\u043D\u0438 \u0437\u0430\u043F\u0438\u0441\u0456\u0432. \u041F\u0456\u0441\u043B\u044F \u0437\u043C\u0456\u043D \u043F\u043E\u0442\u0440\u0456\u0431\u043D\u0435 \u043D\u043E\u0432\u0435 \u0447\u0438\u0442\u0430\u043D\u043D\u044F. \u041F\u0435\u0440\u0435\u0445\u0456\u0434 \u0432\u0456\u0434\u043A\u0440\u0438\u0432\u0430\u0454 \u0440\u043E\u0437\u0434\u0456\u043B \u0431\u0435\u0437 \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u043D\u043E\u0433\u043E \u0432\u0438\u0431\u043E\u0440\u0443 \u0437\u0430\u043F\u0438\u0441\u0443 \u0447\u0438 \u0444\u0456\u043B\u0456\u0457.")), error && /*#__PURE__*/React.createElement("p", {
+  }, readTime)) : readTime ? 'Попереднє читання — показники приховано' : 'Джерело та час даних'), /*#__PURE__*/React.createElement("p", null, "\u0414\u0436\u0435\u0440\u0435\u043B\u043E, \u043E\u0445\u043E\u043F\u043B\u0435\u043D\u043D\u044F \u0442\u0430 \u0441\u043F\u043E\u0441\u0456\u0431 \u043F\u0456\u0434\u0440\u0430\u0445\u0443\u043D\u043A\u0443 \u043D\u0430\u0432\u0435\u0434\u0435\u043D\u0456 \u043E\u043A\u0440\u0435\u043C\u043E \u0434\u043B\u044F \u043A\u043E\u0436\u043D\u043E\u0433\u043E \u043F\u043E\u043A\u0430\u0437\u043D\u0438\u043A\u0430. \u0427\u0430\u0441 \u0447\u0438\u0442\u0430\u043D\u043D\u044F \u2014 \u0437\u0430 \u0433\u043E\u0434\u0438\u043D\u043D\u0438\u043A\u043E\u043C \u0446\u044C\u043E\u0433\u043E \u043F\u0440\u0438\u0441\u0442\u0440\u043E\u044E, \u043D\u0435 \u0447\u0430\u0441 \u0437\u043C\u0456\u043D\u0438 \u0437\u0430\u043F\u0438\u0441\u0456\u0432. \u0417\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F, \u0440\u043E\u0431\u043E\u0442\u0438 \u0439 \u043F\u0430\u0440\u0442\u0456\u0457 \u0432\u0456\u0434\u043A\u0440\u0438\u0432\u0430\u044E\u0442\u044C \u0442\u043E\u0447\u043D\u0438\u0439 \u0441\u043F\u0438\u0441\u043E\u043A \u0446\u044C\u043E\u0433\u043E \u0447\u0438\u0442\u0430\u043D\u043D\u044F; \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u0442\u0430 \u0441\u0443\u043C\u0430 \u0434\u043E \u043E\u043F\u043B\u0430\u0442\u0438 \u2014 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u0438\u0439 \u0440\u043E\u0437\u0434\u0456\u043B. \u041F\u0456\u0441\u043B\u044F \u0437\u043C\u0456\u043D \u043F\u043E\u0442\u0440\u0456\u0431\u043D\u0435 \u043D\u043E\u0432\u0435 \u0447\u0438\u0442\u0430\u043D\u043D\u044F.")), error && /*#__PURE__*/React.createElement("p", {
     role: "alert"
   }, error)));
 }
@@ -20920,16 +20948,22 @@ function BoSHome({
       nextSelection: null,
       selected: null
     }),
-    presentation = useRef('');
+    presentation = useRef(''),
+    monitorOpener = useRef(null);
   presentation.current = JSON.stringify([currency, focus, readOnlyOverview, monitor]);
   const renderedPresentation = presentation.current;
   function publish(next) {
+    if (monitor && !['fresh', 'empty'].includes(next.status)) {
+      select(null);
+      life.current.nextSelection = null;
+    }
     life.current.view = next;
     setView(next);
   }
   function select(next) {
     life.current.selected = next;
     setSelection(next);
+    if (!next) monitorOpener.current = null;
   }
   function cancelRead() {
     const l = life.current;
@@ -21094,7 +21128,7 @@ function BoSHome({
   useEffect(() => {
     select(null);
     life.current.nextSelection = null;
-  }, [currency, focus, readOnlyOverview]);
+  }, [currency, focus, readOnlyOverview, monitor]);
   const inScope = view.scope === scope && !!scope,
     data = inScope ? view.data : null,
     status = inScope ? view.status : 'context-drift',
@@ -21118,7 +21152,7 @@ function BoSHome({
     if (canUse() && homeSelectionVisible(next, data)) select(next);
   }
   function begin(type, preset) {
-    if (readOnlyOverview || !canUse()) return;
+    if (monitor || readOnlyOverview || !canUse()) return;
     if (!bosCanAction(type)) {
       publish({
         ...life.current.view,
@@ -21141,7 +21175,7 @@ function BoSHome({
     if (!canInspect()) return;
     cancelRead();
     select(null);
-    life.current.nextSelection = next;
+    life.current.nextSelection = monitor ? null : next;
     publish({
       ...life.current.view,
       status: 'stale',
@@ -21216,8 +21250,9 @@ function BoSHome({
     };
     const metrics = [{
       key: 'orders',
+      monitorKey: 'orders',
       label: 'Замовлення у виконанні',
-      value: orders.length,
+      value: monitorRows(data, 'orders').length,
       note: 'Є невиконана кількість',
       section: 'erp',
       sub: 'sales',
@@ -21226,12 +21261,13 @@ function BoSHome({
         source: 'Знімок ERP: замовлення та їхні позиції.',
         calculation: 'Кількість замовлень, що мають хоча б одну позицію з додатною невиконаною кількістю. Стан замовлення окремо не фільтрується.',
         deviation: 'Причини невиконання та відхилення від плану цим підрахунком не визначено.',
-        action: 'Відкрити ERP → Продажі та обрати замовлення вручну.'
+        action: 'Відкрити точний список підрахованих замовлень, потім картку запису лише для читання.'
       }
     }, {
       key: 'jobs',
+      monitorKey: 'jobs',
       label: 'Відкриті роботи',
-      value: data ? data.jobs.filter(x => x.status !== 'done').length : 0,
+      value: monitorRows(data, 'jobs').length,
       note: 'Виробництво та комплектація',
       section: 'erp',
       sub: 'production',
@@ -21240,12 +21276,13 @@ function BoSHome({
         source: 'Знімок ERP: виробничі роботи.',
         calculation: 'Кількість робіт зі станом, відмінним від «Завершено».',
         deviation: 'Причини незавершення та відхилення від плану не надано.',
-        action: 'Відкрити ERP → Виробництво та обрати роботу вручну.'
+        action: 'Відкрити точний список підрахованих робіт, потім картку запису лише для читання.'
       }
     }, {
       key: 'quality',
+      monitorKey: 'quality',
       label: 'Партії без допуску',
-      value: issues.length,
+      value: monitorRows(data, 'quality').length,
       note: 'Статус якості або документи',
       tone: issues.length ? 'warning' : null,
       section: 'erp',
@@ -21255,7 +21292,7 @@ function BoSHome({
         source: 'Знімок ERP: партії, стан якості й комплектність документів.',
         calculation: 'Кількість партій з додатним залишком, для яких якість не дозволена або бракує необхідних документів.',
         deviation: 'Вказано умови підрахунку. Конкретну причину проблеми партії тут не визначено.',
-        action: 'Відкрити ERP → Якість і зміни. Конкретна партія автоматично не вибирається.'
+        action: 'Відкрити точний список підрахованих партій, потім картку запису лише для читання.'
       }
     }, {
       key: 'tasks',
@@ -21290,7 +21327,41 @@ function BoSHome({
         action: 'Відкрити ERP → Фінансовий результат. Конкретний рахунок автоматично не вибирається.'
       }
     });
-    return /*#__PURE__*/React.createElement(BosGlobalMonitor, {
+    function inspectMetric(key) {
+      if (!['orders', 'jobs', 'quality'].includes(key)) return;
+      const metric = metrics.find(item => item.monitorKey === key);
+      if (!metric || !canUse() || !available(metric.section, metric.sub)) return;
+      monitorOpener.current = document.activeElement;
+      open({
+        kind: 'monitor-list',
+        key,
+        monitorOrigin: key
+      });
+    }
+    function inspectMonitorRecord(next) {
+      if (!canInspect() || !selection.monitorOrigin) return;
+      const origin = selection.monitorOrigin;
+      if (selection.kind === 'monitor-list' && (next.kind !== (origin === 'quality' ? 'lots' : origin) || !monitorRows(data, origin).some(row => row.id === next.id))) return;
+      open({
+        ...next,
+        monitorOrigin: origin
+      });
+    }
+    function closeMonitor() {
+      if (!canInspect()) return;
+      if (selection.kind !== 'monitor-list') {
+        open({
+          kind: 'monitor-list',
+          key: selection.monitorOrigin,
+          monitorOrigin: selection.monitorOrigin
+        });
+        return;
+      }
+      const opener = monitorOpener.current;
+      select(null);
+      if (opener?.isConnected && !opener.disabled) opener.focus();
+    }
+    return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(BosGlobalMonitor, {
       ready: ready,
       busy: busy,
       status: status,
@@ -21305,10 +21376,19 @@ function BoSHome({
       currency: cur,
       onCurrency: setCurrency,
       onRefresh: () => refresh(),
+      onInspect: inspectMetric,
       onNavigate: (section, sub) => {
         if (canUse() && available(section, sub)) onNavigate(section, sub);
       }
-    });
+    }), ready && selection && homeSelectionVisible(selection, data) && /*#__PURE__*/React.createElement(BoSInspector, {
+      key: scope + ':' + epoch + ':' + renderedPresentation + ':' + selection.kind + ':' + (selection.id ?? selection.key),
+      selection: selection,
+      data: data,
+      readOnly: true,
+      onClose: closeMonitor,
+      onSelect: inspectMonitorRecord,
+      onTraceSelect: traceSelect
+    }));
   }
   return /*#__PURE__*/React.createElement("div", {
     className: "bos-home"

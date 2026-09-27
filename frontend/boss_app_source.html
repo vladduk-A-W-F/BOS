@@ -3730,7 +3730,7 @@ function AIPanel({onClose, refetchTasks, refetchEmployees, refetchFinance, aiCon
 const OP='/api/operations/';
 async function opFetch(path,data){const options=data===undefined?{}:{method:'POST',headers:data instanceof FormData?{}:{'Content-Type':'application/json'},body:data instanceof FormData?data:JSON.stringify(data)};const r=await fetch(OP+path,options);let d;try{d=await r.json();}catch{throw Error('Сервіс недоступний. Перевірте локальний запуск.');}if(!r.ok)throw Error(d.error||'Не вдалося виконати запит.');return d;}
 const OP_STATUS={approved:'Перевірено',supplier_quote:'Пропозиція постачальника',needs_review:'Потребує перевірки',ocr_required:'Потрібне розпізнавання'};
-function DocViewer({id,onClose}){const [doc,setDoc]=useState(null),[error,setError]=useState('');const ref=useRef(null);useEffect(()=>{ref.current.showModal();let live=true;opFetch('documents/'+id+'/').then(d=>live&&setDoc(d)).catch(e=>setError(e.message));return()=>{live=false;};},[id]);return <dialog ref={ref} className="bos-dialog" onClose={onClose} style={{width:'min(800px,95vw)'}}><h2>{doc?.title||'Документ'}</h2>{error&&<p role="alert">{error}</p>}{doc&&<><p style={{color:T.textMuted,margin:'12px 0'}}>{doc.code} · версія {doc.revision} · {OP_STATUS[doc.status]}{!doc.current?' · Є новіша версія':''}</p><div style={{display:'flex',gap:8,flexWrap:'wrap'}}>{doc.versions.map(v=><Button key={v.id} onClick={()=>opFetch('documents/'+v.id+'/').then(setDoc).catch(e=>setError(e.message))}>Версія {v.revision}</Button>)}</div>{bosCan('download_documents')&&<p><a style={{color:T.primary}} href={OP+'documents/'+doc.id+'/download/'}>Завантажити джерело</a></p>}{doc.sections.map((p,i)=><section key={i} style={{marginTop:16}}><h3 style={{fontSize:14}}>{p.source}</h3><p style={{whiteSpace:'pre-wrap',overflowWrap:'anywhere',fontSize:14,lineHeight:1.6,color:T.textMuted}}>{p.text}</p></section>)}{!doc.text&&<p>Текст не розпізнано. Потрібен OCR або ручна перевірка.</p>}</>}<div className="actions">{bosCan('write')&&doc?.current&&doc.status==='needs_review'&&<Button onClick={async()=>{try{await opFetch('documents/'+doc.id+'/review/',{checksum:doc.checksum});setDoc(await opFetch('documents/'+doc.id+'/'));}catch(e){setError(e.message);}}}>Підтвердити ручну перевірку</Button>}<Button onClick={()=>ref.current.close()}>Закрити</Button></div></dialog>}
+function DocViewer({id,onClose,readOnly=false}){const [doc,setDoc]=useState(null),[error,setError]=useState('');const ref=useRef(null);useEffect(()=>{ref.current.showModal();let live=true;opFetch('documents/'+id+'/').then(d=>live&&setDoc(d)).catch(e=>setError(e.message));return()=>{live=false;};},[id]);return <dialog ref={ref} className="bos-dialog" onClose={onClose} style={{width:'min(800px,95vw)'}}><h2>{doc?.title||'Документ'}</h2>{error&&<p role="alert">{error}</p>}{doc&&<><p style={{color:T.textMuted,margin:'12px 0'}}>{doc.code} · версія {doc.revision} · {OP_STATUS[doc.status]}{!doc.current?' · Є новіша версія':''}</p><div style={{display:'flex',gap:8,flexWrap:'wrap'}}>{doc.versions.map(v=><Button key={v.id} onClick={()=>opFetch('documents/'+v.id+'/').then(setDoc).catch(e=>setError(e.message))}>Версія {v.revision}</Button>)}</div>{bosCan('download_documents')&&<p><a style={{color:T.primary}} href={OP+'documents/'+doc.id+'/download/'}>Завантажити джерело</a></p>}{doc.sections.map((p,i)=><section key={i} style={{marginTop:16}}><h3 style={{fontSize:14}}>{p.source}</h3><p style={{whiteSpace:'pre-wrap',overflowWrap:'anywhere',fontSize:14,lineHeight:1.6,color:T.textMuted}}>{p.text}</p></section>)}{!doc.text&&<p>Текст не розпізнано. Потрібен OCR або ручна перевірка.</p>}</>}<div className="actions">{!readOnly&&bosCan('write')&&doc?.current&&doc.status==='needs_review'&&<Button onClick={async()=>{try{await opFetch('documents/'+doc.id+'/review/',{checksum:doc.checksum});setDoc(await opFetch('documents/'+doc.id+'/'));}catch(e){setError(e.message);}}}>Підтвердити ручну перевірку</Button>}<Button onClick={()=>ref.current.close()}>Закрити</Button></div></dialog>}
 // C01_HELPERS_BEGIN
 const C01_STATUS={active:'Відкрите',process:'У роботі',done:'Виконане',overdue:'Історичний статус: прострочене'};
 const C01_TRANSITIONS={handoff:'Передано виконавцю',create:'Створено',update:'Змінено',archive:'Архівовано',restore:'Відновлено',reopen:'Повернуто до роботи',complete:'Виконано',result_correction:'Уточнено результат'};
@@ -4999,6 +4999,10 @@ function BoSInspector({selection,data,onClose,onSelect,onAction,onNavigate,onTra
   const m=BOS_METRICS.find(x=>x[0]===key);title=m?.[1]||key;const total=data.home.financial.find(x=>x.currency===currency)?.[key];
   let rows=data[m[3]].filter(x=>x.currency===currency);if(m[3]==='lots')rows=rows.filter(x=>Number(x.quantity)>0);
   body=<><p className="bos-detail-total">{erpNum(total)} {currency}</p><p>{m[2]}</p>{m[3]==='orders'?<ERPTable rows={data.costs.filter(x=>x.currency===currency)} columns={[["Замовлення",'code'],["Портфель",r=>erpNum(r.order_value)],["Відвантажено",r=>erpNum(r.shipped_value)],["Собівартість",r=>erpNum(r.shipped_cost)],["Різниця",r=>erpNum(r.gross_margin)]]} onRow={x=>onSelect({kind:'orders',id:x.order_id})}/>:baseTable(m[3],rows)}<p className="op-muted">Натисніть рядок, щоб перейти від підсумку до конкретного запису.</p></>;
+ }else if(kind==='monitor-list'){
+  const valid=['orders','jobs','quality'].includes(key)&&selection.monitorOrigin===key,rows=valid?monitorRows(data,key):[],recordKind=key==='quality'?'lots':key;
+  title=({orders:'Замовлення у виконанні',jobs:'Відкриті роботи',quality:'Партії без допуску'})[key]||'Показник недоступний';
+  body=valid?<><p>Записів у цьому показнику: <strong>{rows.length}</strong>. Список відповідає підрахунку з того самого читання, без окремого фільтра філії чи періоду.</p>{rows.length?baseTable(recordKind,rows):<p role="status">За умовами цього показника доступних записів немає.</p>}<p className="op-muted">Відкрийте запис, щоб переглянути факти й доступні джерела. Зміни з цього перегляду не виконуються.</p></>:<p>Оновіть моніторинг і оберіть доступний показник.</p>;
  }else if(kind==='list'){
   title=selection.title;const rows=key==='orders'?data.orders.filter(o=>o.status==='confirmed'):key==='tasks'?(data.home?.tasks||[]).filter(t=>!t.archived&&(selection.overdue?t.is_overdue===true:t.status!=='done')):key==='lots'?data.lots.filter(l=>Number(l.quantity)>0&&(l.quality!=='approved'||l.missing_documents.length)):data.jobs.filter(j=>j.status!=='done'&&(!selection.review||j.needs_review));body=baseTable(key,rows);
  }else if(!r){title='Запис недоступний';body=<p>Оновіть дані та відкрийте запис повторно.</p>;
@@ -5026,7 +5030,7 @@ function BoSInspector({selection,data,onClose,onSelect,onAction,onNavigate,onTra
   else if(kind==='locations')body=<><p>{ERP_LABELS[r.kind]} · {r.supplier_id&&link('partners',r.supplier_id)}</p><p>Філія: {(data.branches||[]).find(b=>b.id===r.branch_id)?.name||'Не прив’язано'} · {r.address||'Адресу не задано'}</p><p>Координати: {r.lat!=null&&r.lng!=null?r.lat+', '+r.lng:'Не задано'}</p>{acts([['location_update',{location_id:id,branch_id:r.branch_id??'',lat:r.lat??'',lng:r.lng??'',address:r.address||''},'Редагувати реквізити']])}{baseTable('lots',data.lots.filter(x=>x.location_id===id&&Number(x.quantity)>0))}</>;
   else if(kind==='partners')body=<><p>{r.type==='supplier'?'Постачальник':'Клієнт'}</p>{baseTable('orders',data.orders.filter(x=>x.customer_id===id))}{baseTable('purchases',data.purchases.filter(x=>x.supplier_id===id))}</>;
  }
- return <dialog ref={ref} className="bos-dialog bos-inspector" onClose={onClose}><div className="erp-row"><h2>{title}</h2>{selection.supplyReturn&&<Button onClick={()=>onSelect({kind:'orders',id:selection.supplyReturn.order_id,supplyReturn:selection.supplyReturn})}>Повернутися до забезпечення</Button>}<Button onClick={()=>ref.current.close()}>Закрити</Button></div>{body}{doc&&<DocViewer id={doc} onClose={()=>setDoc(null)}/>}</dialog>;
+ return <dialog ref={ref} className="bos-dialog bos-inspector" onClose={onClose}><div className="erp-row"><h2>{title}</h2>{selection.supplyReturn&&<Button onClick={()=>onSelect({kind:'orders',id:selection.supplyReturn.order_id,supplyReturn:selection.supplyReturn})}>Повернутися до забезпечення</Button>}<Button onClick={()=>ref.current.close()}>{selection.monitorOrigin?(kind==='monitor-list'?'До моніторингу':'До списку показника'):'Закрити'}</Button></div>{selection.monitorOrigin&&<p className="op-muted">Перегляд із моніторингу · лише читання. Повернення веде до того самого списку поточного читання. Окреме перечитування джерела завершує цей шлях.</p>}{body}{doc&&<DocViewer id={doc} readOnly={readOnly} onClose={()=>setDoc(null)}/>}</dialog>;
 }
 // Workpoint facts are a separate, scoped read; no client-side financial aggregation.
 function workpointKey(point){return point.branch===null?'unassigned':String(point.branch.id);}
@@ -5148,14 +5152,23 @@ function homeSnapshotShape(value,financial){
  if(value.costs!==undefined&&(!array(value.costs,x=>pk(x.order_id)&&fields(x,['code','currency','order_value','shipped_value','shipped_cost','gross_margin']))))return false;
  return true;
 }
+function monitorRows(data,key){
+ if(!data)return [];
+ if(key==='orders')return data.orders.filter(order=>data.lines.some(line=>line.order_id===order.id&&b03Positive(b03OpenLine(line))));
+ if(key==='jobs')return data.jobs.filter(job=>job.status!=='done');
+ if(key==='quality')return data.lots.filter(lot=>Number(lot.quantity)>0&&(lot.quality!=='approved'||lot.missing_documents.length));
+ return [];
+}
 function homeSelectionVisible(selection,data){
  if(!selection||!data)return false;
+ if(selection.kind==='monitor-list')return ['orders','jobs','quality'].includes(selection.key)&&selection.monitorOrigin===selection.key;
+ if(selection.monitorOrigin!==undefined&&(!['orders','jobs','quality'].includes(selection.monitorOrigin)||['metric','list'].includes(selection.kind)))return false;
  if(selection.kind==='metric')return bosCan('finance')&&BOS_METRICS.some(x=>x[0]===selection.key)&&data.home.financial.some(x=>x.currency===selection.currency&&homeKnownNumber(x[selection.key]));
  if(selection.kind==='list')return ['jobs','lots','tasks','orders'].includes(selection.key);
  return Number.isSafeInteger(selection.id)&&Array.isArray(data[selection.kind])&&!!b03FindRecord(data,selection.kind,selection.id);
 }
 // Compact presentation of the existing guarded BoSHome read, not a second data model.
-function BosGlobalMonitor({ready,busy,status,at,businessDate,error,metrics,financials,currency,onCurrency,onRefresh,onNavigate}){
+function BosGlobalMonitor({ready,busy,status,at,businessDate,error,metrics,financials,currency,onCurrency,onRefresh,onNavigate,onInspect}){
  const [collapsed,setCollapsed]=useState(false);
  const stateLabel=busy?'Оновлюємо дані':ready?(status==='empty'?'Доступних записів немає':'Дані прочитано'):status==='stale'?'Потрібне оновлення':status==='denied'||status==='context-drift'?'Перевірте доступ':'Дані недоступні';
  const readTime=at&&Number.isFinite(new Date(at).getTime())?new Date(at).toLocaleString('uk-UA',{timeZoneName:'short'}):null;
@@ -5171,7 +5184,7 @@ function BosGlobalMonitor({ready,busy,status,at,businessDate,error,metrics,finan
   </div>
   <div className="bos-monitor-cards" id="bos-monitor-cards" hidden={collapsed}>
    {metrics.map(metric=><article key={metric.key} className="bos-monitor-metric" data-tone={ready?metric.tone:undefined}>
-    <button type="button" className="bos-monitor-open" disabled={!ready||!metric.allowed} onClick={()=>onNavigate(metric.section,metric.sub)}>
+    <button type="button" className="bos-monitor-open" disabled={!ready||!metric.allowed} onClick={()=>metric.monitorKey?onInspect(metric.monitorKey):onNavigate(metric.section,metric.sub)}>
      <span className="bos-monitor-metric-label">{metric.label}<span aria-hidden="true">↗</span></span>
      <strong>{ready?metric.value:'—'}{ready&&metric.unit&&<small>{metric.unit}</small>}</strong>
      <span className="bos-monitor-metric-note">{ready?metric.note:'Показники після успішного читання'}</span>
@@ -5194,7 +5207,7 @@ function BosGlobalMonitor({ready,busy,status,at,businessDate,error,metrics,finan
    </article>)}
   </div>
   <div className="bos-monitor-foot">
-   <details><summary>{ready&&readTime?<>Прочитано <time dateTime={at}>{readTime}</time></>:readTime?'Попереднє читання — показники приховано':'Джерело та час даних'}</summary><p>Джерело, охоплення та спосіб підрахунку наведені окремо для кожного показника. Час читання — за годинником цього пристрою, не час зміни записів. Після змін потрібне нове читання. Перехід відкриває розділ без автоматичного вибору запису чи філії.</p></details>
+   <details><summary>{ready&&readTime?<>Прочитано <time dateTime={at}>{readTime}</time></>:readTime?'Попереднє читання — показники приховано':'Джерело та час даних'}</summary><p>Джерело, охоплення та спосіб підрахунку наведені окремо для кожного показника. Час читання — за годинником цього пристрою, не час зміни записів. Замовлення, роботи й партії відкривають точний список цього читання; доручення та сума до оплати — відповідний розділ. Після змін потрібне нове читання.</p></details>
    {error&&<p role="alert">{error}</p>}
   </div>
  </section>;
@@ -5202,10 +5215,10 @@ function BosGlobalMonitor({ready,busy,status,at,businessDate,error,metrics,finan
 
 function BoSHome({onNavigate,refetchTasks,focus=false,readOnlyOverview=false,monitor=false}){
  const scope=homeReadScope(),[view,setView]=useState({scope:'',status:'initial',data:null,at:null,error:''}),[currency,setCurrency]=useState('UAH'),[selection,setSelection]=useState(null),[action,setAction]=useState(null),[receipt,setReceipt]=useState(null);
- const life=useRef({alive:false,scope:'',epoch:0,accessEpoch:0,pending:null,view:null,actionId:0,nextSelection:null,selected:null}),presentation=useRef('');
+ const life=useRef({alive:false,scope:'',epoch:0,accessEpoch:0,pending:null,view:null,actionId:0,nextSelection:null,selected:null}),presentation=useRef(''),monitorOpener=useRef(null);
  presentation.current=JSON.stringify([currency,focus,readOnlyOverview,monitor]);const renderedPresentation=presentation.current;
- function publish(next){life.current.view=next;setView(next);}
- function select(next){life.current.selected=next;setSelection(next);}
+ function publish(next){if(monitor&&!['fresh','empty'].includes(next.status)){select(null);life.current.nextSelection=null;}life.current.view=next;setView(next);}
+ function select(next){life.current.selected=next;setSelection(next);if(!next)monitorOpener.current=null;}
  function cancelRead(){const l=life.current;l.epoch++;if(l.pending){clearTimeout(l.pending.timer);l.pending.controller.abort();l.pending=null;}}
  function clearContext(status,message){const l=life.current;cancelRead();l.accessEpoch++;l.actionId++;l.nextSelection=null;select(null);setAction(null);setReceipt(null);publish({scope:l.scope,status,data:null,at:null,error:message});}
  function readCurrent(ticket){const l=life.current;if(l.alive&&l.scope===ticket.scope&&l.epoch===ticket.epoch&&homeReadScope()!==ticket.scope){clearContext('context-drift','Контекст доступу змінився. Оновіть огляд у поточному обліковому записі.');return false;}return l.alive&&l.scope===ticket.scope&&homeReadScope()===ticket.scope&&l.epoch===ticket.epoch;}
@@ -5246,15 +5259,15 @@ function BoSHome({onNavigate,refetchTasks,focus=false,readOnlyOverview=false,mon
   if(scope)refresh();else publish({scope,status:'denied',data:null,at:null,error:'Робочий огляд потребує чинного облікового запису.'});
   return()=>{l.alive=false;cancelRead();l.actionId++;window.removeEventListener('bos:data-changed',changed);window.removeEventListener('bos:session-ended',ended);};
  },[scope]);
- useEffect(()=>{select(null);life.current.nextSelection=null;},[currency,focus,readOnlyOverview]);
+ useEffect(()=>{select(null);life.current.nextSelection=null;},[currency,focus,readOnlyOverview,monitor]);
  const inScope=view.scope===scope&&!!scope,data=inScope?view.data:null,status=inScope?view.status:'context-drift',at=inScope?view.at:null;
  const ready=!!data&&['fresh','empty'].includes(status),epoch=life.current.epoch,busy=['initial','loading','refreshing'].includes(status),recoveryOwner={scope,accessEpoch:life.current.accessEpoch,data};
  function canUse(){const l=life.current;return l.alive&&l.scope===scope&&homeReadScope()===scope&&l.epoch===epoch&&l.view?.data===data&&['fresh','empty'].includes(l.view?.status)&&presentation.current===renderedPresentation;}
  function canInspect(){return canUse()&&!!selection&&life.current.selected===selection;}
  function open(next){if(canUse()&&homeSelectionVisible(next,data))select(next);}
- function begin(type,preset){if(readOnlyOverview||!canUse())return;if(!bosCanAction(type)){publish({...life.current.view,error:'Ця дія недоступна вашому обліковому запису.'});return;}select(null);const l=life.current;setAction({id:++l.actionId,scope,accessEpoch:l.accessEpoch,type,preset,data});}
+ function begin(type,preset){if(monitor||readOnlyOverview||!canUse())return;if(!bosCanAction(type)){publish({...life.current.view,error:'Ця дія недоступна вашому обліковому запису.'});return;}select(null);const l=life.current;setAction({id:++l.actionId,scope,accessEpoch:l.accessEpoch,type,preset,data});}
  function traceSelect(next){
-  if(!canInspect())return;cancelRead();select(null);life.current.nextSelection=next;
+  if(!canInspect())return;cancelRead();select(null);life.current.nextSelection=monitor?null:next;
   publish({...life.current.view,status:'stale',error:'Джерело прочитано окремо. Оновіть робочий огляд, щоб відкрити запис у поточному контексті.'});
  }
  function recover(entry){const l=life.current;if(readOnlyOverview||!l.alive||!recoveryOwner.data||l.scope!==recoveryOwner.scope||homeReadScope()!==recoveryOwner.scope||l.accessEpoch!==recoveryOwner.accessEpoch||l.view?.data!==recoveryOwner.data||['denied','context-drift'].includes(l.view?.status))return;select(null);setAction({id:++l.actionId,scope:recoveryOwner.scope,accessEpoch:recoveryOwner.accessEpoch,type:entry.action,preset:{},recovery:entry,data:recoveryOwner.data});}
@@ -5272,13 +5285,34 @@ function BoSHome({onNavigate,refetchTasks,focus=false,readOnlyOverview=false,mon
   const available=(section,sub)=>bosCanView(section,sub);
   const provenance={scope:'Записи, доступні поточному обліковому запису.',branch:'Філію окремо не вибрано; філіального фільтра немає.',period:'Календарний період не задано. Історичний зріз не обчислюється.'};
   const metrics=[
-   {key:'orders',label:'Замовлення у виконанні',value:orders.length,note:'Є невиконана кількість',section:'erp',sub:'sales',provenance:{...provenance,source:'Знімок ERP: замовлення та їхні позиції.',calculation:'Кількість замовлень, що мають хоча б одну позицію з додатною невиконаною кількістю. Стан замовлення окремо не фільтрується.',deviation:'Причини невиконання та відхилення від плану цим підрахунком не визначено.',action:'Відкрити ERP → Продажі та обрати замовлення вручну.'}},
-   {key:'jobs',label:'Відкриті роботи',value:data?data.jobs.filter(x=>x.status!=='done').length:0,note:'Виробництво та комплектація',section:'erp',sub:'production',provenance:{...provenance,source:'Знімок ERP: виробничі роботи.',calculation:'Кількість робіт зі станом, відмінним від «Завершено».',deviation:'Причини незавершення та відхилення від плану не надано.',action:'Відкрити ERP → Виробництво та обрати роботу вручну.'}},
-   {key:'quality',label:'Партії без допуску',value:issues.length,note:'Статус якості або документи',tone:issues.length?'warning':null,section:'erp',sub:'quality',provenance:{...provenance,source:'Знімок ERP: партії, стан якості й комплектність документів.',calculation:'Кількість партій з додатним залишком, для яких якість не дозволена або бракує необхідних документів.',deviation:'Вказано умови підрахунку. Конкретну причину проблеми партії тут не визначено.',action:'Відкрити ERP → Якість і зміни. Конкретна партія автоматично не вибирається.'}},
+   {key:'orders',monitorKey:'orders',label:'Замовлення у виконанні',value:monitorRows(data,'orders').length,note:'Є невиконана кількість',section:'erp',sub:'sales',provenance:{...provenance,source:'Знімок ERP: замовлення та їхні позиції.',calculation:'Кількість замовлень, що мають хоча б одну позицію з додатною невиконаною кількістю. Стан замовлення окремо не фільтрується.',deviation:'Причини невиконання та відхилення від плану цим підрахунком не визначено.',action:'Відкрити точний список підрахованих замовлень, потім картку запису лише для читання.'}},
+   {key:'jobs',monitorKey:'jobs',label:'Відкриті роботи',value:monitorRows(data,'jobs').length,note:'Виробництво та комплектація',section:'erp',sub:'production',provenance:{...provenance,source:'Знімок ERP: виробничі роботи.',calculation:'Кількість робіт зі станом, відмінним від «Завершено».',deviation:'Причини незавершення та відхилення від плану не надано.',action:'Відкрити точний список підрахованих робіт, потім картку запису лише для читання.'}},
+   {key:'quality',monitorKey:'quality',label:'Партії без допуску',value:monitorRows(data,'quality').length,note:'Статус якості або документи',tone:issues.length?'warning':null,section:'erp',sub:'quality',provenance:{...provenance,source:'Знімок ERP: партії, стан якості й комплектність документів.',calculation:'Кількість партій з додатним залишком, для яких якість не дозволена або бракує необхідних документів.',deviation:'Вказано умови підрахунку. Конкретну причину проблеми партії тут не визначено.',action:'Відкрити точний список підрахованих партій, потім картку запису лише для читання.'}},
    {key:'tasks',label:'Відкриті доручення',value:openTasks.length,note:overdue.length+' прострочених',tone:overdue.length?'warning':null,section:'hr',sub:'tasks',provenance:{...provenance,source:'Знімок ERP: доручення робочого огляду.',calculation:'Кількість неархівних доручень зі станом, відмінним від «Виконане». Прострочені позначені сервером.',deviation:'Причини прострочення або незавершення не надано. Очікування іншого учасника не визначається.',action:'Відкрити HR → Доручення та обрати доручення вручну.'}}
   ];
   if(bosCan('finance'))metrics.push({key:'receivable',label:'Очікуємо від клієнтів',value:number(financial?.receivable),unit:cur||'',note:financial?'Після оплат і кредитових коригувань':'Фінансові дані не надано',section:'erp',sub:'costs',provenance:{...provenance,source:'Знімок ERP: залишки рахунків у фінансовому огляді.',scope:provenance.scope+' Валюта: '+(cur||'не надано')+'. Валюти не підсумовуються й не конвертуються.',calculation:'Сума невід’ємних залишків рахунків після оплат і чинних кредитових коригувань у вибраній валюті. Утримання з цієї суми не віднімаються.',deviation:'Це залишок до оплати, не сума прострочення. Причини несплати та відхилення від плану не надано.',action:'Відкрити ERP → Фінансовий результат. Конкретний рахунок автоматично не вибирається.'}});
-  return <BosGlobalMonitor ready={ready} busy={busy} status={status} at={at} businessDate={businessDate} error={inScope?view.error:'Контекст доступу змінився. Оновіть огляд.'} metrics={metrics.map(metric=>({...metric,allowed:available(metric.section,metric.sub)}))} financials={financials} currency={cur} onCurrency={setCurrency} onRefresh={()=>refresh()} onNavigate={(section,sub)=>{if(canUse()&&available(section,sub))onNavigate(section,sub);}}/>;
+  function inspectMetric(key){
+   if(!['orders','jobs','quality'].includes(key))return;
+   const metric=metrics.find(item=>item.monitorKey===key);
+   if(!metric||!canUse()||!available(metric.section,metric.sub))return;
+   monitorOpener.current=document.activeElement;
+   open({kind:'monitor-list',key,monitorOrigin:key});
+  }
+  function inspectMonitorRecord(next){
+   if(!canInspect()||!selection.monitorOrigin)return;
+   const origin=selection.monitorOrigin;
+   if(selection.kind==='monitor-list'&&(next.kind!==(origin==='quality'?'lots':origin)||!monitorRows(data,origin).some(row=>row.id===next.id)))return;
+   open({...next,monitorOrigin:origin});
+  }
+  function closeMonitor(){
+   if(!canInspect())return;
+   if(selection.kind!=='monitor-list'){open({kind:'monitor-list',key:selection.monitorOrigin,monitorOrigin:selection.monitorOrigin});return;}
+   const opener=monitorOpener.current;select(null);
+   if(opener?.isConnected&&!opener.disabled)opener.focus();
+  }
+  return <><BosGlobalMonitor ready={ready} busy={busy} status={status} at={at} businessDate={businessDate} error={inScope?view.error:'Контекст доступу змінився. Оновіть огляд.'} metrics={metrics.map(metric=>({...metric,allowed:available(metric.section,metric.sub)}))} financials={financials} currency={cur} onCurrency={setCurrency} onRefresh={()=>refresh()} onInspect={inspectMetric} onNavigate={(section,sub)=>{if(canUse()&&available(section,sub))onNavigate(section,sub);}}/>
+   {ready&&selection&&homeSelectionVisible(selection,data)&&<BoSInspector key={scope+':'+epoch+':'+renderedPresentation+':'+selection.kind+':'+(selection.id??selection.key)} selection={selection} data={data} readOnly onClose={closeMonitor} onSelect={inspectMonitorRecord} onTraceSelect={traceSelect}/>}
+  </>;
  }
  return <div className="bos-home"><div className="erp-row"><div><h1>{readOnlyOverview?'Вертоліт · показники та джерела':'Сьогодні у BoS'}</h1><p className="op-muted">{readOnlyOverview?'Перевірте показники та відкрийте лише їхні доступні джерела. Дії в цьому огляді не виконуються.':'Робочі точки, замовлення та наступні кроки на сьогодні.'}</p></div><div className="erp-actions">{financial&&<Select aria-label={readOnlyOverview?'Валюта показників':'Валюта рахунків'} value={cur} onChange={e=>{select(null);life.current.nextSelection=null;setCurrency(e.target.value);}}>{financials.map(x=><option key={x.currency}>{x.currency}</option>)}</Select>}<Button disabled={busy} onClick={()=>refresh()}>{data?'Оновити':'Повторити'}</Button>{!readOnlyOverview&&<Button onClick={()=>onNavigate('heli')}>Вертоліт</Button>}<Button onClick={()=>onNavigate('info')}>Як працює BoS</Button></div></div>
  <section aria-label="Свіжість робочого огляду" aria-busy={busy}>
