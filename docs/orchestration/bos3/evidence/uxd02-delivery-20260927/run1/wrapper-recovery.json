@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "at_utc": "2026-09-27T18:38:22.3340590Z",
+  "before": {
+    "wrapper": {
+      "ProcessId": 47748,
+      "Name": "pwsh.exe",
+      "CreationDate": "2026-09-27T20:27:39.922731+02:00",
+      "ExecutablePath": "C:\\Users\\user\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe",
+      "CommandLine": "\"C:\\Users\\user\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe\" -Command \"try { [Console]::OutputEncoding=[System.Text.Encoding]::UTF8 } catch {}\n$ErrorActionPreference='Stop'\n$run='D:/3/BOSDev/qa-scratch/bos3-uxd02-delivery-20260927/run1'\nif((Get-Content -LiteralPath \\\"$run/apply.exit.txt\\\" -Raw).Trim() -ne '0' -or (Test-Path -LiteralPath \\\"$run/start.exit.txt\\\")){throw 'Start guard refuses duplicate or failed prior phase'}\n$p=Start-Process -FilePath 'D:/3/BOSDev/venv/Scripts/python.exe' -ArgumentList @('-B','C:/Users/user/.codex/worktrees/bos3-local-runtime/repo/scripts/bos3_local.py','start','--root','D:/3/BOSDev/local-bos3/owner') -WindowStyle Hidden -Wait -PassThru -RedirectStandardOutput \\\"$run/start.stdout.txt\\\" -RedirectStandardError \\\"$run/start.stderr.txt\\\"\n$p.ExitCode | Out-File -LiteralPath \\\"$run/start.exit.txt\\\" -Encoding ascii\nGet-Content -LiteralPath \\\"$run/start.stdout.txt\\\"\nif($p.ExitCode -ne 0){Get-Content -LiteralPath \\\"$run/start.stderr.txt\\\";throw \\\"Start failed: $($p.ExitCode); no retry\\\"}\""
+    },
+    "server_pid": 50544,
+    "server_created_ticks": 134350072625854836,
+    "listener": "127.0.0.1:8030"
+  },
+  "action": "Process.Kill(false) wrapper only",
+  "wrapper_exit_code": null,
+  "native_start_exit": "UNCONFIRMED_WRAPPER_WAIT",
+  "server_identity_preserved": true,
+  "restart_performed": false,
+  "http_requests": 0
+}

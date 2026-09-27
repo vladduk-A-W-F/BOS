@@ -6,6 +6,16 @@
 
 ## Настройка разработки и следующий шаг
 
+### Актуально после доставки dev.7
+
+27.09.2026: root доставил product d346f63c5ff5ea0e9d4da7a947b8788c25101c0e / immutable runtime d8e121a0b38bb8c98f5719568b6fa87374e2bfb0. Независимый verdict: ACCEPT_SCOPED_DEV7_OWNER_LOCAL_DELIVERY_WITH_EVIDENCE_LIMITATION. Capture/stop/apply/post-start exit0; native start exit UNCONFIRMED_WRAPPER_WAIT. Отдельно завершена только зависшая управляющая оболочка, сервер сохранён; повторного запуска не было. Exact HTML/HTTP200 и protected aggregate подтверждены. Evidence: `evidence/uxd02-delivery-20260927/DELIVERY_REVIEW_RU.md`. Browser/login/уроки на dev.7 NOT_RUN; готовность false.
+
+Следующая узкая карточка B30-INVOICE-CURRENCY: отдел реализации 01a0be9f-b413-7822-9f93-16ba69f4f00f; reviewer bos3_candidate_review. Свободная clean копия bos3-task-card-pack/repo переведена на codex/bos3-invoice-currency-20260927 от exact d8; предыдущая ветка c2d136 сохранена. Allowlist: erp/experience.py (только множество валют), новый erp/test_home_projection.py (не запущенный pure-snapshot тест), evidence/invoice-currency-20260927/. Root подтвердил неизменный blob181a45a. DoD: invoice-only currency включена, формулы/права/API/empty EUR fallback сохранены, независимый review до любого запуска. Tests/build/DB/runtime executions0. Один native handoff отправлен, квитанция пока UNCONFIRMED; не дублировать, проверить принятие контекста одним compact snapshot. Срок проверки связи: следующий доступный heartbeat, до15мин; отвечает root. Browser/learning и UXD03-WAIT вопросы остаются отдельными.
+
+Native snapshot после задержки подтвердил доставку B30-INVOICE-CURRENCY без повторной отправки: turn01a0e432-b298-7ef3-b4eb-ae2ac9ee7c8f, cursor796fad1f-9882-4466-83e7-3d32cc5667bb:36, статусactive. Автор сообщил о задержке получения локального вывода и не начинает правку до точного чтения кода. Контекст/source ещё не принят; текущий статус IN_PROGRESS_CONTEXT_VERIFICATION, не выполненная реализация. Root не дублирует задачу, следующий check-in в пределах15мин.
+
+Ниже сохранена хронология подготовки этого перехода, а не текущие назначения.
+
 Текущий переход UXD02-DELIVERY: package c2d136 принят независимо и включён как d346f63c5ff5ea0e9d4da7a947b8788c25101c0e, dev7. Manifest DRILLDOWN_DEV7_CANDIDATE.json описывает14 exact paths от811 и проходит независимое review. Root затем фиксирует immutable source и final pins; пока исполнения0. Writer завершён, новых упаковок нет. Установленный dev6/811 работает, его browser/lesson proof не переносится. Последующие абзацы этой секции датируют подготовку; текущие owner/next только здесь и в CONTROL_STATE.cards.
 
 UXD02 code и один pure-helper/AST run1/3 PASS независимо приняты; root включил author0f9e94 как ec968705304883e3ad86c2f0c49519cab2911042, source/app hashes совпали, PR10 обновлён. Следующий UXD02-PACK: existing writer01a0be9f..., clean bos3-task-card-pack/repo от exactec96870, codex/bos3-drilldown-pack-20260927, только version/README/PDF/manifest/evidence для dev7; reviewer bos3_candidate_review. Отдельный delivery template from811/PENDING принят start_overview_review как TEMPLATE_ONLY, запусков0; final pins после пакета. Full UXD02/browser и installeddev7 не заявлены. Дев6 продолжает работать.

@@ -6,6 +6,14 @@
 
 ## Текущая работа настройки
 
+Актуальный результат 27.09: UXD02 dev.7 доставлен root и принят start_overview_review в узком scope с ограничением official start exit. Runtime d8e121a, product d346f63; ссылка127.0.0.1:8030, БД/media/access/progress aggregate сохранён. Подробности: LOCAL_RUNTIME_RECEIPT.json и evidence/uxd02-delivery-20260927/DELIVERY_REVIEW_RU.md. Delivery, UI, QA и package не назначать повторно.
+
+Следующая карточка B30-INVOICE-CURRENCY назначена existing writer01a0be9f-b413-7822-9f93-16ba69f4f00f; reviewer bos3_candidate_review. Workspace bos3-task-card-pack/repo, clean base d8e121a, ветка codex/bos3-invoice-currency-20260927, предыдущая c2d136 сохранена. Код/не запущенный regression proposal только в recorded allowlist. Один send_message_to_thread не вернул квитанцию: контекст UNCONFIRMED, не считать исполнителя работающим до native подтверждения и не дублировать поручение. Root проверяет связь один раз; любые test executions требуют отдельного review/classification. Остальные незавершённые owner gates сохранены.
+
+Последующий native snapshot подтвердил handoff без повторной отправки: writer active, turn01a0e432-b298-7ef3-b4eb-ae2ac9ee7c8f, cursor796fad1f-9882-4466-83e7-3d32cc5667bb:36. Он ожидает точный локальный вывод перед правкой; принятие source пока не заявлено. Статус IN_PROGRESS_CONTEXT_VERIFICATION, owner прежний; исполнения tests0. Это новое подтверждение снимает только UNCONFIRMED delivery, не доказывает выполнение карточки.
+
+Следующие абзацы относятся к истории подготовки и не переопределяют текущий receipt.
+
 Текущий владелец UXD02-DELIVERY root; candidate manifest review bos3_candidate_review, final pins и actual delivery review start_overview_review. Writer c2d136 завершён и root-integratedd346f63/dev7; template принят статически, targetimmutable ещёнеопределён. Runtime811/dev6 неизменен. Все прежние in-progress packaging/QA ниже исторические.
 
 UI author и UXD02 QA завершены scoped; integrationec96870, runtime пока811/dev6. Сейчас existing writer01a0be9f... выполняет UXD02-PACK в чистой отдельной копии отec96870, reviewer bos3_candidate_review. Delivery template author bos3_fixture_impl и static reviewer start_overview_review завершили TEMPLATE_ONLY; target PENDING, исполнения0. Других параллельных UI редакторов нет.
