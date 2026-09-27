@@ -2440,6 +2440,31 @@ function PillSelect({value, color, onChange, options}) {
   );
 }
 
+// Presentation only: consume the existing guarded list and directory projections.
+function c01TaskCardFacts(task,employees=[],departments=[]){
+ const text=value=>typeof value==='string'&&value.trim()?value.trim():null;
+ const orderId=c01Id(task.order_id)?task.order_id:null;
+ const employee=c01Id(task.assignee_id)?employees.find(e=>e.id===task.assignee_id):null;
+ const department=c01Id(employee?.branch)?departments.find(d=>d.id===employee.branch):null;
+ const facts={
+  orderLabel:orderId?(text(task.order_code)?text(task.order_code)+' · №'+orderId:'№'+orderId):'Поточне замовлення не прив’язано',
+  assigneeDepartment:department?(text(department.name)||'Без назви')+' · №'+department.id:'Не визначено в доступному довіднику',
+  businessBranch:text(task.branch_name)||'Не визначено',
+  handoffLabel:'Відомостей про передачу немає',recipientId:null,recipientDepartment:null
+ };
+ const h=task.handoff;
+ if(h==null)return facts;
+ if(!c01HandoffShape(h)||typeof h.current!=='boolean'){
+  facts.handoffLabel='Відомості про передачу не підтверджено';return facts;
+ }
+ const current=h.state==='sent'&&h.current===true&&h.recipient.employee_id===task.assignee_id;
+ const previous=h.state==='superseded'&&h.current===false;
+ facts.handoffLabel=current?'Призначення чинне':previous?'Попереднє призначення':'Чинність призначення не підтверджено';
+ facts.recipientId=h.recipient.employee_id;
+ facts.recipientDepartment=(text(h.recipient.department.name)||'Без назви')+' · №'+h.recipient.department.id;
+ return facts;
+}
+
 function Tasks({tasks,setTasks,loading,error,refetchTasks}){
  const scope=c01Scope(),owner=useRef({alive:true,generation:0,scope,controllers:new Set(),context:'',dialogKey:null}),heading=useRef(null),opener=useRef(null),serial=useRef(0);
  const [department,setDepartment]=useState(''),[tab,setTab]=useState('active'),[filter,setFilter]=useState('all'),[search,setSearch]=useState(''),[sortBy,setSortBy]=useState('priority'),[deadlineFrom,setDeadlineFrom]=useState(''),[deadlineTo,setDeadlineTo]=useState(''),[view,setView]=useState({status:'loading',data:null,error:''}),[dialog,setDialog]=useState(null),[notice,setNotice]=useState('');
@@ -2458,7 +2483,27 @@ function Tasks({tasks,setTasks,loading,error,refetchTasks}){
   <div className="erp-form"><label>Відділ<Select value={department} disabled={!data&&view.status==='loading'} onChange={e=>changeContext('department',e.target.value)}><option value="">Усі доступні</option>{department&&!data?.departments.some(d=>String(d.id)===department)&&<option value={department}>Обраний ID {department}</option>}{data?.departments.map(d=><option key={d.id} value={d.id}>{d.name} · ID {d.id}</option>)}</Select></label><label>Пошук<Input value={search} placeholder="Назва, відповідальний, замовлення…" onChange={e=>setSearch(e.target.value)}/></label></div>
   <details><summary>Фільтри доручень</summary><div className="erp-form"><label>Список<Select value={tab} onChange={e=>changeContext('tab',e.target.value)}><option value="active">Робочі доручення</option><option value="archive">Архів</option></Select></label><label>Стан<Select value={filter} onChange={e=>setFilter(e.target.value)}>{[['all','Усі'],['active','Вхідні — відкриті призначення'],['process','У роботі'],['done','Виконані'],['overdue','Прострочені']].map(([key,label])=><option key={key} value={key}>{label}</option>)}</Select></label><label>Сортування<Select value={sortBy} onChange={e=>setSortBy(e.target.value)}><option value="priority">За пріоритетом</option><option value="deadline">За строком</option></Select></label><label>Строк від<Input type="date" value={deadlineFrom} onChange={e=>setDeadlineFrom(e.target.value)}/></label><label>Строк до<Input type="date" value={deadlineTo} onChange={e=>setDeadlineTo(e.target.value)}/></label></div><p className="op-muted">Діапазон строків є фільтром поточного читання, а не історичним періодом. «Вхідні» не означає особисте прийняття.</p><Button onClick={()=>{setSearch('');setFilter('all');setDeadlineFrom('');setDeadlineTo('');}}>Скинути локальні фільтри</Button></details>
   {view.status==='loading'&&<p role="status">Читаємо доступні доручення…</p>}{view.error&&<p className="erp-error" role="alert">{view.error}</p>}{notice&&<p role="status">{notice}</p>}
-  {fresh&&<div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(min(100%,300px),1fr))',gap:12}}>{filtered.map(t=><article key={t.id} className="c01-current" style={{minWidth:0}}><h3><BoSLink onClick={()=>open(t,'view')}>{t.title}</BoSLink></h3><p>Доручення №{t.id} · {t.category||'Без категорії'}</p><p>{c01Assignee(t)||'Історично не призначено'}{t.assignee_id?' · співробітник №'+t.assignee_id:''}</p><p>Строк: {t.deadline||'Не задано'} · {C01_STATUS[t.status]||t.status}{t.is_overdue?' · Прострочено':''}</p><p>Пріоритет: {{high:'Високий',medium:'Середній',low:'Низький'}[t.priority]||'Без пріоритету'}. Початкова філія: {t.branch_name||'Не визначено'}.</p><div className="erp-actions"><Button onClick={()=>open(t,'view')}>Відкрити доручення</Button>{c01CanHandoff(t)&&<Button onClick={()=>open(t,'handoff')}>Передати доручення</Button>}{bosCan('write')&&(t.archived?<Button onClick={()=>open(t,'restore')}>Відновити</Button>:<><Button onClick={()=>open(t,'edit')}>Редагувати</Button><Button onClick={()=>open(t,'archive')}>Архівувати</Button></>)}</div></article>)}</div>}
+  {fresh&&<div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(min(100%,300px),1fr))',gap:12}}>{filtered.map(t=>{
+   const facts=c01TaskCardFacts(t,data.employees,data.departments);
+   return <article key={t.id} className="c01-current bos-task-card" style={{minWidth:0}}>
+    <h3><BoSLink onClick={()=>open(t,'view')}>{t.title}</BoSLink></h3>
+    <p>Доручення №{t.id} · {t.category||'Без категорії'}</p>
+    <p className={'bos-task-card-status'+(t.is_overdue?' bos-task-card-overdue':'')}>{t.archived?'Архів · ':''}{C01_STATUS[t.status]||t.status}{t.is_overdue?' · Прострочено':''}</p>
+    <dl className="bos-task-card-facts">
+     <div><dt>Виконавець</dt><dd>{c01Assignee(t)||'Історично не призначено'}{t.assignee_id?' · №'+t.assignee_id:''}</dd></div>
+     <div><dt>Поточний відділ виконавця</dt><dd>{facts.assigneeDepartment}</dd></div>
+     <div><dt>Строк</dt><dd>{t.deadline?<time dateTime={t.deadline}>{t.deadline}</time>:'Не задано'}</dd></div>
+     <div><dt>Пріоритет</dt><dd>{{high:'Високий',medium:'Середній',low:'Низький'}[t.priority]||'Без пріоритету'}</dd></div>
+    </dl>
+    <dl className="bos-task-card-facts bos-task-card-context">
+     <div><dt>Замовлення</dt><dd>{facts.orderLabel}</dd></div>
+     <div><dt>Остання передача</dt><dd>{facts.handoffLabel}</dd></div>
+     {facts.recipientId!==null&&<><div><dt>Отримувач передачі</dt><dd>Співробітник №{facts.recipientId}</dd></div><div><dt>Відділ на момент передачі</dt><dd>{facts.recipientDepartment}</dd></div></>}
+     <div><dt>Початкова бізнес-філія</dt><dd>{facts.businessBranch}</dd></div>
+    </dl>
+    <div className="erp-actions"><Button data-task-card-open="true" variant="primary" aria-label={'Відкрити доручення №'+t.id+' — джерела й історія'} onClick={()=>open(t,'view')}>Відкрити доручення — джерела й історія</Button>{c01CanHandoff(t)&&<Button onClick={()=>open(t,'handoff')}>Передати доручення</Button>}{bosCan('write')&&(t.archived?<Button onClick={()=>open(t,'restore')}>Відновити</Button>:<><Button onClick={()=>open(t,'edit')}>Редагувати</Button><Button onClick={()=>open(t,'archive')}>Архівувати</Button></>)}</div>
+   </article>;
+  })}</div>}
   {fresh&&!filtered.length&&<p role="status">За цими фільтрами доступних доручень немає. Це не твердження про приховані записи.</p>}
   <C01PendingLauncher key={scope} onRecover={recovered}/>{dialog&&<ControlledTask key={dialog.key} taskId={dialog.taskId} mode={dialog.mode} preset={dialog.preset} recovery={dialog.recovery} onClose={()=>closeDialog(dialog.key)} onDone={r=>after(r,dialog.key)}/>}
  </div>;

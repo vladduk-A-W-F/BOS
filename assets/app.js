@@ -7618,6 +7618,34 @@ function PillSelect({
     }
   }, "\u25BE"));
 }
+
+// Presentation only: consume the existing guarded list and directory projections.
+function c01TaskCardFacts(task, employees = [], departments = []) {
+  const text = value => typeof value === 'string' && value.trim() ? value.trim() : null;
+  const orderId = c01Id(task.order_id) ? task.order_id : null;
+  const employee = c01Id(task.assignee_id) ? employees.find(e => e.id === task.assignee_id) : null;
+  const department = c01Id(employee?.branch) ? departments.find(d => d.id === employee.branch) : null;
+  const facts = {
+    orderLabel: orderId ? text(task.order_code) ? text(task.order_code) + ' · №' + orderId : '№' + orderId : 'Поточне замовлення не прив’язано',
+    assigneeDepartment: department ? (text(department.name) || 'Без назви') + ' · №' + department.id : 'Не визначено в доступному довіднику',
+    businessBranch: text(task.branch_name) || 'Не визначено',
+    handoffLabel: 'Відомостей про передачу немає',
+    recipientId: null,
+    recipientDepartment: null
+  };
+  const h = task.handoff;
+  if (h == null) return facts;
+  if (!c01HandoffShape(h) || typeof h.current !== 'boolean') {
+    facts.handoffLabel = 'Відомості про передачу не підтверджено';
+    return facts;
+  }
+  const current = h.state === 'sent' && h.current === true && h.recipient.employee_id === task.assignee_id;
+  const previous = h.state === 'superseded' && h.current === false;
+  facts.handoffLabel = current ? 'Призначення чинне' : previous ? 'Попереднє призначення' : 'Чинність призначення не підтверджено';
+  facts.recipientId = h.recipient.employee_id;
+  facts.recipientDepartment = (text(h.recipient.department.name) || 'Без назви') + ' · №' + h.recipient.department.id;
+  return facts;
+}
 function Tasks({
   tasks,
   setTasks,
@@ -7925,31 +7953,45 @@ function Tasks({
       gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,300px),1fr))',
       gap: 12
     }
-  }, filtered.map(t => /*#__PURE__*/React.createElement("article", {
-    key: t.id,
-    className: "c01-current",
-    style: {
-      minWidth: 0
-    }
-  }, /*#__PURE__*/React.createElement("h3", null, /*#__PURE__*/React.createElement(BoSLink, {
-    onClick: () => open(t, 'view')
-  }, t.title)), /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u2116", t.id, " \xB7 ", t.category || 'Без категорії'), /*#__PURE__*/React.createElement("p", null, c01Assignee(t) || 'Історично не призначено', t.assignee_id ? ' · співробітник №' + t.assignee_id : ''), /*#__PURE__*/React.createElement("p", null, "\u0421\u0442\u0440\u043E\u043A: ", t.deadline || 'Не задано', " \xB7 ", C01_STATUS[t.status] || t.status, t.is_overdue ? ' · Прострочено' : ''), /*#__PURE__*/React.createElement("p", null, "\u041F\u0440\u0456\u043E\u0440\u0438\u0442\u0435\u0442: ", {
-    high: 'Високий',
-    medium: 'Середній',
-    low: 'Низький'
-  }[t.priority] || 'Без пріоритету', ". \u041F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0430 \u0444\u0456\u043B\u0456\u044F: ", t.branch_name || 'Не визначено', "."), /*#__PURE__*/React.createElement("div", {
-    className: "erp-actions"
-  }, /*#__PURE__*/React.createElement(Button, {
-    onClick: () => open(t, 'view')
-  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F"), c01CanHandoff(t) && /*#__PURE__*/React.createElement(Button, {
-    onClick: () => open(t, 'handoff')
-  }, "\u041F\u0435\u0440\u0435\u0434\u0430\u0442\u0438 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F"), bosCan('write') && (t.archived ? /*#__PURE__*/React.createElement(Button, {
-    onClick: () => open(t, 'restore')
-  }, "\u0412\u0456\u0434\u043D\u043E\u0432\u0438\u0442\u0438") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Button, {
-    onClick: () => open(t, 'edit')
-  }, "\u0420\u0435\u0434\u0430\u0433\u0443\u0432\u0430\u0442\u0438"), /*#__PURE__*/React.createElement(Button, {
-    onClick: () => open(t, 'archive')
-  }, "\u0410\u0440\u0445\u0456\u0432\u0443\u0432\u0430\u0442\u0438"))))))), fresh && !filtered.length && /*#__PURE__*/React.createElement("p", {
+  }, filtered.map(t => {
+    const facts = c01TaskCardFacts(t, data.employees, data.departments);
+    return /*#__PURE__*/React.createElement("article", {
+      key: t.id,
+      className: "c01-current bos-task-card",
+      style: {
+        minWidth: 0
+      }
+    }, /*#__PURE__*/React.createElement("h3", null, /*#__PURE__*/React.createElement(BoSLink, {
+      onClick: () => open(t, 'view')
+    }, t.title)), /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u2116", t.id, " \xB7 ", t.category || 'Без категорії'), /*#__PURE__*/React.createElement("p", {
+      className: 'bos-task-card-status' + (t.is_overdue ? ' bos-task-card-overdue' : '')
+    }, t.archived ? 'Архів · ' : '', C01_STATUS[t.status] || t.status, t.is_overdue ? ' · Прострочено' : ''), /*#__PURE__*/React.createElement("dl", {
+      className: "bos-task-card-facts"
+    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("dt", null, "\u0412\u0438\u043A\u043E\u043D\u0430\u0432\u0435\u0446\u044C"), /*#__PURE__*/React.createElement("dd", null, c01Assignee(t) || 'Історично не призначено', t.assignee_id ? ' · №' + t.assignee_id : '')), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("dt", null, "\u041F\u043E\u0442\u043E\u0447\u043D\u0438\u0439 \u0432\u0456\u0434\u0434\u0456\u043B \u0432\u0438\u043A\u043E\u043D\u0430\u0432\u0446\u044F"), /*#__PURE__*/React.createElement("dd", null, facts.assigneeDepartment)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("dt", null, "\u0421\u0442\u0440\u043E\u043A"), /*#__PURE__*/React.createElement("dd", null, t.deadline ? /*#__PURE__*/React.createElement("time", {
+      dateTime: t.deadline
+    }, t.deadline) : 'Не задано')), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("dt", null, "\u041F\u0440\u0456\u043E\u0440\u0438\u0442\u0435\u0442"), /*#__PURE__*/React.createElement("dd", null, {
+      high: 'Високий',
+      medium: 'Середній',
+      low: 'Низький'
+    }[t.priority] || 'Без пріоритету'))), /*#__PURE__*/React.createElement("dl", {
+      className: "bos-task-card-facts bos-task-card-context"
+    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("dt", null, "\u0417\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("dd", null, facts.orderLabel)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("dt", null, "\u041E\u0441\u0442\u0430\u043D\u043D\u044F \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0430"), /*#__PURE__*/React.createElement("dd", null, facts.handoffLabel)), facts.recipientId !== null && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("dt", null, "\u041E\u0442\u0440\u0438\u043C\u0443\u0432\u0430\u0447 \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0456"), /*#__PURE__*/React.createElement("dd", null, "\u0421\u043F\u0456\u0432\u0440\u043E\u0431\u0456\u0442\u043D\u0438\u043A \u2116", facts.recipientId)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("dt", null, "\u0412\u0456\u0434\u0434\u0456\u043B \u043D\u0430 \u043C\u043E\u043C\u0435\u043D\u0442 \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0456"), /*#__PURE__*/React.createElement("dd", null, facts.recipientDepartment))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("dt", null, "\u041F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0430 \u0431\u0456\u0437\u043D\u0435\u0441-\u0444\u0456\u043B\u0456\u044F"), /*#__PURE__*/React.createElement("dd", null, facts.businessBranch))), /*#__PURE__*/React.createElement("div", {
+      className: "erp-actions"
+    }, /*#__PURE__*/React.createElement(Button, {
+      "data-task-card-open": "true",
+      variant: "primary",
+      "aria-label": 'Відкрити доручення №' + t.id + ' — джерела й історія',
+      onClick: () => open(t, 'view')
+    }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u2014 \u0434\u0436\u0435\u0440\u0435\u043B\u0430 \u0439 \u0456\u0441\u0442\u043E\u0440\u0456\u044F"), c01CanHandoff(t) && /*#__PURE__*/React.createElement(Button, {
+      onClick: () => open(t, 'handoff')
+    }, "\u041F\u0435\u0440\u0435\u0434\u0430\u0442\u0438 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F"), bosCan('write') && (t.archived ? /*#__PURE__*/React.createElement(Button, {
+      onClick: () => open(t, 'restore')
+    }, "\u0412\u0456\u0434\u043D\u043E\u0432\u0438\u0442\u0438") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Button, {
+      onClick: () => open(t, 'edit')
+    }, "\u0420\u0435\u0434\u0430\u0433\u0443\u0432\u0430\u0442\u0438"), /*#__PURE__*/React.createElement(Button, {
+      onClick: () => open(t, 'archive')
+    }, "\u0410\u0440\u0445\u0456\u0432\u0443\u0432\u0430\u0442\u0438")))));
+  })), fresh && !filtered.length && /*#__PURE__*/React.createElement("p", {
     role: "status"
   }, "\u0417\u0430 \u0446\u0438\u043C\u0438 \u0444\u0456\u043B\u044C\u0442\u0440\u0430\u043C\u0438 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u044C \u043D\u0435\u043C\u0430\u0454. \u0426\u0435 \u043D\u0435 \u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043D\u044F \u043F\u0440\u043E \u043F\u0440\u0438\u0445\u043E\u0432\u0430\u043D\u0456 \u0437\u0430\u043F\u0438\u0441\u0438."), /*#__PURE__*/React.createElement(C01PendingLauncher, {
     key: scope,

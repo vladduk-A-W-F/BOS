@@ -553,6 +553,19 @@ article.c01-current { margin-top:12px; padding:20px; border:1px solid var(--bos-
 article.c01-current h3 { font-size:17px; margin-bottom:12px; }
 article.c01-current p { margin:7px 0; color:var(--bos-muted); font-size:13px; line-height:1.55; }
 article.c01-current .erp-actions { margin-bottom:0; padding-top:12px; border-top:1px solid var(--bos-line); }
+article.bos-task-card { display:flex; flex-direction:column; overflow-wrap:anywhere; }
+article.bos-task-card h3 { margin-top:0; margin-bottom:4px; }
+article.bos-task-card .bos-record-link { max-width:100%; min-height:44px; white-space:normal; overflow-wrap:anywhere; text-align:left; }
+article.bos-task-card .bos-task-card-status { align-self:flex-start; padding:4px 8px; border:1px solid var(--bos-line); border-radius:6px; color:var(--bos-ink); }
+article.bos-task-card .bos-task-card-overdue { color:var(--bos-danger); border-color:currentColor; }
+.bos-task-card-facts { display:grid; gap:10px; margin:12px 0; }
+.bos-task-card-facts>div { min-width:0; }
+.bos-task-card-facts dt { margin-bottom:3px; color:var(--bos-muted); font-size:12px; line-height:1.4; }
+.bos-task-card-facts dd { margin:0; color:var(--bos-ink); font-size:13px; line-height:1.5; overflow-wrap:anywhere; }
+.bos-task-card-context { padding:14px; border:1px solid var(--bos-line); border-radius:10px; background:var(--bos-bg); }
+article.bos-task-card .erp-actions { margin-top:auto; }
+article.bos-task-card .erp-actions button { min-width:0; min-height:44px!important; max-width:100%; white-space:normal; overflow-wrap:anywhere; }
+article.bos-task-card button[data-task-card-open] { width:100%; }
 .c01-pending { background:#F9F6E8; color:#705A22; border-color:#E1D6AF; }
 .c03-facts dt { color:var(--bos-muted); }
 .c03-bank { max-width:1500px; margin-inline:auto; }
