@@ -20,6 +20,7 @@ AUTHORIZED_DELIVERY_STATUS = 'AUTHORIZED_ONE_SHOT'
 CONSUMED_DELIVERY_STATUS = 'CONSUMED_ONE_SHOT'
 DELIVERY_STATUSES = {PENDING_DELIVERY_STATUS, AUTHORIZED_DELIVERY_STATUS, CONSUMED_DELIVERY_STATUS}
 SHA40 = re.compile(r'^[0-9a-f]{40}$')
+SAFE_MANIFEST_NAME = re.compile(r'^[A-Za-z0-9][A-Za-z0-9._-]*\.json$')
 
 
 def read_json(name):
@@ -28,6 +29,28 @@ def read_json(name):
 
 def read_bos3_json(name):
     return json.loads((BOS3_DOCS / name).read_text(encoding='utf-8'))
+
+
+def selected_candidate_manifest(failures, state):
+    """Return only a state-selected JSON leaf physically contained by BOS3_DOCS."""
+    name = state.get('candidate_manifest')
+    if not isinstance(name, str) or not SAFE_MANIFEST_NAME.fullmatch(name):
+        failures.append('Candidate manifest must be a safe JSON filename')
+        return {}
+    root = BOS3_DOCS.resolve()
+    path = (root / name).resolve()
+    if path.parent != root:
+        failures.append('Candidate manifest escapes the BoS 3 control directory')
+        return {}
+    try:
+        candidate = json.loads(path.read_text(encoding='utf-8'))
+    except (OSError, json.JSONDecodeError):
+        failures.append('Selected candidate manifest is unavailable or invalid')
+        return {}
+    if not isinstance(candidate, dict):
+        failures.append('Selected candidate manifest must be a JSON object')
+        return {}
+    return candidate
 
 
 def require_false_readiness(failures, label, readiness):
@@ -154,10 +177,18 @@ def validate_delivery_record(failures, delivery, candidate_pin, cards):
         if delivery_card is None or delivery_card.get('status') != 'BLOCKED':
             failures.append('Pending preview delivery card must stay BLOCKED')
         return status
+    record_pin = candidate_pin
+    if status == CONSUMED_DELIVERY_STATUS:
+        record_pin = delivery.get('exact_product_pin')
+        require_full_pin(failures, 'consumed delivery.exact_product_pin', record_pin)
+        historical_card = cards.get('B30-PREVIEW-DELIVERY')
+        if (not isinstance(historical_card, dict)
+                or historical_card.get('result_commit') != record_pin):
+            failures.append('Consumed preview delivery is not bound to its historical card record')
     authorization = delivery.get('authorization_record')
     if (not isinstance(authorization, dict)
             or not is_nonempty_string(authorization.get('owner_message_ref'))
-            or authorization.get('exact_product_pin') != candidate_pin
+            or authorization.get('exact_product_pin') != record_pin
             or authorization.get('scope') != 'owner_local_update_and_entry_only'):
         failures.append('Invalid preview delivery authorization record')
     if status == CONSUMED_DELIVERY_STATUS:
@@ -173,7 +204,7 @@ def validate_delivery_record(failures, delivery, candidate_pin, cards):
 def validate_bos3():
     failures = []
     state = read_bos3_json('CONTROL_STATE.json')
-    candidate = read_bos3_json('LIGHT_PREVIEW_CANDIDATE.json')
+    candidate = selected_candidate_manifest(failures, state)
     runtime = read_bos3_json('LOCAL_RUNTIME_RECEIPT.json')
     cards = bos3_cards(state)
     ids = [card.get('id') for card in cards if isinstance(card, dict)]
@@ -216,8 +247,6 @@ def validate_bos3():
         failures.append('Invalid candidate version in manifest')
     if state.get('candidate_version') != candidate.get('version'):
         failures.append('Product candidate version differs from manifest')
-    if state.get('candidate_manifest') != 'LIGHT_PREVIEW_CANDIDATE.json':
-        failures.append('Unexpected product candidate manifest')
     if not is_nonempty_string(state.get('delivered_runtime_version')):
         failures.append('Invalid delivered runtime version in state')
     if not is_nonempty_string(runtime.get('version')):

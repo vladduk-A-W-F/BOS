@@ -19,6 +19,7 @@ SPEC.loader.exec_module(bos_control)
 
 PIN = 'f55a15de4006d10c0d7c65f8a2ca8499fbb99819'
 RUNTIME = '33d7d387aa582c04339a91ae94361948ea67904c'
+ALTERNATE_PIN = 'a753a590727344b73f2c79e142c4c8ec6cc89c0d'
 
 
 class Bos3ControlTest(unittest.TestCase):
@@ -88,6 +89,7 @@ class Bos3ControlTest(unittest.TestCase):
         }
 
     def write_fixture(self, state=None, candidate=None, runtime=None):
+        state = self.state() if state is None else state
         candidate = candidate if candidate is not None else {
             'product_commit': PIN,
             'version': '0.3.0-dev.3',
@@ -101,11 +103,13 @@ class Bos3ControlTest(unittest.TestCase):
             'mvp': False,
         }
         for name, value in (
-            ('CONTROL_STATE.json', state or self.state()),
-            ('LIGHT_PREVIEW_CANDIDATE.json', candidate),
+            ('CONTROL_STATE.json', state),
             ('LOCAL_RUNTIME_RECEIPT.json', runtime),
         ):
             (self.bos3 / name).write_text(json.dumps(value), encoding='utf-8')
+        manifest_name = state.get('candidate_manifest')
+        if isinstance(manifest_name, str) and bos_control.SAFE_MANIFEST_NAME.fullmatch(manifest_name):
+            (self.bos3 / manifest_name).write_text(json.dumps(candidate), encoding='utf-8')
 
     def validate_result(self, state=None, candidate=None, runtime=None):
         self.write_fixture(state, candidate, runtime)
@@ -143,6 +147,71 @@ class Bos3ControlTest(unittest.TestCase):
         state = self.state()
         state['product_candidate_commit'] = 'different-pin'
         result = self.validate_result(state)
+        self.assertEqual(result['result'], 'FAIL')
+        self.assertIn('Product candidate pin differs from manifest', result['errors'])
+
+    def test_state_selected_alternate_manifest_is_used(self):
+        state = self.state()
+        state['candidate_manifest'] = 'TASK_CARD_DEV6_CANDIDATE.json'
+        state['candidate_version'] = '0.3.0-dev.6'
+        state['product_candidate_commit'] = ALTERNATE_PIN
+        state['cards'][0]['status'] = 'DONE'
+        state['cards'][0]['result_commit'] = PIN
+        state['light_preview_delivery_permission'] = {
+            'status': bos_control.CONSUMED_DELIVERY_STATUS,
+            'exact_product_pin': PIN,
+            'authorization_record': {
+                'owner_message_ref': 'historic-owner-message',
+                'exact_product_pin': PIN,
+                'scope': 'owner_local_update_and_entry_only',
+            },
+            'consumed_attempts': 1,
+            'result_record': 'evidence/historic-one-shot.json',
+            'outcome': 'PASS_SCOPED',
+        }
+        state['weekly_execution']['next_product_card'] = None
+        state['weekly_execution']['next_product_status'] = None
+        candidate = {
+            'product_commit': ALTERNATE_PIN,
+            'version': '0.3.0-dev.6',
+            'readiness': {'technical_ready': False, 'pilot_allowed': False, 'mvp': False},
+        }
+        self.assertEqual(self.validate_result(state, candidate)['result'], 'PASS')
+
+    def test_missing_selected_manifest_fails(self):
+        state = self.state()
+        state['candidate_manifest'] = 'MISSING_CANDIDATE.json'
+        self.write_fixture(state)
+        (self.bos3 / state['candidate_manifest']).unlink()
+        result = bos_control.validate_bos3()
+        self.assertEqual(result['result'], 'FAIL')
+        self.assertIn('Selected candidate manifest is unavailable or invalid', result['errors'])
+
+    def test_unsafe_selected_manifest_fails_without_reading_it(self):
+        state = self.state()
+        state['candidate_manifest'] = '../LIGHT_PREVIEW_CANDIDATE.json'
+        result = self.validate_result(state)
+        self.assertEqual(result['result'], 'FAIL')
+        self.assertIn('Candidate manifest must be a safe JSON filename', result['errors'])
+
+    def test_nonobject_selected_manifest_fails(self):
+        state = self.state()
+        state['candidate_manifest'] = 'NONOBJECT_CANDIDATE.json'
+        self.write_fixture(state)
+        (self.bos3 / state['candidate_manifest']).write_text('[]', encoding='utf-8')
+        result = bos_control.validate_bos3()
+        self.assertEqual(result['result'], 'FAIL')
+        self.assertIn('Selected candidate manifest must be a JSON object', result['errors'])
+
+    def test_selected_manifest_pin_mismatch_fails(self):
+        state = self.state()
+        state['candidate_manifest'] = 'TASK_CARD_DEV6_CANDIDATE.json'
+        candidate = {
+            'product_commit': ALTERNATE_PIN,
+            'version': '0.3.0-dev.3',
+            'readiness': {'technical_ready': False, 'pilot_allowed': False, 'mvp': False},
+        }
+        result = self.validate_result(state, candidate)
         self.assertEqual(result['result'], 'FAIL')
         self.assertIn('Product candidate pin differs from manifest', result['errors'])
 
@@ -218,8 +287,11 @@ class Bos3ControlTest(unittest.TestCase):
 
     def test_consumed_record_is_valid_without_automatic_transition(self):
         state = self.state()
+        state['cards'][0]['status'] = 'DONE'
+        state['cards'][0]['result_commit'] = PIN
         state['light_preview_delivery_permission'] = {
             'status': bos_control.CONSUMED_DELIVERY_STATUS,
+            'exact_product_pin': PIN,
             'authorization_record': {
                 'owner_message_ref': 'owner-message-1',
                 'exact_product_pin': PIN,
