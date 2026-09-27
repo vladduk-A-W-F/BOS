@@ -6,6 +6,10 @@
 
 ## Текущая работа настройки
 
+Dev.6/8114097 установлена и принята независимо; root завершил доставку, приложение оставлено работать. B30-CONTROL-MANIFEST завершён: author bos3_fixture_impl, QA bos3_crm_impl, reviewer start_overview_review; приняты разные exact revisions с run1 четырёх методов и run2 одного нового метода, без повторов. Текущий автор UXD02: design01a0bffa-3fc7-7bc2-9868-86164c6e0315, reviewer bos3_candidate_review; clean bos3-product-design/repo от61d9edd, codex/bos3-uxd02-drilldown-20260927. Shared UI имеет одного автора. Source explorer завершён. Одна генерация разрешена, QA и доставка отдельно. Остальные завершённые роли не получают дубликатов; B30-12 и UXD03-WAIT требуют прежних owner decisions.
+
+Следующие абзацы сохраняют промежуточные handoff этой поставки. Действующие назначения только выше и в CONTROL_STATE.cards.
+
 UXD01-PACK уже принят независимо и интегрированfa7e4c7; writer завершён. Текущий UXD01-DELIVERY: root, manifest reviewerbos3_candidate_review, finalpins/actualdelivery reviewerstart_overview_review. Runtime до новогоreceipt остаётсяdev5/3d1. B30-CONTROL-MANIFEST: bos3_fixture_impl, только scratch/bos3-control-manifest-20260927/tools/{bos_control.py,test_bos3_control.py} и отчёт; noexecutionдоreview. Он исправляет новый конкретный stale-manifest defect служебного CLI, не appchecks. Старыйdirtybos3-development-control сохранён.
 
 UXD01-PROVENANCE-QA завершена: bos3_crm_impl выполнил reviewed oracle correction и focusedattempt2/3 PASS/exit0; independentstart_overview_review ACCEPT_SCOPED_AST_PRESENTATION_DISCLOSURE. Run1FAIL сохранён; повторов не назначать. Design0338 интегрирован8eb832a, writer57d9 интегрированfa7e4c7, оба автора завершены. Текущие исполнители доставки и отдельной CLI-коррекции указаны выше; runtime до новой квитанции dev5/3d1.
