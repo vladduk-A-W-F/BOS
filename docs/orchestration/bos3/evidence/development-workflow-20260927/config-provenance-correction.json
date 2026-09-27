@@ -1,0 +1,18 @@
+{
+  "kind": "CONFIG_PROVENANCE_CORRECTION",
+  "recorded_at_after_run": "2026-09-27T15:49:56.8930415+02:00",
+  "scope": "Evidence correction only. No CLI/test/application command was re-executed.",
+  "original_receipt_path": "D:\\3\\BOSDev\\qa-scratch\\bos3-dev-control-20260927\\config-integration.receipt.json",
+  "original_receipt_sha256": "19FDD4511481292400929E0714B4FA0983DE96DD1DDC603B8D35CE9FD709A2BB",
+  "incorrect_inputs_field": {
+    "path": "docs/BoS_3_0_Start_UA.manifest.json",
+    "note": "This PDF manifest was hashed in config-integration.receipt.json but is not the actual LIGHT_PREVIEW_CANDIDATE.json config read by bos_control."
+  },
+  "actual_cli_config": {
+    "path": "docs/orchestration/bos3/LIGHT_PREVIEW_CANDIDATE.json",
+    "sha256_after_run": "3DE8AB135C9E16F3298A955EB0D6D9484578E9225F4C10FE0C78128C5A73E6A2",
+    "worktree_diff_empty": true,
+    "index_diff_empty": true
+  },
+  "timing_note": "The actual config hash was read after the one-shot CLI commands. It is not represented as a pre-run hash."
+}

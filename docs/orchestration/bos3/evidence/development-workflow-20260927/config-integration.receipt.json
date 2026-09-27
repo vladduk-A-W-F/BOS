@@ -1,0 +1,47 @@
+{
+  "card": "B30-DEV-CONTROL-CLI",
+  "kind": "ONE_SHOT_CONFIG_INTEGRATION",
+  "scope": "bos3 configuration only; no unittest, app test, database, HTTP, browser, lifecycle, or canonical edit",
+  "working_directory": "C:\\Users\\user\\.codex\\worktrees\\bos-consolidation-plan\\repo",
+  "canonical_commit": "4e014971e5db33f9106de86399424bedf2ca15bb",
+  "inputs_sha256": {
+    "docs\\orchestration\\bos3\\CONTROL_STATE.json": "50A821B5F652368D8F03244EE90FBD118151C9CA7900109F2A278D6F21A2C70C",
+    "docs\\BoS_3_0_Start_UA.manifest.json": "836365389F3304163D0221D69DCDBBC89B88B5FC3EB01DC607E9CDEB189B987A",
+    "docs\\orchestration\\bos3\\LOCAL_RUNTIME_RECEIPT.json": "1D2B0B574F6BF9F3DE566BDFA7149D35D20C520616BE4BFA099B94469F9BE1B6",
+    "tools\\bos_control.py": "40A3C7FCA94E75EDADD7DF5FEAC2ED889E50F2C46BF997E655D23E59F05ABA63"
+  },
+  "commands": {
+    "validate": "& 'D:/3/BOSDev/venv/Scripts/python.exe' -B tools/bos_control.py --scope bos3 validate",
+    "status": "& 'D:/3/BOSDev/venv/Scripts/python.exe' -B tools/bos_control.py --scope bos3 status"
+  },
+  "native_exit": {
+    "validate": 0,
+    "status": 0
+  },
+  "evidence": {
+    "validate_stdout": {
+      "path": "D:\\3\\BOSDev\\qa-scratch\\bos3-dev-control-20260927\\config-validate.stdout.txt",
+      "sha256": "8C112FEC3EDCA440D54E8565593651B11F6BB5C94DDCC54F81A4D6687AA21522"
+    },
+    "validate_stderr": {
+      "path": "D:\\3\\BOSDev\\qa-scratch\\bos3-dev-control-20260927\\config-validate.stderr.txt",
+      "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+    },
+    "validate_native_exit": {
+      "path": "D:\\3\\BOSDev\\qa-scratch\\bos3-dev-control-20260927\\config-validate.native-exit.txt",
+      "sha256": "0949385CB3A0BFCCC32F2688E37B0E0B52B88727AF5B3F26E46488C2643D076E"
+    },
+    "status_stdout": {
+      "path": "D:\\3\\BOSDev\\qa-scratch\\bos3-dev-control-20260927\\config-status.stdout.txt",
+      "sha256": "16B1F275C2B8A0F332DF3FB48D57DC5460C8CE952FB1F64FBA0FCF4FFE010FFC"
+    },
+    "status_stderr": {
+      "path": "D:\\3\\BOSDev\\qa-scratch\\bos3-dev-control-20260927\\config-status.stderr.txt",
+      "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+    },
+    "status_native_exit": {
+      "path": "D:\\3\\BOSDev\\qa-scratch\\bos3-dev-control-20260927\\config-status.native-exit.txt",
+      "sha256": "0949385CB3A0BFCCC32F2688E37B0E0B52B88727AF5B3F26E46488C2643D076E"
+    }
+  }
+}

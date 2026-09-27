@@ -2,6 +2,10 @@
 
 ## Чинний запуск BoS 3.0 · 27.09.2026
 
+B30-DEV-CONTROL-CLI інтегрований окремим dev-tool commit 4e014971e5db33f9106de86399424bedf2ca15bb після незалежного review і synthetic QA. Команди --scope bos3 доступні; точний результат і збережений початковий FAIL: docs/orchestration/bos3/evidence/development-workflow-20260927/CLI_REVIEW_RU.md. Це не оновлення продуктового pin або runtime.
+
+Тижневе уточнення власника: до 04.10.2026 23:59 Europe/Berlin підготувати найкращу доведену версію в погодженому обсязі; після строку нові зміни заборонені. Лише читання, підсумок і штатна пауза поточної automation; застосунок не зупиняти. Старий 11.10 не продовжує цей цикл. Порядок, ролі, blockers і DoD: docs/orchestration/bos3/DEVELOPMENT_WORKFLOW_RU.md, CONTROL_STATE.json.weekly_execution. Поточні read-only команди: `python tools/bos_control.py --scope bos3 status` / `plan` / `context` / `card B30-PREVIEW-DELIVERY` / `validate`; default без scope залишається історичним і не є джерелом нових призначень. Нова організація не змінює історичних лімітів або pending-дозволу на update/browser. Native goal веде чинний контролер; root цього чату лишається єдиним інтегратором.
+
 Власник прямо доручив: «Запускай подготовленный план BoS 3.0 во всю силу». Поточний координатор і межі: docs/orchestration/BOS3_EXECUTION_RU.md; план і стан: docs/orchestration/bos3/. Це дозвіл виконувати підготовлений план у виділених копіях, інтегруючи лише перевірене. Поточний review-source, main і старі теги не перемикати автоматично. Історичні ліміти, 85/12, 11 gates, production/реальні дані/платні API та false readiness збережені. Старі черги нижче є історією, не новими призначеннями.
 
 ## Чинне уточнення v18 · 26.09.2026
