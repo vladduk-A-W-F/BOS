@@ -6,6 +6,8 @@
 
 ## Текущая работа настройки
 
+Текущий владелец UXD02-DELIVERY root; candidate manifest review bos3_candidate_review, final pins и actual delivery review start_overview_review. Writer c2d136 завершён и root-integratedd346f63/dev7; template принят статически, targetimmutable ещёнеопределён. Runtime811/dev6 неизменен. Все прежние in-progress packaging/QA ниже исторические.
+
 UI author и UXD02 QA завершены scoped; integrationec96870, runtime пока811/dev6. Сейчас existing writer01a0be9f... выполняет UXD02-PACK в чистой отдельной копии отec96870, reviewer bos3_candidate_review. Delivery template author bos3_fixture_impl и static reviewer start_overview_review завершили TEMPLATE_ONLY; target PENDING, исполнения0. Других параллельных UI редакторов нет.
 
 ### История этого перехода
