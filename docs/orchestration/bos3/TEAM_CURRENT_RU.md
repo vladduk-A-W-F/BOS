@@ -6,9 +6,9 @@
 
 ## Текущая работа настройки
 
-Writer01a0be9f... завершил dev.5 package0a124 и evidence correction eafc3d4; root интегрировал a753a59 и5f8bd83 после ACCEPT_SCOPED_VERSIONED_PACKAGE_AND_APPLICABILITY. Renderer exit остаётся UNCONFIRMED. bos3_candidate_review теперь проверяет точный TASK_CARD_DEV5_CANDIDATE.json; start_overview_review проверит только финальные pins уже принятого static delivery template. Root один связывает паспорт и выполняет доставку. Design, helper QA и template author завершены scoped; learning и waiting ждут отдельных ответов владельца. Runtime пока dev4/e710; dirty старые worktrees сохранены.
+Root доставил exact dev.5/3d1eabe3b8f54ebc6c6d6bf0241beba219d1fc3c после независимого manifest/final-pin review. start_overview_review принял actual raw delivery как ACCEPT_SCOPED_DEV5_OWNER_LOCAL_DELIVERY;5этапов exit0, HTTP200 exactHTML, protected aggregate сохранён. Producta753a59, correction5f8bd83; documentation HEAD отдельно. Design, writer, helper QA, template author и оба reviewers завершили scoped карточки; не занимать их повторным аудитом. Следующие learning и waiting требуют уже запрошенных owner decisions. Root хранит зависимости, observer контролирует, dirty старые worktrees сохранены. Renderer exit UNCONFIRMED и все readiness false.
 
-UXD03-WAIT-01 V2 завершил независимый review с одним disclosure decision; первый вопрос владельцу задан, ответ ожидается. Старый V1 review не активен. B30-12 learning имеет отдельный уже заданный вопрос. Текущая готовая работа: package -> exact manifest/review -> guarded delivery; не повтор helper run.
+UXD03-WAIT-01 V2 завершил независимый review с одним disclosure decision; первый вопрос владельцу задан, ответ ожидается. Старый V1 review не активен. B30-12 learning имеет отдельный уже заданный вопрос, привязанный кe710, не автоматически кdev5. Следующая операция после ответа: точный contract/manifest applicability review прежними ответственными, затем только разрешённое действие. До ответа новых запусков или пустых поручений нет.
 
 ## История назначений, не действующая очередь
 
