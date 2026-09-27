@@ -1,0 +1,180 @@
+{
+  "card": "UXD01-PROVENANCE-DISCLOSURE",
+  "classification": "NEW_PRESENTATION_DISCLOSURE",
+  "status": "AUTHOR_COMPLETE_REVIEW_PENDING",
+  "base_commit": "3d1eabe3b8f54ebc6c6d6bf0241beba219d1fc3c",
+  "result_commit": "Commit containing this manifest; exact SHA returned after commit creation",
+  "contract": "Final exact-base source contract supplied by canonical integrator; formulas independently traced in listed source files. Policy contract supplied by integrator; no cross-role execution.",
+  "changed_product_files": [
+    {
+      "path": "frontend/boss_app_source.html",
+      "mode": "edited-source",
+      "base_git_blob_sha1": "0ad98113b985a15f92535d4dc9cf32d9148474f7",
+      "result_git_blob_sha1": "29bf3efc2900f334c2637af557692edecae170f7",
+      "result_worktree_sha256": "cc97bee6d680df1bc4aedd6a3a6892b3283a17434867b268c11d38010b1732e7"
+    },
+    {
+      "path": "frontend/bos_design.css",
+      "mode": "edited-source",
+      "base_git_blob_sha1": "30307d975741bd3b784ae483147db52f4c127fde",
+      "result_git_blob_sha1": "f9b6479dad2897cd81ac974654eb1e385bc5c9d0",
+      "result_worktree_sha256": "30e1db301539b97080705c463c0fec14ae6370de577f824318484c42d159fd54"
+    },
+    {
+      "path": "frontend/boss_app_html.html",
+      "mode": "generated-only",
+      "base_git_blob_sha1": "6165048a78a3c2987ecd476c8736621dba0637db",
+      "result_git_blob_sha1": "18cd250dcd0e6af90d1ed5fda17503e319891880",
+      "result_worktree_sha256": "cdb3c24465feabfca3a27e7e231fd84a2011dc473dc58914bfe4d7b728395588"
+    },
+    {
+      "path": "assets/app.js",
+      "mode": "generated-only",
+      "base_git_blob_sha1": "3cc5c699972cf1f6cdde507b5a9b4f2e5d0f9f70",
+      "result_git_blob_sha1": "fbeafd476668f88adb85686c607137a637e71d68",
+      "result_worktree_sha256": "9d365048a60f192acffd541c2e1c3b02c804e2d405a25890fdedc8d5c606d303"
+    }
+  ],
+  "source_contract_inventory": [
+    {
+      "path": "erp/queries.py",
+      "base_git_blob_sha1": "d1a979acadbdd8f47fd51ccef659ffddf0e8b33f",
+      "worktree_sha256": "5d77ff3b95ce3053be27340f6fa94da18490226487d8e8dc60ecd98525a294b8",
+      "changed": false
+    },
+    {
+      "path": "erp/views.py",
+      "base_git_blob_sha1": "df0c607e3645ba5bd0e231509a53ab3ca62f4ea7",
+      "worktree_sha256": "fb40eadca4b62730880c53f042dbb9a609a75795157124db40fc460c87da83cc",
+      "changed": false
+    },
+    {
+      "path": "erp/experience.py",
+      "base_git_blob_sha1": "181a45a66071858eb723d3d65e5facf488348b9c",
+      "worktree_sha256": "6fb148713ceda27c828eecc2b9ced0828039aa4569a46c9f867b5e98b9966530",
+      "changed": false
+    },
+    {
+      "path": "erp/balances.py",
+      "base_git_blob_sha1": "b0f7953779ae9da3e616d4b05400422e1fb66e54",
+      "worktree_sha256": "3bdc39b5c86448ea6262c7afeb1b115d3d96e413205551d7ca3c854c38f5965d",
+      "changed": false
+    },
+    {
+      "path": "operations/projections.py",
+      "base_git_blob_sha1": "f35bed9d759f0441ab68d1fd2d55b02712754dcb",
+      "worktree_sha256": "f80ac3f74bac52e25148d2c530e728d430e6a79422da7405725693e075c8f4e2",
+      "changed": false
+    },
+    {
+      "path": "operations/service.py",
+      "base_git_blob_sha1": "64e74153947d47db19cba3bb370d3a078da412d4",
+      "worktree_sha256": "73f865cf65914f585fb5f4eccb9706fdb56c1b20a55545f4dfe047deadccb223",
+      "changed": false
+    },
+    {
+      "path": "tasks/queries.py",
+      "base_git_blob_sha1": "312458b38bcb3d7318e12bef34e782c4e5c4dd30",
+      "worktree_sha256": "c259a1cb70d5f27e8d52b58336bf42633833ff6745b2493820e4ebdc239195ec",
+      "changed": false
+    },
+    {
+      "path": "boss_project/policy.py",
+      "base_git_blob_sha1": "d85898d7c981c79791049ce7239a5293a40c5362",
+      "worktree_sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1",
+      "changed": false
+    }
+  ],
+  "source_route": "GET /api/erp/snapshot/",
+  "metric_mappings": [
+    {
+      "key": "orders",
+      "input": "orders + lines: any associated b03OpenLine > 0",
+      "destination": [
+        "erp",
+        "sales"
+      ]
+    },
+    {
+      "key": "jobs",
+      "input": "jobs: status != done",
+      "destination": [
+        "erp",
+        "production"
+      ]
+    },
+    {
+      "key": "quality",
+      "input": "lots: quantity > 0 and (quality != approved or missing_documents nonempty)",
+      "destination": [
+        "erp",
+        "quality"
+      ]
+    },
+    {
+      "key": "tasks",
+      "input": "home.tasks: not archived and status != done; note uses server is_overdue",
+      "destination": [
+        "hr",
+        "tasks"
+      ]
+    },
+    {
+      "key": "receivable",
+      "input": "finance capability; home.financial selected currency; invoice.open after active credits and payments; no retention deduction",
+      "destination": [
+        "erp",
+        "costs"
+      ]
+    }
+  ],
+  "time_semantics": {
+    "at": "Browser response acceptance timestamp; device clock; not source modification time",
+    "as_of": "Configuration dataset.as_of else date.today(); business calculation date, not history/period",
+    "source_last_modified": "not provided"
+  },
+  "scope": "Account-accessible ERP records under existing policy; no branch or calendar filter; no record IDs passed on navigation",
+  "preserved_gates": [
+    "ready only fresh/empty",
+    "source/time/scope facts hidden when not ready",
+    "canUse plus available navigation callback",
+    "access revision, identity, read epoch, cancellation and context drift unchanged"
+  ],
+  "build": {
+    "attempt": 1,
+    "native_exit": 0,
+    "input_output_hashes_still_match": true
+  },
+  "package_checks": {
+    "allowlist": true,
+    "diff_check_native_exit": 0,
+    "product_test": false
+  },
+  "NOT_RUN": [
+    "unit",
+    "targeted",
+    "helper",
+    "browser",
+    "offline visual",
+    "HTTP",
+    "network",
+    "runtime",
+    "lifecycle",
+    "DB",
+    "seed",
+    "reset",
+    "migration",
+    "training",
+    "payment",
+    "full",
+    "PG",
+    "E2E",
+    "cross-role"
+  ],
+  "subagents_spawned": 0,
+  "independent_reviewer": "bos3_candidate_review",
+  "independent_review_status": "PENDING",
+  "runtime_changed": false,
+  "readiness_changed": false,
+  "full_UXD01_accepted": false
+}

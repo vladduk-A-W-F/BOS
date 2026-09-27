@@ -5158,10 +5158,10 @@ function homeSelectionVisible(selection,data){
 function BosGlobalMonitor({ready,busy,status,at,businessDate,error,metrics,financials,currency,onCurrency,onRefresh,onNavigate}){
  const [collapsed,setCollapsed]=useState(false);
  const stateLabel=busy?'Оновлюємо дані':ready?(status==='empty'?'Доступних записів немає':'Дані прочитано'):status==='stale'?'Потрібне оновлення':status==='denied'||status==='context-drift'?'Перевірте доступ':'Дані недоступні';
- const readTime=at?new Date(at).toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit',timeZoneName:'short'}):null;
+ const readTime=at&&Number.isFinite(new Date(at).getTime())?new Date(at).toLocaleString('uk-UA',{timeZoneName:'short'}):null;
  return <section className="bos-monitor" aria-label="Загальний моніторинг" aria-busy={busy} data-state={ready?'ready':busy?'loading':'unavailable'}>
   <div className="bos-monitor-heading">
-   <div className="bos-monitor-title"><span className="bos-monitor-symbol" aria-hidden="true">{ICONS.dashboard}</span><div><h2>Загальний моніторинг</h2><p>{!ready?stateLabel:<>Доступні вам записи{window.BOS_RUNTIME?.training_enabled||window.BOS_RUNTIME?.mode==='demo'?' · навчальні дані':''}</>}</p></div></div>
+   <div className="bos-monitor-title"><span className="bos-monitor-symbol" aria-hidden="true">{ICONS.dashboard}</span><div><h2>Загальний моніторинг</h2><p>{!ready?stateLabel:<>Показники поточного читання{window.BOS_RUNTIME?.training_enabled||window.BOS_RUNTIME?.mode==='demo'?' · навчальні дані':''}</>}</p></div></div>
    <div className="bos-monitor-tools">
     <span className="bos-monitor-state" role="status">{stateLabel}</span>
     {ready&&financials.length>1&&<select aria-label="Валюта моніторингу" value={currency} onChange={event=>onCurrency(event.target.value)}>{financials.map(item=><option key={item.currency}>{item.currency}</option>)}</select>}
@@ -5170,14 +5170,31 @@ function BosGlobalMonitor({ready,busy,status,at,businessDate,error,metrics,finan
    </div>
   </div>
   <div className="bos-monitor-cards" id="bos-monitor-cards" hidden={collapsed}>
-   {metrics.map(metric=><button key={metric.key} type="button" className="bos-monitor-metric" data-tone={ready?metric.tone:undefined} disabled={!ready||!metric.allowed} onClick={()=>onNavigate(metric.section,metric.sub)}>
-    <span className="bos-monitor-metric-label">{metric.label}<span aria-hidden="true">↗</span></span>
-    <strong>{ready?metric.value:'—'}{ready&&metric.unit&&<small>{metric.unit}</small>}</strong>
-    <span className="bos-monitor-metric-note">{ready?metric.note:'Показники після успішного читання'}</span>
-   </button>)}
+   {metrics.map(metric=><article key={metric.key} className="bos-monitor-metric" data-tone={ready?metric.tone:undefined}>
+    <button type="button" className="bos-monitor-open" disabled={!ready||!metric.allowed} onClick={()=>onNavigate(metric.section,metric.sub)}>
+     <span className="bos-monitor-metric-label">{metric.label}<span aria-hidden="true">↗</span></span>
+     <strong>{ready?metric.value:'—'}{ready&&metric.unit&&<small>{metric.unit}</small>}</strong>
+     <span className="bos-monitor-metric-note">{ready?metric.note:'Показники після успішного читання'}</span>
+    </button>
+    <details className="bos-monitor-provenance">
+     <summary aria-label={'Про показник «'+metric.label+'»'}>Про показник</summary>
+     {ready?<div className="bos-monitor-disclosure" role="region" aria-label={'Джерело й охоплення: '+metric.label} tabIndex={0}><dl>
+      <div><dt>Джерело</dt><dd>{metric.provenance?.source||'Не надано'}</dd></div>
+      <div><dt>Як обчислено</dt><dd>{metric.provenance?.calculation||'Правило не надано'}</dd></div>
+      <div><dt>Охоплення</dt><dd>{metric.provenance?.scope||'Охоплення не підтверджено'}</dd></div>
+      <div><dt>Філія</dt><dd>{metric.provenance?.branch||'Філіальний зріз не підтверджено'}</dd></div>
+      <div><dt>Період</dt><dd>{metric.provenance?.period||'Календарний період не задано'}</dd></div>
+      <div><dt>Бізнес-дата розрахунку</dt><dd>{businessDate?<time dateTime={businessDate}>{businessDate}</time>:'Не надано'}. Це не період і не час зміни записів.</dd></div>
+      <div><dt>Прочитано у цьому вікні</dt><dd>{readTime?<time dateTime={at}>{readTime}</time>:'Час читання не надано'}. За годинником цього пристрою.</dd></div>
+      <div><dt>Оновлення джерел</dt><dd>Час останньої зміни записів не надано.</dd></div>
+      <div><dt>Причина відхилення</dt><dd>{metric.provenance?.deviation||'Не визначено цим показником'}</dd></div>
+      <div><dt>Наступний крок</dt><dd>{metric.allowed?(metric.provenance?.action||'Відкрити відповідний розділ'): 'Перехід недоступний для поточного облікового запису'}</dd></div>
+     </dl></div>:<p className="bos-monitor-disclosure-empty">Значення та відомості про читання приховано. Оновіть дані в чинному контексті доступу.</p>}
+    </details>
+   </article>)}
   </div>
   <div className="bos-monitor-foot">
-   <details><summary>{ready&&readTime?<>Прочитано о <time dateTime={at}>{readTime}</time></>:readTime?'Попереднє читання — показники приховано':'Джерело та час даних'}</summary><p>Показники обчислені з доступних записів ERP. Час читання — за годинником цього пристрою. Бізнес-дата розрахунку: {businessDate||'не надано'}. Це остання прийнята відповідь; наступні зміни потребують нового читання.</p></details>
+   <details><summary>{ready&&readTime?<>Прочитано <time dateTime={at}>{readTime}</time></>:readTime?'Попереднє читання — показники приховано':'Джерело та час даних'}</summary><p>Джерело, охоплення та спосіб підрахунку наведені окремо для кожного показника. Час читання — за годинником цього пристрою, не час зміни записів. Після змін потрібне нове читання. Перехід відкриває розділ без автоматичного вибору запису чи філії.</p></details>
    {error&&<p role="alert">{error}</p>}
   </div>
  </section>;
@@ -5253,13 +5270,14 @@ function BoSHome({onNavigate,refetchTasks,focus=false,readOnlyOverview=false,mon
  const localTime=at?new Date(at).toLocaleString('uk-UA',{timeZoneName:'short'}):null;
  if(monitor){
   const available=(section,sub)=>bosCanView(section,sub);
+  const provenance={scope:'Записи, доступні поточному обліковому запису.',branch:'Філію окремо не вибрано; філіального фільтра немає.',period:'Календарний період не задано. Історичний зріз не обчислюється.'};
   const metrics=[
-   {key:'orders',label:'Замовлення у виконанні',value:orders.length,note:'Є невиконана кількість',section:'erp',sub:'sales'},
-   {key:'jobs',label:'Відкриті роботи',value:data?data.jobs.filter(x=>x.status!=='done').length:0,note:'Виробництво та комплектація',section:'erp',sub:'production'},
-   {key:'quality',label:'Партії без допуску',value:issues.length,note:'Статус якості або документи',tone:issues.length?'warning':null,section:'erp',sub:'quality'},
-   {key:'tasks',label:'Відкриті доручення',value:openTasks.length,note:overdue.length+' прострочених',tone:overdue.length?'warning':null,section:'hr',sub:'tasks'}
+   {key:'orders',label:'Замовлення у виконанні',value:orders.length,note:'Є невиконана кількість',section:'erp',sub:'sales',provenance:{...provenance,source:'Знімок ERP: замовлення та їхні позиції.',calculation:'Кількість замовлень, що мають хоча б одну позицію з додатною невиконаною кількістю. Стан замовлення окремо не фільтрується.',deviation:'Причини невиконання та відхилення від плану цим підрахунком не визначено.',action:'Відкрити ERP → Продажі та обрати замовлення вручну.'}},
+   {key:'jobs',label:'Відкриті роботи',value:data?data.jobs.filter(x=>x.status!=='done').length:0,note:'Виробництво та комплектація',section:'erp',sub:'production',provenance:{...provenance,source:'Знімок ERP: виробничі роботи.',calculation:'Кількість робіт зі станом, відмінним від «Завершено».',deviation:'Причини незавершення та відхилення від плану не надано.',action:'Відкрити ERP → Виробництво та обрати роботу вручну.'}},
+   {key:'quality',label:'Партії без допуску',value:issues.length,note:'Статус якості або документи',tone:issues.length?'warning':null,section:'erp',sub:'quality',provenance:{...provenance,source:'Знімок ERP: партії, стан якості й комплектність документів.',calculation:'Кількість партій з додатним залишком, для яких якість не дозволена або бракує необхідних документів.',deviation:'Вказано умови підрахунку. Конкретну причину проблеми партії тут не визначено.',action:'Відкрити ERP → Якість і зміни. Конкретна партія автоматично не вибирається.'}},
+   {key:'tasks',label:'Відкриті доручення',value:openTasks.length,note:overdue.length+' прострочених',tone:overdue.length?'warning':null,section:'hr',sub:'tasks',provenance:{...provenance,source:'Знімок ERP: доручення робочого огляду.',calculation:'Кількість неархівних доручень зі станом, відмінним від «Виконане». Прострочені позначені сервером.',deviation:'Причини прострочення або незавершення не надано. Очікування іншого учасника не визначається.',action:'Відкрити HR → Доручення та обрати доручення вручну.'}}
   ];
-  if(bosCan('finance'))metrics.push({key:'receivable',label:'Очікуємо від клієнтів',value:number(financial?.receivable),unit:cur||'',note:financial?'Залишок рахунків після оплат':'Фінансові дані не надано',section:'erp',sub:'costs'});
+  if(bosCan('finance'))metrics.push({key:'receivable',label:'Очікуємо від клієнтів',value:number(financial?.receivable),unit:cur||'',note:financial?'Після оплат і кредитових коригувань':'Фінансові дані не надано',section:'erp',sub:'costs',provenance:{...provenance,source:'Знімок ERP: залишки рахунків у фінансовому огляді.',scope:provenance.scope+' Валюта: '+(cur||'не надано')+'. Валюти не підсумовуються й не конвертуються.',calculation:'Сума невід’ємних залишків рахунків після оплат і чинних кредитових коригувань у вибраній валюті. Утримання з цієї суми не віднімаються.',deviation:'Це залишок до оплати, не сума прострочення. Причини несплати та відхилення від плану не надано.',action:'Відкрити ERP → Фінансовий результат. Конкретний рахунок автоматично не вибирається.'}});
   return <BosGlobalMonitor ready={ready} busy={busy} status={status} at={at} businessDate={businessDate} error={inScope?view.error:'Контекст доступу змінився. Оновіть огляд.'} metrics={metrics.map(metric=>({...metric,allowed:available(metric.section,metric.sub)}))} financials={financials} currency={cur} onCurrency={setCurrency} onRefresh={()=>refresh()} onNavigate={(section,sub)=>{if(canUse()&&available(section,sub))onNavigate(section,sub);}}/>;
  }
  return <div className="bos-home"><div className="erp-row"><div><h1>{readOnlyOverview?'Вертоліт · показники та джерела':'Сьогодні у BoS'}</h1><p className="op-muted">{readOnlyOverview?'Перевірте показники та відкрийте лише їхні доступні джерела. Дії в цьому огляді не виконуються.':'Робочі точки, замовлення та наступні кроки на сьогодні.'}</p></div><div className="erp-actions">{financial&&<Select aria-label={readOnlyOverview?'Валюта показників':'Валюта рахунків'} value={cur} onChange={e=>{select(null);life.current.nextSelection=null;setCurrency(e.target.value);}}>{financials.map(x=><option key={x.currency}>{x.currency}</option>)}</Select>}<Button disabled={busy} onClick={()=>refresh()}>{data?'Оновити':'Повторити'}</Button>{!readOnlyOverview&&<Button onClick={()=>onNavigate('heli')}>Вертоліт</Button>}<Button onClick={()=>onNavigate('info')}>Як працює BoS</Button></div></div>

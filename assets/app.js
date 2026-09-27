@@ -20807,9 +20807,7 @@ function BosGlobalMonitor({
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const stateLabel = busy ? 'Оновлюємо дані' : ready ? status === 'empty' ? 'Доступних записів немає' : 'Дані прочитано' : status === 'stale' ? 'Потрібне оновлення' : status === 'denied' || status === 'context-drift' ? 'Перевірте доступ' : 'Дані недоступні';
-  const readTime = at ? new Date(at).toLocaleTimeString('uk-UA', {
-    hour: '2-digit',
-    minute: '2-digit',
+  const readTime = at && Number.isFinite(new Date(at).getTime()) ? new Date(at).toLocaleString('uk-UA', {
     timeZoneName: 'short'
   }) : null;
   return /*#__PURE__*/React.createElement("section", {
@@ -20824,7 +20822,7 @@ function BosGlobalMonitor({
   }, /*#__PURE__*/React.createElement("span", {
     className: "bos-monitor-symbol",
     "aria-hidden": "true"
-  }, ICONS.dashboard), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", null, "\u0417\u0430\u0433\u0430\u043B\u044C\u043D\u0438\u0439 \u043C\u043E\u043D\u0456\u0442\u043E\u0440\u0438\u043D\u0433"), /*#__PURE__*/React.createElement("p", null, !ready ? stateLabel : /*#__PURE__*/React.createElement(React.Fragment, null, "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0432\u0430\u043C \u0437\u0430\u043F\u0438\u0441\u0438", window.BOS_RUNTIME?.training_enabled || window.BOS_RUNTIME?.mode === 'demo' ? ' · навчальні дані' : '')))), /*#__PURE__*/React.createElement("div", {
+  }, ICONS.dashboard), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", null, "\u0417\u0430\u0433\u0430\u043B\u044C\u043D\u0438\u0439 \u043C\u043E\u043D\u0456\u0442\u043E\u0440\u0438\u043D\u0433"), /*#__PURE__*/React.createElement("p", null, !ready ? stateLabel : /*#__PURE__*/React.createElement(React.Fragment, null, "\u041F\u043E\u043A\u0430\u0437\u043D\u0438\u043A\u0438 \u043F\u043E\u0442\u043E\u0447\u043D\u043E\u0433\u043E \u0447\u0438\u0442\u0430\u043D\u043D\u044F", window.BOS_RUNTIME?.training_enabled || window.BOS_RUNTIME?.mode === 'demo' ? ' · навчальні дані' : '')))), /*#__PURE__*/React.createElement("div", {
     className: "bos-monitor-tools"
   }, /*#__PURE__*/React.createElement("span", {
     className: "bos-monitor-state",
@@ -20854,11 +20852,13 @@ function BosGlobalMonitor({
     className: "bos-monitor-cards",
     id: "bos-monitor-cards",
     hidden: collapsed
-  }, metrics.map(metric => /*#__PURE__*/React.createElement("button", {
+  }, metrics.map(metric => /*#__PURE__*/React.createElement("article", {
     key: metric.key,
-    type: "button",
     className: "bos-monitor-metric",
-    "data-tone": ready ? metric.tone : undefined,
+    "data-tone": ready ? metric.tone : undefined
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "bos-monitor-open",
     disabled: !ready || !metric.allowed,
     onClick: () => onNavigate(metric.section, metric.sub)
   }, /*#__PURE__*/React.createElement("span", {
@@ -20867,11 +20867,26 @@ function BosGlobalMonitor({
     "aria-hidden": "true"
   }, "\u2197")), /*#__PURE__*/React.createElement("strong", null, ready ? metric.value : '—', ready && metric.unit && /*#__PURE__*/React.createElement("small", null, metric.unit)), /*#__PURE__*/React.createElement("span", {
     className: "bos-monitor-metric-note"
-  }, ready ? metric.note : 'Показники після успішного читання')))), /*#__PURE__*/React.createElement("div", {
-    className: "bos-monitor-foot"
-  }, /*#__PURE__*/React.createElement("details", null, /*#__PURE__*/React.createElement("summary", null, ready && readTime ? /*#__PURE__*/React.createElement(React.Fragment, null, "\u041F\u0440\u043E\u0447\u0438\u0442\u0430\u043D\u043E \u043E ", /*#__PURE__*/React.createElement("time", {
+  }, ready ? metric.note : 'Показники після успішного читання')), /*#__PURE__*/React.createElement("details", {
+    className: "bos-monitor-provenance"
+  }, /*#__PURE__*/React.createElement("summary", {
+    "aria-label": 'Про показник «' + metric.label + '»'
+  }, "\u041F\u0440\u043E \u043F\u043E\u043A\u0430\u0437\u043D\u0438\u043A"), ready ? /*#__PURE__*/React.createElement("div", {
+    className: "bos-monitor-disclosure",
+    role: "region",
+    "aria-label": 'Джерело й охоплення: ' + metric.label,
+    tabIndex: 0
+  }, /*#__PURE__*/React.createElement("dl", null, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("dt", null, "\u0414\u0436\u0435\u0440\u0435\u043B\u043E"), /*#__PURE__*/React.createElement("dd", null, metric.provenance?.source || 'Не надано')), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("dt", null, "\u042F\u043A \u043E\u0431\u0447\u0438\u0441\u043B\u0435\u043D\u043E"), /*#__PURE__*/React.createElement("dd", null, metric.provenance?.calculation || 'Правило не надано')), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("dt", null, "\u041E\u0445\u043E\u043F\u043B\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("dd", null, metric.provenance?.scope || 'Охоплення не підтверджено')), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("dt", null, "\u0424\u0456\u043B\u0456\u044F"), /*#__PURE__*/React.createElement("dd", null, metric.provenance?.branch || 'Філіальний зріз не підтверджено')), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("dt", null, "\u041F\u0435\u0440\u0456\u043E\u0434"), /*#__PURE__*/React.createElement("dd", null, metric.provenance?.period || 'Календарний період не задано')), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("dt", null, "\u0411\u0456\u0437\u043D\u0435\u0441-\u0434\u0430\u0442\u0430 \u0440\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043A\u0443"), /*#__PURE__*/React.createElement("dd", null, businessDate ? /*#__PURE__*/React.createElement("time", {
+    dateTime: businessDate
+  }, businessDate) : 'Не надано', ". \u0426\u0435 \u043D\u0435 \u043F\u0435\u0440\u0456\u043E\u0434 \u0456 \u043D\u0435 \u0447\u0430\u0441 \u0437\u043C\u0456\u043D\u0438 \u0437\u0430\u043F\u0438\u0441\u0456\u0432.")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("dt", null, "\u041F\u0440\u043E\u0447\u0438\u0442\u0430\u043D\u043E \u0443 \u0446\u044C\u043E\u043C\u0443 \u0432\u0456\u043A\u043D\u0456"), /*#__PURE__*/React.createElement("dd", null, readTime ? /*#__PURE__*/React.createElement("time", {
     dateTime: at
-  }, readTime)) : readTime ? 'Попереднє читання — показники приховано' : 'Джерело та час даних'), /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u043D\u0438\u043A\u0438 \u043E\u0431\u0447\u0438\u0441\u043B\u0435\u043D\u0456 \u0437 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 ERP. \u0427\u0430\u0441 \u0447\u0438\u0442\u0430\u043D\u043D\u044F \u2014 \u0437\u0430 \u0433\u043E\u0434\u0438\u043D\u043D\u0438\u043A\u043E\u043C \u0446\u044C\u043E\u0433\u043E \u043F\u0440\u0438\u0441\u0442\u0440\u043E\u044E. \u0411\u0456\u0437\u043D\u0435\u0441-\u0434\u0430\u0442\u0430 \u0440\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043A\u0443: ", businessDate || 'не надано', ". \u0426\u0435 \u043E\u0441\u0442\u0430\u043D\u043D\u044F \u043F\u0440\u0438\u0439\u043D\u044F\u0442\u0430 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u044C; \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u0456 \u0437\u043C\u0456\u043D\u0438 \u043F\u043E\u0442\u0440\u0435\u0431\u0443\u044E\u0442\u044C \u043D\u043E\u0432\u043E\u0433\u043E \u0447\u0438\u0442\u0430\u043D\u043D\u044F.")), error && /*#__PURE__*/React.createElement("p", {
+  }, readTime) : 'Час читання не надано', ". \u0417\u0430 \u0433\u043E\u0434\u0438\u043D\u043D\u0438\u043A\u043E\u043C \u0446\u044C\u043E\u0433\u043E \u043F\u0440\u0438\u0441\u0442\u0440\u043E\u044E.")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("dt", null, "\u041E\u043D\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u0434\u0436\u0435\u0440\u0435\u043B"), /*#__PURE__*/React.createElement("dd", null, "\u0427\u0430\u0441 \u043E\u0441\u0442\u0430\u043D\u043D\u044C\u043E\u0457 \u0437\u043C\u0456\u043D\u0438 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u043D\u0435 \u043D\u0430\u0434\u0430\u043D\u043E.")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("dt", null, "\u041F\u0440\u0438\u0447\u0438\u043D\u0430 \u0432\u0456\u0434\u0445\u0438\u043B\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("dd", null, metric.provenance?.deviation || 'Не визначено цим показником')), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("dt", null, "\u041D\u0430\u0441\u0442\u0443\u043F\u043D\u0438\u0439 \u043A\u0440\u043E\u043A"), /*#__PURE__*/React.createElement("dd", null, metric.allowed ? metric.provenance?.action || 'Відкрити відповідний розділ' : 'Перехід недоступний для поточного облікового запису')))) : /*#__PURE__*/React.createElement("p", {
+    className: "bos-monitor-disclosure-empty"
+  }, "\u0417\u043D\u0430\u0447\u0435\u043D\u043D\u044F \u0442\u0430 \u0432\u0456\u0434\u043E\u043C\u043E\u0441\u0442\u0456 \u043F\u0440\u043E \u0447\u0438\u0442\u0430\u043D\u043D\u044F \u043F\u0440\u0438\u0445\u043E\u0432\u0430\u043D\u043E. \u041E\u043D\u043E\u0432\u0456\u0442\u044C \u0434\u0430\u043D\u0456 \u0432 \u0447\u0438\u043D\u043D\u043E\u043C\u0443 \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442\u0456 \u0434\u043E\u0441\u0442\u0443\u043F\u0443."))))), /*#__PURE__*/React.createElement("div", {
+    className: "bos-monitor-foot"
+  }, /*#__PURE__*/React.createElement("details", null, /*#__PURE__*/React.createElement("summary", null, ready && readTime ? /*#__PURE__*/React.createElement(React.Fragment, null, "\u041F\u0440\u043E\u0447\u0438\u0442\u0430\u043D\u043E ", /*#__PURE__*/React.createElement("time", {
+    dateTime: at
+  }, readTime)) : readTime ? 'Попереднє читання — показники приховано' : 'Джерело та час даних'), /*#__PURE__*/React.createElement("p", null, "\u0414\u0436\u0435\u0440\u0435\u043B\u043E, \u043E\u0445\u043E\u043F\u043B\u0435\u043D\u043D\u044F \u0442\u0430 \u0441\u043F\u043E\u0441\u0456\u0431 \u043F\u0456\u0434\u0440\u0430\u0445\u0443\u043D\u043A\u0443 \u043D\u0430\u0432\u0435\u0434\u0435\u043D\u0456 \u043E\u043A\u0440\u0435\u043C\u043E \u0434\u043B\u044F \u043A\u043E\u0436\u043D\u043E\u0433\u043E \u043F\u043E\u043A\u0430\u0437\u043D\u0438\u043A\u0430. \u0427\u0430\u0441 \u0447\u0438\u0442\u0430\u043D\u043D\u044F \u2014 \u0437\u0430 \u0433\u043E\u0434\u0438\u043D\u043D\u0438\u043A\u043E\u043C \u0446\u044C\u043E\u0433\u043E \u043F\u0440\u0438\u0441\u0442\u0440\u043E\u044E, \u043D\u0435 \u0447\u0430\u0441 \u0437\u043C\u0456\u043D\u0438 \u0437\u0430\u043F\u0438\u0441\u0456\u0432. \u041F\u0456\u0441\u043B\u044F \u0437\u043C\u0456\u043D \u043F\u043E\u0442\u0440\u0456\u0431\u043D\u0435 \u043D\u043E\u0432\u0435 \u0447\u0438\u0442\u0430\u043D\u043D\u044F. \u041F\u0435\u0440\u0435\u0445\u0456\u0434 \u0432\u0456\u0434\u043A\u0440\u0438\u0432\u0430\u0454 \u0440\u043E\u0437\u0434\u0456\u043B \u0431\u0435\u0437 \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u043D\u043E\u0433\u043E \u0432\u0438\u0431\u043E\u0440\u0443 \u0437\u0430\u043F\u0438\u0441\u0443 \u0447\u0438 \u0444\u0456\u043B\u0456\u0457.")), error && /*#__PURE__*/React.createElement("p", {
     role: "alert"
   }, error)));
 }
@@ -21194,20 +21209,39 @@ function BoSHome({
   }) : null;
   if (monitor) {
     const available = (section, sub) => bosCanView(section, sub);
+    const provenance = {
+      scope: 'Записи, доступні поточному обліковому запису.',
+      branch: 'Філію окремо не вибрано; філіального фільтра немає.',
+      period: 'Календарний період не задано. Історичний зріз не обчислюється.'
+    };
     const metrics = [{
       key: 'orders',
       label: 'Замовлення у виконанні',
       value: orders.length,
       note: 'Є невиконана кількість',
       section: 'erp',
-      sub: 'sales'
+      sub: 'sales',
+      provenance: {
+        ...provenance,
+        source: 'Знімок ERP: замовлення та їхні позиції.',
+        calculation: 'Кількість замовлень, що мають хоча б одну позицію з додатною невиконаною кількістю. Стан замовлення окремо не фільтрується.',
+        deviation: 'Причини невиконання та відхилення від плану цим підрахунком не визначено.',
+        action: 'Відкрити ERP → Продажі та обрати замовлення вручну.'
+      }
     }, {
       key: 'jobs',
       label: 'Відкриті роботи',
       value: data ? data.jobs.filter(x => x.status !== 'done').length : 0,
       note: 'Виробництво та комплектація',
       section: 'erp',
-      sub: 'production'
+      sub: 'production',
+      provenance: {
+        ...provenance,
+        source: 'Знімок ERP: виробничі роботи.',
+        calculation: 'Кількість робіт зі станом, відмінним від «Завершено».',
+        deviation: 'Причини незавершення та відхилення від плану не надано.',
+        action: 'Відкрити ERP → Виробництво та обрати роботу вручну.'
+      }
     }, {
       key: 'quality',
       label: 'Партії без допуску',
@@ -21215,7 +21249,14 @@ function BoSHome({
       note: 'Статус якості або документи',
       tone: issues.length ? 'warning' : null,
       section: 'erp',
-      sub: 'quality'
+      sub: 'quality',
+      provenance: {
+        ...provenance,
+        source: 'Знімок ERP: партії, стан якості й комплектність документів.',
+        calculation: 'Кількість партій з додатним залишком, для яких якість не дозволена або бракує необхідних документів.',
+        deviation: 'Вказано умови підрахунку. Конкретну причину проблеми партії тут не визначено.',
+        action: 'Відкрити ERP → Якість і зміни. Конкретна партія автоматично не вибирається.'
+      }
     }, {
       key: 'tasks',
       label: 'Відкриті доручення',
@@ -21223,16 +21264,31 @@ function BoSHome({
       note: overdue.length + ' прострочених',
       tone: overdue.length ? 'warning' : null,
       section: 'hr',
-      sub: 'tasks'
+      sub: 'tasks',
+      provenance: {
+        ...provenance,
+        source: 'Знімок ERP: доручення робочого огляду.',
+        calculation: 'Кількість неархівних доручень зі станом, відмінним від «Виконане». Прострочені позначені сервером.',
+        deviation: 'Причини прострочення або незавершення не надано. Очікування іншого учасника не визначається.',
+        action: 'Відкрити HR → Доручення та обрати доручення вручну.'
+      }
     }];
     if (bosCan('finance')) metrics.push({
       key: 'receivable',
       label: 'Очікуємо від клієнтів',
       value: number(financial?.receivable),
       unit: cur || '',
-      note: financial ? 'Залишок рахунків після оплат' : 'Фінансові дані не надано',
+      note: financial ? 'Після оплат і кредитових коригувань' : 'Фінансові дані не надано',
       section: 'erp',
-      sub: 'costs'
+      sub: 'costs',
+      provenance: {
+        ...provenance,
+        source: 'Знімок ERP: залишки рахунків у фінансовому огляді.',
+        scope: provenance.scope + ' Валюта: ' + (cur || 'не надано') + '. Валюти не підсумовуються й не конвертуються.',
+        calculation: 'Сума невід’ємних залишків рахунків після оплат і чинних кредитових коригувань у вибраній валюті. Утримання з цієї суми не віднімаються.',
+        deviation: 'Це залишок до оплати, не сума прострочення. Причини несплати та відхилення від плану не надано.',
+        action: 'Відкрити ERP → Фінансовий результат. Конкретний рахунок автоматично не вибирається.'
+      }
     });
     return /*#__PURE__*/React.createElement(BosGlobalMonitor, {
       ready: ready,

@@ -612,8 +612,17 @@ article.bos-task-card button[data-task-card-open] { width:100%; }
 .bos-monitor-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; }
 .bos-monitor-cards[hidden] { display:none; }
 .bos-monitor-metric { min-width:0; min-height:94px; display:flex; flex-direction:column; align-items:stretch; gap:4px; padding:11px 14px; border:1px solid #D6E3D9; border-radius:11px; background:#FFFFFF; color:var(--bos-ink); text-align:left; }
-.bos-monitor-metric:hover:not(:disabled) { border-color:#6EA58A; background:#FCFEFC; }
-.bos-monitor-metric:disabled { opacity:1; cursor:default; }
+.bos-monitor-open { display:flex; flex-direction:column; align-items:stretch; gap:4px; min-width:0; min-height:70px; padding:0; border:0; background:transparent; color:inherit; font:inherit; text-align:left; cursor:pointer; overflow-wrap:anywhere; }
+.bos-monitor-open:hover:not(:disabled) { color:var(--bos-primary); }
+.bos-monitor-open:disabled { opacity:1; cursor:default; }
+.bos-monitor-provenance { margin-top:auto; border-top:1px solid var(--bos-line); }
+.bos-monitor-provenance summary { min-height:44px; box-sizing:border-box; padding:12px 0 8px; color:var(--bos-primary); font-size:11px; line-height:1.5; cursor:pointer; overflow-wrap:anywhere; }
+.bos-monitor-disclosure { max-height:min(34dvh,280px); overflow:auto; overscroll-behavior:contain; padding:2px 5px 8px 0; }
+.bos-monitor-disclosure dl { display:grid; gap:12px; margin:0; }
+.bos-monitor-disclosure dt { margin-bottom:3px; color:var(--bos-muted); font-size:11px; font-weight:600; line-height:1.4; }
+.bos-monitor-disclosure dd,.bos-monitor-disclosure-empty { margin:0; color:var(--bos-ink); font-size:12px; line-height:1.5; overflow-wrap:anywhere; }
+.bos-monitor-disclosure-empty { padding-bottom:8px; }
+.bos-monitor-open:focus-visible,.bos-monitor-provenance summary:focus-visible,.bos-monitor-disclosure:focus-visible { outline:2px solid var(--bos-primary); outline-offset:3px; }
 .bos-monitor-metric-label { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:11px; color:#50675B; line-height:1.4; }
 .bos-monitor-metric-label>span { color:#658773; }
 .bos-monitor-metric strong { font-size:25px; line-height:1.2; font-weight:700; letter-spacing:-.035em; font-variant-numeric:tabular-nums; }
