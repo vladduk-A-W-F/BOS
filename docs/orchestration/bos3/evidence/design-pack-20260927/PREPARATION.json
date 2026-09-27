@@ -1,0 +1,32 @@
+{
+  "schema": "bos3-design-pack-preparation-v1",
+  "base_commit": "0cdd3ef683433bf8cdccf4a2b559ef7c8b1531a2",
+  "candidate_version": "0.3.0-dev.4",
+  "scope": [
+    "boss_project/version.py",
+    "README.md",
+    "README_UA.md",
+    "docs/BoS_3_0_Start_UA.pdf",
+    "docs/BoS_3_0_Start_UA.manifest.json",
+    "docs/orchestration/bos3/evidence/design-pack-20260927/"
+  ],
+  "registry": {
+    "path": "frontend/bos3_content.json",
+    "modified": false,
+    "reason": "No version or metadata field exists; compiled HTML obtains version through {{ bos_version }}."
+  },
+  "frontend_build": {
+    "run": false,
+    "reason": "No metadata revision affects compiled frontend; source CSS/JS is outside this package allowlist."
+  },
+  "pdf": {
+    "status": "PENDING_SINGLE_GENERATION",
+    "script": "scripts/build_bos3_brochure.py",
+    "script_modified": false
+  },
+  "non_actions": [
+    "No browser, product QA, Django, HTTP, database, seed, reset, CI, runtime, git push or main action.",
+    "No source CSS or JS rewrite.",
+    "No package installation."
+  ]
+}

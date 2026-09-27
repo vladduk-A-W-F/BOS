@@ -1,0 +1,99 @@
+{
+  "schema": "bos3-design-pack-v1",
+  "base_commit": "0cdd3ef683433bf8cdccf4a2b559ef7c8b1531a2",
+  "candidate_version": "0.3.0-dev.4",
+  "result": "PREPARED_FOR_INDEPENDENT_REVIEW",
+  "changed_product_paths": [
+    "README.md",
+    "README_UA.md",
+    "boss_project/version.py",
+    "docs/BoS_3_0_Start_UA.manifest.json",
+    "docs/BoS_3_0_Start_UA.pdf"
+  ],
+  "allowlist_check": "PASS",
+  "version_consistency": "PASS",
+  "pdf": {
+    "generation_count": 1,
+    "marker_count": 1,
+    "build_exit_code": 0,
+    "render_exit_code": 0,
+    "pages": 3,
+    "visual_review": "PASS: all three pages inspected; headings, body text, table, footer and dev.4 version are legible; no clipping, overlap or unreadable content observed.",
+    "sha256": "98810fe2db7ee06f559d85e13861b2c3bc5e9b3abfc8440d85265a98520fbf47"
+  },
+  "registry": {
+    "sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390",
+    "modified": false,
+    "reason": "No version or metadata field exists."
+  },
+  "frontend": {
+    "build_run": false,
+    "reason": "No metadata revision affects compiled output; inherited accepted UI identity preserved.",
+    "source_sha256": "0fe2a86c6fe4cda53f83507f9eafe4be1a066be193c133cf5b9f2a45d63884e8",
+    "compiled_html_sha256": "33a8372fb84a83f6c4d3e51cbb6ac3524b74ac5d47ff9b85d9bb808c988a69f5",
+    "app_js_sha256": "e193d08b31e16b3c2100fa14414aa87a4c8f5946da7396081503fa353920f8d9"
+  },
+  "artifacts": [
+    {
+      "path": "README.md",
+      "sha256": "0ce05e85debf9ad427b1f20c393bc74928fe5beca7423496b279de1813f350d6",
+      "bytes": 4605
+    },
+    {
+      "path": "README_UA.md",
+      "sha256": "f1d754b35c204a13139cfc248096283473dcebb7a5036b862398b1a1f9340390",
+      "bytes": 15219
+    },
+    {
+      "path": "boss_project/version.py",
+      "sha256": "9740188c7ab0bd77915c22f908712d0559d81574201e8ef99b0693cea4af390c",
+      "bytes": 24
+    },
+    {
+      "path": "frontend/bos3_content.json",
+      "sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390",
+      "bytes": 17408
+    },
+    {
+      "path": "frontend/boss_app_source.html",
+      "sha256": "0fe2a86c6fe4cda53f83507f9eafe4be1a066be193c133cf5b9f2a45d63884e8",
+      "bytes": 906434
+    },
+    {
+      "path": "frontend/boss_app_html.html",
+      "sha256": "33a8372fb84a83f6c4d3e51cbb6ac3524b74ac5d47ff9b85d9bb808c988a69f5",
+      "bytes": 141266
+    },
+    {
+      "path": "assets/app.js",
+      "sha256": "e193d08b31e16b3c2100fa14414aa87a4c8f5946da7396081503fa353920f8d9",
+      "bytes": 1251725
+    },
+    {
+      "path": "docs/BoS_3_0_Start_UA.pdf",
+      "sha256": "98810fe2db7ee06f559d85e13861b2c3bc5e9b3abfc8440d85265a98520fbf47",
+      "bytes": 96141
+    },
+    {
+      "path": "docs/BoS_3_0_Start_UA.manifest.json",
+      "sha256": "f6ede982416085386543a4793e476b0d6a4312fcee2828d09d93625b7c876304",
+      "bytes": 259
+    }
+  ],
+  "raw_outputs": [
+    "pdf-regeneration.raw.txt",
+    "pdf-render.raw.txt",
+    "PREPARATION.json"
+  ],
+  "non_actions": [
+    "No frontend build.",
+    "No browser, product QA, Django, HTTP, database, seed, reset, CI, runtime, git push or main action.",
+    "No source CSS or JS rewrite.",
+    "No PDF script modification and no package installation."
+  ],
+  "readiness": {
+    "technical_ready": false,
+    "pilot_allowed": false,
+    "mvp": false
+  }
+}

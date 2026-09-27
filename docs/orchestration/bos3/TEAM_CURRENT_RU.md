@@ -6,6 +6,8 @@
 
 ## Текущая работа настройки
 
+27.09 15:04Z: writer завершил dev.4 package в bos3-dev4-pack/repo, base0cdd3ef; bos3_candidate_review ACCEPT_SCOPED_B30_DESIGN_PACK_DEV4. Root последовательно интегрирует; runtime ещё f55. bos3_fixture_impl завершил guarded template F45E8358, start_overview_review ACCEPT_SCOPED_TEMPLATE_ONLY; final pin review и установка остаются у root. Тот же quality исправляет revision4 oracle и готовит статический exact harness после REVISE_BEFORE_OWNER_EXCEPTION, без исполнения. Дизайн и архитектор завершили принятый scope, повторные задания им не выданы.
+
 QA scope revision3 принят start_overview_review только как уточнение границ, не готовый run plan. Status PARTIAL; существующий quality продолжает exact lesson/service/receipt oracle в прежнем scratch. Root выбрал конкретное SQLite-only предложение среды, но не создал её и не снял caps. Новое смежное назначение tracker: B30-ARCH-CONTRACT-20260927, /root/bos3_architect read-only, reported by01a0be90...; две output-only записи, без canonical/design/runtime edits или subagents. Это учитывается в лимите исполнителей, не новый root.
 
 Текущая новая подготовка QA: B30-12-QA-SCOPE, существующий QA чат 01a0c05d-6eeb-79f1-a135-be66985b442f после подтверждения idle; отдельный output bos3-readiness-scope-20260927, product f55, reviewer start_overview_review. Только матрица требований/существующего кода/evidence и точный план допусков, без запусков/субагентов. Observer сообщил ACTIVE своей native goal; root не создаёт новую и не превращает это в полную приёмку.
