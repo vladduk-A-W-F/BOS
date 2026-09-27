@@ -1,6 +1,6 @@
 # BoS 3.0 dev.3: светлое превью
 
-27.09.2026. Кандидат реализован, собран и независимо рассмотрен в указанном ниже объёме. На ПК владельца ещё не установлен. Это не release GO.
+27.09.2026. Кандидат реализован, собран и независимо рассмотрен. Теперь действительно установлен на ПК владельца; доставка и одна desktop/mobile entry-проверка приняты отдельно. Это не полный release GO.
 
 ## Точная версия
 
@@ -27,15 +27,17 @@
 | Одна штатная сборка новой source-ревизии | native exit 0; JSX compiled, local script assets wired |
 | Версия, README, manifest и PDF | bos3_preview_archaeology: ACCEPT_SCOPED_STATIC; все три готовые PNG-страницы просмотрены, без обрезаний/наложений |
 | Подготовка обновления | Независимое ACCEPT_SCOPED_STATIC exact-pin runner; не запускался |
+| Фактическое обновление 27.09 | Одно capture/stop/apply/start, exits0; сохранность data/media/credentials до browser login; dev.3 exact f55, loopback waitress |
+| Одна entry-проверка 27.09 | Светлый старт, desktop1365x900/mobile390x844, case intent payment, обычный вход, not_started; ACCEPT_SCOPED_DELIVERY_AND_ENTRY, без уроков и full acceptance |
 
 Raw output, receipts и review находятся в evidence/light-preview-20260927/, evidence/light-preview-pack-20260927/ и evidence/light-preview-delivery-20260927/. Успешные проверки не повторяются без новой причины.
 
 ## Что остаётся открытым
 
-Выданный runtime: 0.3.0-dev.1 / 33d7d387aa582c04339a91ae94361948ea67904c; отдельный LOCAL_RUNTIME_RECEIPT.json. Свежий HTTP и browser check не выполнялись. Старый локальный URL нельзя выдавать за установленную dev.3.
+Выданный runtime: 0.3.0-dev.3 / f55a15de4006d10c0d7c65f8a2ca8499fbb99819; LOCAL_RUNTIME_RECEIPT.json. Capture/stop/apply/start exits0, protected payload до/после старта совпал. Браузер подтвердил dev.3 по адресу http://127.0.0.1:8030/, светлый старт, desktop/mobile и обычный вход. Независимый verdict ACCEPT_SCOPED_DELIVERY_AND_ENTRY.
 
-После готовности dev.3 владельцу задан точный вопрос об одном update/restart и одной проверке стартового экрана desktop/mobile. Ответ пока не получен. До ответа база, пароль, прогресс и runtime не меняются. Узкий entry-допуск не разрешает фактическое выполнение трёх уроков, ERP/CRM-записи, миграции, сброс или автоматические повторы.
+Прямое разрешение «СДЕЛАЙ ПОЛНЫЙ ПЕРЕХОД ДА» получено и проверено root; одно окно выполнено. Новый общий ответ «ВСЕГДА ОБНОВЛЯТЬ И МЕНЯТЬ» действует для обычных reviewed owner-local обновлений в согласованном плане. Entry-проверка не включала уроки, ERP/CRM mutations, migrations/reset, full/PG/E2E или повторы.
 
 Исторические результаты обучения и CRM из dev.2 не становятся новой динамической приёмкой f55a15d. Сохраняются fixture 3/3 с исправлением только статически, прежний progress 3/3, использованное Node-исключение 1/1 и ограничения P05/A09/A10/A11. Внешние тестировщики, reset-контракт, фактическое прохождение и owner feedback остаются отдельными условиями. Старые CANDIDATE_MANIFEST.json и CANDIDATE_ACCEPTANCE_RU.md сохранены как история dev.2.
 
-TECHNICAL_READY=false, PILOT_ALLOWED=false, MVP=false. Цели 04.10.2026 и 11.10.2026 условны и требуют приёмки и фактической обратной связи. Текущие исполнители: TEAM_CURRENT_RU.md; очередь и следующий шаг: ACTIVE_WORK_PLAN_RU.md.
+TECHNICAL_READY=false, PILOT_ALLOWED=false, MVP=false. Недельный cutoff 04.10.2026 23:59 Europe/Berlin не заменяет full acceptance и feedback. Старый 11.10 не продлевает окно. Текущие исполнители: TEAM_CURRENT_RU.md; следующий новый scope B30-DESIGN-NEXT ведётся отдельно от f55.

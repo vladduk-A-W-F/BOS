@@ -9,13 +9,13 @@
 - Root: B30-DEV-WORKFLOW завершён в этом документальном commit; канонические plan/control/сроки и PR согласованы. Независимый reviewer bos3_candidate_review: ACCEPT_SCOPED_DEVELOPMENT_CONTROL, предыдущий P1 закрыт фактической интеграцией CLI.
 - bos3_fixture_impl: B30-DEV-CONTROL-CLI завершён, root интегрировал 4e014971e5db33f9106de86399424bedf2ca15bb. Выделенная копия bos3-development-control/repo от 54764b0; только tools/bos_control.py и tools/test_bos3_control.py. Независимый reviewer start_overview_review; QA bos3_crm_impl сохранил первый FAIL и одну успешную focused-проверку без полного повтора.
 - bos3_candidate_review: завершил новую матрицу очереди по недельному поручению; готовых независимых продуктовых карточек без нового допуска/feedback не выявил. Это не повтор продукта или manifest.
-- B30-PREVIEW-DELIVERY: root владелец исполнения, owner владелец недостающего решения. Остальные завершённые роли ниже не считаются постоянно работающими процессами.
+- B30-PREVIEW-DELIVERY: root выполнил одно окно, start_overview_review принял actual receipts/screenshots: ACCEPT_SCOPED_DELIVERY_AND_ENTRY. Dev.3 запущена, прежний permission blocker снят.
 
 ## Управление и актуальная база
 
 - Единственный интегратор: root чата «Подготовить план консолидации BoS», 01a0dd56-ca2d-79c0-b159-bde80074a026.
 - Canonical: C:/Users/user/.codex/worktrees/bos-consolidation-plan/repo, codex/bos3-prerelease-20260927.
-- Исходная база нового светлого превью: defd1fc12545053159a3a888013d096c79157fd3. Текущий продукт: dev.3 / f55a15de4006d10c0d7c65f8a2ca8499fbb99819; UI aee8d0ee41afd5cba256a0b4a4deddadf7af6e4e. Предыдущий dev.2 сохранён исторически. Выданный runtime: dev.1 / 33d7d387aa582c04339a91ae94361948ea67904c. Эти значения не взаимозаменяемы.
+- Исходная база нового светлого превью: defd1fc12545053159a3a888013d096c79157fd3. Текущий продукт и выданный runtime: dev.3 / f55a15de4006d10c0d7c65f8a2ca8499fbb99819; UI aee8d0ee41afd5cba256a0b4a4deddadf7af6e4e. Предыдущие dev.2 и dev.1 сохранены исторически. Docs/dev-tool HEAD не заменяет product pin.
 - Не больше четырёх одновременно работающих исполнителей; новые чаты, второй интегратор и scheduler не создаются. Автор не принимает собственный код.
 
 ## Почему отделы оставались на старой версии
@@ -45,4 +45,10 @@ Root забирает законченный результат, сверяет 
 
 Существующая automation `automation` обновлена штатным инструментом на светлое превью и ту же root-очередь. Период 15 минут, ACTIVE; она не гарантирует непрерывную работу при выключенном ПК, закрытом приложении или недоступных инструментах. Новые таймеры не созданы.
 
-Точные состояния карточек, code/evidence/review pins и решение о runtime: ACTIVE_WORK_PLAN_RU.md, CONTROL_STATE.json и кандидат-специфичные evidence. Пока нет нового допуска и фактической проверки, runtime не обновлён, browser acceptance отсутствует, TECHNICAL_READY/PILOT_ALLOWED/MVP=false.
+Точные состояния карточек и code/evidence/review/runtime pins: ACTIVE_WORK_PLAN_RU.md, CONTROL_STATE.json и LOCAL_RUNTIME_RECEIPT.json. Доставка и scoped entry dev.3 приняты; полная browser/lesson/release acceptance остаётся открытой. TECHNICAL_READY/PILOT_ALLOWED/MVP=false.
+
+## Новое текущее поручение дизайна
+
+«БОС — отдел дизайна» (01a0bffa-3fc7-7bc2-9868-86164c6e0315) выполняет прямой новый scope: верхний мониторинг и листаемая презентация перед входом/обучением. Карточка B30-DESIGN-NEXT; текущий turn 01a0e32b-3715-7df3-9a1a-83754c3f36af подтверждён root read_thread. Контролёр сообщил children learning_design 01a0e303-635d-7131-bc2d-4ac3dede3ddc, design_coverage 01a0e301-cc1e-7b32-a8ec-30e76ad2fe62, visual_qa 01a0e304-03b1-7461-aa70-86bebe158775. Это reported roster, не подтверждение их source/готовности. Base/workspace/allowlist/patch handoff ожидается; root не дублирует UI реализацию. Старое ACCEPT_STATIC в таблице выше относится только к принятому f55, не новому поручению.
+
+Свежий отчёт проектного контролёра: writer 01a0be9f... признал f55 и не запускает повторную упаковку; quality 01a0c05d... прочитал текущие control/manifest, прежний UNCONFIRMED именно для metadata access снят. Это не новая QA или полный доступ к runtime. Точные внешние snapshots: outputs/bos3-projectwide-control-20260927/CONNECTIONS_AUDIT.json и TASKS.json в D:/3/BOSDev/repo; новый canonical closeout имеет приоритет над промежуточным hash snapshot.

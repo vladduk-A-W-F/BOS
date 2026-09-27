@@ -15,6 +15,8 @@
 
 ## Управление
 
+Checkpoint 27.09: owner-local dev.3 f55 реально доставлен и entry desktop/mobile проверен, независимое ACCEPT_SCOPED_DELIVERY_AND_ENTRY. Старый permission blocker снят прямым ответом; дальнейшие обычные reviewed owner-local обновления разрешены в принятом плане без повторного вопроса. Полное прохождение уроков, сохранение выполненных шагов, negative API/roles и release acceptance этим не закрыты. Новое прямое задание дизайну: B30-DESIGN-NEXT, верхний мониторинг и листаемая презентация, уже активный отдел; exact handoff ждёт root.
+
 B30-DEV-CONTROL-CLI интегрирован отдельным commit 4e014971e5db33f9106de86399424bedf2ca15bb. Read-only команды --scope bos3 доступны после независимого review и synthetic QA; полная история в evidence/development-workflow-20260927/CLI_REVIEW_RU.md. Это не продуктовая приёмка или разрешение обновить runtime.
 
 Рабочий порядок: DEVELOPMENT_WORKFLOW_RU.md. Строгие приоритеты и владельцы решений: CONTROL_STATE.json.weekly_execution. Текущая команда контроля `python tools/bos_control.py --scope bos3 ...` явно выбирает этот цикл; legacy default сохранён только для истории. Существующая native goal контролёра не дублируется в root.

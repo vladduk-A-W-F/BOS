@@ -12,7 +12,7 @@
 | B30-DEV-WORKFLOW | root / bos3_candidate_review | Canonical, docs/orchestration/bos3/, BOS3_EXECUTION_RU.md и текущая секция AGENTS.md | DONE: ACCEPT_SCOPED_DEVELOPMENT_CONTROL; единая недельная очередь, blockers/DoD/роли и cutoff. Код CLI 4e014971; review: development-workflow-20260927/WORKFLOW_REVIEW_RU.md. Этот документальный commit завершает карточку; product/runtime не меняются |
 | B30-DEV-CONTROL-CLI | bos3_fixture_impl / start_overview_review; отдельный QA bos3_crm_impl | bos3-development-control/repo от 54764b0; только tools/bos_control.py и tools/test_bos3_control.py | INTEGRATED 4e014971: --scope bos3; попытка1 дала 14 PASS + 1 FAIL; после review единственной правки focused attempt2 PASS. Не новый полный suite и не приложение. Evidence: development-workflow-20260927/CLI_REVIEW_RU.md |
 
-Порядок недели: актуальный owner-local кандидат -> светлое превью -> три кейса -> вход/сохранение -> другие согласованные улучшения. По каждому предыдущему пункту перед переходом нужен результат либо явный blocker с владельцем решения. Текущие blockers записаны в CONTROL_STATE; первый следующий продуктовый шаг B30-PREVIEW-DELIVERY требует уже запрошенного точного ответа владельца. Недельная цель и просьба настроить разработку не заменяют этот допуск.
+Порядок недели: актуальный owner-local кандидат -> светлое превью -> три кейса -> вход/сохранение -> другие согласованные улучшения. B30-PREVIEW-DELIVERY выполнена один раз и принята независимо. Обычные reviewed owner-local обновления разрешены новым «ВСЕГДА ОБНОВЛЯТЬ И МЕНЯТЬ»; старый вопрос больше не blocker. Полное прохождение уроков и новая проверка progress имеют отдельные ограничения. Следующий активный handoff: B30-DESIGN-NEXT, уже выполняется отделом дизайна.
 
 ## Приоритет владельца
 
@@ -25,9 +25,9 @@
 ## Точная база
 
 - Canonical: C:/Users/user/.codex/worktrees/bos-consolidation-plan/repo, codex/bos3-prerelease-20260927; исходный SHA этого пакета dd88f28c0779394a70cc1625a6995c6a46f84810.
-- Выданный runtime: C:/Users/user/.codex/worktrees/bos3-local-runtime/repo, 33d7d387aa582c04339a91ae94361948ea67904c. Не подменять без reviewed-кандидата и отдельного допуска на доставку.
+- Выданный runtime: C:/Users/user/.codex/worktrees/bos3-local-runtime/repo, f55a15de4006d10c0d7c65f8a2ca8499fbb99819 / dev.3. Фактический exact-pin maintenance и entry receipt: LOCAL_RUNTIME_RECEIPT.json. Следующие обычные reviewed local обновления разрешены в принятом объёме без нового вопроса.
 - Реализация UI: C:/Users/user/.codex/worktrees/bos3-entry-flow/repo обновлена на defd1fc12545053159a3a888013d096c79157fd3. Шесть прежних файлов совпали с canonical по SHA-256 и сохранены отдельным stash перед switch; stash не применять повторно. Старые WIP не являются базой новых задач.
-- Текущий продуктовый кандидат 0.3.0-dev.3: f55a15de4006d10c0d7c65f8a2ca8499fbb99819; UI commit aee8d0ee41afd5cba256a0b4a4deddadf7af6e4e. Паспорт LIGHT_PREVIEW_CANDIDATE.json. Runtime остаётся 0.3.0-dev.1 / 33d7d387aa582c04339a91ae94361948ea67904c. Новый код, выдача на ПК и принятый rc являются разными состояниями.
+- Текущий продуктовый кандидат 0.3.0-dev.3: f55a15de4006d10c0d7c65f8a2ca8499fbb99819; UI commit aee8d0ee41afd5cba256a0b4a4deddadf7af6e4e. Паспорт LIGHT_PREVIEW_CANDIDATE.json. Runtime теперь совпадает с dev.3 / f55; dev.1 сохранён как runtime-before.json в evidence доставки. Новый код, выдача на ПК и принятый rc являются разными состояниями.
 - Предыдущий dev.2 / ae966d3 сохранён в CANDIDATE_MANIFEST.json и CANDIDATE_ACCEPTANCE_RU.md как историческое доказательство, не текущий product pin. Его maintenance runner нельзя выполнять для dev.3 без нового pin/allowlist и review.
 
 ## Текущий пакет светлого превью
@@ -40,13 +40,13 @@
 | B30-PREVIEW-REVIEW | start_overview_review; «БОС — отдел дизайна», 01a0bffa-3fc7-7bc2-9868-86164c6e0315 | ACCEPT_SCOPED_STATIC кода + ACCEPT_STATIC UX snapshot, без блокирующих findings | Source/CSS review не доказывает browser UX; полные hashes в evidence/light-preview-20260927/REVIEW_RU.md |
 | B30-PREVIEW-PACK | «БОС — реализация и проверка пакетов», 01a0be9f-b413-7822-9f93-16ba69f4f00f; bos3_preview_archaeology reviewer | INTEGRATED_SCOPED_STATIC_PDF_VISUAL_PASS, f55a15d; dev.3, README, PDF/manifest и три готовых рендера | Самостоятельная версия кода, не доказательство доставки или готовности релиза |
 | B30-PREVIEW-QA | QA подготовка; root исполнение; start_overview_review независимый reviewer | PASS_SCOPED_ATTEMPT_2_OF_3: 9/9, native exit 0; одна сборка новой ревизии exit 0 | Не повторять успешные проверки. Из-за UNCONFIRMED shell у legacy QA исполнение перенесено root, лимит не сброшен |
-| B30-PREVIEW-DELIVERY | root после точного допуска | OWNER_DECISION_PENDING: один контролируемый update/restart и одна desktop/mobile entry-проверка | Уточнённый вопрос заменяет прежние dev.2 вопросы; молчание не разрешает запуск. Нужны новый immutable pin и reviewed maintenance allowlist |
-| B30-PREVIEW-DELIVERY-PREP | bos3_fixture_impl; start_overview_review независимый reviewer | ACCEPT_SCOPED_STATIC_NOT_EXECUTED: f55a15d, 12 product paths, runner F09599F6... | evidence/light-preview-delivery-20260927/REVIEW_RU.md; не исполнять даже capture до точного допуска |
+| B30-PREVIEW-DELIVERY | root / start_overview_review | DONE: ACCEPT_SCOPED_DELIVERY_AND_ENTRY; capture/stop/apply/start по одному, exits0; desktop1365x900/mobile390x844 и один login | f55 действительно работает; данные сохранены до browser login; выбранный payment not_started. EXECUTION_RU.md, DELIVERY_REVIEW_RU.md и LOCAL_RUNTIME_RECEIPT.json |
+| B30-PREVIEW-DELIVERY-PREP | bos3_fixture_impl / start_overview_review | ACCEPT_SCOPED_STATIC, затем использован один раз по прямому допуску; runner F09599F6... | Подготовительный REVIEW_RU.md исторический; исполнение и итог отдельно в EXECUTION_RU.md / DELIVERY_REVIEW_RU.md |
 | B30-PREVIEW-RELEASE-REVIEW | «Предложить параллельные процессы», 01a0bf0f-a9e4-7631-87e1-bb1aed03f174 | ACCEPT_SCOPED_EVIDENCE_PACKAGING_ONLY: 12/12 совпали с product commit; manifest 3de8ab13... | evidence/light-preview-release-20260927/REVIEW_RU.md; не общий QA PASS |
 
-До ответа на уточнённый допуск не выполнять browser/HTTP/lifecycle или обновление выданного runtime. Проверка входного экрана не разрешает выполнение трёх уроков, ERP/CRM-записи, миграции или сброс данных. Разрешённые независимые код, review и упаковка продолжаются.
+Прямой ответ владельца «СДЕЛАЙ ПОЛНЫЙ ПЕРЕХОД ДА» проверен root в исходном чате; затем получено «ВСЕГДА ОБНОВЛЯТЬ И МЕНЯТЬ». Одно окно завершено. Успешную entry-проверку не повторять без новой причины; уроки, ERP/CRM-записи, миграции, reset и прежние исчерпанные наборы этим не разрешены.
 
-На первый вопрос владелец ответил повторением продуктового приоритета, зелёного стиля и активной работы отделов. Этот ответ учтён в реализации, но не содержит точного разрешения lifecycle/browser-исключения. После готового reviewed-кандидата dev.3 с 9/9 AST и сборкой задан уточняющий вопрос об установке именно этой версии и одной entry-проверке. Ответ пока отсутствует; не повторять вопрос. PDF и oracle согласованы с финальным source hash.
+История: первый общий ответ про зелёный стиль не считался исключением. Новый точный ответ 27.09 снял прежний blocker; исходный userMessage сохранён в evidence. Установлены ровно reviewed 12 product files f55, а не более поздний docs/dev-tool HEAD.
 
 ## История принятого dev.2 пакета
 
@@ -63,9 +63,9 @@
 ## Следующие действия текущего кандидата
 
 1. Независимая сверка LIGHT_PREVIEW_CANDIDATE.json и статическая подготовка maintenance для точного f55a15d завершены. Принятый объём зафиксирован в LIGHT_PREVIEW_CANDIDATE_RU.md. Не выполнять старый ae966d3 runner.
-2. После готового dev.3, 9/9 AST и успешной сборки владельцу задан один ясный уточняющий вопрос: установить эту версию и выполнить одну entry-проверку. До точного ответа сохранить runtime/БД/прогресс. Прежний ответ о зелёном стиле учтён в коде, не выдан за lifecycle-допуск.
-3. Синхронизировать текущие code/control записи и draft PR #10. Main не менять. Передавать владельцу только проверенный факт, не называть dev.3 работающим по старому URL до доставки.
-4. После разрешённой доставки и фактического feedback продолжить готовые scoped карточки. Полное прохождение трёх кейсов, внешние тестировщики и release acceptance не покрываются узкой entry-проверкой.
+2. Доставка f55 и один desktop/mobile entry приняты независимо. Сохранить выданную версию и raw evidence; owner feedback по фактическому интерфейсу ещё не получен.
+3. Синхронизировать новый runtime receipt, текущие control записи и draft PR #10. Main не менять. Фактический локальный URL теперь подтверждён для dev.3.
+4. Принять уже готовящийся B30-DESIGN-NEXT handoff верхнего мониторинга и листаемой презентации. Проверить exact base/workspace/allowlist и независимый review; не создавать второго UI автора. Полное прохождение трёх кейсов и внешняя приёмка не покрыты entry.
 
 ## Сохранённые границы предыдущего пакета
 
@@ -89,3 +89,7 @@
 Исторический progress 3/3, отдельное Node-исключение 1/1 consumed; fixture 3/3 correction static-only; init 3/3; успешный start2 и отдельный controlled restart не дают автоматического нового разрешения. P05/A09/A10/A11 и все прежние browser/E2E/PG/full/payment/column ограничения сохранены. NEW B30-04Q имеет собственный узкий oracle, не доказывает работу уроков/БД/браузера. Все исполнения сохраняют native exit, source/hash, raw output, предел попыток.
 
 TECHNICAL_READY=false, PILOT_ALLOWED=false, MVP=false. 30.09 оценка пробелов/риска, 01.10 фиксация достижимого состава, 02–03.10 разрешённая финальная проверка. До 04.10.2026 23:59 один итог GO/NO-GO с основанием; после срока новых изменений нет, только чтение/отчёт/штатная пауза automation. Прежний 11.10 исторический, не автоматическое продление.
+
+## Новый дизайн handoff
+
+Root прочитал прямое сообщение владельца 01a0e32b-38e4-7653-a0d9-316b6a15ab60 в «БОС — отдел дизайна», thread 01a0bffa-3fc7-7bc2-9868-86164c6e0315. Верхний общий мониторинг и листаемая онлайн-презентация до входа/обучения: B30-DESIGN-NEXT, WAITING_HANDOFF. Отдел уже работает; base/workspace/allowlist/patch ожидаются через существующий запрос проектного контролёра. Новый требуемый product base f55; фактический worker base до ответа UNCONFIRMED. Историческую c8b3 копию не применять вслепую. Root передал новый runtime checkpoint и запрет параллельного canonical/runtime writer. Receipt отправки не является выполнением новой задачи.
