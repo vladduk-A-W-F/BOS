@@ -6,6 +6,16 @@
 
 ## Текущая работа настройки
 
+UI author и UXD02 QA завершены scoped; integrationec96870, runtime пока811/dev6. Сейчас existing writer01a0be9f... выполняет UXD02-PACK в чистой отдельной копии отec96870, reviewer bos3_candidate_review. Delivery template author bos3_fixture_impl и static reviewer start_overview_review завершили TEMPLATE_ONLY; target PENDING, исполнения0. Других параллельных UI редакторов нет.
+
+### История этого перехода
+
+Ниже сохранены промежуточные назначения и нулевые счётчики до их исполнения. Текущие владельцы только в верхнем абзаце и CONTROL_STATE.cards; завершённые роли не переназначать по истории.
+
+Независимая UXD02-DELIVERY-PREP: bos3_fixture_impl готовит только два fail-closed template и отчёт в новом qa-scratch/bos3-uxd02-delivery-20260927; reviewer start_overview_review. From811/dev6, будущий dev7 target PENDING и обязан отказывать; исполнения0. Не меняет runtime или UI, не повторяет старое maintenance окно.
+
+UXD02 автор завершён: design result0f9e94bee39ad7340b47ce762f4ee077726a6ea3; независимый code/build review bos3_candidate_review. Параллельно bos3_crm_impl готовит только новый isolated oracle, execution0, reviewer start_overview_review после подготовки. Shared UI не получает второго автора, runtime не меняется.
+
 Dev.6/8114097 установлена и принята независимо; root завершил доставку, приложение оставлено работать. B30-CONTROL-MANIFEST завершён: author bos3_fixture_impl, QA bos3_crm_impl, reviewer start_overview_review; приняты разные exact revisions с run1 четырёх методов и run2 одного нового метода, без повторов. Текущий автор UXD02: design01a0bffa-3fc7-7bc2-9868-86164c6e0315, reviewer bos3_candidate_review; clean bos3-product-design/repo от61d9edd, codex/bos3-uxd02-drilldown-20260927. Shared UI имеет одного автора. Source explorer завершён. Одна генерация разрешена, QA и доставка отдельно. Остальные завершённые роли не получают дубликатов; B30-12 и UXD03-WAIT требуют прежних owner decisions.
 
 Следующие абзацы сохраняют промежуточные handoff этой поставки. Действующие назначения только выше и в CONTROL_STATE.cards.
