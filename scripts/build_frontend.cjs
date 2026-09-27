@@ -7,6 +7,9 @@ if(bos3Content.schema!=='bos.training.content.v1'||!Array.isArray(bos3Content.ca
 const contentScript='<script>window.BOS3_CONTENT='+JSON.stringify(bos3Content).replace(/</g,'\\u003c')+';</script>';
 if(!html.includes('<!-- BOS3_CONTENT_PLACEHOLDER -->'))throw new Error('BoS 3 content placeholder missing');
 html=html.replace('<!-- BOS3_CONTENT_PLACEHOLDER -->',contentScript);
+const design=fs.readFileSync(path.join(root,'frontend/bos_design.css'),'utf8');
+if(!html.includes('<!-- BOS_DESIGN_STYLES -->'))throw new Error('BoS design placeholder missing');
+html=html.replace('<!-- BOS_DESIGN_STYLES -->','<style id="bos-product-design">'+design+'</style>');
 const match=html.match(/<script type="text\/babel">([\s\S]*?)<\/script>/);
 if(!match)throw new Error('JSX entrypoint missing');
 const jsx=match[1].replace('{% verbatim %}','').replace('{% endverbatim %}','');

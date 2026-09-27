@@ -6,6 +6,8 @@
 
 ## Настройка разработки и следующий шаг
 
+B30-DESIGN-NEXT: получен immutable source pair32acfb6 +0d49a89. Независимый bos3_candidate_review ACCEPT_SCOPED_STATIC_INTEGRATION_B30_DESIGN_NEXT, безP0–P2. Начато последовательное включение: общий visual system первым, brochure/monitor вторым; root evidence/design-integration-20260927/REVIEW_RU.md. Runtime/product package f55 не подменяется промежуточным source; новая упаковка и фактическая доставка отдельно.
+
 ARCH-01: root SQLite proposal исправляется на bos3-fasteners-f55-r1.sqlite3 с полным existing training identity/marker contract, source guard неизменен. Изолированная среда не создана; QA alignment ещё требуется. Exact disposition: evidence/architecture-20260927/ARCH01_DISPOSITION_RU.md. Architect завершил read-only handoff, independent tracker review принят; ARCH-02 wording поручен тому же design owner без rebuild/browser.
 
 Текущий переход 27.09, revision3 B30-12-QA-SCOPE: ACCEPT_SCOPED_PREPARATION_ONLY, статус PARTIAL, не executable plan. Exact immutable artifacts/review: evidence/readiness-scope-20260927/revision3/ и REVISION3_REVIEW_RU.md. Тот же QA получил конкретизацию трёх фактических learning cases на f55 и предложенный root SQLite-only isolation contract; никаких запусков или owner execution question. Более ранний CHANGES_REQUESTED ниже сохранён как история.

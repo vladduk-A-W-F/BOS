@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BoS — визуальный стенд</title>
+<style>
+:root{--bg:#F4F6F3;--surface:#fff;--ink:#19332D;--muted:#60726B;--line:#DAE3DC;--primary:#126B55;--soft:#E8F3EB}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,sans-serif;line-height:1.5}
+main{width:min(1440px,100%);margin:auto;padding:clamp(20px,4vw,56px)}
+header{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end;padding-bottom:28px;border-bottom:1px solid var(--line)}
+.eyebrow{margin:0 0 8px;color:var(--primary);font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase} h1{margin:0;font-size:clamp(32px,5vw,58px);line-height:1.04;letter-spacing:-.045em} .notice{max-width:440px;margin:0;color:var(--muted);font-size:14px}
+.overview,.group{margin-top:36px} .group-heading{display:flex;align-items:baseline;justify-content:space-between;gap:20px;margin-bottom:14px} h2{margin:0;font-size:20px;letter-spacing:-.02em} .group-heading p{margin:0;color:var(--muted);font-size:14px}
+.feature-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px} .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+.screen{min-width:0;margin:0;overflow:hidden;border:1px solid var(--line);border-radius:16px;background:var(--surface);box-shadow:0 5px 18px rgba(25,51,45,.06)} .screen a{display:block;background:#E8F3EB} .screen img{display:block;width:100%;height:auto} .screen a:focus-visible{outline:3px solid #315FAD;outline-offset:-3px}
+figcaption{display:flex;justify-content:space-between;gap:12px;padding:11px 13px;color:var(--muted);font-size:12px} code{min-width:0;overflow:hidden;color:var(--ink);font-family:ui-monospace,Consolas,monospace;text-overflow:ellipsis;white-space:nowrap} figcaption span{flex:0 0 auto}
+.empty{margin:36px 0;padding:18px;border-left:3px solid var(--primary);background:var(--soft);color:#285647}
+@media (max-width:700px){main{padding:20px 14px} header{grid-template-columns:1fr;gap:12px;padding-bottom:20px} .feature-grid,.gallery{grid-template-columns:1fr} .group-heading{display:block} .group-heading p{margin-top:5px}}
+</style>
+</head>
+<body><main>
+<header><div><p class="eyebrow">BoS · design QA</p><h1>Визуальный стенд</h1></div><p class="notice">Визуальный стенд на синтетических данных. Рабочий сервер не переключён.</p></header>
+
+<section class="overview">
+  <div class="group-heading"><h2>Главные поверхности</h2><p>Рабочее пространство и вход, если соответствующие снимки есть среди QA-артефактов.</p></div>
+  <div class="feature-grid"><figure class="screen featured">
+  <a href="screens/workspace-crm-desktop.png" target="_blank" rel="noopener"><img src="screens/workspace-crm-desktop.png" alt="Скриншот: workspace-crm-desktop.png" loading="lazy"></a>
+  <figcaption><code>workspace-crm-desktop.png</code><span>1440 × 1000</span></figcaption>
+</figure>
+<figure class="screen featured">
+  <a href="screens/entry-supply-desktop-hero.png" target="_blank" rel="noopener"><img src="screens/entry-supply-desktop-hero.png" alt="Скриншот: entry-supply-desktop-hero.png" loading="lazy"></a>
+  <figcaption><code>entry-supply-desktop-hero.png</code><span>1440 × 1000</span></figcaption>
+</figure></div>
+</section>
+<section class="group">
+  <div class="group-heading"><h2>Широкие экраны</h2><p>Оставшиеся снимки desktop/tablet.</p></div>
+  <div class="gallery"><figure class="screen">
+  <a href="screens/entry-payment-desktop-handoff.png" target="_blank" rel="noopener"><img src="screens/entry-payment-desktop-handoff.png" alt="Скриншот: entry-payment-desktop-handoff.png" loading="lazy"></a>
+  <figcaption><code>entry-payment-desktop-handoff.png</code><span>1440 × 1000</span></figcaption>
+</figure>
+<figure class="screen">
+  <a href="screens/entry-payment-desktop-hero.png" target="_blank" rel="noopener"><img src="screens/entry-payment-desktop-hero.png" alt="Скриншот: entry-payment-desktop-hero.png" loading="lazy"></a>
+  <figcaption><code>entry-payment-desktop-hero.png</code><span>1440 × 1000</span></figcaption>
+</figure>
+<figure class="screen">
+  <a href="screens/entry-payment-desktop-login.png" target="_blank" rel="noopener"><img src="screens/entry-payment-desktop-login.png" alt="Скриншот: entry-payment-desktop-login.png" loading="lazy"></a>
+  <figcaption><code>entry-payment-desktop-login.png</code><span>1440 × 1000</span></figcaption>
+</figure>
+<figure class="screen">
+  <a href="screens/entry-quality-desktop-handoff.png" target="_blank" rel="noopener"><img src="screens/entry-quality-desktop-handoff.png" alt="Скриншот: entry-quality-desktop-handoff.png" loading="lazy"></a>
+  <figcaption><code>entry-quality-desktop-handoff.png</code><span>1440 × 1000</span></figcaption>
+</figure>
+<figure class="screen">
+  <a href="screens/entry-quality-desktop-hero.png" target="_blank" rel="noopener"><img src="screens/entry-quality-desktop-hero.png" alt="Скриншот: entry-quality-desktop-hero.png" loading="lazy"></a>
+  <figcaption><code>entry-quality-desktop-hero.png</code><span>1440 × 1000</span></figcaption>
+</figure>
+<figure class="screen">
+  <a href="screens/entry-quality-desktop-login.png" target="_blank" rel="noopener"><img src="screens/entry-quality-desktop-login.png" alt="Скриншот: entry-quality-desktop-login.png" loading="lazy"></a>
+  <figcaption><code>entry-quality-desktop-login.png</code><span>1440 × 1000</span></figcaption>
+</figure>
+<figure class="screen">
+  <a href="screens/entry-supply-desktop-handoff.png" target="_blank" rel="noopener"><img src="screens/entry-supply-desktop-handoff.png" alt="Скриншот: entry-supply-desktop-handoff.png" loading="lazy"></a>
+  <figcaption><code>entry-supply-desktop-handoff.png</code><span>1440 × 1000</span></figcaption>
+</figure>
+<figure class="screen">
+  <a href="screens/entry-supply-desktop-login.png" target="_blank" rel="noopener"><img src="screens/entry-supply-desktop-login.png" alt="Скриншот: entry-supply-desktop-login.png" loading="lazy"></a>
+  <figcaption><code>entry-supply-desktop-login.png</code><span>1440 × 1000</span></figcaption>
+</figure>
+<figure class="screen">
+  <a href="screens/runner-supply-desktop.png" target="_blank" rel="noopener"><img src="screens/runner-supply-desktop.png" alt="Скриншот: runner-supply-desktop.png" loading="lazy"></a>
+  <figcaption><code>runner-supply-desktop.png</code><span>1440 × 1000</span></figcaption>
+</figure>
+<figure class="screen">
+  <a href="screens/workspace-erp-table-desktop.png" target="_blank" rel="noopener"><img src="screens/workspace-erp-table-desktop.png" alt="Скриншот: workspace-erp-table-desktop.png" loading="lazy"></a>
+  <figcaption><code>workspace-erp-table-desktop.png</code><span>1440 × 1000</span></figcaption>
+</figure>
+<figure class="screen">
+  <a href="screens/workspace-hr-tasks-desktop.png" target="_blank" rel="noopener"><img src="screens/workspace-hr-tasks-desktop.png" alt="Скриншот: workspace-hr-tasks-desktop.png" loading="lazy"></a>
+  <figcaption><code>workspace-hr-tasks-desktop.png</code><span>1440 × 1000</span></figcaption>
+</figure>
+<figure class="screen">
+  <a href="screens/workspace-modal-desktop.png" target="_blank" rel="noopener"><img src="screens/workspace-modal-desktop.png" alt="Скриншот: workspace-modal-desktop.png" loading="lazy"></a>
+  <figcaption><code>workspace-modal-desktop.png</code><span>1440 × 1000</span></figcaption>
+</figure></div>
+</section>
+<section class="group">
+  <div class="group-heading"><h2>Узкие экраны</h2><p>Снимки, отмеченные mobile или имеющие ширину до 600 px.</p></div>
+  <div class="gallery"><figure class="screen">
+  <a href="screens/entry-payment-mobile-handoff.png" target="_blank" rel="noopener"><img src="screens/entry-payment-mobile-handoff.png" alt="Скриншот: entry-payment-mobile-handoff.png" loading="lazy"></a>
+  <figcaption><code>entry-payment-mobile-handoff.png</code><span>390 × 844</span></figcaption>
+</figure>
+<figure class="screen">
+  <a href="screens/entry-payment-mobile-hero.png" target="_blank" rel="noopener"><img src="screens/entry-payment-mobile-hero.png" alt="Скриншот: entry-payment-mobile-hero.png" loading="lazy"></a>
+  <figcaption><code>entry-payment-mobile-hero.png</code><span>390 × 844</span></figcaption>
+</figure>
+<figure class="screen">
+  <a href="screens/entry-payment-mobile-login.png" target="_blank" rel="noopener"><img src="screens/entry-payment-mobile-login.png" alt="Скриншот: entry-payment-mobile-login.png" loading="lazy"></a>
+  <figcaption><code>entry-payment-mobile-login.png</code><span>390 × 844</span></figcaption>
+</figure>
+<figure class="screen">
+  <a href="screens/entry-quality-mobile-handoff.png" target="_blank" rel="noopener"><img src="screens/entry-quality-mobile-handoff.png" alt="Скриншот: entry-quality-mobile-handoff.png" loading="lazy"></a>
+  <figcaption><code>entry-quality-mobile-handoff.png</code><span>390 × 844</span></figcaption>
+</figure>
+<figure class="screen">
+  <a href="screens/entry-quality-mobile-hero.png" target="_blank" rel="noopener"><img src="screens/entry-quality-mobile-hero.png" alt="Скриншот: entry-quality-mobile-hero.png" loading="lazy"></a>
+  <figcaption><code>entry-quality-mobile-hero.png</code><span>390 × 844</span></figcaption>
+</figure>
+<figure class="screen">
+  <a href="screens/entry-quality-mobile-login.png" target="_blank" rel="noopener"><img src="screens/entry-quality-mobile-login.png" alt="Скриншот: entry-quality-mobile-login.png" loading="lazy"></a>
+  <figcaption><code>entry-quality-mobile-login.png</code><span>390 × 844</span></figcaption>
+</figure>
+<figure class="screen">
+  <a href="screens/entry-supply-mobile-handoff.png" target="_blank" rel="noopener"><img src="screens/entry-supply-mobile-handoff.png" alt="Скриншот: entry-supply-mobile-handoff.png" loading="lazy"></a>
+  <figcaption><code>entry-supply-mobile-handoff.png</code><span>390 × 844</span></figcaption>
+</figure>
+<figure class="screen">
+  <a href="screens/entry-supply-mobile-hero.png" target="_blank" rel="noopener"><img src="screens/entry-supply-mobile-hero.png" alt="Скриншот: entry-supply-mobile-hero.png" loading="lazy"></a>
+  <figcaption><code>entry-supply-mobile-hero.png</code><span>390 × 844</span></figcaption>
+</figure>
+<figure class="screen">
+  <a href="screens/entry-supply-mobile-login.png" target="_blank" rel="noopener"><img src="screens/entry-supply-mobile-login.png" alt="Скриншот: entry-supply-mobile-login.png" loading="lazy"></a>
+  <figcaption><code>entry-supply-mobile-login.png</code><span>390 × 844</span></figcaption>
+</figure>
+<figure class="screen">
+  <a href="screens/runner-supply-mobile.png" target="_blank" rel="noopener"><img src="screens/runner-supply-mobile.png" alt="Скриншот: runner-supply-mobile.png" loading="lazy"></a>
+  <figcaption><code>runner-supply-mobile.png</code><span>390 × 844</span></figcaption>
+</figure>
+<figure class="screen">
+  <a href="screens/workspace-crm-mobile.png" target="_blank" rel="noopener"><img src="screens/workspace-crm-mobile.png" alt="Скриншот: workspace-crm-mobile.png" loading="lazy"></a>
+  <figcaption><code>workspace-crm-mobile.png</code><span>390 × 844</span></figcaption>
+</figure>
+<figure class="screen">
+  <a href="screens/workspace-erp-table-mobile.png" target="_blank" rel="noopener"><img src="screens/workspace-erp-table-mobile.png" alt="Скриншот: workspace-erp-table-mobile.png" loading="lazy"></a>
+  <figcaption><code>workspace-erp-table-mobile.png</code><span>390 × 844</span></figcaption>
+</figure>
+<figure class="screen">
+  <a href="screens/workspace-hr-tasks-mobile.png" target="_blank" rel="noopener"><img src="screens/workspace-hr-tasks-mobile.png" alt="Скриншот: workspace-hr-tasks-mobile.png" loading="lazy"></a>
+  <figcaption><code>workspace-hr-tasks-mobile.png</code><span>390 × 844</span></figcaption>
+</figure>
+<figure class="screen">
+  <a href="screens/workspace-modal-mobile.png" target="_blank" rel="noopener"><img src="screens/workspace-modal-mobile.png" alt="Скриншот: workspace-modal-mobile.png" loading="lazy"></a>
+  <figcaption><code>workspace-modal-mobile.png</code><span>390 × 844</span></figcaption>
+</figure></div>
+</section>
+</main></body>
+</html>

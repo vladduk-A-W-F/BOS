@@ -180,24 +180,24 @@ class ErrorBoundary extends React.Component {
       return /*#__PURE__*/React.createElement("div", {
         style: {
           padding: 40,
-          color: '#fff',
-          background: '#1a1040',
+          color: T.text,
+          background: '#F4F6F3',
           minHeight: '100vh',
           fontFamily: 'Inter,system-ui,sans-serif'
         }
       }, /*#__PURE__*/React.createElement("h2", {
         style: {
-          color: '#F87171',
+          color: T.red,
           marginBottom: 16
         }
       }, "\u0429\u043E\u0441\u044C \u043F\u0456\u0448\u043B\u043E \u043D\u0435 \u0442\u0430\u043A"), /*#__PURE__*/React.createElement("p", {
         style: {
-          color: 'rgba(255,255,255,0.7)',
+          color: 'rgba(25,51,45,0.7)',
           marginBottom: 20
         }
       }, "BoS \u0437\u0456\u0442\u043A\u043D\u0443\u0432\u0441\u044F \u0437 \u043F\u043E\u043C\u0438\u043B\u043A\u043E\u044E. \u0421\u043F\u0440\u043E\u0431\u0443\u0439 \u043E\u043D\u043E\u0432\u0438\u0442\u0438 \u0441\u0442\u043E\u0440\u0456\u043D\u043A\u0443 (Cmd+R)."), /*#__PURE__*/React.createElement("details", {
         style: {
-          color: 'rgba(255,255,255,0.5)',
+          color: T.textMuted,
           fontSize: 12,
           fontFamily: 'monospace'
         }
@@ -436,137 +436,109 @@ const NAV = [{
   iconKey: 'settings',
   subs: []
 }];
+
+// Existing preference IDs remain compatible; all themes use readable light surfaces.
 const THEMES = {
   mintdark: {
-    bg: '#0A0C10',
-    name: 'Графітова'
+    bg: '#F4F6F3',
+    name: 'Шавлія'
   },
-  // нова дефолтна тема — нейтральний темний (id залишили mintdark, щоб не ламати збережені settings)
   purple: {
-    bg: 'linear-gradient(135deg,#0f0c29,#302b63,#24243e)',
-    name: 'Фіолетова'
+    bg: '#F5F3F8',
+    name: 'Лаванда'
   },
   blue: {
-    bg: 'linear-gradient(135deg,#040d21,#0d2d5e,#071629)',
-    name: 'Синя'
+    bg: '#F1F5F9',
+    name: 'Блакитна'
   },
   green: {
-    bg: 'linear-gradient(135deg,#051a0a,#0d3d1e,#072410)',
+    bg: '#EDF5EF',
     name: 'Зелена'
   },
   teal: {
-    bg: 'linear-gradient(135deg,#031a1a,#0d3d3d,#052424)',
+    bg: '#EEF6F5',
     name: 'Бірюзова'
   },
   wine: {
-    bg: 'linear-gradient(135deg,#1a0510,#3d0d20,#250710)',
-    name: 'Бордова'
+    bg: '#F8F2F1',
+    name: 'Тепла'
   },
   slate: {
-    bg: 'linear-gradient(135deg,#0d0f14,#1e2130,#141620)',
-    name: 'Темно-сіра'
+    bg: '#F3F4F5',
+    name: 'Нейтральна'
   }
 };
 
 // Design tokens — единый источник истины для всех стилей в проекте.
-// Меняешь цвет здесь — он меняется везде. Без этого пришлось бы искать все hex-коды по файлу.
+// Hex-токени для inline-компонентів, включно з alpha-суфіксами; CSS шар: bos_design.css.
 const T = {
-  // Колірна палітра — neutral dark
-  bg: '#0A0C10',
-  // основной тёмный фон — нейтральный почти-чёрный
-  surface: 'rgba(255, 255, 255, 0.04)',
-  // прозрачный слой стекла
-  surfaceHover: 'rgba(255, 255, 255, 0.07)',
-  // hover — чуть светлее
-  surfaceSolid: '#171A21',
-  // непрозрачный — для <option> и native dropdown (rgba там нечитаем)
-  // Суцільні шари для карток (миграция со стекла — Кроки 2/7)
-  surface1: '#12141A',
-  surface2: '#171A21',
-  surface3: '#1E222B',
-  border: 'rgba(255, 255, 255, 0.06)',
-  // едва заметная граница
-  borderStrong: 'rgba(255, 255, 255, 0.10)',
-  // акцентная граница
-
-  primary: '#93C5FD',
-  // основний акцент — золото
-  primaryDark: '#60A5FA',
-  // натиснутий стан
-  primaryGlow: 'rgba(147,197,253,0.12)',
-  // фон-підсвітка
-
-  text: '#F4F6F8',
-  // основний текст
-  textMuted: '#9AA1AC',
-  // secondary, описи
-  textDim: '#A7B1BF',
-  // підказки, плейсхолдери
-
-  red: '#FCA5A5',
-  // прострочено, помилки
-  yellow: '#f59e0b',
-  // середній пріоритет, увага
-  green: '#86EFAC',
-  // успіх, виконано
-  blue: '#A5B4FC',
-  // індиго — фірмовий колір AI (та інформація)
-  blueGlow: 'rgba(99,102,241,0.15)',
-  // фон-підсвітка AI-елементів
-
-  // Типо-шкала (конституція §4) — размер/интерлиньяж/вес
+  bg: '#F4F6F3',
+  surface: '#F1F5F1',
+  surfaceHover: '#E8EFEB',
+  surfaceSolid: '#FFFFFF',
+  surface1: '#F7F9F6',
+  surface2: '#FFFFFF',
+  surface3: '#E8EFEB',
+  border: '#DAE3DC',
+  borderStrong: '#B7C8BE',
+  primary: '#126B55',
+  primaryDark: '#0B5744',
+  primaryGlow: '#E8F3EB',
+  onPrimary: '#FFFFFF',
+  text: '#19332D',
+  textMuted: '#60726B',
+  textDim: '#60726B',
+  red: '#B73932',
+  yellow: '#94620B',
+  green: '#23794F',
+  blue: '#4159A6',
+  blueGlow: '#EDF0F9',
   type: {
     display: {
-      size: 28,
-      line: 34,
-      weight: 600
+      size: 32,
+      line: 38,
+      weight: 650
     },
     h1: {
-      size: 22,
+      size: 26,
+      line: 32,
+      weight: 650
+    },
+    h2: {
+      size: 20,
       line: 28,
       weight: 600
     },
-    h2: {
-      size: 18,
-      line: 24,
-      weight: 600
-    },
     body: {
-      size: 16,
+      size: 15,
       line: 24,
       weight: 400
     },
     small: {
-      size: 12,
-      line: 16,
+      size: 13,
+      line: 19,
       weight: 400
     },
     micro: {
-      size: 11,
-      line: 14,
+      size: 12,
+      line: 16,
       weight: 500
     }
   },
-  // Радіуси скруглення
   radSm: 8,
-  radMd: 12,
+  radMd: 10,
   radLg: 16,
-  // Шкала відступів — 4px base
   s1: 4,
   s2: 8,
   s3: 12,
   s4: 16,
   s5: 24,
   s6: 32,
-  // Тіні для карток і модалок
-  shadow: '0 4px 24px rgba(0,0,0,0.4)',
-  shadowLg: '0 8px 40px rgba(0,0,0,0.5)',
-  font: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+  shadow: '0 4px 20px rgba(25,51,45,.06)',
+  shadowLg: '0 16px 56px rgba(25,51,45,.16)',
+  font: '"Segoe UI", Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif'
 };
-
-// Тело страницы: нейтральная тёмная база. Aurora-радиалы (золото/индиго, ледь помітні)
-// живут в body::before (см. <style>) — отдельный слой, чтобы их можно было анимировать GPU-шно.
-document.body.style.background = 'linear-gradient(160deg, #0A0C10 0%, #0D1017 50%, #0A0C10 100%)';
+document.body.style.background = T.bg;
 document.body.style.backgroundAttachment = 'fixed';
 const INIT_NOTES = [{
   id: 1,
@@ -747,12 +719,12 @@ const priorityMeta = p => {
 // С Крока 2 зарезервирован ТОЛЬКО для NavBar и AIPanel (у них сейчас инлайн-эквивалент).
 // Контент-карточки — Card / cardS() (сплошная surface2), НЕ стекло.
 const glass = (e = {}) => ({
-  background: 'rgba(255, 255, 255, 0.05)',
+  background: 'rgba(25,51,45,0.05)',
   backdropFilter: 'blur(36px) saturate(180%)',
   WebkitBackdropFilter: 'blur(36px) saturate(180%)',
-  border: '1px solid rgba(255, 255, 255, 0.12)',
+  border: '1px solid rgba(25,51,45,0.12)',
   borderRadius: T.radLg,
-  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12)',
+  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(25,51,45,0.12)',
   color: T.text,
   ...e
 });
@@ -780,7 +752,7 @@ const pill = (bg, c = T.text) => ({
 const btn = (bg = T.primary, e = {}) => ({
   padding: '10px 18px',
   background: bg,
-  color: bg === T.primary ? T.bg : T.text,
+  color: bg === T.primary ? T.onPrimary : T.text,
   // на mint фоне текст тёмный; на surface-фонах светлый
   border: 'none',
   borderRadius: T.radMd,
@@ -788,14 +760,14 @@ const btn = (bg = T.primary, e = {}) => ({
   fontSize: 13,
   cursor: 'pointer',
   // Мягкое glow под кнопкой — только если background mint (акцент).
-  boxShadow: bg === T.primary ? '0 4px 16px rgba(245, 180, 0, 0.3)' : 'none',
+  boxShadow: bg === T.primary ? T.shadow : 'none',
   transition: 'all 0.2s',
   ...e
 });
 
 // Поле ввода
 const iStyle = {
-  background: 'rgba(255,255,255,0.04)',
+  background: 'rgba(25,51,45,0.04)',
   border: '1px solid ' + T.border,
   borderRadius: T.radMd,
   color: T.text,
@@ -834,7 +806,7 @@ function Card({
   ...rest
 }) {
   return /*#__PURE__*/React.createElement("div", _extends({}, rest, {
-    className: hover ? 'living-card' : undefined,
+    className: hover ? 'bos-card living-card' : 'bos-card',
     style: cardS({
       padding: pad,
       ...style
@@ -842,7 +814,7 @@ function Card({
   }), children);
 }
 
-// Кнопка з варіантами. primary (золото) — ГОЛОВНА дія, вживати рідко.
+// Кнопка з варіантами: primary для головної дії, subtle для допоміжної.
 // Hover — зміна фону/яскравості через CSS-клас .ui-btn (глобальний scale придушено).
 function Button({
   variant = 'subtle',
@@ -853,8 +825,8 @@ function Button({
   const variants = {
     primary: {
       background: T.primary,
-      color: '#0f172a',
-      boxShadow: '0 4px 16px rgba(245,180,0,0.3)'
+      color: T.onPrimary,
+      boxShadow: '0 2px 4px rgba(18,107,85,.12)'
     },
     ghost: {
       color: T.text,
@@ -868,17 +840,18 @@ function Button({
     },
     danger: {
       background: T.red,
-      color: T.bg
+      color: T.onPrimary
     }
   };
   return /*#__PURE__*/React.createElement("button", _extends({}, rest, {
-    className: "ui-btn",
+    className: "ui-btn ui-btn--" + variant,
     style: {
       padding: '10px 18px',
       border: 'none',
       borderRadius: T.radMd,
       fontWeight: 600,
-      fontSize: 13,
+      fontSize: 14,
+      minHeight: 42,
       cursor: 'pointer',
       ...(variants[variant] || variants.subtle),
       ...style
@@ -892,6 +865,7 @@ function Input({
   ...props
 }) {
   return /*#__PURE__*/React.createElement("input", _extends({
+    className: "bos-input",
     style: {
       ...iStyle,
       ...style
@@ -906,6 +880,7 @@ function Select({
   ...props
 }) {
   return /*#__PURE__*/React.createElement("select", _extends({
+    className: "bos-select",
     style: {
       ...sStyle,
       ...style
@@ -920,7 +895,7 @@ function Badge({
   style = {}
 }) {
   const tones = {
-    neutral: ['rgba(255,255,255,0.08)', T.textMuted],
+    neutral: [T.surface, T.textMuted],
     success: [T.green + '22', T.green],
     warning: [T.yellow + '22', T.yellow],
     danger: [T.red + '22', T.red],
@@ -1036,7 +1011,7 @@ function IconTile({
   const tones = {
     accent: [T.primaryGlow, T.primary],
     ai: [T.blueGlow, T.blue],
-    neutral: ['rgba(255,255,255,0.08)', T.textMuted]
+    neutral: [T.surface, T.textMuted]
   };
   const [bg, c] = tones[tone] || tones.neutral;
   return /*#__PURE__*/React.createElement("div", {
@@ -1778,6 +1753,37 @@ const ICONS = {
 // NavBar — верхняя навигационная полоса (Ряд 1). Заменяет старый левый Sidebar.
 // Слева лого, по центру icon-пилюли (hover-раскрытие + dropdown под-пунктов),
 // справа колокольчик, AI-toggle и аватар (перенесены из Topbar/Sidebar).
+function BosMark() {
+  return /*#__PURE__*/React.createElement("span", {
+    className: "bos-mark",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("svg", {
+    width: "25",
+    height: "25",
+    viewBox: "0 0 28 28",
+    fill: "none"
+  }, /*#__PURE__*/React.createElement("rect", {
+    x: "3",
+    y: "4",
+    width: "9",
+    height: "9",
+    rx: "2",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "16",
+    y: "15",
+    width: "9",
+    height: "9",
+    rx: "2",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M17 4h7v7M4 17v7h7M10 18l8-8",
+    stroke: "currentColor",
+    strokeWidth: "2.5",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  })));
+}
 function NavBar({
   nav,
   setNav,
@@ -1983,7 +1989,7 @@ function NavBar({
       alignItems: 'center',
       padding: '0 20px',
       borderBottom: '1px solid ' + T.border,
-      background: 'rgba(255,255,255,0.03)',
+      background: 'rgba(25,51,45,0.03)',
       backdropFilter: 'blur(36px) saturate(180%)',
       WebkitBackdropFilter: 'blur(36px) saturate(180%)'
     }
@@ -1995,20 +2001,7 @@ function NavBar({
       gap: 10,
       flexShrink: 0
     }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 34,
-      height: 34,
-      borderRadius: 10,
-      background: T.primary,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontWeight: 800,
-      fontSize: 17,
-      color: T.bg
-    }
-  }, "B"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(BosMark, null), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       color: T.text,
       fontWeight: 700,
@@ -2022,7 +2015,7 @@ function NavBar({
       lineHeight: 1.2,
       marginTop: 1
     }
-  }, "\u041F\u043E\u043C\u0456\u0447\u043D\u0438\u043A \u041A\u0435\u0440\u0456\u0432\u043D\u0438\u043A\u0430"))), /*#__PURE__*/React.createElement("select", {
+  }, "\u041F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0435 \u0443\u043F\u0440\u0430\u0432\u043B\u0456\u043D\u043D\u044F"))), /*#__PURE__*/React.createElement("select", {
     ref: mobileNav,
     className: "bos-mobile-nav",
     "aria-label": "\u0420\u043E\u0437\u0434\u0456\u043B \u0441\u0438\u0441\u0442\u0435\u043C\u0438",
@@ -2115,6 +2108,7 @@ function NavBar({
       }
     }, ICONS[s.iconKey] || null), /*#__PURE__*/React.createElement("span", null, s.label)))));
   })), /*#__PURE__*/React.createElement("div", {
+    className: "bos-nav-tools",
     style: {
       marginLeft: 'auto',
       display: 'flex',
@@ -2204,17 +2198,17 @@ function NavBar({
 // ═══════════════════════════════════════════════════════════════════════════
 
 const DASH = {
-  bg: '#101318',
-  card: '#171A21',
-  cardHover: '#1E222B',
-  border: 'rgba(255,255,255,0.06)',
-  borderMid: 'rgba(255,255,255,0.10)',
-  text: '#E8EDF4',
-  textDim: '#A7B1BF',
-  green: '#86EFAC',
-  red: '#FCA5A5',
-  yellow: '#EAB308',
-  blue: '#93C5FD',
+  bg: '#F4F6F3',
+  card: '#FFFFFF',
+  cardHover: '#E8EFEB',
+  border: 'rgba(25,51,45,0.06)',
+  borderMid: 'rgba(25,51,45,0.10)',
+  text: '#19332D',
+  textDim: '#60726B',
+  green: '#23794F',
+  red: '#B73932',
+  yellow: '#94620B',
+  blue: '#126B55',
   goodBg: 'rgba(34,197,94,0.08)',
   goodBorder: 'rgba(34,197,94,0.35)',
   warnBg: 'rgba(234,179,8,0.06)',
@@ -3232,7 +3226,7 @@ function NPSWidget({
     style: {
       height: 6,
       borderRadius: 3,
-      background: 'rgba(255,255,255,0.07)',
+      background: 'rgba(25,51,45,0.07)',
       overflow: 'hidden'
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -3285,7 +3279,7 @@ function BetaBanner({
   }, /*#__PURE__*/React.createElement("span", {
     style: {
       background: DASH.yellow,
-      color: '#0A0C10',
+      color: '#F4F6F3',
       borderRadius: 4,
       padding: '2px 7px',
       fontSize: 9,
@@ -3504,7 +3498,7 @@ function HeliRing({
     cy: "18",
     r: "15.9155",
     fill: "none",
-    stroke: "rgba(255,255,255,0.08)",
+    stroke: "rgba(25,51,45,0.08)",
     strokeWidth: "3.6"
   }), /*#__PURE__*/React.createElement("circle", {
     cx: "18",
@@ -3673,7 +3667,7 @@ function Heli({
       maxWidth: 340,
       height: 7,
       borderRadius: 4,
-      background: 'rgba(255,255,255,0.08)',
+      background: 'rgba(25,51,45,0.08)',
       overflow: 'hidden'
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -3917,7 +3911,7 @@ function Heli({
       style: {
         height: 7,
         borderRadius: 4,
-        background: 'rgba(255,255,255,0.08)',
+        background: 'rgba(25,51,45,0.08)',
         overflow: 'hidden',
         position: 'relative'
       }
@@ -6455,6 +6449,7 @@ function Contractors({
     }
   }, "\u0421\u043A\u0430\u0441\u0443\u0432\u0430\u0442\u0438")));
   return /*#__PURE__*/React.createElement("div", {
+    className: "bos-contractors",
     style: {
       padding: 24
     }
@@ -6885,6 +6880,7 @@ function Contracts({
     }
   }, "\u0421\u043A\u0430\u0441\u0443\u0432\u0430\u0442\u0438")));
   return /*#__PURE__*/React.createElement("div", {
+    className: "bos-contracts",
     style: {
       padding: 24
     }
@@ -7237,6 +7233,7 @@ function Salaries({
     }).catch(err => alert('Не вдалося видалити: ' + err.message));
   };
   return /*#__PURE__*/React.createElement("div", {
+    className: "bos-salaries",
     style: {
       padding: 24
     }
@@ -8216,6 +8213,7 @@ function Employees({
     }
   }, "\u0421\u043A\u0430\u0441\u0443\u0432\u0430\u0442\u0438")));
   return /*#__PURE__*/React.createElement("div", {
+    className: "bos-employees",
     style: {
       padding: 24
     }
@@ -8817,6 +8815,7 @@ function Schedule() {
     setModal(null);
   };
   return /*#__PURE__*/React.createElement("div", {
+    className: "bos-schedule",
     style: {
       padding: 24
     }
@@ -9090,6 +9089,7 @@ function Notes({
   const visible = notes.filter(n => !n.deleted);
   const deleted = notes.filter(n => n.deleted);
   return /*#__PURE__*/React.createElement("div", {
+    className: "bos-notes",
     style: {
       padding: 24
     }
@@ -9274,6 +9274,7 @@ function Notes({
 }
 function Reports() {
   return /*#__PURE__*/React.createElement("div", {
+    className: "bos-reports",
     style: {
       padding: 24
     }
@@ -9319,13 +9320,13 @@ function Reports() {
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        color: T.bg,
+        color: T.onPrimary,
         fontSize: 13,
         fontWeight: 700
       }
     }, d.getDate()), /*#__PURE__*/React.createElement("div", {
       style: {
-        color: T.bg,
+        color: T.onPrimary,
         fontSize: 9
       }
     }, d.toLocaleString('uk-UA', {
@@ -10482,6 +10483,7 @@ function Settings({
     ic: '📊'
   }];
   return /*#__PURE__*/React.createElement("div", {
+    className: "bos-settings",
     style: {
       padding: 24
     }
@@ -11241,7 +11243,7 @@ function InfoPage() {
       fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
       fontSize: 12.5,
       color: T.text,
-      background: 'rgba(255,255,255,0.05)',
+      background: 'rgba(25,51,45,0.05)',
       border: '1px solid ' + T.border,
       borderRadius: 8,
       padding: '8px 10px',
@@ -11403,7 +11405,7 @@ function InfoPage() {
       top: 6,
       bottom: 6,
       width: 2,
-      background: 'rgba(255,255,255,0.08)'
+      background: 'rgba(25,51,45,0.08)'
     }
   }), audit.map((e, i) => /*#__PURE__*/React.createElement("div", {
     key: e.time,
@@ -11528,7 +11530,9 @@ function Topbar({
       gap: 16,
       flexShrink: 0
     }
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bos-page-title"
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 20,
       fontWeight: 650
@@ -11552,7 +11556,7 @@ function Topbar({
     ref: search,
     value: query,
     onChange: e => setQuery(e.target.value),
-    placeholder: "\u0414\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F, \u043B\u044E\u0434\u0438, \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u0438\u2026",
+    placeholder: "\u0417\u043D\u0430\u0439\u0442\u0438 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F, \u043B\u044E\u0434\u0438\u043D\u0443, \u0434\u043E\u0433\u043E\u0432\u0456\u0440\u2026",
     "aria-describedby": "bos-search-hint"
   }), /*#__PURE__*/React.createElement("span", {
     id: "bos-search-hint",
@@ -11583,7 +11587,7 @@ function Topbar({
     style: {
       padding: '10px 16px',
       background: T.primary,
-      color: T.bg,
+      color: T.onPrimary,
       border: 0,
       borderRadius: 10,
       fontWeight: 650,
@@ -21422,7 +21426,15 @@ function Bos3PreviewCaseSelector({
   }, /*#__PURE__*/React.createElement("span", {
     className: "bos-preview-case-icon",
     "aria-hidden": "true"
-  }, ICONS.contracts), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, item.id), /*#__PURE__*/React.createElement("span", null, item.title)))));
+  }, ICONS[{
+    supply: "contracts",
+    quality: "check",
+    payment: "finance"
+  }[item.slug]] || ICONS.contracts), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, {
+    supply: "Постачання",
+    quality: "Якість",
+    payment: "Оплата"
+  }[item.slug] || item.id), /*#__PURE__*/React.createElement("span", null, item.title)))));
 }
 function Bos3PreviewChart({
   chart
@@ -21575,7 +21587,7 @@ function Bos3Brochure({
     className: "bos-light-header"
   }, /*#__PURE__*/React.createElement("div", {
     className: "bos-light-brand"
-  }, content.brand, /*#__PURE__*/React.createElement("small", null, "\u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0430 BoS")), /*#__PURE__*/React.createElement("button", {
+  }, /*#__PURE__*/React.createElement(BosMark, null), /*#__PURE__*/React.createElement("span", null, content.brand, /*#__PURE__*/React.createElement("small", null, "\u041F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0435 \u0443\u043F\u0440\u0430\u0432\u043B\u0456\u043D\u043D\u044F \u0431\u0456\u0437\u043D\u0435\u0441\u043E\u043C"))), /*#__PURE__*/React.createElement("button", {
     className: "bos-light-button",
     type: "button",
     onClick: onRequestSignIn
@@ -22718,9 +22730,9 @@ function App() {
   const [trainingTour, setTrainingTour] = useState(null);
   const [crmHandoff, setCrmHandoff] = useState(null);
   const [opRole, setOpRole] = useState(bosRole());
-  // AI-панель справа: по умолчанию открыта на широких экранах (>=1400px), закрыта на узких.
+  // Контекстна AI-панель відкривається окремою дією, зберігаючи простір для робочих даних.
   // Пользователь может вручную открывать/закрывать через кнопку в Topbar.
-  const [aiPanelOpen, setAiPanelOpen] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 1400);
+  const [aiPanelOpen, setAiPanelOpen] = useState(false);
   const [tasks, setTasks] = useState([]); // starts empty — populated from API below
   const [tasksLoading, setTasksLoading] = useState(true); // true while fetch is in flight
   const [tasksError, setTasksError] = useState(null); // last fetch error message (or null)
@@ -23095,15 +23107,19 @@ function App() {
     return null;
   };
   return /*#__PURE__*/React.createElement("div", {
+    className: "bos-app",
     style: {
       display: 'flex',
       flexDirection: 'column',
-      height: '100vh',
+      height: '100dvh',
       background: 'transparent',
       fontFamily: T.font,
       overflow: 'hidden'
     }
-  }, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("a", {
+    className: "bos-skip",
+    href: "#bos-workspace"
+  }, "\u0414\u043E \u0432\u043C\u0456\u0441\u0442\u0443"), /*#__PURE__*/React.createElement("div", {
     className: "op-mode"
   }, /*#__PURE__*/React.createElement("span", null, window.BOS_RUNTIME?.mode === 'demo' ? 'Навчальна компанія · дані на ' + window.BOS_RUNTIME.as_of.split('-').reverse().join('.') : 'Робочий простір', " \xB7 BoS"), window.BOS_RUNTIME?.mode === 'demo' && !window.BOS_RUNTIME?.training_enabled ? /*#__PURE__*/React.createElement("label", null, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0430 \u0440\u043E\u043B\u044C ", /*#__PURE__*/React.createElement("select", {
     value: opRole,
@@ -23189,6 +23205,7 @@ function App() {
       setNotice('');
     }
   }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438")), /*#__PURE__*/React.createElement("main", {
+    id: "bos-workspace",
     "data-bos-main": true,
     tabIndex: -1,
     style: {
