@@ -21276,6 +21276,8 @@ function bos3SetSlug(slug, replace = false) {
 function bos3StatusLabel(status) {
   return {
     not_started: 'Не розпочато',
+    available: 'Доступно',
+    locked: 'Очікує попереднього кроку',
     in_progress: 'У процесі',
     paused: 'Призупинено',
     completed: 'Завершено',
@@ -21324,21 +21326,24 @@ function Bos3CaseCards({
   content,
   caseStates = {},
   onSelect,
-  compact = false
+  compact = false,
+  selectedSlug = null,
+  publicPreview = false
 }) {
   return /*#__PURE__*/React.createElement("div", {
     className: "bos3-case-grid"
   }, content.cases.map(item => {
     const state = caseStates[item.id] || {};
-    const status = state.status || 'not_started';
+    const status = state.status || 'not_started',
+      presentation = item.presentation || {};
     return /*#__PURE__*/React.createElement("a", {
       className: "bos3-case-link",
       key: item.id,
       href: bos3Href(item.slug),
+      "aria-current": selectedSlug === item.slug ? 'true' : undefined,
       onClick: event => {
         if (onSelect) {
           event.preventDefault();
-          bos3SetSlug(item.slug);
           onSelect(item.slug);
         }
       }
@@ -21347,7 +21352,11 @@ function Bos3CaseCards({
     }, item.id), /*#__PURE__*/React.createElement("span", {
       className: "bos3-status",
       "data-status": status
-    }, bos3StatusLabel(status)), /*#__PURE__*/React.createElement("h3", null, item.title), !compact && /*#__PURE__*/React.createElement("p", null, item.goal), /*#__PURE__*/React.createElement("div", {
+    }, publicPreview ? 'Навчальний сценарій' : bos3StatusLabel(status)), /*#__PURE__*/React.createElement("h3", null, item.title), presentation.client && /*#__PURE__*/React.createElement("p", null, presentation.client), presentation.product && /*#__PURE__*/React.createElement("p", null, presentation.product), !compact && /*#__PURE__*/React.createElement("p", null, item.goal), Array.isArray(presentation.metrics) && presentation.metrics.length > 0 && /*#__PURE__*/React.createElement("div", {
+      className: "bos3-case-meta"
+    }, presentation.metrics.map(metric => /*#__PURE__*/React.createElement("span", {
+      key: metric.label
+    }, metric.label, ": ", metric.value))), /*#__PURE__*/React.createElement("div", {
       className: "bos3-case-meta"
     }, item.departments.slice(0, compact ? 3 : 6).map(department => /*#__PURE__*/React.createElement("span", {
       key: department
@@ -21394,36 +21403,111 @@ function Bos3AreaGrid({
     }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u043A\u0435\u0439\u0441") : null;
   }))));
 }
+function Bos3EntryCase({
+  caseDef,
+  onRequestSignIn
+}) {
+  const presentation = caseDef.presentation || {},
+    handoffs = Array.isArray(presentation.handoffs) ? presentation.handoffs : [];
+  return /*#__PURE__*/React.createElement("section", {
+    className: "bos3-entry-case",
+    "aria-labelledby": "bos3-entry-case-title"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "bos3-kicker"
+  }, "\u041E\u0431\u0440\u0430\u043D\u0438\u0439 \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0438\u0439 \u043A\u0435\u0439\u0441 \xB7 ", caseDef.id), /*#__PURE__*/React.createElement("h2", {
+    id: "bos3-entry-case-title"
+  }, caseDef.title), presentation.client && /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0438\u0439 \u043A\u043B\u0456\u0454\u043D\u0442:"), " ", presentation.client), presentation.product && /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, "\u041F\u043E\u0437\u0438\u0446\u0456\u044F:"), " ", presentation.product), /*#__PURE__*/React.createElement("p", null, presentation.baseline || caseDef.story_intro), presentation.effect ? /*#__PURE__*/React.createElement("p", null, presentation.effect) : /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, "\u041E\u0447\u0456\u043A\u0443\u0432\u0430\u043D\u0438\u0439 \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0438\u0439 \u0435\u0444\u0435\u043A\u0442:"), " ", caseDef.goal), /*#__PURE__*/React.createElement("div", {
+    className: "bos3-case-meta"
+  }, caseDef.departments.map(department => /*#__PURE__*/React.createElement("span", {
+    key: department
+  }, department))), /*#__PURE__*/React.createElement("div", {
+    className: "bos3-entry-focus"
+  }, /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    onClick: onRequestSignIn
+  }, "\u0423\u0432\u0456\u0439\u0442\u0438 \u0434\u043B\u044F \u043F\u0440\u043E\u0445\u043E\u0434\u0436\u0435\u043D\u043D\u044F"))), /*#__PURE__*/React.createElement("div", {
+    className: "bos3-entry-levels",
+    "aria-label": "\u0420\u0456\u0432\u043D\u0456 \u043F\u0440\u043E\u0445\u043E\u0434\u0436\u0435\u043D\u043D\u044F"
+  }, handoffs.length ? handoffs.map(handoff => /*#__PURE__*/React.createElement("div", {
+    key: handoff.step_id || handoff.department
+  }, /*#__PURE__*/React.createElement("strong", null, handoff.department), /*#__PURE__*/React.createElement("span", null, handoff.action), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("strong", null, "\u041A\u043E\u043D\u0442\u0440\u043E\u043B\u044C:"), " ", handoff.control))) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "1. \u0414\u0436\u0435\u0440\u0435\u043B\u0430 \u0442\u0430 \u0437\u0432'\u044F\u0437\u043A\u0438"), /*#__PURE__*/React.createElement("span", null, "\u041F\u0456\u0441\u043B\u044F \u0432\u0445\u043E\u0434\u0443 \u0432\u0456\u0434\u043A\u0440\u0438\u0439\u0442\u0435 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0437\u0430\u043F\u0438\u0441\u0438 \u0442\u0430 \u0437\u0432\u0456\u0440\u0442\u0435 \u0444\u0430\u043A\u0442\u0438.")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "2. \u0412\u0456\u0434\u0434\u0456\u043B\u0438 \u0442\u0430 \u043A\u043E\u043D\u0442\u0440\u043E\u043B\u044C"), /*#__PURE__*/React.createElement("span", null, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0438\u0439 \u043C\u0430\u0440\u0448\u0440\u0443\u0442 \u043F\u043E\u043A\u0430\u0437\u0443\u0454 \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0456 \u043C\u0456\u0436 ", caseDef.departments.join(', '), ".")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "3. \u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u0456 CRM"), /*#__PURE__*/React.createElement("span", null, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0430 \u0432\u0456\u0434\u0431\u0443\u0432\u0430\u0454\u0442\u044C\u0441\u044F \u0441\u0435\u0440\u0432\u0435\u0440\u043E\u043C; CRM-\u043A\u0430\u0440\u0442\u043A\u0430 \u043C\u043E\u0436\u043B\u0438\u0432\u0430 \u043B\u0438\u0448\u0435 \u043F\u0456\u0441\u043B\u044F \u0447\u0435\u0440\u043D\u0435\u0442\u043A\u0438, preview \u0456 \u044F\u0432\u043D\u043E\u0433\u043E \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043D\u044F.")))));
+}
 function Bos3Brochure({
   compact = false,
-  onSelectCase
+  onSelectCase,
+  entry = false,
+  selectedSlug = null,
+  showBrochurePdf = !compact,
+  onRequestSignIn
 }) {
   const content = bos3Registry();
   if (!content) return /*#__PURE__*/React.createElement("section", {
     className: "bos3-empty"
   }, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0456 \u043C\u0430\u0442\u0435\u0440\u0456\u0430\u043B\u0438 \u0449\u0435 \u043D\u0435 \u0437\u0456\u0431\u0440\u0430\u043D\u0456 \u0434\u043B\u044F \u0446\u044C\u043E\u0433\u043E \u043A\u0430\u043D\u0434\u0438\u0434\u0430\u0442\u0430.");
-  return /*#__PURE__*/React.createElement("section", {
-    className: compact ? 'bos3-auth-guide' : 'bos3-start',
-    "aria-label": "\u041D\u0430\u0432\u0447\u0430\u043D\u043D\u044F BoS 3.0"
-  }, /*#__PURE__*/React.createElement("div", {
+  const selectCase = slug => {
+    if (!content.cases.some(item => item.slug === slug)) return;
+    bos3SetSlug(slug);
+    onSelectCase?.(slug);
+  };
+  const selected = entry ? content.cases.find(item => item.slug === selectedSlug) || content.cases[0] || null : null;
+  const hero = entry ? /*#__PURE__*/React.createElement("section", {
+    className: "bos3-entry-hero"
+  }, /*#__PURE__*/React.createElement("img", {
+    src: "/assets/bos3-fasteners-entry.png",
+    alt: "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0430 \u0456\u043B\u044E\u0441\u0442\u0440\u0430\u0446\u0456\u044F \u043A\u0440\u0456\u043F\u0438\u043B\u044C\u043D\u0438\u0445 \u0432\u0438\u0440\u043E\u0431\u0456\u0432 \u0434\u043B\u044F BoS 3.0"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "bos3-entry-hero-copy"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "bos3-kicker"
+  }, content.training_notice), /*#__PURE__*/React.createElement("h1", null, content.brand), /*#__PURE__*/React.createElement("p", null, content.summary), /*#__PURE__*/React.createElement("p", {
+    className: "bos3-entry-caption"
+  }, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0430 \u0456\u043B\u044E\u0441\u0442\u0440\u0430\u0446\u0456\u044F: \u043A\u0440\u0456\u043F\u043B\u0435\u043D\u043D\u044F \u0439 \u0432\u0438\u043C\u0456\u0440\u044E\u0432\u0430\u043B\u044C\u043D\u0438\u0439 \u0456\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442."))) : /*#__PURE__*/React.createElement("div", {
     className: "bos3-hero"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
     className: "bos3-kicker"
   }, content.training_notice), compact ? /*#__PURE__*/React.createElement("h2", null, content.brand) : /*#__PURE__*/React.createElement("h1", null, content.brand), /*#__PURE__*/React.createElement("p", null, content.summary)), /*#__PURE__*/React.createElement("div", {
     className: "bos3-hero-aside"
-  }, /*#__PURE__*/React.createElement("strong", null, content.company), "\u0422\u0440\u0438 \u043D\u0435\u0437\u0430\u043B\u0435\u0436\u043D\u0456 \u043A\u0435\u0439\u0441\u0438 \u0434\u043B\u044F \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0438 \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0438\u0445 \u0444\u0430\u043A\u0442\u0456\u0432. \u0412\u043E\u043D\u0438 \u043D\u0435 \u0437\u043C\u0456\u043D\u044E\u044E\u0442\u044C \u0440\u043E\u0431\u043E\u0447\u0456 \u0434\u0430\u043D\u0456.")), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("strong", null, content.company), "\u0422\u0440\u0438 \u043D\u0435\u0437\u0430\u043B\u0435\u0436\u043D\u0456 \u043A\u0435\u0439\u0441\u0438 \u0434\u043B\u044F \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0438 \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0438\u0445 \u0444\u0430\u043A\u0442\u0456\u0432. \u0412\u043E\u043D\u0438 \u043D\u0435 \u0437\u043C\u0456\u043D\u044E\u044E\u0442\u044C \u0440\u043E\u0431\u043E\u0447\u0456 \u0434\u0430\u043D\u0456."));
+  if (entry) return /*#__PURE__*/React.createElement("section", {
+    className: "bos3-start",
+    "aria-label": "\u041D\u0430\u0432\u0447\u0430\u043D\u043D\u044F BoS 3.0"
+  }, hero, /*#__PURE__*/React.createElement("div", {
+    className: "bos3-section-heading"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", null, "\u0422\u0440\u0438 \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0456 \u043A\u0435\u0439\u0441\u0438"), /*#__PURE__*/React.createElement("p", null, "\u041E\u0431\u0435\u0440\u0456\u0442\u044C \u0431\u0443\u0434\u044C-\u044F\u043A\u0438\u0439 \u043C\u0430\u0440\u0448\u0440\u0443\u0442. \u041F\u0435\u0440\u0435\u0433\u043B\u044F\u0434 \u0431\u0440\u043E\u0448\u0443\u0440\u0438 \u043D\u0435 \u043E\u0437\u043D\u0430\u0447\u0430\u0454 \u0432\u0438\u043A\u043E\u043D\u0430\u043D\u043D\u044F \u043A\u0440\u043E\u043A\u0456\u0432."))), /*#__PURE__*/React.createElement(Bos3CaseCards, {
+    content: content,
+    onSelect: selectCase,
+    selectedSlug: selected?.slug || null,
+    publicPreview: true
+  }), selected && /*#__PURE__*/React.createElement("details", {
+    className: "bos3-entry-scenario",
+    open: true
+  }, /*#__PURE__*/React.createElement("summary", null, "\u0421\u0446\u0435\u043D\u0430\u0440\u0456\u0439, \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0456 \u0442\u0430 \u043A\u043E\u043D\u0442\u0440\u043E\u043B\u044C \xB7 ", selected.id), /*#__PURE__*/React.createElement(Bos3EntryCase, {
+    caseDef: selected,
+    onRequestSignIn: onRequestSignIn
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "bos3-section-heading"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", null, "11 \u0440\u043E\u0431\u043E\u0447\u0438\u0445 \u043E\u0431\u043B\u0430\u0441\u0442\u0435\u0439"), /*#__PURE__*/React.createElement("p", null, "\u041F\u0456\u0441\u043B\u044F \u0432\u0445\u043E\u0434\u0443 \u043C\u0430\u0440\u0448\u0440\u0443\u0442 \u043F\u043E\u043A\u0430\u0436\u0435 \u043B\u0438\u0448\u0435 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0432\u0430\u0448\u0456\u0439 \u0440\u043E\u043B\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430 \u0442\u0430 \u043A\u043E\u043D\u0442\u0440\u043E\u043B\u044C."))), /*#__PURE__*/React.createElement(Bos3AreaGrid, {
+    content: content,
+    onOpenCase: selectCase
+  }), /*#__PURE__*/React.createElement("p", {
+    className: "bos3-note"
+  }, "\u0421\u0442\u0430\u0442\u0443\u0441 \u043A\u0435\u0439\u0441\u0443, \u0444\u0430\u043A\u0442\u0438, \u0441\u0435\u0440\u0432\u0435\u0440\u043D\u0430 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0430 \u0442\u0430 CRM-\u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0430 \u0437\u2019\u044F\u0432\u043B\u044F\u044E\u0442\u044C\u0441\u044F \u043B\u0438\u0448\u0435 \u0432 \u0430\u0443\u0442\u0435\u043D\u0442\u0438\u0444\u0456\u043A\u043E\u0432\u0430\u043D\u0456\u0439 \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0456\u0439 \u0441\u0435\u0441\u0456\u0457."));
+  return /*#__PURE__*/React.createElement("section", {
+    className: compact ? 'bos3-auth-guide' : 'bos3-start',
+    "aria-label": "\u041D\u0430\u0432\u0447\u0430\u043D\u043D\u044F BoS 3.0"
+  }, hero, /*#__PURE__*/React.createElement("div", {
     className: "bos3-section-heading"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", null, "\u0420\u043E\u0431\u043E\u0447\u0456 \u043E\u0431\u043B\u0430\u0441\u0442\u0456"), /*#__PURE__*/React.createElement("p", null, "\u041E\u0431\u0435\u0440\u0456\u0442\u044C \u043F\u0438\u0442\u0430\u043D\u043D\u044F, \u0449\u043E\u0431 \u043F\u043E\u0431\u0430\u0447\u0438\u0442\u0438 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0443 \u0444\u0443\u043D\u043A\u0446\u0456\u044E \u0439 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u0438\u0439 \u043A\u0435\u0439\u0441."))), /*#__PURE__*/React.createElement(Bos3AreaGrid, {
     content: content,
     compact: compact,
-    onOpenCase: onSelectCase || (() => {})
+    onOpenCase: selectCase
   }), /*#__PURE__*/React.createElement("div", {
     className: "bos3-section-heading"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", null, "\u0422\u0440\u0438 \u043A\u0435\u0439\u0441\u0438"), /*#__PURE__*/React.createElement("p", null, "\u041A\u043E\u0436\u0435\u043D \u043C\u0430\u0454 \u0432\u043B\u0430\u0441\u043D\u0435 \u043F\u043E\u0441\u0438\u043B\u0430\u043D\u043D\u044F \u0442\u0430 \u043D\u0435 \u0437\u0430\u043B\u0435\u0436\u0438\u0442\u044C \u0432\u0456\u0434 \u043F\u043E\u0440\u044F\u0434\u043A\u0443 \u043F\u0440\u043E\u0445\u043E\u0434\u0436\u0435\u043D\u043D\u044F."))), /*#__PURE__*/React.createElement(Bos3CaseCards, {
     content: content,
     compact: compact,
-    onSelect: onSelectCase
-  }), !compact && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
+    onSelect: selectCase
+  }), showBrochurePdf && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
     className: "bos3-note"
   }, "\u0421\u0442\u0430\u0442\u0443\u0441 \u043A\u0435\u0439\u0441\u0443, \u0444\u0430\u043A\u0442\u0438 \u0442\u0430 \u0434\u043E\u043A\u0430\u0437\u0438 \u0437'\u044F\u0432\u043B\u044F\u044E\u0442\u044C\u0441\u044F \u043B\u0438\u0448\u0435 \u043F\u0456\u0441\u043B\u044F \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0438 \u0432\u0430\u0448\u043E\u0457 \u0430\u0443\u0442\u0435\u043D\u0442\u0438\u0444\u0456\u043A\u043E\u0432\u0430\u043D\u043E\u0457 \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u043E\u0457 \u0441\u0435\u0441\u0456\u0457."), /*#__PURE__*/React.createElement("a", {
     className: "bos-start-pdf",
@@ -21545,6 +21629,30 @@ function Bos3Evidence({
     "data-passed": passed
   }, /*#__PURE__*/React.createElement("strong", null, passed ? 'Перевірку пройдено' : 'Ще не підтверджено'), observed && /*#__PURE__*/React.createElement("div", null, bos3FactValue(observed)));
 }
+function Bos3HandoffChain({
+  caseDef,
+  state
+}) {
+  const handoffs = Array.isArray(caseDef.presentation?.handoffs) ? caseDef.presentation.handoffs : [],
+    readOnly = state.learning_mode === 'read_only';
+  if (!handoffs.length) return null;
+  return /*#__PURE__*/React.createElement("section", {
+    className: "bos3-side-card",
+    "aria-label": "\u041F\u0435\u0440\u0435\u0434\u0430\u0447\u0456 \u0442\u0430 \u043A\u043E\u043D\u0442\u0440\u043E\u043B\u044C"
+  }, /*#__PURE__*/React.createElement("h2", null, readOnly ? 'Передачі та перевірка джерел' : 'Передачі та контроль'), /*#__PURE__*/React.createElement("p", {
+    className: "bos3-note"
+  }, readOnly ? 'Це read-only перевірка джерел: відповідь не виконує господарську операцію.' : 'Це навчальна послідовність. Стан кожного кроку визначає лише сервер навчальної сесії.'), /*#__PURE__*/React.createElement("dl", null, handoffs.map(handoff => {
+    const step = bos3StepState(state, handoff.step_id),
+      status = step?.status,
+      label = readOnly ? status === 'completed' ? 'Навчальна відповідь перевірена; операцію не виконано' : status ? 'Перевірка джерела: ' + bos3StatusLabel(status) : 'Доступно після запуску сесії' : status ? bos3StatusLabel(status) : 'Доступно після запуску сесії';
+    return /*#__PURE__*/React.createElement(React.Fragment, {
+      key: handoff.step_id || handoff.department
+    }, /*#__PURE__*/React.createElement("dt", null, handoff.department), /*#__PURE__*/React.createElement("dd", null, handoff.action, /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("small", null, "\u041A\u043E\u043D\u0442\u0440\u043E\u043B\u044C: ", handoff.control), /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("span", {
+      className: "bos3-status",
+      "data-status": status || 'not_started'
+    }, label)));
+  })));
+}
 function Bos3CaseRunner({
   content,
   caseDef,
@@ -21606,7 +21714,10 @@ function Bos3CaseRunner({
     onClick: onTour
   }, "\u041A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0443\u0440"), /*#__PURE__*/React.createElement(Button, {
     onClick: onWorkspace
-  }, "\u0420\u043E\u0431\u043E\u0447\u0438\u0439 \u043F\u0440\u043E\u0441\u0442\u0456\u0440")), state.available === false && /*#__PURE__*/React.createElement("div", {
+  }, "\u0420\u043E\u0431\u043E\u0447\u0438\u0439 \u043F\u0440\u043E\u0441\u0442\u0456\u0440")), /*#__PURE__*/React.createElement(Bos3HandoffChain, {
+    caseDef: caseDef,
+    state: state
+  }), state.available === false && /*#__PURE__*/React.createElement("div", {
     className: "bos3-empty"
   }, state.reason || 'Навчальне середовище ще не налаштовано для цього облікового запису. Жоден крок не позначено виконаним.'), /*#__PURE__*/React.createElement("div", {
     className: "bos3-runner-grid"
@@ -22985,8 +23096,27 @@ function AuthGate() {
     [trainingEnabled, setTrainingEnabled] = useState(false),
     [busy, setBusy] = useState(true),
     [error, setError] = useState('');
+  const defaultCase = bos3Registry()?.cases[0]?.slug || null;
   const [username, setUsername] = useState(''),
-    [password, setPassword] = useState('');
+    [password, setPassword] = useState(''),
+    [selectedCase, setSelectedCase] = useState(() => bos3Slug() || defaultCase),
+    signInRef = useRef(null);
+  const selectedDefinition = bos3Registry()?.cases.find(item => item.slug === selectedCase) || null;
+  const preserveSelectedCase = () => {
+    if (trainingEnabled && selectedCase) bos3SetSlug(selectedCase, true);
+  };
+  const openSignIn = () => {
+    preserveSelectedCase();
+    signInRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+  };
+  useEffect(() => {
+    const syncSelectedCase = () => setSelectedCase(bos3Slug() || bos3Registry()?.cases[0]?.slug || null);
+    window.addEventListener('popstate', syncSelectedCase);
+    return () => window.removeEventListener('popstate', syncSelectedCase);
+  }, []);
   const openWorkspace = async () => {
     const r = await fetch('/api/operations/status/');
     const d = await r.json();
@@ -23061,6 +23191,7 @@ function AuthGate() {
     className: "bos-auth-form",
     onSubmit: e => {
       e.preventDefault();
+      preserveSelectedCase();
       enter(false);
     }
   }, /*#__PURE__*/React.createElement("label", null, "\u041B\u043E\u0433\u0456\u043D", /*#__PURE__*/React.createElement(Input, {
@@ -23082,6 +23213,36 @@ function AuthGate() {
     disabled: busy
   }, busy ? 'Зачекайте…' : 'Увійти'));
   if (ready) return /*#__PURE__*/React.createElement(App, null);
+  if (trainingEnabled) return /*#__PURE__*/React.createElement("main", {
+    className: "bos-entry-shell"
+  }, /*#__PURE__*/React.createElement(Bos3Brochure, {
+    entry: true,
+    selectedSlug: selectedCase,
+    onSelectCase: setSelectedCase,
+    onRequestSignIn: openSignIn,
+    showBrochurePdf: false
+  }), /*#__PURE__*/React.createElement("section", {
+    className: "bos3-entry-login",
+    ref: signInRef,
+    "aria-labelledby": "bos-sign-in"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "bos3-kicker"
+  }, "\u041F\u0435\u0440\u0441\u043E\u043D\u0430\u043B\u044C\u043D\u0438\u0439 \u0434\u043E\u0441\u0442\u0443\u043F"), /*#__PURE__*/React.createElement("h2", {
+    id: "bos-sign-in"
+  }, selectedDefinition ? 'Продовжити: ' + selectedDefinition.title : 'Увійти до навчальної BoS'), /*#__PURE__*/React.createElement("p", null, selectedDefinition ? 'Після входу відкриється обраний маршрут; факти, перевірка та прогрес будуть доступні лише у вашій навчальній сесії.' : 'Увійдіть, щоб почати навчальну сесію з доступними вашій ролі джерелами.'), passwordForm, error && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    style: {
+      color: T.red,
+      fontSize: 14,
+      lineHeight: 1.5,
+      marginTop: 16
+    }
+  }, error), !mode && !busy && /*#__PURE__*/React.createElement(Button, {
+    onClick: bootstrap,
+    style: {
+      marginTop: 14
+    }
+  }, "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0438 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043D\u044F")));
   return /*#__PURE__*/React.createElement("main", {
     style: {
       height: '100vh',
@@ -23127,13 +23288,7 @@ function AuthGate() {
     href: "/help/start.pdf"
   }, "\u041F\u0430\u043C\u2019\u044F\u0442\u043A\u0430 \u0432\u0445\u043E\u0434\u0443 \u0439 \u043F\u0435\u0440\u0448\u043E\u0457 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0438 (PDF)"), /*#__PURE__*/React.createElement("details", {
     className: "bos-auth-secondary"
-  }, /*#__PURE__*/React.createElement("summary", null, "\u0423\u0432\u0456\u0439\u0442\u0438 \u0437 \u043B\u043E\u0433\u0456\u043D\u043E\u043C \u0456 \u043F\u0430\u0440\u043E\u043B\u0435\u043C"), passwordForm)) : /*#__PURE__*/React.createElement(React.Fragment, null, passwordForm, trainingEnabled && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Bos3Brochure, {
-    compact: true,
-    onSelectCase: slug => bos3SetSlug(slug)
-  }), /*#__PURE__*/React.createElement("a", {
-    className: "bos-start-pdf",
-    href: "/api/training/brochure.pdf"
-  }, "\u0411\u0440\u043E\u0448\u0443\u0440\u0430 BoS 3.0: \u043A\u0435\u0439\u0441\u0438 \u0439 \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0443\u0440 (PDF)"))), error && /*#__PURE__*/React.createElement("p", {
+  }, /*#__PURE__*/React.createElement("summary", null, "\u0423\u0432\u0456\u0439\u0442\u0438 \u0437 \u043B\u043E\u0433\u0456\u043D\u043E\u043C \u0456 \u043F\u0430\u0440\u043E\u043B\u0435\u043C"), passwordForm)) : passwordForm, error && /*#__PURE__*/React.createElement("p", {
     role: "alert",
     style: {
       color: T.red,

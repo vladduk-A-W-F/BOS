@@ -1,5 +1,15 @@
 # BoS 3.0 Integration Cards
 
+## B30-04F: Brochure-First Entry and Case Handoffs
+
+Author start_overview_implementation in isolated bos3-entry-flow from dd88f28.
+Independent reviewer/QA start_overview_review: ACCEPT_SCOPED_STATIC after route
+and read-only-status corrections. Root reviewed the new AST harness before its
+only execution: attempt 1/3, seven checks PASS, native exit 0. One standard build
+exit 0. No browser or runtime evidence. Allowlist: frontend/boss_app_source.html,
+generated frontend/boss_app_html.html and assets/app.js, this ledger and
+evidence/entry-20260927/. See that directory for raw results and exact hashes.
+
 ## B30-04C: Presentation Content and Linked Guide
 
 Date 2026-09-27; baseline dd88f28. Author root; independent content/asset/PDF
