@@ -6,6 +6,8 @@
 
 ## Настройка разработки и следующий шаг
 
+Следующая конкретная работа после design integration0cdd3ef: B30-DESIGN-PACK (existing writer, новая isolated bos3-dev4-pack/repo от exact0cdd3ef, толькоversion/README/учебный registry version/PDF/связанные compiled artifacts еслинеобходимо) и B30-DESIGN-DELIVERY-PREP (bos3_fixture_impl, отдельный output qa-scratch/bos3-dev4-delivery-20260927, static guarded runner). Reviewer start_overview_review/bos3_candidate_review независимые. Existing dirty packaging/validation/development worktrees сохранены. Target runtime pin дляdev4 ещёPENDING; текущий f55 не перезапускать. ARCH-02 documentary38c63af принят и переносится безbuild/browser.
+
 Reviewed design source последовательно включён: origin32acfb6 -> root9815ff0, затем origin0d49a89 (brochure/monitor). Оба компонента без конфликтов и без повторов визуальных запусков. Далее ARCH-02 doc correction, отдельная упаковка dev.4 с точным manifest/version и review, затем owner-local delivery по постоянному разрешению. До runtime receipt f55 остаётся выданной версией.
 
 B30-DESIGN-NEXT: получен immutable source pair32acfb6 +0d49a89. Независимый bos3_candidate_review ACCEPT_SCOPED_STATIC_INTEGRATION_B30_DESIGN_NEXT, безP0–P2. Начато последовательное включение: общий visual system первым, brochure/monitor вторым; root evidence/design-integration-20260927/REVIEW_RU.md. Runtime/product package f55 не подменяется промежуточным source; новая упаковка и фактическая доставка отдельно.

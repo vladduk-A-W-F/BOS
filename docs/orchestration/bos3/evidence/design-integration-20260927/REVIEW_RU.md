@@ -11,3 +11,5 @@
 ARCH-02 документальная финансовая подпись исправляется автором отдельно без UI/formula/build/browser изменений; её новый exact diff требует delta review. Она не меняет numeric UI correctness уже проверенного source.
 
 Первый компонент последовательно включён root commit9815ff0 (origin32acfb6), опубликован в PR10. Второй компонент origin0d49a89 включается этим commit после того же независимого exact-source verdict. Область содержит8final offline captures, failed runs1/2 и frozen build evidence; root не запускал их повторно. Runtime/source package ещё f55; требуется новый versioned manifest и guarded delivery.
+
+Второй компонент включён root0cdd3ef683433bf8cdccf4a2b559ef7c8b1531a2. ARCH-02 отдельный origin38c63af1a5bc648a21770ed2ff6cfe83972f2477 принят независимым bos3_candidate_review: ACCEPT_SCOPED_ARCH_02_DOCUMENTARY_CORRECTION, findingsнет. Точные4doc files, primary5C78...91F6, packagecopy3A57...51A2, provenance0061...6827 и manifest entries совпали; actual UI/formula/build не изменились. Термин receivable соответствует existing field/label и не означает cash balance. Переносится отдельно после двух source компонентов, без повторной QA.
