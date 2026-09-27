@@ -6,6 +6,8 @@
 
 ## Текущая работа настройки
 
+QA author01a0c05d... завершил revision9 статически; independent start_overview_review ACCEPT_SCOPED_READY_TO_ASK_OWNER_EXCEPTION, NOT_EXECUTION. Root запросил одно точное исключение bootstrap+learning run; owner ответ ожидается, новых запусков0. Автор не выполняет harness самостоятельно. Следующий получатель после фактического ответа: root формирует finalmanifest, reviewer проверяет ID/hash/value, затем root определяет единственного исполнителя. Existing design B30-UXD03-PREP всё ещё работает в своём output-only scope.
+
 Новое независимое B30-UXD03-PREP: existing design01a0bffa-3fc7-7bc2-9868-86164c6e0315, ранее чистая отдельная bos3-product-design/repo переведена root на detached e710, прежняя branch38c63af сохранена. Только source read-only и два output файла в qa-scratch/bos3-uxd03-prep-20260927; reviewer bos3_candidate_review, check-in15мин. Разделить существующие list-safe факты, guarded detail/history и отсутствующие waiting semantics, без реализации. QA получил отдельный чистый immutable bos3-learning-proof/repo e710; его scratch и будущая DB не изменялись root, executions0.
 
 QA revision6 source applicability принята статически, executable harness не принят (два P1). Active owner01a0c05d-6eeb-79f1-a135-be66985b442f, тот же scratch, следующая операция полный guarded source без исполнения; reviewer start_overview_review. Root не задаёт вопрос о неприготовленной проверке. Tracker отдельно завершил B30-DEV4-CONTROL-CONTEXT: единственный checkpoint paragraph существующей automation переведён на dev4, независимый ACCEPT_SCOPED и native saved-prompt verification, id/ACTIVE/15min/target/cutoff сохранены. Evidence D:/3/BOSDev/repo/outputs/bos3-dev4-control-sync-20260927/; новых таймеров нет.
