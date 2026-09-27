@@ -6,7 +6,7 @@
 
 ## Текущая работа настройки
 
-Новый принятый source a5adcef передан existing writer01a0be9f... в clean bos3-task-card-pack/repo для dev.5 package; reviewer bos3_candidate_review. bos3_fixture_impl отдельно владеет qa-scratch/bos3-task-card-delivery-20260927 только static templates, reviewer start_overview_review. Ни одного нового runtime действия. Design и helper QA закрыты scoped, learning ждёт owner reply. Root сохраняет один canonical writer; dirty старые worktrees не сброшены.
+Writer01a0be9f... завершил dev.5 package0a124 и evidence correction eafc3d4; root интегрировал a753a59 и5f8bd83 после ACCEPT_SCOPED_VERSIONED_PACKAGE_AND_APPLICABILITY. Renderer exit остаётся UNCONFIRMED. bos3_candidate_review теперь проверяет точный TASK_CARD_DEV5_CANDIDATE.json; start_overview_review проверит только финальные pins уже принятого static delivery template. Root один связывает паспорт и выполняет доставку. Design, helper QA и template author завершены scoped; learning и waiting ждут отдельных ответов владельца. Runtime пока dev4/e710; dirty старые worktrees сохранены.
 
 UXD03-WAIT-01 V2 завершил независимый review с одним disclosure decision; первый вопрос владельцу задан, ответ ожидается. Старый V1 review не активен. B30-12 learning имеет отдельный уже заданный вопрос. Текущая готовая работа: package -> exact manifest/review -> guarded delivery; не повтор helper run.
 
