@@ -20748,11 +20748,97 @@ function homeSelectionVisible(selection, data) {
   if (selection.kind === 'list') return ['jobs', 'lots', 'tasks', 'orders'].includes(selection.key);
   return Number.isSafeInteger(selection.id) && Array.isArray(data[selection.kind]) && !!b03FindRecord(data, selection.kind, selection.id);
 }
+// Compact presentation of the existing guarded BoSHome read, not a second data model.
+function BosGlobalMonitor({
+  ready,
+  busy,
+  status,
+  at,
+  businessDate,
+  error,
+  metrics,
+  financials,
+  currency,
+  onCurrency,
+  onRefresh,
+  onNavigate
+}) {
+  const [collapsed, setCollapsed] = useState(false);
+  const stateLabel = busy ? 'Оновлюємо дані' : ready ? status === 'empty' ? 'Доступних записів немає' : 'Дані прочитано' : status === 'stale' ? 'Потрібне оновлення' : status === 'denied' || status === 'context-drift' ? 'Перевірте доступ' : 'Дані недоступні';
+  const readTime = at ? new Date(at).toLocaleTimeString('uk-UA', {
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZoneName: 'short'
+  }) : null;
+  return /*#__PURE__*/React.createElement("section", {
+    className: "bos-monitor",
+    "aria-label": "\u0417\u0430\u0433\u0430\u043B\u044C\u043D\u0438\u0439 \u043C\u043E\u043D\u0456\u0442\u043E\u0440\u0438\u043D\u0433",
+    "aria-busy": busy,
+    "data-state": ready ? 'ready' : busy ? 'loading' : 'unavailable'
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bos-monitor-heading"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bos-monitor-title"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "bos-monitor-symbol",
+    "aria-hidden": "true"
+  }, ICONS.dashboard), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", null, "\u0417\u0430\u0433\u0430\u043B\u044C\u043D\u0438\u0439 \u043C\u043E\u043D\u0456\u0442\u043E\u0440\u0438\u043D\u0433"), /*#__PURE__*/React.createElement("p", null, !ready ? stateLabel : /*#__PURE__*/React.createElement(React.Fragment, null, "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0432\u0430\u043C \u0437\u0430\u043F\u0438\u0441\u0438", window.BOS_RUNTIME?.training_enabled || window.BOS_RUNTIME?.mode === 'demo' ? ' · навчальні дані' : '')))), /*#__PURE__*/React.createElement("div", {
+    className: "bos-monitor-tools"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "bos-monitor-state",
+    role: "status"
+  }, stateLabel), ready && financials.length > 1 && /*#__PURE__*/React.createElement("select", {
+    "aria-label": "\u0412\u0430\u043B\u044E\u0442\u0430 \u043C\u043E\u043D\u0456\u0442\u043E\u0440\u0438\u043D\u0433\u0443",
+    value: currency,
+    onChange: event => onCurrency(event.target.value)
+  }, financials.map(item => /*#__PURE__*/React.createElement("option", {
+    key: item.currency
+  }, item.currency))), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "bos-monitor-refresh",
+    "aria-label": "\u041E\u043D\u043E\u0432\u0438\u0442\u0438 \u0437\u0430\u0433\u0430\u043B\u044C\u043D\u0438\u0439 \u043C\u043E\u043D\u0456\u0442\u043E\u0440\u0438\u043D\u0433",
+    disabled: busy,
+    onClick: onRefresh
+  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438"), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "bos-monitor-collapse",
+    "aria-expanded": !collapsed,
+    "aria-controls": "bos-monitor-cards",
+    "aria-label": collapsed ? 'Розгорнути моніторинг' : 'Згорнути моніторинг',
+    onClick: () => setCollapsed(value => !value)
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, collapsed ? '+' : '−')))), /*#__PURE__*/React.createElement("div", {
+    className: "bos-monitor-cards",
+    id: "bos-monitor-cards",
+    hidden: collapsed
+  }, metrics.map(metric => /*#__PURE__*/React.createElement("button", {
+    key: metric.key,
+    type: "button",
+    className: "bos-monitor-metric",
+    "data-tone": ready ? metric.tone : undefined,
+    disabled: !ready || !metric.allowed,
+    onClick: () => onNavigate(metric.section, metric.sub)
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "bos-monitor-metric-label"
+  }, metric.label, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\u2197")), /*#__PURE__*/React.createElement("strong", null, ready ? metric.value : '—', ready && metric.unit && /*#__PURE__*/React.createElement("small", null, metric.unit)), /*#__PURE__*/React.createElement("span", {
+    className: "bos-monitor-metric-note"
+  }, ready ? metric.note : 'Показники після успішного читання')))), /*#__PURE__*/React.createElement("div", {
+    className: "bos-monitor-foot"
+  }, /*#__PURE__*/React.createElement("details", null, /*#__PURE__*/React.createElement("summary", null, ready && readTime ? /*#__PURE__*/React.createElement(React.Fragment, null, "\u041F\u0440\u043E\u0447\u0438\u0442\u0430\u043D\u043E \u043E ", /*#__PURE__*/React.createElement("time", {
+    dateTime: at
+  }, readTime)) : readTime ? 'Попереднє читання — показники приховано' : 'Джерело та час даних'), /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043A\u0430\u0437\u043D\u0438\u043A\u0438 \u043E\u0431\u0447\u0438\u0441\u043B\u0435\u043D\u0456 \u0437 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 ERP. \u0427\u0430\u0441 \u0447\u0438\u0442\u0430\u043D\u043D\u044F \u2014 \u0437\u0430 \u0433\u043E\u0434\u0438\u043D\u043D\u0438\u043A\u043E\u043C \u0446\u044C\u043E\u0433\u043E \u043F\u0440\u0438\u0441\u0442\u0440\u043E\u044E. \u0411\u0456\u0437\u043D\u0435\u0441-\u0434\u0430\u0442\u0430 \u0440\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043A\u0443: ", businessDate || 'не надано', ". \u0426\u0435 \u043E\u0441\u0442\u0430\u043D\u043D\u044F \u043F\u0440\u0438\u0439\u043D\u044F\u0442\u0430 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u044C; \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u0456 \u0437\u043C\u0456\u043D\u0438 \u043F\u043E\u0442\u0440\u0435\u0431\u0443\u044E\u0442\u044C \u043D\u043E\u0432\u043E\u0433\u043E \u0447\u0438\u0442\u0430\u043D\u043D\u044F.")), error && /*#__PURE__*/React.createElement("p", {
+    role: "alert"
+  }, error)));
+}
 function BoSHome({
   onNavigate,
   refetchTasks,
   focus = false,
-  readOnlyOverview = false
+  readOnlyOverview = false,
+  monitor = false
 }) {
   const scope = homeReadScope(),
     [view, setView] = useState({
@@ -20778,7 +20864,7 @@ function BoSHome({
       selected: null
     }),
     presentation = useRef('');
-  presentation.current = JSON.stringify([currency, focus, readOnlyOverview]);
+  presentation.current = JSON.stringify([currency, focus, readOnlyOverview, monitor]);
   const renderedPresentation = presentation.current;
   function publish(next) {
     life.current.view = next;
@@ -21064,6 +21150,68 @@ function BoSHome({
   const localTime = at ? new Date(at).toLocaleString('uk-UA', {
     timeZoneName: 'short'
   }) : null;
+  if (monitor) {
+    const available = (section, sub) => bosCanView(section, sub);
+    const metrics = [{
+      key: 'orders',
+      label: 'Замовлення у виконанні',
+      value: orders.length,
+      note: 'Є невиконана кількість',
+      section: 'erp',
+      sub: 'sales'
+    }, {
+      key: 'jobs',
+      label: 'Відкриті роботи',
+      value: data ? data.jobs.filter(x => x.status !== 'done').length : 0,
+      note: 'Виробництво та комплектація',
+      section: 'erp',
+      sub: 'production'
+    }, {
+      key: 'quality',
+      label: 'Партії без допуску',
+      value: issues.length,
+      note: 'Статус якості або документи',
+      tone: issues.length ? 'warning' : null,
+      section: 'erp',
+      sub: 'quality'
+    }, {
+      key: 'tasks',
+      label: 'Відкриті доручення',
+      value: openTasks.length,
+      note: overdue.length + ' прострочених',
+      tone: overdue.length ? 'warning' : null,
+      section: 'hr',
+      sub: 'tasks'
+    }];
+    if (bosCan('finance')) metrics.push({
+      key: 'receivable',
+      label: 'Очікуємо від клієнтів',
+      value: number(financial?.receivable),
+      unit: cur || '',
+      note: financial ? 'Залишок рахунків після оплат' : 'Фінансові дані не надано',
+      section: 'erp',
+      sub: 'costs'
+    });
+    return /*#__PURE__*/React.createElement(BosGlobalMonitor, {
+      ready: ready,
+      busy: busy,
+      status: status,
+      at: at,
+      businessDate: businessDate,
+      error: inScope ? view.error : 'Контекст доступу змінився. Оновіть огляд.',
+      metrics: metrics.map(metric => ({
+        ...metric,
+        allowed: available(metric.section, metric.sub)
+      })),
+      financials: financials,
+      currency: cur,
+      onCurrency: setCurrency,
+      onRefresh: () => refresh(),
+      onNavigate: (section, sub) => {
+        if (canUse() && available(section, sub)) onNavigate(section, sub);
+      }
+    });
+  }
   return /*#__PURE__*/React.createElement("div", {
     className: "bos-home"
   }, /*#__PURE__*/React.createElement("div", {
@@ -21558,6 +21706,340 @@ function Bos3EntryCase({
     "aria-hidden": "true"
   }, ICONS.contracts), "\u041F\u043E\u0447\u0430\u0442\u0438 \u043D\u0430\u0432\u0447\u0430\u043D\u043D\u044F"))));
 }
+/*
+ * Integration snippet. It assumes the existing React hooks, BosMark and ICONS
+ * from boss_app_source.html are in scope. It reads the existing registry only.
+ */
+function BosOnlineBrochure({
+  content,
+  onExplore,
+  onSignIn
+}) {
+  const [page, setPage] = useState(0);
+  const [supplyStep, setSupplyStep] = useState(0);
+  const [areaId, setAreaId] = useState(() => content?.areas?.[0]?.id || null);
+  const touchStart = useRef(null);
+  const cases = Array.isArray(content?.cases) ? content.cases : [];
+  const areas = Array.isArray(content?.areas) ? content.areas : [];
+  const supply = cases.find(item => item.slug === 'supply') || cases[0];
+  const presentation = supply?.presentation || {};
+  const handoffs = Array.isArray(presentation.handoffs) ? presentation.handoffs : [];
+  const chart = presentation.chart || {};
+  const activeHandoff = handoffs[supplyStep] || handoffs[0];
+  const activeArea = areas.find(item => item.id === areaId) || areas[0];
+  const count = 6;
+  const move = next => setPage(current => Math.max(0, Math.min(count - 1, next)));
+  const selectPage = next => setPage(current => {
+    const safe = Math.max(0, Math.min(count - 1, next));
+    return safe === current ? current : safe;
+  });
+  const keyNavigate = event => {
+    if (event.target !== event.currentTarget) return;
+    if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      move(page + 1);
+    }
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      move(page - 1);
+    }
+    if (event.key === 'Home') {
+      event.preventDefault();
+      selectPage(0);
+    }
+    if (event.key === 'End') {
+      event.preventDefault();
+      selectPage(count - 1);
+    }
+  };
+  const touchEnd = event => {
+    if (!touchStart.current) return;
+    const point = event.changedTouches[0];
+    const dx = point.clientX - touchStart.current.x;
+    const dy = point.clientY - touchStart.current.y;
+    touchStart.current = null;
+    if (Math.abs(dx) < 46 || Math.abs(dx) <= Math.abs(dy)) return;
+    move(page + (dx < 0 ? 1 : -1));
+  };
+  const Icon = ({
+    name
+  }) => /*#__PURE__*/React.createElement("span", {
+    className: "bos-online-icon",
+    "aria-hidden": "true"
+  }, ICONS[name] || ICONS.info);
+  const Example = () => /*#__PURE__*/React.createElement("span", {
+    className: "bos-online-example"
+  }, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0438\u0439 \u043F\u0440\u0438\u043A\u043B\u0430\u0434");
+  const PageOne = () => /*#__PURE__*/React.createElement("div", {
+    className: "bos-online-spread bos-online-page-one"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bos-online-copy"
+  }, /*#__PURE__*/React.createElement(Example, null), /*#__PURE__*/React.createElement("p", {
+    className: "bos-online-kicker"
+  }, "BoS \xB7 \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0435 \u0443\u043F\u0440\u0430\u0432\u043B\u0456\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("h2", null, "\u0411\u0430\u0447\u0438\u0442\u0438 \u0437\u0432\u2019\u044F\u0437\u043A\u0438.", /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("em", null, "\u041A\u0435\u0440\u0443\u0432\u0430\u0442\u0438 \u0446\u0456\u043B\u0438\u043C.")), /*#__PURE__*/React.createElement("p", {
+    className: "bos-online-lead"
+  }, content?.summary || 'Рішення спирається на доступні джерела, відповідального та наступну дію.'), /*#__PURE__*/React.createElement("p", {
+    className: "bos-online-note"
+  }, "\u041A\u043E\u0436\u043D\u0435 \u0440\u0456\u0448\u0435\u043D\u043D\u044F \u043C\u0430\u0454 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u0430\u043B\u044C\u043D\u043E\u0433\u043E, \u0434\u0436\u0435\u0440\u0435\u043B\u043E \u0442\u0430 \u0437\u0440\u043E\u0437\u0443\u043C\u0456\u043B\u0443 \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u0443 \u0434\u0456\u044E."), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "bos-online-primary",
+    onClick: () => onExplore?.()
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "dashboard"
+  }), "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0456 \u043A\u0435\u0439\u0441\u0438")), /*#__PURE__*/React.createElement("div", {
+    className: "bos-online-flow",
+    "aria-label": "\u0421\u0445\u0435\u043C\u0430 \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u043E\u0433\u043E \u0440\u043E\u0431\u043E\u0447\u043E\u0433\u043E \u043A\u043E\u043D\u0442\u0443\u0440\u0443"
+  }, /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 560 390",
+    role: "img",
+    "aria-label": "\u0417\u0430\u043F\u0438\u0442 \u043F\u043E\u0432'\u044F\u0437\u0430\u043D\u0438\u0439 \u0456\u0437 \u0434\u0436\u0435\u0440\u0435\u043B\u043E\u043C, \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u043E\u044E \u0442\u0430 \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u043E\u044E \u0434\u0456\u0454\u044E"
+  }, /*#__PURE__*/React.createElement("path", {
+    className: "bos-online-flow-line",
+    d: "M105 100C190 100 178 195 272 195S366 290 455 290"
+  }), /*#__PURE__*/React.createElement("path", {
+    className: "bos-online-flow-line bos-online-flow-line--muted",
+    d: "M105 290C190 290 178 195 272 195S366 100 455 100"
+  }), /*#__PURE__*/React.createElement("circle", {
+    className: "bos-online-flow-dot",
+    cx: "105",
+    cy: "100",
+    r: "8"
+  }), /*#__PURE__*/React.createElement("circle", {
+    className: "bos-online-flow-dot",
+    cx: "272",
+    cy: "195",
+    r: "8"
+  }), /*#__PURE__*/React.createElement("circle", {
+    className: "bos-online-flow-dot",
+    cx: "455",
+    cy: "290",
+    r: "8"
+  }), /*#__PURE__*/React.createElement("circle", {
+    className: "bos-online-flow-dot bos-online-flow-dot--soft",
+    cx: "105",
+    cy: "290",
+    r: "8"
+  }), /*#__PURE__*/React.createElement("circle", {
+    className: "bos-online-flow-dot bos-online-flow-dot--soft",
+    cx: "455",
+    cy: "100",
+    r: "8"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "bos-online-flow-node bos-online-flow-node--request"
+  }, /*#__PURE__*/React.createElement("b", null, "\u0417\u0430\u043F\u0438\u0442"), /*#__PURE__*/React.createElement("span", null, "\u041F\u043E\u0442\u0440\u0435\u0431\u0430 \u043A\u043B\u0456\u0454\u043D\u0442\u0430")), /*#__PURE__*/React.createElement("div", {
+    className: "bos-online-flow-node bos-online-flow-node--source"
+  }, /*#__PURE__*/React.createElement("b", null, "\u0414\u0436\u0435\u0440\u0435\u043B\u043E"), /*#__PURE__*/React.createElement("span", null, "\u0417\u0430\u043F\u0438\u0441 \u0456 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442")), /*#__PURE__*/React.createElement("div", {
+    className: "bos-online-flow-node bos-online-flow-node--check"
+  }, /*#__PURE__*/React.createElement("b", null, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0430"), /*#__PURE__*/React.createElement("span", null, "\u0424\u0430\u043A\u0442, \u043D\u0435 \u043F\u0440\u0438\u043F\u0443\u0449\u0435\u043D\u043D\u044F")), /*#__PURE__*/React.createElement("div", {
+    className: "bos-online-flow-node bos-online-flow-node--owner"
+  }, /*#__PURE__*/React.createElement("b", null, "\u0412\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u0430\u043B\u044C\u043D\u0438\u0439"), /*#__PURE__*/React.createElement("span", null, "\u041D\u0430\u0441\u0442\u0443\u043F\u043D\u0430 \u0434\u0456\u044F")), /*#__PURE__*/React.createElement("div", {
+    className: "bos-online-flow-node bos-online-flow-node--result"
+  }, /*#__PURE__*/React.createElement("b", null, "\u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442"), /*#__PURE__*/React.createElement("span", null, "\u041E\u043A\u0440\u0435\u043C\u0435 \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043D\u044F"))));
+  const PageTwo = () => /*#__PURE__*/React.createElement("div", {
+    className: "bos-online-spread bos-online-story"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bos-online-story-intro"
+  }, /*#__PURE__*/React.createElement(Example, null), /*#__PURE__*/React.createElement("p", {
+    className: "bos-online-kicker"
+  }, "\u041A\u0435\u0439\u0441 01 \xB7 \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("h2", null, supply?.title || 'Перевірити забезпечення'), /*#__PURE__*/React.createElement("p", null, presentation.baseline || supply?.summary), /*#__PURE__*/React.createElement("div", {
+    className: "bos-online-story-facts"
+  }, (presentation.metrics || []).map(metric => /*#__PURE__*/React.createElement("div", {
+    key: metric.label
+  }, /*#__PURE__*/React.createElement("span", null, metric.label), /*#__PURE__*/React.createElement("strong", null, metric.value))))), /*#__PURE__*/React.createElement("div", {
+    className: "bos-online-handoffs"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "bos-online-caption"
+  }, "\u041F\u0435\u0440\u0435\u0434\u0430\u0447\u0456 \u043C\u0456\u0436 \u0432\u0456\u0434\u0434\u0456\u043B\u0430\u043C\u0438"), /*#__PURE__*/React.createElement("div", {
+    className: "bos-online-step-list"
+  }, handoffs.map((item, index) => /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    key: item.step_id || item.department,
+    className: index === supplyStep ? 'is-active' : '',
+    "aria-pressed": index === supplyStep,
+    onClick: () => setSupplyStep(index)
+  }, /*#__PURE__*/React.createElement("span", null, String(index + 1).padStart(2, '0')), /*#__PURE__*/React.createElement("strong", null, item.department), /*#__PURE__*/React.createElement(Icon, {
+    name: "chevronRight"
+  })))), activeHandoff && /*#__PURE__*/React.createElement("article", {
+    className: "bos-online-step-detail"
+  }, /*#__PURE__*/React.createElement("h3", null, activeHandoff.department), /*#__PURE__*/React.createElement("p", null, activeHandoff.action), /*#__PURE__*/React.createElement("small", null, /*#__PURE__*/React.createElement("b", null, "\u041A\u043E\u043D\u0442\u0440\u043E\u043B\u044C:"), " ", activeHandoff.control))));
+  const PageThree = () => /*#__PURE__*/React.createElement("div", {
+    className: "bos-online-spread bos-online-monitor"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Example, null), /*#__PURE__*/React.createElement("p", {
+    className: "bos-online-kicker"
+  }, "\u041E\u0433\u043B\u044F\u0434 \u0434\u043B\u044F \u0440\u0456\u0448\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("h2", null, chart.title || 'Початковий стан'), /*#__PURE__*/React.createElement("p", {
+    className: "bos-online-lead"
+  }, chart.context || 'Навчальні значення пояснюють, з чого починається перевірка.'), /*#__PURE__*/React.createElement("p", {
+    className: "bos-online-note"
+  }, "\u041F\u0430\u043D\u0435\u043B\u044C \u043F\u043E\u043A\u0430\u0437\u0443\u0454 \u043F\u043E\u044F\u0441\u043D\u044E\u0432\u0430\u043B\u044C\u043D\u0438\u0439 \u0437\u043D\u0456\u043C\u043E\u043A \u043D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u043E\u0433\u043E \u043A\u0435\u0439\u0441\u0443, \u0430 \u043D\u0435 live-\u0441\u0442\u0430\u043D \u043A\u043E\u043C\u043F\u0430\u043D\u0456\u0457."), /*#__PURE__*/React.createElement("div", {
+    className: "bos-online-monitor-legend"
+  }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
+    className: "is-green"
+  }), "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0435\u043D\u0438\u0439 \u0444\u0430\u043A\u0442"), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
+    className: "is-blue"
+  }), "\u041F\u043B\u0430\u043D \u0430\u0431\u043E \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442"), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
+    className: "is-amber"
+  }), "\u041F\u0438\u0442\u0430\u043D\u043D\u044F \u0434\u043B\u044F \u0443\u0432\u0430\u0433\u0438"))), /*#__PURE__*/React.createElement("figure", {
+    className: "bos-online-chart"
+  }, /*#__PURE__*/React.createElement(Example, null), /*#__PURE__*/React.createElement("figcaption", null, /*#__PURE__*/React.createElement("span", null, chart.title || 'Початковий стан'), /*#__PURE__*/React.createElement("strong", null, chart.total || '—', " ", chart.unit || '')), (chart.bars || []).map(bar => {
+    const width = chart.total ? Math.max(0, Math.min(100, Number(bar.value) / Number(chart.total) * 100)) : 0;
+    return /*#__PURE__*/React.createElement("div", {
+      className: "bos-online-bar",
+      key: bar.label
+    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, bar.label), /*#__PURE__*/React.createElement("b", null, bar.value, " ", chart.unit)), /*#__PURE__*/React.createElement("i", null, /*#__PURE__*/React.createElement("em", {
+      "data-tone": bar.tone || 'blue',
+      style: {
+        width: width + '%'
+      }
+    })));
+  }), chart.note && /*#__PURE__*/React.createElement("p", {
+    className: "bos-online-chart-note"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "info"
+  }), chart.note.label, ": ", /*#__PURE__*/React.createElement("strong", null, chart.note.value, " ", chart.note.unit || chart.unit))));
+  const PageFour = () => /*#__PURE__*/React.createElement("div", {
+    className: "bos-online-spread bos-online-areas"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bos-online-areas-copy"
+  }, /*#__PURE__*/React.createElement(Example, null), /*#__PURE__*/React.createElement("p", {
+    className: "bos-online-kicker"
+  }, "\u041A\u0430\u0440\u0442\u0430 \u0440\u043E\u0431\u043E\u0442\u0438"), /*#__PURE__*/React.createElement("h2", null, "11 \u043E\u0431\u043B\u0430\u0441\u0442\u0435\u0439.", /*#__PURE__*/React.createElement("br", null), "\u041E\u0434\u0438\u043D \u043A\u043E\u043D\u0442\u0443\u0440."), /*#__PURE__*/React.createElement("p", null, "\u041E\u0431\u0435\u0440\u0456\u0442\u044C \u043E\u0431\u043B\u0430\u0441\u0442\u044C: \u0432\u0456\u0434 \u0437\u0430\u043F\u0438\u0442\u0430\u043D\u043D\u044F \u0432\u0456\u0434\u0434\u0456\u043B\u0443 \u2014 \u0434\u043E \u0441\u043F\u0456\u043B\u044C\u043D\u043E\u0433\u043E \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u0443 \u043A\u043E\u043C\u043F\u0430\u043D\u0456\u0457."), activeArea && /*#__PURE__*/React.createElement("article", {
+    className: "bos-online-area-detail"
+  }, /*#__PURE__*/React.createElement("span", null, activeArea.label), /*#__PURE__*/React.createElement("strong", null, activeArea.question), /*#__PURE__*/React.createElement("p", null, activeArea.availability))), /*#__PURE__*/React.createElement("div", {
+    className: "bos-online-area-list",
+    "aria-label": "\u0420\u043E\u0431\u043E\u0447\u0456 \u043E\u0431\u043B\u0430\u0441\u0442\u0456"
+  }, areas.map((area, index) => /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    key: area.id,
+    className: area.id === activeArea?.id ? 'is-active' : '',
+    "aria-pressed": area.id === activeArea?.id,
+    onClick: () => setAreaId(area.id)
+  }, /*#__PURE__*/React.createElement("span", null, String(index + 1).padStart(2, '0')), /*#__PURE__*/React.createElement("strong", null, area.label), /*#__PURE__*/React.createElement(Icon, {
+    name: "chevronRight"
+  })))));
+  const PageFive = () => /*#__PURE__*/React.createElement("div", {
+    className: "bos-online-spread bos-online-controls"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Example, null), /*#__PURE__*/React.createElement("p", {
+    className: "bos-online-kicker"
+  }, "\u041A\u043E\u043D\u0442\u0440\u043E\u043B\u044C \u043F\u0435\u0440\u0435\u0434 \u0434\u0456\u0454\u044E"), /*#__PURE__*/React.createElement("h2", null, "\u0414\u0436\u0435\u0440\u0435\u043B\u043E.", /*#__PURE__*/React.createElement("br", null), "\u041F\u043E\u043F\u0435\u0440\u0435\u0434\u043D\u0456\u0439 \u043F\u0435\u0440\u0435\u0433\u043B\u044F\u0434.", /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("em", null, "\u041F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043D\u044F.")), /*#__PURE__*/React.createElement("p", {
+    className: "bos-online-lead"
+  }, "BoS \u0432\u0456\u0434\u0434\u0456\u043B\u044F\u0454 \u043F\u0435\u0440\u0435\u0433\u043B\u044F\u0434 \u043C\u0430\u0439\u0431\u0443\u0442\u043D\u044C\u043E\u0433\u043E \u0432\u043F\u043B\u0438\u0432\u0443 \u0432\u0456\u0434 \u0437\u043C\u0456\u043D\u0438 \u0444\u0430\u043A\u0442\u0443. \u041E\u0434\u0438\u043D \u0435\u043A\u0440\u0430\u043D \u0430\u0431\u043E \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u043D\u0435 \u043F\u0456\u0434\u043C\u0456\u043D\u044F\u0454 \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043D\u044F."), onSignIn ? /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "bos-online-secondary",
+    onClick: () => onSignIn()
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "contracts"
+  }), "\u0423\u0432\u0456\u0439\u0442\u0438 \u0434\u043E \u043D\u0430\u0432\u0447\u0430\u043D\u043D\u044F") : /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "bos-online-secondary",
+    onClick: () => onExplore?.()
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "dashboard"
+  }), "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0456 \u043A\u0435\u0439\u0441\u0438")), /*#__PURE__*/React.createElement("ol", {
+    className: "bos-online-control-path"
+  }, /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("span", null, "01"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, "\u0414\u0436\u0435\u0440\u0435\u043B\u043E"), /*#__PURE__*/React.createElement("p", null, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0442\u0435 \u0437\u0430\u043F\u0438\u0441, \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0438\u0439 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442 \u0456 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0444\u0430\u043A\u0442\u0438."))), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("span", null, "02"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, "\u041F\u043E\u043F\u0435\u0440\u0435\u0434\u043D\u0456\u0439 \u043F\u0435\u0440\u0435\u0433\u043B\u044F\u0434"), /*#__PURE__*/React.createElement("p", null, "\u0417\u0456\u0441\u0442\u0430\u0432\u0442\u0435 \u0437\u0430\u043F\u043B\u0430\u043D\u043E\u0432\u0430\u043D\u0438\u0439 \u0432\u043F\u043B\u0438\u0432 \u0437 \u0434\u0436\u0435\u0440\u0435\u043B\u0430\u043C\u0438 \u0434\u043E \u0437\u043C\u0456\u043D\u0438."))), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("span", null, "03"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, "\u042F\u0432\u043D\u0435 \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("p", null, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0442\u0435 \u043E\u0447\u0456\u043A\u0443\u0432\u0430\u043D\u0456 \u0437\u043C\u0456\u043D\u0438 \u0442\u0430 \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0456\u0442\u044C \u0434\u0456\u044E \u0432 \u043C\u0435\u0436\u0430\u0445 \u0441\u0432\u043E\u0457\u0445 \u043F\u0440\u0430\u0432.")))));
+  const PageSix = () => /*#__PURE__*/React.createElement("div", {
+    className: "bos-online-cases"
+  }, /*#__PURE__*/React.createElement("header", null, /*#__PURE__*/React.createElement(Example, null), /*#__PURE__*/React.createElement("p", {
+    className: "bos-online-kicker"
+  }, "\u0422\u0440\u0438 \u043D\u0435\u0437\u0430\u043B\u0435\u0436\u043D\u0456 \u0456\u0441\u0442\u043E\u0440\u0456\u0457"), /*#__PURE__*/React.createElement("h2", null, "\u041E\u0431\u0435\u0440\u0456\u0442\u044C \u043F\u0438\u0442\u0430\u043D\u043D\u044F,", /*#__PURE__*/React.createElement("br", null), "\u0437 \u044F\u043A\u043E\u0433\u043E \u043F\u043E\u0447\u0430\u0442\u0438."), /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0441\u0442\u0430\u0447\u0430\u043D\u043D\u044F, \u044F\u043A\u0456\u0441\u0442\u044C \u0430\u0431\u043E \u043E\u043F\u043B\u0430\u0442\u0430 \u2014 \u0437\u043D\u0430\u0439\u043E\u043C\u0430 \u0440\u043E\u0431\u043E\u0447\u0430 \u0441\u0438\u0442\u0443\u0430\u0446\u0456\u044F, \u044F\u043A\u0443 \u043C\u043E\u0436\u043D\u0430 \u0440\u043E\u0437\u0456\u0431\u0440\u0430\u0442\u0438 \u043A\u0440\u043E\u043A \u0437\u0430 \u043A\u0440\u043E\u043A\u043E\u043C.")), /*#__PURE__*/React.createElement("div", {
+    className: "bos-online-case-grid"
+  }, cases.map((item, index) => /*#__PURE__*/React.createElement("article", {
+    key: item.id
+  }, /*#__PURE__*/React.createElement("span", null, String(index + 1).padStart(2, '0')), /*#__PURE__*/React.createElement("h3", null, item.title), /*#__PURE__*/React.createElement("p", null, item.summary), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => onExplore?.(item.slug)
+  }, "\u041F\u0435\u0440\u0435\u0433\u043B\u044F\u043D\u0443\u0442\u0438 \u043A\u0435\u0439\u0441 ", /*#__PURE__*/React.createElement(Icon, {
+    name: "chevronRight"
+  }))))));
+  const pages = [PageOne(), PageTwo(), PageThree(), PageFour(), PageFive(), PageSix()];
+  if (!content) return null;
+  return /*#__PURE__*/React.createElement("section", {
+    className: "bos-online-brochure",
+    role: "region",
+    "aria-roledescription": "\u043A\u0430\u0440\u0443\u0441\u0435\u043B\u044C",
+    tabIndex: 0,
+    onKeyDown: keyNavigate,
+    onTouchStart: event => {
+      if (event.target.closest('button,a,input,select,textarea,[role=button]')) return;
+      const point = event.touches[0];
+      touchStart.current = {
+        x: point.clientX,
+        y: point.clientY
+      };
+    },
+    onTouchEnd: touchEnd,
+    onTouchCancel: () => {
+      touchStart.current = null;
+    },
+    "aria-label": "\u0406\u043D\u0442\u0435\u0440\u0430\u043A\u0442\u0438\u0432\u043D\u0438\u0439 \u043E\u0433\u043B\u044F\u0434 BoS",
+    "aria-describedby": "bos-online-keyboard-note"
+  }, /*#__PURE__*/React.createElement("header", {
+    className: "bos-online-header"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "bos-online-brand",
+    onClick: () => selectPage(0),
+    "aria-label": "\u041D\u0430 \u043F\u043E\u0447\u0430\u0442\u043E\u043A \u043E\u0433\u043B\u044F\u0434\u0443"
+  }, /*#__PURE__*/React.createElement(BosMark, null), /*#__PURE__*/React.createElement("span", null, content.brand, /*#__PURE__*/React.createElement("small", null, "\u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0435 \u0443\u043F\u0440\u0430\u0432\u043B\u0456\u043D\u043D\u044F \u0431\u0456\u0437\u043D\u0435\u0441\u043E\u043C"))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "bos-online-header-link",
+    onClick: () => onExplore?.()
+  }, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0456 \u043A\u0435\u0439\u0441\u0438"), onSignIn && /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "bos-online-header-signin",
+    onClick: () => onSignIn()
+  }, "\u0412\u0445\u0456\u0434"))), /*#__PURE__*/React.createElement("div", {
+    className: "bos-online-progress",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("i", {
+    style: {
+      width: (page + 1) / count * 100 + '%'
+    }
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "bos-online-page-wrap"
+  }, /*#__PURE__*/React.createElement("div", {
+    id: "bos-online-page",
+    key: page,
+    className: "bos-online-page",
+    role: "region",
+    "aria-live": "polite",
+    "aria-atomic": "true",
+    "aria-label": 'Сторінка ' + (page + 1) + ' з ' + count
+  }, pages[page])), /*#__PURE__*/React.createElement("footer", {
+    className: "bos-online-footer"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bos-online-page-buttons",
+    "aria-label": "\u0421\u0442\u043E\u0440\u0456\u043D\u043A\u0438 \u043E\u0433\u043B\u044F\u0434\u0443"
+  }, Array.from({
+    length: count
+  }, (_, index) => /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    key: index,
+    "aria-controls": "bos-online-page",
+    "aria-label": page === index ? 'Поточна сторінка ' + (index + 1) : 'Перейти до сторінки ' + (index + 1),
+    "aria-current": page === index ? 'page' : undefined,
+    onClick: () => selectPage(index)
+  }, String(index + 1).padStart(2, '0')))), /*#__PURE__*/React.createElement("p", {
+    id: "bos-online-keyboard-note"
+  }, "\u0421\u0442\u043E\u0440\u0456\u043D\u043A\u0430 ", page + 1, " \u0437 ", count, /*#__PURE__*/React.createElement("span", {
+    className: "bos-online-sr-only"
+  }, " \xB7 \u0441\u0442\u0440\u0456\u043B\u043A\u0438, Home \u0442\u0430 End \u043F\u0440\u0430\u0446\u044E\u044E\u0442\u044C, \u043A\u043E\u043B\u0438 \u043E\u0433\u043B\u044F\u0434 \u0443 \u0444\u043E\u043A\u0443\u0441\u0456.")), /*#__PURE__*/React.createElement("div", {
+    className: "bos-online-pager"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    "aria-controls": "bos-online-page",
+    onClick: () => move(page - 1),
+    disabled: page === 0
+  }, "\u041D\u0430\u0437\u0430\u0434"), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "bos-online-next",
+    "aria-controls": "bos-online-page",
+    onClick: () => move(page + 1),
+    disabled: page === count - 1
+  }, "\u0414\u0430\u043B\u0456 ", /*#__PURE__*/React.createElement(Icon, {
+    name: "chevronRight"
+  })))));
+}
 function Bos3Brochure({
   compact = false,
   onSelectCase,
@@ -21583,18 +22065,9 @@ function Bos3Brochure({
   }, content.training_notice), compact ? /*#__PURE__*/React.createElement("h2", null, content.brand) : /*#__PURE__*/React.createElement("h1", null, content.brand), /*#__PURE__*/React.createElement("p", null, content.summary)), /*#__PURE__*/React.createElement("div", {
     className: "bos3-hero-aside"
   }, /*#__PURE__*/React.createElement("strong", null, content.company), "\u0422\u0440\u0438 \u043D\u0435\u0437\u0430\u043B\u0435\u0436\u043D\u0456 \u043A\u0435\u0439\u0441\u0438 \u0434\u043B\u044F \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0438 \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0438\u0445 \u0444\u0430\u043A\u0442\u0456\u0432. \u0412\u043E\u043D\u0438 \u043D\u0435 \u0437\u043C\u0456\u043D\u044E\u044E\u0442\u044C \u0440\u043E\u0431\u043E\u0447\u0456 \u0434\u0430\u043D\u0456."));
-  if (entry) return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("header", {
-    className: "bos-light-header"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "bos-light-brand"
-  }, /*#__PURE__*/React.createElement(BosMark, null), /*#__PURE__*/React.createElement("span", null, content.brand, /*#__PURE__*/React.createElement("small", null, "\u041F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0435 \u0443\u043F\u0440\u0430\u0432\u043B\u0456\u043D\u043D\u044F \u0431\u0456\u0437\u043D\u0435\u0441\u043E\u043C"))), /*#__PURE__*/React.createElement("button", {
-    className: "bos-light-button",
-    type: "button",
-    onClick: onRequestSignIn
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "bos-preview-icon",
-    "aria-hidden": "true"
-  }, ICONS.dashboard), "\u0412\u0445\u0456\u0434")), /*#__PURE__*/React.createElement("section", {
+  if (entry) return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("section", {
+    id: "bos3-entry-cases",
+    tabIndex: -1,
     className: "bos3-start",
     "aria-label": "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0435 \u043F\u0440\u0435\u0432\u2019\u044E BoS 3.0"
   }, /*#__PURE__*/React.createElement("header", {
@@ -23189,6 +23662,13 @@ function App() {
       refetchDashboard(selectedBranch, period);
       setNotice("Доручення збережено");
     }
+  }), /*#__PURE__*/React.createElement(BoSHome, {
+    monitor: true,
+    readOnlyOverview: true,
+    onNavigate: (section, sub) => setNav({
+      section,
+      sub
+    })
   }), (dataError || notice) && /*#__PURE__*/React.createElement("div", {
     className: "bos-feedback",
     role: "status"
@@ -23236,12 +23716,26 @@ function AuthGate() {
   const preserveSelectedCase = () => {
     if (trainingEnabled && selectedCase) bos3SetSlug(selectedCase, true);
   };
-  const openSignIn = () => {
-    preserveSelectedCase();
-    signInRef.current?.scrollIntoView({
-      behavior: 'smooth',
+  const entryScroll = node => {
+    if (!node) return;
+    node.scrollIntoView({
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
       block: 'start'
     });
+    (node.querySelector('input') || node).focus({
+      preventScroll: true
+    });
+  };
+  const openSignIn = () => {
+    preserveSelectedCase();
+    entryScroll(signInRef.current);
+  };
+  const exploreBrochure = slug => {
+    if (slug && bos3Registry()?.cases.some(item => item.slug === slug)) {
+      setSelectedCase(slug);
+      bos3SetSlug(slug);
+    }
+    requestAnimationFrame(() => entryScroll(document.getElementById('bos3-entry-cases') || signInRef.current));
   };
   useEffect(() => {
     const syncSelectedCase = () => setSelectedCase(bos3Slug() || bos3Registry()?.cases[0]?.slug || null);
@@ -23370,7 +23864,11 @@ function AuthGate() {
   if (ready) return /*#__PURE__*/React.createElement(App, null);
   if (trainingEnabled) return /*#__PURE__*/React.createElement("main", {
     className: "bos-entry-shell"
-  }, /*#__PURE__*/React.createElement(Bos3Brochure, {
+  }, /*#__PURE__*/React.createElement(BosOnlineBrochure, {
+    content: bos3Registry(),
+    onExplore: exploreBrochure,
+    onSignIn: openSignIn
+  }), /*#__PURE__*/React.createElement(Bos3Brochure, {
     entry: true,
     selectedSlug: selectedCase,
     onSelectCase: setSelectedCase,
@@ -23403,14 +23901,14 @@ function AuthGate() {
     }
   }, "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0438 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043D\u044F"))));
   return /*#__PURE__*/React.createElement("main", {
-    style: {
-      height: '100vh',
-      overflow: 'auto',
-      display: 'grid',
-      placeItems: 'center',
-      padding: 24,
-      fontFamily: T.font
-    }
+    className: "bos-entry-shell"
+  }, /*#__PURE__*/React.createElement(BosOnlineBrochure, {
+    content: bos3Registry(),
+    onExplore: exploreBrochure,
+    onSignIn: openSignIn
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "bos-login-standalone",
+    ref: signInRef
   }, /*#__PURE__*/React.createElement("section", {
     className: "bos-auth-shell",
     "aria-labelledby": "bos-sign-in"
@@ -23460,6 +23958,6 @@ function AuthGate() {
     style: {
       marginTop: 14
     }
-  }, "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0438 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043D\u044F")));
+  }, "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0438 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043D\u044F"))));
 }
 ReactDOM.createRoot(document.getElementById('root')).render( /*#__PURE__*/React.createElement(ErrorBoundary, null, /*#__PURE__*/React.createElement(AuthGate, null)));

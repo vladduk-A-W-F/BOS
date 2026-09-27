@@ -5109,10 +5109,39 @@ function homeSelectionVisible(selection,data){
  if(selection.kind==='list')return ['jobs','lots','tasks','orders'].includes(selection.key);
  return Number.isSafeInteger(selection.id)&&Array.isArray(data[selection.kind])&&!!b03FindRecord(data,selection.kind,selection.id);
 }
-function BoSHome({onNavigate,refetchTasks,focus=false,readOnlyOverview=false}){
+// Compact presentation of the existing guarded BoSHome read, not a second data model.
+function BosGlobalMonitor({ready,busy,status,at,businessDate,error,metrics,financials,currency,onCurrency,onRefresh,onNavigate}){
+ const [collapsed,setCollapsed]=useState(false);
+ const stateLabel=busy?'Оновлюємо дані':ready?(status==='empty'?'Доступних записів немає':'Дані прочитано'):status==='stale'?'Потрібне оновлення':status==='denied'||status==='context-drift'?'Перевірте доступ':'Дані недоступні';
+ const readTime=at?new Date(at).toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit',timeZoneName:'short'}):null;
+ return <section className="bos-monitor" aria-label="Загальний моніторинг" aria-busy={busy} data-state={ready?'ready':busy?'loading':'unavailable'}>
+  <div className="bos-monitor-heading">
+   <div className="bos-monitor-title"><span className="bos-monitor-symbol" aria-hidden="true">{ICONS.dashboard}</span><div><h2>Загальний моніторинг</h2><p>{!ready?stateLabel:<>Доступні вам записи{window.BOS_RUNTIME?.training_enabled||window.BOS_RUNTIME?.mode==='demo'?' · навчальні дані':''}</>}</p></div></div>
+   <div className="bos-monitor-tools">
+    <span className="bos-monitor-state" role="status">{stateLabel}</span>
+    {ready&&financials.length>1&&<select aria-label="Валюта моніторингу" value={currency} onChange={event=>onCurrency(event.target.value)}>{financials.map(item=><option key={item.currency}>{item.currency}</option>)}</select>}
+    <button type="button" className="bos-monitor-refresh" aria-label="Оновити загальний моніторинг" disabled={busy} onClick={onRefresh}>Оновити</button>
+    <button type="button" className="bos-monitor-collapse" aria-expanded={!collapsed} aria-controls="bos-monitor-cards" aria-label={collapsed?'Розгорнути моніторинг':'Згорнути моніторинг'} onClick={()=>setCollapsed(value=>!value)}><span aria-hidden="true">{collapsed?'+':'−'}</span></button>
+   </div>
+  </div>
+  <div className="bos-monitor-cards" id="bos-monitor-cards" hidden={collapsed}>
+   {metrics.map(metric=><button key={metric.key} type="button" className="bos-monitor-metric" data-tone={ready?metric.tone:undefined} disabled={!ready||!metric.allowed} onClick={()=>onNavigate(metric.section,metric.sub)}>
+    <span className="bos-monitor-metric-label">{metric.label}<span aria-hidden="true">↗</span></span>
+    <strong>{ready?metric.value:'—'}{ready&&metric.unit&&<small>{metric.unit}</small>}</strong>
+    <span className="bos-monitor-metric-note">{ready?metric.note:'Показники після успішного читання'}</span>
+   </button>)}
+  </div>
+  <div className="bos-monitor-foot">
+   <details><summary>{ready&&readTime?<>Прочитано о <time dateTime={at}>{readTime}</time></>:readTime?'Попереднє читання — показники приховано':'Джерело та час даних'}</summary><p>Показники обчислені з доступних записів ERP. Час читання — за годинником цього пристрою. Бізнес-дата розрахунку: {businessDate||'не надано'}. Це остання прийнята відповідь; наступні зміни потребують нового читання.</p></details>
+   {error&&<p role="alert">{error}</p>}
+  </div>
+ </section>;
+}
+
+function BoSHome({onNavigate,refetchTasks,focus=false,readOnlyOverview=false,monitor=false}){
  const scope=homeReadScope(),[view,setView]=useState({scope:'',status:'initial',data:null,at:null,error:''}),[currency,setCurrency]=useState('UAH'),[selection,setSelection]=useState(null),[action,setAction]=useState(null),[receipt,setReceipt]=useState(null);
  const life=useRef({alive:false,scope:'',epoch:0,accessEpoch:0,pending:null,view:null,actionId:0,nextSelection:null,selected:null}),presentation=useRef('');
- presentation.current=JSON.stringify([currency,focus,readOnlyOverview]);const renderedPresentation=presentation.current;
+ presentation.current=JSON.stringify([currency,focus,readOnlyOverview,monitor]);const renderedPresentation=presentation.current;
  function publish(next){life.current.view=next;setView(next);}
  function select(next){life.current.selected=next;setSelection(next);}
  function cancelRead(){const l=life.current;l.epoch++;if(l.pending){clearTimeout(l.pending.timer);l.pending.controller.abort();l.pending=null;}}
@@ -5177,6 +5206,17 @@ function BoSHome({onNavigate,refetchTasks,focus=false,readOnlyOverview=false}){
  const number=value=>homeKnownNumber(value)?erpNum(value):'—',businessDate=homeBusinessDate(data?.as_of),previous=!!data&&!ready;
  const readLabel=previous?'Попереднє читання в цьому вікні':'Останнє успішне читання в цьому вікні';
  const localTime=at?new Date(at).toLocaleString('uk-UA',{timeZoneName:'short'}):null;
+ if(monitor){
+  const available=(section,sub)=>bosCanView(section,sub);
+  const metrics=[
+   {key:'orders',label:'Замовлення у виконанні',value:orders.length,note:'Є невиконана кількість',section:'erp',sub:'sales'},
+   {key:'jobs',label:'Відкриті роботи',value:data?data.jobs.filter(x=>x.status!=='done').length:0,note:'Виробництво та комплектація',section:'erp',sub:'production'},
+   {key:'quality',label:'Партії без допуску',value:issues.length,note:'Статус якості або документи',tone:issues.length?'warning':null,section:'erp',sub:'quality'},
+   {key:'tasks',label:'Відкриті доручення',value:openTasks.length,note:overdue.length+' прострочених',tone:overdue.length?'warning':null,section:'hr',sub:'tasks'}
+  ];
+  if(bosCan('finance'))metrics.push({key:'receivable',label:'Очікуємо від клієнтів',value:number(financial?.receivable),unit:cur||'',note:financial?'Залишок рахунків після оплат':'Фінансові дані не надано',section:'erp',sub:'costs'});
+  return <BosGlobalMonitor ready={ready} busy={busy} status={status} at={at} businessDate={businessDate} error={inScope?view.error:'Контекст доступу змінився. Оновіть огляд.'} metrics={metrics.map(metric=>({...metric,allowed:available(metric.section,metric.sub)}))} financials={financials} currency={cur} onCurrency={setCurrency} onRefresh={()=>refresh()} onNavigate={(section,sub)=>{if(canUse()&&available(section,sub))onNavigate(section,sub);}}/>;
+ }
  return <div className="bos-home"><div className="erp-row"><div><h1>{readOnlyOverview?'Вертоліт · показники та джерела':'Сьогодні у BoS'}</h1><p className="op-muted">{readOnlyOverview?'Перевірте показники та відкрийте лише їхні доступні джерела. Дії в цьому огляді не виконуються.':'Робочі точки, замовлення та наступні кроки на сьогодні.'}</p></div><div className="erp-actions">{financial&&<Select aria-label={readOnlyOverview?'Валюта показників':'Валюта рахунків'} value={cur} onChange={e=>{select(null);life.current.nextSelection=null;setCurrency(e.target.value);}}>{financials.map(x=><option key={x.currency}>{x.currency}</option>)}</Select>}<Button disabled={busy} onClick={()=>refresh()}>{data?'Оновити':'Повторити'}</Button>{!readOnlyOverview&&<Button onClick={()=>onNavigate('heli')}>Вертоліт</Button>}<Button onClick={()=>onNavigate('info')}>Як працює BoS</Button></div></div>
  <section aria-label="Свіжість робочого огляду" aria-busy={busy}>
   {status==='loading'||status==='initial'?<p role="status">Завантаження робочого огляду…</p>:status==='refreshing'?<p role="status">Оновлюємо робочий огляд…</p>:ready?<p role="status">{status==='empty'?'Читання завершено. Доступних робочих записів немає.':'Робочий огляд прочитано.'}</p>:null}
@@ -5228,11 +5268,97 @@ function Bos3EntryCase({caseDef,onRequestSignIn}){
  const presentation=caseDef.presentation||{},metrics=Array.isArray(presentation.metrics)?presentation.metrics:[],handoffs=Array.isArray(presentation.handoffs)?presentation.handoffs:[];const [activeIndex,setActiveIndex]=useState(0);useEffect(()=>setActiveIndex(0),[caseDef.id]);const active=handoffs[activeIndex]||null,next=handoffs[activeIndex+1]||null;
  return <section className="bos-preview-window" aria-labelledby="bos3-entry-case-title"><div className="bos-preview-window-bar"><strong>{caseDef.id}</strong><span>Навчальний сценарій</span></div><div className="bos-preview-window-body"><header className="bos-preview-title"><div><p className="bos3-kicker">{presentation.client||'Навчальний клієнт'}</p><h2 id="bos3-entry-case-title">{caseDef.title}</h2>{presentation.product&&<p>{presentation.product}</p>}</div><span className="bos-preview-badge">Навчальні дані</span></header>{metrics.length>0&&<div className="bos-preview-facts">{metrics.map(metric=><div className="bos-preview-fact" key={metric.label}><span>{metric.label}</span><strong>{metric.value}</strong></div>)}</div>}<Bos3PreviewChart chart={presentation.chart}/><section className="bos-preview-source" aria-label="Початкові факти"><h3>Початкові факти</h3><p>{presentation.baseline||caseDef.story_intro}</p></section><section className="bos-preview-source" aria-label="Очікуваний результат"><h3>Очікуваний результат</h3><p>{presentation.effect||caseDef.goal}</p></section>{handoffs.length>0&&<section className="bos-preview-path" aria-label="Передачі між відділами"><h3>Передачі між відділами</h3><div className="bos-preview-path-layout"><div>{handoffs.map((handoff,index)=><button className="bos-preview-stage" type="button" key={handoff.step_id||handoff.department} aria-pressed={activeIndex===index} onClick={()=>setActiveIndex(index)}><span className="bos-preview-stage-index">{index+1}</span><span><strong>{handoff.department}</strong><span className="bos-preview-stage-action"><span className="bos-preview-icon" aria-hidden="true">{ICONS.chevronRight}</span>{handoff.action}</span></span><small>{activeIndex===index?'Відкрито':'Переглянути'}</small></button>)}</div>{active&&<div className="bos-preview-detail"><h3>{active.department}</h3><p><span className="bos-preview-icon" aria-hidden="true">{ICONS.check}</span><span>{active.control}</span></p>{next&&<p className="bos-preview-next"><span className="bos-preview-icon" aria-hidden="true">{ICONS.tasks}</span><span>Наступна передача: {next.department}</span></p>}</div>}</div></section>}<div className="bos3-entry-focus"><button className="bos-light-button" type="button" onClick={onRequestSignIn}><span className="bos-preview-icon" aria-hidden="true">{ICONS.contracts}</span>Почати навчання</button></div></div></section>;
 }
+/*
+ * Integration snippet. It assumes the existing React hooks, BosMark and ICONS
+ * from boss_app_source.html are in scope. It reads the existing registry only.
+ */
+function BosOnlineBrochure({content,onExplore,onSignIn}){
+  const [page,setPage]=useState(0);
+  const [supplyStep,setSupplyStep]=useState(0);
+  const [areaId,setAreaId]=useState(()=>content?.areas?.[0]?.id||null);
+  const touchStart=useRef(null);
+  const cases=Array.isArray(content?.cases)?content.cases:[];
+  const areas=Array.isArray(content?.areas)?content.areas:[];
+  const supply=cases.find(item=>item.slug==='supply')||cases[0];
+  const presentation=supply?.presentation||{};
+  const handoffs=Array.isArray(presentation.handoffs)?presentation.handoffs:[];
+  const chart=presentation.chart||{};
+  const activeHandoff=handoffs[supplyStep]||handoffs[0];
+  const activeArea=areas.find(item=>item.id===areaId)||areas[0];
+  const count=6;
+  const move=(next)=>setPage(current=>Math.max(0,Math.min(count-1,next)));
+  const selectPage=(next)=>setPage(current=>{
+    const safe=Math.max(0,Math.min(count-1,next));
+    return safe===current?current:safe;
+  });
+  const keyNavigate=(event)=>{
+    if(event.target!==event.currentTarget)return;
+    if(event.key==='ArrowRight'){event.preventDefault();move(page+1);}
+    if(event.key==='ArrowLeft'){event.preventDefault();move(page-1);}
+    if(event.key==='Home'){event.preventDefault();selectPage(0);}
+    if(event.key==='End'){event.preventDefault();selectPage(count-1);}
+  };
+  const touchEnd=(event)=>{
+    if(!touchStart.current)return;
+    const point=event.changedTouches[0];
+    const dx=point.clientX-touchStart.current.x;
+    const dy=point.clientY-touchStart.current.y;
+    touchStart.current=null;
+    if(Math.abs(dx)<46||Math.abs(dx)<=Math.abs(dy))return;
+    move(page+(dx<0?1:-1));
+  };
+  const Icon=({name})=><span className="bos-online-icon" aria-hidden="true">{ICONS[name]||ICONS.info}</span>;
+  const Example=()=> <span className="bos-online-example">Навчальний приклад</span>;
+  const PageOne=()=> <div className="bos-online-spread bos-online-page-one">
+    <div className="bos-online-copy"><Example/><p className="bos-online-kicker">BoS · пов’язане управління</p><h2>Бачити зв’язки.<br/><em>Керувати цілим.</em></h2><p className="bos-online-lead">{content?.summary||'Рішення спирається на доступні джерела, відповідального та наступну дію.'}</p><p className="bos-online-note">Кожне рішення має відповідального, джерело та зрозумілу наступну дію.</p><button type="button" className="bos-online-primary" onClick={()=>onExplore?.()}><Icon name="dashboard"/>Навчальні кейси</button></div>
+    <div className="bos-online-flow" aria-label="Схема пов’язаного робочого контуру">
+      <svg viewBox="0 0 560 390" role="img" aria-label="Запит пов'язаний із джерелом, перевіркою та наступною дією">
+        <path className="bos-online-flow-line" d="M105 100C190 100 178 195 272 195S366 290 455 290"/>
+        <path className="bos-online-flow-line bos-online-flow-line--muted" d="M105 290C190 290 178 195 272 195S366 100 455 100"/>
+        <circle className="bos-online-flow-dot" cx="105" cy="100" r="8"/><circle className="bos-online-flow-dot" cx="272" cy="195" r="8"/><circle className="bos-online-flow-dot" cx="455" cy="290" r="8"/><circle className="bos-online-flow-dot bos-online-flow-dot--soft" cx="105" cy="290" r="8"/><circle className="bos-online-flow-dot bos-online-flow-dot--soft" cx="455" cy="100" r="8"/>
+      </svg>
+      <div className="bos-online-flow-node bos-online-flow-node--request"><b>Запит</b><span>Потреба клієнта</span></div>
+      <div className="bos-online-flow-node bos-online-flow-node--source"><b>Джерело</b><span>Запис і документ</span></div>
+      <div className="bos-online-flow-node bos-online-flow-node--check"><b>Перевірка</b><span>Факт, не припущення</span></div>
+      <div className="bos-online-flow-node bos-online-flow-node--owner"><b>Відповідальний</b><span>Наступна дія</span></div>
+      <div className="bos-online-flow-node bos-online-flow-node--result"><b>Результат</b><span>Окреме підтвердження</span></div>
+    </div>
+  </div>;
+  const PageTwo=()=> <div className="bos-online-spread bos-online-story">
+    <div className="bos-online-story-intro"><Example/><p className="bos-online-kicker">Кейс 01 · постачання</p><h2>{supply?.title||'Перевірити забезпечення'}</h2><p>{presentation.baseline||supply?.summary}</p><div className="bos-online-story-facts">{(presentation.metrics||[]).map(metric=><div key={metric.label}><span>{metric.label}</span><strong>{metric.value}</strong></div>)}</div></div>
+    <div className="bos-online-handoffs"><p className="bos-online-caption">Передачі між відділами</p><div className="bos-online-step-list">{handoffs.map((item,index)=><button type="button" key={item.step_id||item.department} className={index===supplyStep?'is-active':''} aria-pressed={index===supplyStep} onClick={()=>setSupplyStep(index)}><span>{String(index+1).padStart(2,'0')}</span><strong>{item.department}</strong><Icon name="chevronRight"/></button>)}</div>{activeHandoff&&<article className="bos-online-step-detail"><h3>{activeHandoff.department}</h3><p>{activeHandoff.action}</p><small><b>Контроль:</b> {activeHandoff.control}</small></article>}</div>
+  </div>;
+  const PageThree=()=> <div className="bos-online-spread bos-online-monitor">
+    <div><Example/><p className="bos-online-kicker">Огляд для рішення</p><h2>{chart.title||'Початковий стан'}</h2><p className="bos-online-lead">{chart.context||'Навчальні значення пояснюють, з чого починається перевірка.'}</p><p className="bos-online-note">Панель показує пояснювальний знімок навчального кейсу, а не live-стан компанії.</p><div className="bos-online-monitor-legend"><span><i className="is-green"/>Перевірений факт</span><span><i className="is-blue"/>План або контекст</span><span><i className="is-amber"/>Питання для уваги</span></div></div>
+    <figure className="bos-online-chart"><Example/><figcaption><span>{chart.title||'Початковий стан'}</span><strong>{chart.total||'—'} {chart.unit||''}</strong></figcaption>{(chart.bars||[]).map(bar=>{const width=chart.total?Math.max(0,Math.min(100,Number(bar.value)/Number(chart.total)*100)):0;return <div className="bos-online-bar" key={bar.label}><div><span>{bar.label}</span><b>{bar.value} {chart.unit}</b></div><i><em data-tone={bar.tone||'blue'} style={{width:width+'%'}}/></i></div>})}{chart.note&&<p className="bos-online-chart-note"><Icon name="info"/>{chart.note.label}: <strong>{chart.note.value} {chart.note.unit||chart.unit}</strong></p>}</figure>
+  </div>;
+  const PageFour=()=> <div className="bos-online-spread bos-online-areas">
+    <div className="bos-online-areas-copy"><Example/><p className="bos-online-kicker">Карта роботи</p><h2>11 областей.<br/>Один контур.</h2><p>Оберіть область: від запитання відділу — до спільного результату компанії.</p>{activeArea&&<article className="bos-online-area-detail"><span>{activeArea.label}</span><strong>{activeArea.question}</strong><p>{activeArea.availability}</p></article>}</div>
+    <div className="bos-online-area-list" aria-label="Робочі області">{areas.map((area,index)=><button type="button" key={area.id} className={area.id===activeArea?.id?'is-active':''} aria-pressed={area.id===activeArea?.id} onClick={()=>setAreaId(area.id)}><span>{String(index+1).padStart(2,'0')}</span><strong>{area.label}</strong><Icon name="chevronRight"/></button>)}</div>
+  </div>;
+  const PageFive=()=> <div className="bos-online-spread bos-online-controls">
+    <div><Example/><p className="bos-online-kicker">Контроль перед дією</p><h2>Джерело.<br/>Попередній перегляд.<br/><em>Підтвердження.</em></h2><p className="bos-online-lead">BoS відділяє перегляд майбутнього впливу від зміни факту. Один екран або доручення не підміняє підтвердження.</p>{onSignIn?<button type="button" className="bos-online-secondary" onClick={()=>onSignIn()}><Icon name="contracts"/>Увійти до навчання</button>:<button type="button" className="bos-online-secondary" onClick={()=>onExplore?.()}><Icon name="dashboard"/>Навчальні кейси</button>}</div>
+    <ol className="bos-online-control-path"><li><span>01</span><div><b>Джерело</b><p>Перевірте запис, пов’язаний документ і доступні факти.</p></div></li><li><span>02</span><div><b>Попередній перегляд</b><p>Зіставте запланований вплив з джерелами до зміни.</p></div></li><li><span>03</span><div><b>Явне підтвердження</b><p>Перевірте очікувані зміни та підтвердіть дію в межах своїх прав.</p></div></li></ol>
+  </div>;
+  const PageSix=()=> <div className="bos-online-cases">
+    <header><Example/><p className="bos-online-kicker">Три незалежні історії</p><h2>Оберіть питання,<br/>з якого почати.</h2><p>Постачання, якість або оплата — знайома робоча ситуація, яку можна розібрати крок за кроком.</p></header>
+    <div className="bos-online-case-grid">{cases.map((item,index)=><article key={item.id}><span>{String(index+1).padStart(2,'0')}</span><h3>{item.title}</h3><p>{item.summary}</p><button type="button" onClick={()=>onExplore?.(item.slug)}>Переглянути кейс <Icon name="chevronRight"/></button></article>)}</div>
+  </div>;
+  const pages=[PageOne(),PageTwo(),PageThree(),PageFour(),PageFive(),PageSix()];
+  if(!content)return null;
+  return <section className="bos-online-brochure" role="region" aria-roledescription="карусель" tabIndex={0} onKeyDown={keyNavigate} onTouchStart={event=>{if(event.target.closest('button,a,input,select,textarea,[role=button]'))return;const point=event.touches[0];touchStart.current={x:point.clientX,y:point.clientY};}} onTouchEnd={touchEnd} onTouchCancel={()=>{touchStart.current=null;}} aria-label="Інтерактивний огляд BoS" aria-describedby="bos-online-keyboard-note">
+    <header className="bos-online-header"><button type="button" className="bos-online-brand" onClick={()=>selectPage(0)} aria-label="На початок огляду"><BosMark/><span>{content.brand}<small>пов’язане управління бізнесом</small></span></button><div><button type="button" className="bos-online-header-link" onClick={()=>onExplore?.()}>Навчальні кейси</button>{onSignIn&&<button type="button" className="bos-online-header-signin" onClick={()=>onSignIn()}>Вхід</button>}</div></header>
+    <div className="bos-online-progress" aria-hidden="true"><i style={{width:((page+1)/count*100)+'%'}}/></div>
+    <div className="bos-online-page-wrap"><div id="bos-online-page" key={page} className="bos-online-page" role="region" aria-live="polite" aria-atomic="true" aria-label={'Сторінка '+(page+1)+' з '+count}>{pages[page]}</div></div>
+    <footer className="bos-online-footer"><div className="bos-online-page-buttons" aria-label="Сторінки огляду">{Array.from({length:count},(_,index)=><button type="button" key={index} aria-controls="bos-online-page" aria-label={page===index?'Поточна сторінка '+(index+1):'Перейти до сторінки '+(index+1)} aria-current={page===index?'page':undefined} onClick={()=>selectPage(index)}>{String(index+1).padStart(2,'0')}</button>)}</div><p id="bos-online-keyboard-note">Сторінка {page+1} з {count}<span className="bos-online-sr-only"> · стрілки, Home та End працюють, коли огляд у фокусі.</span></p><div className="bos-online-pager"><button type="button" aria-controls="bos-online-page" onClick={()=>move(page-1)} disabled={page===0}>Назад</button><button type="button" className="bos-online-next" aria-controls="bos-online-page" onClick={()=>move(page+1)} disabled={page===count-1}>Далі <Icon name="chevronRight"/></button></div></footer>
+  </section>;
+}
+
 function Bos3Brochure({compact=false,onSelectCase,entry=false,selectedSlug=null,showBrochurePdf=!compact,onRequestSignIn}){
  const content=bos3Registry();if(!content)return <section className="bos3-empty">Навчальні матеріали ще не зібрані для цього кандидата.</section>;
  const selectCase=slug=>{if(!content.cases.some(item=>item.slug===slug))return;bos3SetSlug(slug);onSelectCase?.(slug);};const selected=entry?(content.cases.find(item=>item.slug===selectedSlug)||content.cases[0]||null):null;
  const hero=<div className="bos3-hero"><div><p className="bos3-kicker">{content.training_notice}</p>{compact?<h2>{content.brand}</h2>:<h1>{content.brand}</h1>}<p>{content.summary}</p></div><div className="bos3-hero-aside"><strong>{content.company}</strong>Три незалежні кейси для перевірки пов’язаних фактів. Вони не змінюють робочі дані.</div></div>;
- if(entry)return <><header className="bos-light-header"><div className="bos-light-brand"><BosMark/><span>{content.brand}<small>Пов’язане управління бізнесом</small></span></div><button className="bos-light-button" type="button" onClick={onRequestSignIn}><span className="bos-preview-icon" aria-hidden="true">{ICONS.dashboard}</span>Вхід</button></header><section className="bos3-start" aria-label="Навчальне прев’ю BoS 3.0"><header className="bos-preview-head"><div><p className="bos3-kicker">{content.training_notice}</p><h1>Пов’язані рішення до дії</h1><p>{content.summary}</p></div><img className="bos-preview-object" src="/assets/bos3-fasteners-entry.png" alt="Навчальна ілюстрація кріпильних виробів"/></header><Bos3PreviewCaseSelector content={content} selectedSlug={selected?.slug||null} onSelect={selectCase}/>{selected&&<Bos3EntryCase caseDef={selected} onRequestSignIn={onRequestSignIn}/>}<div className="bos3-section-heading"><div><h2>11 робочих областей</h2><p>Доступні джерела та контроль залежать від ролі після входу.</p></div></div><Bos3AreaGrid content={content} onOpenCase={selectCase}/></section></>;
+ if(entry)return <><section id="bos3-entry-cases" tabIndex={-1} className="bos3-start" aria-label="Навчальне прев’ю BoS 3.0"><header className="bos-preview-head"><div><p className="bos3-kicker">{content.training_notice}</p><h1>Пов’язані рішення до дії</h1><p>{content.summary}</p></div><img className="bos-preview-object" src="/assets/bos3-fasteners-entry.png" alt="Навчальна ілюстрація кріпильних виробів"/></header><Bos3PreviewCaseSelector content={content} selectedSlug={selected?.slug||null} onSelect={selectCase}/>{selected&&<Bos3EntryCase caseDef={selected} onRequestSignIn={onRequestSignIn}/>}<div className="bos3-section-heading"><div><h2>11 робочих областей</h2><p>Доступні джерела та контроль залежать від ролі після входу.</p></div></div><Bos3AreaGrid content={content} onOpenCase={selectCase}/></section></>;
  return <section className={compact?'bos3-auth-guide':'bos3-start'} aria-label="Навчання BoS 3.0">{hero}<div className="bos3-section-heading"><div><h2>Робочі області</h2><p>Оберіть питання, щоб побачити доступну функцію й відповідний кейс.</p></div></div><Bos3AreaGrid content={content} compact={compact} onOpenCase={selectCase}/><div className="bos3-section-heading"><div><h2>Три кейси</h2><p>Кожен має власне посилання та не залежить від порядку проходження.</p></div></div><Bos3CaseCards content={content} compact={compact} onSelect={selectCase}/>{showBrochurePdf&&<><p className="bos3-note">Статус кейсу, факти та докази з'являються лише після перевірки вашої аутентифікованої навчальної сесії.</p><a className="bos-start-pdf" href="/api/training/brochure.pdf">Брошура BoS 3.0: кейси й короткий тур (PDF)</a></>}</section>;
 }
 function Bos3Tour({content,tourState,setTourState,onNavigate,onPersist}){
@@ -5515,6 +5641,7 @@ function App(){
       <div style={{flex:1, minHeight:0, display:'flex', overflow:'hidden'}}>
         <div style={{flex:1, minWidth:0, display:'flex', flexDirection:'column', overflow:'hidden'}}>
           <Topbar nav={nav} setNav={setNav} tasks={tasks} employees={employees} contracts={contracts} counterparties={counterparties} onCreated={()=>{refetchTasks();refetchDashboard(selectedBranch,period);setNotice("Доручення збережено");}}/>
+          <BoSHome monitor readOnlyOverview onNavigate={(section,sub)=>setNav({section,sub})}/>
           {(dataError||notice)&&<div className="bos-feedback" role="status">{dataError||notice}{dataError&&<button onClick={()=>{setDataError(null);refetchFinance();refetchBranches();refetchDashboard(selectedBranch,period);}}>Повторити</button>}<button onClick={()=>{setDataError(null);setNotice('');}}>Закрити</button></div>}
           <main id="bos-workspace" data-bos-main tabIndex={-1} style={{flex:1, overflowY:'auto', overflowX:'hidden'}}><ERPConfirmRecovery/>{renderContent()}</main>
         </div>
@@ -5531,7 +5658,9 @@ function AuthGate(){
   const [username,setUsername]=useState(''),[password,setPassword]=useState(''),[selectedCase,setSelectedCase]=useState(()=>bos3Slug()||defaultCase),signInRef=useRef(null);
   const selectedDefinition=bos3Registry()?.cases.find(item=>item.slug===selectedCase)||null;
   const preserveSelectedCase=()=>{if(trainingEnabled&&selectedCase)bos3SetSlug(selectedCase,true);};
-  const openSignIn=()=>{preserveSelectedCase();signInRef.current?.scrollIntoView({behavior:'smooth',block:'start'});};
+  const entryScroll=node=>{if(!node)return;node.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});(node.querySelector('input')||node).focus({preventScroll:true});};
+  const openSignIn=()=>{preserveSelectedCase();entryScroll(signInRef.current);};
+  const exploreBrochure=slug=>{if(slug&&bos3Registry()?.cases.some(item=>item.slug===slug)){setSelectedCase(slug);bos3SetSlug(slug);}requestAnimationFrame(()=>entryScroll(document.getElementById('bos3-entry-cases')||signInRef.current));};
   useEffect(()=>{const syncSelectedCase=()=>setSelectedCase(bos3Slug()||bos3Registry()?.cases[0]?.slug||null);window.addEventListener('popstate',syncSelectedCase);return()=>window.removeEventListener('popstate',syncSelectedCase);},[]);
   const openWorkspace=async()=>{
     const r=await fetch('/api/operations/status/');const d=await r.json();
@@ -5557,8 +5686,8 @@ function AuthGate(){
   </form>;
   const entryPasswordForm=<form className="bos-light-login-form" onSubmit={event=>{event.preventDefault();preserveSelectedCase();enter(false);}}><label>Логін<input autoComplete="username" value={username} onChange={event=>setUsername(event.target.value)} required disabled={busy}/></label><label>Пароль<input type="password" autoComplete="current-password" value={password} onChange={event=>setPassword(event.target.value)} required disabled={busy}/></label><button type="submit" disabled={busy}>{busy?'Зачекайте…':'Увійти'}</button></form>;
   if(ready)return <App/>;
-  if(trainingEnabled)return <main className="bos-entry-shell"><Bos3Brochure entry selectedSlug={selectedCase} onSelectCase={setSelectedCase} onRequestSignIn={openSignIn} showBrochurePdf={false}/><section className="bos-light-login" ref={signInRef} aria-labelledby="bos-sign-in"><div className="bos-light-login-inner"><p className="bos3-kicker">Персональний доступ</p><h2 id="bos-sign-in">{selectedDefinition?'Продовжити: '+selectedDefinition.title:'Увійти до навчальної BoS'}</h2><p>{selectedDefinition?'Обраний сценарій відкриється у вашій навчальній сесії.':'Увійдіть, щоб відкрити доступні вашій ролі джерела.'}</p>{entryPasswordForm}{error&&<p role="alert" style={{color:'#B42318',fontSize:14,lineHeight:1.5,marginTop:16}}>{error}</p>}{!mode&&!busy&&<button className="bos-light-button" type="button" onClick={bootstrap} style={{marginTop:14}}>Повторити підключення</button>}</div></section></main>;
-  return <main style={{height:'100vh',overflow:'auto',display:'grid',placeItems:'center',padding:24,fontFamily:T.font}}>
+  if(trainingEnabled)return <main className="bos-entry-shell"><BosOnlineBrochure content={bos3Registry()} onExplore={exploreBrochure} onSignIn={openSignIn}/><Bos3Brochure entry selectedSlug={selectedCase} onSelectCase={setSelectedCase} onRequestSignIn={openSignIn} showBrochurePdf={false}/><section className="bos-light-login" ref={signInRef} aria-labelledby="bos-sign-in"><div className="bos-light-login-inner"><p className="bos3-kicker">Персональний доступ</p><h2 id="bos-sign-in">{selectedDefinition?'Продовжити: '+selectedDefinition.title:'Увійти до навчальної BoS'}</h2><p>{selectedDefinition?'Обраний сценарій відкриється у вашій навчальній сесії.':'Увійдіть, щоб відкрити доступні вашій ролі джерела.'}</p>{entryPasswordForm}{error&&<p role="alert" style={{color:'#B42318',fontSize:14,lineHeight:1.5,marginTop:16}}>{error}</p>}{!mode&&!busy&&<button className="bos-light-button" type="button" onClick={bootstrap} style={{marginTop:14}}>Повторити підключення</button>}</div></section></main>;
+  return <main className="bos-entry-shell"><BosOnlineBrochure content={bos3Registry()} onExplore={exploreBrochure} onSignIn={openSignIn}/><div className="bos-login-standalone" ref={signInRef}>
     <section className="bos-auth-shell" aria-labelledby="bos-sign-in">
       <div style={{color:T.primary,fontWeight:800,fontSize:28,marginBottom:12}}>BoS</div>
       <h1 id="bos-sign-in" style={{fontSize:22,color:T.text,marginBottom:10}}>Увійти до робочого простору</h1>
@@ -5571,7 +5700,7 @@ function AuthGate(){
       {error&&<p role="alert" style={{color:T.red,fontSize:14,lineHeight:1.5,marginTop:16}}>{error}</p>}
       {!mode&&!busy&&<Button onClick={bootstrap} style={{marginTop:14}}>Повторити підключення</Button>}
     </section>
-  </main>;
+  </div></main>;
 }
 ReactDOM.createRoot(document.getElementById('root')).render(<ErrorBoundary><AuthGate/></ErrorBoundary>);
 {% endverbatim %}

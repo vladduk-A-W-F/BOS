@@ -9,3 +9,5 @@
 Разрешён последовательный перенос точных двух source commits с сохранением evidence. Первый компонент: общий visual system32acfb6; второй: brochure/monitor0d49a89. Отдельный root commit на каждый компонент, без squash исторических FAIL или main merge. Это не новая динамическая backend/auth/progress/ERP/CRM/release приёмка. Product/runtime pin остаётся f55 до нового exact package/delivery receipt, readinessfalse.
 
 ARCH-02 документальная финансовая подпись исправляется автором отдельно без UI/formula/build/browser изменений; её новый exact diff требует delta review. Она не меняет numeric UI correctness уже проверенного source.
+
+Первый компонент последовательно включён root commit9815ff0 (origin32acfb6), опубликован в PR10. Второй компонент origin0d49a89 включается этим commit после того же независимого exact-source verdict. Область содержит8final offline captures, failed runs1/2 и frozen build evidence; root не запускал их повторно. Runtime/source package ещё f55; требуется новый versioned manifest и guarded delivery.

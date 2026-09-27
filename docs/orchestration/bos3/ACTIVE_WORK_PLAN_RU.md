@@ -6,6 +6,8 @@
 
 ## Настройка разработки и следующий шаг
 
+Reviewed design source последовательно включён: origin32acfb6 -> root9815ff0, затем origin0d49a89 (brochure/monitor). Оба компонента без конфликтов и без повторов визуальных запусков. Далее ARCH-02 doc correction, отдельная упаковка dev.4 с точным manifest/version и review, затем owner-local delivery по постоянному разрешению. До runtime receipt f55 остаётся выданной версией.
+
 B30-DESIGN-NEXT: получен immutable source pair32acfb6 +0d49a89. Независимый bos3_candidate_review ACCEPT_SCOPED_STATIC_INTEGRATION_B30_DESIGN_NEXT, безP0–P2. Начато последовательное включение: общий visual system первым, brochure/monitor вторым; root evidence/design-integration-20260927/REVIEW_RU.md. Runtime/product package f55 не подменяется промежуточным source; новая упаковка и фактическая доставка отдельно.
 
 ARCH-01: root SQLite proposal исправляется на bos3-fasteners-f55-r1.sqlite3 с полным existing training identity/marker contract, source guard неизменен. Изолированная среда не создана; QA alignment ещё требуется. Exact disposition: evidence/architecture-20260927/ARCH01_DISPOSITION_RU.md. Architect завершил read-only handoff, independent tracker review принят; ARCH-02 wording поручен тому же design owner без rebuild/browser.
