@@ -6,9 +6,17 @@
 
 ## Текущая работа настройки
 
+UXD01-PACK уже принят независимо и интегрированfa7e4c7; writer завершён. Текущий UXD01-DELIVERY: root, manifest reviewerbos3_candidate_review, finalpins/actualdelivery reviewerstart_overview_review. Runtime до новогоreceipt остаётсяdev5/3d1. B30-CONTROL-MANIFEST: bos3_fixture_impl, только scratch/bos3-control-manifest-20260927/tools/{bos_control.py,test_bos3_control.py} и отчёт; noexecutionдоreview. Он исправляет новый конкретный stale-manifest defect служебного CLI, не appchecks. Старыйdirtybos3-development-control сохранён.
+
+UXD01-PROVENANCE-QA завершена: bos3_crm_impl выполнил reviewed oracle correction и focusedattempt2/3 PASS/exit0; independentstart_overview_review ACCEPT_SCOPED_AST_PRESENTATION_DISCLOSURE. Run1FAIL сохранён; повторов не назначать. Design0338 интегрирован8eb832a, writer57d9 интегрированfa7e4c7, оба автора завершены. Текущие исполнители доставки и отдельной CLI-коррекции указаны выше; runtime до новой квитанции dev5/3d1.
+
+UXD01-DELIVERY-PREP: bos3_fixture_impl, отдельный новый scratch, static-only шаблоны следующего обновления from3d1/toPENDINGdev6; reviewer start_overview_review. UI source не трогает, runtime/test execution0. Зависит от принятого будущего package и final-pin review; текущий dev5 остаётся работающим.
+
+UI-автор design01a0bffa-3fc7-7bc2-9868-86164c6e0315 завершил UXD01-PROVENANCE-DISCLOSURE, author0338 в clean bos3-product-design/repo. Source mapping explorer также завершён. Code/build reviewer bos3_candidate_review и отдельный QA reviewer start_overview_review дали scoped verdict. Не выдавать завершённую работу повторно. Две owner questions блокируют только свои линии, не упаковку и обычную доставку принятой UXD-01 части.
+
 Root доставил exact dev.5/3d1eabe3b8f54ebc6c6d6bf0241beba219d1fc3c после независимого manifest/final-pin review. start_overview_review принял actual raw delivery как ACCEPT_SCOPED_DEV5_OWNER_LOCAL_DELIVERY;5этапов exit0, HTTP200 exactHTML, protected aggregate сохранён. Producta753a59, correction5f8bd83; documentation HEAD отдельно. Design, writer, helper QA, template author и оба reviewers завершили scoped карточки; не занимать их повторным аудитом. Следующие learning и waiting требуют уже запрошенных owner decisions. Root хранит зависимости, observer контролирует, dirty старые worktrees сохранены. Renderer exit UNCONFIRMED и все readiness false.
 
-UXD03-WAIT-01 V2 завершил независимый review с одним disclosure decision; первый вопрос владельцу задан, ответ ожидается. Старый V1 review не активен. B30-12 learning имеет отдельный уже заданный вопрос, привязанный кe710, не автоматически кdev5. Следующая операция после ответа: точный contract/manifest applicability review прежними ответственными, затем только разрешённое действие. До ответа новых запусков или пустых поручений нет.
+UXD03-WAIT-01 V2 завершил независимый review с одним disclosure decision; ответ ожидается. B30-12 имеет отдельный уже заданный вопрос, привязанный кe710. Эти линии не запускаются до ответа. Для нового UXD-01 разрешена конкретная реализация уже обязательного требования; она не является повтором lesson/fixture/browser QA или отменой их лимитов.
 
 ## История назначений, не действующая очередь
 

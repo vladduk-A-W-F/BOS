@@ -6,9 +6,17 @@
 
 ## Настройка разработки и следующий шаг
 
+Текущий переход: dev.6 package author57d9f00 включён какfa7e4c77aed75a54d9067e0709a8b37229755c59 после independent package/PDF/applicability review. Exact14 product paths записаны в PROVENANCE_DEV6_CANDIDATE.json; manifest и final runtime pins ещё требуют review. UXD01-DELIVERY владелецroot/reviewerstart_overview_review, runtime покаdev5/3d1. Независимый B30-CONTROL-MANIFEST устраняет подтверждённый hardcodeddev3 selector в служебном CLI: bos3_fixture_impl, только дваtools файла в новом scratch; исполнения ещёнет, reviewerstart_overview_review. RecordedvalidateFAIL сохранён, это не продуктовый откат или PASS.
+
+UXD01 author0338cc026a91f1aadc0f41ebf6cff812f72d7086 включён root как8eb832a45c9c8f2d140fef0a44c74b94a07a470a после independent code/build и AST acceptance. Одна сборка exit0; ASTrun1FAIL сохранён, подтверждённая коррекция oracle и focusedrun2/3 PASS/exit0 независимо приняты. Это не browser/runtime/fullUXD01. Последующая упаковка уже завершенаfa7e4c7; текущая операция только review immutablemanifest и доставка, как указано выше.
+
+Независимая подготовка UXD01-DELIVERY-PREP: bos3_fixture_impl владеет только новым qa-scratch/bos3-uxd01-delivery-20260927. From exact runtime3d1eabe to будущий dev.6 immutable PENDING, fail-closed template; reviewer start_overview_review. Ни запуска/import/compile, ни нового runtime действия. Это подготовка будущего кандидата, прежнее dev.5 окно не повторяется.
+
+Принятая UXD01-PROVENANCE-DISCLOSURE является частью исходного UXD-01, не расширением плана. Author design01a0bffa..., reviewer bos3_candidate_review, source mapping от отдельного read-only uxd01_source_contract. Exact author0338 от3d1, четыре UI файла и пять evidence файлов совпали с canonical8eb832a. Backend/права/БД/обучение/ожидание не менялись. Полный UXD-01 остаётся частичным; source-record drilldown и branch/period filters этим изменением не добавлены.
+
 B30-UXD03-DELIVERY завершена: producta753a590727344b73f2c79e142c4c8ec6cc89c0d, evidence correction5f8bd83, immutable runtime3d1eabe3b8f54ebc6c6d6bf0241beba219d1fc3c (dev.5). Независимый start_overview_review принял фактическую доставку: ACCEPT_SCOPED_DEV5_OWNER_LOCAL_DELIVERY. Capture/stop/apply/start/post-start по одному разу exit0; HTTP200 exact HTML,14 product paths, protected aggregate неизменен, PID35584. Приложение оставлено запущенным. Код, helper QA, пакет, manifest и pins приняты каждый в своём scope; renderer exit UNCONFIRMED сохранён. Полные browser/login/lesson/progress и 3S/8UXD/11 gates не закрыты.
 
-Следующие две owner-blocked линии: B30-12 revision9 ждёт ответа на одно точное исключение обучения наe710; UXD03-WAIT-01 V2 ждёт выбора fixed reason codes либо осознанно shared free text. Оба вопроса уже заданы по одному разу, ответа нет. Root после ответа проверяет exact applicability и независимый manifest/contract review; разрешение не переносится автоматически на dev.5 и не является migration/DB допуском. Сейчас готовая независимая карточка завершена, пустые назначения не создавать. Readiness false; runtime dev5/3d1eabe. При новом feedback оформить конкретный дефект в согласованном объёме.
+Две owner-blocked линии B30-12 и UXD03-WAIT-01 остаются без изменений и повторных вопросов. Они блокируют только своё исполнение, не независимые части исходного UXD. Прежний вывод об отсутствии готовой карточки не является запретом владельца: по новому конкретному source-bound gap назначена UXD01-PROVENANCE-DISCLOSURE. После ответа на B30-12 нужны exact applicability/final manifest review; разрешение e710 не переносится автоматически наdev5. Выбор waiting disclosure не разрешает миграции/БД. Readiness false; runtime пока dev5/3d1eabe.
 
 ## История переходов, не текущие назначения
 

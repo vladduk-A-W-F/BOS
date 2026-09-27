@@ -1,0 +1,79 @@
+{
+  "schema": "bos3.next-unblocked-scope.c1a36a6.v2",
+  "assessment_revision": 2,
+  "revision_1_disposition": "SUPERSEDED: it incorrectly treated the absence of a ready canonical card and the weekly-control rank-5 summary as an owner prohibition on unfinished mandatory UXD work.",
+  "created_at": "2026-09-27",
+  "mode": "read_only_applicability_check_no_execution",
+  "canonical": "C:/Users/user/.codex/worktrees/bos-consolidation-plan/repo",
+  "runtime_source_commit": "3d1eabe3b8f54ebc6c6d6bf0241beba219d1fc3c",
+  "documentary_closeout_commit": "c1a36a629a43e0fe179e571843bea726e8a75736",
+  "baselines": {
+    "full_readiness_matrix": "docs/orchestration/bos3/FULL_READINESS_MATRIX_E710.json",
+    "full_readiness_product_pin": "e710eb568717dfe3ede945feb899f030bd5ad1ab",
+    "accepted_delta": "D:/3/BOSDev/evidence/bos3-readiness-20260927/READINESS_DELTA_A5ADCEF.json"
+  },
+  "verdict": "ONE_NEW_ASSIGNABLE_ORIGINAL_PART_RECOMMENDED_TO_ROOT_NOT_ACCEPTED",
+  "answer_to_two_decisions": {
+    "logical_scope": "B30-12-QA-SCOPE blocks only the proposed SAME-PROBLEM fixture/training/progress execution exception. UXD03-WAIT-01 blocks only waiting-reason disclosure semantics. Neither blocks the selected UXD-01 presentation disclosure part.",
+    "control_provenance": "The rank-5 'no scope expansion' text is a CONTROL_STATE weekly-execution summary and ACTIVE_WORK_PLAN restatement. In the inspected current orchestration records, no later direct owner instruction was found that defers mandatory UXD-01 until feedback. It is therefore not sufficient to prohibit root from creating one narrow original-scope card.",
+    "new_vs_exhausted": "The proposed part is NEW presentation work with zero QA executions. It neither runs nor reclassifies B30-12. B30-12 remains SAME-PROBLEM fixture/training/progress, owner_authorized=false, with its one possible run only after the already asked exception."
+  },
+  "exact_blocking_evidence": [
+    {
+      "source": "docs/orchestration/bos3/ACTIVE_WORK_PLAN_RU.md:3,11,121",
+      "fact": "The plan records the direct owner instruction to continue development and says to advance an independent part when one task is blocked. Line 11's empty-assignment sentence applies to the then-complete independent card; it is not a direct owner deferral of all mandatory UXD work."
+    },
+    {
+      "source": "docs/orchestration/bos3/CONTROL_STATE.json.weekly_execution.next_product_card and owner_blocked_cards",
+      "fact": "The next product card is B30-12-QA-SCOPE, status NEEDS_OWNER_EXCEPTION; the owner-blocked list contains B30-12-QA-SCOPE and UXD03-WAIT-01."
+    },
+    {
+      "source": "docs/orchestration/bos3/CONTROL_STATE.json.weekly_execution.priorities[4]",
+      "fact": "Rank 5 says to preserve the exact candidate and await scoped acceptance/feedback, no scope expansion. This is a machine control summary, not a later direct owner decision that cancels UXD-01."
+    },
+    {
+      "source": "docs/orchestration/bos3/CONTROL_STATE.json.cards[B30-12-QA-SCOPE]",
+      "fact": "exception_question.classification is SAME_PROBLEM_FIXTURE_TRAINING_PROGRESS_REQUIRING_EXPLICIT_EXCEPTION; authorized=false, maximum_runs=1 only if authorized, and no automatic retry."
+    },
+    {
+      "source": "docs/orchestration/bos3/FULL_READINESS_MATRIX_E710.json:original_scenarios,mandatory_uxd,technical_gates",
+      "fact": "S1-S3 retain final dynamic evidence unconfirmed; UXD01/02/04-08 retain either unaccepted implementation/context gaps or missing dynamic/cross-role evidence. These are not closed by the dev5 delivery."
+    },
+    {
+      "source": "docs/orchestration/bos3/CONTROL_STATE.json.cards[B30-UXD03-CARD]",
+      "fact": "The one proven independent NEW presentation scope is INTEGRATED_AND_DELIVERED_SCOPED, source a5adcefc8a9bf0ff19f522c585fe7114facd7ee3, delivered source 3d1eabe3b8f54ebc6c6d6bf0241beba219d1fc3c; its next action is preserve, no repeat or new scope."
+    }
+  ],
+  "one_recommended_part": {
+    "proposed_card_id": "UXD01-PROVENANCE-DISCLOSURE",
+    "status": "RECOMMENDATION_ONLY_ROOT_MAY_ASSIGN",
+    "existing_requirement": "UXD-01: Indicators must show source, period, branch, freshness and next step.",
+    "classification": "NEW_PRESENTATION_DISCLOSURE_NOT_QA_RETRY_NOT_LEARNING_NOT_WAITING_SEMANTICS",
+    "exact_base": "3d1eabe3b8f54ebc6c6d6bf0241beba219d1fc3c",
+    "factual_gap": "The matrix records that monitor cards lack branch/period, deviation cause and a specific next action. Current cards expose only label/value/note and a generic arrow; source/time is hidden in one common details block. The current route keeps only section/sub, so it is not an explicit source-record action per indicator.",
+    "precise_source_spans": [
+      "docs/orchestration/bos3/FULL_READINESS_MATRIX_E710.json:169-180",
+      "frontend/boss_app_source.html:5157-5180 (BosGlobalMonitor accepts ready/status/at/businessDate and renders generic metric cards plus the common source-time details block)",
+      "frontend/boss_app_source.html:5258-5263 (existing metric labels, notes, section/sub destinations and guarded navigation)",
+      "frontend/boss_app_source.html:5266-5277 (existing read time, business date and company-wide available-records wording)",
+      "erp/views.py:16-18 and erp/queries.py:83-138 (existing guarded snapshot source and projection; no new route is required)"
+    ],
+    "narrow_change": "Make the existing monitor disclose, next to each enabled indicator, its existing source ('ERP snapshot'), truthful scope/branch ('all records available to this account; not a branch filter'), as-of business date (or explicitly 'not provided'), freshness/read time and an explicit destination label such as 'Open accessible source records'. Reuse the current section/sub navigation and disabled state. Do not invent a calendar range, branch filter, deviation cause or record identifier that the snapshot does not supply.",
+    "dependency_rationale": "This consumes only data already delivered to BosGlobalMonitor (at, businessDate, metrics and the current access-scoped snapshot) and the existing guarded onNavigate callback. It has no dependency on B30-12's learning/progress exception, UXD03-WAIT disclosure choice, a migration, a new role, a secret or an external service.",
+    "separate_allowlist": [
+      "frontend/boss_app_source.html: BosGlobalMonitor and its existing caller only",
+      "frontend/boss_app_html.html: generated artifact only",
+      "assets/app.js: generated artifact only",
+      "frontend/bos_design.css: only if required for the added disclosure text"
+    ],
+    "definition_of_done": [
+      "Every enabled monitor card visibly names the existing snapshot source, the account-visible company scope rather than a fabricated branch filter, its as-of business date or an explicit absent value, freshness/read time, and its exact existing destination action.",
+      "Unavailable, stale, denied and context-drift states retain their current fail-closed behavior; no click may create a new request, mutation, role bypass or training/progress action.",
+      "No backend schema, API route, policy, migration, fixture, wait reason, learning content or acceptance counter changes.",
+      "The author supplies an exact diff and generated-artifact provenance; an independent reviewer checks the source-bound disclosure and scope wording before root integration. Any later validation is separately classified and cannot be represented as browser, cross-role or full UXD-01 acceptance.",
+      "Residual UXD-01 gap remains explicit: no deviation cause and no branch-specific or calendar-period data contract is implemented by this card."
+    ],
+    "root_next_step": "Root may create one isolated worktree/card at the exact dev5 base, assign the listed allowlist to one UI author, and require independent review before any integration. This recommendation does not authorize an execution, test, build, delivery or readiness claim."
+  },
+  "allowed_next_step": "Sole integrator decides whether to issue only UXD01-PROVENANCE-DISCLOSURE; keep B30-12 and UXD03-WAIT untouched pending their separate owner decisions."
+}
