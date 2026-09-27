@@ -6,6 +6,8 @@
 
 ## Текущая работа настройки
 
+Текущая новая подготовка QA: B30-12-QA-SCOPE, существующий QA чат 01a0c05d-6eeb-79f1-a135-be66985b442f после подтверждения idle; отдельный output bos3-readiness-scope-20260927, product f55, reviewer start_overview_review. Только матрица требований/существующего кода/evidence и точный план допусков, без запусков/субагентов. Observer сообщил ACTIVE своей native goal; root не создаёт новую и не превращает это в полную приёмку.
+
 - Root: B30-DEV-WORKFLOW завершён в этом документальном commit; канонические plan/control/сроки и PR согласованы. Независимый reviewer bos3_candidate_review: ACCEPT_SCOPED_DEVELOPMENT_CONTROL, предыдущий P1 закрыт фактической интеграцией CLI.
 - bos3_fixture_impl: B30-DEV-CONTROL-CLI завершён, root интегрировал 4e014971e5db33f9106de86399424bedf2ca15bb. Выделенная копия bos3-development-control/repo от 54764b0; только tools/bos_control.py и tools/test_bos3_control.py. Независимый reviewer start_overview_review; QA bos3_crm_impl сохранил первый FAIL и одну успешную focused-проверку без полного повтора.
 - bos3_candidate_review: завершил новую матрицу очереди по недельному поручению; готовых независимых продуктовых карточек без нового допуска/feedback не выявил. Это не повтор продукта или manifest.
@@ -24,7 +26,7 @@
 
 Root сохранил прежний UI WIP, подтвердив совпадение шести файлов с интегрированным dev.2 по SHA-256, и переключил свободную UI-копию на defd1fc. Упаковка получила отдельную чистую копию от того же SHA. Недоступность shell в чате дизайна зафиксирована UNCONFIRMED; ему передан фактический diff, полученный root с exit 0, для ограниченного review по snapshot.
 
-## Назначения
+## История назначений принятого f55
 
 | Исполнитель | Фактическое новое поручение | Источник и запреты |
 | --- | --- | --- |
@@ -50,5 +52,7 @@ Root забирает законченный результат, сверяет 
 ## Новое текущее поручение дизайна
 
 «БОС — отдел дизайна» (01a0bffa-3fc7-7bc2-9868-86164c6e0315) выполняет прямой новый scope: верхний мониторинг и листаемая презентация перед входом/обучением. Карточка B30-DESIGN-NEXT; текущий turn 01a0e32b-3715-7df3-9a1a-83754c3f36af подтверждён root read_thread. Контролёр сообщил children learning_design 01a0e303-635d-7131-bc2d-4ac3dede3ddc, design_coverage 01a0e301-cc1e-7b32-a8ec-30e76ad2fe62, visual_qa 01a0e304-03b1-7461-aa70-86bebe158775. Это reported roster, не подтверждение их source/готовности. Base/workspace/allowlist/patch handoff ожидается; root не дублирует UI реализацию. Старое ACCEPT_STATIC в таблице выше относится только к принятому f55, не новому поручению.
+
+Обновление handoff 14:15:49Z: проектный контролёр подтвердил actual C:/Users/user/.codex/worktrees/bos3-product-design/repo, branch codex/bos3-product-design, HEAD32acfb6ad3a0aeabe2f7501a28ba878dfeaeec87; f55 ancestor exit0. Прежний UNCONFIRMED пути/базы снят. Exact patch/hash/allowlist и окончательные review/QA ещё ожидаются; WIP не принят. Новая действующая матрица всех ролей и передачи: PROJECT_CONTROL_RU.md. Историческая таблица выше не выдаёт повторных поручений.
 
 Свежий отчёт проектного контролёра: writer 01a0be9f... признал f55 и не запускает повторную упаковку; quality 01a0c05d... прочитал текущие control/manifest, прежний UNCONFIRMED именно для metadata access снят. Это не новая QA или полный доступ к runtime. Точные внешние snapshots: outputs/bos3-projectwide-control-20260927/CONNECTIONS_AUDIT.json и TASKS.json в D:/3/BOSDev/repo; новый canonical closeout имеет приоритет над промежуточным hash snapshot.

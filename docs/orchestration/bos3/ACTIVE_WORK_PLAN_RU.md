@@ -92,4 +92,10 @@ TECHNICAL_READY=false, PILOT_ALLOWED=false, MVP=false. 30.09 оценка про
 
 ## Новый дизайн handoff
 
+Параллельно B30-12-QA-SCOPE: действующий idle QA получает только read-only подготовку exact browser/lesson/progress decision packet, output D:/3/BOSDev/qa-scratch/bos3-readiness-scope-20260927/. Reviewer start_overview_review; source f55. Никаких новых запусков этим назначением не разрешено. Контракт и DoD: PROJECT_CONTROL_RU.md. Это не повтор реализации исторических карточек.
+
+Дополнение 27.09, 14:15:49Z: tracker подтвердил workspace bos3-product-design/repo, HEAD32acfb6ad3a0aeabe2f7501a28ba878dfeaeec87 и ancestry f55 exit0. Это снимает прежний UNCONFIRMED пути/базы, но не принимает незавершённый patch. Текущий blocker: exact handoff с hashes/allowlist/raw QA от design owner. Следующий check-in существующим heartbeat не позднее15 минут при работающем приложении; готовый результат root принимает сразу.
+
+Карточка B30-PROJECT-CONTROL: DONE, ACCEPT_SCOPED_PROJECTWIDE_DOCUMENTARY_CONTROL. Reviewed внешний протокол включён в PROJECT_CONTROL_RU.md и evidence/projectwide-control-20260927/. Author root, independent reviewer bos3_candidate_review; allowlist только эти документы, ACTIVE/TEAM/CONTROL/DEVELOPMENT_WORKFLOW. Product/runtime f55 не изменяются, application QA не повторяется. Review CANONICAL_REVIEW_RU.md. QA вернул три draft файла, переданные start_overview_review; B30-12-QA-SCOPE пока IN_REVIEW, не новый допуск.
+
 Root прочитал прямое сообщение владельца 01a0e32b-38e4-7653-a0d9-316b6a15ab60 в «БОС — отдел дизайна», thread 01a0bffa-3fc7-7bc2-9868-86164c6e0315. Верхний общий мониторинг и листаемая онлайн-презентация до входа/обучения: B30-DESIGN-NEXT, WAITING_HANDOFF. Отдел уже работает; base/workspace/allowlist/patch ожидаются через существующий запрос проектного контролёра. Новый требуемый product base f55; фактический worker base до ответа UNCONFIRMED. Историческую c8b3 копию не применять вслепую. Root передал новый runtime checkpoint и запрет параллельного canonical/runtime writer. Receipt отправки не является выполнением новой задачи.
