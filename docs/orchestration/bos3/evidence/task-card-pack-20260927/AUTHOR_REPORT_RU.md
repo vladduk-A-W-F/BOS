@@ -20,8 +20,8 @@
 
 - Маркер PDF edit: exit 0; receipt: `pdf-operation-marker.receipt.txt` (stdout/stderr empty).
 - Генерация PDF: exit 0; raw: `pdf-regeneration.raw.txt`.
-- Рендер 160 dpi: exit 0; raw: `pdf-render.raw.txt`.
-- Визуально проверены страницы 1–3: читаемый текст, рамки и колонтитулы целы, обрезаний не видно.
+- P1-correction: первичный raw-лог `pdf-render.raw.txt` отсутствует, поэтому exit рендера 160 dpi — `UNCONFIRMED`; повторный рендер не выполнялся.
+- Существующие PNG страниц 1–3 сохраняют визуальное наблюдение: читаемый текст, рамки и колонтитулы целы, обрезаний не видно; это не подтверждает process exit без первичного raw-лога.
 - Полные хеши и argv записаны в `PACK_MANIFEST.json`.
 
 ## Явные пропуски и границы
@@ -29,3 +29,7 @@
 Не запускались frontend build, тесты, browser, HTTP, БД, runtime, init/migrate/seed/reset. Не выполнялись доставка runtime, публикация, push или изменение main. Это пакет кандидата, не доказательство runtime/browser/learning acceptance и не изменение готовности продукта.
 
 Коммит ещё не создан на момент формирования отчёта; следующий шаг — одна атомарная фиксация allowlist без amend.
+
+## P1-correction evidence
+
+Независимый review выявил, что заявленный `pdf-render.raw.txt` не попал в коммит `0a1246347fc7c4d7f0db128ff61b28d4d793370b`. Оригинальный raw-вывод недоступен. В этом узком исправлении не запускались рендер, генерация, build, тесты или runtime; утверждение об exit renderer заменено на `UNCONFIRMED`. Package acceptance не предоставлен.
