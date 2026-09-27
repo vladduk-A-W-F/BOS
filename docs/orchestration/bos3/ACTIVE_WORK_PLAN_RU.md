@@ -6,6 +6,8 @@
 
 ## Настройка разработки и следующий шаг
 
+B30-12 revision6: REVISE_BEFORE_OWNER_QUESTION. Независимо подтверждены13 одинаковых source blobs f55->e710, исправленные preview routes и C1 с фактическим пятым CRM шагом. Но oracleline242 ещё требует f55 execution source, а harness является checklist с unconditional refusal. Тот же QA получил конкретную реализацию полного guarded harness в своём scratch без запуска/import/compile. Owner execution question преждевременен; actual code и независимый static review должны быть готовы сначала. Evidence/readiness-scope-20260927/revision6/ сохраняет точный rejected draft. Следующий check-in15мин, не новые product/browser попытки.
+
 Действующий срез после принятой установки dev.4: product7018cca86337da19361951782cffecb09811a89a, runtime/source+manifest e710eb568717dfe3ede945feb899f030bd5ad1ab. Actual capture/stop/apply/start/post-start exit0 по одному разу; HTTP200 exactHTML/version, PID40528/loopback и сохранность protected aggregate подтверждены. Независимый start_overview_review: ACCEPT_SCOPED_DEV4_OWNER_LOCAL_DELIVERY. f55 ниже исторический checkpoint. Следующий текущий исполнитель: existing QA01a0c05d... готовит исправленный exact isolated harness; browser/lessons не разрешены этим переходом. DESIGN_DEV4_CANDIDATE_RU.md и LOCAL_RUNTIME_RECEIPT.json имеют приоритет над историческими next actions ниже.
 
 Паспорт DESIGN_DEV4_CANDIDATE.json принят bos3_candidate_review: ACCEPT_SCOPED_EVIDENCE_PACKAGING, 91/91 точных Git blob hashes. Product7018cca86337da19361951782cffecb09811a89a; отдельный commit паспорта станет immutable runtime source для установки. Это не browser/lesson PASS. Следующий шаг: независимая проверка финальных pins и процедуры доставки.
