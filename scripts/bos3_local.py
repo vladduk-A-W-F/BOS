@@ -107,13 +107,13 @@ def validate_root(source, paths):
 def native_windows_powershell_environment(base_env=None):
     """Use only the native Windows PowerShell module catalog for system probes."""
     source_env = os.environ if base_env is None else base_env
-    system_root = Path(source_env.get('SystemRoot', ''))
+    native_env = {key.upper(): value for key, value in source_env.items()}
+    system_root = Path(native_env.get('SYSTEMROOT', ''))
     executable = system_root / 'System32' / 'WindowsPowerShell' / 'v1.0' / 'powershell.exe'
     modules = system_root / 'System32' / 'WindowsPowerShell' / 'v1.0' / 'Modules'
     if not system_root.is_absolute() or not executable.is_file() or not modules.is_dir():
         raise LocalError('Native Windows PowerShell executable or module catalog is unavailable.')
-    native_env = source_env.copy()
-    native_env['PSModulePath'] = str(modules)
+    native_env['PSMODULEPATH'] = str(modules)
     return str(executable), native_env
 
 
