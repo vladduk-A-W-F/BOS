@@ -6,6 +6,22 @@
 
 ## Текущая работа настройки
 
+Новый принятый source a5adcef передан existing writer01a0be9f... в clean bos3-task-card-pack/repo для dev.5 package; reviewer bos3_candidate_review. bos3_fixture_impl отдельно владеет qa-scratch/bos3-task-card-delivery-20260927 только static templates, reviewer start_overview_review. Ни одного нового runtime действия. Design и helper QA закрыты scoped, learning ждёт owner reply. Root сохраняет один canonical writer; dirty старые worktrees не сброшены.
+
+UXD03-WAIT-01 V2 завершил независимый review с одним disclosure decision; первый вопрос владельцу задан, ответ ожидается. Старый V1 review не активен. B30-12 learning имеет отдельный уже заданный вопрос. Текущая готовая работа: package -> exact manifest/review -> guarded delivery; не повтор helper run.
+
+## История назначений, не действующая очередь
+
+Все записи ниже датируют предыдущие передачи. Фразы о подготовке/review и нулевых запусках относятся к тем моментам; текущее завершённое CARD/helper QA и активная упаковка определены выше и в CONTROL_STATE.json.
+
+Design B30-UXD03-CARD и отдельный helper QA завершены scoped: accepted author4999f7a интегрирован root как a5adcefc8a9bf0ff19f522c585fe7114facd7ee3. Reviewer кода bos3_candidate_review; reviewer одного PASS/exit0 pure-helper run start_overview_review. Авторы не приняли себя, повторов нет. Следующий владелец новой упаковки назначается отдельно; runtime до точного receipt остаётся dev4/e710.
+
+UXD03-WAIT-01: новый source-bound proposal контролёра (1a8a6c87...) передан отдельному независимому bos3_candidate_review. Только read-only contract review на clean learning-proof/e710: policy участника/причины, lifecycle, CAS/replay/locks и migration boundary. Backend implementation/migration не назначены; текущий автор UI не переназначается. Root принимает disposition отдельно от полноты UXD03.
+
+B30-UXD03-CARD-QA: bos3_crm_impl готовит отдельный pure-helper Node harness только в qa-scratch/bos3-uxd03-card-qa-20260927; reviewer start_overview_review, exact final author SHA пока dependency. Никаких запусков. Это новая presentation-дельта, не повтор fixture/progress/browser/membership; лимиты сохраняются. Автор UI и автор теста разные.
+
+Следующая активная B30-UXD03-CARD: тот же design01a0bffa... / bos3_candidate_review, workspace bos3-product-design/repo, branch codex/bos3-uxd03-cards-20260927, basee710. Единственный UI автор; allowlist и DoD в CONTROL/ACTIVE. Только карточка существующих list-safe facts и её стили/generated outputs; waiting/backend/runtime вне scope. Предыдущая prep закрыта, её повтор не назначается. QA learning ожидает уже заданный owner exception независимо от этой карточки.
+
 B30-UXD03-PREP завершён автором 15:43:26Z, turn01a0e37d-ca24-7101-a9f9-e685f1ab4754. Reviewer bos3_candidate_review дал ACCEPT_SCOPED_DOCUMENTARY_PREPARATION; точные артефакты и verdict: evidence/uxd03-prep-20260927/. Design больше не занят этой карточкой. Waiting semantics требует отдельного решения, UI-реализация пока не назначена. QA revision9 ожидает фактический ответ на уже заданный вопрос; новых запусков нет. Записи о продолжающейся подготовке ниже являются историей.
 
 QA author01a0c05d... завершил revision9 статически; independent start_overview_review ACCEPT_SCOPED_READY_TO_ASK_OWNER_EXCEPTION, NOT_EXECUTION. Root запросил одно точное исключение bootstrap+learning run; owner ответ ожидается, новых запусков0. Автор не выполняет harness самостоятельно. Следующий получатель после фактического ответа: root формирует finalmanifest, reviewer проверяет ID/hash/value, затем root определяет единственного исполнителя. Existing design B30-UXD03-PREP всё ещё работает в своём output-only scope.
