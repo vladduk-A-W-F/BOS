@@ -6,6 +6,8 @@
 
 ## Настройка разработки и следующий шаг
 
+Действующий срез после принятой установки dev.4: product7018cca86337da19361951782cffecb09811a89a, runtime/source+manifest e710eb568717dfe3ede945feb899f030bd5ad1ab. Actual capture/stop/apply/start/post-start exit0 по одному разу; HTTP200 exactHTML/version, PID40528/loopback и сохранность protected aggregate подтверждены. Независимый start_overview_review: ACCEPT_SCOPED_DEV4_OWNER_LOCAL_DELIVERY. f55 ниже исторический checkpoint. Следующий текущий исполнитель: existing QA01a0c05d... готовит исправленный exact isolated harness; browser/lessons не разрешены этим переходом. DESIGN_DEV4_CANDIDATE_RU.md и LOCAL_RUNTIME_RECEIPT.json имеют приоритет над историческими next actions ниже.
+
 Паспорт DESIGN_DEV4_CANDIDATE.json принят bos3_candidate_review: ACCEPT_SCOPED_EVIDENCE_PACKAGING, 91/91 точных Git blob hashes. Product7018cca86337da19361951782cffecb09811a89a; отдельный commit паспорта станет immutable runtime source для установки. Это не browser/lesson PASS. Следующий шаг: независимая проверка финальных pins и процедуры доставки.
 
 Актуально 27.09, 15:04Z: dev.4 package принят независимым bos3_candidate_review (ACCEPT_SCOPED_B30_DESIGN_PACK_DEV4), root включает пять файлов и raw PDF evidence. Новая поставка ещё не выполнена. Maintenance template F45E8358 принят start_overview_review только как шаблон; следующий шаг root: exact candidate/manifest/allowlist и независимая pin-delta проверка, затем ordinary owner-local update по действующему разрешению. Runtime пока f55. QA revision4 REVISE_BEFORE_OWNER_EXCEPTION: исправить preview mapping, подготовить безопасный exact isolated bootstrap/harness и полный C1 completion; тот же QA назначен, запусков нет.
