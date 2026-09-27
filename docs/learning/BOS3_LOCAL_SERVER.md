@@ -56,13 +56,16 @@ scripts/bos3-local.ps1 stop
 
 The PowerShell wrapper creates the child with `Start-Process -WindowStyle Hidden`.
 The child receives a short-lived local launch nonce but does not start Django or
-listen on the port until the parent has atomically recorded that nonce, the exact
-PID, executable path, Windows creation time, source digest and command tokens in
-the protected process receipt. If that receipt is never completed within 15
-seconds, the child exits by itself before opening a listener. The nonce is only a
-local correlation value, not a credential. Immediately after the gate and before
-any Django import, the child recomputes the clean-source digest and rejects a
-receipt or source tree that no longer matches.
+listen on the port until it has announced its own PID, executable path, Windows
+creation time, source digest and command tokens in a protected local file. The
+parent independently checks that announcement against the verified underlying
+Python image and writes the canonical process receipt; only that matching receipt
+opens the child gate. The PID returned by the Windows venv launcher is not used
+as the server identity. If the receipt is never completed within 15 seconds, the
+child exits by itself before opening a listener. The nonce is only a local
+correlation value, not a credential. Immediately after the gate and before any
+Django import, the child recomputes the clean-source digest and rejects a receipt
+or source tree that no longer matches.
 Before status or stop, the controller verifies the receipt PID, executable path,
 Windows creation time and source command arguments. A mismatch refuses to touch
 the process. Stop retains the database, media, logs and credential file.

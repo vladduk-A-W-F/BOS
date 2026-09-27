@@ -85,6 +85,10 @@ def instance_paths(root):
     }
 
 
+def launch_candidate_path(paths, launch_id):
+    return paths['state'] / ('launch-' + launch_id + '.json')
+
+
 def validate_root(source, paths):
     root = paths['root']
     if not root.is_absolute() or root == source or root in source.parents or source in root.parents:
@@ -117,7 +121,7 @@ def protect_path(path, *, directory):
     sid = current_user_sid()
     suffix = ':(OI)(CI)F' if directory else ':F'
     result = subprocess.run(['icacls', str(path), '/inheritance:r', '/grant:r', '*' + sid + suffix,
-        '/grant:r', '*S-1-5-18' + suffix], capture_output=True, text=True, encoding='utf-8')
+        '/grant:r', '*S-1-5-18' + suffix], capture_output=True)
     if result.returncode:
         raise LocalError('Local instance ACL could not be applied.')
     verify = r'''
@@ -312,6 +316,25 @@ class WindowsProcess:
         return result == 0
 
 
+def expected_runtime_image():
+    """Bind venv launchers to their verified underlying interpreter image."""
+    return normalized(getattr(sys, '_base_executable', None) or sys.executable)
+
+
+def verify_current_runtime_image():
+    ops = WindowsProcess()
+    handle = ops.open(os.getpid())
+    if handle is None:
+        raise LocalError('Local controller process disappeared during image verification.')
+    try:
+        record = ops.identity(handle, os.getpid())
+        if record['image'] != expected_runtime_image():
+            raise LocalError('Local controller image differs from its verified base interpreter.')
+        return record
+    finally:
+        ops.close(handle)
+
+
 def process_command_line(pid):
     if not isinstance(pid, int) or pid <= 0:
         raise LocalError('Process receipt PID is malformed.')
@@ -368,27 +391,41 @@ def wait_for_child_gate(paths, source, runtime, launch_id):
         raise LocalError('Internal local-server process disappeared before launch gate.')
     try:
         own_record = ops.identity(handle, os.getpid())
-        if own_record['image'] != normalized(sys.executable):
-            raise LocalError('Internal local-server executable differs before launch gate.')
+        if own_record['image'] != expected_runtime_image():
+            raise LocalError('Internal local-server image differs before launch gate.')
         command = process_command_line(os.getpid())
         if any(token not in command for token in own_tokens):
             raise LocalError('Internal local-server source arguments differ before launch gate.')
+        candidate = {'schema': 1, 'launch_id': launch_id, 'source': str(source),
+            'source_sha256': source_digest, 'runtime': runtime,
+            'runtime_image': expected_runtime_image(), 'required_tokens': own_tokens,
+            'process': own_record}
+        candidate_path = launch_candidate_path(paths, launch_id)
+        atomic_json(candidate_path, candidate)
         deadline = time.monotonic() + 15
-        while time.monotonic() < deadline:
-            try:
-                receipt = read_json(paths['process'])
-            except (OSError, ValueError):
+        try:
+            while time.monotonic() < deadline:
+                try:
+                    receipt = read_json(paths['process'])
+                except (OSError, ValueError):
+                    time.sleep(.1)
+                    continue
+                matches_identity = (receipt.get('launch_id') == launch_id and receipt.get('source') == str(source)
+                        and receipt.get('source_sha256') == source_digest
+                        and receipt.get('runtime') == runtime
+                        and receipt.get('runtime_image') == expected_runtime_image()
+                        and receipt.get('required_tokens') == own_tokens
+                        and receipt.get('process') == own_record)
+                if matches_identity and receipt.get('status') in ('identity_recorded', 'starting', 'ready'):
+                    return
+                if matches_identity and receipt.get('status') == 'start_failed':
+                    raise LocalError('Parent recorded a failed launch before this local server opened a listener.')
                 time.sleep(.1)
-                continue
-            matches_identity = (receipt.get('launch_id') == launch_id and receipt.get('source') == str(source)
-                    and receipt.get('source_sha256') == source_digest
-                    and receipt.get('runtime') == runtime and receipt.get('required_tokens') == own_tokens
-                    and receipt.get('process') == own_record)
-            if matches_identity and receipt.get('status') in ('identity_recorded', 'starting', 'ready'):
-                return
-            if matches_identity and receipt.get('status') == 'start_failed':
-                raise LocalError('Parent recorded a failed launch before this local server opened a listener.')
-            time.sleep(.1)
+        finally:
+            try:
+                candidate_path.unlink()
+            except OSError:
+                pass
     finally:
         ops.close(handle)
     raise LocalError('Parent did not record this local-server identity before launch-gate timeout.')
@@ -422,7 +459,7 @@ def verify_process(record, expected_tokens, *, terminate=False):
     if handle is None:
         return None, ops
     try:
-        if ops.identity(handle, record['pid']) != record or record['image'] != normalized(sys.executable):
+        if ops.identity(handle, record['pid']) != record or record['image'] != expected_runtime_image():
             raise LocalError('PID identity differs; no unrelated process will be touched.')
         command = process_command_line(record['pid'])
         if any(token not in command for token in expected_tokens):
@@ -446,6 +483,28 @@ def cleanup_verified_start(paths, state):
         ops.close(handle)
 
 
+def wait_for_child_announcement(paths, state):
+    """Accept only a live internal child that independently announces this launch."""
+    candidate_path = launch_candidate_path(paths, state['launch_id'])
+    expected = ('schema', 'launch_id', 'source', 'source_sha256', 'runtime', 'runtime_image', 'required_tokens')
+    deadline = time.monotonic() + 15
+    while time.monotonic() < deadline:
+        try:
+            candidate = read_json(candidate_path)
+        except (OSError, ValueError):
+            time.sleep(.1)
+            continue
+        if not isinstance(candidate, dict) or any(candidate.get(key) != state[key] for key in expected):
+            raise LocalError('Internal local-server announcement differs from the requested launch.')
+        record = candidate.get('process')
+        handle, child_ops = verify_process(record, state['required_tokens'])
+        if handle is None:
+            raise LocalError('Announced local-server child exited before identity confirmation.')
+        child_ops.close(handle)
+        return record
+    raise LocalError('Internal local-server did not announce a verifiable child before timeout.')
+
+
 def start(paths, source):
     prepared = read_json(paths['prepared'])
     if prepared.get('source') != str(source) or prepared.get('source_sha256') != digest_source(source):
@@ -462,10 +521,11 @@ def start(paths, source):
     launch_id = secrets.token_urlsafe(18)
     env['BOS3_LOCAL_LAUNCH_ID'] = launch_id
     args, tokens = child_spec(source, paths, runtime, launch_id)
+    verify_current_runtime_image()
     ops = WindowsProcess()
     state = {'schema': 1, 'status': 'launch_requested', 'process': None, 'runtime': runtime,
         'port': PORT, 'source_sha256': prepared['source_sha256'], 'source': str(source),
-        'launch_id': launch_id, 'required_tokens': tokens,
+        'launch_id': launch_id, 'runtime_image': expected_runtime_image(), 'required_tokens': tokens,
         'started_at': datetime.now(timezone.utc).isoformat()}
     receipt_written = False
     ownership_verified = False
@@ -474,14 +534,14 @@ def start(paths, source):
         # Durable intent exists before the hidden child can be created.
         atomic_json(paths['process'], state)
         receipt_written = True
-        pid = launch_via_powershell(args, source, env, paths)
-        handle = ops.open(pid)
+        launch_via_powershell(args, source, env, paths)
+        record = wait_for_child_announcement(paths, state)
+        handle = ops.open(record['pid'])
         if handle is None:
             raise LocalError('Hidden local server exited before its identity could be recorded.')
-        record = ops.identity(handle, pid)
-        if record['image'] != normalized(sys.executable):
+        if ops.identity(handle, record['pid']) != record or record['image'] != expected_runtime_image():
             raise LocalError('Hidden local server executable differs.')
-        command = process_command_line(pid)
+        command = process_command_line(record['pid'])
         if any(token not in command for token in tokens):
             raise LocalError('Hidden local server source arguments differ.')
         state['process'] = record
