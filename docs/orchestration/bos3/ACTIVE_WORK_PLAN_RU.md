@@ -92,6 +92,8 @@ TECHNICAL_READY=false, PILOT_ALLOWED=false, MVP=false. 30.09 оценка про
 
 ## Новый дизайн handoff
 
+Результат первого QA draft: B30-12-QA-SCOPE CHANGES_REQUESTED, независимый start_overview_review. Недостаёт точных candidate-bound маршрутов/чисел/receipts, S2 mapping, per-run cap classification и определённой synthetic среды. Findings и исходные hashes: evidence/readiness-scope-20260927/REVIEW_RU.md. Действующему QA передана read-only доработка, без execution/owner question; это текущее состояние вместо прежнего IN_REVIEW ниже.
+
 Параллельно B30-12-QA-SCOPE: действующий idle QA получает только read-only подготовку exact browser/lesson/progress decision packet, output D:/3/BOSDev/qa-scratch/bos3-readiness-scope-20260927/. Reviewer start_overview_review; source f55. Никаких новых запусков этим назначением не разрешено. Контракт и DoD: PROJECT_CONTROL_RU.md. Это не повтор реализации исторических карточек.
 
 Дополнение 27.09, 14:15:49Z: tracker подтвердил workspace bos3-product-design/repo, HEAD32acfb6ad3a0aeabe2f7501a28ba878dfeaeec87 и ancestry f55 exit0. Это снимает прежний UNCONFIRMED пути/базы, но не принимает незавершённый patch. Текущий blocker: exact handoff с hashes/allowlist/raw QA от design owner. Следующий check-in существующим heartbeat не позднее15 минут при работающем приложении; готовый результат root принимает сразу.
