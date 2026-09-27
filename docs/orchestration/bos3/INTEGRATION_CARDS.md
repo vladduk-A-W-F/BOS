@@ -1,5 +1,17 @@
 # BoS 3.0 Integration Cards
 
+## B30-04C: Presentation Content and Linked Guide
+
+Date 2026-09-27; baseline dd88f28. Author root; independent content/asset/PDF
+review bos3_crm_impl, ACCEPT_SCOPED_VISUAL_STATIC after a corrected location fact.
+Allowlist: frontend/bos3_content.json, assets/bos3-fasteners-entry.png,
+boss_project/refinement_views.py, boss_project/version.py,
+scripts/build_bos3_brochure.py, docs/BoS_3_0_Start_UA.pdf and manifest,
+this ledger and B30_04C_REVIEW_RU.md. Candidate 0.3.0-dev.2.
+The fixture and all private data/commands remain unchanged. UI composition is
+a separate B30-04F; source and delivered runtime remain separate identities.
+Evidence and exact artifact hashes: B30_04C_REVIEW_RU.md.
+
 Date: 2026-09-27. Integrator: root. Baseline: a445ac0584c79c2939269b37ec814b22691711c7.
 These cards compose independently reviewed worker outputs. They do not reset
 any historical execution limit or alter the frozen readiness gates.

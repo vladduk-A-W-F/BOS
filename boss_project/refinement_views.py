@@ -6,10 +6,14 @@ from .version import VERSION
 
 @require_GET
 def asset(request,name):
-    if name not in ('app.js','react.js','react-dom.js','marked.js','purify.js','network-map.js'): raise Http404
+    types = {'app.js': 'text/javascript', 'react.js': 'text/javascript',
+             'react-dom.js': 'text/javascript', 'marked.js': 'text/javascript',
+             'purify.js': 'text/javascript', 'network-map.js': 'text/javascript',
+             'bos3-fasteners-entry.png': 'image/png'}
+    if name not in types: raise Http404
     p=Path(settings.BASE_DIR)/'assets'/name
     if not p.is_file():raise Http404
-    return FileResponse(p.open('rb'),content_type='text/javascript')
+    return FileResponse(p.open('rb'),content_type=types[name])
 
 @require_GET
 def start_guide(request):
