@@ -1,0 +1,78 @@
+{
+  "schema": "bos3-preview-pack-regeneration-evidence-v1",
+  "source_baseline": "defd1fc12545053159a3a888013d096c79157fd3",
+  "candidate_version": "0.3.0-dev.3",
+  "reason": "Reviewed registry replaced solely as build input: three presentation.chart numeric metadata additions; prior PDF and manifest archived before replacement.",
+  "reviewed_registry": {
+    "source": "C:/Users/user/.codex/worktrees/bos3-entry-flow/repo/frontend/bos3_content.json",
+    "sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390"
+  },
+  "marker": "NOT_RUN: already successfully completed once before the first PDF creation.",
+  "commands": [
+    {
+      "name": "input SHA check, evidence backup, registry copy",
+      "exit_code": 0,
+      "raw": "D:\\3\\BOSDev\\tmp\\bos3-preview-pack-20260927-evidence\\registry-rebuild-20260927\\RAW_PRE_REGENERATION_COMMANDS.txt"
+    },
+    {
+      "name": "single PDF regeneration",
+      "exit_code": 0,
+      "raw": "D:\\3\\BOSDev\\tmp\\bos3-preview-pack-20260927-evidence\\registry-rebuild-20260927\\RAW_REGENERATION_COMMANDS.txt"
+    },
+    {
+      "name": "render 3 PDF pages",
+      "exit_code": 0,
+      "raw": "D:\\3\\BOSDev\\tmp\\bos3-preview-pack-20260927-evidence\\registry-rebuild-20260927\\RAW_RENDER_COMMANDS.txt"
+    },
+    {
+      "name": "manifest/version/hash and git diff check",
+      "exit_code": 0
+    }
+  ],
+  "visual_review": {
+    "pages": 3,
+    "result": "PASS: all three rendered pages reviewed; legible text, page numbering and headings; no clipping, overlap or unreadable elements observed.",
+    "render_dir": "D:\\3\\BOSDev\\tmp\\bos3-preview-pack-20260927-evidence\\registry-rebuild-20260927\\rendered-pages"
+  },
+  "artifacts": [
+    {
+      "path": "D:\\3\\BOSDev\\tmp\\bos3-preview-pack-20260927\\README.md",
+      "sha256": "667b30127e2a18d238d92650e3230a212ee93827e9338ade12019565daa497c6",
+      "bytes": 4392
+    },
+    {
+      "path": "D:\\3\\BOSDev\\tmp\\bos3-preview-pack-20260927\\README_UA.md",
+      "sha256": "c9e14ce3e53089cee81c24314d77ef525da7411b14b9d020b191ccdab6fdfe89",
+      "bytes": 14982
+    },
+    {
+      "path": "D:\\3\\BOSDev\\tmp\\bos3-preview-pack-20260927\\boss_project\\version.py",
+      "sha256": "c17837bccbc5092a62eed7faaf5cd794a040827e03531b254e22d1406287f286",
+      "bytes": 24
+    },
+    {
+      "path": "D:\\3\\BOSDev\\tmp\\bos3-preview-pack-20260927\\frontend\\bos3_content.json",
+      "sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390",
+      "bytes": 17408
+    },
+    {
+      "path": "D:\\3\\BOSDev\\tmp\\bos3-preview-pack-20260927\\docs\\BoS_3_0_Start_UA.pdf",
+      "sha256": "592977c117527cfd1a36aa5df08f819d1b2e2896e4bb3adf89ab12ff7e7c1610",
+      "bytes": 96140
+    },
+    {
+      "path": "D:\\3\\BOSDev\\tmp\\bos3-preview-pack-20260927\\docs\\BoS_3_0_Start_UA.manifest.json",
+      "sha256": "836365389f3304163d0221d69dcdbbc89b88b5fc3eb01dc607e9cdeb189b987a",
+      "bytes": 259
+    }
+  ],
+  "preserved_pre_regeneration": [
+    "D:\\3\\BOSDev\\tmp\\bos3-preview-pack-20260927-evidence\\registry-rebuild-20260927\\BoS_3_0_Start_UA.pre-reviewed-registry.pdf",
+    "D:\\3\\BOSDev\\tmp\\bos3-preview-pack-20260927-evidence\\registry-rebuild-20260927\\BoS_3_0_Start_UA.pre-reviewed-registry.manifest.json"
+  ],
+  "non_actions": [
+    "No frontend build, runtime, tests, browser, HTTP, database, seed or migration run.",
+    "No package installation after the root instruction.",
+    "No commit and no canonical write."
+  ]
+}
