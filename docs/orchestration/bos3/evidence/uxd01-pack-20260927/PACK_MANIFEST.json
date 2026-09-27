@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "card": "UXD01-PACK",
+  "classification": "NEW_VERSIONED_PACKAGING_NOT_APP_QA",
+  "base_commit": "8eb832a45c9c8f2d140fef0a44c74b94a07a470a",
+  "version": "0.3.0-dev.6",
+  "source_provenance": {
+    "canonical_product_commit": "8eb832a45c9c8f2d140fef0a44c74b94a07a470a",
+    "author_evidence": "docs/design/evidence-uxd01-20260927/SOURCE_AND_CHANGE_MANIFEST.json",
+    "source_route": "GET /api/erp/snapshot/",
+    "changed_ui_blobs_preserved": [
+      "assets/app.js",
+      "frontend/bos_design.css",
+      "frontend/boss_app_html.html",
+      "frontend/boss_app_source.html"
+    ],
+    "preserved_supporting_inputs": [
+      "frontend/bos3_content.json",
+      "scripts/build_bos3_brochure.py"
+    ]
+  },
+  "provenance_disclosure": {
+    "provided": [
+      "source snapshot",
+      "calculation rule",
+      "account-accessible scope",
+      "business calculation date",
+      "current-window read time",
+      "next section"
+    ],
+    "not_provided_or_implemented": [
+      "branch filter",
+      "calendar/period filter",
+      "historical snapshot",
+      "source-record drilldown",
+      "source last-modified time"
+    ],
+    "time_semantics": "Read time is the current device/window response-acceptance time, not source modification time; business date is not a period."
+  },
+  "applicability": {
+    "baseline": "docs/orchestration/bos3/FULL_READINESS_MATRIX_E710.json",
+    "baseline_sha256": "79a6ae1db0a1c04546ee2befc2c95144b03db22f48fe8be7fc95fac373606f96",
+    "preserved_scope": "S1/S2/S3, UXD01-08 and all 11 gates remain applicable; this package does not supply fresh dynamic readiness evidence.",
+    "full_UXD01_accepted": false,
+    "readiness_changed": false,
+    "runtime_changed": false
+  },
+  "file_sha256": {
+    "README.md": "b5ad243f8e9fde364178d0934c6363b86c912f3f675b8193cc8e97c769b4f00d",
+    "README_UA.md": "10407d08263839606efe506b5ac720205dc0d47250d23b45a2adbd15f9ab5166",
+    "boss_project/version.py": "613ee52c53091d6dae6222a7fbe8e02bb652f59c91b5bcfaf9e93d67f2bc4f03",
+    "docs/BoS_3_0_Start_UA.pdf": "45218cf73694b270429550949f670e62f99cc2b97885a8d40d9cb256c5c30bf4",
+    "docs/BoS_3_0_Start_UA.manifest.json": "0a75f0ab9706ab6b303e4bdee779a2727ecd75ea5b64022f4e6a0038a243602f",
+    "assets/app.js": "9d365048a60f192acffd541c2e1c3b02c804e2d405a25890fdedc8d5c606d303",
+    "frontend/bos_design.css": "30e1db301539b97080705c463c0fec14ae6370de577f824318484c42d159fd54",
+    "frontend/boss_app_html.html": "cdb3c24465feabfca3a27e7e231fd84a2011dc473dc58914bfe4d7b728395588",
+    "frontend/boss_app_source.html": "cc97bee6d680df1bc4aedd6a3a6892b3283a17434867b268c11d38010b1732e7",
+    "frontend/bos3_content.json": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390",
+    "scripts/build_bos3_brochure.py": "1885bac669b2798544e7f359e5755bd1efd90b5602d3b7f6fcce49c158172800"
+  },
+  "pdf": {
+    "sha256": "45218cf73694b270429550949f670e62f99cc2b97885a8d40d9cb256c5c30bf4",
+    "pages": 3,
+    "visual_review": "PASS: rendered pages 1-3 inspected; readable Ukrainian text, complete frames and footers, no visible clipping.",
+    "render_assets": [
+      "pdf-render-160/BoS_3_0_Start_UA-1.png",
+      "pdf-render-160/BoS_3_0_Start_UA-2.png",
+      "pdf-render-160/BoS_3_0_Start_UA-3.png"
+    ]
+  },
+  "commands": [
+    {
+      "receipt": "pdf-operation-marker.receipt.json",
+      "native_exit": 0,
+      "stdout": "pdf-operation-marker.stdout.log",
+      "stderr": "pdf-operation-marker.stderr.log"
+    },
+    {
+      "receipt": "pdf-build.receipt.json",
+      "native_exit": 0,
+      "stdout": "pdf-build.stdout.log",
+      "stderr": "pdf-build.stderr.log"
+    },
+    {
+      "receipt": "pdf-render.receipt.json",
+      "native_exit": 0,
+      "stdout": "pdf-render.stdout.log",
+      "stderr": "pdf-render.stderr.log"
+    }
+  ],
+  "not_run": [
+    "frontend build",
+    "tests",
+    "browser",
+    "HTTP",
+    "DB",
+    "runtime",
+    "init",
+    "seed",
+    "migrate",
+    "reset",
+    "training",
+    "payment",
+    "full suite",
+    "PG",
+    "E2E",
+    "cross-role"
+  ],
+  "independent_review": "PENDING: bos3_candidate_review",
+  "package_acceptance": "PENDING"
+}
