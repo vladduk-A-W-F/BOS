@@ -4,9 +4,9 @@
 
 Текущий единственный интегратор: root чата 01a0dd56-ca2d-79c0-b159-bde80074a026. Integration branch: codex/bos3-prerelease-20260927. Управляющий пакет находится в docs/orchestration/bos3/. Старые STATE/очереди и CURRENT_BASELINE описывают исторические циклы и принятый v18, не являются разрешением возобновлять прежние очереди.
 
-Исходный продуктовый кандидат: a445ac0584c79c2939269b37ec814b22691711c7, PR #9 open/draft/unmerged на момент запуска. GitHub main: d88624da95f034647a8bb031f25f7549d1cd0348. Новый номер версии будет присвоен принятому пакету, а не этому документу. Существующий review-source bos-start-overview не переключается.
+Исходный продуктовый кандидат: a445ac0584c79c2939269b37ec814b22691711c7, PR #9 open/draft/unmerged на момент запуска. GitHub main: d88624da95f034647a8bb031f25f7549d1cd0348. Новый кандидат: BoS 3.0 / 0.3.0-dev.1, draft PR #10. Отдельный owner-local runtime работает из 33d7d387aa582c04339a91ae94361948ea67904c; квитанция bos3/LOCAL_RUNTIME_RECEIPT.json. Существующий review-source bos-start-overview не переключается.
 
-Цели: 04.10 закрытый authenticated owner-review rc; 11.10 feedback-dependent принятие кода/тега при необходимых gates. TECHNICAL_READY=false, PILOT_ALLOWED=false, MVP=false. Production/реальные данные/платные API вне допуска.
+Цели: 04.10 authenticated owner-local предверсия; внешний доступ только после отдельного решения о переносе. 11.10 feedback-dependent принятие кода/тега при необходимых gates. TECHNICAL_READY=false, PILOT_ALLOWED=false, MVP=false. Production/реальные данные/платные API вне допуска.
 
 Разрешено: независимая реализация узких карточек, адресные NEW проверки на изолированных synthetic данных, независимое ревью и последовательная интеграция root. Запрещено: обход P05/A09/A10/A11, сброс истории проблем новой карточкой/БД/агентом, повтор исчерпанных progress/payment/network/full/PG/E2E/browser/column наборов без отдельного точного разрешения.
 

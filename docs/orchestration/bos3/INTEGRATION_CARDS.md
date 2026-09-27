@@ -56,6 +56,11 @@ Execution is held until final review acceptance; no production/public hosting.
 Initial static verdict: ACCEPT_SCOPED_STATIC. A subsequent read-only Windows
 runtime probe proved the venv redirector and actual Python executable differ;
 B30-11A must reconcile the actual child identity before any server start.
+Resolved by independently reviewed B30-11A/B/C/D increments. Local init completed
+on attempt 3; start completed on attempt 2 after reviewed stopped-instance
+launcher maintenance. Controlled stop/restart and saved-session HTTP checks
+returned exit 0. The source is frozen at `33d7d38`; detailed failures, source
+digests and scope are retained in `LOCAL_RUNTIME_RECEIPT.json`.
 
 ## B30-R01: Candidate Identity and Evidence
 
