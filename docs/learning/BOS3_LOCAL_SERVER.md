@@ -67,8 +67,10 @@ creation time, source digest and command tokens in a protected local file. The
 parent independently checks that announcement against the verified underlying
 Python image and writes the canonical process receipt; only that matching receipt
 opens the child gate. The PID returned by the Windows venv launcher is not used
-as the server identity. If the receipt is never completed within 15 seconds, the
-child exits by itself before opening a listener. The nonce is only a local
+as the server identity. The launch wrapper also runs with detached stdin/stdout;
+its private stderr log is diagnostic only, while the verified announcement remains
+the sole process identity. If the receipt is never completed within 15 seconds,
+the child exits by itself before opening a listener. The nonce is only a local
 correlation value, not a credential. Immediately after the gate and before any
 Django import, the child recomputes the clean-source digest and rejects a receipt
 or source tree that no longer matches.
