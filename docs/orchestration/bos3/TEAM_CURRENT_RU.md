@@ -6,6 +6,8 @@
 
 ## Текущая работа настройки
 
+QA scope revision3 принят start_overview_review только как уточнение границ, не готовый run plan. Status PARTIAL; существующий quality продолжает exact lesson/service/receipt oracle в прежнем scratch. Root выбрал конкретное SQLite-only предложение среды, но не создал её и не снял caps. Новое смежное назначение tracker: B30-ARCH-CONTRACT-20260927, /root/bos3_architect read-only, reported by01a0be90...; две output-only записи, без canonical/design/runtime edits или subagents. Это учитывается в лимите исполнителей, не новый root.
+
 Текущая новая подготовка QA: B30-12-QA-SCOPE, существующий QA чат 01a0c05d-6eeb-79f1-a135-be66985b442f после подтверждения idle; отдельный output bos3-readiness-scope-20260927, product f55, reviewer start_overview_review. Только матрица требований/существующего кода/evidence и точный план допусков, без запусков/субагентов. Observer сообщил ACTIVE своей native goal; root не создаёт новую и не превращает это в полную приёмку.
 
 - Root: B30-DEV-WORKFLOW завершён в этом документальном commit; канонические plan/control/сроки и PR согласованы. Независимый reviewer bos3_candidate_review: ACCEPT_SCOPED_DEVELOPMENT_CONTROL, предыдущий P1 закрыт фактической интеграцией CLI.

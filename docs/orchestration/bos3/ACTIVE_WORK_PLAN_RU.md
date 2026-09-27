@@ -6,6 +6,10 @@
 
 ## Настройка разработки и следующий шаг
 
+Текущий переход 27.09, revision3 B30-12-QA-SCOPE: ACCEPT_SCOPED_PREPARATION_ONLY, статус PARTIAL, не executable plan. Exact immutable artifacts/review: evidence/readiness-scope-20260927/revision3/ и REVISION3_REVIEW_RU.md. Тот же QA получил конкретизацию трёх фактических learning cases на f55 и предложенный root SQLite-only isolation contract; никаких запусков или owner execution question. Более ранний CHANGES_REQUESTED ниже сохранён как история.
+
+Уже назначенный в другом действующем отделе B30-ARCH-CONTRACT-20260927: read-only architect /root/bos3_architect, владелец tracker01a0be90-e790-7351-a8ac-059d523941c4. Только границы данных/прав/freshness и completion proof; output D:/3/BOSDev/repo/outputs/bos3-architect-20260927-143816Z/{ARCHITECTURE_REVIEW_RU.md,HANDOFF.json}. Root не создаёт второго архитектора; сверка независима от detailed QA oracle. Owner assignment reported tracker, продуктовые правки/запуски не разрешены.
+
 | Карточка | Владелец / reviewer | Источник и allowlist | Результат / следующий шаг |
 | --- | --- | --- | --- |
 | B30-DEV-QUEUE-TRIAGE | bos3_candidate_review, read-only | HEAD 54764b0; только текущие plan/control/team и недельное поручение | DONE_READ_ONLY: независимой готовой продуктовой карточки без допуска/feedback нет; выявлен конфликт сроков 04.10/11.10 |
