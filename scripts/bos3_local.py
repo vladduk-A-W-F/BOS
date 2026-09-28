@@ -33,7 +33,15 @@ def atomic_json(path, value):
         stream.write('\n')
         stream.flush()
         os.fsync(stream.fileno())
-    os.replace(temporary, path)
+    for delay in (None, .05, .1):
+        if delay is not None:
+            time.sleep(delay)
+        try:
+            os.replace(temporary, path)
+            return
+        except PermissionError as failure:
+            if getattr(failure, 'winerror', None) not in (5, 32, 33) or delay == .1:
+                raise
 
 
 def read_json(path):

@@ -2,6 +2,8 @@
 
 ## Оперативное обновление 28.09: dev8 start failed
 
+02:09 UTC текущие назначения: atomic source author bos3_channel_diagnosis завершён, QA bos3_crm_impl завершён5/5native0, независимый start_overview_review принял run1. Root интегрирует source6483/test8b953 от docs399; bos3_candidate_review следующий integration reviewer. Тот же bos3_channel_diagnosis имеет отдельную PREPARATION_ONLY recovery card в D:/3/BOSDev/qa-scratch/bos3-atomic-receipt-recovery-20260928, targetPENDING, check-in02:20Z, reviewer start_overview_review. No execution, no active duplicate. Problem2/3, oldwindow start1/1; current runtime availability UNCONFIRMED. После integration acceptance packager готовит минимальный кандидат, автор не принимает себя.
+
 Root единственный интегратор D:/3/BOSDev/workspaces/bos3-canonical/repo. Candidate60f/product411, prepared runtime source уже D/60f, но official start native1 (WinError5 process.json); новая доставка не принята, текущая доступность UNCONFIRMED. Capture/stop/apply0, post-start0 запусков. Тот же bos3_channel_diagnosis проводит read-only source/log diagnosis в delivery scratch; start_overview_review независимо принял failure scope и далее проверяет diagnosis. bos3_crm_impl: post-start запрещён до нового exact root решения, сейчас только byte-identical saved evidence packaging в D:/3/BOSDev/qa-scratch/bos3-dev8-failed-delivery-pack-20260928/. Следующий получатель пакета bos3_candidate_review, затем root. Никаких дублирующих implementation/QA поручений, новых start/kill/rollback, browser или уроков.
 
 Предыдущие записи ниже сохраняют историю подготовки, не текущую доступность.
