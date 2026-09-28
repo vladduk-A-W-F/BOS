@@ -1,0 +1,54 @@
+{
+  "schema": "bos3.atomic-pack-dev9/v1",
+  "card": "B30-ATOMIC-PACK-DEV9",
+  "status": "PREPARED_FOR_INDEPENDENT_REVIEW",
+  "source": {
+    "path": "D:/3/BOSDev/workspaces/bos3-canonical/repo",
+    "commit": "81ca06765758b5103c41905ed189ea6465ae3b9e",
+    "integration_review_sha256": "d63053cf4fd7c421740e8c2c6f798f46bc55e33f941f7df6b1d4c4cc07c870b1"
+  },
+  "target_version": "0.3.0-dev.9",
+  "output_files": [
+    {
+      "path": "repo/boss_project/version.py",
+      "source_sha256": "ba7a3a9f2cf5b7b1661165ee661a500f53ac05920ab2af5b27d5c32d61f57520",
+      "source_bytes": 24,
+      "result_sha256": "d980c5408b53854e08ed32707dd8187fe030a27395f43211b2475533432b3d6d",
+      "result_bytes": 24
+    },
+    {
+      "path": "repo/README.md",
+      "source_sha256": "5bb349b25391d7569811430e71179f1fdba6f97164810c3f0e7095d51ddb1225",
+      "source_bytes": 5081,
+      "result_sha256": "62b411382b67fd183e0666de15188bada8ae7f3617c8c0ac23eb6ed5c576adce",
+      "result_bytes": 5488
+    },
+    {
+      "path": "repo/README_UA.md",
+      "source_sha256": "f7b26bb465b4e42910ab48ef69428a08a11f971123ccc369cbdce5c9ec15fe5d",
+      "source_bytes": 15626,
+      "result_sha256": "7c644b10fb7de71161d3cc376a5fc51f73f100ed0db8ca5a5d7773675a5c70cd",
+      "result_bytes": 16177
+    }
+  ],
+  "scope": {
+    "repair_description": "bounded atomic receipt replacement only",
+    "pdf": "unchanged dev.7 guide; not dev.9 or delivery proof",
+    "runtime_availability": "UNCONFIRMED after failed dev.8 delivery window",
+    "delivery_accepted": false,
+    "technical_ready": false,
+    "pilot_allowed": false
+  },
+  "not_performed": [
+    "test or QA rerun",
+    "build",
+    "PDF generation",
+    "application import",
+    "runtime or lifecycle operation",
+    "DB, network, or canonical write"
+  ],
+  "review": {
+    "author_self_acceptance": false,
+    "next": "bos3_candidate_review then root"
+  }
+}
