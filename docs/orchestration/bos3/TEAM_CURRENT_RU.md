@@ -2,6 +2,12 @@
 
 ## Оперативное обновление 28.09: запуск диагностики заблокирован
 
+05:52 UTC: guard author и независимый reviewer завершили scoped static source371a02a4/review6ab166a6. Единственный активный исполнитель теперь bos3_channel_test_sol, requestedSol/medium observedUNCONFIRMED, narrow test-rebind и preserved assertions; reviewer bos3_guard_review_sol requestedSol/high. Root сохраняет accepted guard bytes; deterministic copying/hash не получают отдельного model review. Product/runtime неизменны; worker/role configs не доказывают actualruntime model.
+
+05:45 UTC: guard-автор bos3_channel_diagnosis завершил ту же карточку после одной разрешённой fresh-availability continuation, source371a02a4. Текущий единственный активный reviewer: bos3_guard_review_sol, requestedgpt-6-sol/high, observedUNCONFIRMED, отдельный короткий контекст и только GUARD_STATIC_REVIEW_RU.md output. До принятия guard test rebind не назначен. Конфигурация9файлов отдельно опубликована8633450, активные модели не переключались, root прежний. Последующие active/check-in записи03:40 исторические.
+
+03:40 UTC: единственный текущий implementer bos3_channel_diagnosis получил новую узкую public-target-guard карточку от2d8ce09 в отдельной core-target-guard копии, reviewer start_overview_review. bos3_crm_impl завершил первый test draft и ждёт accepted guard source после finding0ed0aaf9; его reviewer bos3_candidate_review. Принятые core/flow/wrappers архивы сохранены, не активированы и не объявлены динамически проверенными. Runtime owner gate прежний.
+
 03:37 UTC: wrappers автор bos3_channel_diagnosis и reviewer start_overview_review завершили accepted static source99d43fb7; повторных поручений им нет. Core/flow архивированыfa192b3/fdaff79, не установлены. bos3_crm_impl продолжает только channel-test source adaptation, reviewer bos3_candidate_review. Root пакует final wrapper source для отдельного archive review. Ни одна роль не запускает scripts/тесты или runtime.
 
 03:34 UTC: core archive fa192b3 опубликован; root последовательно архивирует уже принятый flow. bos3_channel_diagnosis исправляет только P1 wrappers start-workday finally, reviewer start_overview_review. bos3_crm_impl получил отдельный synthetic channel-test source API adapter по TEST_SOURCE_CARD.json отfa192b3, reviewer bos3_candidate_review, check-in03:50Z. Две непересекающиеся allowlist, source-only/executions0, live helpers/state/runtime не меняются.
