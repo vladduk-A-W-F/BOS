@@ -2,6 +2,8 @@
 
 ## Оперативное обновление 28.09: запуск диагностики заблокирован
 
+03:34 UTC: core archive fa192b3 опубликован; root последовательно архивирует уже принятый flow. bos3_channel_diagnosis исправляет только P1 wrappers start-workday finally, reviewer start_overview_review. bos3_crm_impl получил отдельный synthetic channel-test source API adapter по TEST_SOURCE_CARD.json отfa192b3, reviewer bos3_candidate_review, check-in03:50Z. Две непересекающиеся allowlist, source-only/executions0, live helpers/state/runtime не меняются.
+
 03:29 UTC: core-автор и flow-автор завершили принятые source-only карточки. start_overview_review принял core delta `b7186966`; bos3_candidate_review принял final flow binding `9beb9790`. Единственный текущий исполнитель source: bos3_channel_diagnosis, отдельная wrappers allowlist, handoff03:27Z/check-in03:45Z. Root архивирует core/flow как неактивные артефакты, независимая проверка состава до публикации. Runtime owner gate остаётся без нового ответа, готовность false. Последующие статусы подготовки core/flow сохранены как история.
 
 Следующий source-only владелец: bos3_channel_diagnosis завершил принятый core и получил только B30-D-CONTROL-HOME-WRAPPERS-SOURCE в wrappers/ того же D scratch, три точных исходника по C65, reviewer start_overview_review. bos3_crm_impl завершил flow и dependency rebind; bos3_candidate_review проверяет только новую привязку. Core/flow не исполняются и не ставятся в живые tools. Check-in wrapper03:45Z; root единственный интегратор, owner gate runtime-диагностики неизменен.
