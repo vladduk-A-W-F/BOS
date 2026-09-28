@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "card": "B30-D-CONTROL-HOME-CORE-SOURCE",
+  "status": "SOURCE_ONLY_INACTIVE_PENDING_STATIC_REVIEW",
+  "provider": "staged/bos_dev.py",
+  "api": {
+    "function": "resolve_control_home",
+    "signature": "resolve_control_home(value=None) -> pathlib.Path",
+    "result": "One canonical absolute Path. Callers must pass this exact result unchanged to downstream state_lock, state/ledger path construction, and channel APIs.",
+    "legacy_behavior": "value=None resolves the existing legacy default home.",
+    "nonlegacy_behavior": "Any selectable nonlegacy home refuses with ControlHomeError until a separately authorized coherent authority-state/ledger establishment schema and marker are defined.",
+    "prohibited_assumption": "An absent directory, empty ledger, config, observer, queue, lock, or delivery fallback never establishes authority."
+  },
+  "flow_integration": {
+    "required_future_pattern": "Resolve once before the first control-state path/lock operation; pass the resulting Path unchanged through the flow call chain.",
+    "not_in_this_card": "bos_flow.py edit, authority establishment, cutover, migration, runtime activation, or state inspection."
+  },
+  "channel_api": {
+    "public_function": "deliver(target, prompt, message_id, home=HOME_DIR, *, model=None, thinking=None)",
+    "ordering": "Public deliver resolves/refuses home before it constructs AppTools. Internal _deliver_resolved(client, ..., home) is for this module only after an already-safe resolver boundary.",
+    "compatibility_boundary": "The former public client-first deliver(client, ...) signature is intentionally removed. Unreviewed external callers must not pass pre-created AppTools; their migration is a separate exact scope."
+  },
+  "finality": "Interface is a static source contract only and may change only through independent review."
+}
