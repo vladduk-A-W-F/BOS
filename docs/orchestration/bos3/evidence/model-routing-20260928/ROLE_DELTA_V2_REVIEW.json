@@ -1,0 +1,17 @@
+{
+  "schema": "bos.model-role-delta-v2-review.v1",
+  "reviewed_at": "2026-09-28",
+  "verdict": "APPROVE_EXACT_CANDIDATE_V2",
+  "manifest_sha256": "954F28877C13BDAA14B402D9D12328243AE357961BC8CFF6E974505CACF1C7AC",
+  "candidate_directory": "candidate-v2/.codex",
+  "scope": "Closure of RD-01 and exact nine-file hash and allowed-diff check only; prior policy review not repeated.",
+  "checks": {
+    "manifest_hashes": "All nine before and candidate-v2 SHA-256 values match ROLE_CANDIDATES_V2_MANIFEST.json.",
+    "line_endings": "All nine source and candidate-v2 files use CRLF only; candidate-v2 retains the original absence of UTF-8 BOM. bos_release_packager has two additional CRLF lines for the two authorized added settings.",
+    "exact_diff": "Ordinary git diff --no-index --unified=0 shows changes only to model, model_reasoning_effort, default_subagent_model, default_subagent_reasoning_effort and max_concurrent_threads_per_session. No other text or line-ending changes are present.",
+    "previous_finding": "RD-01 from ROLE_DELTA_REVIEW.json is closed for these exact v2 bytes. The previous candidate and review remain unchanged."
+  },
+  "future_effect": "Config changes apply to future spawns/role starts only; fixed roles and already active agents do not automatically switch. Requested settings do not prove observed runtime model.",
+  "acceptance_boundary": "Configuration routing only; no product change or runtime/readiness acceptance.",
+  "validation": "Text diff, byte-level line-ending/BOM inspection and SHA-256 only. No parser, helper, Codex, tests, runtime probes, canonical edits or sends."
+}
