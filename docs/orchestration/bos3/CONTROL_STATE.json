@@ -21,6 +21,9 @@
   "runtime_source_commit": "d8e121a0b38bb8c98f5719568b6fa87374e2bfb0",
   "runtime_receipt": "LOCAL_RUNTIME_RECEIPT.json",
   "local_delivery_review": "ACCEPT_SCOPED_DEV7_OWNER_LOCAL_DELIVERY_WITH_EVIDENCE_LIMITATION",
+  "runtime_receipt_scope": "Last accepted historical dev7 delivery; not current availability after failed dev8 transition",
+  "next_atomic_receipt_repair": {"card":"B30-DEV8-ATOMIC-RECEIPT-REPAIR","status":"PREPARING_CODE_AND_UNRUN_TESTS_ONLY","owner":"bos3_channel_diagnosis","reviewer":"start_overview_review","QA":"bos3_crm_impl","base_commit":"60f1e31fca6056711ea52d7aade6b65e0b14afff","workspace":"D:/3/BOSDev/qa-scratch/bos3-atomic-receipt-repair-20260928","card_record":"D:/3/BOSDev/qa-scratch/bos3-invoice-delivery-20260928/ATOMIC_RECEIPT_REPAIR_CARD.json","scope":"Bounded same-temp Windows replace-error handling only; historical denial actor unconfirmed","tests_executed":0,"lifecycle_executed":0,"inherited_start_attempts":1,"problem_cap":3,"consumed_window1_start":"1/1","next_action":"Independent code/unrun test review before any separately classified isolated test or lifecycle decision"},
+  "runtime_transition": {"status":"PARTIAL_WINDOW_FAILED_AT_OFFICIAL_START_NATIVE_EXIT_1","candidate_commit":"60f1e31fca6056711ea52d7aade6b65e0b14afff","prepared_source":"D:/3/BOSDev/workspaces/bos3-runtime-dev8/repo","capture_exit":0,"official_stop_exit":0,"apply_exit":0,"official_start_exit":1,"post_start":"NOT_RUN","current_live_status":"UNCONFIRMED","protected_aggregate_unchanged_at_apply":true,"failure":"WinError5 replacing process.json at scripts/bos3_local.py:570","attempts":1,"automatic_retry":false,"owner":"root","diagnostician":"bos3_channel_diagnosis","reviewer":"start_overview_review","review":"evidence/invoice-delivery-20260928/DELIVERY_ATTEMPT1_FAILURE_REVIEW_RU.md","next_action":"Read-only exact diagnosis, independent review and separate recovery-scope decision; no start repeat or post-start HTTP"},
   "implementation_report": "IMPLEMENTATION_20260927.md",
   "integration_cards": "INTEGRATION_CARDS.md",
   "active_work_plan": "ACTIVE_WORK_PLAN_RU.md",
@@ -39,7 +42,7 @@
   "shared_git_objects_dependency": "D:/3/BOSDev/repo/.git/objects; retain original repository, source checkout is not an independent backup",
   "current_operational_delta": "D:/3/BOSDev/release-planning/bos-3.0-20260927/POST_CHECKPOINT_OPERATIONAL_DELTA.json",
   "latest_source_integration": {"commit":"c00c60aad0c4f8e70251da3c7174ed105089198b","card":"B30-INVOICE-CURRENCY","status":"ACCEPT_SCOPED_ATOMIC_INTEGRATION","review":"evidence/invoice-integration-20260928/INVOICE_INTEGRATION_REVIEW_RU.md","packaged":true,"delivered":false},
-  "pending_delivery_candidate": {"version":"0.3.0-dev.8","product_commit":"411e222c4687b6a029c027518d3f20453c5849db","status":"MANIFEST_ACCEPTED_IMMUTABLE_BINDING_NEXT","package_owner":"bos3_crm_impl_completed","package_reviewer":"bos3_candidate_review","package_workspace":"D:/3/BOSDev/qa-scratch/bos3-invoice-pack-20260928","delivery_preparation_owner":"bos3_channel_diagnosis","delivery_reviewer":"start_overview_review","delivery_workspace":"D:/3/BOSDev/qa-scratch/bos3-invoice-delivery-20260928","runtime_actions":0,"no_automatic_qa_repeat":true},
+  "pending_delivery_candidate": {"version":"0.3.0-dev.8","product_commit":"411e222c4687b6a029c027518d3f20453c5849db","immutable_commit":"60f1e31fca6056711ea52d7aade6b65e0b14afff","status":"DELIVERY_ATTEMPT1_FAILED_AT_START_NOT_ACCEPTED","package_owner":"bos3_crm_impl_completed","package_reviewer":"bos3_candidate_review","package_workspace":"D:/3/BOSDev/qa-scratch/bos3-invoice-pack-20260928","delivery_preparation_owner":"bos3_channel_diagnosis","delivery_reviewer":"start_overview_review","delivery_workspace":"D:/3/BOSDev/qa-scratch/bos3-invoice-delivery-20260928","delivery_window_attempts":1,"post_start_executions":0,"no_automatic_qa_repeat":true},
   "integration_branch": "codex/bos3-prerelease-20260927",
   "integrator_thread_id": "01a0dd56-ca2d-79c0-b159-bde80074a026",
   "prerelease_target": "2026-10-04",
@@ -78,8 +81,8 @@
     "goal_complete": false,
     "max_active_workers": 4,
     "integrator_count": 1,
-    "next_product_card": "B30-INVOICE-CURRENCY",
-    "next_product_status": "INTEGRATED_SCOPED_QA_ACCEPTED_PACKAGING_NEXT",
+    "next_product_card": "B30-INVOICE-DEV8-D-DELIVERY",
+    "next_product_status": "FAILED_START_READ_ONLY_DIAGNOSIS_AND_SEPARATE_RECOVERY_DECISION",
     "owner_blocked_cards": [
       "B30-12-QA-SCOPE",
       "UXD03-WAIT-01"
@@ -94,11 +97,11 @@
       {
         "rank": 1,
         "name": "Актуальный owner-local кандидат",
-        "status": "DONE_SCOPED_DELIVERY",
-        "blocker": null,
+        "status": "BLOCKED",
+        "blocker": "Dev8 official start native1 WinError5 at process receipt replacement; prior dev7 delivery is historical, current availability unconfirmed",
         "decision_owner": "root",
-        "next_action": "Leave exact dev7/d8e121a running; capture/stop/apply/post exit0, official start native exit UNCONFIRMED_WRAPPER_WAIT; no repeat",
-        "evidence": "evidence/uxd02-delivery-20260927/DELIVERY_REVIEW_RU.md"
+        "next_action": "Read-only saved source/receipt diagnosis then separate independently reviewed recovery scope; no automatic retry, post-start or HTTP",
+        "evidence": "evidence/invoice-delivery-20260928/DELIVERY_ATTEMPT1_FAILURE_REVIEW_RU.md"
       },
       {
         "rank": 2,

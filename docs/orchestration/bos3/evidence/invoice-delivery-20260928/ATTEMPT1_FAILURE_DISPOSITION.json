@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "card": "B30-INVOICE-DEV8-D-DELIVERY",
+  "decision": "ROOT_DEV8_D_OWNER_LOCAL_20260928_WINDOW1",
+  "status": "FAILED_AT_OFFICIAL_START_SEQUENCE_STOPPED_NO_RETRY",
+  "capture_native_exit": 0,
+  "official_stop_native_exit": 0,
+  "apply_native_exit": 0,
+  "official_start_native_exit": 1,
+  "post_start_invocations": 0,
+  "post_start_root_HTTP_GETs": 0,
+  "failure": "PermissionError WinError5 os.replace process.json temporary -> process.json at scripts/bos3_local.py:570",
+  "source_metadata": "Rebound from C/d8 to accepted D/60f; apply receipt confirms only source/source_sha256 changed",
+  "protected_aggregate_at_apply": "Unchanged from capture; dfcbaefab3f5a63e929b49f11d2f5425019834c9bad6e66b0a3e4fd3a938efa1",
+  "current_live_process_and_site_availability": "UNCONFIRMED_NO_NEW_PROBE",
+  "ready_receipt": "NOT_PRESENT_IN_ROOT_READ_AFTER_FAILURE",
+  "root_read_after_failure": "Existing process.json temp file names/metadata only; no data or secret read",
+  "diagnostician": "bos3_channel_diagnosis",
+  "independent_reviewer": "start_overview_review",
+  "next_action": "Read-only exact source and existing state/log diagnosis; then independent result and recovery-scope decision",
+  "prohibited_until_separate_decision": ["start repeat", "stop", "kill", "rollback", "recovery", "HTTP", "post-start QA"],
+  "readiness": {"TECHNICAL_READY": false, "PILOT_ALLOWED": false, "MVP": false}
+}

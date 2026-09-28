@@ -1,5 +1,13 @@
 # BoS 3.0: отделы на текущем задании
 
+## Оперативное обновление 28.09: dev8 start failed
+
+Root единственный интегратор D:/3/BOSDev/workspaces/bos3-canonical/repo. Candidate60f/product411, prepared runtime source уже D/60f, но official start native1 (WinError5 process.json); новая доставка не принята, текущая доступность UNCONFIRMED. Capture/stop/apply0, post-start0 запусков. Тот же bos3_channel_diagnosis проводит read-only source/log diagnosis в delivery scratch; start_overview_review независимо принял failure scope и далее проверяет diagnosis. bos3_crm_impl: post-start запрещён до нового exact root решения, сейчас только byte-identical saved evidence packaging в D:/3/BOSDev/qa-scratch/bos3-dev8-failed-delivery-pack-20260928/. Следующий получатель пакета bos3_candidate_review, затем root. Никаких дублирующих implementation/QA поручений, новых start/kill/rollback, browser или уроков.
+
+Предыдущие записи ниже сохраняют историю подготовки, не текущую доступность.
+
+Текущее новое назначение после saved diagnosis: тот же bos3_channel_diagnosis готовит B30-DEV8-ATOMIC-RECEIPT-REPAIR в отдельном D scratch от60f, только scripts/bos3_local.py:atomic_json, новый scripts/test_bos3_local_atomic.py и отчёт/manifest. Reviewer start_overview_review; QA bos3_crm_impl пока не запускает проверки. No runtime/ACL changes, parent problem и attempt1 сохранены. Документальный failed-window пакет отдельно принят bos3_candidate_review и включается root.
+
 27.09.2026. Прямое поручение владельца: найти старое превью, сделать светлый интерактивный старт и перевести отделы на актуальную работу. Это карта исполнителей разработки, не обещание, что все бизнес-отделы продукта уже приняты.
 
 Дополнение по поручению настроить разработку: недельный предел 04.10.2026 23:59 Europe/Berlin; после него только чтение, итог и пауза automation. Порядок и DoD: DEVELOPMENT_WORKFLOW_RU.md. Существующий контролёр 01a0bf0f-a9e4-7631-87e1-bb1aed03f174 ведёт одну native goal, не интегрирует продукт. Новых чатов, целей и расписаний здесь нет.
