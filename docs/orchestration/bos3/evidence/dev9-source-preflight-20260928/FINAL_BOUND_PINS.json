@@ -1,0 +1,24 @@
+{
+  "id":"B30-ATOMIC-DEV9-RECOVERY-FINAL-PINS",
+  "owner":"root",
+  "reviewer":"start_overview_review",
+  "state":"PENDING_INDEPENDENT_FINAL_PIN_REVIEW_NO_EXECUTION",
+  "candidate_commit":"aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+  "source_digest":"e7046ad6e0374d36de33716ffa0152e31330dbf82fab3e24184bf3d573abebe0",
+  "version":"0.3.0-dev.9",
+  "static_review_sha256":"aae464c3c1a6ee492fc6db107ac7abdb63776e634eee2d7b7c02676a319e6c26",
+  "source_result_review_sha256":"ab62e7d8e862caabc876b5e192037d7b88b154fd7cf9e6a86da97b106c452339",
+  "prior_template_manifest_sha256":"a18c10a5059c7d725a1d372d4171dfd553801973898fdab5c200ee4d8d98b6e8",
+  "binding_delta":"Only declared commit/source digest/version/review/root token constants filled. No executable logic changed; preflight receipt hash deliberately PENDING in apply guard until actual independently reviewed preflight.",
+  "scripts":{
+    "recovery_source_prepare_template.py":"5b4cfd06490fe04eeb751738376e7c49c3ad666cda1769f614a6ecddb79a6177",
+    "recovery_official_start_native_exit_template.ps1":"8ff380c2d1b467eee4c97c8e15836215f9f46b7ac509702d1f2236c4689a5b22",
+    "recovery_post_start_template.py":"545174920850e8197589b5377a5d9a740aaad3734108fbac3a032445a0f62fd8"
+  },
+  "root_decision":"ROOT_RECOVERY_DECISION.json",
+  "execution_gate":"Independent exact decision and final pin acceptance, then only one preflight. Apply/start/GET each have separate result gates in root decision.",
+  "current_execution_counts":{"preflight":0,"apply":0,"official_start":0,"post_start_get":0},
+  "problem_consumed":2,
+  "problem_maximum":3,
+  "spent_window1_start":"1/1"
+}

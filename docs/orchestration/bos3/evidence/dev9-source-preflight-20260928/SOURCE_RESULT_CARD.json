@@ -1,0 +1,17 @@
+{
+  "id":"B30-DEV9-SOURCE-RESULT-COLLECTION",
+  "issuer":"root",
+  "owner":"bos3_crm_impl",
+  "reviewer":"bos3_candidate_review",
+  "status":"SOURCE_ONLY_RECEIPT_COLLECTION",
+  "workspace":"D:/3/BOSDev/qa-scratch/bos3-atomic-receipt-recovery-20260928/source-once",
+  "source":"D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo",
+  "commit":"aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+  "manifest_sha256":"1d39d2b329c5a5cfc6706caecaa99e674e40eb14c795cc82d8547851b5a37d00",
+  "scope":"Read-only source metadata/hash collection after one clone0/checkout0; exact clean detached Git head,5declaredfiles+manifest disk-vs-Git hashes,source digest compatible with bos3_local.digest_source,config,alternates dependency and raw receipt hashes",
+  "allowlist":["SOURCE_RESULT.json","SOURCE_RESULT_RU.md"],
+  "prohibitions":"No app imports/test/parser/execution, no runtime/instance/DB/process/port/HTTP, no clone/checkout/config changes or legacy inventory; no arbitrary file writes outside this scratch",
+  "definition_of_done":"Exact source-only receipt and full tracked-file digest, without current runtime claims",
+  "next_recipient":"bos3_candidate_review then root exact recovery binding",
+  "check_in_utc":"2026-09-28T02:45:00Z"
+}

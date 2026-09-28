@@ -1,0 +1,23 @@
+{
+  "id": "B30-RECOVERY-OBSERVATION-DIAGNOSIS-ONCE",
+  "owner": "root",
+  "operator": "root",
+  "reviewer": "start_overview_review",
+  "status": "CONDITIONAL_ONE_READ_ONLY_OBSERVATION_AFTER_DELTA_REVIEW_AND_PIN_BINDING",
+  "classification": "SAME_PROBLEM_READ_ONLY_DIAGNOSIS_OF_SUPPRESSED_SYSTEM_ERROR_NOT_PREFLIGHT_OR_FULL_RETRY",
+  "basis": "Approved owner-local development and diagnosis; actual preflight discarded its inner error. One bounded OS metadata observation is needed to distinguish observation failure from occupied server/port. This is not app, browser, loopback HTTP, DB or lifecycle execution.",
+  "script": "observe_bos3_server_and_port8030_once.ps1",
+  "unbound_script_sha256": "0598b04cfb911db5c87367d34c40a246227bee39c39e4731bb2f54002d40f4ce",
+  "reserved_go": "ROOT_ONE_READ_ONLY_OBSERVATION_20260928",
+  "maximum_invocations": 1,
+  "child_wait_ms": 30000,
+  "stream_wait_ms_each": 5000,
+  "output_directory": "D:/3/BOSDev/qa-scratch/bos3-atomic-receipt-recovery-20260928/observation-diagnosis/observation1",
+  "allowed": ["matching BoS process identities without raw command lines", "port8030 listener identities", "capture native child exit and error text", "new diagnostic evidence files only"],
+  "prohibited": ["app/server/process kill", "start/stop/restart", "preflight replay", "apply", "HTTP/socket connection or bind", "owner private files or DB access", "tests", "init/seed/migrate/reset", "access changes", "automatic retry"],
+  "prior_counts": {"failed_preflight": "1/1", "old_window_start": "1/1", "full_problem_consumed": 2, "full_problem_cap": 3},
+  "result_scope": "Any result requires independent review. It cannot serve as successful preflight, satisfy an apply guard, prove runtime availability, or reset prior limits.",
+  "on_failure_or_timeout": "Retain evidence and stop. No automatic follow-up probe or cleanup of app/server processes. A timed-out diagnostic child is recorded as exit unconfirmed, not completed.",
+  "cutoff": "2026-10-04T23:59:00+02:00",
+  "readiness": {"TECHNICAL_READY": false, "PILOT_ALLOWED": false, "MVP": false}
+}
