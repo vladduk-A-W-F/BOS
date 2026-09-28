@@ -1,0 +1,15 @@
+# D Control-Home: Source And Failed Focused QA
+
+Inactive evidence archive for B30-D-CONTROL-HOME-AUTHORITY-INSTALL, prepared on documentation base `00607be24a608e481efa4437408e7b338fcafe93` by sole integrator root. Owner authorized installation and working-state transfer to D; actual installation has not occurred.
+
+Product-source static review `21c32c1a7835002c55e2d14eec9bea269d29c36a02ed73a53f9b4d497868ac67` accepted core and consumers for bounded QA preparation. Test cleanup and child-launch isolation were separately reviewed. Exact once-only admission `3f47365b8eb806f86a10c08c5b4a3598da3418b95045aed8c72af3d457800fd1` was accepted by independent review `9b495097393fa1c924e9aa50f215ffeb7b695e4aaf718995001bcc54da044fb8`.
+
+One authorized guard invocation returned native exit2; first authority group returned1. The first case failed in setUp when scratch junction creation returned `The syntax of the command is incorrect.` No test body completed. The remaining12 authority methods and all9 consumer methods were NOT_RUN. Independent result review `05f1d094466ff62502c69c4e17e681696b61beb7e350d53557c28d72ff45045e` confirms FAIL_SETUP, not a proven product regression. Exact root cause is not established by the raw failure.
+
+The scoped attempt1/1 is spent, no automatic repeat is authorized. Two transition-specific ledger methods were excluded because unspent historical budget was not established. Ledger transition, operation phase-fault QA, global quiescence, prepared/final migration receipts and live installation remain open. Source acceptance and the failed setup do not prove complete guard behavior or application readiness.
+
+All archived source files are inactive. Original test/runner paths are intentionally source-bound to the private scratch workspace; this archive is not an alternative execution location. Historical cards and superseded manifests are preserved as evidence, not current assignments. PACKAGE_MANIFEST.json records source-to-archive byte hashes; scoped Git attributes prevent newline conversion of accepted evidence. No credentials, real application data or live control ledger was copied.
+
+Product dev9 remains `6b3aab22b3f8254d5f65846f54ceeed7049e1ddf`; immutable runtime candidate remains `aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975`, not delivered. Current app availability remains unconfirmed after the failed dev8 transition. This archive does not extend C64 Windows diagnostic admission or any historical caps. TECHNICAL_READY/PILOT_ALLOWED/MVP=false.
+
+The original author completed narrow source-only diagnosis in QA_SETUP_DIAGNOSIS_RU.md. It records an unproven command-line parsing hypothesis, not an accepted root cause or justified corrective diff. No source change followed. Additional execution needs a separately valid exact diagnostic admission; a changed file, card, agent or directory does not reset1/1. Root retains this new gate for the owner rather than replaying the failed test. Runtime and installation remain blocked by their own evidence gates. Existing weekly heartbeat and cutoff04.10.2026 23:59 Europe/Berlin are unchanged.

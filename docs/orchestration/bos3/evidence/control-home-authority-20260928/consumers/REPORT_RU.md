@@ -1,0 +1,23 @@
+# B30-D-CONTROL-HOME-CONSUMER-INSTALL-SOURCE
+
+Статус: `CLEANUP_R2_SOURCE_PREPARED_PENDING_INDEPENDENT_REVIEW`. Исходный пакет сохранён в `consumers/review-round1`, пакет до R1-T1 в `consumers/review-r1`. Product source принят для bounded QA preparation вердиктом `IMPLEMENTATION_REPAIR_R1_REVIEW_RU.md` SHA-256 `21c32c1a7835002c55e2d14eec9bea269d29c36a02ed73a53f9b4d497868ac67`; это только static source, не QA или установка. Текущий R2 исправляет исключительно test cleanup R1-T1 и требует отдельного независимого delta review.
+
+## Входы и изменение
+
+Семь исходных файлов прочитаны и сверены по SHA-256 с `SOURCE_BASES.json` и карточкой. `bos_flow.py`, три wrapper и `test-codex-channel.py` взяты из принятых staged-источников commit `00607be24a608e481efa4437408e7b338fcafe93`. `local_flow.py` и `repo_health.py` взяты из закреплённых live setup-файлов без их изменения. Точные входные и результирующие SHA-256 записаны в `MANIFEST.json`.
+
+- `bos_flow.py` читает exact setup `local_flow.py` через проверенный Windows handle; он продолжает использовать существующий setup flow, затем берёт `bos_dev` и `codex_channel` только из фиксированного D tools через его loader. Обычный import search и чужой `sys.modules` для этих модулей не принимаются. CLI проверяет authority до чтения policy/index; `refresh` и `handoff` также используют общий resolver.
+- `local_flow.py` и `repo_health.py` открывают fixed D provider с native no-follow flag, проверяют родителей, тип, hardlink count и fstat identity до исполнения считанных bytes. Они вызывают resolver до state/snapshot/Git/output-эффектов и далее используют один D lock. `repo_health.collect` больше не деградирует никакую ошибку второго resolver/lock/local-input этапа до пустых входов и отчёта.
+- `bos.ps1`, `bos-flow.ps1`, `start-workday.ps1` по умолчанию передают D home; явно выбранный C alias передают без подмены resolver. Coordinator path закреплён на D. Сохранён `finally` cleanup `PGPASSWORD` и исправление конфликта PowerShell `$Home`. `start-workday` записывает startup evidence только после подтверждённого coordinator status: отказ authority не создаёт output-файл; при последующем PG/app failure прежняя ветка evidence остаётся.
+- Оба test source до импорта делают deterministic scratch copies core/provider и channel; пять core path literals и consumer root/home literals заменяются только с count=1, исходный и результирующий SHA вычисляются отдельно. Новый focused consumer suite готовит origin/cache/missing/hardlink/reparse, второй authority этап, output refusal и wrapper home forwarding. Windows symlink fixture даёт явный SKIP, если её создание недоступно, не PASS. `refresh` получает явный fake factory и patched state-lock refusal. Это подготовка тестов, не результат выполнения. Исторический receiver event `00607` не тронут.
+- R2: общий `guarded_cleanup` используется обоими test sources. `TemporaryDirectory` finalizer отключается сразу после создания; explicit `tearDown` и legacy `atexit` проходят через тот же guard. Перед recursive cleanup он проверяет фиксированный parent/prefix, saved native identity parent/root, resolved containment и отсутствие reparse в дереве, затем повторяет корневую проверку. Любой отказ сохраняет fixture и запрещает внешнему legacy cleanup позднее удалить вложенный отказ. В тесте reparse удаляется только известный exact file-symlink leaf `control-home/tools/bos_dev.py`, после проверки его родителей; остальные reparse вызывают отказ без обхода.
+
+## Проверка и ограничения
+
+Разрешены были только чтение закреплённых исходников, SHA-256 и текстовая проверка. Exit code 0 для чтения/hash команд. `MANIFEST.json` содержит результат восьми файлов. Helper/test/import/AST/parser/compile/`--help`/live state/network/AppTools/process/resource/policy/install выполнялись **0** раз; тесты **NOT_RUN**. Указанные тесты сами по себе не подтверждают физический Windows junction/lock.
+
+`provider_binding` теперь содержит точные SHA core, принятые независимым R1 только как `ACCEPTED_STATIC_SOURCE_NOT_INSTALLED`. До bounded QA нужен независимый delta review R2 cleanup и точный admission runner. Исторический полный channel suite автоматически не повторять; только согласованный адресный набор с учётом лимитов. Phase-fault и физические Windows junction/two-process lock проверки остаются отдельными gates, не PASS этого пакета. Дальнейший cutover и состояние ACTIVE принадлежат root.
+
+Известный сдвиг output при отказе coordinator status в `start-workday`: startup evidence не записывается, так как источник отказа может быть authority; stdout с неуспешным status остаётся. При status success и поздней ошибке поведение evidence сохранено.
+
+`TECHNICAL_READY=false`; `PILOT_ALLOWED=false`; installation и migration acceptance не подтверждены.

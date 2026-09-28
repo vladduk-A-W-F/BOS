@@ -1,0 +1,129 @@
+{
+  "schema": "bos3.control-home-focused-qa-admission/v1",
+  "card": "B30-D-CONTROL-HOME-FOCUSED-QA-ATTEMPT1",
+  "operator": "root",
+  "status": "EXACT_SCOPE_REQUIRES_EXTERNAL_FINAL_ACCEPTANCE",
+  "base_commit": "00607be24a608e481efa4437408e7b338fcafe93",
+  "maximum_invocations": 1,
+  "executions_before_this_attempt": 0,
+  "automatic_retry": false,
+  "runner_sha256": "f75b6d682040cb4e02764959d3747c16182deacb1b7bc401d2bb5801ac5bb4ab",
+  "groups": {
+    "source/staged/test-control-home-authority.py": [
+      "AuthorityTests.test_active_default_alias_and_target_share_identity",
+      "AuthorityTests.test_missing_prepared_and_invalid_authority_refuse",
+      "AuthorityTests.test_missing_tampered_and_cross_drive_receipts_refuse",
+      "AuthorityTests.test_receipt_acceptance_must_bind_generation_and_hash",
+      "AuthorityTests.test_missing_or_tampered_acceptance_refuses",
+      "AuthorityTests.test_unlisted_and_escaping_names_refuse",
+      "AuthorityTests.test_missing_ledger_or_lock_refuses_before_transport",
+      "AuthorityTests.test_invalid_ledger_refuses_before_transport",
+      "AuthorityTests.test_existing_lock_is_not_recreated_by_init",
+      "AuthorityTests.test_replaced_lock_identity_refuses",
+      "AuthorityTests.test_generation_change_after_byte_acquisition_releases_lock",
+      "AuthorityTests.test_hardlink_state_and_reparse_root_refuse",
+      "AuthorityTests.test_two_processes_compete_for_one_byte_lock"
+    ],
+    "consumers/staged/test-control-home-consumers.py": [
+      "ConsumerAuthorityTests.test_exact_scratch_origin",
+      "ConsumerAuthorityTests.test_missing_provider_never_uses_setup_fallback",
+      "ConsumerAuthorityTests.test_missing_channel_never_uses_setup_fallback",
+      "ConsumerAuthorityTests.test_foreign_cached_provider_refused",
+      "ConsumerAuthorityTests.test_hardlinked_provider_refused",
+      "ConsumerAuthorityTests.test_reparse_provider_refused_when_fixture_available",
+      "ConsumerAuthorityTests.test_second_authority_failure_has_no_health_output",
+      "ConsumerAuthorityTests.test_flow_refusal_precedes_explicit_fake_transport",
+      "ConsumerAuthorityTests.test_local_flow_selected_home_output_refusal"
+    ]
+  },
+  "independent_review": {
+    "relative_path": "QA_GUARD_REPAIR_REVIEW_RU.md",
+    "sha256": "0af287d575b0e09abc7424268b06ca89d22fe4e2323fab96dc37e7eb770caae4",
+    "scope": "Accepted guard-source dependency only, not the final execution verdict"
+  },
+  "pins": {
+    "source/staged/bos_dev.py": "5baafc5d84a6fbc65ce65602206b27af44e17143b85affb3aeca3683e09d0b44",
+    "source/staged/codex_channel.py": "40c87c417ac0a7e56725472b471bb6003f850dc8ad3873b1732cff16d6e3c02a",
+    "source/staged/test-control-home-authority.py": "e150232e750b7e1af28861981eaaaf47dc25b147820a62741cc9852f2920dfe5",
+    "consumers/staged/bos_flow.py": "0687da0606dc86431e1c034fcfddc03970bd2c716e6523ab5834581372aba274",
+    "consumers/staged/local_flow.py": "d4185d4f885cf9060b34775b2cc96bf662a4b0857ea7319326f14026ea522853",
+    "consumers/staged/repo_health.py": "cb4f52a6a7827ddee0dd59bc4e567324356717d8e8935f76b4628e7e6ad2d5c8",
+    "consumers/staged/bos.ps1": "4dd3667c776de6cc23d0af8e97444936c7e9dc87f1370ce7f524aeaef3729d12",
+    "consumers/staged/bos-flow.ps1": "8fe945c93e1e05d6b92952a53ff60ab082e20590c520a223fe0697976449af20",
+    "consumers/staged/start-workday.ps1": "5c7999fd1eb238880b9f83bc553d9ab769e45823330869ec6df827be1e70d779",
+    "consumers/staged/test-codex-channel.py": "d93c6bc79f63aac6e020d4cab28fc856f3a31335492e69fb194c61cca86bcd66",
+    "consumers/staged/test-control-home-consumers.py": "97185036cb83f0ff7a72235b7785a28d2ddd3813275c0ae3cb136394e95c4a53",
+    "source/MANIFEST.json": "b29c8a28afb6f592c9ba520bc4efa39fe946212627e9da51ef18f87ca0ea7ee0",
+    "consumers/MANIFEST.json": "3b684264bf6c3ae1825c8bbdd2ce9bd8e28e9618d1cdd04abd900f60a3253ec9"
+  },
+  "external_execution_gate": {
+    "required_file": "FINAL_QA_ADMISSION_REVIEW_RU.md",
+    "required_verdict": "ACCEPT_EXACT_ONCE_SCOPED_QA_INVOCATION",
+    "must_bind": "Exact SHA256 of this complete admission, final runner, consumer cleanup delta and all selected input pins; root verifies before any invocation. The review is intentionally outside this file to avoid a self-referencing hash.",
+    "without_verdict": "NO_EXECUTION"
+  },
+  "problem_classification": {
+    "selected": "NEW_AUTHORITY_ESTABLISHMENT_AND_CONSUMER_FAIL_CLOSED_INTEGRATION",
+    "new_failure_modes": [
+      "ACTIVE/PREPARED/SUSPENDED/missing/forged anchor and receipt binding",
+      "Physical alias/root/lock identity and generation change under byte lock",
+      "Existing lock not recreated and native scratch two-process exclusion",
+      "Exact provider/channel origin, missing fallback, cache, hardlink/reparse refusal",
+      "Consumer authority failures precede output/fake transport and selected-home state access"
+    ],
+    "not_selected_same_problem": [
+      "Transferred duplicate/UNCONFIRMED/SENDING/opaque ledger semantics",
+      "Incomplete relevant ledger record semantics",
+      "CLI-self public target ordering",
+      "Historical full channel suite, wrapper static source repeat and EOF"
+    ],
+    "historical_channel": "Prior 8/10/11 method logs preserved. No claim of unspent historical suite budget; two transition-specific ledger methods deliberately excluded. Transfer-ledger QA remains NOT_RUN and an installation gate."
+  },
+  "attempt_accounting": {
+    "problem_id": "CONTROL_HOME_AUTHORITY_NEW_NATIVE_ESTABLISHMENT",
+    "initial_scoped_invocations": 0,
+    "approved_maximum": 1,
+    "counts_even_on": "Python/guard startup error, job-assignment refusal, test setup error, SKIP-only result, timeout, lost receipt or any native execution error",
+    "direct_child_groups_maximum": 2,
+    "selected_methods_maximum": 22,
+    "native_fixture_children": "Each authority setup creates a scratch junction with cmd mklink /J; one selected method creates another scratch junction; two-process lock method uses two sequential pinned Python child calls. These are additional descendants, not merely two total processes.",
+    "on_failure": "Preserve marker/fixtures/output, stop; no automatic retry or new ID resets"
+  },
+  "resource_scope": {
+    "classification": "Lightweight standard-library synthetic QA, one local job, sequential groups; no application, DB, browser, build or storage inventory",
+    "time_budget": "60 seconds shared test wait plus at most3 seconds direct-child teardown wait and local evidence IO",
+    "resource_observation": "No new RAM/process probe; no measured capacity or hard filesystem latency claim"
+  },
+  "preserved_caps": {
+    "P05_full_PG_E2E": "3/3",
+    "fixture": "3/3",
+    "progress_node_exception": "1/1",
+    "storage_whole_inventory": "3/3",
+    "storage_parser": "1/1",
+    "runtime_preflight": "1/1",
+    "runtime_diagnostic": "1/1 refused before body",
+    "old_runtime_start_window": "1/1",
+    "runtime_problem": "2/3",
+    "A09_A10_A11": "unchanged"
+  },
+  "allowed_writes": [
+    "qa-attempt1 create-new marker/raw logs/result",
+    "source-bound synthetic authority and consumer fixtures inside this exact scratch workspace; guarded cleanup only"
+  ],
+  "forbidden": [
+    "Live home/state/credentials and real channel transport",
+    "Application/runtime/HTTP/browser/DB/lifecycle",
+    "C64 policy/process/listener diagnostics or replay",
+    "Installation, setup/MCP config or scheduler changes",
+    "Historical successful-suite reruns or automatic retries",
+    "Post-cutoff changes"
+  ],
+  "remaining_gates": [
+    "Independent raw-output review, with each actual method and SKIP accounted separately",
+    "Ledger transition QA evidence not supplied by this invocation",
+    "Operation phase-fault QA",
+    "Verified global quiescence and prepared/final migration acceptance",
+    "Runtime C64 owner decision remains independent"
+  ],
+  "cutoff_utc": "2026-10-04T21:59:00Z"
+}

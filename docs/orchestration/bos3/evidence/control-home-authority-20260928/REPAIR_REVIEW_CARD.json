@@ -1,0 +1,33 @@
+{
+  "id": "B30-D-CONTROL-HOME-IMPLEMENTATION-REPAIR-REVIEW-R1",
+  "issuer": "root",
+  "owner": "/root/bos3_d_migration_review",
+  "authors": ["/root/bos3_channel_test_sol", "/root/bos3_d_consumers"],
+  "workspace": "D:/3/BOSDev/qa-scratch/bos3-control-home-install-20260928",
+  "base_commit": "00607be24a608e481efa4437408e7b338fcafe93",
+  "profile": "critical",
+  "requested_model": "gpt-6-astra",
+  "requested_effort": "high",
+  "observed_model": "UNCONFIRMED",
+  "reason": "Same independent reviewer closes consequential authority/import/ledger/isolation findings on exact changed source",
+  "allowlist": ["IMPLEMENTATION_REPAIR_R1_REVIEW_RU.md"],
+  "prior_review_sha256": "653245012090042f9a30890486b41b49248d33fc3ba0e571df86f80ec511e56e",
+  "source_manifest_sha256": "b29c8a28afb6f592c9ba520bc4efa39fe946212627e9da51ef18f87ca0ea7ee0",
+  "consumer_manifest_sha256": "04f6db2473aa8976f4a5a19db1ea9c9675bffd971039e2b6fa96400439f94031",
+  "root_binding": {
+    "bos_dev_py_sha256": "5baafc5d84a6fbc65ce65602206b27af44e17143b85affb3aeca3683e09d0b44",
+    "codex_channel_py_sha256": "40c87c417ac0a7e56725472b471bb6003f850dc8ad3873b1732cff16d6e3c02a",
+    "authority_test_sha256": "e150232e750b7e1af28861981eaaaf47dc25b147820a62741cc9852f2920dfe5",
+    "consumer_test_sha256": "eaa21b27a5529105c1454120397c3bf3d65ae06e1b517fcdd0013568fa7e32fd",
+    "note": "Exact dependencies for this joint review, not an assertion of prior acceptance; consumer author keeps PENDING_ACCEPTED_CORE_PINS honestly"
+  },
+  "review_scope": ["Actual diff against source/review-round1 and consumers/review-round1", "F1-F5 closure and new regressions", "Safe exact loader and authority error/ledger behavior", "Both tests scratch-origin and cleanup containment, explicit fake transport and no live default routes", "Separate core/consumer test-source acceptance from still missing phase-fault/operation QA and live quiescence"],
+  "authorized_checks": ["Text/diff/hash", "JSON data parsing"],
+  "forbidden": ["Edits of reviewed source", "Code/helper/test/import/parser/compile execution", "Live state/probes/transport/install", "Model review of unchanged already accepted design bytes merely to repeat verdict"],
+  "definition_of_done": "Exact independent closure/findings verdict, identify test methods eligible for later bounded execution proposal; no execution admission or full migration acceptance",
+  "check_in_utc": "2026-09-28T08:10:00Z",
+  "next_recipient": "root then original authors or exact bounded QA admission preparation",
+  "status": "READY_FOR_EXACT_INDEPENDENT_REVIEW",
+  "root_hash_correction": "One omitted a in author authority-test hash, corrected from actual Get-FileHash without source/test edits. Original R1 manifest/report preserved alongside corrected evidence; reviewer must independently verify.",
+  "executions": 0
+}

@@ -1,0 +1,35 @@
+{
+  "schema": "bos3.control-home-core-source/v1",
+  "card": "B30-D-CONTROL-HOME-CORE-INSTALL-SOURCE",
+  "status": "SOURCE_ONLY_PENDING_INDEPENDENT_REVIEW",
+  "base_commit": "00607be24a608e481efa4437408e7b338fcafe93",
+  "interface_sha256": "fe0401c9aca5a1f57a5e10b4381d9fc6d53544169ac790ad7ecf6c305e56621d",
+  "design_review_sha256": "e0f12968cbc3d8f0049d186191f34c141fa31033984bbb935dde40dab3847367",
+  "source_bases_sha256": "0de112a66fd94aa369f4a6e7e2fcbbdceed0289eec021432366fd3ca6674732d",
+  "inputs": {
+    "bos_dev.py": "9953e621190dbf70b65955afee473f46969347a292cd2bf63f929bcf3e3d7c53",
+    "codex_channel.py": "371a02a413477de65186adcb53cfdf7d99c428b1c4dea81eef77494fe76f9235"
+  },
+  "outputs": {
+    "staged/bos_dev.py": "5dcd90483a5857fc306002f106a0274b33017049758ebe1926d852b68d099699",
+    "staged/codex_channel.py": "a02012a1d826bacf7ceb9d19e0ff81fad69cb588bdbb28d1a1ed1a85f9d97040",
+    "staged/test-control-home-authority.py": "ed9bc1c41f871321d7761f8075494ed851cef4312e1e2640bbb76710d5afc191"
+  },
+  "implementation_contract": {
+    "native_identity_encoding": "GetFileInformationByHandle volume serial as 8 lowercase hex digits; 64-bit file index as 16 lowercase hex digits",
+    "acceptance_binding_field": "migration acceptance JSON must have verdict=ACCEPT_MIGRATION_COMMIT, generation, prepared_receipt_sha256 equal to anchor prepared_receipt.sha256",
+    "resolver": "ACTIVE anchor, digest-matched receipts, exact C junction, D root and permanent lock identities, regular single-link state files, required schema checks; no fallback",
+    "lock": "existing r+b one-byte lock; authority rechecked after byte acquisition; no runtime creation",
+    "channel": "public and CLI home/target/argument/ledger preflight before AppTools; locked ledger revalidation; no empty-ledger bootstrap"
+  },
+  "execution": {
+    "source_imports": "NOT_RUN",
+    "tests": "NOT_RUN",
+    "compile_or_parser": "NOT_RUN",
+    "native_junction_or_process": "NOT_RUN",
+    "live_state": "NOT_READ",
+    "transport": "NOT_RUN",
+    "executions": 0
+  },
+  "boundary": "Prepared source in a separate copy. No installation, ACTIVE authority, runtime acceptance or QA PASS."
+}
