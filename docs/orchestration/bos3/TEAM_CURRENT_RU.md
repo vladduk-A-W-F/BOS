@@ -6,6 +6,20 @@
 
 ## Текущая работа настройки
 
+28.09.2026: root01a0dd56 единственный интегратор в `D:/3/BOSDev/workspaces/bos3-canonical/repo`, branchcodex/bos3-prerelease-20260927. OldC1051/WIP/runtime сохранены. Native attachmentC не означает право писать в старую копию; shared objects D:/3/BOSDev/repo/.git/objects сохраняются.
+
+| Карточка | Владелец и reviewer | Состояние / следующий шаг |
+| --- | --- | --- |
+| B30-INVOICE-CURRENCY | author01a0be9f завершён; root интеграция; bos3_candidate_review | Code9f7/evidence906 -> integratedc00c60a, ACCEPT_SCOPED_ATOMIC_INTEGRATION. Следом D-only кандидат/review; runtime покаd8 |
+| Invoice QA | bos3_crm_impl завершено, evidence сохранено; start_overview_review результат | Одинrun1,2/2native0, ACCEPT_SCOPED_RUN1; не повторять |
+| D continuation | bos3_channel_diagnosis; start_overview_review | Завершено: soleDsource назначен, all16 не обязательный predecessor |
+| Bounded syntax | bos3_channel_diagnosis QA; start_overview_review | FAILED_BEFORE_TARGET_PARSE_CONSUMED_1_OF_1: native1, Get-FileHash unavailable, parsed0. Не повторять, root сохраняет blocker |
+| Legacy storage | root; независимые reviewers | Ресурсный NO-GO719/2048MiB, inventory3/3, relocation0. Producer/consumers приняты статически; повторных авторских задач нет |
+
+Все завершённые роли освобождены. B30-12 и UXD03-WAIT сохраняют прежние owner gates. Следующее исполнимое направление: подготовка кандидата и доставки invoice на D. Source/docs/runtime pins раздельны; новой доставки или browser-приёмки пока нет.
+
+### История до D-интеграции
+
 20:28 UTC: текущий QA owner снова bos3_crm_impl, только D-only repair по независимым findings (NOT_READY_FOR_RUN); start_overview_review принимает новую ревизию, root не запускает прежнюю. Fresh adapter doctor exit0 подтвердил каталог, но observer receipt пока не получен и прежнее сообщение не повторяется. Product и runtime неизменны.
 
 20:25 UTC: bos3_crm_impl завершил guarded static QA revision в D-scratch; следующий владелец start_overview_review, затем root classification. Ни один тест/import/setup не выполнен. Writer остаётся completed на906; новой C-write задачи нет. Root завершает один documentary checkpoint перед дальнейшей storage preparation.

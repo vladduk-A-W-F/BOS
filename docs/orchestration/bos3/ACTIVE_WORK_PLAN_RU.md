@@ -6,6 +6,18 @@
 
 ## Настройка разработки и следующий шаг
 
+### Актуально 28.09.2026: интеграция на D
+
+Единственная активная integration-копия: `D:/3/BOSDev/workspaces/bos3-canonical/repo`, ветка `codex/bos3-prerelease-20260927`. Clone/checkout по одному разу native0, независимо принято. OldC1051/WIP/runtime сохранены. Shared objects `D:/3/BOSDev/repo/.git/objects` нельзя удалять: новая копия не является независимым backup. Перенос всех16 legacy-копий не завершён и не блокирует обычную работу с committed source на D.
+
+B30-INVOICE-CURRENCY интегрирован как `c00c60aad0c4f8e70251da3c7174ed105089198b`: четыре точных blobs author9f7/evidence906, без повторного теста. Reviewer bos3_candidate_review подтвердил применимость к1051 и итоговый commit: ACCEPT_SCOPED_ATOMIC_INTEGRATION. QA run1 на906 ранее дал2/2/native0, attempt1/3, принят start_overview_review. Это исправление множества валют финансовой сводки, не payment/DB/browser/learning доказательство. Evidence: `evidence/invoice-integration-20260928/`. Следующий владелец root: минимальный новый кандидат на D, независимая упаковка/review, затем обычная owner-local доставка по standing policy.
+
+Установленный продукт остаётся dev.7: productd346, immutableruntimed8. Official start native exit UNCONFIRMED_WRAPPER_WAIT; прежний exactHTML/aggregate receipt не является новой проверкой доступности. Invoice-дельта ещё не доставлена. TECHNICAL_READY/PILOT_ALLOWED/MVP=false.
+
+Legacy B30-STORAGE-D: последняя ресурсная проверка719MiB при пороге2048MiB, inventory3/3. Copy/alias/runtime relocation0, автоматических повторов нет. Bounded helpers приняты только статически. Единственный отдельный parser-only QA завершился native1 до разбора targets: Get-FileHash недоступен в child; parsed0, receipt отсутствует. start_overview_review: FAILED_BEFORE_TARGET_PARSE_CONSUMED_1_OF_1. Это отдельный инфраструктурный blocker, не продуктовый FAIL; повторов нет. Точный внешний журнал: `POST_CHECKPOINT_OPERATIONAL_DELTA.json` в D release-пакете. B30-12-QA-SCOPE и UXD03-WAIT-01 сохраняют прежние owner gates, вопросы не повторяются.
+
+### История до D-интеграции, не текущие назначения
+
 ### Актуально после доставки dev.7
 
 20:28 UTC: guarded QA revision вернулась NOT_READY_FOR_RUN: неполный запрет filesystem/network mutations, pin9f вместо clean906, завышенное описание empty-row assertions. Тот же bos3_crm_impl исправляет только D scratch, затем отдельный reviewer; executions0. Это не дефект повторного исполнения: запусков ещё не было. Invoice product/evidence остаётся статически принятым, не интегрированным. Read-only channel doctor впервые после восстановления native связи вернул exit0 и все три exact control tools в свежем каталоге; это не доставка прежнего сообщения и не разрешение его повторять. Raw probe: D:/3/BOSDev/evidence/storage-d-20260927/root/CHANNEL_CATALOG_PROBE.json.
