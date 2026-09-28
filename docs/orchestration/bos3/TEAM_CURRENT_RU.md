@@ -10,6 +10,8 @@
 
 | Карточка | Владелец и reviewer | Состояние / следующий шаг |
 | --- | --- | --- |
+| B30-INVOICE-PACK-DEV8 | bos3_crm_impl завершён; bos3_candidate_review | Package411e222 и exact manifest9286497 приняты, без rebuild/QA; root закрепляет immutable source |
+| B30-INVOICE-DEV8-D-DELIVERY-PREP | bos3_channel_diagnosis; start_overview_review | Полная guarded процедура для будущего D runtime, finalpins PENDING, execution0; только scratch |
 | B30-INVOICE-CURRENCY | author01a0be9f завершён; root интеграция; bos3_candidate_review | Code9f7/evidence906 -> integratedc00c60a, ACCEPT_SCOPED_ATOMIC_INTEGRATION. Следом D-only кандидат/review; runtime покаd8 |
 | Invoice QA | bos3_crm_impl завершено, evidence сохранено; start_overview_review результат | Одинrun1,2/2native0, ACCEPT_SCOPED_RUN1; не повторять |
 | D continuation | bos3_channel_diagnosis; start_overview_review | Завершено: soleDsource назначен, all16 не обязательный predecessor |
