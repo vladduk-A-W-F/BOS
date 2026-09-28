@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "date": "2026-09-28",
+  "version": "0.3.0-dev.9",
+  "status": "SCOPED_ATOMIC_RECEIPT_QA_ACCEPTED_INTEGRATION_PENDING_DELIVERY",
+  "future_repository_path": "docs/orchestration/bos3/ATOMIC_DEV9_CANDIDATE.json",
+  "product_commit": "6b3aab22b3f8254d5f65846f54ceeed7049e1ddf",
+  "product_tree": "e8e6257d8120cb5960697787d2300733a46c766a",
+  "failed_prepared_baseline": "60f1e31fca6056711ea52d7aade6b65e0b14afff",
+  "runtime_prepared_source": "D:/3/BOSDev/workspaces/bos3-runtime-dev8/repo at 60f1e31fca6056711ea52d7aade6b65e0b14afff",
+  "hash_kind": "GIT_BLOB_BYTES_SHA256",
+  "hash_boundary": "Artifact SHA-256 values below hash exact Git blob byte streams at product_commit. They are not checkout-file hashes, do not normalize line endings, and do not prove a deployed runtime.",
+  "non_orchestration_runtime_delta": [
+    {"path":"README.md","sha256":"6ddbbd67f7eb978bee436f936501acca4287e31e651fa9d7763a5df2a8e573f9","bytes":5463},
+    {"path":"README_UA.md","sha256":"4532a7aad23c57aa714dde908d74dafd3f84fa1fbaf666ba1b1cfb83f387a829","bytes":16098},
+    {"path":"boss_project/version.py","sha256":"d980c5408b53854e08ed32707dd8187fe030a27395f43211b2475533432b3d6d","bytes":24},
+    {"path":"scripts/bos3_local.py","sha256":"6483cc03bb7ea8fbf4e15a4b52c881b14ef0d8005cd0b16bafdf6455fa4c79da","bytes":32535},
+    {"path":"scripts/test_bos3_local_atomic.py","sha256":"8b953ad4bfe8430e4da8e2b81c59105be116ae4364caf0b5d006409159264a1c","bytes":5132}
+  ],
+  "delta_scope": "dev.9 metadata plus bounded atomic receipt replacement. It does not add payment, persistence, policy, endpoint, lesson, browser, migration or delivery behavior.",
+  "historical_invoice_currency_qa_retained_not_rerun": {
+    "classification": "NEW_INVOICE_CURRENCY_UNIVERSE_GUARDED_DJANGO_SIMPLETESTCASE",
+    "attempt": "1/3",
+    "native_exit": 0,
+    "source_commit": "906f678a4c8f045deb03489f6566af66086e9120",
+    "source_parent": "9f7d50cc39c6d1fdfe19025e1789d54a2176535d",
+    "experience_sha256": "db613bacaecd2b60c3656042d52016a6c692865115176e0cc473a24c66a2702b",
+    "test_module_sha256": "cc2bf7f029e10c2277e3f902d7171d0e1eda5c6011ec448a794e559c0587a1e2",
+    "harness_sha256": "9a56b1b47a6084501a9f8a0cc8ce022df435886737e2287bcf3fdec58ce18268",
+    "receipt_path": "docs/orchestration/bos3/evidence/invoice-integration-20260928/qa/run1/receipt.json",
+    "proved": ["invoice-only USD financial totals in home(snapshot)", "empty snapshot EUR receivable/paid fallback"],
+    "not_proved": ["database persistence", "payments", "HTTP or browser", "policy or endpoints", "runtime delivery", "lessons/progress", "overall readiness"]
+  },
+  "accepted_atomic_receipt_synthetic_qa": {
+    "classification": "SAME-PROBLEM_START_RECEIPT_REPLACEMENT_FAILURE",
+    "problem_attempt": "2/3",
+    "official_start_window": "1/1",
+    "native_exit": 0,
+    "methods": 5,
+    "duration_seconds": 0.447,
+    "source_sha256": "6483cc03bb7ea8fbf4e15a4b52c881b14ef0d8005cd0b16bafdf6455fa4c79da",
+    "test_sha256": "8b953ad4bfe8430e4da8e2b81c59105be116ae4364caf0b5d006409159264a1c",
+    "manifest_sha256": "1c4ba522ae217aafb7c18d8bcc41d8f5392117a6f9a5ce00546d019e58ed7c8b",
+    "prior_oracle_review_sha256": "35b8ac461eb023c7cf70b0748d9ceb034fc57dedc74a945d24b99a4a4671004e",
+    "receipt_path": "docs/orchestration/bos3/evidence/atomic-receipt-repair-20260928/run1/RECEIPT.json",
+    "receipt_sha256": "2e75b76dc22bb12e6c0f098b5fd1ef1e5fa3ca34df9d59d568e62c9b2ff73455",
+    "stderr_path": "docs/orchestration/bos3/evidence/atomic-receipt-repair-20260928/run1/stderr.raw.txt",
+    "stderr_sha256": "84c93f4e02a51722d9424b8c3282717d5da65ff7c7ca1891c3ab1abba2fa6bcf",
+    "proved": ["injected WinError 5 and 33 retry behavior", "same temp-file reuse", "persistent denial stops at three", "unrelated errors propagate", "exact synthetic JSON replacement"],
+    "not_proved": ["historical OS lock attribution", "live Windows file-sharing behavior", "lifecycle", "delivery", "runtime availability", "overall readiness"]
+  },
+  "unchanged_dev7_assets_not_rerun": [
+    {"path":"assets/app.js","sha256":"51732f2f359ac0155a9ff0e0d041ed2b6941bf23329c02adf72855b2628fd59e","bytes":1272362,"basis":"same Git blob at failed_prepared_baseline and product_commit; no frontend generation or browser QA rerun"},
+    {"path":"docs/BoS_3_0_Start_UA.pdf","sha256":"048d8488798ab0151fa2c787106f46e4aba8fc25cc754ab44d65ce505b142e8c","bytes":96140,"basis":"same Git blob at failed_prepared_baseline and product_commit; unchanged dev.7 guide, no PDF regeneration/render/QA rerun"},
+    {"path":"docs/BoS_3_0_Start_UA.manifest.json","sha256":"9d13ceef684c8f4eb97108e6fdad1e3a31cfd542a87a52971ac6987beeafd111","bytes":259,"basis":"same Git blob at failed_prepared_baseline and product_commit; unchanged dev.7 PDF manifest"}
+  ],
+  "delivery": "PENDING_AND_UNCONFIRMED; the product commit and accepted synthetic QA do not repair or supersede the failed dev.8 delivery window.",
+  "readiness": {"technical_ready":false,"pilot_allowed":false,"mvp":false},
+  "applicability": {"not_rerun":["invoice QA", "atomic QA", "frontend build", "PDF generation/render", "browser", "runtime delivery"],"preserve":["all 11 gates", "dev.7 UI/PDF boundary", "failed delivery evidence and attempt caps"]}
+}
