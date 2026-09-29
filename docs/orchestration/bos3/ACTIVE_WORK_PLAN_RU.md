@@ -6,7 +6,13 @@
 
 ## Настройка разработки и следующий шаг
 
-### Актуально 29.09.2026: исходник установщика
+### Актуально 29.09.2026: продолжение плана после публикации
+
+Прямое поручение владельца «продолжай разработку согласно плану и обнови на каком мы сейчас этапе и как идет» проверено по native message01a0eec9-aa90-75e0-9003-f7def11ca5e5. Исходник установщика уже опубликован в9638dce228070cef6384eebe96e3f86be237faf0, package review621aa11d принят, observer подтвердил exact archive. Повтор архивирования не является следующим заданием. SOURCE_COMPLETE=true только статически; TESTED/INSTALLED/MIGRATED=false.
+
+Узкая работа B30-UXD04-SOURCE-TRACE-20260929 завершена и независимо принята: ACCEPT_SCOPED_SOURCE_EVIDENCE_AND_CURRENT_RECORDS, reviewec0d3adc. На immutable dev9 aa6a4ca4 описана фактическая цепочка передачи/истории, сверены17 source files; конкретный source дефект не установлен. Автор /root/bos3_uxd04_trace и независимый reviewer /root/bos3_guard_review_sol завершены; документы сохранены в evidence/uxd04-trace-20260929. Продукт не изменён, executions0. Root исправил текущий индекс стадии и механически сверил13 B30-12 blobs; старая матрица E710 остаётся исторической. Актуальная сводка: CURRENT_STAGE_20260929_RU.md. Дальнейшее cross-role доказательство требует отдельного действительного exact admission; эта карточка его не выдаёт. Приоритеты1–4 остаются частичными/заблокированными по записанным решениям; повторных вопросов/запусков нет. Фактическая публикация фиксируется во внешнем ROOT_PUBLICATION_RECEIPT.json, указанном в CONTROL.
+
+### История 29.09.2026: завершение исходника установщика
 
 Текущий итог 18:16UTC: SOURCE_COMPLETE_STATIC_NOT_TESTED_NOT_INSTALLED. Независимый final review b42bd8e6 закрыл NATIVE-FLUSH-1 и все OPS-1..5 на installer c204737e, native74383620, contract5fc980c4, manifestb1a4bbdf. Реализованы snapshot/prepare/alias/activate/verify; root архивирует точные байты в evidence/control-home-installer-source-20260929 после отдельного package review. TESTED/INSTALLED/MIGRATED=false, executions0; focused QA FAIL_SETUP1/1 и C64 неизменны. Следующие абзацы этой карточки сохраняют историю R1/R2, не текущие назначения.
 

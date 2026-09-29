@@ -1,6 +1,14 @@
 # BoS 3.0: отделы на текущем задании
 
-## Текущая работа 29.09: завершение исходника
+## Текущая работа 29.09: UXD04 и сверка этапа
+
+Root01a0dd56 остаётся единственным интегратором в `D:/3/BOSDev/workspaces/bos3-canonical/repo`. Установщик уже завершён в source-only scope, независимо принят и опубликован9638dce; автор и reviewers этой карточки освобождены. Новое поручение владельца message01a0eec9-aa90-75e0-9003-f7def11ca5e5 продолжает согласованный план, не расширяет execution admission.
+
+Конкретная независимая работа завершена: /root/bos3_uxd04_trace, requested gpt-6-sol/medium, observed UNCONFIRMED, source-only trace UXD04 на aa6a4ca4; CARD.json в `D:/3/BOSDev/qa-scratch/bos3-uxd04-trace-20260929`, allowlist TRACE_RU.md/SOURCE_MANIFEST.json/NEXT_SCOPE.json. Exact dev9 контекст принят,17 pins сверены. Root владел CURRENT_STAGE и четырьмя оперативными документами, не дублировал исследование автора. Независимый /root/bos3_guard_review_sol, прежний requested Sol/high, observed UNCONFIRMED, принял exact source-evidence/current-record delta reviewec0d3adc после исправления documentary P2 о sessionStorage; initial сохранён. Это не полная продуктовая приёмка. Активных UXD04 worker assignments0; root выполняет одну разрешённую публикацию и передаёт содержательный результат через ledger, без повторных назначений на принятые байты.
+
+Observer отдельно владеет B30-AGENT-HARNESS-ROSTER в D:/3/BOSDev/setup/bos_flow.py и local_flow.py; root не меняет эти файлы. Его будущий live delta требует новой сверки зависимостей перед D cutover, не перезаписи frozen архива установщика. Существующие native project chats и heartbeat сохранены. Все app/QA/runtime действия по текущей карточке NOT_RUN, executions0.
+
+## История 29.09: завершение исходника
 
 Текущий итог 18:16UTC: автор bos3_operation_resume завершён; независимый bos3_d_migration_review принял exact R3 source, reviewb42bd8e6. SOURCE_COMPLETE=true в статическом scope, TESTED/INSTALLED/MIGRATED=false. Root единственный формирует inactive archive и текущие документы; следующий отдельный package reviewer bos3_guard_review_sol, Sol/high requested, observedUNCONFIRMED. Старые check-in/repair назначения ниже исторические, ни одному исполнителю не назначен запуск.
 

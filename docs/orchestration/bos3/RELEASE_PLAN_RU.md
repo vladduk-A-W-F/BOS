@@ -4,6 +4,10 @@
 
 ## Цели и границы
 
+Текущий этап 29.09 после нового прямого поручения продолжать план: предрелиз dev9 подготовлен как immutable candidate aa6a4ca4, но не доставлен; availability UNCONFIRMED. Установщик уже опубликован9638dce после независимого source reviewb42bd8e6 и archive review621aa11d, SOURCE_COMPLETE=true при TESTED/INSTALLED/MIGRATED=false. Состав S1/S2/S3, UXD01–08, 11 gates, обучение/вход, полный перенос на D и exact-version доставка не сокращён. CURRENT_STAGE_20260929_RU.md связывает историческую матрицу с поздними scoped результатами и открытыми решениями; это не новая полная приёмка. Source-only UXD04 trace передачи/истории и текущая сверка B30-12 завершены, независимо приняты reviewec0d3adc только как source/evidence и текущие записи, без исполнения исчерпанных проверок. Полная cross-role проверка UXD04 остаётся неподтверждённой.
+
+История source-карточки до публикации (следующие два абзаца не являются текущим назначением):
+
 Итог source-карточки 29.09 18:16UTC: пять фаз установщика независимо приняты на exact R3 bytes, verdict SOURCE_COMPLETE_STATIC_NOT_TESTED_NOT_INSTALLED, reviewb42bd8e6. Неактивный архив evidence/control-home-installer-source-20260929 не доставляет BoS runtime и не завершает перенос на D. TESTED/INSTALLED/MIGRATED=false, focused QA остаётся FAIL_SETUP1/1, разрешения на новые исполнения отсутствуют. Предстоящее архивирование и публикация отражаются в текущем CONTROL и отдельном package review.
 
 Текущее дополнение 29.09: по прямому поручению «завершай исходник установщика» ведётся существующая B30-D-CONTROL-HOME-OPERATION-SOURCE. Требуется реализованный и независимо принятый исходник пяти фаз с exact dependency manifest, затем один root inactive archive commit/push и обновлённый PR. SOURCE_COMPLETE отдельно от TESTED/INSTALLED/MIGRATED; отсутствие сегодняшнего execution admission не заменяет код фаз заглушками, но не разрешает их выполнение. Текущие owner/workspace/check-in записаны в CONTROL/ACTIVE/TEAM. QA1/1 spent, C64 и runtime blockers неизменны; полный недельный scope и срок04.10 не сокращены.
