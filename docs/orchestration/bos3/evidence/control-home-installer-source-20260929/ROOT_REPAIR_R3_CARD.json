@@ -1,0 +1,30 @@
+{
+  "card": "B30-D-CONTROL-HOME-OPERATION-SOURCE",
+  "classification": "SAME-PROBLEM source-only repair, not a QA attempt",
+  "round": 3,
+  "author": "/root/bos3_operation_resume",
+  "reviewer": "/root/bos3_d_migration_review",
+  "requested_models": {"author":"gpt-6-sol/medium","review":"gpt-6-astra/high"},
+  "observed_models": "UNCONFIRMED",
+  "prior_assignment_sha256": "be8c9fc08be68f97b7d1c5ea3a8d42160c96831f83aae73603d1645701a051c9",
+  "prior_review_sha256": "1bacb67c230ac2cffed5d30642f31c80fac5a75f4434c7f93ed9b38dc9920a2e",
+  "preserved_candidate": "review-round2/",
+  "allowlist": ["install_control_home.py", "OPERATION_CONTRACT.json", "MANIFEST.json", "REPORT_RU.md"],
+  "repairs": [
+    "OPS-1: require_single_stream for every external after-state setup/config readback in shared verify_target; no other native change",
+    "OPS-4: existing core state JSON decode utf-8-sig without rewriting bytes; preserve strict UTF-8 receipt parser"
+  ],
+  "closed_static_preserved": ["NATIVE-FLUSH-1", "OPS-2", "OPS-3", "OPS-5"],
+  "DoD": "Minimal exact source delta, refreshed manifest/report hashes, independent closure of both remaining findings; no execution claim",
+  "allowed_checks": ["source text read", "SHA256", "JSON data parse"],
+  "forbidden": ["import", "AST/parser/compile", "help", "tests", "installer execution", "native probes", "live C/config/state actions", "Git writes"],
+  "executions": 0,
+  "QA_attempts_spent": "1/1",
+  "C64_unchanged": true,
+  "check_in_utc": "2026-09-29T18:20:00Z",
+  "next_recipient": "Same independent reviewer, SOURCE_FINAL_DELTA_REVIEW_RU.md new report only",
+  "SOURCE_COMPLETE": false,
+  "TESTED": false,
+  "INSTALLED": false,
+  "MIGRATED": false
+}

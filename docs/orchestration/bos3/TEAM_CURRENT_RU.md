@@ -1,6 +1,16 @@
 # BoS 3.0: отделы на текущем задании
 
-## Оперативное обновление 28.09: запуск диагностики заблокирован
+## Текущая работа 29.09: завершение исходника
+
+Текущий итог 18:16UTC: автор bos3_operation_resume завершён; независимый bos3_d_migration_review принял exact R3 source, reviewb42bd8e6. SOURCE_COMPLETE=true в статическом scope, TESTED/INSTALLED/MIGRATED=false. Root единственный формирует inactive archive и текущие документы; следующий отдельный package reviewer bos3_guard_review_sol, Sol/high requested, observedUNCONFIRMED. Старые check-in/repair назначения ниже исторические, ни одному исполнителю не назначен запуск.
+
+18:10UTC: единственный активный автор bos3_operation_resume исправляет остатки OPS-1/OPS-4 по ROOT_REPAIR_R3_CARD 9cd6a3c7, check-in18:20UTC. Независимый R2 review1bacb67c закрыл OPS-2/3/5; bos3_d_migration_review остаётся тем же reviewer следующего узкого delta. R1/R2 сохранены; source_complete=false, executions0. Эти сроки и статус заменяют более ранние записи в следующих абзацах.
+
+Sole integrator: root01a0dd56, canonical `D:/3/BOSDev/workspaces/bos3-canonical/repo`. Новое прямое поручение владельца message01a0ee26-9c0e-7bd2-9508-de9e026c5966 разрешает закончить исходник установщика, не выполнять его. Существующая карточка B30-D-CONTROL-HOME-OPERATION-SOURCE: автор `/root/bos3_operation_resume`, Sol/medium requested, отдельная копия `operation/source-complete-20260929`, allowlist пяти файлов в CARD.json hashacc92026; check-in17:45UTC. `/root/bos3_d_migration_review`, Astra/high requested, отвечает за consequential native guidance и независимый финальный source review, не пишет авторский код. Observed models UNCONFIRMED; максимум три subagents, одного автора не дублировать.
+
+Статус CHANGES_REQUIRED_OPS1_TO_5_SAME_AUTHOR_SOURCE_REPAIR. Independent source review5f14fb6d подтвердил реализацию пяти фаз и закрыл NATIVE-FLUSH-1, но нашёл пять обязательных safety/correctness gaps. Тот же автор получил ROOT_REPAIR_CARD bcdeb1d2, текущий check-in18:10UTC заменяет17:45 выше. First candidate/review сохранены в review-round1; финальной source-приёмки пока нет. После принятия root последовательно публикует только inactive source/evidence и записи плана. QA/installer/import/build/help NOT_RUN, live copy/alias/config/anchor/runtime0. Синхронизация C admin home отдельно принята37d36e5f; старые freeze-маркеры не доказывают актуальную quiescence. Вопросы QA1/1, C64, обучения и UXD03 не превращаются в разрешения от назначения автора.
+
+## История 28.09: запуск диагностики заблокирован
 
 08:25 UTC: sole integrator root выполнил ровно один разрешённый focused QA, native guard2/group1, firstsetUp FAIL; bodies0, остальные21метод NOT_RUN, попытка1/1spent. Critical reviewer bos3_d_migration_review завершён, независимый result05f1d094 принят как отказ, не product PASS. bos3_channel_test_sol завершил static diagnosis885d6ce9 без доказанной причины/правки; bos3_guard_review_sol (Sol/high) завершил review8c8ebb8b и принял inactive archive/текущие записи; активных subagent assignments0, root выполняет только принятую архивную интеграцию. Observed models UNCONFIRMED. Consumers автор завершён, operation lane frozen incomplete. No app/transport/live state/install, старый канал C остаётся frozen; новый результат будет отражён в D operational delta, это не квитанция отправки контролёру. Старые assignments ниже исторические.
 

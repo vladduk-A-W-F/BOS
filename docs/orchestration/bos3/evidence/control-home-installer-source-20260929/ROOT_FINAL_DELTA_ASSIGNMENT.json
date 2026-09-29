@@ -1,0 +1,27 @@
+{
+  "card": "B30-D-CONTROL-HOME-OPERATION-SOURCE",
+  "round": 3,
+  "reviewer": "/root/bos3_d_migration_review",
+  "requested_model": "gpt-6-astra",
+  "requested_effort": "high",
+  "observed_model": "UNCONFIRMED",
+  "prior_review_sha256": "1bacb67c230ac2cffed5d30642f31c80fac5a75f4434c7f93ed9b38dc9920a2e",
+  "repair_card_sha256": "9cd6a3c70e43294a3d011f9c50dae8894cbbf9196576c355b7f8345e62c57895",
+  "frozen_inputs_sha256": {
+    "install_control_home.py": "c204737e572de6dadf061bbf3d8a29f6a99938b13f78a03f93664d53ae180a9f",
+    "native_windows.py": "743836205bb0f00e592f6c2a6c26a8c242370213cfb16ec3bdd8581fe8d71add",
+    "OPERATION_CONTRACT.json": "5fc980c404f9ab50633710e950a79168d6db59774a0897cde14e0b3789966d4c",
+    "MANIFEST.json": "b1a4bbdfc4e1fd30424d03df9ca77fe902797440ad3ae9a2e63f3090117fd4a8",
+    "REPORT_RU.md": "6d65f391c741bec6aa89384975cb74be7fca913785afdc2f92ebe93f71d2138c"
+  },
+  "scope": "Two remaining OPS-1 external ADS and OPS-4 state BOM delta closures and related regressions; unchanged native/dependency bytes by hash only",
+  "reviewer_write_allowlist": ["SOURCE_FINAL_DELTA_REVIEW_RU.md"],
+  "checks": "Text/diff, JSON data and SHA256 only; no import/AST/parser/compile/help/tests/installer/probe/live-state actions",
+  "next_recipient": "root sole integrator, inactive source package only after acceptance",
+  "executions": 0,
+  "QA_spent": "1/1",
+  "C64_unchanged": true,
+  "TESTED": false,
+  "INSTALLED": false,
+  "MIGRATED": false
+}
