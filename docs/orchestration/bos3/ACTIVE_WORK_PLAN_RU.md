@@ -8,6 +8,8 @@
 
 ### Актуально 30.09: задача, сценарий, результат, CRM
 
+Уточнение владельца в heartbeat14:38:56Z: полный перенос данных на D отменён и **не является условием текущего продукта**. Это исключение из текущего объёма, а не PASS переноса; прежняя история TESTED/INSTALLED/MIGRATED и лимитов сохраняется. S1/S2/S3, UXD01–08, 11gates, обучение/вход и exact-version доставка не меняются. Перенос и его recovery больше не запускать.
+
 Root native-read подтвердил owner resume `01a0f281-a359-7fc2-95d5-515cec1de0fc` и последующее явное снятие старой остановки `01a0f28f-7be2-7813-b4c2-fd44c838a0e7`. STOP main относится к28.09 20:57:08UTC, его ошибочная повторная передача не задаёт текущий режим. Перенос данных отменён владельцем. Пять dirty docs совпали с checkpoint по SHA-256 и сохранены без reset; записи29.09 ниже исторические, не текущие назначения.
 
 Действует прежний полный план с понятным путём «выбор бизнес-задачи → наглядный сценарий → результат с источником → CRM с теми же сущностями/ID». Source-карточка `B30-UXD07-CRM-STALE-DETAIL-20260930` завершена в узком статическом объёме: P2 поздний ответ по A заменял выбранную позже B; finding независимо подтверждён `c779dab4`. Автор `/root/crm_stale_resume` подготовил R1ef7206b5; reviewer `/root/crm_stale_review` вернул CHANGES_REQUIRED7b4a9de4 из-за позднего preview/confirm. Тот же автор исправил R2fc82733a; независимый verdict58932676 **ACCEPT_SOURCE_STATIC_R2**. История и обе версии сохранены в `evidence/crm-stale-source-20260930/`; исходный HTML145bcaa3 на immutableaa6a4ca4 и executable frontend не изменены. Автор Sol/medium, reviewer Sol/high requested, observed UNCONFIRMED. Публикуется только неактивный пакет после exact package review; сборка, QA, product integration и доставка NOT_RUN.

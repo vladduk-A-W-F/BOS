@@ -1,0 +1,16 @@
+# Независимое review уточнения текущего объёма 30.09
+
+Карточка `B30-POST-MOVE-RESUME`, вход `DATA_MIGRATION_SCOPE_REVIEW_INPUT.json` SHA-256 `d7e3ba1a1c74c57f14de5e25907c0822756fa4fa92f2a0cfd8d59efb0630a8a0`. Root подготовил четыре документальные правки на canonical base `ea699ffa44319a3e02804509855e6039734bb437`; reviewer их не писал. Уточнение владельца в карточке: полный перенос данных на D отменён 30.09 и не входит в текущие продуктовые условия, при сохранении S1/S2/S3, UXD01-08, 11 gates, обучения/входа и exact-version доставки. Первичный heartbeat отдельно не перечитывался этим review.
+
+## Вердикт
+
+**ACCEPT_SCOPED_CURRENT_SCOPE_CORRECTION.** Diff исключает только полный перенос данных на D из нынешнего GO-объёма, не помечая миграцию выполненной или PASS. Остальные продуктовые критерии, открытые runtime/QA условия, исторические записи и лимиты не изменены. Можно выполнить scope-only commit этих exact четырёх документов. После этого root может байт-в-байт добавить данный review, входную карточку и raw patch в отдельный неактивный evidence архив с `* -text`; фактические commit/PR pins принадлежат отдельной publication receipt.
+
+## Проверенное
+
+- `CONTROL_STATE.json` SHA-256 `a7667ed871fc7c956c8a00ed6dcb3de6b2c255f2526d7c474a5ac80dadaa54ea`: добавлен только `data_migration_scope_clarification_20260930`, где `full_data_move_to_D_required_for_current_product=false`, `full_migration_claimed_complete=false`, `new_execution_admission=false`. Прежний `resume_solutions_20260930` сохранён, `readiness_changed=false`, `executions=0`.
+- `ACTIVE_WORK_PLAN_RU.md` SHA-256 `115be6701941aab8da99fac5e99bd65d3e32a53035f9859acc8e02f8d846a1cc` и `RELEASE_PLAN_RU.md` SHA-256 `55b936243c969500fd18881d328dfccd812ac8aeacfe8e45ae9b4e7aa0a2cbf6` помещают уточнение выше старых записей, называют отмену исключением, сохраняют 11 gates, S1/S2/S3, UXD01-08, обучение/вход, exact delivery и запрет нового переноса/recovery. Исторические формулировки ниже прямо обозначены как история, не текущий gate.
+- `CURRENT_STAGE_20260929_RU.md` SHA-256 `186901f995053050c107543022f55245e4e17a6f969dc5a9fa20b825ac8b6802`: строка матрицы теперь говорит «Исключено владельцем из условий текущего продукта», одновременно «Не выполнено и не заявлено PASS». Риск полного GO остаётся высоким; dev9 runtime receipt, динамическая проверка обучения/прогресса и 11 gates остаются открыты. `TECHNICAL_READY=false`, `PILOT_ALLOWED=false`, `MVP=false` и исторические caps ниже не тронуты.
+- Raw `DATA_MIGRATION_SCOPE.patch` SHA-256 `d5133fce6cb18d8a87e80d0571ab37cfc7745c71beee713a28e770adea3523ee` построчно равен текущему `git diff` четырёх файлов: 70/70 строк, первое расхождение отсутствует. `git diff --name-only` показывает только эти четыре документа. `git diff --check` exit `0`, whitespace findings `0`; предупреждения Git о LF→CRLF не являются изменением требований. Immutable source `aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975` не менялся этой правкой.
+
+Это только проверка документов по закреплённому owner-входу. Приложение, Node, tests, build, browser, HTTP, runtime, DB/media и resource/process probes не запускались; новых PASS или QA attempts нет. Исторический перенос остаётся невыполненным и отменённым как текущая цель, а не «успешно завершённым».

@@ -1,0 +1,70 @@
+diff --git a/docs/orchestration/bos3/ACTIVE_WORK_PLAN_RU.md b/docs/orchestration/bos3/ACTIVE_WORK_PLAN_RU.md
+index e4d7caf..25c431c 100644
+--- a/docs/orchestration/bos3/ACTIVE_WORK_PLAN_RU.md
++++ b/docs/orchestration/bos3/ACTIVE_WORK_PLAN_RU.md
+@@ -8,6 +8,8 @@
+ 
+ ### Актуально 30.09: задача, сценарий, результат, CRM
+ 
++Уточнение владельца в heartbeat14:38:56Z: полный перенос данных на D отменён и **не является условием текущего продукта**. Это исключение из текущего объёма, а не PASS переноса; прежняя история TESTED/INSTALLED/MIGRATED и лимитов сохраняется. S1/S2/S3, UXD01–08, 11gates, обучение/вход и exact-version доставка не меняются. Перенос и его recovery больше не запускать.
++
+ Root native-read подтвердил owner resume `01a0f281-a359-7fc2-95d5-515cec1de0fc` и последующее явное снятие старой остановки `01a0f28f-7be2-7813-b4c2-fd44c838a0e7`. STOP main относится к28.09 20:57:08UTC, его ошибочная повторная передача не задаёт текущий режим. Перенос данных отменён владельцем. Пять dirty docs совпали с checkpoint по SHA-256 и сохранены без reset; записи29.09 ниже исторические, не текущие назначения.
+ 
+ Действует прежний полный план с понятным путём «выбор бизнес-задачи → наглядный сценарий → результат с источником → CRM с теми же сущностями/ID». Source-карточка `B30-UXD07-CRM-STALE-DETAIL-20260930` завершена в узком статическом объёме: P2 поздний ответ по A заменял выбранную позже B; finding независимо подтверждён `c779dab4`. Автор `/root/crm_stale_resume` подготовил R1ef7206b5; reviewer `/root/crm_stale_review` вернул CHANGES_REQUIRED7b4a9de4 из-за позднего preview/confirm. Тот же автор исправил R2fc82733a; независимый verdict58932676 **ACCEPT_SOURCE_STATIC_R2**. История и обе версии сохранены в `evidence/crm-stale-source-20260930/`; исходный HTML145bcaa3 на immutableaa6a4ca4 и executable frontend не изменены. Автор Sol/medium, reviewer Sol/high requested, observed UNCONFIRMED. Публикуется только неактивный пакет после exact package review; сборка, QA, product integration и доставка NOT_RUN.
+diff --git a/docs/orchestration/bos3/CONTROL_STATE.json b/docs/orchestration/bos3/CONTROL_STATE.json
+index cf3009f..1c6a2d9 100644
+--- a/docs/orchestration/bos3/CONTROL_STATE.json
++++ b/docs/orchestration/bos3/CONTROL_STATE.json
+@@ -1,6 +1,17 @@
+ {
+   "schema": 1,
+   "current_stage": "CURRENT_STAGE_20260929_RU.md",
++  "data_migration_scope_clarification_20260930": {
++    "source": "Owner clarification in existing heartbeat 2026-09-30T14:38:56.207Z",
++    "status": "CANCELLED_BY_OWNER_NOT_A_CURRENT_PRODUCT_CONDITION",
++    "full_data_move_to_D_required_for_current_product": false,
++    "full_migration_claimed_complete": false,
++    "live_history_home": "C:/Users/user/.codex",
++    "single_control_home": "C:/Users/user/AppData/Local/BOSDev",
++    "old_migration_records": "Historical only; no helper or recovery execution",
++    "other_product_scope_unchanged": "S1/S2/S3, UXD01-08, 11 gates, learning/login and exact-version delivery",
++    "new_execution_admission": false
++  },
+   "resume_solutions_20260930": {
+     "owner_resume_message": "01a0f281-a359-7fc2-95d5-515cec1de0fc",
+     "owner_explicit_stop_revocation_message": "01a0f28f-7be2-7813-b4c2-fd44c838a0e7",
+diff --git a/docs/orchestration/bos3/CURRENT_STAGE_20260929_RU.md b/docs/orchestration/bos3/CURRENT_STAGE_20260929_RU.md
+index 5cc1f3d..67edfe9 100644
+--- a/docs/orchestration/bos3/CURRENT_STAGE_20260929_RU.md
++++ b/docs/orchestration/bos3/CURRENT_STAGE_20260929_RU.md
+@@ -2,7 +2,7 @@
+ 
+ Актуальное продолжение подтверждено прямыми owner messages01a0f281-a359-7fc2-95d5-515cec1de0fc и01a0f28f-7be2-7813-b4c2-fd44c838a0e7. Пять документальных WIP сохранены. CRM late response P2 исправлен в отдельном source R2fc82733a, принят независимо58932676 только статически; R1 и отрицательный verdict7b4a9de4 сохранены. Неактивный архив `evidence/crm-stale-source-20260930/` не заменяет executable frontend. UXD04 proposal reviewe6c6282c завершён с тремя pre-execution уточнениями без нового допуска. Полная матрица ниже сохраняется, динамических PASS нет. Main ведёт output-only карты пути задача → сценарий → результат → CRM с теми же сущностями/ID; реальные source maps и их приёмка учитываются отдельно от настройки чатов.
+ 
+-На30.09 риск полного GO к04.10 остаётся высоким: нет exact runtime receipt dev9, полной динамической проверки обучения/сохранения прогресса и11gates; новые heavy jobs исключены по переданному observer ресурсу614MiB. Подготовка и исправление исходников не снимают эти blockers. Перенос Codex data отменён, рабочее состояние и BoS control home остаются C; история переноса не выдаётся за завершение требования D.01.10 требуется реалистичный состав версии без тихого сокращения согласованных критериев;02–03.10 только разрешённая финальная проверка;04.10 лучший подтверждённый результат или явный NO-GO.
++На30.09 риск полного GO к04.10 остаётся высоким: нет exact runtime receipt dev9, полной динамической проверки обучения/сохранения прогресса и11gates; новые heavy jobs исключены по переданному observer ресурсу614MiB. Подготовка и исправление исходников не снимают эти blockers. Полный перенос данных на D отменён владельцем и по уточнению heartbeat14:38:56Z **не является условием текущего продукта**; рабочее состояние и BoS control home остаются C. Это не PASS миграции. 01.10 требуется реалистичный состав версии без тихого сокращения остальных согласованных критериев;02–03.10 только разрешённая финальная проверка;04.10 лучший подтверждённый результат или явный NO-GO.
+ 
+ Поручение владельца: «продолжай разработку согласно плану и обнови на каком мы сейчас этапе и как идет», native message `01a0eec9-aa90-75e0-9003-f7def11ca5e5`, проверено root. Это текущая сверка стадии, не новая полная приёмка. Историческая `FULL_READINESS_MATRIX_E710.json` сохранена без изменений; её требования не отменены.
+ 
+@@ -24,7 +24,7 @@
+ | Светлое адаптивное превью | Частично | Исходники, scoped build/offline и историческая entry-проверка приняты. Полная актуальная live desktop/mobile приёмка dev9 отсутствует. |
+ | Три синтетических учебных кейса | Частично | Preview и маршруты есть. B30-12 revision9 готов только к точному исключению владельца; сквозной запуск трёх кейсов NOT_RUN. Это не S1/S2/S3 полная бизнес-приёмка. |
+ | Персональный вход и прогресс | Частично | Историческая scoped entry/login проверка есть; актуальное сохранение завершённых шагов и повторный вход не приняты. Нужен B30-12 owner decision, не повторный вопрос. |
+-| Полный перенос на D | Частично, дальнейший перенос отменён владельцем | Каноническая интеграция уже на D. Исторический исходник установщика опубликован9638dce только статически. TESTED/INSTALLED/MIGRATED=false; единственный control home C. Отмена дальнейшего переноса не превращает полный критерий в выполненный. |
++| Полный перенос данных на D | Исключено владельцем из условий текущего продукта30.09 | Не выполнено и не заявлено PASS. Canonical и приложение на D; рабочая история и единственный control home C. Исторический установщик9638dce остаётся неисполненным; его перенос/recovery не запускать. |
+ | Exact-version доставка | Заблокировано | Immutable passport подготовлен, текущего runtime receipt на dev9 нет. Исторический dev7 receipt не переносится. |
+ | S1: заказ → резерв/отгрузка → счёт/оплата | Частично | Source mapping сохранён; полный текущий dynamic verdict отсутствует. Узкий invoice/UAH projection отдельно исправлен и принят, это не весь S1. |
+ | S2: документ → черновик → сверка → подтверждаемая операция | Частично | Source mapping сохранён; полный текущий dynamic verdict отсутствует. |
+diff --git a/docs/orchestration/bos3/RELEASE_PLAN_RU.md b/docs/orchestration/bos3/RELEASE_PLAN_RU.md
+index d823bc6..9e2591e 100644
+--- a/docs/orchestration/bos3/RELEASE_PLAN_RU.md
++++ b/docs/orchestration/bos3/RELEASE_PLAN_RU.md
+@@ -4,6 +4,8 @@
+ 
+ ## Цели и границы
+ 
++Уточнение владельца30.09 из heartbeat14:38:56Z: полный перенос данных на D отменён и больше не является условием текущего продукта. Исторические формулировки о полном D-переносе ниже не задают текущий GO gate. Это не утверждение успешной миграции и не отмена11gates, S1/S2/S3, UXD01–08, обучения/входа или exact-version доставки. Приложение на D, история и единственный control home на C остаются; перенос и его recovery не запускать.
++
+ Актуально30.09: прямое продолжение и явное снятие старого STOP verified native messages01a0f281-a359-7fc2-95d5-515cec1de0fc /01a0f28f-7be2-7813-b4c2-fd44c838a0e7. Приоритет пользовательского пути: задача → наглядный сценарий → объяснимый результат → CRM с теми же фактами/ID. Уже согласованные S1/S2/S3, UXD01–08, обучение/вход,11gates и exact delivery сохранены. Исправление source P2 CRM stale-detail выполняет единственный автор, независимый review обязателен; сборка, проверки и доставка отдельно. Ресурс614MiB не даёт новых heavy jobs. Перенос данных отменён владельцем; это не подтверждение полного D-переноса. Текущие assignments и исходные receipts указаны в resume_solutions_20260930 CONTROL, записи29.09 ниже исторические.
+ 
+ Результат30.09: CRM source R2fc82733a принят независимым review58932676 после R1 CHANGES_REQUIRED; обе версии сохранены. Только inactive archive после package review, без замены canonical executable frontend/generated assets. Build/QA/delivery NOT_RUN, dev9 NOT_DELIVERED. UXD04 proposal reviewe6c6282c завершён с тремя future-manifest условиями, не executable admission. Настройка writer/design maps выполняется в прежних чатах; их независимая приёмка не заменяется context receipts. Риск полного GO к04.10 остаётся высоким.
