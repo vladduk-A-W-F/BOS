@@ -1,0 +1,79 @@
+{
+  "schema": "bos.product-enablement.guide-review.v1",
+  "reviewed_at_utc": "2026-09-30T15:16:09.4171791Z",
+  "reviewer": "/root/enablement_channel_review",
+  "scope": "Незалежна delta-перевірка двох findings GUIDE_REVIEW.json для author-v2; приймання лише документаційної чернетки",
+  "review_input": {
+    "path": "D:\\3\\BOSDev\\evidence\\product-enablement-20260930\\GUIDE_REVIEW.json",
+    "sha256": "0b9dc695a98761c9c3b261098eab5ae1900678dd684fa8251c917c19b083c2d7"
+  },
+  "verdict": "ACCEPT_DRAFT_SCOPED",
+  "artifacts": [
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\product-enablement-20260930\\author-v2\\USER_GUIDE_UA.txt",
+      "sha256": "21ff125e7596ff4f50e74056b02153f7a3f2075fe8247484a0b7c96479474de4"
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\product-enablement-20260930\\author-v2\\LESSONS_DRAFT_UA.json",
+      "sha256": "2c93af18f674af1cda5cfbc0d76f1737d62ec32420c1a40e0eb37f197caf6814"
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\product-enablement-20260930\\author-v2\\AUTHOR_REPORT.json",
+      "sha256": "3f1e14ab44be9a479ebacbd9fde74e2a8f4702b10670f8f32913c14fb2806892"
+    }
+  ],
+  "sources": [
+    {
+      "path": "D:/3/BOSDev/evidence/product-enablement-20260930/author-v2/source-snapshot/evidence/resume-solutions-20260930/main/writer/IDENTITY_MAP.json",
+      "sha256": "91237e09cce96aa8927470455b0f50995caa5a72f4a0c77fcc44199adbf49a00",
+      "original_source_path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/writer/IDENTITY_MAP.json",
+      "changed_since_v1": false
+    },
+    {
+      "path": "D:/3/BOSDev/evidence/product-enablement-20260930/author-v2/source-snapshot/evidence/resume-solutions-20260930/main/writer/FINDINGS_RU.md",
+      "sha256": "77ae326cdc588bceff250c2aca57bb458af60511af44efe9efc39d32d64a1dbb",
+      "original_source_path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/writer/FINDINGS_RU.md",
+      "changed_since_v1": false
+    },
+    {
+      "path": "D:/3/BOSDev/evidence/product-enablement-20260930/author-v2/source-snapshot/evidence/resume-solutions-20260930/main/design/JOURNEY_MAP.json",
+      "sha256": "2bcd391ef0659d0c0853cd81ee84303a8310936f1f6e46350bcc4b7e8e1feb39",
+      "original_source_path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/design/JOURNEY_MAP.json",
+      "changed_since_v1": true
+    },
+    {
+      "path": "D:/3/BOSDev/evidence/product-enablement-20260930/author-v2/source-snapshot/evidence/resume-solutions-20260930/main/design/JOURNEY_RU.md",
+      "sha256": "0ee199b9132ba0b05c8376fe0b07ad82e6ff435f77bd12a64c9be596f2bee779",
+      "original_source_path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/design/JOURNEY_RU.md",
+      "changed_since_v1": true
+    },
+    {
+      "path": "D:/3/BOSDev/evidence/product-enablement-20260930/author-v2/source-snapshot/evidence/release-path-20260930/UI_COPY_UA.json",
+      "sha256": "3532d53eb870ee058e320955434bc59b61af377838ca07894b4b42dd374974ac",
+      "original_source_path": "D:/3/BOSDev/evidence/release-path-20260930/UI_COPY_UA.json",
+      "changed_since_v1": false
+    },
+    {
+      "path": "D:/3/BOSDev/evidence/product-enablement-20260930/author-v2/source-snapshot/evidence/release-path-20260930/ASSESSMENT_UA.txt",
+      "sha256": "40157364fdad78c92a1cab32c930904cfedebcbc9169ea515da2bfc2311ef859",
+      "original_source_path": "D:/3/BOSDev/evidence/release-path-20260930/ASSESSMENT_UA.txt",
+      "changed_since_v1": false
+    }
+  ],
+  "resolved_findings": [
+    {
+      "from": "USER_GUIDE_UA.txt:19",
+      "result": "Формулювання першої сторінки відділяє пропозицію від затвердженого макета; те саме уточнено в уроках і межах посібника."
+    },
+    {
+      "from": "AUTHOR_REPORT.json:dependencies",
+      "result": "Шість точних snapshot-джерел доступні, їхні SHA-256 збігаються із залежностями v2; дві змінені design-карти позначено й узгоджено з описом першої сторінки."
+    }
+  ],
+  "findings": [],
+  "limits": [
+    "Це прийняття документаційної чернетки для подальшого ведення відділом, без прийняття дизайну, runtime чи інтеграції.",
+    "Попередню предметну перевірку незміненого змісту не повторювали; живі сесії, UI, доставка та готовність залишаються NOT_RUN."
+  ],
+  "executions": 0
+}

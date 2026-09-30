@@ -1,0 +1,79 @@
+{
+  "schema": "bos.design-review-correction.v1",
+  "card_id": "B30-SOLUTIONS-JOURNEY-MAP-20260930",
+  "at_utc": "2026-09-30T15:23:17.774707+00:00",
+  "scope": "Перша адресна відповідь на незалежний review: тільки Q-01/Q-02/Q-03 у тих самих двох файлах design.",
+  "review": {
+    "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\review-snapshots\\quality-r1\\REVIEW.json",
+    "sha256": "08534c340663c95e30bc5e5bd9f037e42b335746f5ba83bcde5a083cf70ab930"
+  },
+  "review_text": {
+    "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\review-snapshots\\quality-r1\\REVIEW_RU.md",
+    "sha256": "f9b2ff72446bef42101c0ad3003e78011949d341bb69ad701b46227142a551f4"
+  },
+  "before": {
+    "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\author-snapshots\\design-r3\\SNAPSHOT.json",
+    "sha256": "a9944ef34f568431ac39c9a4a844f1be07f97ed4ca4201ce30f3d51d8bb16c06"
+  },
+  "immutable_source": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+  "findings": [
+    {
+      "id": "Q-01",
+      "priority": "P2",
+      "location": [
+        "main/design/JOURNEY_MAP.json:126-132",
+        "main/design/JOURNEY_MAP.json:154-160",
+        "main/design/JOURNEY_MAP.json:182-188"
+      ],
+      "evidence": [
+        "frontend/boss_app_source.html:5498",
+        "frontend/boss_app_source.html:5506-5507",
+        "frontend/boss_app_source.html:5522",
+        "main/design/JOURNEY_RU.md:29"
+      ],
+      "issue": "CTA підготовки CRM поставлено після server preview; поточний шлях отримує чернетку та викликає preview після відкриття передачі.",
+      "required_change": "Перемістити CTA підготовки перед чернеткою/preview; після preview позначити явне підтвердження."
+    },
+    {
+      "id": "Q-02",
+      "priority": "P2",
+      "location": [
+        "main/design/JOURNEY_MAP.json:175-181",
+        "main/design/JOURNEY_RU.md:21"
+      ],
+      "evidence": [
+        "frontend/bos3_content.json:59-70"
+      ],
+      "issue": "У кейсі 03 завдання стоїть після CRM як окрема передача, хоча доручення створюється в кроці керівника/відповідального перед CRM.",
+      "required_change": "Показати доручення в кроці керівника/відповідального; прибрати окреме завдання після CRM."
+    },
+    {
+      "id": "Q-03",
+      "priority": "P3",
+      "location": [
+        "main/design/JOURNEY_MAP.json:134-139",
+        "main/design/JOURNEY_MAP.json:162-167",
+        "main/design/JOURNEY_MAP.json:190-195"
+      ],
+      "evidence": [
+        "main/writer/IDENTITY_MAP.json:same_entity_transitions",
+        "main/design/JOURNEY_RU.md:27"
+      ],
+      "issue": "REQUIRES_ID_CONTRACT не узгоджено з наявною в combined пакеті ID-картою writer.",
+      "required_change": "Позначити source ID-контракт наданим та статично звіреним; live тотожність залишити NOT_RUN."
+    }
+  ],
+  "requirements": [
+    "Q-01: CTA підготувати передачу → отримати чернетку → preview → явне підтвердження; виправити всі три маршрути узгоджено.",
+    "Q-02: доручення кейсу03 належить кроку керівника/відповідального до CRM; не показувати окрему передачу до Завдання після CRM.",
+    "Q-03: source ID-контракт writer надано та статично звірено reviewer; послатися на exact writer і review. Live тотожність лишається NOT_RUN.",
+    "Не змінювати сам source, інші кейси, початкові факти, написи UI_COPY_UA, точні ID або чужі артефакти.",
+    "Зберегти provenance старих ітерацій; AUTHOR_COMPLETE_UNREVIEWED для нового delta; окремо записати відповідь Q-01/Q-02/Q-03 в існуючій карті.",
+    "Жодного app/tests/build/Node/browser/runtime/DB/HTTP/probes; це правка карти, не повтор продуктового тесту."
+  ],
+  "output_allowlist": [
+    "JOURNEY_MAP.json",
+    "JOURNEY_RU.md"
+  ],
+  "next": "Main готує новий exact manifest, root допускає лише перевірку дельти тим самим незалежним quality."
+}

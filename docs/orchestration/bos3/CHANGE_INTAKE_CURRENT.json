@@ -1,0 +1,384 @@
+{
+  "schema": "bos.change-intake.current.v1",
+  "as_of_utc": "2026-09-30T15:48:00Z",
+  "authority": {
+    "native_user_record": "01a0f2e5-76cb-7e62-87a9-bc2027e3616f",
+    "verified_by_sole_integrator": true
+  },
+  "scope": "Єдиний канонічний реєстр включення змін. Не замінює картки/QUEUE, не призначає виконання і не підвищує readiness.",
+  "canonical": {
+    "branch": "codex/bos3-prerelease-20260927",
+    "baseline": "d4715a088784cb442a3c82f8f3ec44a91b2ddc94",
+    "product": "6b3aab22b3f8254d5f65846f54ceeed7049e1ddf",
+    "immutable_source": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+    "pr": 10,
+    "draft": true,
+    "merge_allowed": false
+  },
+  "reviewed_registry_snapshot": {
+    "path": "docs/orchestration/bos3/evidence/change-intake-20260930/REGISTRY_DRAFT.json",
+    "sha256": "8ed6f471688d78a69f9ee3d2df01e90775a41438ebd247aaadea7f71d78c2d1e",
+    "review_path": "docs/orchestration/bos3/evidence/change-intake-20260930/REGISTRY_REVIEW.json",
+    "review_sha256": "9cb6a253d2c6f43f98eb5e29c8a6774d59242fe7b6cafb35288190358b9d77c8",
+    "verdict": "ACCEPT_SCOPED_REGISTRY"
+  },
+  "state_semantics": {
+    "REGISTERED": "Зафіксовано, не прийнято.",
+    "IN_REVIEW": "Незалежна перевірка точних входів.",
+    "RETURNED": "Потрібні адресні поправки.",
+    "APPROVED_SCOPE": "Прийнято тільки конкретний названий обсяг.",
+    "APPLIED": "Є actual receipt змін цільових байтів.",
+    "PUBLISHED": "GitHub має exact commit; PR стан окремий.",
+    "DELIVERED": "Квитанція доводить саме запущену версію, не всю бізнес-приємку."
+  },
+  "requests": [
+    {
+      "id": "PR9",
+      "title_uk": "Попередня брошура та навчальна модель",
+      "state": "SUPERSEDED_CLOSED_NO_MERGE",
+      "accepted_scope": "Історія двох комітів входить у PR10; це не нове приймання поведінки",
+      "target": "GitHub PR9, без зміни main",
+      "owner": "integrator",
+      "priority": "P3",
+      "evidence": [
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/sources/5cd708b13f33-PR9_ANCESTRY_AND_PATHS.json",
+          "sha256": "5cd708b13f332470be246dc689b3c58153da4843f833eacc1c362025bdf31085",
+          "original_path": "D:\\3\\BOSDev\\evidence\\change-intake-20260930\\PR9_ANCESTRY_AND_PATHS.json"
+        },
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/PR9_CLOSURE_RECEIPT.json",
+          "sha256": "662f5ba689092f0ca2c2ec8d662253cacb477e0f0a480aea6d0233f564dacad4"
+        }
+      ],
+      "application": {
+        "status": "INCLUDED_BY_ANCESTRY",
+        "target_commit": "d4715a088784cb442a3c82f8f3ec44a91b2ddc94"
+      },
+      "remaining_uk": "Закрито як поглинутий PR10; гілку збережено. Історія включена, поведінкова еквівалентність не заявлена."
+    },
+    {
+      "id": "PR10",
+      "title_uk": "Поточна збірна гілка BoS 3.0",
+      "state": "HOLD_RELEASE_MERGE",
+      "accepted_scope": "Окремі source/doc пакети прийняті лише у своїх межах",
+      "target": "codex/bos3-prerelease-20260927",
+      "owner": "integrator",
+      "priority": "P1",
+      "evidence": [
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/sources/e3a8472f168f-GITHUB_SNAPSHOT.json",
+          "sha256": "e3a8472f168f5a996855a3f6876d52b1625cdcc1c293c85a40ac4ba44b03944b",
+          "original_path": "D:\\3\\BOSDev\\evidence\\change-intake-20260930\\GITHUB_SNAPSHOT.json"
+        },
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/sources/43cc59f6d60c-blank.yml",
+          "sha256": "43cc59f6d60c666db1018634c7cfb7d958c7324ca5413a14c9df93c0a0629e6b",
+          "original_path": "D:\\3\\BOSDev\\workspaces\\bos3-canonical\\repo\\.github\\workflows\\blank.yml"
+        }
+      ],
+      "application": {
+        "status": "NOT_APPLIED"
+      },
+      "remaining_uk": "PR draft. CI містить echo, не app QA. Потрібні дозволені точні перевірки та доставка; main не змінювати."
+    },
+    {
+      "id": "B30-UXD07-CRM-STALE-DETAIL-20260930",
+      "title_uk": "Захист CRM від запізнілих відповідей",
+      "state": "ACCEPTED_INACTIVE_SOURCE_PUBLISHED",
+      "accepted_scope": "Статична правка R2 і неактивний архів",
+      "target": "Існуюча CRM картка; виконуваний frontend окремо",
+      "owner": "integrator",
+      "priority": "P1",
+      "evidence": [
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/sources/de0b5e3f1b0a-ROOT_PUBLICATION_RECEIPT.json",
+          "sha256": "de0b5e3f1b0a9e26415153dd8215fb0a9bbca122bdfb68b2b798155d22873042",
+          "original_path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\integrator\\ROOT_PUBLICATION_RECEIPT.json"
+        }
+      ],
+      "application": {
+        "status": "ARCHIVE_ONLY",
+        "commit": "c7ad513e03604283d984bfcc4d9fbd119013f186",
+        "product_applied": false
+      },
+      "remaining_uk": "Не повторювати source review. Окрема точна інтеграція у frontend, дозволені build/QA та доставка ще не виконані."
+    },
+    {
+      "id": "B30-SOLUTIONS-IDENTITY-MAP-20260930",
+      "title_uk": "Тотожність даних від кейсу до CRM",
+      "state": "ACCEPTED_STATIC_SOURCE_CONTRACT",
+      "accepted_scope": "Незмінна writer ID-карта підтверджена у R1; design Q01-Q03 закрито окремою прийнятою дельтою R2. Жива тотожність NOT_RUN.",
+      "target": "Три кейси, точний source-контракт; не runtime",
+      "owner": "main",
+      "priority": "P2",
+      "evidence": [
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/sources/91237e09cce9-IDENTITY_MAP.json",
+          "sha256": "91237e09cce96aa8927470455b0f50995caa5a72f4a0c77fcc44199adbf49a00",
+          "original_path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\writer\\IDENTITY_MAP.json"
+        },
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/sources/08534c340663-REVIEW.json",
+          "sha256": "08534c340663c95e30bc5e5bd9f037e42b335746f5ba83bcde5a083cf70ab930",
+          "original_path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\quality\\REVIEW.json"
+        },
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/sources/ff88cf49c9d9-REVIEW.json",
+          "sha256": "ff88cf49c9d922a55ce25779fcc4204482731a133d34b36dced953b32a969c0b"
+        }
+      ],
+      "application": {
+        "status": "NOT_APPLIED"
+      },
+      "remaining_uk": "Не повторювати writer/source review. Зберігати ті самі сутності й ID у майбутній обмеженій source-картці; live тотожність NOT_RUN."
+    },
+    {
+      "id": "B30-SOLUTIONS-JOURNEY-MAP-20260930",
+      "title_uk": "Послідовність сценарію та українські переходи",
+      "state": "ACCEPTED_SCOPED_DELTA_Q01_Q02_Q03",
+      "accepted_scope": "Статичні поправки Q01-Q03 прийнято незалежним quality ff88cf49; реалізація та runtime не прийняті.",
+      "target": "main/design, чинний власник",
+      "owner": "main/design",
+      "priority": "P1",
+      "evidence": [
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/sources/08534c340663-REVIEW.json",
+          "sha256": "08534c340663c95e30bc5e5bd9f037e42b335746f5ba83bcde5a083cf70ab930",
+          "original_path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\quality\\REVIEW.json"
+        },
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/sources/f61b47f76622-COMBINED_INPUT_MANIFEST_R2.json",
+          "sha256": "f61b47f766223396278f388b9083ec97a572f2c9519138444a53663dcfd6b1bb",
+          "original_path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\COMBINED_INPUT_MANIFEST_R2.json"
+        },
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/sources/ff88cf49c9d9-REVIEW.json",
+          "sha256": "ff88cf49c9d922a55ce25779fcc4204482731a133d34b36dced953b32a969c0b"
+        },
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/sources/04e727666407-JOURNEY_MAP.json",
+          "sha256": "04e72766640752226eff4609cf628c862b4716d14bcb734044503579ead59c51"
+        },
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/sources/70c6a89f0838-JOURNEY_RU.md",
+          "sha256": "70c6a89f08381bb7d274e6496ee53220cdbce64577e19beaa9177a8c08663014"
+        },
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/sources/6cbc0d44d319-COMBINED_INPUT_MANIFEST_R3.json",
+          "sha256": "6cbc0d44d3193a44a755e493e5b8241329aab1520e996783a8b4ba3bef1f4bbc"
+        },
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/sources/a21edd539a10-COORDINATION_PACKAGE_CLOSEOUT.json",
+          "sha256": "a21edd539a10b98ab121f7e630628c03fe7a5ce0e8c135ddfbff2e88ed411a00"
+        }
+      ],
+      "application": {
+        "status": "NOT_APPLIED"
+      },
+      "remaining_uk": "Root може підготувати одну обмежену source-картку з точними залежностями, CRM R2 та одним UI-власником. Цей реєстр не дає нового допуску на виконання.",
+      "latest_submission": {
+        "manifest": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/COMBINED_INPUT_MANIFEST_R3.json",
+        "manifest_sha256": "6cbc0d44d3193a44a755e493e5b8241329aab1520e996783a8b4ba3bef1f4bbc",
+        "result_sha256": "04e72766640752226eff4609cf628c862b4716d14bcb734044503579ead59c51",
+        "text_sha256": "70c6a89f08381bb7d274e6496ee53220cdbce64577e19beaa9177a8c08663014",
+        "status": "INDEPENDENT_DELTA_ACCEPTED",
+        "review_scope": "Only Q-01/Q-02/Q-03 and unchanged remainder",
+        "review_sha256": "ff88cf49c9d922a55ce25779fcc4204482731a133d34b36dced953b32a969c0b"
+      }
+    },
+    {
+      "id": "PRODUCT-ENABLEMENT-INITIAL-GUIDE-20260930",
+      "title_uk": "Український посібник і три уроки",
+      "state": "ACCEPTED_DRAFT_SCOPED_V3",
+      "accepted_scope": "Лише документаційна чернетка author-v3; Q02 виправлено, інші змістові байти збережені. Не runtime/design/навчальна інтеграція.",
+      "target": "Відділ подачі продукту та навчання",
+      "owner": "observer/enablement",
+      "priority": "P2",
+      "evidence": [
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/sources/3f1e14ab44be-AUTHOR_REPORT.json",
+          "sha256": "3f1e14ab44be9a479ebacbd9fde74e2a8f4702b10670f8f32913c14fb2806892",
+          "original_path": "D:\\3\\BOSDev\\evidence\\product-enablement-20260930\\author-v2\\AUTHOR_REPORT.json"
+        },
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/sources/06d678c89915-GUIDE_REVIEW_V2.json",
+          "sha256": "06d678c89915ad28c330e05d2b30770a0c7112c53fb1a2f641384a356b7ac041",
+          "original_path": "D:\\3\\BOSDev\\evidence\\product-enablement-20260930\\GUIDE_REVIEW_V2.json"
+        },
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/GUIDE_UPSTREAM_IMPACT.json",
+          "sha256": "1f47839bdb776e49de6870be7f77a75c6533c924ff81939cd58c571fe91f96ad"
+        },
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/GUIDE_REVIEW_V3.json",
+          "sha256": "9b9c24dd306a36f434903803c54c1c35c9130c451861bf96f9a65ab00a381dca"
+        },
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/guide-v3/AUTHOR_REPORT.json",
+          "sha256": "59715e266a5e1459f8387e67e19537ddba1eaa8bf49bd471f2ff20d5d63bd9a8"
+        },
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/guide-v3/USER_GUIDE_UA.txt",
+          "sha256": "257d75622714a4bbddf34816100f12e0d717bde90dc3fb3eb4b4285c29851778"
+        },
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/guide-v3/LESSONS_DRAFT_UA.json",
+          "sha256": "517bd092b4c56e44335c40e09f6f0b684b839d77549c2cbd5c2224bb83f66b72"
+        }
+      ],
+      "application": {
+        "status": "INACTIVE_DOCUMENTATION_ARCHIVE_IN_THIS_TREE_PUBLICATION_RECEIPT_SEPARATE",
+        "product_applied": false
+      },
+      "remaining_uk": "Enablement веде прийняту чернетку v3. Майбутній навчальний контракт і продуктова реалізація потребують окремих залежностей/допуску/review."
+    },
+    {
+      "id": "PRODUCT-ENABLEMENT-CHANNEL-20260930",
+      "title_uk": "Адреса й статус нового відділу в каналі",
+      "state": "ACCEPTED_APPLIED",
+      "accepted_scope": "Точна реєстрація alias, курсора й індексу у 3 файлах",
+      "target": "Існуючий локальний канал Codex",
+      "owner": "observer",
+      "priority": "P3",
+      "evidence": [
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/sources/48df868d8655-REVIEW.json",
+          "sha256": "48df868d8655298d1eb505f1f051c5e55053512f7ff91381f2dd15a353606b9d",
+          "original_path": "D:\\3\\BOSDev\\evidence\\product-enablement-20260930\\channel\\REVIEW.json"
+        },
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/sources/f33b63817a34-APPLY_RECEIPT.json",
+          "sha256": "f33b63817a34aa8e1803a71aa304f506ded607fe9ae7c4f4990175fc6b78ced3",
+          "original_path": "D:\\3\\BOSDev\\evidence\\product-enablement-20260930\\channel\\APPLY_RECEIPT.json"
+        }
+      ],
+      "application": {
+        "status": "APPLIED_EXACT_REVIEWED_BYTES",
+        "product_change": false
+      },
+      "remaining_uk": "Повторне застосування не потрібне.",
+      "reviewed_snapshot_owner": "integrator",
+      "owner_clarification": "Observer є автором/оператором інфраструктурної реєстрації; root лише фіксує факт прийнятого застосування. Живий канал не належить продуктовому інтегратору."
+    },
+    {
+      "id": "PRODUCT-ENABLEMENT-ROLE",
+      "title_uk": "Роль нового відділу в матриці співпраці",
+      "state": "RECORDED_IN_CANONICAL_CURRENT_REGISTRY",
+      "accepted_scope": "Контекст і межі фактично прийняті; addendum main існує",
+      "target": "Матриця main, потім canonical docs",
+      "owner": "main/integrator",
+      "priority": "P2",
+      "evidence": [
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/sources/3e06080b0236-ROLE_ROSTER_ENABLEMENT_ADDENDUM.json",
+          "sha256": "3e06080b023603163fe5c2c823315a2912bab15c09bc1b9a368ee4b5d2d4639b",
+          "original_path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\ROLE_ROSTER_ENABLEMENT_ADDENDUM.json"
+        },
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/sources/65dbcc3d8650-CHARTER_UA.json",
+          "sha256": "65dbcc3d8650cb4881e95ec55bbb6b6ec8861c80c62e3c9ae1a3af92e549997d",
+          "original_path": "D:\\3\\BOSDev\\evidence\\product-enablement-20260930\\CHARTER_UA.json"
+        }
+      ],
+      "application": {
+        "status": "DOCUMENTED_IN_THIS_TREE_PUBLICATION_RECEIPT_SEPARATE",
+        "product_applied": false
+      },
+      "remaining_uk": "Роль і межі внесені до цього реєстру та TEAM_CURRENT; фактична публікація цього docs-пакета підтверджується окремим receipt. Посібник і навчальна інтеграція не прийняті цим записом."
+    },
+    {
+      "id": "GUIDED-LEARNING-CONTRACT",
+      "title_uk": "Навчальний супровід у застосунку",
+      "state": "PROPOSED_NOT_IMPLEMENTED",
+      "accepted_scope": "Лише пропозиція контракту",
+      "target": "Наявні training sessions та CRM",
+      "owner": "enablement/integrator",
+      "priority": "P2",
+      "evidence": [
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/sources/631074d8894c-GUIDED_LEARNING_CONTRACT_UA.json",
+          "sha256": "631074d8894c8fd40650947350167b99724d435aa1f0e00ab4a4ea95e07976cc",
+          "original_path": "D:\\3\\BOSDev\\evidence\\product-enablement-20260930\\GUIDED_LEARNING_CONTRACT_UA.json"
+        }
+      ],
+      "application": {
+        "status": "NOT_APPLIED"
+      },
+      "remaining_uk": "Узгодити зміст із прийнятим design; окремо призначити реалізацію, перевірки та незалежний review."
+    },
+    {
+      "id": "CODEX-PORTABLE-RECOVERY",
+      "title_uk": "Збереження переносимих налаштувань",
+      "state": "ACCEPTED_PUBLISHED_TEXT_BUNDLE",
+      "accepted_scope": "19 файлів переносимих текстових налаштувань, не повний backup/install",
+      "target": "PR10 docs/recovery",
+      "owner": "integrator",
+      "priority": "P3",
+      "evidence": [
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/sources/72e19c42f9d3-RECOVERY_PUBLICATION_RECEIPT.json",
+          "sha256": "72e19c42f9d339067c24e755aed66bc7404f5fb3e4f35143b41665465cdcbfe2",
+          "original_path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\integrator\\RECOVERY_PUBLICATION_RECEIPT.json"
+        }
+      ],
+      "application": {
+        "status": "PUBLISHED",
+        "commit": "ea699ffa44319a3e02804509855e6039734bb437",
+        "installed": false
+      },
+      "remaining_uk": "Нічого не перевстановлювати й не повторювати публікацію."
+    },
+    {
+      "id": "SCOPE-CLARIFICATION-20260930",
+      "title_uk": "Скасоване перенесення D вилучено з умов продукту",
+      "state": "ACCEPTED_PUBLISHED_DOCS",
+      "accepted_scope": "Уточнення обсягу без оголошення міграції виконаною",
+      "target": "PR10 current docs",
+      "owner": "integrator",
+      "priority": "P3",
+      "evidence": [
+        {
+          "path": "docs/orchestration/bos3/evidence/change-intake-20260930/sources/9ca5d4f254e9-SCOPE_PUBLICATION_RECEIPT.json",
+          "sha256": "9ca5d4f254e956f22313c2a88d30dc25ed8e0db5e2a0b0374fc7ab4c4e581342",
+          "original_path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\integrator\\SCOPE_PUBLICATION_RECEIPT.json"
+        }
+      ],
+      "application": {
+        "status": "PUBLISHED",
+        "commit": "d4715a088784cb442a3c82f8f3ec44a91b2ddc94"
+      },
+      "remaining_uk": "Історичні обмеження продукту зберегти; перенесення не відновлювати."
+    }
+  ],
+  "current_disposition_source": {
+    "path": "docs/orchestration/bos3/evidence/change-intake-20260930/DISPOSITIONS_R2.json",
+    "sha256": "bbddd8379cdb32d2dfec6fb6510d4c1ba2944bd8964fe888a711c7486c141c0e"
+  },
+  "publication_receipt": "D:/3/BOSDev/evidence/change-intake-20260930/integrator/PUBLICATION_RECEIPT.json",
+  "publication_note": "Фактичний commit і статус APPLIED/PUBLISHED цього документального пакета визначає окрема квитанція; до неї немає твердження про публікацію.",
+  "later_status_source": "current_operational_delta у CONTROL_STATE.json; нові результати не переписують frozen evidence",
+  "acceptance_rules": [
+    "Один запит на одну першопричину/пакет; дубль має посилання на первинний запис.",
+    "Кожний перехід має source, точні hashes, незалежний verdict та власника.",
+    "REVIEWED, APPROVED, APPLIED, PUBLISHED і DELIVERED — різні стани.",
+    "Змінені байти потребують delta review; прийняті незмінні байти не перевіряються повторно.",
+    "Автор не приймає власні код, harness або пакет.",
+    "Застосування canonical і PR веде sole integrator послідовно.",
+    "Обов’язкові FAIL/NOT_RUN/skipped не PASS; статична документація не приймає runtime.",
+    "Ніяких нових таймерів, main merge, prod чи скидання лімітів."
+  ],
+  "product_executions": 0,
+  "TECHNICAL_READY": false,
+  "PILOT_ALLOWED": false,
+  "MVP": false,
+  "owners": {
+    "integrator": "01a0dd56-ca2d-79c0-b159-bde80074a026",
+    "main": "01a0be90-e790-7351-a8ac-059d523941c4",
+    "design": "01a0bffa-3fc7-7bc2-9868-86164c6e0315",
+    "writer": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+    "quality": "01a0c05d-6eeb-79f1-a135-be66985b442f",
+    "observer": "01a0bf0f-a9e4-7631-87e1-bb1aed03f174",
+    "enablement": "01a0f2ce-270f-7ac3-bea0-1447f87aed61"
+  }
+}

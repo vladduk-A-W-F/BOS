@@ -1,6 +1,16 @@
 # BoS 3.0: отделы на текущем задании
 
-## Текущая работа 30.09
+## Чинні ролі 30.09, 17:48 Europe/Berlin
+
+Root 01a0dd56 є єдиним canonical інтегратором. Main 01a0be90 координує точні manifests і залежності. Writer 01a0be9f завершив ID-карту 91237e09; її source-підтримку трьох кейсів підтвердив quality у R1. Design 01a0bffa завершив адресну поправку Q-01–03, result 04e72766/70c6a89f. Quality 01a0c05d прийняв лише цю дельту ff88cf49 за окремим допуском 095dfb0f і завершив роботу; це не повне app QA. Запитано Sol/medium авторові та Sol/high reviewer; observed models UNCONFIRMED. Попередні exact snapshots збережені.
+
+Новий відділ enablement 01a0f2ce-270f-7ac3-bea0-1447f87aed61 створено за прямим owner request і окремим підтвердженням. Його зона: зміст, терміни, посібник, FAQ і майбутній навчальний супровід. Design зберігає visual/layout/a11y та єдине призначення UI; enablement не є другим UI/backend автором. Main зафіксував роль в окремому addendum 3e06080b. Observer завершив незалежне приймання 9b9c24dd чернетки посібника author-v3 після Q02 та передає її ведення enablement. Приймання чернетки не є реалізацією чи runtime-прийманням.
+
+Observer 01a0bf0f володіє каналом, heartbeat та інфраструктурним контуром. Live channel 8088af0f незалежно прийнято 48df868d і застосовано receipt f33b6381; root звірив 3/3 байтів і нічого не перевстановлював. Стан native goal окремий від heartbeat; нових цілей/таймерів root не створює. Скасований перенос Codex не відновлювати, єдиний C control home збережено.
+
+Реєстр `CHANGE_INTAKE_CURRENT.json` відділяє APPROVED_SCOPE/APPLIED/PUBLISHED/DELIVERED і поточні призначення від історичних. CRM source автори завершили роботу; прийнятий неактивний архів не є активним продуктом. Поточні product/immutable 6b3aab22/aa6a4ca4, dev9 NOT_DELIVERED, readiness false; caps і ERP mutex незмінні.
+
+## Історичний знімок раннього продовження 30.09
 
 Root01a0dd56 остаётся sole integrator D canonical, basec9053d6. Актуальное owner resume и явное снятие старого STOP проверены в native user messages01a0f281-a359-7fc2-95d5-515cec1de0fc /01a0f28f-7be2-7813-b4c2-fd44c838a0e7. Ошибочная остановка по старой записи28.09 исправлена; те же прерванные author/reviewer продолжили прежние карточки, без дублирования. Context/chronology/assignment receipts: `D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/`.
 

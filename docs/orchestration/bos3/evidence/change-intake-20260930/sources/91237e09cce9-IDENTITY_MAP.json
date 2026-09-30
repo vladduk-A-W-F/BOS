@@ -1,0 +1,75 @@
+{
+  "schema": "bos.solutions.identity-map.v1",
+  "card": "B30-SOLUTIONS-IDENTITY-MAP-20260930",
+  "thread_id": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+  "status": "AUTHOR_COMPLETE_UNREVIEWED",
+  "context_acceptance": {
+    "status": "ACCEPTED",
+    "context_path": "D:/3/BOSDev/evidence/resume-solutions-20260930/CONTEXT_RU.md",
+    "context_sha256": "de485e9cda52221cacea01fd4b5752de2ec88bd905fc777d699ad7c4099af0f6",
+    "owner_resume_evidence_sha256": "c53d6849166a22420e167b18382da2cfc6968a66dfca4f484200885eeafe70f3",
+    "integrator_ownership_admitted": true
+  },
+  "source": {
+    "workspace": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo",
+    "commit": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+    "head_verified": true,
+    "sha256": {
+      "frontend/bos3_content.json": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390",
+      "frontend/boss_app_source.html": "145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9",
+      "erp/management/commands/seed_bos3_fasteners.py": "cd1e3dcb050a25f4f286d56610364c476dbff9d5827de34056ef269b1f109cff",
+      "training/service.py": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e",
+      "training/models.py": "cc7cf39bdada46d73a87dc39e18da3a81336c1ea3881c588dbfbdf227b78383a",
+      "crm/projections.py": "5e5ba574d0fc9a6a1c35ebb1a69ea58fc032baef45f8d6b91b4dd5803d3a198a",
+      "crm/commands.py": "7bac2ee56ce74a1c3763f55f08cb103f69f42d206e1f47934291e26d9acacb37",
+      "crm/models.py": "0aa48179015824cf558ef213e4d6c98d2c239386776978aadcf30a07ca8d9475"
+    }
+  },
+  "identifier_types": {
+    "fixture_id": "bos3-fasteners-uk-v1 is a registry/manifest string, not a database PK",
+    "case_id": "BOS3-CASE-01/02/03 are registry/source_map keys, not database PKs",
+    "slug": "supply/quality/payment are URL/registry selectors, not database PKs",
+    "training_session_id": "TrainingSession.public_id is an exposed UUID, distinct from the database PK",
+    "external_codes": "B3-* codes and references are synthetic business strings, not database PKs",
+    "source_map_ids": "order_id, line_id, customer_id, owner_id, invoice_id and other *_id manifest values are runtime database PKs"
+  },
+  "same_entity_transitions": [
+    {
+      "case_id": "BOS3-CASE-01", "slug": "supply", "external_order_code": "B3-C1-SO-101",
+      "transitions": [
+        {"from": "task/slug", "to": "case_id", "status": "SOURCE_SUPPORTED", "evidence": ["frontend/bos3_content.json:23", "frontend/boss_app_source.html:5348", "frontend/boss_app_source.html:5483-5485"]},
+        {"from": "case_id", "to": "training session public UUID", "status": "SOURCE_SUPPORTED", "evidence": ["training/service.py:35-40", "training/service.py:202-210", "training/service.py:234-250", "training/models.py:7-26"]},
+        {"from": "case_id", "to": "order/line/purchase/production/customer/owner PKs", "status": "SOURCE_SUPPORTED", "evidence": ["erp/management/commands/seed_bos3_fasteners.py:191-206", "erp/management/commands/seed_bos3_fasteners.py:253-266", "training/service.py:43-51", "training/service.py:83-116"]},
+        {"from": "training session and source PKs", "to": "CRM handoff/deal", "status": "SOURCE_SUPPORTED", "evidence": ["frontend/boss_app_source.html:5491-5498", "frontend/boss_app_source.html:5522", "crm/projections.py:86-123", "crm/commands.py:170-224", "crm/commands.py:263-298", "crm/models.py:22-46"]},
+        {"from": "source contract", "to": "observed live session/deal", "status": "NOT_EXECUTED", "evidence": ["training/service.py:245-249", "crm/commands.py:292-298"]}
+      ]
+    },
+    {
+      "case_id": "BOS3-CASE-02", "slug": "quality", "external_order_code": "B3-C2-SO-202",
+      "transitions": [
+        {"from": "task/slug", "to": "case_id", "status": "SOURCE_SUPPORTED", "evidence": ["frontend/bos3_content.json:41", "frontend/boss_app_source.html:5348", "frontend/boss_app_source.html:5483-5485"]},
+        {"from": "case_id", "to": "training session public UUID", "status": "SOURCE_SUPPORTED", "evidence": ["training/service.py:35-40", "training/service.py:202-210", "training/service.py:234-250", "training/models.py:7-26"]},
+        {"from": "case_id", "to": "order/line/customer/owner/approved-lot/blocked-lot PKs", "status": "SOURCE_SUPPORTED", "evidence": ["erp/management/commands/seed_bos3_fasteners.py:208-223", "erp/management/commands/seed_bos3_fasteners.py:267-271", "training/service.py:43-51", "training/service.py:117-147"]},
+        {"from": "training session and source PKs", "to": "CRM handoff/deal", "status": "SOURCE_SUPPORTED", "evidence": ["frontend/boss_app_source.html:5491-5498", "frontend/boss_app_source.html:5522", "crm/projections.py:86-123", "crm/commands.py:170-224", "crm/commands.py:263-298", "crm/models.py:22-46"]},
+        {"from": "source contract", "to": "observed live session/deal", "status": "NOT_EXECUTED", "evidence": ["training/service.py:245-249", "crm/commands.py:292-298"]}
+      ]
+    },
+    {
+      "case_id": "BOS3-CASE-03", "slug": "payment", "external_order_code": "B3-C3-SO-303", "external_invoice_code": "B3-C3-INV-303", "external_payment_reference": "B3-C3-PAY-303",
+      "transitions": [
+        {"from": "task/slug", "to": "case_id", "status": "SOURCE_SUPPORTED", "evidence": ["frontend/bos3_content.json:59", "frontend/boss_app_source.html:5348", "frontend/boss_app_source.html:5483-5485"]},
+        {"from": "case_id", "to": "CEO training session public UUID", "status": "SOURCE_SUPPORTED", "evidence": ["training/service.py:35-40", "training/service.py:52-56", "training/service.py:221-229", "training/service.py:234-250", "training/models.py:7-26"]},
+        {"from": "case_id", "to": "order/line/customer/owner/invoice PKs and linked payment fact", "status": "SOURCE_SUPPORTED", "evidence": ["erp/management/commands/seed_bos3_fasteners.py:225-239", "erp/management/commands/seed_bos3_fasteners.py:272-277", "training/service.py:43-56", "training/service.py:148-166"]},
+        {"from": "training session and source PKs", "to": "CRM handoff/deal including invoice FK", "status": "SOURCE_SUPPORTED", "evidence": ["frontend/boss_app_source.html:5491-5498", "frontend/boss_app_source.html:5522", "crm/projections.py:86-123", "crm/commands.py:188-224", "crm/commands.py:263-298", "crm/models.py:22-46"]},
+        {"from": "source contract", "to": "observed live session/deal", "status": "NOT_EXECUTED", "evidence": ["training/service.py:245-249", "crm/commands.py:292-298"]}
+      ]
+    }
+  ],
+  "source_proven_gaps": [],
+  "minimal_next_implementation_scope": "None justified by this bounded identity source review; independent review and candidate-matched runtime evidence are separate steps.",
+  "checks": ["context and ownership hashes matched", "immutable source HEAD and pinned hashes matched", "source files read with line references", "JSON parsed after write"],
+  "executions": 0,
+  "app_runtime_browser": "NOT_RUN",
+  "readiness_changed": false,
+  "readiness": {"TECHNICAL_READY": false, "PILOT_ALLOWED": false, "MVP": false}
+}

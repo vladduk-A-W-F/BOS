@@ -1,0 +1,32 @@
+{
+  "schema": "bos.change-intake.registry-review.v1",
+  "reviewer": "/root/change_intake_inventory",
+  "recording_method": "Exact verdict and checks returned by independent read-only subagent, transcribed by observer",
+  "verdict": "ACCEPT_SCOPED_REGISTRY",
+  "reviewed_sha256": "8ed6f471688d78a69f9ee3d2df01e90775a41438ebd247aaadea7f71d78c2d1e",
+  "scope": [
+    "11 requests and ACCEPTED/APPLIED/PUBLISHED/NOT_RUN distinctions",
+    "Pinned source hashes",
+    "PR9 ancestry and 20 retained paths; not behavioral QA",
+    "Duplicate suppression and no product readiness claim"
+  ],
+  "findings": [],
+  "checks": {
+    "registry_sha256_match": true,
+    "request_count": 11,
+    "unique_request_ids": 11,
+    "all_registry_evidence_sha256_match": true,
+    "evidence_outside_pinned_sources": 0,
+    "pr9_is_ancestor_of_pr10_head": true,
+    "pr9_ancestor_exit": 0,
+    "pr9_changed_path_count": 20,
+    "pr9_snapshot_path_set_matches": true,
+    "pr9_current_blob_mismatches": 0,
+    "ci_characterization": "blank.yml checkout + echo only, not app QA",
+    "product_executions": 0,
+    "technical_ready": false,
+    "pilot_allowed": false,
+    "mvp": false
+  },
+  "limits": "Guide upstream impact is PENDING in reviewed snapshot. New exact impact findings require a separate disposition; no retroactive product approval."
+}

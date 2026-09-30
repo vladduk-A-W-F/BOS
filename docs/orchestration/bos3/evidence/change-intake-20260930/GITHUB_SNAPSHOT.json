@@ -1,0 +1,131 @@
+{
+  "schema": "bos.change-intake.github.v1",
+  "checked_at_utc": "2026-09-30 15:21:47 UTC",
+  "repo": "vladduk-A-W-F/BOS",
+  "open_prs": [
+    {
+      "number": 10,
+      "url": "https://github.com/vladduk-A-W-F/BOS/pull/10",
+      "title": "BoS 3.0: dev9 подготовлен, диагностика заблокирована политикой Windows",
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "head": "codex/bos3-prerelease-20260927",
+      "head_sha": "d4715a088784cb442a3c82f8f3ec44a91b2ddc94",
+      "base": "main",
+      "base_sha": "d88624da95f034647a8bb031f25f7549d1cd0348",
+      "mergeable": true,
+      "updated_at": "2026-09-30T14:49:49Z"
+    },
+    {
+      "number": 9,
+      "url": "https://github.com/vladduk-A-W-F/BOS/pull/9",
+      "title": "BoS: стартовая брошюра, обзор без повторов и учебная модель 3.0",
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "head": "codex/bos-start-overview-20260926",
+      "head_sha": "a445ac0584c79c2939269b37ec814b22691711c7",
+      "base": "main",
+      "base_sha": "d88624da95f034647a8bb031f25f7549d1cd0348",
+      "mergeable": true,
+      "updated_at": "2026-09-26T22:16:09Z"
+    }
+  ],
+  "historical_pr1": {
+    "number": 1,
+    "state": "closed",
+    "merged": false,
+    "head_sha": "c4a68d494a91d3bc9ac5259f6a7b351e5cf6efb0"
+  },
+  "current_head_runs": {
+    "workflow_runs": [
+      {
+        "id": 36731971335,
+        "name": "CI",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 74,
+        "jobs_url": "https://api.github.com/repos/vladduk-A-W-F/BOS/actions/runs/36731971335/jobs",
+        "logs_url": "https://api.github.com/repos/vladduk-A-W-F/BOS/actions/runs/36731971335/logs",
+        "workflow_id": 361187339
+      }
+    ]
+  },
+  "latest_run_jobs": {
+    "jobs": [
+      {
+        "id": 109943686927,
+        "name": "build",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 36731971335,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run a one-line script",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run a multi-line script",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          }
+        ]
+      }
+    ]
+  },
+  "pr9_changed_files": [
+    "assets/app.js",
+    "boss_project/refinement_views.py",
+    "boss_project/urls.py",
+    "docs/BoS_v18_Start_UA.pdf",
+    "docs/learning/BOS_3_0_UA.md",
+    "docs/orchestration/cards/BOS3-TRAINING-01.md",
+    "docs/orchestration/cards/V18-START-OVERVIEW.md",
+    "docs/orchestration/evidence/start-overview-20260926/README.md",
+    "docs/orchestration/evidence/start-overview-20260926/RESULTS.md",
+    "docs/orchestration/evidence/start-overview-20260926/REVIEW.md",
+    "docs/orchestration/evidence/start-overview-20260926/check_start_guide.py",
+    "docs/orchestration/evidence/start-overview-20260926/check_start_overview_regressions.cjs",
+    "docs/orchestration/evidence/start-overview-20260926/check_start_overview_ui.cjs",
+    "docs/orchestration/evidence/training-20260926/PLAN.md",
+    "docs/orchestration/evidence/training-20260926/RESULTS.md",
+    "docs/orchestration/evidence/training-20260926/REVIEW.md",
+    "docs/orchestration/evidence/training-20260926/check_bos3_training.cjs",
+    "docs/orchestration/evidence/training-20260926/check_local_availability.py",
+    "frontend/boss_app_html.html",
+    "frontend/boss_app_source.html"
+  ],
+  "notes": [
+    "Workflow wrapper: pull_request runs only, first page; jobs latest attempt first page. No blanket all-checks claim.",
+    "PR9 ancestry checked locally separately; no merge approval from CI or ancestry alone."
+  ]
+}
