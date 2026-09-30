@@ -1,0 +1,123 @@
+{
+  "schema": "bos.resume-role-task-proposal.v1",
+  "parent_card": "B30-POST-MOVE-RESUME",
+  "status": "PROPOSED_PENDING_SOLE_INTEGRATOR_ADMISSION",
+  "source": {
+    "canonical_workspace": "D:/3/BOSDev/workspaces/bos3-canonical/repo",
+    "canonical_commit": "c9053d6cdb206dbfc28e69dfb52b8d913c5fb119",
+    "readonly_product_workspace": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo",
+    "readonly_product_commit": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+    "product_commit": "6b3aab22b3f8254d5f65846f54ceeed7049e1ddf",
+    "runtime_delivery": "UNCONFIRMED"
+  },
+  "authority": {
+    "context": "D:/3/BOSDev/evidence/resume-solutions-20260930/CONTEXT_RU.md",
+    "context_sha256": "de485e9cda52221cacea01fd4b5752de2ec88bd905fc777d699ad7c4099af0f6",
+    "direct_resume_message": "01a0f28f-7be2-7813-b4c2-fd44c838a0e7",
+    "direct_resume_at_utc": "2026-09-30T13:44:44.771Z",
+    "owner_resume_evidence": "D:/3/BOSDev/evidence/resume-solutions-20260930/USER_RESUME_CONFIRMED.json"
+  },
+  "integrator_thread": "01a0dd56-ca2d-79c0-b159-bde80074a026",
+  "main_thread": "01a0be90-e790-7351-a8ac-059d523941c4",
+  "control_home": "C:/Users/user/AppData/Local/BOSDev",
+  "deadline": "2026-10-04T23:59:00+02:00",
+  "authorized_checks": [
+    "Read assigned exact source and existing evidence",
+    "File hashes, source line references, JSON parsing, deterministic comparisons"
+  ],
+  "forbidden": [
+    "Product code changes or shared UI/backend edits",
+    "App, tests, builds, browser, DB, runtime, network or process/resource probes",
+    "Commits, publication, native goals, timers, new chats, subagents",
+    "Repeating accepted UXD04 source trace or diagnosing reserved CRM loadDetail defect"
+  ],
+  "caps_preserved": [
+    "P05",
+    "A09",
+    "A10",
+    "A11",
+    "all fixture/progress/full/PG/E2E/browser limits"
+  ],
+  "readiness": {
+    "TECHNICAL_READY": false,
+    "PILOT_ALLOWED": false,
+    "MVP": false
+  },
+  "executions": 0,
+  "tasks": [
+    {
+      "id": "B30-SOLUTIONS-IDENTITY-MAP-20260930",
+      "target": "writer",
+      "thread_id": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+      "profile": "standard",
+      "requested_model": "gpt-6-sol",
+      "requested_effort": "medium",
+      "observed_model": "UNCONFIRMED",
+      "worktree": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/writer",
+      "allowlist": [
+        "D:/3/BOSDev/evidence/resume-solutions-20260930/main/writer/IDENTITY_MAP.json",
+        "D:/3/BOSDev/evidence/resume-solutions-20260930/main/writer/FINDINGS_RU.md"
+      ],
+      "depends_on": [],
+      "task_class": "bounded_source_analysis",
+      "short_reason": "Cross-file identity continuity needs bounded technical reasoning, not a hash-only operation.",
+      "scope": "For BOS3-CASE-01/02/03 map the existing task/slug → training session/case → actual result source identifiers → CRM handoff/deal identifiers from immutable dev9. Produce one source-linked row per transition, distinguish fixture external IDs from runtime PKs; identify only concrete gaps or unverified transitions. Reuse accepted UXD04 trace as prior evidence; do not re-review it or CRM stale detail. No implementation.",
+      "done_when": "All three cases have source file+line/hash and ID mapping; every same-entity assertion is SOURCE_SUPPORTED, GAP or NOT_EXECUTED. No demo ID is presented as a live DB ID. Provide minimal next implementation scope only for source-proven gaps, and preserve source authorship. Include context acceptance, executions=0, no readiness change.",
+      "external_prerequisites": [
+        "Integrator scoped queue and ownership admission",
+        "Exact immutable source verified"
+      ],
+      "next_recipient": "main; then independent quality review; implementation decisions only sole integrator"
+    },
+    {
+      "id": "B30-SOLUTIONS-JOURNEY-MAP-20260930",
+      "target": "design",
+      "thread_id": "01a0bffa-3fc7-7bc2-9868-86164c6e0315",
+      "profile": "standard",
+      "requested_model": "gpt-6-sol",
+      "requested_effort": "medium",
+      "observed_model": "UNCONFIRMED",
+      "worktree": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/design",
+      "allowlist": [
+        "D:/3/BOSDev/evidence/resume-solutions-20260930/main/design/JOURNEY_MAP.json",
+        "D:/3/BOSDev/evidence/resume-solutions-20260930/main/design/JOURNEY_RU.md"
+      ],
+      "depends_on": [],
+      "task_class": "bounded_ux_preparation",
+      "short_reason": "Concrete scenario and state mapping across existing user flow.",
+      "scope": "Compare owner route task choice → visual scenario → explainable result → same-data CRM with current bos3_content.json and the existing entry/training/CRM frontend. For each of three cases record current CTA, business-department handoff, metric source disclosure and next CRM action. Specify missing/wrong user-visible states loading/empty/error/stale, return/filter and login continuity only where source evidence supports the finding. Ukrainian wording, synthetic UAH; no new demo or UI framework, no central UI changes.",
+      "done_when": "Three complete journeys, exact source locations, required/current/gap separation, concrete expected outcomes without claiming browser acceptance. Incorporate latest context and ownership. Do not duplicate accepted UXD01/02/03/04 scope or CRM stale-detail finding.",
+      "external_prerequisites": [
+        "Integrator scoped queue and ownership admission",
+        "Exact immutable source verified"
+      ],
+      "next_recipient": "main; then independent quality; sole integrator chooses next UI delta"
+    },
+    {
+      "id": "B30-SOLUTIONS-CONTRACT-REVIEW-20260930",
+      "target": "quality",
+      "thread_id": "01a0c05d-6eeb-79f1-a135-be66985b442f",
+      "profile": "review",
+      "requested_model": "gpt-6-sol",
+      "requested_effort": "high",
+      "observed_model": "UNCONFIRMED",
+      "worktree": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/quality",
+      "allowlist": [
+        "D:/3/BOSDev/evidence/resume-solutions-20260930/main/quality/REVIEW.json",
+        "D:/3/BOSDev/evidence/resume-solutions-20260930/main/quality/REVIEW_RU.md"
+      ],
+      "depends_on": [],
+      "task_class": "independent_review",
+      "short_reason": "Independent bounded verification of others' contracts and claims.",
+      "scope": "After exact writer/design artifacts arrive, independently review identity/journey mapping and root role/task matrix against pinned sources. Check same-entity claims, author/reviewer separation, current owner/version/allowlist, no inflated readiness or cleared retries. Report prioritized concrete findings; do not execute or author a harness or repeat prior accepted UXD04 trace.",
+      "done_when": "Verdict and source hashes for each input, actionable findings or scoped acceptance, NOT_RUN app/runtime/browser, no self-review. Review only the final actual artifacts; no token-consuming ACK or wait loop.",
+      "external_prerequisites": [
+        "Writer and design exact artifacts available",
+        "Main role matrix draft",
+        "Integrator scope admission"
+      ],
+      "next_recipient": "main for corrections; sole integrator for acceptance and serial plan integration"
+    }
+  ]
+}
+

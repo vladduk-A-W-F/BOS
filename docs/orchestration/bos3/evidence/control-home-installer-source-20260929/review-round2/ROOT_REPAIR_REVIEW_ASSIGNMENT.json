@@ -1,0 +1,28 @@
+{
+  "card": "B30-D-CONTROL-HOME-OPERATION-SOURCE",
+  "round": 2,
+  "assigned_at_utc": "2026-09-29T18:01:22Z",
+  "reviewer": "/root/bos3_d_migration_review",
+  "requested_model": "gpt-6-astra",
+  "requested_effort": "high",
+  "observed_model": "UNCONFIRMED",
+  "classification": "SAME-PROBLEM source repair; no execution admission",
+  "repair_card_sha256": "bcdeb1d292a825d4720b0bf26d2d0811be7c973c285d13c29cf7176817b05dc3",
+  "prior_review_sha256": "5f14fb6d6bafeb430a0b74ad8778559b55881f74b9d7a39a57176109633991c0",
+  "frozen_inputs_sha256": {
+    "install_control_home.py": "ed8a074bbfa887e8f5dd71c053bc5bf8618d989f997a3029dc7c9813430e27b1",
+    "native_windows.py": "743836205bb0f00e592f6c2a6c26a8c242370213cfb16ec3bdd8581fe8d71add",
+    "OPERATION_CONTRACT.json": "4bbf9d32b698a7a426b9955f5f370eac7021a48520608c6bd7245e0dfb3929ff",
+    "MANIFEST.json": "1a1012df6ba36ad6391fc78af3b35acc6f9328e9b8f76b50bbd82f62390eab93",
+    "REPORT_RU.md": "c333c7db263eb77f7227c179d5d6571495d21d10585ef7a67c40ff8cfa08d142"
+  },
+  "scope": "Independent source-only delta review of OPS-1 through OPS-5 and regressions from the changed paths; preserve round1 review and unchanged dependency acceptance.",
+  "reviewer_write_allowlist": ["SOURCE_REPAIR_REVIEW_RU.md"],
+  "allowed_checks": ["read source/diff", "SHA256", "parse JSON data"],
+  "forbidden": ["import", "AST/parser/compile", "help", "tests", "installer execution", "native probes", "live state or config mutation"],
+  "executions": 0,
+  "next_recipient": "root sole integrator after independent verdict",
+  "TESTED": false,
+  "INSTALLED": false,
+  "MIGRATED": false
+}

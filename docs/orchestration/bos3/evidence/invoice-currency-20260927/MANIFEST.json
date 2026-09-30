@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "card": "B30-INVOICE-CURRENCY",
+  "base_commit": "d8e121a0b38bb8c98f5719568b6fa87374e2bfb0",
+  "base_experience_blob": "181a45a66071858eb723d3d65e5facf488348b9c",
+  "defect": "home.financial omitted an invoice-only currency because its currency universe excluded snapshot.invoices",
+  "change": "Add snapshot.invoices to the existing sorted currency universe; preserve Decimal formulas, ordering and EUR fallback.",
+  "files": {
+    "erp/test_home_projection.py": "cc2bf7f029e10c2277e3f902d7171d0e1eda5c6011ec448a794e559c0587a1e2",
+    "erp/experience.py": "db613bacaecd2b60c3656042d52016a6c692865115176e0cc473a24c66a2702b"
+  },
+  "prepared_regression": {
+    "not_executed_reason": "This card authorizes preparation only; test/app/DB execution is prohibited.",
+    "cases": [
+      "invoice-only USD has receivable and paid totals with zeros elsewhere",
+      "empty snapshot retains EUR fallback"
+    ],
+    "future_runner": "PENDING_ISOLATED_SOURCE_BOUND_RUNNER_REVIEW; no test command is authorized.",
+    "tests_not_run": true,
+    "execution_count": 0,
+    "path": "erp/test_home_projection.py"
+  },
+  "not_run": [
+    "tests",
+    "build",
+    "HTTP",
+    "browser",
+    "DB",
+    "payment commands",
+    "runtime",
+    "seed",
+    "migrate",
+    "reset",
+    "push",
+    "delivery"
+  ],
+  "next_reviewer": "bos3_candidate_review",
+  "acceptance": "PENDING",
+  "runtime_changed": false,
+  "readiness_changed": false
+}

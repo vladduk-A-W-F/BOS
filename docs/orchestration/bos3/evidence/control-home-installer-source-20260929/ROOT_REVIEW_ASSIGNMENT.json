@@ -1,0 +1,27 @@
+{
+  "card": "B30-D-CONTROL-HOME-OPERATION-SOURCE",
+  "phase": "INDEPENDENT_CONSEQUENTIAL_SOURCE_REVIEW",
+  "author": "/root/bos3_operation_resume",
+  "reviewer": "/root/bos3_d_migration_review",
+  "reviewer_requested": "gpt-6-astra/high",
+  "reviewer_observed": "UNCONFIRMED",
+  "owner_request_message": "01a0ee26-9c0e-7bd2-9508-de9e026c5966",
+  "base_commit": "3e7c33c2b62bad41768e8c6efee57e0f0ff3f84d",
+  "workspace": "D:/3/BOSDev/qa-scratch/bos3-control-home-install-20260928/operation/source-complete-20260929",
+  "inputs_sha256": {
+    "install_control_home.py": "756bf4e14e5555a5866beb9083aa01e864bb757909d747eef9afb66f202217b3",
+    "native_windows.py": "cd1905d775f7e85f68f3151203d6407f7e73525f051595dd8b9a96ac2e220415",
+    "OPERATION_CONTRACT.json": "26534e258d24d47237b4faf37e9c5246432e0f07e9260ea77ceec60fa76847a0",
+    "MANIFEST.json": "b59033ab026596c7cfd284e7c2b470b801217069d2e2bb1221791335b943f617",
+    "REPORT_RU.md": "e924f88cde5fc65e3d73bfa92bb6f30eb6570e8b109227087c131026b5edee09"
+  },
+  "guidance_sha256": "91b1166898ac8ee55f4494d96425e18a12cbad8212359dabeda613c9fce7b847",
+  "checks": ["text inspection", "SHA256", "JSON data parsing"],
+  "scope": "All five actual phase bodies, native identity/ACL/lock/junction, exact config/overlays/backups, immutable receipt chains and one-shot partial failure handling; no imports, code parser, compile, tests, help, live probes or installation",
+  "executions": 0,
+  "QA1_spent": "1/1",
+  "C64_unchanged": true,
+  "output": "SOURCE_REVIEW_RU.md",
+  "check_in_utc": "2026-09-29T17:55:00Z",
+  "next": "Same author repairs concrete findings, or root prepares independently reviewed inactive archive if accepted"
+}

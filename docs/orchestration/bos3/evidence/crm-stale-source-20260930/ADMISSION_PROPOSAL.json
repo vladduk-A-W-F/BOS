@@ -1,0 +1,100 @@
+{
+  "schema": "bos.uxd04-admission-proposal.v1",
+  "card_id": "B30-UXD04-ADMISSION-PROPOSAL-20260929",
+  "classification": "SAME_PROBLEM_UXD04_CROSS_ROLE_MISSING_EVIDENCE_PREPARATION_ONLY",
+  "status": "PROPOSAL_ONLY_NOT_ADMITTED_NOT_RUN_NOT_FINAL_MANIFEST",
+  "source_head": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+  "source_checkout": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo",
+  "accepted_inputs_sha256": {
+    "ROOT_WORK_CARDS.json": "5c5211bac7140040e6574586fa3e49fd9074eb1ac5aa89f87496bb02e1d8f7ba",
+    "TRACE_RU.md": "6a88c04490d0447915ccaf634171979689e29c133cd69a749a126233dc654ad2",
+    "NEXT_SCOPE.json": "5e430ae919809d7bedaf63dcc92f9c6aba889c9e078fc458ea66067a2364fb14",
+    "INDEPENDENT_REVIEW_RU.md": "ec0d3adc6fe3f56c7f7e062e6599ab1e7ffd394b2d751348d8be53d9e8f5151a"
+  },
+  "proposal_boundary": {
+    "purpose": "One bounded synthetic HTTP cross-role handoff receipt on the exact dev9 source, conditional on a later explicit execution admission.",
+    "not_authorized_now": ["fixture creation", "app import", "test", "harness", "build", "database or media access", "HTTP/runtime/browser", "network", "process or resource probe"],
+    "no_product_patch": true,
+    "executions": 0,
+    "TECHNICAL_READY": false,
+    "PILOT_ALLOWED": false,
+    "MVP": false
+  },
+  "required_future_admission": {
+    "decision_owner": "Root integrator and owner of runtime/QA admission, followed by independent review of exact runner, fixture and raw result.",
+    "missing_permissions": [
+      "Explicit same-problem UXD04 execution admission, with accounting against all historical attempts and a precise new budget if lawful.",
+      "Exact isolated disposable instance and synthetic fixture creation/read/write permission; old fixture 3/3 is exhausted.",
+      "Exact bounded HTTP/app runner, credentials, environment, test database and media paths, permitted operations and stop/cleanup rules.",
+      "Independent pre-execution review of final executable command/runner and final fixture manifest; this document is not that manifest.",
+      "Independent post-execution review of immutable raw outputs before any acceptance or integration claim."
+    ],
+    "historical_caps_unchanged": ["P05 full/PG/E2E 3/3", "fixture 3/3", "progressNode 1/1", "focused control-home QA 1/1 FAIL_SETUP", "C64 policy refusal", "A09 targeted 13 MiB", "A10 activation/upgrade/rollback", "A11 browser/CDN/loopback"],
+    "separate_unresolved_decisions": ["runtime delivery", "B30-12", "control-home installation and C64 exception"]
+  },
+  "synthetic_instance_contract_if_admitted": {
+    "source": "Exact immutable dev9 commit and file-hash manifest; abort on drift.",
+    "database": "New disposable isolated check_* database under approved verification settings; no historical or client data.",
+    "media": "Dedicated disposable BOS_TEST_MEDIA root outside live media; exact path and cleanup authorization belong in later manifest.",
+    "clock": "Pinned server as_of and a valid deadline on or after as_of; record both raw values.",
+    "identity": "Three separate authenticated sessions with CSRF where required: sender manager, recipient manager, denied observer. Record synthetic user and employee IDs, group/role and active state, without publishing credentials.",
+    "membership": "Sender Employee is current Task assignee in department A; recipient is active linked Employee in department B of type department; recipient User is active with exactly manager role. Observer has observer role and no write authority.",
+    "source_fixture": "One existing unarchived, unfinished Task with a current SalesOrder and at least one accumulated historical order/request reference, all visible to sender and recipient. Record exact source IDs, document access, pre-existing AuditEvent IDs, Task field snapshot and source_refs; no brochure or real data.",
+    "fixture_authorization": "NOT_GRANTED; existing fixture 3/3 cannot be reused as a new attempt."
+  },
+  "candidate_sequence_if_admitted": [
+    {
+      "step": "S0",
+      "actor": "sender manager",
+      "operation": "Fresh read of Task, sources and baseline Task/AuditEvent/ActionProposal IDs on the isolated fixture.",
+      "oracle": "Sender sees same eligible Task and every accumulated source; capture exact pre-state and counts."
+    },
+    {
+      "step": "S1",
+      "actor": "sender manager",
+      "operation": "POST /api/operations/preview/ with exactly action, task_id, assignee_id, expected_result, deadline, reason.",
+      "oracle": "HTTP 200; proposal ID, payload and effect.operation=handoff identify same Task/recipient; Task and AuditEvent unchanged; proposal receipt null."
+    },
+    {
+      "step": "S2",
+      "actor": "sender manager",
+      "operation": "Record explicit confirmation of the displayed preview; POST /api/operations/confirm/ with that proposal_id and confirmed=true in the same sender session before expiry.",
+      "oracle": "HTTP 200 and state=succeeded; one unchanged Task ID now assigned to recipient, status active and selected deadline; receipt.task_id, receipt.audit_id, handoff.sender/recipient, expected_result and source_refs match fixture; one AuditEvent action=handoff_task, transition=handoff; proposal receipt persists with same IDs."
+    },
+    {
+      "step": "S3",
+      "actor": "recipient manager",
+      "operation": "Fresh independent recipient session/read: GET /api/tasks/?department_id=<recipient_department_id>, GET /api/tasks/<task_id>/, GET /api/tasks/<task_id>/history/ through all pages if required.",
+      "oracle": "HTTP 200 for each; list and detail show same Task ID and current handoff, recipient assignee and expected_result distinct from preserved actual result; history contains exactly the S2 audit ID with sender actor, reason, before/after and handoff transition."
+    },
+    {
+      "step": "S4",
+      "actor": "denied observer",
+      "operation": "Separate observer session attempts POST /api/operations/preview/ for the same Task and recipient.",
+      "oracle": "HTTP 403 with error and without receipt/handoff/impact; Task, AuditEvent and successful proposal receipt unchanged."
+    },
+    {
+      "step": "S5",
+      "actor": "sender manager",
+      "operation": "Replay POST /api/operations/confirm/ for the same successful proposal_id in its original session; then GET its task-proposal status.",
+      "oracle": "HTTP 200; replay receipt equals S2 receipt; status state=succeeded and receipt matches; Task and AuditEvent counts/IDs unchanged, with exactly one handoff event for this proposal."
+    }
+  ],
+  "raw_evidence_contract": [
+    "Immutable source commit/file hashes, exact reviewed runner and fixture hashes, instance/config identifier, server as_of, synthetic role-to-user/employee/department mapping.",
+    "Ordered raw request/response bytes or lossless bodies, status codes, headers necessary to prove session separation, and timestamps; redact only secrets with a documented reversible-free rule.",
+    "S0 and S1/S2/S4/S5 isolated Task, AuditEvent and ActionProposal snapshots with IDs and counts; recipient list/detail/history raw pages and pagination cursors.",
+    "Every operation's exit code, command identity, stdout/stderr, start/end time and evidence SHA-256; explicitly mark steps not run.",
+    "Independent reviewer checks source/instance/role attribution and raw evidence before any verdict."
+  ],
+  "stop_rules_if_admitted": [
+    "Stop before fixture setup if admission, exact source, isolated paths, permissions or reviewed manifest is missing or drifted.",
+    "Stop on first unexpected status, missing oracle, leaked secret, ambiguous role/session, fixture collision or non-synthetic data; preserve raw output and counts, no automatic retry.",
+    "Stop if preview expires or a source/permission drift occurs; do not create a fresh proposal under this admission.",
+    "Never run full/PG/E2E, exhausted fixture/progress, C64, lifecycle or forbidden browser routes by changing tool, ID or branch.",
+    "A failed or partial receipt is NOT_PROVEN; no readiness or owner acceptance inference."
+  ],
+  "requested_model": "gpt-6-sol",
+  "requested_effort": "medium",
+  "observed_model": "UNCONFIRMED"
+}

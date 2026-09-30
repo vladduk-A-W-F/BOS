@@ -1,0 +1,336 @@
+{
+  "schema": "bos.confirmed-role-task-matrix.v1",
+  "as_of_utc": "2026-09-30T15:30:30.486859+00:00",
+  "status": "R1_REVIEW_REQUIRES_DESIGN_DELTA_RECHECK",
+  "source": {
+    "canonical_workspace": "D:/3/BOSDev/workspaces/bos3-canonical/repo",
+    "canonical_commit": "d4715a088784cb442a3c82f8f3ec44a91b2ddc94",
+    "readonly_product_workspace": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo",
+    "readonly_product_commit": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+    "product_commit": "6b3aab22b3f8254d5f65846f54ceeed7049e1ddf",
+    "runtime_delivery": "NOT_DELIVERED",
+    "canonical_assignment_base": "c9053d6cdb206dbfc28e69dfb52b8d913c5fb119",
+    "canonical_commit_scope": "Поточні документи й неактивні докази; виконуваний продукт цим комітом не оновлено.",
+    "runtime_availability": "UNCONFIRMED"
+  },
+  "authority": {
+    "context": "D:/3/BOSDev/evidence/resume-solutions-20260930/CONTEXT_RU.md",
+    "context_sha256": "de485e9cda52221cacea01fd4b5752de2ec88bd905fc777d699ad7c4099af0f6",
+    "direct_resume_message": "01a0f28f-7be2-7813-b4c2-fd44c838a0e7",
+    "direct_resume_at_utc": "2026-09-30T13:44:44.771Z",
+    "owner_resume_evidence": "D:/3/BOSDev/evidence/resume-solutions-20260930/USER_RESUME_CONFIRMED.json"
+  },
+  "control_home": "C:/Users/user/AppData/Local/BOSDev",
+  "deadline": "2026-10-04T23:59:00+02:00",
+  "scope_admission": [
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\integrator\\SCOPED_ROLE_QUEUE.json",
+      "sha256": "cb8c514faebdc4f0e6a4aa011db703257560677f2ad1a3a85c43850b36f1c9b1"
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\integrator\\SCOPED_ROLE_OWNERSHIP.json",
+      "sha256": "5372d394ebd2baf232f3ff0cdaa2aa1e1c4ceb210ab9f79763d688943f5f4c77"
+    }
+  ],
+  "source_pins": {
+    "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\SOURCE_PINS.json",
+    "sha256": "4f61c3eafced23ad66bac8ed9624176f5b92a4b0245e9ba5ebca034c1c4e4f9c"
+  },
+  "requirements": {
+    "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\REQUIREMENTS_CHAIN_R2.json",
+    "sha256": "f49ed1c9b92943ed605e36d2be93928f67654449444a336824fed3db075b7b26"
+  },
+  "coordinators": [
+    {
+      "role": "main",
+      "thread": "01a0be90-e790-7351-a8ac-059d523941c4",
+      "responsibility": "Вимоги, ролі й залежності, передавання через ledger, точні докази. Канонічне дерево та продукт не редагує.",
+      "workspace": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main",
+      "allowlist": "Лише власні файли контексту, матриці, вимог, передавань і доказів у main; авторські підтеки належать відповідним ролям.",
+      "model_requested": "inherit",
+      "model_observed": "UNCONFIRMED",
+      "next_recipient": "sole integrator",
+      "context_acceptance": "ACCEPTED_LATEST_OWNER_RESUME"
+    },
+    {
+      "role": "integrator",
+      "thread": "01a0dd56-ca2d-79c0-b159-bde80074a026",
+      "responsibility": "Єдиний редактор канонічного дерева; допуск точного джерела, незалежного review та послідовної інтеграції.",
+      "workspace": "D:/3/BOSDev/workspaces/bos3-canonical/repo",
+      "protected_work": "CRM R2 прийнято статично та опубліковано як неактивний пакет. Виконуваний frontend, доставка й QA залишаються окремими умовами.",
+      "model_requested": "inherit",
+      "model_observed": "UNCONFIRMED",
+      "next_recipient": "main and observer with exact result receipt",
+      "context_acceptance": "CONFIRMED_BY_AUTHORITY_RESUMED"
+    },
+    {
+      "role": "observer",
+      "thread": "01a0bf0f-a9e4-7631-87e1-bb1aed03f174",
+      "responsibility": "Контролює чинний heartbeat і канал, контекст та ресурси. Транспортний блокер усунуто. Окремо виконує нове пряме доручення власника про відділ подачі й навчання; цей пакет нового відділу не створює.",
+      "workspace": "C:/Users/user/AppData/Local/BOSDev",
+      "model_requested": "inherit",
+      "model_observed": "UNCONFIRMED",
+      "next_recipient": "Main та sole integrator із перевіреними результатами і точними квитанціями.",
+      "context_acceptance": "LATEST_DIRECT_OWNER_SOURCE"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "B30-SOLUTIONS-IDENTITY-MAP-20260930",
+      "target": "writer",
+      "thread_id": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+      "profile": "standard",
+      "requested_model": "gpt-6-sol",
+      "requested_effort": "medium",
+      "observed_model": "UNCONFIRMED",
+      "worktree": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/writer",
+      "allowlist": [
+        "D:/3/BOSDev/evidence/resume-solutions-20260930/main/writer/IDENTITY_MAP.json",
+        "D:/3/BOSDev/evidence/resume-solutions-20260930/main/writer/FINDINGS_RU.md"
+      ],
+      "depends_on": [],
+      "task_class": "bounded_source_analysis",
+      "short_reason": "Обмежений міжфайловий аналіз ідентифікаторів.",
+      "scope": "Простежити три наявні кейси від вибору/сесії/результату до тих самих сутностей CRM; розрізнити fixture external ID та runtime PK. Реалізацію не виконувати.",
+      "done_when": "Три кейси, п’ятнадцять переходів, точні джерела та статус кожного твердження; конкретні прогалини або неперевірені переходи, без тверджень про виконання.",
+      "external_prerequisites": [
+        "Integrator scoped queue and ownership admission",
+        "Exact immutable source verified"
+      ],
+      "next_recipient": "Main → незалежний quality → sole integrator для подальшої реалізації та послідовної інтеграції.",
+      "source": {
+        "canonical_workspace": "D:/3/BOSDev/workspaces/bos3-canonical/repo",
+        "canonical_commit": "d4715a088784cb442a3c82f8f3ec44a91b2ddc94",
+        "readonly_product_workspace": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo",
+        "readonly_product_commit": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+        "product_commit": "6b3aab22b3f8254d5f65846f54ceeed7049e1ddf",
+        "runtime_delivery": "NOT_DELIVERED",
+        "canonical_assignment_base": "c9053d6cdb206dbfc28e69dfb52b8d913c5fb119",
+        "canonical_commit_scope": "Поточні документи й неактивні докази; виконуваний продукт цим комітом не оновлено.",
+        "runtime_availability": "UNCONFIRMED"
+      },
+      "assignment_admission": "AUTHOR_COMPLETE_UNREVIEWED",
+      "context_acceptance": "ACCEPTED_CURRENT_CONTEXT_AND_PINNED_SOURCE",
+      "delivery_status": "AUTHOR_COMPLETE_UNREVIEWED_NATIVE_IDLE",
+      "canonical_write_permission": false,
+      "authorized_checks": [
+        "Читання точного призначеного джерела й доказів",
+        "Контрольні суми, посилання на рядки, JSON та детерміноване порівняння"
+      ],
+      "executions": 0,
+      "context_receipt": {
+        "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\WRITER_CONTEXT_RECEIPT.json",
+        "sha256": "a3b5edd8465c502b0bdabeb5795a8f44a84386d537a69708c4286563433d1dd6"
+      },
+      "delivery_receipt": {
+        "path": "D:\\3\\BOSDev\\reports\\flow\\writer-solutions-identity-map-20260930.json",
+        "sha256": "e671d601f2da21001f9113152f1980382347321fc0b804a01310bb4ed1a1c490"
+      },
+      "final_artifacts": [
+        {
+          "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\writer\\IDENTITY_MAP.json",
+          "sha256": "91237e09cce96aa8927470455b0f50995caa5a72f4a0c77fcc44199adbf49a00"
+        },
+        {
+          "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\writer\\FINDINGS_RU.md",
+          "sha256": "77ae326cdc588bceff250c2aca57bb458af60511af44efe9efc39d32d64a1dbb"
+        }
+      ],
+      "independent_verdict": "R1_SOURCE_SUPPORTED; пакет потребує поправки design"
+    },
+    {
+      "id": "B30-SOLUTIONS-JOURNEY-MAP-20260930",
+      "target": "design",
+      "thread_id": "01a0bffa-3fc7-7bc2-9868-86164c6e0315",
+      "profile": "standard",
+      "requested_model": "gpt-6-sol",
+      "requested_effort": "medium",
+      "observed_model": "UNCONFIRMED",
+      "worktree": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/design",
+      "allowlist": [
+        "D:/3/BOSDev/evidence/resume-solutions-20260930/main/design/JOURNEY_MAP.json",
+        "D:/3/BOSDev/evidence/resume-solutions-20260930/main/design/JOURNEY_RU.md"
+      ],
+      "depends_on": [],
+      "task_class": "bounded_ux_preparation",
+      "short_reason": "Обмежена карта маршруту й українських текстів.",
+      "scope": "Три маршрути й стани поточного продукту; брошура першою, верхній моніторинг, наочний результат і CRM. Узгодити точні українські написи як пропозицію, з окремим походженням вимог власника та рекомендацій observer.",
+      "done_when": "Фінальні два файли містять три маршрути, стани/CTA, current/proposal/unverified та provenance UI-copy; вихідний код і ID незмінні, AUTHOR_COMPLETE_UNREVIEWED.",
+      "external_prerequisites": [
+        "Integrator scoped queue and ownership admission",
+        "Exact immutable source verified"
+      ],
+      "next_recipient": "Main → незалежний quality → sole integrator для подальшої реалізації та послідовної інтеграції.",
+      "source": {
+        "canonical_workspace": "D:/3/BOSDev/workspaces/bos3-canonical/repo",
+        "canonical_commit": "d4715a088784cb442a3c82f8f3ec44a91b2ddc94",
+        "readonly_product_workspace": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo",
+        "readonly_product_commit": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+        "product_commit": "6b3aab22b3f8254d5f65846f54ceeed7049e1ddf",
+        "runtime_delivery": "NOT_DELIVERED",
+        "canonical_assignment_base": "c9053d6cdb206dbfc28e69dfb52b8d913c5fb119",
+        "canonical_commit_scope": "Поточні документи й неактивні докази; виконуваний продукт цим комітом не оновлено.",
+        "runtime_availability": "UNCONFIRMED"
+      },
+      "assignment_admission": "AUTHOR_COMPLETE_UNREVIEWED",
+      "context_acceptance": "ACCEPTED_CURRENT_CONTEXT_SOURCE_AND_UA_COPY",
+      "delivery_status": "AUTHOR_COMPLETE_UNREVIEWED_NATIVE_IDLE",
+      "canonical_write_permission": false,
+      "authorized_checks": [
+        "Читання точного призначеного джерела й доказів",
+        "Контрольні суми, посилання на рядки, JSON та детерміноване порівняння"
+      ],
+      "executions": 0,
+      "dispatch_note": "Той самий автор відповів лише на Q-01–Q-03. До незалежної перевірки дельта не прийнята.",
+      "final_artifacts": [
+        {
+          "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\design\\JOURNEY_MAP.json",
+          "sha256": "04e72766640752226eff4609cf628c862b4716d14bcb734044503579ead59c51"
+        },
+        {
+          "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\design\\JOURNEY_RU.md",
+          "sha256": "70c6a89f08381bb7d274e6496ee53220cdbce64577e19beaa9177a8c08663014"
+        }
+      ],
+      "independent_verdict": "R1_REVISION_REQUIRED; R4_DELTA_UNREVIEWED",
+      "author_recorded_status": "AUTHOR_COMPLETE_UNREVIEWED",
+      "context_receipt": {
+        "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\DESIGN_CONTEXT_RECEIPT.json",
+        "sha256": "ac8346bd8ef60f0699ff590d98c7141e036e8098c06edc43a9d33c5a3cb78903"
+      },
+      "delivery_receipt": {
+        "path": "D:\\3\\BOSDev\\reports\\flow\\design-solutions-journey-q01-q03-correction-20260930.json",
+        "sha256": "f8390c0e513faf062739881a9ac889a69905546a25acc482e63e55658acccd28"
+      },
+      "final_turn_id": "01a0f2e9-ffac-7133-a016-0f9c274f42e0",
+      "final_context_evidence": {
+        "artifact": {
+          "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\design\\JOURNEY_MAP.json",
+          "sha256": "04e72766640752226eff4609cf628c862b4716d14bcb734044503579ead59c51"
+        },
+        "fields": [
+          "context_acceptance",
+          "ua_copy_alignment.provenance"
+        ]
+      }
+    },
+    {
+      "id": "B30-SOLUTIONS-CONTRACT-REVIEW-20260930",
+      "target": "quality",
+      "thread_id": "01a0c05d-6eeb-79f1-a135-be66985b442f",
+      "profile": "review",
+      "requested_model": "gpt-6-sol",
+      "requested_effort": "high",
+      "observed_model": "UNCONFIRMED",
+      "worktree": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/quality",
+      "allowlist": [
+        "D:/3/BOSDev/evidence/resume-solutions-20260930/main/quality/REVIEW.json",
+        "D:/3/BOSDev/evidence/resume-solutions-20260930/main/quality/REVIEW_RU.md"
+      ],
+      "depends_on": [],
+      "task_class": "independent_review",
+      "short_reason": "Незалежна перевірка контрактів і тверджень інших авторів.",
+      "scope": "Лише Q-01/Q-02/Q-03 у змінених двох design-файлах і незмінність решти. Попередні підтверджені source-висновки не повторювати.",
+      "done_when": "Точні hashes входів, конкретні пріоритетні findings або приймання обмеженого пакета; app/runtime/browser NOT_RUN, автори не приймають себе.",
+      "external_prerequisites": [
+        "Writer and design exact artifacts available",
+        "Main role matrix draft",
+        "Integrator scope admission"
+      ],
+      "next_recipient": "Main для адресних поправок; sole integrator для прийняття та наступної source-картки.",
+      "source": {
+        "canonical_workspace": "D:/3/BOSDev/workspaces/bos3-canonical/repo",
+        "canonical_commit": "d4715a088784cb442a3c82f8f3ec44a91b2ddc94",
+        "readonly_product_workspace": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo",
+        "readonly_product_commit": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+        "product_commit": "6b3aab22b3f8254d5f65846f54ceeed7049e1ddf",
+        "runtime_delivery": "NOT_DELIVERED",
+        "canonical_assignment_base": "c9053d6cdb206dbfc28e69dfb52b8d913c5fb119",
+        "canonical_commit_scope": "Поточні документи й неактивні докази; виконуваний продукт цим комітом не оновлено.",
+        "runtime_availability": "UNCONFIRMED"
+      },
+      "assignment_admission": "WAIT_ROOT_EXACT_R3_MANIFEST_DELTA_REVIEW_ADMISSION",
+      "context_acceptance": "ACCEPTED_CURRENT_CONTEXT_IN_R1",
+      "delivery_status": "R1_COMPLETE; DELTA_RECHECK_NOT_DISPATCHED",
+      "canonical_write_permission": false,
+      "authorized_checks": [
+        "Читання точного призначеного джерела й доказів",
+        "Контрольні суми, посилання на рядки, JSON та детерміноване порівняння"
+      ],
+      "executions": 0,
+      "external_inputs_ready": true,
+      "review_slot": "Потрібен exact admission root нового manifest; попередній quality idle/completed.",
+      "context_receipt": {
+        "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\QUALITY_CONTEXT_RECEIPT.json",
+        "sha256": "0f3f7924ff0366325e702c27ce1383d5466f6a996e7af2be3f46cabb94302ef6"
+      },
+      "independent_verdict": "REVISION_REQUIRED_BEFORE_NEXT_UI_CARD"
+    }
+  ],
+  "capacity": {
+    "max_concurrent_authors": 2,
+    "max_delegated_workstreams": 3,
+    "new_subagents_allowed": false,
+    "heavy_jobs": 0,
+    "resource_note": "Історичне повідомлення про614MiB вільної пам’яті; нового вимірювання немає. Важкі процеси не запускати.",
+    "dispatch_sequence": [
+      "Автори writer/design завершили призначені карти.",
+      "Quality запускається після exact admission root цього фінального пакета."
+    ]
+  },
+  "review_status": "QUALITY_R1_COMPLETE_DELTA_RECHECK_PENDING",
+  "product_execution_status": "NOT_RUN",
+  "executions": 0,
+  "source_changes": 0,
+  "readiness": {
+    "TECHNICAL_READY": false,
+    "PILOT_ALLOWED": false,
+    "MVP": false
+  },
+  "transport_blocker": {
+    "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\WRITER_TRANSPORT_BLOCKER.json",
+    "sha256": "673a2f1435ab912e5f4dcaaf57c1b964bf82c0694f1ce7e3eef9f431e916bc89",
+    "historical": true
+  },
+  "integration": "Лише sole integrator інтегрує після незалежного verdict; відправлення чи ACK не є виконанням або прийманням.",
+  "previous_snapshot": {
+    "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\ROLE_TASK_MATRIX_R3.json",
+    "sha256": "da3d401fbfa207d52f26794a4bc4f429f7f8c754a538de6985e855e3a676f980"
+  },
+  "transport_blocker_resolution": {
+    "path": "D:\\3\\BOSDev\\setup\\channel-dormant-20260930\\APPLY_RECEIPT.json",
+    "sha256": "2f22084146be2c4a984d2ad3fcf289a15fec8a3a13b987769e3afa6b73051018"
+  },
+  "validation": {
+    "three_existing_cases": true,
+    "three_unique_task_ids": true,
+    "six_disjoint_output_paths": true,
+    "independent_review_pending": true,
+    "app_tests": "NOT_RUN",
+    "product_readiness": false
+  },
+  "canonical_update": {
+    "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\CANONICAL_UPDATE_D4715A.json",
+    "sha256": "cdf991df58208b078e1cef75381c869bd3a7195f527ad4a469533b481da1d20d"
+  },
+  "revision": "R4_Q01_Q03_AUTHOR_CORRECTION",
+  "source_pins_role": "Історичний pin призначення c9053d6; current canonical docs наведено в source/canonical_update, immutable product aa6a4ca4 незмінний.",
+  "current_context_refs": [
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\integrator\\MAIN_UA_ALIGNMENT.md",
+      "sha256": "e70be5ee4f12db7ea3f3498515e5322ca7e8694919c086d68bf9a85873a1e78d"
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\CONCEPT_OWNER_CONTEXT.json",
+      "sha256": "56fb61ca97ba5d91200d325f85f31126cb500d099e67210dc922ef14503609b9"
+    }
+  ],
+  "quality_r1": {
+    "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\review-snapshots\\quality-r1\\SNAPSHOT.json",
+    "sha256": "d6cb0a0010d1f666ee6e6063397588d29dd81122a5162843b66aeb787261288c"
+  },
+  "separate_roster_addendum": {
+    "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\ROLE_ROSTER_ENABLEMENT_ADDENDUM.json",
+    "sha256": "3e06080b023603163fe5c2c823315a2912bab15c09bc1b9a368ee4b5d2d4639b"
+  }
+}

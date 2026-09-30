@@ -1,0 +1,21 @@
+# Независимое review неактивного CRM пакета и текущих записей
+
+Карточка `B30-CRM-STALE-AND-PROPOSAL-REVIEW-20260930`. Exact вход `PACKAGE_REVIEW_INPUT.json` SHA-256 `8cd1e96b823f460ccbf7a9ae86b6fd4bf537014d3e5986dafefaad1e95ba5fe8`. Автор пакета и пяти текущих записей root; reviewer `/root/crm_stale_review` их не писал. Это review архивной целостности и статуса записей, без повторного source model review R2.
+
+## Вердикт
+
+**ACCEPT_SCOPED_INACTIVE_PACKAGE_AND_CURRENT_RECORDS.** Архив `docs/orchestration/bos3/evidence/crm-stale-source-20260930/` согласован с принятым статическим R2 и сохраняет отклонённый R1. Новые текущие записи называют source результат, сборку, QA, product integration и delivery отдельно, не повышают readiness и не выдают UXD04 proposal за admission. Вердикт разрешает root рассматривать exact архивный commit и отдельный publication receipt; сам по себе не является commit, PR, доставкой или выполнением приложения.
+
+## Проверки
+
+- `INDEX.json` SHA-256 `edb7c00c328b8910f7dbcce97eb3303063ef0b4310a5e1e71bceb25889a46951` содержит 21 путь; все 21 фактических файла существуют и совпадают с указанными SHA-256. В каталоге 22 файла вместе с INDEX, дополнительных или отсутствующих нет. `.gitattributes` задаёт `* -text` для сохранения байтов архива в Git.
+- `INDEX.current` указывает на `round2/boss_app_source.candidate.html.txt` SHA-256 `fc82733a97c3532cd8ea45ec9dfbfbd96d9274054c83d512b7fa8d40f8772384`; рядом лежат R2 raw patch, author manifest и независимый `SOURCE_REVIEW_RU.md` SHA-256 `58932676f44dbeb2897e8c168829963972a404861198fffdd60b3f1ccb7f056b`. Верхнеуровневые candidate/patch/author files имеют R1 SHA `ef7206b5`/`c28e2b2d`, а `SOURCE_REVIEW_ROUND1_RU.md` сохраняет `CHANGES_REQUIRED_SOURCE_SCOPE` SHA-256 `7b4a9de4b887fe00ade8e0c34b27330615571716063bcbec1c1e7ca2e544819e`. README и INDEX явно определяют R2 как current, R1 как историю.
+- `ADMISSION_PROPOSAL.json`, `PROPOSAL_RU.md` и независимый `PROPOSAL_REVIEW_RU.md` совпадают с ранее сверенными SHA. Предложение UXD04 остаётся `PROPOSAL_ONLY` с тремя условиями будущего manifest; accepted trace повторно не оценивался.
+- Пять текущих файлов `CONTROL_STATE.json`, `ACTIVE_WORK_PLAN_RU.md`, `TEAM_CURRENT_RU.md`, `CURRENT_STAGE_20260929_RU.md`, `RELEASE_PLAN_RU.md` совпали с SHA-256 из exact review input. Сохранённый `CURRENT_RECORDS.patch` SHA-256 `88f5d3922232148da0348d258df684593d9178153acee7ffc6db88a9fd8d3714` построчно равен текущему `git diff` по тем же пяти файлам: 218/218 строк, первое расхождение отсутствует. `git diff --check` exit `0`, whitespace findings `0`; Git предупредил о возможной LF→CRLF нормализации для этих пяти рабочих файлов. Исторические секции 29.09 остались ниже новых 30.09, включая прежние лимиты и NOT_RUN.
+- В tracked diff только эти пять docs; untracked только названный архив. `frontend/boss_app_source.html` в canonical остался SHA-256 `145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9`, HEAD `c9053d6cdb206dbfc28e69dfb52b8d913c5fb119`. Generated assets и продуктовые файлы этим набором не менялись. `CONTROL_STATE.resume_solutions_20260930` фиксирует `executions=0`, `INACTIVE_ARCHIVE_ONLY`, `UNCONFIRMED_DEV9_NOT_DELIVERED`, а external `POST_CHECKPOINT_OPERATIONAL_DELTA.json` SHA-256 `56bbedcc0194b30f54a725a0c9ec19c609856a6d2aa57d7ec4719e638ee73375` фиксирует `publication_status=PENDING_EXACT_INACTIVE_PACKAGE_REVIEW`, `product_integrated=false`, `build_qa_delivery=NOT_RUN`.
+
+## Граница доказательства
+
+Owner resume/native chronology и observer channel/resource факты взяты из закреплённых root/current записей; это review не выполняло новую native проверку их первоисточников. Текущие SHA закрепляют рабочие файлы до commit. Из-за предупреждений Git о переводе строк root должен отдельно записать фактические committed Git blob IDs и publication/PR receipt; INDEX SHA и архивные raw bytes также проверить после staging/commit. `PACKAGE_REVIEW_RU.md` намеренно не входит в INDEX, чтобы не создавать self-reference; его exact копия может быть добавлена root после verdict.
+
+App import, Node, tests, build, browser, HTTP, runtime, DB/media, process/resource probes и новые QA attempts не запускались: `executions=0`. `TECHNICAL_READY=false`, `PILOT_ALLOWED=false`, `MVP=false`; dev9 не доставлен. Исторические caps, отдельные owner решения и будущие build/QA/delivery gates не изменены.

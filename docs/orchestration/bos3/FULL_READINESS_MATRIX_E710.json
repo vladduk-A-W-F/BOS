@@ -1,0 +1,381 @@
+{
+  "schema": "bos.full-readiness.matrix.e710.v1",
+  "observed_at_utc": "2026-09-27T15:25:34.174799+00:00",
+  "goal_status_native": "active",
+  "full_readiness_proven": false,
+  "product_pin": "e710eb568717dfe3ede945feb899f030bd5ad1ab",
+  "readiness_scope": "All agreed plan requirements retained; owner-local prerelease acceptance distinguished from full MVP, technical/pilot and external release gates. Deferral is not cancellation.",
+  "read_only_auditors": [
+    "/root/readiness_requirements",
+    "/root/qa_readiness_gaps"
+  ],
+  "accepted_current": [
+    "ACCEPT_SCOPED_DEV4_OWNER_LOCAL_DELIVERY: exact e710 source, preserved protected data, single root HTML200/version receipt only",
+    "ACCEPT_SCOPED_EVIDENCE_PACKAGING: dev4 manifest91/91 blobs",
+    "Scoped static/offline design and PDF review; not complete UXD or scenario acceptance"
+  ],
+  "historical_implementation": [
+    {
+      "id": "B30-00",
+      "historical_recorded_state": "INTEGRATED_SCOPED",
+      "commit": "b9692be",
+      "historical_role": "root_evidence",
+      "dispatch_authorized_from_history": false,
+      "current_full_acceptance": "NOT_ESTABLISHED_BY_HISTORICAL_STATUS"
+    },
+    {
+      "id": "B30-01",
+      "historical_recorded_state": "IN_PROGRESS",
+      "commit": null,
+      "historical_role": "product_content",
+      "dispatch_authorized_from_history": false,
+      "current_full_acceptance": "NOT_ESTABLISHED_BY_HISTORICAL_STATUS"
+    },
+    {
+      "id": "B30-02",
+      "historical_recorded_state": "INTEGRATED_SCOPED",
+      "commit": "6dabb89",
+      "historical_role": "data_backend",
+      "dispatch_authorized_from_history": false,
+      "current_full_acceptance": "NOT_ESTABLISHED_BY_HISTORICAL_STATUS"
+    },
+    {
+      "id": "B30-03",
+      "historical_recorded_state": "ISOLATION_QA_SCOPED_RESET_PENDING",
+      "commit": null,
+      "historical_role": "backend_security",
+      "dispatch_authorized_from_history": false,
+      "current_full_acceptance": "NOT_ESTABLISHED_BY_HISTORICAL_STATUS"
+    },
+    {
+      "id": "B30-04",
+      "historical_recorded_state": "INTEGRATED_STATIC_REVIEW_BUILD_PASS_BROWSER_PENDING",
+      "commit": "24dadb1",
+      "historical_role": "ux_frontend",
+      "dispatch_authorized_from_history": false,
+      "current_full_acceptance": "NOT_ESTABLISHED_BY_HISTORICAL_STATUS"
+    },
+    {
+      "id": "B30-05",
+      "historical_recorded_state": "INTEGRATED_SERVER_QA_SCOPED_BROWSER_PENDING",
+      "commit": "5c34969",
+      "historical_role": "frontend_backend",
+      "dispatch_authorized_from_history": false,
+      "current_full_acceptance": "NOT_ESTABLISHED_BY_HISTORICAL_STATUS"
+    },
+    {
+      "id": "B30-06",
+      "historical_recorded_state": "INTEGRATED_STATIC_REVIEW_BROWSER_PENDING",
+      "commit": "24dadb1",
+      "historical_role": "frontend",
+      "dispatch_authorized_from_history": false,
+      "current_full_acceptance": "NOT_ESTABLISHED_BY_HISTORICAL_STATUS"
+    },
+    {
+      "id": "B30-07",
+      "historical_recorded_state": "CONTRACT_INTEGRATED_SCOPED",
+      "commit": "5c34969",
+      "historical_role": "architect",
+      "dispatch_authorized_from_history": false,
+      "current_full_acceptance": "NOT_ESTABLISHED_BY_HISTORICAL_STATUS"
+    },
+    {
+      "id": "B30-08",
+      "historical_recorded_state": "INTEGRATED_QA_SCOPED",
+      "commit": "5c34969",
+      "historical_role": "crm_backend",
+      "dispatch_authorized_from_history": false,
+      "current_full_acceptance": "NOT_ESTABLISHED_BY_HISTORICAL_STATUS"
+    },
+    {
+      "id": "B30-09",
+      "historical_recorded_state": "INTEGRATED_QA_SCOPED",
+      "commit": "5c34969",
+      "historical_role": "command_backend",
+      "dispatch_authorized_from_history": false,
+      "current_full_acceptance": "NOT_ESTABLISHED_BY_HISTORICAL_STATUS"
+    },
+    {
+      "id": "B30-10",
+      "historical_recorded_state": "INTEGRATED_STATIC_REVIEW_BUILD_PASS_BROWSER_PENDING",
+      "commit": "24dadb1",
+      "historical_role": "crm_frontend",
+      "dispatch_authorized_from_history": false,
+      "current_full_acceptance": "NOT_ESTABLISHED_BY_HISTORICAL_STATUS"
+    },
+    {
+      "id": "B30-11",
+      "historical_recorded_state": "LOCAL_RUNTIME_HTTP_RESTART_VERIFIED_SCOPED",
+      "commit": "33d7d38",
+      "historical_role": "security_release",
+      "dispatch_authorized_from_history": false,
+      "current_full_acceptance": "NOT_ESTABLISHED_BY_HISTORICAL_STATUS"
+    },
+    {
+      "id": "B30-12",
+      "historical_recorded_state": "PACKAGED_SCOPED_FULL_QA_OPEN",
+      "commit": null,
+      "historical_role": "root_qa_evidence",
+      "dispatch_authorized_from_history": false,
+      "current_full_acceptance": "NOT_ESTABLISHED_BY_HISTORICAL_STATUS"
+    },
+    {
+      "id": "B30-12R",
+      "historical_recorded_state": "PLANNED",
+      "commit": null,
+      "historical_role": "independent_reviewer_then_root_owner",
+      "dispatch_authorized_from_history": false,
+      "current_full_acceptance": "NOT_ESTABLISHED_BY_HISTORICAL_STATUS"
+    },
+    {
+      "id": "B30-13",
+      "historical_recorded_state": "PLANNED",
+      "commit": null,
+      "historical_role": "product_qa",
+      "dispatch_authorized_from_history": false,
+      "current_full_acceptance": "NOT_ESTABLISHED_BY_HISTORICAL_STATUS"
+    },
+    {
+      "id": "B30-14",
+      "historical_recorded_state": "PLANNED",
+      "commit": null,
+      "historical_role": "assigned_authors_reviewer",
+      "dispatch_authorized_from_history": false,
+      "current_full_acceptance": "NOT_ESTABLISHED_BY_HISTORICAL_STATUS"
+    }
+  ],
+  "original_scenarios": [
+    {
+      "id": "S1",
+      "requirement": "Заказ → резерв/отгрузка → счёт/оплата",
+      "state": "SOURCE_MAPPED_FINAL_DYNAMIC_EVIDENCE_UNCONFIRMED",
+      "candidate_mapping": "Existing exact-f55 source trace remains applicable to unchanged e710 backend; no current complete dynamic acceptance"
+    },
+    {
+      "id": "S2",
+      "requirement": "Документ → извлечённый черновик → сверка → подтверждаемая операция",
+      "state": "SOURCE_MAPPED_FINAL_DYNAMIC_EVIDENCE_UNCONFIRMED",
+      "candidate_mapping": "CEO source verification/reconciliation -> preview/confirm -> supplier-invoice registration; not CRM/AP/payment/stock operation; dynamic proof unconfirmed"
+    },
+    {
+      "id": "S3",
+      "requirement": "Дефицит → закупка/перемещение → приёмка/качество → остаток",
+      "state": "SOURCE_MAPPED_FINAL_DYNAMIC_EVIDENCE_UNCONFIRMED",
+      "candidate_mapping": "Existing exact-f55 source trace remains applicable to unchanged e710 backend; no current complete dynamic acceptance"
+    }
+  ],
+  "mandatory_uxd": [
+    {
+      "id": "UXD-01",
+      "requirement": "Показатели: источник, период, филиал, свежесть, следующий шаг",
+      "state": "PARTIAL_CHANGED_NOT_ACCEPTED",
+      "not_proof_of_missing_implementation": true,
+      "finding": "BosGlobalMonitor reads protected ERP snapshot, shows date/time/currency/states; cards lack branch/period, deviation cause and specific next action",
+      "source_refs": [
+        "frontend/boss_app_source.html:5112",
+        "frontend/boss_app_source.html:5211",
+        "frontend/boss_app_source.html:5644"
+      ],
+      "accepted": false
+    },
+    {
+      "id": "UXD-02",
+      "requirement": "Показатель → список → запись → источник/действие → возврат",
+      "state": "PARTIAL_CONTEXT_DRILLDOWN_UNPROVEN",
+      "not_proof_of_missing_implementation": true,
+      "finding": "Metric navigation passes section/sub only, no branch/period/order/line/record target; complete metric-list-record-source-return chain unproven",
+      "source_refs": [
+        "frontend/boss_app_source.html:5128"
+      ],
+      "accepted": false
+    },
+    {
+      "id": "UXD-03",
+      "requirement": "Реальная очередь отдела, ответственный, срок, связанная работа",
+      "state": "PARTIAL_CONFIRMED_IMPLEMENTATION_GAP",
+      "not_proof_of_missing_implementation": false,
+      "finding": "Real department_id Task queue exists; current filters incoming/in-progress/completed/overdue. Waiting-for-another-participant and waiting cause absent; linked business record, recipient and handoff history not displayed on queue card. Refines earlier overbroad no-queue wording; dev4 changes styling only",
+      "source_refs": [
+        "frontend/boss_app_source.html:2443",
+        "frontend/boss_app_source.html:2459",
+        "frontend/boss_app_source.html:2461"
+      ],
+      "accepted": false,
+      "scope_note": "Real queue exists; only named waiting/cause/linked-record/handoff-display gaps are confirmed"
+    },
+    {
+      "id": "UXD-04",
+      "requirement": "Передача работы получателю и сохранённая история",
+      "state": "PARTIAL_CROSS_ROLE_DYNAMIC_EVIDENCE_MISSING",
+      "not_proof_of_missing_implementation": true,
+      "finding": "Server handoff role/source/audit basis unchanged; new entry brochure transfers are presentation data, not actual work transfer proof",
+      "source_refs": [
+        "tasks/handoffs.py:37",
+        "tasks/handoffs.py:65",
+        "tasks/queries.py:55",
+        "frontend/boss_app_source.html:5329"
+      ],
+      "accepted": false
+    },
+    {
+      "id": "UXD-05",
+      "requirement": "Компактная рабочая навигация и действующие кнопки",
+      "state": "PARTIAL_CHANGED_NOT_ACCEPTED",
+      "not_proof_of_missing_implementation": true,
+      "finding": "Desktop labeled rail/mobile select improved; role-specific functional search/menu/primary-operation walkthrough absent",
+      "source_refs": [
+        "frontend/bos_design.css:90",
+        "frontend/bos_design.css:177"
+      ],
+      "accepted": false
+    },
+    {
+      "id": "UXD-06",
+      "requirement": "Читаемость, keyboard/focus, 390/768/1440 и 200%",
+      "state": "PARTIAL_SCOPED_OFFLINE_VISUAL_ONLY",
+      "not_proof_of_missing_implementation": true,
+      "finding": "Focus/skip-link and 28 offline 390/1440 captures exist; not 768/200%, live keyboard/close/return-focus acceptance",
+      "source_refs": [
+        "frontend/bos_design.css:22",
+        "frontend/boss_app_source.html:5636",
+        "docs/design/evidence-20260927/QA_REPORT.md:44",
+        "docs/design/evidence-20260927/QA_REPORT.md:70"
+      ],
+      "accepted": false
+    },
+    {
+      "id": "UXD-07",
+      "requirement": "loading/empty/error/denied/stale и защита от повторов",
+      "state": "PARTIAL_CHANGED_DYNAMIC_EVIDENCE_MISSING",
+      "not_proof_of_missing_implementation": true,
+      "finding": "Monitor abort/access-revision/context-drift safeguards in source; delayed/role-switch/empty/error/repeated-action proof absent",
+      "source_refs": [
+        "frontend/boss_app_source.html:5147",
+        "frontend/boss_app_source.html:5160",
+        "frontend/boss_app_source.html:5166"
+      ],
+      "accepted": false
+    },
+    {
+      "id": "UXD-08",
+      "requirement": "Согласованность данных/валюты/прав и preview/confirm",
+      "state": "PARTIAL_RIGHTS_AND_FACT_RECONCILIATION_UNPROVEN",
+      "not_proof_of_missing_implementation": true,
+      "finding": "Policy/command/projection unchanged; disabled monitor navigation does not prove role/UAH/ID consistency among dashboard, queue, card and action",
+      "source_refs": [
+        "frontend/boss_app_source.html:5210"
+      ],
+      "accepted": false
+    }
+  ],
+  "technical_gates": [
+    {
+      "id": "GATE-1",
+      "requirement": "Міграції на порожніх SQLite і PostgreSQL",
+      "state": "NOT_PROVEN_ON_CURRENT_CANDIDATE",
+      "reason": "Нужны применимые к точному кандидату raw evidence и независимый verdict; текущая entry delivery недостаточна."
+    },
+    {
+      "id": "GATE-2",
+      "requirement": "151 функціональна + 5 launcher + решта тестів на обох СУБД",
+      "state": "NOT_PROVEN_ON_CURRENT_CANDIDATE",
+      "reason": "Нужны применимые к точному кандидату raw evidence и независимый verdict; текущая entry delivery недостаточна."
+    },
+    {
+      "id": "GATE-3",
+      "requirement": "П’ять інваріантів, мінімум 1000 випадкових прогонів кожний",
+      "state": "NOT_PROVEN_ON_CURRENT_CANDIDATE",
+      "reason": "Нужны применимые к точному кандидату raw evidence и независимый verdict; текущая entry delivery недостаточна."
+    },
+    {
+      "id": "GATE-4",
+      "requirement": "Права всіх ролей на всіх API/admin та всіх поверхнях даних",
+      "state": "NOT_PROVEN_ON_CURRENT_CANDIDATE",
+      "reason": "Нужны применимые к точному кандидату raw evidence и независимый verdict; текущая entry delivery недостаточна."
+    },
+    {
+      "id": "GATE-5",
+      "requirement": "Два одночасні виклики кожної грошової та складської дії",
+      "state": "HISTORICAL_ATTEMPTS_EXHAUSTED",
+      "reason": "P05/network history3/3; исключение требуется для SAME-PROBLEM, никакого четвёртого запуска."
+    },
+    {
+      "id": "GATE-6",
+      "requirement": "Наскрізний процес на чистій базі, звірка до копійки",
+      "state": "NOT_PROVEN_ON_CURRENT_CANDIDATE",
+      "reason": "Нужны применимые к точному кандидату raw evidence и независимый verdict; текущая entry delivery недостаточна."
+    },
+    {
+      "id": "GATE-7",
+      "requirement": "Backup/restore у чисту установку: кількості, суми, версії, SHA",
+      "state": "NOT_PROVEN_ON_CURRENT_CANDIDATE",
+      "reason": "Нужны применимые к точному кандидату raw evidence и независимый verdict; текущая entry delivery недостаточна."
+    },
+    {
+      "id": "GATE-8",
+      "requirement": "Чиста виробнича установка: TLS, cookies, proxy, health, logs",
+      "state": "OUTSIDE_CURRENT_OWNER_LOCAL_HOSTING_AUTHORIZATION",
+      "reason": "Loopback доказан; production/TLS и внешние тестировщики отдельный незакрытый scope."
+    },
+    {
+      "id": "GATE-9",
+      "requirement": "Оновлення N → N+1 та відновлення N після rollback",
+      "state": "NOT_PROVEN_A10_RESTRICTION",
+      "reason": "Owner-local update не доказывает upgrade/rollback gate и не снимает A10."
+    },
+    {
+      "id": "GATE-10",
+      "requirement": "Браузер: 390/768/1440, 200%, клавіатура, Escape, мережа",
+      "state": "NOT_PROVEN_ON_DEV4",
+      "reason": "Prior dev3 entry/login and dev4 offline390/1440 visuals remain scoped; no current full768/200%/keyboard/network/lesson acceptance"
+    },
+    {
+      "id": "GATE-11",
+      "requirement": "Чиста Windows / Python 3.12: критерії 1–3 і 6",
+      "state": "NOT_PROVEN_ON_CURRENT_CANDIDATE",
+      "reason": "Нужны применимые к точному кандидату raw evidence и независимый verdict; текущая entry delivery недостаточна."
+    }
+  ],
+  "remaining_dynamic_constraints": {
+    "fixture": "3/3 exhausted; final correction static only",
+    "training_progress": "3/3 history; Node exception1/1 consumed on a445ac0; not full browser/server acceptance",
+    "network_payment": "3/3 timeout cause open",
+    "membership": "historical7pass1fail, v5static only; queue/task-result acceptance unproven"
+  },
+  "current_work": {
+    "card": "B30-12-QA-SCOPE",
+    "owner": "01a0c05d-6eeb-79f1-a135-be66985b442f",
+    "scope": "Actual fail-closed learning harness authored, independent static review pending; no execution authorized",
+    "independent_revision6_verdict": "REVISE_BEFORE_OWNER_QUESTION",
+    "original_scope_retained": [
+      "S1",
+      "S2",
+      "S3",
+      "UXD-01..08",
+      "GATE-1..11"
+    ]
+  },
+  "next_preparation": "Sole integrator: review actual guarded harness; carry concrete UXD03 gap and other original-scope gaps into existing B30-12, without duplicate claim or QA run",
+  "attempts_executed_by_audit": 0,
+  "new_product_claims": 0,
+  "source_index": {
+    "path": "evidence/full-readiness-e710-20260927/INPUTS_BASELINE_F55.json",
+    "role": "HISTORICAL_F55_BASELINE_AND_PROVENANCE_NOT_CURRENT_CANDIDATE_EVIDENCE"
+  },
+  "product_commit": "7018cca86337da19361951782cffecb09811a89a",
+  "previous_matrix": {
+    "path": "D:\\3\\BOSDev\\evidence\\bos3-readiness-20260927\\FULL_READINESS_MATRIX.json",
+    "sha256": "61c9cb6ec47398a4d5cc61d8cb70b1c2f430a7c314c07064efa10b8dea1146e7"
+  },
+  "delta_audit": {
+    "path": "evidence/full-readiness-e710-20260927/UXD_SOURCE_DELTA_E710.json",
+    "sha256": "f2aa61266a83d77498b114d6e922bba28c17ee25cdfd5fea82b744304596650c",
+    "role": "CURRENT_E710_SOURCE_APPLICABILITY"
+  },
+  "accepted_historical_entry": {
+    "source": "f55a15de4006d10c0d7c65f8a2ca8499fbb99819",
+    "scope": "Dev3 responsive preview/normal login only; not transferred to dev4"
+  },
+  "product_pin_role": "IMMUTABLE_SOURCE_WITH_MANIFEST; PRODUCT_COMMIT_IS_SEPARATE",
+  "import_note": "Root corrected only provenance labels/paths after independent P2 review; original author matrix preserved in evidence/full-readiness-e710-20260927/"
+}

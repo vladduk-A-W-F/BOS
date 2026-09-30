@@ -1,0 +1,23 @@
+{
+  "id":"B30-D-CONTROL-HOME-WRAPPERS-SOURCE",
+  "issuer":"root",
+  "owner":"bos3_channel_diagnosis",
+  "reviewer":"start_overview_review",
+  "canonical_context":"778b364b6dcc0d7fe23e85ebdd0bdf941cf08d51",
+  "workspace":"D:/3/BOSDev/qa-scratch/bos3-control-home-source-20260928/wrappers",
+  "basis":"Existing D source-only direction and C65 independently accepted external caller map; no live cutover",
+  "input_map_sha256":"46da80113fdae7e7151ccbf289ced38acebb30614e829a671200a66b9b6d0fbd",
+  "input_map_review_sha256":"a41f104d49b57732444df1002e02bb13fcfba446dc1a12e77486376e0558aaf0",
+  "source_pins":{"staged/start-workday.ps1":"5da0c40a067d1d215260deb962b83674d0de914bfed0f9ad61a6ff9da9b005bd","staged/bos-flow.ps1":"dce1d31960974743fdb53e9905ebb7a6eef4643f376998a54830412beef233b1","staged/bos.ps1":"5f33b4e4617617ede87e3a51f3b57ed639f803051bc3e285bbe949350724fe3e"},
+  "allowlist":["staged/start-workday.ps1","staged/bos-flow.ps1","staged/bos.ps1","REPORT_RU.md","MANIFEST.json"],
+  "dependency":{"core_review":"b7186966fd0ec1a443ae2a1120ea4736ae602c8c143a4040a9436a2cbd54bc3c","core_interface":"9537061eca16d000b2632bc4a1ab235ae527c9f0cd56edb6d812f32889f91497","flow_source":"f95394ea95132505cc792c87586397466c9c389c399295860f9452d684eee848","flow_binding_review":"9beb9790de869bed59f665845b3480770d58d39dd384c60bbc6f8409e8ed117b"},
+  "scope":"Explicit control-home passthrough following accepted Python resolver/API and coherent helper-source paths; remove LOCALAPPDATA-derived authority for status. Do not create a second home resolver. Explicit unsupported selection must fail before PG/app/lab startup. Preserve ordinary legacy startup/lab behavior except ordering needed for authority refusal; do not broaden migration or lab capabilities.",
+  "safe_boundary":"Source-only wrappers remain inactive. No inference that existing source comment proves policy, registrations or current startup behavior. Unmapped non-status lab home overrides must fail closed, not inherit an assumed D-safe PYTHONPATH.",
+  "prohibited":["edit original wrappers or setup/runtime/C tools/canonical","execute PowerShell or Python helpers or --help","policy/Startup/Run/service/scheduler/process/listener queries","PG/app/lab startup","tests/compile/AST/probes","read/copy live state/ledger/config/queue/observer/lock/secret","home/registration/cutover changes"],
+  "classification":"NEW_SOURCE_ONLY_EXTERNAL_CALLER_PREPARATION_NO_EXECUTION",
+  "execution_count":0,
+  "definition_of_done":"Exact staged three-file diff and manifest/report tied to accepted core/flow; independent static review; live integration, wrapper registrations, external callers, quiescence, authority establishment and all dynamic acceptance remain open",
+  "status":"ASSIGNED_SOURCE_ONLY",
+  "check_in_utc":"2026-09-28T03:45:00Z",
+  "next_recipient":"start_overview_review then root"
+}

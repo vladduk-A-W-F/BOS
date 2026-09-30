@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "card": "UXD02-PACK",
+  "classification": "NEW_VERSIONED_PACKAGING_NOT_APP_QA",
+  "base_commit": "ec968705304883e3ad86c2f0c49519cab2911042",
+  "version": "0.3.0-dev.7",
+  "source": {
+    "canonical_product_commit": "ec968705304883e3ad86c2f0c49519cab2911042",
+    "source_evidence": "docs/design/evidence-uxd02-drilldown-20260927/SOURCE_AND_CHANGE_MANIFEST.json",
+    "required_source_sha256": "145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9",
+    "required_app_sha256": "51732f2f359ac0155a9ff0e0d041ed2b6941bf23329c02adf72855b2628fd59e"
+  },
+  "scope": {
+    "implemented": "orders/jobs/quality exact snapshot filtered list -> readonly existing record -> same list -> monitor; reread ends trail",
+    "generic_only": [
+      "tasks",
+      "receivable"
+    ],
+    "not_accepted": [
+      "full UXD02",
+      "browser",
+      "lessons",
+      "readiness"
+    ],
+    "not_implemented": [
+      "branch filter",
+      "period filter",
+      "source record beyond three metrics"
+    ]
+  },
+  "hashes": {
+    "README.md": "e41d72c63a5a5477bd5f4dbcb0b43703f058f86f367b2c309902319bc234c93a",
+    "README_UA.md": "5af38de5b3d95baadc56999657646160e61382b031585235e2239ecea61b9c9f",
+    "boss_project/version.py": "3ce67fddfc9967fd13b3b2351f8a1df5ab0c13bf24a761b7a52306b303271aba",
+    "docs/BoS_3_0_Start_UA.pdf": "048d8488798ab0151fa2c787106f46e4aba8fc25cc754ab44d65ce505b142e8c",
+    "docs/BoS_3_0_Start_UA.manifest.json": "9d13ceef684c8f4eb97108e6fdad1e3a31cfd542a87a52971ac6987beeafd111",
+    "frontend/boss_app_source.html": "145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9",
+    "assets/app.js": "51732f2f359ac0155a9ff0e0d041ed2b6941bf23329c02adf72855b2628fd59e",
+    "frontend/bos_design.css": "30e1db301539b97080705c463c0fec14ae6370de577f824318484c42d159fd54",
+    "frontend/boss_app_html.html": "cdb3c24465feabfca3a27e7e231fd84a2011dc473dc58914bfe4d7b728395588",
+    "frontend/bos3_content.json": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390",
+    "scripts/build_bos3_brochure.py": "1885bac669b2798544e7f359e5755bd1efd90b5602d3b7f6fcce49c158172800"
+  },
+  "pdf": {
+    "sha256": "048d8488798ab0151fa2c787106f46e4aba8fc25cc754ab44d65ce505b142e8c",
+    "pages": 3,
+    "visual": "PASS: three rendered pages inspected, readable text, complete frames and footers, no visible clipping.",
+    "assets": [
+      "pdf-render-160/BoS_3_0_Start_UA-1.png",
+      "pdf-render-160/BoS_3_0_Start_UA-2.png",
+      "pdf-render-160/BoS_3_0_Start_UA-3.png"
+    ]
+  },
+  "raw_provenance": {
+    "receipt": "COMMAND_RECEIPT.json",
+    "marker": {
+      "stdout": "marker.stdout.log",
+      "stderr": "marker.stderr.log",
+      "native_exit": 0
+    },
+    "build": {
+      "stdout": "build.stdout.log",
+      "stderr": "build.stderr.log",
+      "native_exit": 0
+    },
+    "render": {
+      "stdout": "render.stdout.log",
+      "stderr": "render.stderr.log",
+      "native_exit": 0
+    }
+  },
+  "not_run": [
+    "frontend build",
+    "QA",
+    "app",
+    "browser",
+    "HTTP",
+    "DB",
+    "runtime",
+    "seed",
+    "migrate",
+    "init",
+    "reset",
+    "lessons"
+  ],
+  "next_reviewer": "bos3_candidate_review",
+  "acceptance": "PENDING",
+  "runtime_changed": false,
+  "readiness_changed": false
+}

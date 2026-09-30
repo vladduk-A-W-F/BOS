@@ -1,0 +1,48 @@
+{
+  "schema": "bos.channel-department-review.v1",
+  "department": "enablement",
+  "thread_id": "01a0f2ce-270f-7ac3-bea0-1447f87aed61",
+  "verdict": "ACCEPT_SCOPED",
+  "reviewed_at_utc": "2026-09-30T14:58:26.2504588Z",
+  "manifest_sha256": "218c2402d4214fbdbde9446beb5bbba6e491c750f46a7bee8e054499da861f74",
+  "files": [
+    {
+      "name": "codex_channel.py",
+      "before_sha256": "bd3e6bd947eff4fd2c9248e7431b364ebb04db5498859b9f8d16ee473965a4cd",
+      "candidate_sha256": "8088af0f752f0ade03e7ea4685fdbcb1f13b64cdf5f6f02e007d01e11a7994ef",
+      "live_sha256": "bd3e6bd947eff4fd2c9248e7431b364ebb04db5498859b9f8d16ee473965a4cd",
+      "diff_sha256": "681208c89a42ed1c89c9d875d9e8f682b1f2d7f01f992c7a005f47ff94ae681d"
+    },
+    {
+      "name": "bos_flow.py",
+      "before_sha256": "5318541c99de25774668a31aa14a3d75844266ebef8ca105bbf83a950340629f",
+      "candidate_sha256": "2c8990ccf9ead2f599ef70b008574ece2dcd17b608ea01bda2f3ca5fe7634532",
+      "live_sha256": "5318541c99de25774668a31aa14a3d75844266ebef8ca105bbf83a950340629f",
+      "diff_sha256": "ab6981e73f0dea1ce848ce602780dd80a86d9c44892779c49ce4ad3c464acab2"
+    },
+    {
+      "name": "local_flow.py",
+      "before_sha256": "a8baa6f70c899aa6de3d064c1474aa24c2b4ec168e4e05a98cd3c8b195f0ff44",
+      "candidate_sha256": "f608325e0ebdc3d5d28e0678b02b267997d3334382f32556ba7e115c7a00b154",
+      "live_sha256": "a8baa6f70c899aa6de3d064c1474aa24c2b4ec168e4e05a98cd3c8b195f0ff44",
+      "diff_sha256": "56d8d190cddd94d8c7b9b4cb4a5c468f1ae30fa54de35334b8557f814d81232a"
+    }
+  ],
+  "checks": {
+    "all_manifest_hashes_match": true,
+    "live_equals_before_for_all_three": true,
+    "exact_scope": "Лише реєстрація enablement у TARGETS, дозволених семи адресатах, курсорі та типовому CLI status, ACTORS/CURSORS і local_flow actors",
+    "refresh_structure": "Шість ACTORS обробляються одним wait_threads запитом, що нижче ліміту восьми; відсутній actor має окреме читання",
+    "index_structure": "local_flow.collect і bos_flow.refresh проєктують шість actor snapshots",
+    "legacy_product_assignment_targets": "writer, design, quality — без змін",
+    "guards": "self-send, ledger deduplication, UNCONFIRMED, model idle preflight, locks — незмінні за diff",
+    "code_imported_or_executed": false,
+    "live_transport_or_app_tests_run": false
+  },
+  "findings": [],
+  "limitations": [
+    "Вердикт структурний; Python AST не запускався через відсутність робочого Python у поточному shell.",
+    "Живий канал і runtime refresh не перевірялися в межах цього review."
+  ],
+  "product_executions": 0
+}

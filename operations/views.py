@@ -66,14 +66,15 @@ def doc_dict(d,policy):
 @require_GET
 @ensure_csrf_cookie
 def status(request):
+    from training.access import enabled
     if not request.user.is_authenticated and settings.BOS_DATA_MODE == 'demo':
-        return JsonResponse({'mode':'demo','authenticated':False,'role':None,'ai_configured':False})
+        return JsonResponse({'mode':'demo','authenticated':False,'role':None,'ai_configured':False,'training_enabled':enabled()})
     try:
         principal = actor(request)
     except IdentityDenied as exc:
         return JsonResponse({'error':str(exc)},status=exc.status)
     policy=Policy(request)
-    return JsonResponse({'mode':settings.BOS_DATA_MODE,'authenticated':True,'access_revision':policy.access_revision(),**principal.as_dict(),'ai_configured':False,'as_of':str(s.as_of()),'organization':Configuration.objects.filter(key='organization').values_list('value',flat=True).first() or {'name':'Моя організація'},'capabilities':policy.capabilities()})
+    return JsonResponse({'mode':settings.BOS_DATA_MODE,'authenticated':True,'access_revision':policy.access_revision(),**principal.as_dict(),'ai_configured':False,'training_enabled':enabled(),'as_of':str(s.as_of()),'organization':Configuration.objects.filter(key='organization').values_list('value',flat=True).first() or {'name':'Моя організація'},'capabilities':policy.capabilities()})
 
 @require_POST
 @errors

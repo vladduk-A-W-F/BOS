@@ -1,0 +1,18 @@
+{
+  "id": "B30-CRM-STALE-AND-PROPOSAL-REVIEW-20260930",
+  "reviewer": "/root/crm_stale_review",
+  "workspace": "D:/3/BOSDev/qa-scratch/bos3-crm-stale-review-20260930",
+  "allowlist": ["PROPOSAL_REVIEW_RU.md", "SOURCE_REVIEW_RU.md", "PACKAGE_REVIEW_RU.md"],
+  "base_commit": "c9053d6cdb206dbfc28e69dfb52b8d913c5fb119",
+  "immutable_source": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+  "initial_scope": "Finish independent review of completed UXD04 proposal only, without repeating accepted trace or granting execution. Prior partial review had no verdict.",
+  "later_scope": "After exact author result is delivered, independently review CRM stale-detail source diff and then exact inactive package/current-record delta. Never review unfinished changing bytes.",
+  "requested_model": "gpt-6-sol",
+  "requested_effort": "high",
+  "observed_model": "UNCONFIRMED",
+  "checks_allowed": ["Read exact source/evidence", "Git diff", "Hashes", "JSON parsing"],
+  "forbidden": ["Product/canonical edits", "Execution of app/tests/build/Node", "Browser/runtime/network/process/resource probes", "Permission or readiness promotion", "Subagents/native messages"],
+  "separation": "Reviewer authored neither proposal nor source nor root records",
+  "check_in_utc": "2026-09-30T13:58:00Z",
+  "next_recipient": "root for scoped decision, never self-acceptance"
+}

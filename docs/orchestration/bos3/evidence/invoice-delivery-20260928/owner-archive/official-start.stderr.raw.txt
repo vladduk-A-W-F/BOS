@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "D:\3\BOSDev\workspaces\bos3-runtime-dev8\repo\scripts\bos3_local.py", line 677, in <module>
+    main()
+  File "D:\3\BOSDev\workspaces\bos3-runtime-dev8\repo\scripts\bos3_local.py", line 666, in main
+    start(paths, source)
+  File "D:\3\BOSDev\workspaces\bos3-runtime-dev8\repo\scripts\bos3_local.py", line 570, in start
+    atomic_json(paths['process'], state)
+  File "D:\3\BOSDev\workspaces\bos3-runtime-dev8\repo\scripts\bos3_local.py", line 36, in atomic_json
+    os.replace(temporary, path)
+PermissionError: [WinError 5] Отказано в доступе: 'D:\\3\\BOSDev\\local-bos3\\owner\\state\\process.json.be6a89a61b41a79a.tmp' -> 'D:\\3\\BOSDev\\local-bos3\\owner\\state\\process.json'

@@ -1,0 +1,19 @@
+{
+  "id": "B30-ATOMIC-PACK-DEV9",
+  "issuer": "root",
+  "owner": "bos3_crm_impl",
+  "reviewer": "bos3_candidate_review",
+  "source_path": "D:/3/BOSDev/workspaces/bos3-canonical/repo",
+  "source_commit": "81ca06765758b5103c41905ed189ea6465ae3b9e",
+  "integration_review_sha256": "d63053cf4fd7c421740e8c2c6f798f46bc55e33f941f7df6b1d4c4cc07c870b1",
+  "workspace": "D:/3/BOSDev/qa-scratch/bos3-atomic-pack-20260928",
+  "allowlist": ["repo/boss_project/version.py", "repo/README.md", "repo/README_UA.md", "AUTHOR_REPORT_RU.md", "MANIFEST.json"],
+  "target_version": "0.3.0-dev.9",
+  "expected_result": "Three minimal version/readme proposed files and exact source-bound package manifest; explain bounded receipt repair and retained dev7 PDF without asserting delivery",
+  "constraints": "No canonical/C writes; no tests, imports, rebuild, PDF generation, lifecycle, process, DB or network. Preserve existing code/assets/PDF and readiness false.",
+  "status": "ASSIGNED_PREPARATION_ONLY",
+  "depends_on": ["ACCEPT_SCOPED_ATOMIC_RECEIPT_REPAIR_INTEGRATION on81ca067"],
+  "definition_of_done": "Minimal reviewed metadata delta with exact bytes and truthful old PDF guide applicability, no new execution claims",
+  "check_in_utc": "2026-09-28T02:25:00Z",
+  "next_recipient": "bos3_candidate_review then root"
+}

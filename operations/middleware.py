@@ -50,7 +50,10 @@ class LocalRoleGuard:
             unsafe=request.method not in ('GET','HEAD','OPTIONS')
             if principal.role != 'ceo' and (resource=='salaries' or (resource=='transactions' and (principal.role=='observer' or unsafe)) or (resource=='employees' and unsafe)):
                 return JsonResponse({'error':'Ці дані або дія недоступні для вашої ролі.'},status=403)
-            if principal.role == 'observer' and request.method not in ('GET','HEAD','OPTIONS') and request.path != '/api/operations/chat/':
+            training_progress = (request.method == 'POST' and resource == 'training'
+                and request.path.startswith('/api/training/sessions/')
+                and request.path.rstrip('/').split('/')[-1] in ('start', 'pause', 'navigate', 'check', 'tour'))
+            if principal.role == 'observer' and request.method not in ('GET','HEAD','OPTIONS') and request.path != '/api/operations/chat/' and not training_progress:
                 return JsonResponse({'error':'Спостерігач не може змінювати записи.'},status=403)
             ai_paths = ('/api/chat/','/api/chat/file/','/api/meeting/protocol/','/api/dictate/process/')
             if request.method == 'POST' and request.path in ai_paths:

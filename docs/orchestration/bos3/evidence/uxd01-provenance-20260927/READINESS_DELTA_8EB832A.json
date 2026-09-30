@@ -1,0 +1,145 @@
+{
+  "schema": "bos.readiness.delta.8eb832a.v1",
+  "mode": "read_only_exact_source_applicability",
+  "observed_commit": "8eb832a45c9c8f2d140fef0a44c74b94a07a470a",
+  "observed_tree": "2faa7b611db367740fb589db6667c1f081ca5917",
+  "parent_documentary_closeout": "c1a36a629a43e0fe179e571843bea726e8a75736",
+  "author_commit": "0338cc026a91f1aadc0f41ebf6cff812f72d7086",
+  "current_runtime": "3d1eabe3b8f54ebc6c6d6bf0241beba219d1fc3c",
+  "baselines": {
+    "full_readiness_matrix": {
+      "path": "C:/Users/user/.codex/worktrees/bos-consolidation-plan/repo/docs/orchestration/bos3/FULL_READINESS_MATRIX_E710.json",
+      "sha256": "79a6ae1db0a1c04546ee2befc2c95144b03db22f48fe8be7fc95fac373606f96",
+      "use": "Requirement, gate and cap baseline only; its e710 runtime and entry receipts are not 8eb evidence."
+    },
+    "prior_delta": {
+      "path": "D:/3/BOSDev/evidence/bos3-readiness-20260927/READINESS_DELTA_A5ADCEF.json",
+      "sha256": "43189E175C278A5465C029B58F59C56A21B818CD90CA0E289C22C23A8A30FAE4",
+      "use": "Retains the earlier UXD03 static-helper scope and all open requirements; it is not a whole-file or runtime pin for 8eb."
+    }
+  },
+  "exact_product_delta": {
+    "author_blobs_identical_in_integrated_commit": true,
+    "changed_ui_blobs_from_runtime_dev5": 4,
+    "paths": [
+      {
+        "path": "frontend/boss_app_source.html",
+        "author_and_integrated_blob_sha1": "29bf3efc2900f334c2637af557692edecae170f7",
+        "result_sha256": "cc97bee6d680df1bc4aedd6a3a6892b3283a17434867b268c11d38010b1732e7"
+      },
+      {
+        "path": "frontend/boss_app_html.html",
+        "author_and_integrated_blob_sha1": "18cd250dcd0e6af90d1ed5fda17503e319891880",
+        "result_sha256": "cdb3c24465feabfca3a27e7e231fd84a2011dc473dc58914bfe4d7b728395588"
+      },
+      {
+        "path": "frontend/bos_design.css",
+        "author_and_integrated_blob_sha1": "f9b6479dad2897cd81ac974654eb1e385bc5c9d0",
+        "result_sha256": "30e1db301539b97080705c463c0fec14ae6370de577f824318484c42d159fd54"
+      },
+      {
+        "path": "assets/app.js",
+        "author_and_integrated_blob_sha1": "fbeafd476668f88adb85686c607137a637e71d68",
+        "result_sha256": "9d365048a60f192acffd541c2e1c3b02c804e2d405a25890fdedc8d5c606d303"
+      }
+    ],
+    "unchanged_backend_basis": "No backend, policy, command/service, migration, fixture, role, learning or runtime file is changed by this exact commit. This is source non-change only, not dynamic acceptance."
+  },
+  "new_supported_scope": {
+    "UXD-01": {
+      "state": "PARTIAL_STATIC_DISCLOSURE_IMPLEMENTED_AND_AST_SCOPED",
+      "supported": [
+        "Each of the five existing monitor metrics has a disclosure for its declared snapshot source, calculation, account-visible scope, branch-filter status, calendar-period status, business calculation date, device-clock read time, source-update limitation, deviation limitation and existing destination action.",
+        "The disclosure explicitly says that no separate branch is selected, no calendar period/history is computed, business date is not a period or record-change time, and navigation does not auto-select a record or branch.",
+        "The existing guarded section/sub navigation and unavailable-state handling are retained in source; the focused AST evidence is limited to these presentation invariants."
+      ],
+      "not_supported": [
+        "No actual branch-specific filter or factual branch-level metric contract.",
+        "No calendar-period or historical-slice contract.",
+        "No source last-modified timestamp, record-level target, automatic drilldown, or real deviation-cause model.",
+        "No browser, runtime, API, role, database, cross-role, accessibility or owner-acceptance proof."
+      ],
+      "source_refs": [
+        "frontend/boss_app_source.html: BosGlobalMonitor disclosure and metric provenance construction",
+        "docs/design/evidence-uxd01-20260927/SOURCE_AND_CHANGE_MANIFEST.json in exact 8eb tree"
+      ]
+    },
+    "UXD-02": "UNCHANGED_PARTIAL_CONTEXT_DRILLDOWN_UNPROVEN: source still navigates by section/sub and disclosures state that no record or branch is automatically selected.",
+    "UXD-03": "Prior a5ad task-card static/helper conclusion remains limited to its unchanged task-card logic; all four containing UI files now have different 8eb whole-file pins, so it is not an 8eb whole-file validation or evidence of new UXD01 behavior.",
+    "UXD-04": "UNCHANGED_PARTIAL_CROSS_ROLE_DYNAMIC_EVIDENCE_MISSING.",
+    "UXD-05": "UNCHANGED_PARTIAL_CHANGED_NOT_ACCEPTED.",
+    "UXD-06": "UNCHANGED_PARTIAL_SCOPED_OFFLINE_VISUAL_ONLY.",
+    "UXD-07": "UNCHANGED_PARTIAL_CHANGED_DYNAMIC_EVIDENCE_MISSING.",
+    "UXD-08": "UNCHANGED_PARTIAL_RIGHTS_AND_FACT_RECONCILIATION_UNPROVEN."
+  },
+  "original_scenarios": {
+    "S1": "SOURCE_MAPPED_FINAL_DYNAMIC_EVIDENCE_UNCONFIRMED; unchanged backend source basis may remain a mapping only.",
+    "S2": "SOURCE_MAPPED_FINAL_DYNAMIC_EVIDENCE_UNCONFIRMED; unchanged backend source basis may remain a mapping only.",
+    "S3": "SOURCE_MAPPED_FINAL_DYNAMIC_EVIDENCE_UNCONFIRMED; unchanged backend source basis may remain a mapping only."
+  },
+  "technical_gates": {
+    "GATE-1": "NOT_PROVEN_ON_8EB",
+    "GATE-2": "NOT_PROVEN_ON_8EB",
+    "GATE-3": "NOT_PROVEN_ON_8EB",
+    "GATE-4": "NOT_PROVEN_ON_8EB",
+    "GATE-5": "HISTORICAL_ATTEMPTS_EXHAUSTED",
+    "GATE-6": "NOT_PROVEN_ON_8EB",
+    "GATE-7": "NOT_PROVEN_ON_8EB",
+    "GATE-8": "OUTSIDE_CURRENT_OWNER_LOCAL_HOSTING_AUTHORIZATION",
+    "GATE-9": "NOT_PROVEN_A10_RESTRICTION",
+    "GATE-10": "NOT_PROVEN_ON_8EB",
+    "GATE-11": "NOT_PROVEN_ON_8EB"
+  },
+  "evidence_provenance": {
+    "committed_with_8eb": {
+      "paths": [
+        "docs/design/evidence-uxd01-20260927/AUTHOR_REPORT_RU.md",
+        "docs/design/evidence-uxd01-20260927/BUILD.json",
+        "docs/design/evidence-uxd01-20260927/BUILD.stdout.log",
+        "docs/design/evidence-uxd01-20260927/BUILD.stderr.log",
+        "docs/design/evidence-uxd01-20260927/SOURCE_AND_CHANGE_MANIFEST.json"
+      ],
+      "scope": "Author-recorded build/source manifest attached to the exact product commit; it reports no browser/runtime work and is not independent runtime acceptance."
+    },
+    "working_not_in_8eb": {
+      "path": "docs/orchestration/bos3/evidence/uxd01-provenance-20260927/",
+      "git_status": "untracked at audit time",
+      "scope": "Review, AST QA, run1 preservation and delivery-template working evidence. It is not committed evidence of 8eb until a later exact source-bound commit pins it."
+    },
+    "external_observer_records": {
+      "build": {
+        "path": "D:/3/BOSDev/evidence/bos3-readiness-20260927/UXD01_BUILD_OBSERVATION_0338CC0.json",
+        "sha256": "5218A2EB1CAA598B72774FE44BCB9A8AE6F6DB1BD53A0AD6AE5DEE3564D5B796",
+        "reported_verdict": "ACCEPT_SCOPED_STATIC_CODE_AND_BUILD_EVIDENCE",
+        "binding": "author commit 0338 and exact source/generated hashes; reaches 8eb only through the four verified identical blobs."
+      },
+      "qa": {
+        "path": "D:/3/BOSDev/evidence/bos3-readiness-20260927/UXD01_QA_RUN2_OBSERVATION.json",
+        "sha256": "89FE7AFD83D498663B53C5FDBF5EA8353EB9CA3E4CA485985CAC2E52FF25FD20",
+        "reported_verdict": "ACCEPT_SCOPED_AST_PRESENTATION_DISCLOSURE",
+        "binding": "author source hash cc97...; run1 oracle FAIL 1/3 is preserved, repaired run2 PASS is attempt 2/3, and no further run is authorized.",
+        "not_proven": "AST presentation invariants are not browser, runtime, policy, API, database, role, lesson or full UXD01 acceptance."
+      }
+    }
+  },
+  "nontransferable_prior_evidence": {
+    "runtime_and_entry": "Dev5 runtime remains 3d1eabe. Because all four UI blobs differ at 8eb, dev5 runtime/HTTP/entry/browser receipts cannot be transferred to 8eb or a future dev6 package.",
+    "e710_matrix_runtime": "e710/dev4 owner-local delivery and prior dev3 login/entry remain historical scoped receipts only; neither proves the 8eb disclosure in a running application.",
+    "a5ad_delta": "A5ad source evidence remains useful only for its unaffected task-card assertions and retained open-scope baseline; its four whole-file hashes, helper QA and static review do not validate 8eb disclosures."
+  },
+  "readiness": {
+    "full_readiness_proven": false,
+    "technical_ready": false,
+    "pilot_allowed": false,
+    "mvp": false
+  },
+  "audit_actions": {
+    "tests": 0,
+    "builds": 0,
+    "http": 0,
+    "browser": 0,
+    "database": 0,
+    "runtime": 0,
+    "product_claims": 0
+  }
+}

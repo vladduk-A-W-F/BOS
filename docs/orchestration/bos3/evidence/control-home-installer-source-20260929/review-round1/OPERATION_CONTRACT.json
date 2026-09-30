@@ -1,0 +1,76 @@
+{
+  "schema": "bos3.control-home-operation-source/v3",
+  "card": "B30-D-CONTROL-HOME-OPERATION-SOURCE",
+  "status": "SOURCE_IMPLEMENTED_PENDING_INDEPENDENT_REVIEW_NOT_EXECUTED",
+  "base_commit": "3e7c33c2b62bad41768e8c6efee57e0f0ff3f84d",
+  "cutoff": "2026-10-04T23:59:00+02:00",
+  "owner_message": "01a0ee26-9c0e-7bd2-9508-de9e026c5966",
+  "paths": {
+    "legacy_alias": "C:/Users/user/AppData/Local/BOSDev",
+    "target_home": "D:/3/BOSDev/control-home",
+    "source_archive": "C:/Users/user/AppData/Local/BOSDev.pre-D-20260928",
+    "authority_anchor": "D:/3/BOSDev/control-home-authority.json",
+    "evidence_root": "D:/3/BOSDev/evidence/bos3-control-home-install-20260928",
+    "setup": "D:/3/BOSDev/setup"
+  },
+  "frozen_inputs_sha256": {
+    "operation/source-complete-20260929/CARD.json": "acc92026a4bf97f57770337601acc77877caa514f1d8dcc371483a7593c122cd",
+    "architecture/INTERFACE.json": "fe0401c9aca5a1f57a5e10b4381d9fc6d53544169ac790ad7ecf6c305e56621d",
+    "ROOT_COMMAND_SHEET_RU.md": "7e8e7883ebf331a39ac37a3e6677770dbccea3b44f3171f39d9c634e74820fe5",
+    "source/MANIFEST.json": "00997c1323aaf7b8927f7c36ffbd341b422695402fc925012f9a8ff74e03598c",
+    "consumers/MANIFEST.json": "3b684264bf6c3ae1825c8bbdd2ce9bd8e28e9618d1cdd04abd900f60a3253ec9",
+    "operation/source-complete-20260929/NATIVE_METHODS_REVIEW_RU.md": "91b1166898ac8ee55f4494d96425e18a12cbad8212359dabeda613c9fce7b847"
+  },
+  "dependency_review_sha256": "21c32c1a7835002c55e2d14eec9bea269d29c36a02ed73a53f9b4d497868ac67",
+  "cli": {
+    "phase": ["snapshot", "prepare", "alias", "activate", "verify"],
+    "required_each_call": ["--plan", "--plan-sha256", "--admission", "--admission-sha256"],
+    "required_after_snapshot": "--previous-sha256 of exact prior phase receipt",
+    "required_for_activate": ["--acceptance", "--acceptance-sha256"],
+    "automatic_phase_advance": false,
+    "automatic_retry": false
+  },
+  "plan_schema": {
+    "schema": "bos3.control-home-operation-plan/v1",
+    "required": ["generation canonical UUID", "paths exact fixed object", "dependency_review_sha256", "global_config exact absolute ordinary path", "global_config_before_sha256", "global_config_after_sha256", "global_config_reviewed_after exact evidence {path,sha256}", "global_config_edit exact object"],
+    "global_config_edit": {"offset": "zero-based byte offset of old script token", "old_text": "C:/Users/user/AppData/Local/BOSDev/tools/codex_channel.py", "new_text": "D:/3/BOSDev/control-home/tools/codex_channel.py", "args_index": "one mcp_servers.bos_control.args element", "before_size": "exact original byte count", "after_size": "exact reviewed result byte count"},
+    "binding": "plan bytes must match supplied SHA256 and live before bytes; after bytes must exactly equal independently reviewed evidence artifact"
+  },
+  "phase_admission_schema": {
+    "schema": "bos3.control-home-phase-admission/v1",
+    "verdict": "ADMIT_CONTROL_HOME_PHASE",
+    "required": ["operation exact card ID", "generation", "phase", "plan_sha256", "paths exact fixed object", "owner_message", "scope equal phase", "maximum_invocations=1", "retry_allowed=false", "qa_attempts_spent=1/1", "C64_unchanged=true", "previous_receipt_sha256 exact prior or null snapshot", "deadline", "source_sha256 exact installer/native/contract digests", "source_review {path,sha256} JSON with matching card/source hashes and verdict ACCEPT_SOURCE_FOR_PHASE_REVIEW", "qa_acceptance {path,sha256} JSON with matching card/source hashes and verdict ACCEPT_FOCUSED_QA_FOR_OPERATION", "quiescence {path,sha256}"],
+    "verify_extra": "coordinator_readonly_receipt {path,sha256}",
+    "trust_boundary": "root and independent reviewers produce actual admissions and native receipts; this code validates binding and freshness and does not invent them"
+  },
+  "quiescence_schema": {
+    "schema": "bos3.control-home-global-quiescence/v1",
+    "required": ["generation", "freeze_id matching admission", "observed_at_utc <= now < expires_at_utc", "root_sole_operator=true", "resumed_since_freeze=false", "complete actors map"],
+    "actors_exact": ["root", "observer", "workers", "direct_callers", "cached_modules", "registrations", "mcp_worker", "transport", "heartbeat"],
+    "each_actor": "disposition STOPPED|DRAINED|PAUSED|INAPPLICABLE_REVIEWED plus native_receipt {path,sha256} inside evidence root",
+    "special": "heartbeat PAUSED and transport DRAINED, with native receipts",
+    "freshness": "checked at phase entry and again immediately before consequential switching steps"
+  },
+  "phase_outputs": {
+    "snapshot": ["snapshot.attempt.json", "snapshot.manifest.json", "snapshot.receipt.json"],
+    "prepare": ["prepare.attempt.json", "full D copy", "source/setup/global config backups", "reviewed overlays", "PREPARED anchor", "prepare.receipt.json"],
+    "alias": ["alias.attempt.json", "C archive", "exact C junction", "prepared.final.json", "PREPARED anchor with final prepared ref", "alias.receipt.json"],
+    "activate": ["activate.attempt.json", "ACTIVE anchor after independent ACCEPT_MIGRATION_COMMIT", "activate.receipt.json"],
+    "verify": ["verify.attempt.json", "read-only identity/bytes/config/coordinator receipt verification", "verify.receipt.json"]
+  },
+  "identity_and_copy": {
+    "filesystem": "supported local NTFS only; 64-bit core identity on ReFS refused",
+    "native_identity": "GetFileInformationByHandle volume serial 8 lowercase hex and file index 16 lowercase hex",
+    "objects": "ordinary local paths, no unexpected ancestor/leaf reparse, regular single-link files, full directory traversal, no ADS/EFS/compression/sparse",
+    "security": "owner/group/ordered DACL bytes and DACL control fingerprint via GetSecurityInfo/SetSecurityInfo with readback; null/missing DACL refused; private target/backup ACL before secret bytes",
+    "not_claimed": "SACL/audit/MIC and unsupported metadata are not inferred preserved"
+  },
+  "junction": "one CreateDirectoryW plus one FSCTL_SET_REPARSE_POINT mount point, GET_REPARSE_POINT and C/D root+lock native readback; no cmd/mklink fallback",
+  "archive": "MoveFileExW(source, archive, 0) same parent and native volume, no copy/replace/delay flags",
+  "receipts": "immutable exclusive same-parent temp, file fsync, publish to absent name, exact digest and ACL readback; started marker remains on any failure",
+  "anchor": "exact 11-key bos3.control-home-authority/v1; PREPARED draft then post-alias immutable final prepared reference, ACTIVE only after independent receipt binding; same-parent file fsync/atomic replace/readback",
+  "durability_boundary": "Regular file temp flush/fsync and atomic same-parent publication/readback are required. No directory fsync or whole-operation power-loss transaction is claimed; uncertain outcome requires separate persisted-state reconciliation.",
+  "not_executed": ["installer", "imports", "AST/parser/compile", "help", "tests", "build", "live C state/config", "native probes", "copy/install", "transport", "Git writes"],
+  "qa_attempts_spent": "1/1",
+  "claims": {"SOURCE_COMPLETE": false, "TESTED": false, "INSTALLED": false, "MIGRATED": false, "TECHNICAL_READY": false, "PILOT_ALLOWED": false}
+}

@@ -1,0 +1,50 @@
+{
+  "schema": "bos.goal-blocked-audit.v1",
+  "checked_at_utc": "2026-09-27T13:34:55.001347+00:00",
+  "goal_complete": false,
+  "deadline": "2026-10-04T23:59:00+02:00",
+  "blocking_condition": "Mandatory owner-local delivery and entry/browser verification require the pending exact owner authorization; all other product priorities remain partial or deferred with unmet scope/feedback dependencies. No currently authorized product action is available to observer.",
+  "same_condition_consecutive_goal_turns_minimum": 3,
+  "recurrence_evidence": [
+    "CONTROL_RECEIPT.json",
+    "integrator-continuation-status.json",
+    "CONTROL_OBSERVATION_FAILURE.json",
+    "CONTROL_REVIEW_PROGRESS.json"
+  ],
+  "decision_owner": "user",
+  "product_commit": "f55a15de4006d10c0d7c65f8a2ca8499fbb99819",
+  "canonical_and_published_head": "54764b0ac33e7e7a0f044a21a7ea1899410b6fb8",
+  "branch": "codex/bos3-prerelease-20260927",
+  "pr": "https://github.com/vladduk-A-W-F/BOS/pull/10",
+  "pr_state": "open_draft_unmerged",
+  "runtime_commit_last_recorded": "33d7d387aa582c04339a91ae94361948ea67904c",
+  "next_card": "B30-PREVIEW-DELIVERY",
+  "next_action": "Upon exact owner authorization, sole integrator executes reviewed one-shot f55 update/restart and one desktop/mobile entry check preserving DB/media/password/progress; no lessons/init/seed/migrate/reset/retries. Separate remaining scenario QA scope remains unresolved.",
+  "integrator": "01a0dd56-ca2d-79c0-b159-bde80074a026",
+  "live_integrator_turn": "01a0e306-dc31-7892-a654-6bdfa12f39ec",
+  "integrator_status": "active/inProgress verified by timeoutMs0",
+  "integrator_cursor": "e752a357-8123-4211-aaee-642edb0fbbc2:15",
+  "infra_work_still_in_progress": [
+    "B30-DEV-WORKFLOW",
+    "B30-DEV-CONTROL-CLI"
+  ],
+  "infrastructure_is_not_product_acceptance": true,
+  "native_loop_action": "Mark blocked to stop empty observer continuations; do not cancel integrator work or change existing automation.",
+  "event_to_reassess": "Exact owner scope/approval or new independently verifiable completed result changes available action; no periodic audit repeats without changed inputs.",
+  "automation": {
+    "id": "automation",
+    "status": "ACTIVE",
+    "interval_minutes": 15,
+    "target_thread_id": "01a0dd56-ca2d-79c0-b159-bde80074a026",
+    "new_schedule_created": false
+  },
+  "runtime_actions_this_turn": false,
+  "permission_question_repeated": false,
+  "readiness": {
+    "technical_ready": false,
+    "pilot_allowed": false,
+    "mvp": false
+  },
+  "native_goal_status": "blocked",
+  "native_status_confirmed_at_utc": "2026-09-27T13:35:53.918653+00:00"
+}

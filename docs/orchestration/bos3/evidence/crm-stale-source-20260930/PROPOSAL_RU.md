@@ -1,0 +1,28 @@
+# UXD04: предложение допуска к одному синтетическому cross-role receipt
+
+Карточка `B30-UXD04-ADMISSION-PROPOSAL-20260929`. Это **подготовка**, а не допуск выполнения, готовый исполняемый manifest, новый PASS или повтор принятого source trace. Исходник закреплён за `aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975`; текущий HEAD read-only dev9 совпал. Карточка root и принятые `TRACE_RU.md`, `NEXT_SCOPE.json`, `INDEPENDENT_REVIEW_RU.md` сверены с переданными SHA-256. Запрошены Sol/medium, наблюдаемая модель не подтверждена. Исполнений `0`; `TECHNICAL_READY=false`, `PILOT_ALLOWED=false`, `MVP=false`.
+
+## Точный предмет
+
+Одна сквозная синтетическая передача **существующего** Task: текущий manager A видит Task и все накопленные источники; создаёт preview с точными шестью полями `action=handoff_task`, `task_id`, `assignee_id`, `expected_result`, `deadline`, `reason`; явно подтверждает именно этот proposal до истечения 10 минут. Другой manager B в отдельной свежей сессии читает свою очередь, ту же Task и её историю. Observer в третьей сессии получает отказ `403` на preview. Отправитель повторяет confirm того же сохранённого proposal и получает ту же квитанцию без второго AuditEvent. Выбран отказ observer; lost-source мутация в этот один bounded сценарий не включена и не считается доказанной.
+
+Синтетический fixture для будущего отдельного допуска: отделы A/B типа `department`; активные связанные Employee/User sender и recipient с ровно одной ролью `manager`, Task до передачи назначена sender, незавершена и не архивна. Task содержит текущий SalesOrder и хотя бы одну накопленную историческую ссылку order/request; все ссылки доступны обоим manager. Сохраняются идентификаторы Task, источников, существующих событий и снимок полей до прогона. Дата `deadline` не раньше закреплённой серверной `as_of`; тексты и идентификаторы только синтетические. Observer не получает возможности изменения. Нужны отдельные сессии и корректный CSRF для POST. Конкретный fixture, учётные данные, настройки и пути DB/media должны быть рассмотрены до запуска; прежний лимит fixture `3/3` не даёт нового исполнения.
+
+## Оракулы будущего допуска
+
+1. До preview: отправитель видит Task и полный набор `source_refs`; зафиксированы Task/AuditEvent/ActionProposal IDs и counts.
+2. Preview: `200`, ID proposal, исходный payload и `effect.operation=handoff`; Task/AuditEvent не изменены, receipt proposal пуст. UI либо протокол оператора фиксирует явное подтверждение показанного адресата, результата, срока и причины.
+3. Confirm: `200`, `state=succeeded`, неизменный Task ID, новый `assignee_employee_id`, `status=active`, срок; receipt содержит `task_id`, `audit_id`, sender/recipient, `expected_result`, `source_refs`. Один новый `AuditEvent` имеет `action=handoff_task`, `transition=handoff`, before/after, reason; receipt `ActionProposal` сохранён с теми же ID. Фактический `Task.result` сохранён отдельно от ожидаемого результата.
+4. Новый recipient read: `GET /api/tasks/?department_id=<B>` и detail показывают тот же Task и текущее назначение; все страницы `/api/tasks/<id>/history/` содержат ровно событие из confirm с actor sender, reason, before/after и handoff. Пагинация и `next_cursor` сохраняются сырьём.
+5. Denied observer: preview даёт `403`, тело содержит error и не содержит receipt/handoff/impact; Task, AuditEvent и успешный receipt неизменны.
+6. Same-proposal replay: confirm в исходной сессии возвращает равную первому confirm квитанцию; status `/api/operations/task-proposals/<proposal_id>/` показывает `succeeded` и ту же квитанцию; второго handoff event и нового Task нет.
+
+Эти ожидаемые поля и маршрут основаны на закреплённых `tasks/test_department_handoff.py`, `tasks/handoffs.py`, `tasks/queries.py`, `tasks/history.py`, `operations/service.py`. Исходные тесты описывают контракт, но здесь **не запускались** и не становятся новым доказательством. API receipt подтвердит HTTP цепочку; утверждение о фактическом browser UI или production доступности из него не следует.
+
+## Допуск, сырые доказательства и остановка
+
+До любого запуска root и владелец QA должны отдельно разрешить same-problem UXD04 attempt с учётом всей истории, точный новый синтетический fixture и изолированный экземпляр, финальный runner/команду, разрешённые записи, DB `check_*`, выделенный `BOS_TEST_MEDIA`, сессии, лимит операций и очистку. Финальный исполняемый manifest и fixture требуют независимого pre-execution review. Это предложение не предоставляет перечисленные права и не разрешает app import, тест, harness, сборку, DB/media, HTTP, browser, runtime, network, process или resource probe.
+
+Будущие raw evidence должны связать source SHA и хэши файлов, runner/fixture SHA, instance/config, `as_of`, синтетические role/user/employee/department IDs, каждый запрос и ответ со status/body, Task/AuditEvent/ActionProposal snapshots и ID, stdout/stderr, exit codes, время и SHA-256 неизменяемых файлов. Секреты редактируются по описанному правилу без потери различимости сессий. Незапущенные шаги явно `NOT_RUN`. Независимый reviewer проверяет сырые данные после прогона; только затем root рассматривает scoped verdict.
+
+При отсутствии допуска, несовпадении pin, неизоляции fixture, неожиданном status/оракуле, истечении proposal, дрейфе прав/источников или неоднозначной сессии остановиться и сохранить имеющееся сырьё. Автоповтора и нового proposal в этом допуске нет. P05 full/PG/E2E `3/3`, fixture `3/3`, progressNode `1/1`, focused control-home QA `1/1 FAIL_SETUP`, C64 refusal и A09/A10/A11 сохраняются. Не переносить сюда разрешение runtime delivery, B30-12 или control-home; существующие вопросы владельцу не дублировать. При частичном или неудачном прогоне итог UXD04 остаётся `NOT_PROVEN`.

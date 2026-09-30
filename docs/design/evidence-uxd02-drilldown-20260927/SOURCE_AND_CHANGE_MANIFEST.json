@@ -1,0 +1,153 @@
+{
+  "card": "UXD02-MONITOR-INPLACE-DRILLDOWN",
+  "status": "AUTHOR_COMPLETE_REVIEW_PENDING",
+  "base_commit": "61d9edd32672433713ef0a42ae43a6114c314cc3",
+  "result_commit": "Commit containing this manifest; exact SHA returned after commit creation",
+  "branch": "codex/bos3-uxd02-drilldown-20260927",
+  "input_contracts": [
+    {
+      "path": "C:/Users/user/.codex/worktrees/bos-consolidation-plan/repo/docs/orchestration/bos3/evidence/uxd02-scope-20260927/SOURCE_REVIEW_RU.md",
+      "sha256": "77ff9c132ed7d03bcfb5c16254991b13234813b03ba6ed4955c54ce9404fb57a"
+    },
+    {
+      "path": "C:/Users/user/.codex/worktrees/bos-consolidation-plan/repo/docs/orchestration/bos3/evidence/uxd02-scope-20260927/ASSIGNMENT_REVIEW_RU.md",
+      "sha256": "eb0d8eff120bc8537be7f09a91934bcac9f8e27da8a6a5aafb428b403913ad56"
+    },
+    {
+      "path": "C:/Users/user/.codex/worktrees/bos-consolidation-plan/repo/docs/orchestration/bos3/evidence/uxd02-scope-20260927/NEXT_FUNCTIONAL_SCOPE_FA7E4C7.md",
+      "sha256": "5ccb3f49b094e46fd3bc0969ed667e305651d948bfa1e6ea2050134e1b58c4ca"
+    }
+  ],
+  "product_files": [
+    {
+      "path": "frontend/boss_app_source.html",
+      "changed": true,
+      "mode": "source",
+      "base_git_blob_sha1": "29bf3efc2900f334c2637af557692edecae170f7",
+      "result_git_blob_sha1": "a132a4cc21dd79f85ad97274ee533276cbf17109",
+      "result_worktree_sha256": "145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9"
+    },
+    {
+      "path": "frontend/bos_design.css",
+      "changed": false,
+      "mode": "source",
+      "base_git_blob_sha1": "f9b6479dad2897cd81ac974654eb1e385bc5c9d0",
+      "result_git_blob_sha1": "f9b6479dad2897cd81ac974654eb1e385bc5c9d0",
+      "result_worktree_sha256": "30e1db301539b97080705c463c0fec14ae6370de577f824318484c42d159fd54"
+    },
+    {
+      "path": "frontend/boss_app_html.html",
+      "changed": false,
+      "mode": "generated-only",
+      "base_git_blob_sha1": "18cd250dcd0e6af90d1ed5fda17503e319891880",
+      "result_git_blob_sha1": "18cd250dcd0e6af90d1ed5fda17503e319891880",
+      "result_worktree_sha256": "cdb3c24465feabfca3a27e7e231fd84a2011dc473dc58914bfe4d7b728395588"
+    },
+    {
+      "path": "assets/app.js",
+      "changed": true,
+      "mode": "generated-only",
+      "base_git_blob_sha1": "fbeafd476668f88adb85686c607137a637e71d68",
+      "result_git_blob_sha1": "fb3d5730d4a753022ee71e1dfd85d76e2246753a",
+      "result_worktree_sha256": "51732f2f359ac0155a9ff0e0d041ed2b6941bf23329c02adf72855b2628fd59e"
+    }
+  ],
+  "changed_product_paths": [
+    "assets/app.js",
+    "frontend/boss_app_source.html"
+  ],
+  "shared_predicate": {
+    "function": "monitorRows(data,key)",
+    "keys": [
+      "orders",
+      "jobs",
+      "quality"
+    ],
+    "record_kinds": {
+      "orders": "orders",
+      "jobs": "jobs",
+      "quality": "lots"
+    },
+    "dependencies": [
+      "b03OpenLine",
+      "b03Positive",
+      "purchaseRemaining"
+    ],
+    "input": "current shape-validated snapshot",
+    "output": "array of original matching row objects; no mutation; null data or unknown key returns []",
+    "used_by": [
+      "three monitor counts",
+      "dedicated monitor-list rows",
+      "initial row membership guard"
+    ]
+  },
+  "selection_contract": {
+    "list_kind": "monitor-list",
+    "origin": "monitorOrigin key stored inside selection only",
+    "first_record": "kind must match origin and id must belong to monitorRows",
+    "linked_record": "existing snapshot homeSelectionVisible; origin retained",
+    "back": "record to same filtered list, list to monitor",
+    "clear": [
+      "refresh",
+      "non-ready publish",
+      "context",
+      "denied",
+      "session end",
+      "presentation change",
+      "successful source reread handoff"
+    ],
+    "source_handoff": "monitor nextSelection=null; stale; no automatic restoration",
+    "opener": "DOM node only, cleared with selection; no independent business trail store"
+  },
+  "read_only_contract": {
+    "monitor_inspector_readOnly": true,
+    "monitor_inspector_onAction": "omitted",
+    "monitor_inspector_onNavigate": "omitted; existing linked-task escape disabled",
+    "DocViewer_default": false,
+    "DocViewer_manual_review_gate": "!readOnly && existing write/current/needs_review gates",
+    "outside_readOnly_behavior": "existing behavior preserved"
+  },
+  "excluded_metrics": [
+    "tasks",
+    "receivable"
+  ],
+  "build": {
+    "attempt": 1,
+    "native_exit_code": 0,
+    "input_output_hashes_still_match": true,
+    "html_regenerated_byte_identical": true
+  },
+  "package_checks": {
+    "allowlist": true,
+    "diff_check_native_exit": 0,
+    "product_QA": false
+  },
+  "NOT_RUN": [
+    "tests",
+    "unit",
+    "helper",
+    "AST",
+    "browser",
+    "offline visual",
+    "HTTP",
+    "runtime",
+    "lifecycle",
+    "DB",
+    "init",
+    "seed",
+    "migrate",
+    "reset",
+    "training",
+    "payment",
+    "full",
+    "PG",
+    "E2E",
+    "cross-role"
+  ],
+  "subagents_spawned": 0,
+  "independent_reviewer": "bos3_candidate_review",
+  "independent_review_status": "PENDING",
+  "runtime_changed": false,
+  "readiness_changed": false,
+  "full_UXD02_accepted": false
+}

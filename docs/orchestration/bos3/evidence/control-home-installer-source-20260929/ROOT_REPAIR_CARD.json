@@ -1,0 +1,27 @@
+{
+  "card": "B30-D-CONTROL-HOME-OPERATION-SOURCE",
+  "continuation": "SOURCE_REPAIR_OPS_1_TO_5",
+  "owner": "/root/bos3_operation_resume",
+  "reviewer": "/root/bos3_d_migration_review",
+  "review_sha256": "5f14fb6d6bafeb430a0b74ad8778559b55881f74b9d7a39a57176109633991c0",
+  "review": "SOURCE_REVIEW_RU.md",
+  "preserved_candidate": "review-round1",
+  "author_allowlist": ["install_control_home.py", "native_windows.py", "OPERATION_CONTRACT.json", "MANIFEST.json", "REPORT_RU.md"],
+  "repairs": {
+    "OPS-1": "Derive immutable complete expected D tree from source manifest plus exact allowed overlay/new-lock deltas, validate all bytes/path sets/types/ACL/supported attributes and new native identities; recheck before alias, ACTIVE and final verify. Include external setup/config overlays and backups security/type, not just hashes. Do not bless drift as a fresh baseline.",
+    "OPS-2": "Recheck target/archive/anchor absence at prepare entry. Initial PREPARED publication must be atomic no-replace at absent destination. Later anchor replacements require exact prior hash/generation/phase and native regular single-link identity immediately before replace. Preserve unexpected anchors, no recovery.",
+    "OPS-3": "Bind owning lock OS handle identity to pre-open path/root identities; recheck after acquisition and after inventory before release; owning stream supplies locked bytes without another data handle.",
+    "OPS-4": "Validate required existing state JSON envelopes as frozen core does without normalization/reset; require successful, complete, exact pinned C/D/default resolver and same-byte-lock/ledger coordinator evidence, not merely read_only=true. Bind executed source and active anchor/generation/root/lock. No fake receipts or execution now.",
+    "OPS-5": "Use frozen snapshot plus separately reviewed approved plan for D overlay before hashes; require exact approved external setup/config baselines and backups. Validate all before hashes/conflicts before starting copy/mutation. After hashes remain accepted dependency pins. Historical implementation inputs are not live baselines."
+  },
+  "unchanged_accepted_part": "NATIVE-FLUSH-1 closed; native methods and previous scoped accepted code stay unchanged except necessary five-finding repair",
+  "definition_of_done": "All five closure deltas, updated contract and final frozen source/manifest/report hashes, independent source delta review. No source acceptance by author.",
+  "allowed_checks": ["text reads/diffs", "SHA256", "JSON artifact data parsing"],
+  "executions": 0,
+  "tests_import_AST_compile_help_probes": "FORBIDDEN_NOT_RUN",
+  "QA1_spent": "1/1",
+  "C64_unchanged": true,
+  "check_in_utc": "2026-09-29T18:10:00Z",
+  "next": "Root freezes repaired hashes, same critical reviewer writes new SOURCE_REPAIR_REVIEW_RU.md without overwriting first review",
+  "SOURCE_COMPLETE": false, "TESTED": false, "INSTALLED": false, "MIGRATED": false
+}

@@ -1,0 +1,50 @@
+{
+  "schema": "bos.b30-12.qa-scope-preparation.v1",
+  "mode": "read_only_preparation",
+  "candidate": {
+    "commit": "f55a15de4006d10c0d7c65f8a2ca8499fbb99819",
+    "canonical": "C:/Users/user/.codex/worktrees/bos-consolidation-plan/repo",
+    "control_commit": "1015179f54a5b60ece18a3d69a81bdef9229cb52"
+  },
+  "input_hashes": {
+    "FULL_READINESS_MATRIX.json": "61c9cb6ec47398a4d5cc61d8cb70b1c2f430a7c314c07064efa10b8dea1146e7",
+    "FULL_READINESS_RU.md": "2a22338052950005b10b78415da0e95861961353a12a7051c38af5e981402332",
+    "S2_SOURCE_TRACE_F55.json": "95b24362827af83877a4939d23f100e18cfab03d310890465be7d8087e4f1f14",
+    "S2_SOURCE_TRACE_F55_RU.md": "93fc91f2f5adbd86230d0e24219e7a00ae09b22b54e03924adb1b997c6655eb9"
+  },
+  "scenarios": {
+    "S1": {"status":"BLOCKED_UNMAPPED","candidate_symbols":["frontend/boss_app_source.html:erpFetch","frontend/boss_app_source.html:ERP_ACTIONS"],"cap_intersection":"payment/network 3/3 exhausted"},
+    "S2": {
+      "status":"MAPPED_STATIC_FINAL_DYNAMIC_EVIDENCE_UNCONFIRMED",
+      "source_trace":{"path":"D:/3/BOSDev/evidence/bos3-readiness-20260927/S2_SOURCE_TRACE_F55.json","candidate_commit":"f55a15de4006d10c0d7c65f8a2ca8499fbb99819","execution_count":0},
+      "role":"ceo",
+      "read_route":"GET /api/erp/purchases/<pk>/document-match/",
+      "operation_routes":["/api/operations/preview/","/api/operations/confirm/"],
+      "command":"register_supplier_invoice",
+      "policy":"erp_register_supplier_invoice",
+      "read_schema":"bos.document-match-read.v1",
+      "payload":["document_id","purchase_id","supplier_id","item_id","source_sha256"],
+      "mapped_persistence":["SupplierInvoiceRegistration","Event","receipt"],
+      "receipt_fields":{"supplier_invoice_registration_id":"required","invoice_matching_status":"matched"},
+      "explicit_non_writes":["CRM records","AP or ledger postings","payments","stock movements","source-document mutation"],
+      "future_allowlist_if_separately_authorized":["ActionProposal","SupplierInvoiceRegistration","Event"],
+      "replay":"stable replay and source/context conflict guards are source-mapped only",
+      "reload_relogin":"SEPARATE_FEASIBILITY_REVIEW_REQUIRED",
+      "excluded_from_combined_exception":true,
+      "requires_separate_s2_authorization":true
+    },
+    "S3": {"status":"BLOCKED_UNMAPPED","candidate_symbols":["frontend/boss_app_source.html:ERP_ACTIONS.transfer_dispatch","frontend/boss_app_source.html:ERP_ACTIONS.transfer_receive"]}
+  },
+  "presentation_rows": {
+    "supply":{"case":"BOS3-CASE-01","facts":{"segments":[140,360],"total":500,"unit":"комплектів","deficit_washers":120},"writer_authorized":false},
+    "quality":{"case":"BOS3-CASE-02","facts":{"segments":[250,20],"total":270,"unit":"units","blocked":20},"writer_authorized":false},
+    "payment":{"case":"BOS3-CASE-03","facts":{"segments":[10000,6400],"total":16400,"currency":"UAH"},"writer_authorized":false}
+  },
+  "uxd_untraced": ["UXD-01","UXD-02","UXD-03","UXD-04","UXD-05","UXD-06","UXD-07","UXD-08"],
+  "gates": {"not_proven_current_candidate":[1,2,3,4,6,7,11],"exhausted":[5],"outside_owner_local":[8],"a10_restricted":[9],"partial_entry_only":[10]},
+  "historical_caps": {"fixture":"3/3 exhausted","progress":"3/3 exhausted","node_exception":"1/1 consumed","network_payment":"3/3 timeout","automatic_retry":false},
+  "execution": {"authorized":false,"tests":0,"browser":0,"http":0,"database":0,"build":0,"writes":0},
+  "required_reviewer": "start_overview_review",
+  "future_environment": {"created":false,"root":"D:/3/BOSDev/qa-runs/b30-12/<immutable-run-id>/","engine":"OWNER_DECISION_REQUIRED","db":"OWNER_DECISION_REQUIRED","media":"media-<run-id>/","marker":"B30_12_ISOLATED_RUN.json","retention":"PRESERVE_UNTIL_SEPARATE_OWNER_DECISION"},
+  "next_action": "obtain exact owner exception or review this preparation only"
+}

@@ -1,0 +1,119 @@
+{
+  "observed_at": "2026-09-27T14:20:09Z",
+  "scope": "Whole-project recurring coordination control; no new product runtime operation by this tracker",
+  "tasks": [
+    {
+      "id": "BOS-CONTROL-ALL:automation",
+      "owner": "current tracker",
+      "status": "Completed",
+      "expected_outcome": "Existing heartbeat covers all project roles and latest owner policy",
+      "definition_of_done": "Independent text review + native update + exact saved configuration verification",
+      "next_check_in": null,
+      "next_actor": null,
+      "latest_observation_at": "2026-09-27T14:07:41Z",
+      "outcome_so_far": "Native update saved; exact post-update TOML checks8/8; final independent delta review pending",
+      "verified_at": "2026-09-27T14:09:13Z",
+      "outcome": "Existing heartbeat updated and independently ACCEPT_SCOPED; exact saved prompt/id/target/ACTIVE/15min/cutoff checked",
+      "evidence": "D:/3/BOSDev/repo/outputs/bos3-projectwide-control-20260927/REVIEW_AFTER_UPDATE_RU.md"
+    },
+    {
+      "id": "BOS-CONTROL-ALL:canonical-handoff",
+      "owner": "01a0dd56-ca2d-79c0-b159-bde80074a026",
+      "status": "In progress",
+      "expected_outcome": "Reviewed projectwide contract incorporated by sole integrator with factual team/version/delivery states",
+      "definition_of_done": "Independent review, canonical commit/PR and disposition evidence or explicit blocker",
+      "next_check_in": "2026-09-27T14:22:09.000Z",
+      "next_actor": "sole integrator after current maintenance",
+      "latest_observation_at": "2026-09-27T14:20:09Z",
+      "outcome_so_far": "Root is updating10canonical control/docs files; TEAM already records resolved writer/quality metadata access. Stale workflow next_action still under independent-review correction.",
+      "related_native_delegations": [
+        {
+          "type": "subAgentActivity",
+          "id": "call_FL8qoLfRzpFs8sDq0NgnXPrh",
+          "kind": "interacted",
+          "agentThreadId": "01a0e269-7339-7183-ba41-5fdb9c36ce9c",
+          "agentPath": "/root/bos3_candidate_review"
+        }
+      ],
+      "review_findings": [
+        {
+          "severity": "P1",
+          "source_turn": "01a0e338-a48f-75a2-b36d-8d755c018952",
+          "finding": "B30-DEV-WORKFLOW.next_action still claims owner delivery pending",
+          "owner": "01a0dd56-ca2d-79c0-b159-bde80074a026",
+          "status": "Awaiting root correction",
+          "reported_to_user_at": "2026-09-27T14:17:30Z"
+        }
+      ]
+    },
+    {
+      "id": "BOS-CONTROL-ALL:independent-review",
+      "owner": "/root/projectwide_control_review",
+      "status": "Completed",
+      "registered_at": "2026-09-27T14:04:04Z",
+      "expected_outcome": "Independent exact-file review of projectwide protocol and automation prompt",
+      "definition_of_done": "Verdict, findings and SHA256 of both files; source unchanged after review",
+      "next_check_in": null,
+      "next_actor": null,
+      "evidence": "D:/3/BOSDev/repo/outputs/bos3-projectwide-control-20260927/REVIEW_AFTER_UPDATE_RU.md",
+      "latest_observation_at": "2026-09-27T14:07:41Z",
+      "verified_at": "2026-09-27T14:09:13Z",
+      "outcome": "Existing heartbeat updated and independently ACCEPT_SCOPED; exact saved prompt/id/target/ACTIVE/15min/cutoff checked"
+    },
+    {
+      "id": "BOS-CONTROL-ALL:design-handoff",
+      "owner": "01a0bffa-3fc7-7bc2-9868-86164c6e0315",
+      "status": "In progress",
+      "registered_at": "2026-09-27T14:05:31Z",
+      "source_turn": "01a0e32b-3715-7df3-9a1a-83754c3f36af",
+      "source_user_message": "01a0e32b-38e4-7653-a0d9-316b6a15ab60",
+      "expected_outcome": "Latest direct owner design scope and all department child assignments routed to canonical integrator with exact applicable source and next owner",
+      "definition_of_done": "Design actual base/workspace/allowlist/artifact and child owners are acknowledged; sole integrator records applicable dependent card or explicit blocker; production of whole design remains in owning department",
+      "next_check_in": "2026-09-27T14:22:09.000Z",
+      "next_actor": "design lead and sole integrator",
+      "related_children": [
+        "01a0e303-635d-7131-bc2d-4ac3dede3ddc",
+        "01a0e301-cc1e-7b32-a8ec-30e76ad2fe62",
+        "01a0e304-03b1-7461-aa70-86bebe158775"
+      ],
+      "latest_observation_at": "2026-09-27T14:20:09Z",
+      "outcome_so_far": "Actual workspace/head/dev3 ancestry verified by tracker and passed to root; root card B30-DESIGN-NEXT exists, final owner package remains separately in design department",
+      "followups": [
+        {
+          "at": "2026-09-27T14:13:32Z",
+          "reason": "Meaningful design progress but exact source/workspace overdue; minimal source handoff requested without waiting full UI completion",
+          "native_delivery_success": true
+        }
+      ],
+      "evidence": "D:/3/BOSDev/repo/outputs/bos3-projectwide-control-20260927/CONNECTIONS_AUDIT.json"
+    },
+    {
+      "id": "BOS-CONTROL-ALL:writer-context",
+      "owner": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+      "status": "Completed",
+      "registered_at": "2026-09-27T14:09:13Z",
+      "expected_outcome": "Current product/docs/runtime/packaging state read and old package status marked historical",
+      "definition_of_done": "Owner returns actual read receipt and current applicable source; no implementation or tests, external access limit explicitly recorded if present",
+      "next_check_in": null,
+      "next_actor": null,
+      "verified_at": "2026-09-27T14:11:21Z",
+      "source_turn": "01a0e332-de10-7231-a2bc-58387a8a70f4",
+      "outcome": "Writer read all three canonical files; dev.3 pack recognized as integrated, no repeat packaging; exact snapshot during root delivery closeout, later pins follow next handoff",
+      "verification": "Native completed reader results plus actual canonical candidate SHA confirmed earlier; mutable control snapshot time kept explicit"
+    },
+    {
+      "id": "BOS-CONTROL-ALL:quality-access",
+      "owner": "01a0c05d-6eeb-79f1-a135-be66985b442f",
+      "status": "Completed",
+      "registered_at": "2026-09-27T14:09:13Z",
+      "expected_outcome": "Exact current manifest and control metadata readable in existing QA context or explicit access limitation",
+      "definition_of_done": "Owner returns actual read receipt and current applicable source; no implementation or tests, external access limit explicitly recorded if present",
+      "next_check_in": null,
+      "next_actor": null,
+      "verified_at": "2026-09-27T14:11:21Z",
+      "source_turn": "01a0e332-e3dd-7a43-8dcd-1e849d712a8f",
+      "outcome": "Exact current CONTROL_STATE and LIGHT_PREVIEW_CANDIDATE readable; SHA matches writer snapshot and candidate; old source-access limitation resolved for metadata scope, no QA tests executed",
+      "verification": "Native completed reader results plus actual canonical candidate SHA confirmed earlier; mutable control snapshot time kept explicit"
+    }
+  ]
+}

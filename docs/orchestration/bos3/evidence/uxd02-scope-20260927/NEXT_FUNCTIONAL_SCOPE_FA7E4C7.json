@@ -1,0 +1,120 @@
+{
+  "schema": "bos3.next-functional-scope.fa7e4c7.v1",
+  "mode": "read_only_author_proposal_not_assignment_not_acceptance",
+  "observed_product_commit": "fa7e4c77aed75a54d9067e0709a8b37229755c59",
+  "observed_tree": "41268effc7e7f67b034e007b7a6c744982f77f0c",
+  "baseline_matrix": {
+    "path": "docs/orchestration/bos3/FULL_READINESS_MATRIX_E710.json",
+    "sha256": "79a6ae1db0a1c04546ee2befc2c95144b03db22f48fe8be7fc95fac373606f96"
+  },
+  "prior_delta": {
+    "path": "D:/3/BOSDev/evidence/bos3-readiness-20260927/READINESS_DELTA_8EB832A.json",
+    "sha256": "68B519908AAF0936C19DF76A3765155EC41F4A748F08C4864D597E7B09F019D0"
+  },
+  "current_nonoverlap": {
+    "occupied": [
+      "UXD01-DELIVERY: manifest/final-pin review and root owner-local delivery only",
+      "B30-CONTROL-MANIFEST: two control-tool files only",
+      "B30-12-QA-SCOPE: owner exception pending for SAME-PROBLEM learning/progress",
+      "UXD03-WAIT-01: owner disclosure choice pending"
+    ],
+    "reason": "The proposed source scope is independent of delivery mechanics, control CLI, learning/progress and waiting semantics."
+  },
+  "proposal": {
+    "id": "UXD02-MONITOR-INPLACE-DRILLDOWN",
+    "requirement": "UXD-02: Показатель → список → запись → источник/действие → возврат.",
+    "classification": "NEW_EXISTING_SNAPSHOT_READONLY_CONTEXTUAL_DRILLDOWN_NOT_QA_RETRY",
+    "product_value": "A user can open the exact records counted by a monitor metric, inspect one existing record and its existing source facts, then return to the same metric list without losing the monitor context.",
+    "narrow_scope": [
+      "Only the existing monitor metrics 'Замовлення у виконанні', 'Відкриті роботи' and 'Партії без допуску'.",
+      "Use the already fetched, access-filtered /api/erp/snapshot/ data held by BoSHome; add no endpoint, route, query parameter, backend field, policy or action.",
+      "For those three metrics, replace the current section/sub-only handoff with an in-place read-only drilldown list whose predicates exactly match the metric predicates, then reuse the existing BoSInspector for an existing record.",
+      "Maintain an explicit monitor-origin trail: close/back returns record → same filtered metric list → monitor. Existing source links stay guarded and no mutation action is exposed from the read-only monitor."
+    ],
+    "excluded_to_preserve_truth": [
+      "'Відкриті доручення' is excluded: its current table handoff routes to HR tasks rather than an in-place record inspector, so it cannot yet promise list→record→return without a separate task-detail context contract.",
+      "'Очікуємо від клієнтів' is excluded: its invoice/currency/credit calculation needs a distinct exact-reconciliation scope before a record list can truthfully reproduce the metric.",
+      "No branch filter, calendar period, historical slice, deviation-cause model, automatic record selection across a page route, or new command/action is added."
+    ],
+    "source_basis": [
+      {
+        "path": "frontend/boss_app_source.html",
+        "blob_sha1": "29bf3efc2900f334c2637af557692edecae170f7",
+        "spans": [
+          "5151-5155: existing selection visibility guards",
+          "5158-5180: monitor card currently invokes only onNavigate(section,sub)",
+          "5252-5258: existing access/context guard and stale source handling",
+          "5266-5268: exact current in-memory predicates for orders, jobs and quality lots",
+          "5271-5281: exact three metric definitions and their present generic section/sub destinations",
+          "4987-5016: existing BoSInspector list/record rendering, row selection and record source/action surfaces"
+        ]
+      },
+      {
+        "path": "erp/views.py",
+        "blob_sha1": "df0c607e3645ba5bd0e231509a53ab3ca62f4ea7",
+        "spans": ["14-19: existing GET snapshot constructs Policy(request) before exposing home/snapshot data"]
+      },
+      {
+        "path": "erp/queries.py",
+        "blob_sha1": "d1a979acadbdd8f47fd51ccef659ffddf0e8b33f",
+        "spans": ["82-97: snapshot applies policy.filter_queryset to current arrays before projection"]
+      }
+    ],
+    "exact_predicates": {
+      "orders": "data.orders where at least one data.lines row has the same order_id and b03Positive(b03OpenLine(line)); this is the current monitor count, not the existing generic confirmed-order list.",
+      "jobs": "data.jobs where status !== 'done'; this is the current monitor count.",
+      "quality_lots": "data.lots where Number(quantity) > 0 and (quality !== 'approved' or missing_documents.length > 0); this is the current monitor count."
+    },
+    "prerequisites": [
+      "Root chooses an exact clean worktree at fa7e4c7 or its reviewed descendant and confirms no concurrent change to the same four UI blobs.",
+      "Use the existing authenticated read path and current policy-filtered snapshot only; no owner exception is needed because no learning, waiting, DB reset, browser or lifecycle execution is part of the implementation card.",
+      "Independent review must verify the predicates against the exact source above before integration."
+    ],
+    "proposed_owner_and_copy": {
+      "owner": "existing central UI author, design thread 01a0bffa-3fc7-7bc2-9868-86164c6e0315, subject to root availability check",
+      "workspace": "new isolated worktree selected by root from exact fa7e4c7; do not reuse a dirty or delivery-owned checkout",
+      "reviewer": "independent reviewer selected by root; author must not review own diff"
+    },
+    "nonoverlapping_allowlist": [
+      "frontend/boss_app_source.html: BosGlobalMonitor, BoSHome monitor-origin selection trail and BoSInspector optional monitor-return behavior only",
+      "frontend/boss_app_html.html: generated only",
+      "assets/app.js: generated only",
+      "frontend/bos_design.css: only compact drilldown/back affordance styles if needed",
+      "docs/design/evidence-uxd02-drilldown-20260927/: new card evidence only"
+    ],
+    "definition_of_done": [
+      "The three named monitor cards open list rows computed by exactly the same in-memory predicates as their displayed metric values; no generic confirmed-order substitution.",
+      "A selected row opens its existing record in the existing inspector with no new network endpoint, policy bypass, write action, hidden record ID or fabricated source fact.",
+      "Back/close restores the exact monitor-origin list and then the monitor; stale, denied, context-drift and unavailable states fail closed and discard the trail rather than showing prior-access records.",
+      "The implementation remains read-only in monitor context. It does not claim that an in-place list proves an end-to-end action, branch/period contract, cross-role behavior or full UXD-02 acceptance.",
+      "Author provides exact diff and generated artifact provenance; independent reviewer verifies source pin, predicate equality, trail invalidation and allowlist before root integration."
+    ],
+    "required_validation_after_review_not_run_by_this_scout": [
+      "Static review of exact predicate equality, policy/role preservation, trail invalidation and generated artifact provenance.",
+      "A separately authorized focused synthetic presentation check may be classified NEW only after reviewer confirms it is not the completed UXD01 AST disclosure problem; it must have its own cap and preserve raw output.",
+      "A browser/accessibility check is a separate future scope and remains constrained by GATE-10/A11; it is not implied by static or focused validation."
+    ],
+    "historical_qa_limits": [
+      "Do not consume or reset B30-12 fixture/training/progress exception; it remains SAME-PROBLEM awaiting owner decision.",
+      "Do not repeat P05, A09 targeted payload, A10 upgrade/rollback or A11 browser/loopback routes.",
+      "UXD01 AST run1 FAIL and run2 PASS are retained disclosure-oracle history; they do not authorize a repeat or prove this contextual drilldown."
+    ],
+    "known_risks": [
+      "The existing inspector's order trace can independently reread sources; the card must distinguish that later guarded read from the snapshot list and preserve fail-closed stale handling.",
+      "Nested source links need a bounded monitor-origin trail so returning does not display an object after access/context changes.",
+      "Task and receivable metrics remain excluded until their differing record/reconciliation contracts are independently scoped; expanding them would make the metric/list equivalence untrue."
+    ]
+  },
+  "readiness_effect": "No current readiness or gate changes. This is a proposed implementation scope only, not a claim, acceptance, assignment or execution authorization.",
+  "scout_actions": {
+    "product_edits": 0,
+    "tests": 0,
+    "builds": 0,
+    "cli": 0,
+    "http": 0,
+    "browser": 0,
+    "database": 0,
+    "runtime": 0,
+    "messages": 0
+  }
+}

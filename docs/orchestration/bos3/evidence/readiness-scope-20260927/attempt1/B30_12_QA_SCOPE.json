@@ -1,0 +1,24 @@
+{
+  "schema": "bos.b30-12.qa-scope-preparation.v1",
+  "mode": "read_only_preparation",
+  "candidate": {
+    "commit": "f55a15de4006d10c0d7c65f8a2ca8499fbb99819",
+    "canonical": "C:/Users/user/.codex/worktrees/bos-consolidation-plan/repo",
+    "control_commit": "1015179f54a5b60ece18a3d69a81bdef9229cb52"
+  },
+  "input_hashes": {
+    "FULL_READINESS_MATRIX.json": "61c9cb6ec47398a4d5cc61d8cb70b1c2f430a7c314c07064efa10b8dea1146e7",
+    "FULL_READINESS_RU.md": "2a22338052950005b10b78415da0e95861961353a12a7051c38af5e981402332"
+  },
+  "scenarios": {
+    "S1": "current-candidate dynamic trace unconfirmed",
+    "S2": "current B30 mapping missing",
+    "S3": "current-candidate dynamic trace unconfirmed"
+  },
+  "uxd_untraced": ["UXD-01","UXD-02","UXD-03","UXD-04","UXD-05","UXD-06","UXD-07","UXD-08"],
+  "gates": {"not_proven_current_candidate":[1,2,3,4,6,7,11],"exhausted":[5],"outside_owner_local":[8],"a10_restricted":[9],"partial_entry_only":[10]},
+  "historical_caps": {"fixture":"3/3 exhausted","progress":"3/3 exhausted","node_exception":"1/1 consumed","network_payment":"3/3 timeout","automatic_retry":false},
+  "execution": {"authorized":false,"tests":0,"browser":0,"http":0,"database":0,"build":0,"writes":0},
+  "required_reviewer": "start_overview_review",
+  "next_action": "obtain exact owner exception or review this preparation only"
+}

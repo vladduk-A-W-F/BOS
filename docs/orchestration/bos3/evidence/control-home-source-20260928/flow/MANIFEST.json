@@ -1,0 +1,37 @@
+{
+  "schema": "bos3.control-home-flow-source/v1",
+  "card": "B30-D-CONTROL-HOME-FLOW-SOURCE",
+  "status": "SOURCE_ONLY_INACTIVE_PENDING_INDEPENDENT_REVIEW",
+  "canonical_context": "778b364b6dcc0d7fe23e85ebdd0bdf941cf08d51",
+  "source": {
+    "path": "D:/3/BOSDev/setup/bos_flow.py",
+    "sha256": "8399627333ef9624d8161503224b32ecc8e537a6fe9bf08852c24267b5c9fb24"
+  },
+  "result": {
+    "path": "staged/bos_flow.py",
+    "sha256": "f95394ea95132505cc792c87586397466c9c389c399295860f9452d684eee848"
+  },
+  "core_interface": {
+    "path": "../core/INTERFACE.json",
+    "sha256": "9537061eca16d000b2632bc4a1ab235ae527c9f0cd56edb6d812f32889f91497",
+    "provider": "staged/bos_dev.py",
+    "function": "resolve_control_home(value=None) -> pathlib.Path",
+    "bos_dev_sha256": "9953e621190dbf70b65955afee473f46969347a292cd2bf63f929bcf3e3d7c53",
+    "codex_channel_sha256": "3f1c4318a3693a47b088ca75742decbce84dda18942f97f039d424d392108a55",
+    "channel_api_compatibility": "Flow does not call the changed public deliver API; it invokes the reviewed channel CLI with the resolved --home Path. Direct external callers of the removed client-first deliver signature remain outside this card."
+  },
+  "change_contract": [
+    "Import the resolver and ControlHomeError from ROOT/setup, removing legacy HOME_DIR/tools import precedence.",
+    "Resolve the selected home once at refresh or handoff entry before observer/config/lock state access; pass the returned Path unchanged to all downstream home paths and local_flow.collect.",
+    "Validate --home for read-only index/models paths so a selected nonlegacy unestablished home fails closed instead of being silently ignored.",
+    "Pass the same canonical Path explicitly as channel subprocess --home.",
+    "Preserve actors, policy, transport, root report locations, and all owner/admission gates."
+  ],
+  "inactive_boundary": {
+    "nonlegacy_home": "resolver refuses until separate coherent authority-state/ledger establishment is authorized",
+    "this_is_not": ["control-home migration", "directory establishment", "wrapper/local_flow change", "cutover", "runtime activation", "state inspection", "full migration"],
+    "execution_count": 0,
+    "dynamic_checks": "NOT_RUN",
+    "independent_review": "PENDING"
+  }
+}

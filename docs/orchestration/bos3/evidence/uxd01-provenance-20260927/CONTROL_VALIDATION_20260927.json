@@ -1,0 +1,19 @@
+{
+  "command": "D:/3/BOSDev/venv/Scripts/python.exe -B tools/bos_control.py --scope bos3 validate",
+  "cwd": "C:/Users/user/.codex/worktrees/bos-consolidation-plan/repo",
+  "head": "8eb832a45c9c8f2d140fef0a44c74b94a07a470a",
+  "native_exit": 1,
+  "classification": "READ_ONLY_CONTROL_RECORD_VALIDATION_AFTER_NEW_STATE_NOT_APP_QA",
+  "result": "FAIL",
+  "reported_product_candidate_commit": "f55a15de4006d10c0d7c65f8a2ca8499fbb99819",
+  "actual_state_product_candidate_commit": "a753a590727344b73f2c79e142c4c8ec6cc89c0d",
+  "actual_state_candidate_manifest": "TASK_CARD_DEV5_CANDIDATE.json",
+  "errors": [
+    "Product candidate pin differs from manifest",
+    "Product candidate version differs from manifest",
+    "Unexpected product candidate manifest",
+    "Weekly next product status differs from current card"
+  ],
+  "application_tests_run": false,
+  "next_action": "Independent read-only diagnosis of manifest selection and current status contract; no retry"
+}

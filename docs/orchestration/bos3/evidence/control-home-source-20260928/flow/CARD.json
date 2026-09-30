@@ -1,0 +1,20 @@
+{
+  "id":"B30-D-CONTROL-HOME-FLOW-SOURCE",
+  "issuer":"root",
+  "owner":"bos3_crm_impl",
+  "reviewer":"bos3_candidate_review",
+  "canonical_context":"778b364b6dcc0d7fe23e85ebdd0bdf941cf08d51",
+  "workspace":"D:/3/BOSDev/qa-scratch/bos3-control-home-source-20260928/flow",
+  "source_path":"D:/3/BOSDev/setup/bos_flow.py",
+  "source_sha256":"8399627333ef9624d8161503224b32ecc8e537a6fe9bf08852c24267b5c9fb24",
+  "allowlist":["staged/bos_flow.py","REPORT_RU.md","MANIFEST.json"],
+  "scope":"Explicitly propagate the same canonical home to flow observer/config/lock/index/handoff and subprocess channel --home; reconcile import source before state access and reject tools/home mismatch. Preserve scope/actors/transport and all owner/admission gates. No wrapper or local_flow edits.",
+  "dependency":"Core INTERFACE.json and exact staged bos_dev/codex_channel result pins before final patch/review. Core owner bos3_channel_diagnosis. Prepare by source reading, do not invent incompatible API.",
+  "prohibited":["edit live setup/controller/C tools/canonical","read/copy state/ledger/config/queue/observer/policy/secrets/lock","execute/import helpers or CLI","tests/compile/AST/diagnostics","MCP/HTTP/send","control-home switch, directory establishment, runtime or lifecycle changes"],
+  "classification":"NEW_SOURCE_ONLY_FLOW_CALLER_PREPARATION_NO_EXECUTION",
+  "execution_count":0,
+  "definition_of_done":"One inactive exact bos_flow source patch tied to core API/result, independent static review, external callers/wrapper/quiescence/authority and all execution/cutover gates open",
+  "status":"ASSIGNED_SOURCE_READING_PENDING_CORE_INTERFACE",
+  "check_in_utc":"2026-09-28T03:30:00Z",
+  "next_recipient":"bos3_candidate_review then root"
+}

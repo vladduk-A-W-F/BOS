@@ -1,0 +1,15 @@
+# B30-12-QA-SCOPE revision 3: принято только уточнение границ
+
+27.09.2026. Author quality thread01a0c05d-6eeb-79f1-a135-be66985b442f; reviewer start_overview_review. Exact MD927fa8963fc2ebe686f056155a58c56947d0a9384b9e00aa0cd8b528cc79fed6, JSONaf81b235ccd508bae3fce372ad536d9f162f87d9103bb3a1d1a3708ade54a089, AUTHOR5a3719c020a3fbfef8124e8bd478053cc689dfa08101f891dcbc7a4b28d1792b. Исходные байты сохранены в revision3/; первый CHANGES_REQUESTED остаётся в REVIEW_RU.md и attempt1/.
+
+Независимый verdict: ACCEPT_SCOPED_PREPARATION_ONLY. Подтверждены отделение трёх учебных preview от broader MVP S1/S2/S3, S1/S3 BLOCKED_UNMAPPED, payment/network3/3, candidate-bound статическая S2 цепь CEO document-match -> preview/confirm -> register_supplier_invoice, ограниченная persistence/receipt, отсутствие CRM/AP/payment/stock полномочий, исключение S2 из combined exception. Сохранены cap ledger, proposed isolation marker/preflight/retention, execution0.
+
+По полному DoD root оставляет B30-12-QA-SCOPE PARTIAL: точный learning execution oracle не готов. Открыты S1/S3 mapping, UXD01–08 rows, конкретные fixtures/числа/receipts, роли/переходы и completed-step reload/relogin/resume, exact engine/db и применимый owner exception. Приёмка подготовительного artifact не закрывает эти пункты. JSON next_action исходного snapshot не является разрешением спрашивать владельца или запускать проверки.
+
+Следующее уже переданное задание тому же QA: read-only конкретный план ТОЛЬКО фактических BOS3-CASE-01 supply,02quality,03payment на source f55a15de4006d10c0d7c65f8a2ca8499fbb99819. Изучить реальные lesson routes/services/fixture и server fact completion, не выдавать preview charts за завершённые шаги. Broader S1/S3 trace отдельно ведёт observer; S2 не становится четвёртым уроком или частью combined exception.
+
+Root выбрал для предложения владельцу SQLite-only synthetic contract: D:/3/BOSDev/qa-runs/b30-12-learning-f55-r1/, db.sqlite3, media/, evidence/, RUN_MANIFEST.json. Test-Path перед назначением вернул false. Ничего не создано и не запущено. Preserve all artifacts/no cleanup; максимум один будущий запуск/no retry только после exact independent review и применимого owner exception на исторические caps. Это инженерная конкретизация предложения, не согласие владельца и не PostgreSQL/11gate acceptance.
+
+Новые тесты/browser/HTTP/runtime/setup/DB writes/validator/build: 0. Readiness=false, owner-local f55 не затронут. Старые P05/A09/A10/A11, fixture3/3, progress3/3 и Node exception1/1 не обнулены. Проект среды не разрешает seed/migrate/reset.
+
+Canonical documentary delta независимо проверен bos3_candidate_review: ACCEPT_SCOPED_DOCUMENTARY_DELTA. Неблокирующее замечание: immutable revision3 ещё содержит прежний выбор SQLite/PostgreSQL, тогда как нынешнее предложение root SQLite-only. Исторические bytes не переписываются; следующий learning plan обязан использовать единственное предложенное SQLite-only окружение выше, по-прежнему execution-disabled. QA получил это уточнение до доработки. Hashes/статус PARTIAL/readiness=false и reported architect assignment согласованы.

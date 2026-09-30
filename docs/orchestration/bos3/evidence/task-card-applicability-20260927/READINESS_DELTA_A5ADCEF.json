@@ -1,0 +1,112 @@
+{
+  "schema": "bos.readiness.delta.a5adcef.v1",
+  "mode": "read_only_source_applicability",
+  "observed_commit": "a5adcefc8a9bf0ff19f522c585fe7114facd7ee3",
+  "observed_tree": "985c8a7bb099622eedcd7ed9561c859e8482d337",
+  "baseline_commit": "e710eb568717dfe3ede945feb899f030bd5ad1ab",
+  "author_product_commit": "4999f7af9387488386729db02423460d9678bedf",
+  "baseline_matrix": {
+    "path": "C:/Users/user/.codex/worktrees/bos-consolidation-plan/repo/docs/orchestration/bos3/FULL_READINESS_MATRIX_E710.json",
+    "sha256": "79a6ae1db0a1c04546ee2befc2c95144b03db22f48fe8be7fc95fac373606f96",
+    "use": "Baseline for unchanged requirements and constraints only; its e710 runtime/entry receipts are not evidence for a5adcef."
+  },
+  "exact_product_delta": {
+    "author_blobs_identical_in_observed_commit": true,
+    "changed_paths": [
+      {
+        "path": "frontend/boss_app_source.html",
+        "base_blob_sha1": "55082b16acd1b7c625bd4e8fbaecd3e350ceee50",
+        "result_blob_sha1": "0ad98113b985a15f92535d4dc9cf32d9148474f7",
+        "result_sha256": "62e31d8f65879179d2b60124312c58fd848a3a252ef58737551adec3e57cc7fb"
+      },
+      {
+        "path": "frontend/bos_design.css",
+        "base_blob_sha1": "580417d86db5d023b4519b64e358db6fb0640cb4",
+        "result_blob_sha1": "30307d975741bd3b784ae483147db52f4c127fde",
+        "result_sha256": "126310be77f793f932f6dc104e249e6b910fda5fad19a7559a2e25e9310de79a"
+      },
+      {
+        "path": "frontend/boss_app_html.html",
+        "base_blob_sha1": "342c939d808e7addbeb72e2b60219c635e0e96f2",
+        "result_blob_sha1": "6165048a78a3c2987ecd476c8736621dba0637db",
+        "result_sha256": "2c83a70e4b146f24d736c09f0c2c0984b9c57c7c8c914b6faba16f050544bf4a"
+      },
+      {
+        "path": "assets/app.js",
+        "base_blob_sha1": "1aec1e00379a858149aad5ffadd86327227d7e5f",
+        "result_blob_sha1": "3cc5c699972cf1f6cdde507b5a9b4f2e5d0f9f70",
+        "result_sha256": "b571f158ee0196372ac14d2c7c438ef02c6f661fd6587c9e8479dfa2e0e9a62c"
+      }
+    ],
+    "unchanged_backend_requirement_basis": "No backend, policy, command/service, migration, fixture, or test path is in the exact e710-to-a5ad product delta. This establishes source non-change only, not dynamic acceptance."
+  },
+  "new_scoped_evidence": {
+    "code_review": {
+      "path": "docs/orchestration/bos3/evidence/uxd03-card-20260927/CODE_REVIEW_RU.md",
+      "verdict": "ACCEPT_SCOPED_STATIC_CODE_AND_BUILD_EVIDENCE",
+      "scope": "four product files, saved one-build input/output evidence; no repeated build"
+    },
+    "helper_qa": {
+      "path": "docs/orchestration/bos3/evidence/uxd03-card-20260927/QA_REVIEW_RU.md",
+      "verdict": "ACCEPT_SCOPED_HELPER_QA",
+      "classification": "NEW_PRESENTATION_DELTA",
+      "attempt": "1/3",
+      "fixture_groups": 7,
+      "execution_scope": "AST-extracted pure helper and in-memory fixtures only",
+      "not_proven": ["application", "roles", "API", "database", "browser", "build", "runtime", "lessons"]
+    }
+  },
+  "original_scenarios": {
+    "S1": "SOURCE_MAPPED_FINAL_DYNAMIC_EVIDENCE_UNCONFIRMED; unchanged backend basis remains applicable.",
+    "S2": "SOURCE_MAPPED_FINAL_DYNAMIC_EVIDENCE_UNCONFIRMED; unchanged backend basis remains applicable.",
+    "S3": "SOURCE_MAPPED_FINAL_DYNAMIC_EVIDENCE_UNCONFIRMED; unchanged backend basis remains applicable."
+  },
+  "uxd_delta": {
+    "UXD-01": "UNCHANGED_PARTIAL",
+    "UXD-02": "UNCHANGED_PARTIAL",
+    "UXD-03": {
+      "state": "PARTIAL_IMPLEMENTATION_WITH_SCOPED_STATIC_AND_HELPER_EVIDENCE",
+      "newly_supported": [
+        "task-card display separates assignee department, original business branch, order label, and one guarded current/superseded handoff label",
+        "order and handoff context use existing guarded projections without I/O or new API/storage/capability lookup",
+        "seven in-memory helper fixture groups cover order-label and handoff states"
+      ],
+      "remaining": [
+        "no runtime list/API/role evidence",
+        "waiting participant and waiting cause are not displayed",
+        "no linked business-record navigation or full persisted handoff history is established",
+        "no browser/responsive/cross-role acceptance"
+      ]
+    },
+    "UXD-04": "PARTIAL_STATIC_SURFACE_IMPROVED_DYNAMIC_CROSS_ROLE_EVIDENCE_MISSING; the card can label one guarded handoff state, but this is not actual transfer or history acceptance.",
+    "UXD-05": "UNCHANGED_PARTIAL",
+    "UXD-06": "UNCHANGED_PARTIAL",
+    "UXD-07": "UNCHANGED_PARTIAL",
+    "UXD-08": "UNCHANGED_PARTIAL"
+  },
+  "technical_gates": {
+    "GATE-1": "NOT_PROVEN_ON_A5AD",
+    "GATE-2": "NOT_PROVEN_ON_A5AD",
+    "GATE-3": "NOT_PROVEN_ON_A5AD",
+    "GATE-4": "NOT_PROVEN_ON_A5AD",
+    "GATE-5": "HISTORICAL_ATTEMPTS_EXHAUSTED",
+    "GATE-6": "NOT_PROVEN_ON_A5AD",
+    "GATE-7": "NOT_PROVEN_ON_A5AD",
+    "GATE-8": "OUTSIDE_CURRENT_OWNER_LOCAL_HOSTING_AUTHORIZATION",
+    "GATE-9": "NOT_PROVEN_A10_RESTRICTION",
+    "GATE-10": "NOT_PROVEN_ON_A5AD",
+    "GATE-11": "NOT_PROVEN_ON_A5AD"
+  },
+  "runtime_and_entry_applicability": {
+    "e710_owner_local_delivery": "Not transferable to a5adcef because the four product blobs changed and a5adcef has not been installed as runtime.",
+    "prior_dev3_entry": "Not transferable; it is a different source and its narrow preview/login scope did not cover this card.",
+    "new_helper_qa": "Not runtime, browser, API, role, database, lesson, or release evidence."
+  },
+  "readiness": {
+    "full_readiness_proven": false,
+    "technical_ready": false,
+    "pilot_allowed": false,
+    "mvp": false
+  },
+  "audit_actions": {"tests": 0, "builds": 0, "http": 0, "browser": 0, "database": 0, "runtime": 0, "product_claims": 0}
+}

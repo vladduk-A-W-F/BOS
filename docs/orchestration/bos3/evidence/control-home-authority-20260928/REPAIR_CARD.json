@@ -1,0 +1,37 @@
+{
+  "id": "B30-D-CONTROL-HOME-IMPLEMENTATION-REPAIR-R1",
+  "issuer": "root",
+  "reviewer": "/root/bos3_d_migration_review",
+  "base_commit": "00607be24a608e481efa4437408e7b338fcafe93",
+  "review_sha256": "653245012090042f9a30890486b41b49248d33fc3ba0e571df86f80ec511e56e",
+  "review_file": "IMPLEMENTATION_REVIEW_RU.md",
+  "interface_sha256": "fe0401c9aca5a1f57a5e10b4381d9fc6d53544169ac790ad7ecf6c305e56621d",
+  "profile": "standard",
+  "requested_model": "gpt-6-sol",
+  "requested_effort": "medium",
+  "observed_model": "UNCONFIRMED",
+  "reason": "Original authors repair specific independently found defects in separate existing scopes; no model switch or execution reset",
+  "core": {
+    "owner": "/root/bos3_channel_test_sol",
+    "workspace": "D:/3/BOSDev/qa-scratch/bos3-control-home-install-20260928/source",
+    "allowlist": ["source/staged/bos_dev.py", "source/staged/codex_channel.py", "source/staged/test-control-home-authority.py", "source/MANIFEST.json", "source/REPORT_RU.md"],
+    "findings": ["F3 envelope versus relevant ledger records, preserve unrelated opaque records", "F4 ControlHomeError for authority/path/receipt/native/lock boundary errors", "F5 core negative and transition-specific tests, safe isolated cleanup and exact child provider with no bytecode"],
+    "coordination": "F1 consumers own pre-import fixed-origin/type checks; core owns authority tools validation if needed. Publish any interface delta to root before consumer dependency changes. No new file/API expansion without a concrete need."
+  },
+  "consumers": {
+    "owner": "/root/bos3_d_consumers",
+    "workspace": "D:/3/BOSDev/qa-scratch/bos3-control-home-install-20260928/consumers",
+    "allowlist": ["consumers/staged/bos_flow.py", "consumers/staged/local_flow.py", "consumers/staged/repo_health.py", "consumers/staged/bos.ps1", "consumers/staged/bos-flow.ps1", "consumers/staged/start-workday.ps1", "consumers/staged/test-codex-channel.py", "consumers/staged/test-control-home-consumers.py", "consumers/MANIFEST.json", "consumers/REPORT_RU.md"],
+    "findings": ["F1 fixed provider/channel loading without search/cache fallback; fail before executing missing/reparse/hardlink/foreign provider", "F2 scratch-bound both dependencies and paths before imports; explicit fake factory and external IO refusal even if tested early check regresses", "F4 preserve fail-closed authority/lock boundary before any degraded report or output", "F5 targeted origin/second-lock-stage/output/home-forwarding cases"],
+    "operation_work": "Frozen incomplete: do not develop operation source during this repair; preserve operation manifest/report and all review-round1 originals"
+  },
+  "archives": ["source/review-round1", "consumers/review-round1"],
+  "coverage_boundary": "Phase-fault tests can remain explicitly pending a separate exact operation suite. Do not claim full migration coverage from core-only source, and do not invent an installer to hide this gate.",
+  "authorized_checks": ["Text reads and diffs", "Hashing", "JSON evidence parsing as data"],
+  "forbidden": ["Tests/helper/import/parser/compile/help execution", "Process/resource/policy/registration probes", "Live state/transport/install", "History/archives deletion", "Commit/push", "Reviewing own changes"],
+  "definition_of_done": "Exact repair manifest/report identify closed findings and remaining phase/runner gates, no execution; original independent reviewer receives changed pins and unaltered original review",
+  "check_in_utc": "2026-09-28T07:50:00Z",
+  "next_recipient": "root then same independent reviewer",
+  "status": "ASSIGNED_SOURCE_ONLY_REPAIR",
+  "executions": 0
+}

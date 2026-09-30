@@ -1,0 +1,18 @@
+......usage: python.exe -m unittest [-h]
+python.exe -m unittest: error: Unknown current BoS 3 card ID
+.....F...
+======================================================================
+FAIL: test_scope_routes_context_to_bos3_not_legacy (tools.test_bos3_control.Bos3ControlTest.test_scope_routes_context_to_bos3_not_legacy)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\user\.codex\worktrees\bos3-development-control\repo\tools\test_bos3_control.py", line 120, in test_scope_routes_context_to_bos3_not_legacy
+    self.assertEqual(output.getvalue(), 'bos3 context\n')
+AssertionError: 'bos3 context\n\n' != 'bos3 context\n'
+  bos3 context
+- 
+
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.221s
+
+FAILED (failures=1)

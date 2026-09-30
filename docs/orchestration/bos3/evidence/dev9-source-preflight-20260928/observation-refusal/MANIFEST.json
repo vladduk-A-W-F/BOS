@@ -1,0 +1,43 @@
+{
+  "schema": "bos3.dev9.observation-refusal-evidence-pack/v1",
+  "card": "B30-RECOVERY-OBSERVATION-DIAGNOSIS-ONCE",
+  "status": "SAVED_OBSERVATION_REFUSAL_EVIDENCE_ONLY",
+  "source_root": "D:/3/BOSDev/qa-scratch/bos3-atomic-receipt-recovery-20260928/observation-diagnosis",
+  "copy_count": 11,
+  "copy_verification": {"method":"SHA-256 plus byte length","all_source_target_pairs_equal":true},
+  "outcome": {
+    "native_exit": 1,
+    "invocations": "1/1",
+    "script_sha256": "abf8ba68f65ad99ba210cf2b5570d23e16337f4d88c3fa18702b5710878cba63",
+    "script_body_executed": false,
+    "cim_observation": "NOT_RUN",
+    "listener_observation": "NOT_RUN",
+    "observation1_created": false,
+    "inner_preflight_cause": "UNCONFIRMED",
+    "current_runtime_availability": "UNCONFIRMED",
+    "apply": 0,
+    "official_start": 0,
+    "post_start_get": 0,
+    "global_problem_attempt": "2/3",
+    "preflight_cap": "1/1",
+    "read_only_observation_cap": "1/1"
+  },
+  "provenance_boundary": {
+    "root_tool_error": "Verbatim error text transcribed from exec_command result; it is not an independently captured native stderr byte stream.",
+    "no_current_availability_or_delivery_claim": true
+  },
+  "exclusions": ["private owner state","credentials","secrets","database","media","broad logs","new observation output","runtime or network probe"],
+  "artifacts": [
+    {"path":"observe_bos3_server_and_port8030_once.ps1","bytes":7795,"sha256":"abf8ba68f65ad99ba210cf2b5570d23e16337f4d88c3fa18702b5710878cba63"},
+    {"path":"AUTHOR_REPORT_RU.md","bytes":2304,"sha256":"7a6012793d12e678f644029aae4eb5efcf4e634f3ab8f48f242c398ec8fbd735"},
+    {"path":"SOURCE_MANIFEST.json","source_path":"MANIFEST.json","bytes":1753,"sha256":"902f8269a47b0359adf37ee03a3aff6a4d18c14d1fc1a48a65954e02b766bab0"},
+    {"path":"REVIEW_RU.md","bytes":3028,"sha256":"4b42238ad100820b47123c83b8caeb5d3dae39798313243dc8e59c974e8ebefd"},
+    {"path":"DELTA_REVIEW_RU.md","bytes":2413,"sha256":"1f7c1e6374daa6f1535eca0c38c0deb7efab0514fe9a546b52bdc9fa837ad74d"},
+    {"path":"ROOT_OBSERVATION_DECISION.json","bytes":2084,"sha256":"47a9f2bdafd65a72ead667b9651ec52c6d943fbe0a5ea4a7a8fe9621ca8b2137"},
+    {"path":"ROOT_BOUND_PINS.json","bytes":711,"sha256":"dcf041a4af4b80e899161ca4723efd9e7c2aaafcbd4e358ce77d1df882413e7c"},
+    {"path":"ROOT_NATIVE_RECEIPT.json","bytes":408,"sha256":"69b64658044aac4015d185a384d1440054b1a919281a3dff1c0391c4dca40f5e"},
+    {"path":"ROOT_TOOL_ERROR.txt","bytes":439,"sha256":"1e54fce235d0b84af2f3795b596fd2000db491c00e1f11f67e836cff212466eb","provenance":"tool result transcription, not native stderr bytes"},
+    {"path":"RESULT_DISPOSITION.json","bytes":1390,"sha256":"a567867dce1ac713d8d04c140c94de749f83ef54302dc38501ae7190eeebfbc7"},
+    {"path":"RESULT_REVIEW_RU.md","bytes":2157,"sha256":"caee53619dabc19a3feae81238fdc4cdbea1a39c32f52fc2ef07b9594ecfc1d6"}
+  ]
+}

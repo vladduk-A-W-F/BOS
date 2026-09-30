@@ -1,0 +1,50 @@
+# Project template. Review model availability and permissions on the new host.
+# Place under <PROJECT_ROOT>/.codex/config.toml only after review.
+model = "gpt-6-astra"
+model_reasoning_effort = "high"
+
+[agents]
+enabled = true
+max_concurrent_threads_per_session = 3
+default_subagent_model = "gpt-6-sol"
+default_subagent_reasoning_effort = "medium"
+
+[agents.bos_architect]
+description = "Модель пов’язаного управління, межі та контракти даних"
+config_file = "agents/bos_architect.toml"
+
+[agents.bos_diagnostician]
+description = "Доведення першопричини та мінімальне відтворення"
+config_file = "agents/bos_diagnostician.toml"
+
+[agents.bos_evidence]
+description = "Походження доказів, контрольні суми та звіт"
+config_file = "agents/bos_evidence.toml"
+
+[agents.bos_implementer]
+description = "Мінімальна продуктова правка у виділеній копії"
+config_file = "agents/bos_implementer.toml"
+
+[agents.bos_pilot_pack]
+description = "Паспорт пілота, сценарії та людські умови"
+config_file = "agents/bos_pilot_pack.toml"
+
+[agents.bos_readiness_auditor]
+description = "Незалежне зіставлення 11 критеріїв на одному кандидатові"
+config_file = "agents/bos_readiness_auditor.toml"
+
+[agents.bos_release_packager]
+description = "Підготовка пакета для рішення головного без застосування"
+config_file = "agents/bos_release_packager.toml"
+
+[agents.bos_reviewer]
+description = "Незалежна перевірка diff, поведінки та доказів"
+config_file = "agents/bos_reviewer.toml"
+
+[agents.bos_test_ci]
+description = "Тестова інфраструктура та повнота доказів"
+config_file = "agents/bos_test_ci.toml"
+
+[agents.bos_ux]
+description = "Відділ дизайну BoS: візуальна система, доступність і доказовий PLAN-UX"
+config_file = "agents/bos_ux.toml"

@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "card": "B30-UXD03-PACK",
+  "prepared_on": "2026-09-27",
+  "base_commit": "a5adcefc8a9bf0ff19f522c585fe7114facd7ee3",
+  "task_card_source_commit": "4999f7af9387488386729db02423460d9678bedf",
+  "task_card_source_is_ancestor_of_base": false,
+  "version": "0.3.0-dev.5",
+  "scope": "Package only: version, two readmes, regenerated PDF and manifest; accepted task-card product blobs are preserved byte-for-byte.",
+  "file_sha256": {
+    "README.md": "c1827a438153361e3883f97f4a24a8a99f78f162647565d300b440f5d64fbcbb",
+    "README_UA.md": "0155ffda9f12b5aaf2ee969b8079dfdc62d8ca2772053908b451ada436b81d43",
+    "boss_project/version.py": "e93e3c0f1c90235268e36a0eddbb334264149875a0777cf0681f92a0344c1aa9",
+    "docs/BoS_3_0_Start_UA.pdf": "d38196bd3d45aa80023bf66e136f83a194746c8d667eb5ff97ae35e698a9de01",
+    "docs/BoS_3_0_Start_UA.manifest.json": "dd1b592eb854c58de2c5b742d4bd447080b163d976d1c6dc89ac114c8a1c09e2",
+    "assets/app.js": "b571f158ee0196372ac14d2c7c438ef02c6f661fd6587c9e8479dfa2e0e9a62c",
+    "frontend/bos_design.css": "126310be77f793f932f6dc104e249e6b910fda5fad19a7559a2e25e9310de79a",
+    "frontend/boss_app_html.html": "2c83a70e4b146f24d736c09f0c2c0984b9c57c7c8c914b6faba16f050544bf4a",
+    "frontend/boss_app_source.html": "62e31d8f65879179d2b60124312c58fd848a3a252ef58737551adec3e57cc7fb",
+    "frontend/bos3_content.json": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390"
+  },
+  "pdf": {
+    "pages": 3,
+    "visual_qa": "VISUAL_OBSERVATION_RETAINED: existing rendered PNG pages 1-3 were inspected for readable Ukrainian text, complete page frames, and no visible clipping. Renderer process exit is UNCONFIRMED because its primary raw log is absent.",
+    "render_assets": [
+      "pdf-render-160/BoS_3_0_Start_UA-1.png",
+      "pdf-render-160/BoS_3_0_Start_UA-2.png",
+      "pdf-render-160/BoS_3_0_Start_UA-3.png"
+    ]
+  },
+  "commands": [
+    {
+      "argv": [
+        "node",
+        "mark_artifact_operation_started.mjs",
+        "--operation-kind",
+        "edit",
+        "--expected-output-count",
+        "1",
+        "--output-format",
+        "pdf"
+      ],
+      "exit_code": 0,
+      "receipt": "pdf-operation-marker.receipt.txt"
+    },
+    {
+      "argv": [
+        "D:/3/BOSDev/venv/Scripts/python.exe",
+        "scripts/build_bos3_brochure.py",
+        "--registry",
+        "frontend/bos3_content.json",
+        "--output",
+        "docs/BoS_3_0_Start_UA.pdf",
+        "--version",
+        "0.3.0-dev.5"
+      ],
+      "exit_code": 0,
+      "raw": "pdf-regeneration.raw.txt"
+    },
+    {
+      "argv": [
+        "pdftoppm",
+        "-png",
+        "-r",
+        "160",
+        "docs/BoS_3_0_Start_UA.pdf",
+        "pdf-render-160/BoS_3_0_Start_UA"
+      ],
+      "exit_code": "UNCONFIRMED",
+      "evidence_status": "P1_CORRECTED: original renderer stdout/stderr raw log was not retained in the committed package; no renderer rerun is permitted for this correction.",
+      "existing_assets": [
+        "pdf-render-160/BoS_3_0_Start_UA-1.png",
+        "pdf-render-160/BoS_3_0_Start_UA-2.png",
+        "pdf-render-160/BoS_3_0_Start_UA-3.png"
+      ]
+    }
+  ],
+  "skips": [
+    "No frontend build: four accepted product blobs already present in the base.",
+    "No tests, browser, HTTP, DB, runtime, init, migrate, seed, or reset execution.",
+    "Browser acceptance and learning execution remain NOT_RUN for dev.5.",
+    "No runtime delivery, publication, main update, or push.",
+    "No registry, bootstrap, or learning-backend change."
+  ],
+  "commit_status": "pending one atomic commit; no amend",
+  "task_card_blob_identity": {
+    "verified": true,
+    "method": "git object IDs for all four accepted product paths",
+    "source_commit": "4999f7af9387488386729db02423460d9678bedf",
+    "base_commit": "a5adcefc8a9bf0ff19f522c585fe7114facd7ee3",
+    "paths": [
+      "assets/app.js",
+      "frontend/bos_design.css",
+      "frontend/boss_app_html.html",
+      "frontend/boss_app_source.html"
+    ]
+  },
+  "evidence_correction": {
+    "card": "B30-UXD03-PACK-EVIDENCE-P1",
+    "reason": "Independent review found that pdf-render.raw.txt was claimed but absent from commit 0a1246347fc7c4d7f0db128ff61b28d4d793370b.",
+    "action": "Removed the unsupported raw-log claim and marked renderer exit UNCONFIRMED. No PDF build/render/test/runtime command was rerun.",
+    "package_acceptance": "NOT_GRANTED"
+  }
+}

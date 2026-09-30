@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "provenance": "Recorded from original root exec_command results; not a later test rerun",
+  "database": "D:/3/BOSDev/local-bos3/owner/data/bos3-fasteners.sqlite3",
+  "algorithm": "SHA256",
+  "before_controlled_stop": {
+    "tool_chunk_id": "d3a8a9",
+    "tool_exit_code": 0,
+    "command": "Get-FileHash -LiteralPath 'D:\\3\\BOSDev\\local-bos3\\owner\\data\\bos3-fasteners.sqlite3' -Algorithm SHA256 | Select-Object Hash",
+    "sha256": "89ED2ED46AA051BC966238DDE2E2FF6E89EB354B726EE7EBAB0EC351A274251B"
+  },
+  "after_controlled_restart_and_session_resume": {
+    "tool_chunk_id": "145560",
+    "tool_exit_code": 0,
+    "command": "(Get-FileHash -LiteralPath 'D:\\3\\BOSDev\\local-bos3\\owner\\data\\bos3-fasteners.sqlite3' -Algorithm SHA256).Hash",
+    "sha256": "89ED2ED46AA051BC966238DDE2E2FF6E89EB354B726EE7EBAB0EC351A274251B"
+  },
+  "equal": true,
+  "scope": "One controlled process restart; not Windows reboot, user-workflow or release acceptance"
+}

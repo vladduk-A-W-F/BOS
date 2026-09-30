@@ -1,0 +1,100 @@
+{
+  "schema": "bos.recovery-provenance.v1",
+  "created_utc_date": "2026-09-30",
+  "canonical_git_head": "c9053d6cdb206dbfc28e69dfb52b8d913c5fb119",
+  "canonical_dirty_at_export": true,
+  "method": "Curated rewrite from allowlisted instructions and selected metadata; no raw live config copy.",
+  "sources": [
+    {
+      "id": "global_user_preferences",
+      "location": "global_preferences/AGENTS.md",
+      "sha256": "c0a775a961b3740a0f1bd864d0b0a4ac1cbfb8179ceb5d0bcd11bfb307164213"
+    },
+    {
+      "id": "canonical_project_instructions",
+      "location": "canonical_repo/AGENTS.md",
+      "sha256": "2d8947c1cb14e751538a2163e8082b38e778a6c45a5eb808a3b6a7b3ee99110a"
+    },
+    {
+      "id": "canonical_project_agent_registry",
+      "location": "canonical_repo/.codex/config.toml",
+      "sha256": "5a6b58626a1095e012b039c1dd5dc616834dfd65a30e0bdb9c8b7f9750afce9d"
+    },
+    {
+      "id": "routing_policy",
+      "location": "D_BOSDev/plans/FLOW_POLICY.json",
+      "sha256": "32d2953ce2e323402ee27a4c6664d46bf899161b80b6624ba866cda06e39fc29"
+    },
+    {
+      "id": "routing_explanation",
+      "location": "D_BOSDev/plans/MODEL_ROUTING_RU.md",
+      "sha256": "152da81a564307f8eec4ba8a4bbb8093cc1ebaa2ba901d43c4f8831cf19b5378"
+    },
+    {
+      "id": "role_bos_architect",
+      "location": "canonical_repo/.codex/agents/bos_architect.toml",
+      "sha256": "a22e7f129f39fd06f5ed30fe28d2351e77858df9dff332339d3a815007c6dc09"
+    },
+    {
+      "id": "role_bos_diagnostician",
+      "location": "canonical_repo/.codex/agents/bos_diagnostician.toml",
+      "sha256": "c74f4334a31800bc88922eb9bb6c5950be4f6171742c1b70fd50d1601640f98b"
+    },
+    {
+      "id": "role_bos_evidence",
+      "location": "canonical_repo/.codex/agents/bos_evidence.toml",
+      "sha256": "4cefa70fd7528391962f615edeb6fe2173832290b17ae4f14cd9f4ef3dfc5fd3"
+    },
+    {
+      "id": "role_bos_implementer",
+      "location": "canonical_repo/.codex/agents/bos_implementer.toml",
+      "sha256": "6d32bc3a60dcb6d83d2d7e40df7d60fc45b2bee5a23aa67c649d848ac7da29d8"
+    },
+    {
+      "id": "role_bos_pilot_pack",
+      "location": "canonical_repo/.codex/agents/bos_pilot_pack.toml",
+      "sha256": "a432e197879a061d3b9c740e9b1f2a4dc063e00265c7f3d28c4a7d6d551de84f"
+    },
+    {
+      "id": "role_bos_readiness_auditor",
+      "location": "canonical_repo/.codex/agents/bos_readiness_auditor.toml",
+      "sha256": "f14cf3f8bfa1e61a21213bf89a3508b1d2994a0b4457bf8a46d2dc8b24a18b5d"
+    },
+    {
+      "id": "role_bos_release_packager",
+      "location": "canonical_repo/.codex/agents/bos_release_packager.toml",
+      "sha256": "4470b6a8c7bd229f06a7ff0ccc61cf6bf35f68e9d88e87bd1ae2488d0fdfbb3b"
+    },
+    {
+      "id": "role_bos_reviewer",
+      "location": "canonical_repo/.codex/agents/bos_reviewer.toml",
+      "sha256": "c256601f32bfa5e691b424cef522ff9a7054dba3b35261c9a9ae698ddd167602"
+    },
+    {
+      "id": "role_bos_test_ci",
+      "location": "canonical_repo/.codex/agents/bos_test_ci.toml",
+      "sha256": "bffb9f5e92b4042e9f24a9e2bf7c2a04961d1a0a5090fe02e48a965c11614903"
+    },
+    {
+      "id": "role_bos_ux",
+      "location": "canonical_repo/.codex/agents/bos_ux.toml",
+      "sha256": "d1e5f91262ab236e27d11b4a5a83b1b5bea8de7862d1fcc8db0b8a174fcf214b"
+    },
+    {
+      "id": "owner_resume_confirmation",
+      "location": "D_BOSDev/evidence/resume-solutions-20260930/USER_RESUME_CONFIRMED_RU.md",
+      "sha256": "2abcbfb9eea20609ab4cb86cca0d25e8aa1d6837ab5675723a0db0d760d6ea9f"
+    }
+  ],
+  "excluded_source_classes": [
+    "authentication",
+    "permission_rules",
+    "sessions",
+    "chat_history",
+    "browser_state",
+    "logs",
+    "databases",
+    "environment_secrets",
+    "automation_state"
+  ]
+}

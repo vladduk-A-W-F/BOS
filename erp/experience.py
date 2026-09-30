@@ -60,7 +60,7 @@ def impact(before,after):
 
 @exact
 def home(snapshot):
-    currencies=sorted({x['currency'] for x in snapshot['orders']+snapshot['lots']+snapshot['purchases']}) or ['EUR']
+    currencies=sorted({x['currency'] for x in snapshot['orders']+snapshot['lots']+snapshot['purchases']+snapshot['invoices']}) or ['EUR']
     rows=[]
     for currency in currencies:
         costs=[x for x in snapshot['costs'] if x['currency']==currency];inv=[x for x in snapshot['invoices'] if x['currency']==currency]

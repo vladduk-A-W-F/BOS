@@ -1,0 +1,23 @@
+{
+  "id":"B30-D-CONTROL-HOME-PUBLIC-TARGET-GUARD",
+  "issuer":"root",
+  "owner":"bos3_channel_diagnosis",
+  "reviewer":"bos3_guard_review_sol",
+  "review_routing":{"profile":"review","requested_model":"gpt-6-sol","requested_effort":"high","observed_model":"UNCONFIRMED","reason":"New bounded independent code review under owner routing policy; old reviewer task is complete and no active task model is switched"},
+  "canonical_context":"2d8ce0910c0cc4fc18572b55d5028707750bd7b2",
+  "workspace":"D:/3/BOSDev/qa-scratch/bos3-control-home-source-20260928/core-target-guard",
+  "allowlist":["staged/codex_channel.py","REPORT_RU.md","MANIFEST.json"],
+  "frozen_dependency":{"staged/bos_dev.py":"9953e621190dbf70b65955afee473f46969347a292cd2bf63f929bcf3e3d7c53","interface":"9537061eca16d000b2632bc4a1ab235ae527c9f0cd56edb6d812f32889f91497"},
+  "source_sha256":"3f1c4318a3693a47b088ca75742decbce84dda18942f97f039d424d392108a55",
+  "finding_review_sha256":"0ed0aaf9edd57e710bedd362aa33089c1a60f1add04f813d67c77a0f97de096b",
+  "scope":"Move target allowlist/self resolution checks for the supported public deliver API before AppTools constructor/context entry, keeping nonlegacy home refusal before state or transport. Preserve existing target/host/prompt, idempotency and uncertainty behavior without broad transport/CLI/policy redesign. Do not weaken the test contract or edit old archived accepted sources.",
+  "boundary":"Initial core archive remains valid only for its home-before-transport static scope. This separate proposed revision is not installed, not a new runtime and not automatic acceptance of old consumers/tests against new bytes.",
+  "classification":"NEW_STATIC_FINDING_PUBLIC_TARGET_PREFLIGHT_NO_EXECUTION",
+  "prohibited":["imports/--help/AST/compile/parser/tests/helper execution","AppTools/network/process/DB/runtime","live state/ledger/config/queue/lock/secret reads or writes","edits to original tools/core/flow/wrappers/test sources","policy/rights/registration/authority/cutover changes"],
+  "definition_of_done":"Narrow exact inactive source delta, report/manifest of preserved behavior and remaining consumers, independent static acceptance before synthetic test rebind; no dynamic claims",
+  "executions":0,
+  "status":"IN_STATIC_REVIEW_AFTER_ONE_QUOTA_CONTINUATION",
+  "continuation":{"quota_error_observed":true,"fresh_availability_utc":"2026-09-28T05:42:20Z","ordinary_usage_allowed":true,"codex_used_percent":1,"continuations":1,"reset_credits_used":0,"result_sha256":"371a02a413477de65186adcb53cfdf7d99c428b1c4dea81eef77494fe76f9235","author_complete":true},
+  "check_in_utc":"2026-09-28T05:58:00Z",
+  "next_recipient":"bos3_guard_review_sol then test author and reviewer then root"
+}

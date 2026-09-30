@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "scope": "wrapper recovery pre-action guard only",
+  "guard_exit": 1,
+  "error": "Server identity mismatch",
+  "termination_actions": 0,
+  "native_lifecycle_retries": 0,
+  "diagnosis": "CIM timestamp is microsecond precision; protected receipt and .NET timestamp use 100 ns precision",
+  "receipt_and_dotnet_ticks": 134350072625854836,
+  "cim_ticks": 134350072625854830,
+  "listener": "127.0.0.1:8030 PID 50544",
+  "correction": "Compare receipt with exact .NET creation ticks; compare CIM with .NET only at CIM precision"
+}

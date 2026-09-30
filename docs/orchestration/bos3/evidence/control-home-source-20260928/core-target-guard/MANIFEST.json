@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "id": "B30-D-CONTROL-HOME-PUBLIC-TARGET-GUARD",
+  "classification": "NEW_STATIC_FINDING_PUBLIC_TARGET_PREFLIGHT_NO_EXECUTION",
+  "canonical_context": "2d8ce0910c0cc4fc18572b55d5028707750bd7b2",
+  "finding_review_sha256": "0ed0aaf9edd57e710bedd362aa33089c1a60f1add04f813d67c77a0f97de096b",
+  "source_pin_before": "3f1c4318a3693a47b088ca75742decbce84dda18942f97f039d424d392108a55",
+  "frozen_dependencies": {
+    "staged/bos_dev.py": "9953e621190dbf70b65955afee473f46969347a292cd2bf63f929bcf3e3d7c53",
+    "core_interface": "9537061eca16d000b2632bc4a1ab235ae527c9f0cd56edb6d812f32889f91497"
+  },
+  "artifact_sha256": {
+    "staged/codex_channel.py": "371a02a413477de65186adcb53cfdf7d99c428b1c4dea81eef77494fe76f9235",
+    "REPORT_RU.md": "5bce9c9b6354b8e6c771a794337347a319b005d26222cbe7aab33ca7f727a46f"
+  },
+  "delta": {
+    "home_first": "Public deliver resolves/refuses home before every target or transport operation.",
+    "target_preflight": "Public deliver calls require_delivery_target before AppTools construction; designated-target and self refusal cannot construct public transport.",
+    "internal_defense": "_deliver_resolved retains require_delivery_target without changing message-id, prompt, model, ledger, idempotency, uncertainty, host, or receipt logic."
+  },
+  "boundary": {
+    "inactive": true,
+    "executions": 0,
+    "old_consumers_accepted": false,
+    "next": "Independent static source review before any channel-test rebind; no dynamic claim."
+  },
+  "reviewer": "start_overview_review"
+}

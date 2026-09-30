@@ -1,0 +1,15 @@
+PASS registry is the expected public brochure catalog
+PASS unauthenticated entry return contains brochure before password form
+PASS entry case intent is URL-only and has no write side effect
+PASS case links preserve a case slug without training or CRM mutation
+PASS brochure itself is read-only and surfaces both areas and cases
+PASS authenticated training consumes the same validated URL intent
+PASS training login preserves password gate and denies demo entry
+{
+  "result": "PASS",
+  "checks": 7,
+  "scope": "B30-04F AST-only entry brochure, case URL intent, and non-mutation boundary; no browser, network, server, DB, fixture, lifecycle, or historical suite",
+  "source": "C:\\Users\\user\\.codex\\worktrees\\bos3-entry-flow\\repo\\frontend\\boss_app_source.html",
+  "source_sha256": "9bfa50102d880077a112cc7c570faff73efcd7e277ad36b01b09355538dea12e",
+  "registry_sha256": "90f7880b78de4c6e1ae60ca85c8e43968bbeb24e029c50235c5374bff8166d2a"
+}

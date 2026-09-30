@@ -1,0 +1,147 @@
+{
+  "schema": "bos3.control-home-install-contract/v1",
+  "status": "DESIGN_FOR_INDEPENDENT_REVIEW",
+  "card": "B30-D-CONTROL-HOME-AUTHORITY-INSTALL",
+  "base_commit": "00607be24a608e481efa4437408e7b338fcafe93",
+  "author": "/root/bos3_d_authority_design",
+  "requested_model": "gpt-6-astra",
+  "requested_effort": "high",
+  "observed_model": "UNCONFIRMED",
+  "paths": {
+    "legacy_alias": "C:/Users/user/AppData/Local/BOSDev",
+    "target_home": "D:/3/BOSDev/control-home",
+    "source_archive": "C:/Users/user/AppData/Local/BOSDev.pre-D-20260928",
+    "authority_anchor": "D:/3/BOSDev/control-home-authority.json",
+    "evidence_root": "D:/3/BOSDev/evidence/bos3-control-home-install-20260928",
+    "tools": "D:/3/BOSDev/control-home/tools",
+    "setup": "D:/3/BOSDev/setup"
+  },
+  "strategy": "FROZEN_COPY_REVIEWED_OVERLAY_C_ARCHIVE_C_JUNCTION_TO_D_SINGLE_ACTIVE_ANCHOR",
+  "authority_schema": {
+    "schema_literal": "bos3.control-home-authority/v1",
+    "required_fields": {
+      "schema": "exact schema_literal",
+      "generation": "nonempty stable operation UUID, fixed before PREPARED and unchanged at ACTIVE",
+      "phase": "PREPARED | ACTIVE | SUSPENDED; only ACTIVE permits resolver",
+      "home": "exact paths.target_home",
+      "legacy_alias": "exact paths.legacy_alias",
+      "source_archive": "exact paths.source_archive",
+      "root_identity": "object {volume_id: nonempty string, file_id: nonempty string}; target root identity",
+      "lock_identity": "object {volume_id: nonempty string, file_id: nonempty string}; permanent target lock identity",
+      "prepared_receipt": "object {path: absolute path strictly within paths.evidence_root, sha256: lowercase 64 hex}",
+      "migration_acceptance": "object {path: absolute path strictly within paths.evidence_root, sha256: lowercase 64 hex}; verdict ACCEPT_MIGRATION_COMMIT binds generation and prepared receipt hash",
+      "activated_at_utc": "UTC ISO timestamp for ACTIVE; null for PREPARED"
+    },
+    "prepared_semantics": "Identity and receipt fields may be null while staging; PREPARED is always unusable. ACTIVE requires every field validated and existing receipts digest-matched. No JSON flag alone proves operations happened.",
+    "additional_fields": "reject unknown fields in v1",
+    "writer": "root migration phase only; normal control tools cannot establish, reset or rewrite authority",
+    "immutable_active_fields": ["generation", "home", "legacy_alias", "source_archive", "root_identity", "lock_identity", "prepared_receipt", "migration_acceptance", "activated_at_utc"],
+    "live_state_hash_policy": "Initial file hashes belong to prepared receipt. Do not require mutable queue/observer/ledger content to remain equal to snapshot after resumption.",
+    "trust_boundary": "local trusted owner/ACL plus quiescence, not a defence against an administrator forging anchor and receipts"
+  },
+  "required_state": {
+    "config.json": "existing regular non-reparse file; JSON object and existing config invariants",
+    "queue.json": "existing regular non-reparse file; version=1 and tasks object",
+    "observer.json": "existing regular non-reparse file; JSON object, preserve fields",
+    "codex-channel-delivery.json": "existing regular non-reparse file; schema=1 and messages object; preserve all records and uncertainty",
+    ".queue.lock": "existing regular non-reparse single-link file with >=1 byte; stable identity matches anchor; never recreated by runtime"
+  },
+  "api": {
+    "resolve_control_home": {
+      "signature": "resolve_control_home(value=None) -> pathlib.Path",
+      "accepted_lexical_names": ["None", "paths.target_home", "paths.legacy_alias"],
+      "normalization": "absolute ordinary drive paths only; separator/case/trailing separator normalization allowed; reject relative, dotdot, UNC/device/ADS and unlisted aliases before resolving",
+      "result": "the fixed canonical target Path after ACTIVE authority, receipt, path-type, alias/root/lock identity and required-state validation",
+      "errors": "ControlHomeError before any write, mkdir, lock creation, subprocess or AppTools",
+      "no_fallback": true,
+      "import_side_effects": "constants are lexical Paths; no import-time resolve, state/anchor reads or writes"
+    },
+    "state_lock": {
+      "signature": "state_lock(home, timeout=10)",
+      "mode": "existing r+b; no mkdir/create/delete/replace",
+      "validation": "accept D or exact compatibility C name through shared resolver; authority before open and after byte lock; fstat lock identity and C/D path identities; refuse generation/phase/identity change",
+      "yield": "unchanged existing context-manager usage",
+      "scope": "single D lock controls state operations; do not hold across AppTools calls"
+    },
+    "initialize": "active state validation only, no missing-file bootstrap or reset",
+    "deliver": {
+      "signature": "deliver(target, prompt, message_id, home=HOME_DIR, *, model=None, thinking=None)",
+      "HOME_DIR": "lexical paths.target_home",
+      "ordering": ["resolve home", "validate target/self and send arguments", "construct AppTools", "private delivery revalidates lock and existing ledger"],
+      "cli_send": "same preflight order, including self/outside-target refusal before construction",
+      "ledger_missing": "refuse; remove both empty-ledger fallback branches",
+      "private": "_deliver_resolved is module-internal only",
+      "unchanged": ["target IDs", "model options", "prompt hash", "message ID", "ACKNOWLEDGED duplicate suppression", "UNCONFIRMED/SENDING refusal", "host and transport receipt"]
+    }
+  },
+  "worker_ownership": {
+    "source": {
+      "allowlist": ["source/staged/bos_dev.py", "source/staged/codex_channel.py", "source/staged/test-control-home-authority.py", "source/MANIFEST.json", "source/REPORT_RU.md"],
+      "baseline": {
+        "bos_dev.py": "9953e621190dbf70b65955afee473f46969347a292cd2bf63f929bcf3e3d7c53",
+        "codex_channel.py": "371a02a413477de65186adcb53cfdf7d99c428b1c4dea81eef77494fe76f9235"
+      },
+      "responsibilities": ["authority resolver and path/file identity validation", "stable existing lock", "init and ledger fail-closed", "public and CLI send preflight", "new isolated authority test source"]
+    },
+    "consumers": {
+      "allowlist": ["consumers/staged/bos_flow.py", "consumers/staged/local_flow.py", "consumers/staged/repo_health.py", "consumers/staged/bos.ps1", "consumers/staged/bos-flow.ps1", "consumers/staged/start-workday.ps1", "consumers/staged/test-codex-channel.py", "consumers/MANIFEST.json", "consumers/REPORT_RU.md"],
+      "baseline": {
+        "bos_flow.py": "f95394ea95132505cc792c87586397466c9c389c399295860f9452d684eee848",
+        "bos.ps1": "a47bd781490333e5145d4834d689b33b7633977f56bba5f9892192319492624d",
+        "bos-flow.ps1": "f858fcba8d61ed72ab28f2ccfcee8ac90dc838e7f1a63278333bbe11ea8756ee",
+        "start-workday.ps1": "c0c528c7bb0533ad490e07c9e21c259cd9d17e0952510896a0477bce249b6bbd",
+        "test-codex-channel.py": "3cdcbd99aaa2133f6283c73b51bc80fcc1add3b9a992c3fa83e567931a25b1b1",
+        "local_flow.py": "a8cda23d9d779232f200df21ae92068590cf656de061bdb73ec5d446da07c004",
+        "repo_health.py": "80390c10f7685c5db96c4bbdf8c2576ad9f5f17613f30dd30a39ea91f0110fdd"
+      },
+      "responsibilities": ["explicit selected-home forwarding", "single D tools source provider/channel imports without setup shadowing", "preserve local_flow setup import", "local_flow.collect and repo_health.locked_inputs resolve home before state reads; never import provider from unvalidated home/tools", "authority failure must not become degraded empty-input report or write output directories", "rebind source pins and synthetic ledger fixtures", "no automatic acceptance of prior flow/wrapper manifests"]
+    },
+    "root": "only live/canonical editor and installer; exact reviewed command sheet and observer map close-out; precise global mcp_servers.bos_control argv update C tools -> D tools with preserved other config and backup; no new installer framework required",
+    "reviewer": "independent of both authors; static source review before bounded QA, ACCEPT_MIGRATION_COMMIT before ACTIVE, final installed receipt acceptance before resumption"
+  },
+  "additional_consumers": {
+    "observer_map": {"path": "D:/3/BOSDev/evidence/storage-d-20260928/install-request/OBSERVER_CONSUMERS_RU.md", "sha256": "ba6be82fb2a01405fa0e008fc7fea38ae08d2ac9cc528211fa1713213e07dd1a", "limit": "observer local freeze after 06:41 handoff is not global quiescence"},
+    "bos_lab": {"path": "C:/Users/user/AppData/Local/BOSDev/tools/bos_lab.py", "sha256": "4a204fa287b16c9b90fbdec4a78f87640403168f6fb3fa533d9cadf6438f370e", "treatment": "preserve bytes; static C alias compatibility only, new provider import plus state_lock(C)->D; no lab/sync/test execution; altered LOCALAPPDATA or stale provider disqualifies caller"},
+    "historical_receiver": {"path": "D:/3/BOSDev/evidence/bos3-readiness-20260927/receive_channel_test_event_00607.py", "treatment": "retire; do not replay or edit into another event"},
+    "mcp_registration": {"owner": "root", "key": "mcp_servers.bos_control.args", "new_script": "D:/3/BOSDev/control-home/tools/codex_channel.py", "enabled_tools_observed_by_root": ["wait_threads", "read_thread"], "existing_worker": "source-stale read-only worker may remain only with verified capability restriction; never use for state/send; no Codex/root restart; config update is not live process replacement", "blocker": "if write capability/in-flight state operation cannot be excluded, no full quiescence claim"}
+  },
+  "cutover_phases": [
+    {"phase": "SOURCE_ACCEPTED", "gate": "new core and consumers reviewed at exact hashes; historical attempt budgets reconciled"},
+    {"phase": "QA_ACCEPTED", "gate": "new bounded synthetic raw outputs independently reviewed, no required missing check"},
+    {"phase": "QUIESCENT", "gate": "root, observer, workers, direct callers, cached modules, transport calls, registrations and heartbeat stopped/drained with evidence"},
+    {"phase": "SNAPSHOT", "gate": "source regular/reparse/ACL checks, full opaque snapshot hashes and exact destination nonexistence; old lock held during snapshot"},
+    {"phase": "PREPARED", "gate": "nonactive anchor, full D copy and reviewed overlays, new stable D lock; old source retained"},
+    {"phase": "ALIASED", "gate": "source handles closed under maintained quiescence, C same-volume archive then exact junction to D, native alias/root/lock identities equal"},
+    {"phase": "COMMIT_ACCEPTED", "gate": "independent ACCEPT_MIGRATION_COMMIT binds installed bytes, generation and prepared receipt"},
+    {"phase": "ACTIVE", "gate": "root atomically replaces anchor in D parent and rereads; only authority commit point; writers still stopped"},
+    {"phase": "INSTALLED_ACCEPTED", "gate": "bounded allowed in-place verification and independent final receipt; runtime policy remains separate"},
+    {"phase": "RESUME_ELIGIBLE_CALLERS", "gate": "resume only individually permitted callers; do not launch blocked C64 route or infer runtime readiness"}
+  ],
+  "copy_rules": {
+    "preserve": "entire source C tree including backups, tools/settings and thread receipts; no secret content in public report",
+    "lock": "preserve archived C bytes; create D one-byte lock only during establishment; identity intentionally differs before alias",
+    "overlay": "reviewed core and bos.ps1 into target/tools; reviewed flow/local_flow/repo_health/wrappers into existing setup, exact setup backups required; root-only precise MCP config argv edit separately backed up",
+    "forbid": ["empty-ledger initialization", "queue or observer reset", "reparse traversal", "unexpected hardlink acceptance", "cross-volume source move", "mirror deletion", "silent conflict overwrite", "live test installation", "copying credentials into reports"]
+  },
+  "failure_policy": {
+    "before_active": "stop and preserve PREPARED evidence; C archive is unchanged recovery source; no automatic retry/rollback",
+    "after_active": "D remains authority even if receipt or validation fails; quiesce and reviewed SUSPENDED recovery, never stale-C reset or heuristic ledger merge",
+    "unknown_commit_result": "inspect persisted anchor/generation and writes before choosing any action; no fallback",
+    "junction_failure": "block; no alternate link/policy bypass automatically"
+  },
+  "receipt_required": ["generation", "owner_authorization_reference", "candidate_and_file_hashes", "source_snapshot_manifest_hash", "setup_backup_manifest_hash", "source_archive_path", "target_root_and_lock_native_identity", "C_and_D_alias_identity_evidence", "quiescence_and_heartbeat_native_result", "commands_and_exit_codes", "attempt_ledger_reference", "new_and_same_problem_QA_classification", "static_review_reference", "prepared_receipt_hash", "independent_commit_acceptance", "anchor_commit_readback", "final_verification", "final_reviewer_verdict", "skips_and_blockers", "resume_eligibility"],
+  "qa": {
+    "execution_here": "NOT_RUN",
+    "initial_run_budget": 1,
+    "suggested_timeout_seconds": 60,
+    "automatic_rerun": false,
+    "new_scope": ["authority phase/schema/receipt refusal", "C/D/default identity", "unlisted/escaping path refusal", "missing or invalid ledger refuses without AppTools", "missing/replaced lock or generation refuses", "junction/reparse/hardlink containment", "two synthetic Windows processes share one byte lock", "phase failure injection and no auto reset"],
+    "changed_surface_revalidation_with_existing_problem_counters": ["preserved ACKNOWLEDGED/UNCONFIRMED duplicate suppression", "public and newly scoped CLI target-before-AppTools", "flow/wrapper provider and home binding"],
+    "fixture": "isolated scratch paths; module constants patched before resolver calls, no production test bypass; fake transport; no live home reads",
+    "windows_requirement": "real isolated Windows junction/lock test; mocked identity or nullcontext is not physical-lock evidence",
+    "runtime_gate": "reviewed allowed runner only; C64 Windows policy exception remains separate blocked; no other shell/executable to bypass",
+    "caps": "P05 3/3 and A09/A10/A11 unchanged; no ID, suite rename or agent resets historical attempts"
+  },
+  "unresolved_inputs": ["observer final actual consumer and registration map", "source subtree reparse/hardlink/ACL metadata at frozen preflight", "verified allowed synthetic runner and native Windows identity/junction implementation", "problem-specific prior attempt totals", "verified full writer/transport/heartbeat quiescence", "exact reviewed root command sheet"],
+  "nonclaims": {"executions": 0, "live_state_read": false, "live_state_copied": false, "migration_accepted": false, "runtime_policy_changed": false, "TECHNICAL_READY": false, "PILOT_ALLOWED": false}
+}

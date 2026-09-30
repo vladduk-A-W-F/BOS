@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "id": "B30-RECOVERY-OBSERVATION-DIAGNOSIS",
+  "classification": "SAME_PROBLEM_READ_ONLY_DIAGNOSIS_NOT_PREFLIGHT_OR_ACCEPTANCE",
+  "failure_review_sha256": "438cc2d24deef34e8fef7eb56863d83a6408d430b60bf089b44f7a59450b0360",
+  "artifact_sha256": {
+    "observe_bos3_server_and_port8030_once.ps1": "0598b04cfb911db5c87367d34c40a246227bee39c39e4731bb2f54002d40f4ce",
+    "AUTHOR_REPORT_RU.md": "7a6012793d12e678f644029aae4eb5efcf4e634f3ab8f48f242c398ec8fbd735"
+  },
+  "static_correction": {
+    "previous_script_sha256": "0c8c7a9649fb194963a31fada4cfda563d767a54df3598414b70b1f9fb2f1a2b",
+    "directory_creation": "New-Item -ItemType Directory -Path with preexisting-path refusal and post-create ordinary/no-reparse check",
+    "child_timeout": "30000 ms; no kill, no retry, timeout receipt records raw streams unavailable",
+    "stream_drain_timeout": "5000 ms after child exit; no GetResult unless both asynchronous readers completed"
+  },
+  "root_go": "PENDING_ROOT_READ_ONLY_OBSERVATION_GO",
+  "maximum_future_invocations": 1,
+  "executions": 0,
+  "observation_contract": {
+    "native_powershell": "absolute SystemRoot/System32/WindowsPowerShell/v1.0/powershell.exe",
+    "native_modules": "subprocess-local PSMODULEPATH only",
+    "output": ["matching BoS process identity", "all port8030 listener identity", "child native exit", "raw stdout/stderr hashes"],
+    "never_output": ["raw command lines", "secrets", "owner-instance files", "DB", "HTTP", "socket binds"]
+  },
+  "attempt_counters_preserved": {"failed_preflight": "1/1", "old_window_start": "1/1", "full_problem": "2/3"},
+  "cannot_replace": ["successful preflight", "apply guard", "recovery authorization", "attempt accounting"],
+  "reviewer": "start_overview_review"
+}

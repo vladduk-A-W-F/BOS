@@ -1,0 +1,32 @@
+{
+  "schema": "bos.change-intake.disposition.v1",
+  "updated_at_utc": "2026-09-30T15:28:35.665246+00:00",
+  "registry": {
+    "path": "D:\\3\\BOSDev\\evidence\\change-intake-20260930\\REGISTRY_DRAFT.json",
+    "sha256": "8ed6f471688d78a69f9ee3d2df01e90775a41438ebd247aaadea7f71d78c2d1e"
+  },
+  "independent_review": {
+    "path": "D:\\3\\BOSDev\\evidence\\change-intake-20260930\\REGISTRY_REVIEW.json",
+    "sha256": "9cb6a253d2c6f43f98eb5e29c8a6774d59242fe7b6cafb35288190358b9d77c8"
+  },
+  "registry_acceptance": "ACCEPTED_SCOPED_REGISTRY_ONLY",
+  "product_acceptance": false,
+  "overrides": [
+    {
+      "request_id": "PRODUCT-ENABLEMENT-INITIAL-GUIDE-20260930",
+      "state": "TARGETED_REVISION_REQUIRED_Q02",
+      "evidence": {
+        "path": "D:\\3\\BOSDev\\evidence\\change-intake-20260930\\GUIDE_UPSTREAM_IMPACT.json",
+        "sha256": "1f47839bdb776e49de6870be7f77a75c6533c924ff81939cd58c571fe91f96ad"
+      },
+      "scope": "Попереднє приймання чернетки збережене як історія; нова залежність вимагає переставити task перед CRM. Q01/Q03 не вплинули.",
+      "owner": "/root/product_guide_author_ua",
+      "next": "author-v3 minimal delta, then independent reviewer"
+    }
+  ],
+  "ready_for_canonical_publication": [
+    "Reviewed intake registry and explicit dispositions",
+    "PR9 superseded classification after fresh ref check"
+  ],
+  "application_status": "NOT_YET_APPLIED_BY_SOLE_INTEGRATOR"
+}

@@ -1,0 +1,18 @@
+{
+  "id": "B30-ATOMIC-RECEIPT-RECOVERY-PREP",
+  "issuer": "root",
+  "owner": "bos3_channel_diagnosis",
+  "reviewer": "start_overview_review",
+  "status": "PREPARATION_ONLY_NO_EXECUTION",
+  "workspace": "D:/3/BOSDev/qa-scratch/bos3-atomic-receipt-recovery-20260928",
+  "source_base": "60f1e31fca6056711ea52d7aade6b65e0b14afff",
+  "repair_source_sha256": "6483cc03bb7ea8fbf4e15a4b52c881b14ef0d8005cd0b16bafdf6455fa4c79da",
+  "target_commit": "PENDING",
+  "dependency": "Reviewed atomic repair integration and exact immutable repaired candidate",
+  "allowlist": ["guarded recovery templates", "source preparation template", "nonsecret report and manifest"],
+  "scope": "Prepare minimal ordinary owner-local repaired update from failed dev8 prepared.source D/60f; not an automatic repeat of spent window1. Preserve data/media/password/progress and old temp evidence. No init, seed, migrations, reset, ACL changes, manual kill or rollback.",
+  "definition_of_done": "Independent reviewer accepts exact fail-closed templates with pending target refusal, honest native exit and historical data aggregate binding; no execution",
+  "attempts": {"problem_consumed": 2, "problem_maximum": 3, "window1_start_consumed": "1/1", "new_execution_authorized": false},
+  "check_in_utc": "2026-09-28T02:20:00Z",
+  "next_recipient": "start_overview_review then root"
+}

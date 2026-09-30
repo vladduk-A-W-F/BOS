@@ -1,0 +1,22 @@
+{
+  "id": "B30-D-CONTROL-HOME-AUTHORITY-REVIEW",
+  "issuer": "root",
+  "owner": "/root/bos3_d_migration_review",
+  "author_not_reviewer": "/root/bos3_d_authority_design",
+  "base_commit": "00607be24a608e481efa4437408e7b338fcafe93",
+  "workspace": "D:/3/BOSDev/qa-scratch/bos3-control-home-install-20260928",
+  "allowlist": ["architecture/DESIGN_REVIEW_RU.md"],
+  "contract_sha256": "27212bbb1ec9c7c8b779705538e11cc0ff0bd9edc33d32b7a499283baa622da5",
+  "interface_sha256": "fe0401c9aca5a1f57a5e10b4381d9fc6d53544169ac790ad7ecf6c305e56621d",
+  "profile": "critical",
+  "requested_model": "gpt-6-astra",
+  "requested_effort": "high",
+  "observed_model": "UNCONFIRMED",
+  "reason": "Independent consequential migration contract acceptance, not duplicate bounded code review",
+  "authorized_checks": ["bounded source/contract text reads", "artifact hashes", "JSON data validation"],
+  "prohibited": ["any live state contents or operation", "helper/test execution/import", "process/resource/policy/runtime probe", "source edits", "migration/activation acceptance before actual receipts"],
+  "definition_of_done": "Exact design/interface accepted for implementation or actionable findings; retain distinction from implementation/QA/actual cutover",
+  "check_in_utc": "2026-09-28T07:05:00Z",
+  "next_recipient": "root for source/consumer assignment or same design author for findings",
+  "status": "ASSIGNED_STATIC_CONTRACT_REVIEW"
+}

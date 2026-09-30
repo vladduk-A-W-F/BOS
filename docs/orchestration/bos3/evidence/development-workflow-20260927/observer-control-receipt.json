@@ -1,0 +1,122 @@
+{
+  "schema": "bos.week-goal-control.v1",
+  "checked_at_utc": "2026-09-27T13:21:02.861125+00:00",
+  "goal_thread_id": "01a0bf0f-a9e4-7631-87e1-bb1aed03f174",
+  "native_goal_status_last_verified": "active",
+  "goal_complete": false,
+  "deadline_local": "2026-10-04T23:59:00+02:00",
+  "timezone": "Europe/Berlin",
+  "strict_priority_order": [
+    "working_current_owner_local",
+    "light_responsive_preview",
+    "three_synthetic_cases",
+    "personal_login_and_training_progress",
+    "other_agreed_improvements"
+  ],
+  "priority_transition_requires": "ready_or_explicit_blocker_with_reason_and_owner",
+  "substantial_result": "any change affecting priorities1-4; author report and independent review required, otherwise partial",
+  "agreed_scope": [
+    "docs/orchestration/bos3/ACTIVE_WORK_PLAN_RU.md",
+    "docs/orchestration/bos3/RELEASE_PLAN_RU.md"
+  ],
+  "integrator_thread_id": "01a0dd56-ca2d-79c0-b159-bde80074a026",
+  "integrator_snapshot": {
+    "schemaVersion": 1,
+    "cursor": "e752a357-8123-4211-aaee-642edb0fbbc2:3",
+    "revision": 3,
+    "changed": true,
+    "thread": {
+      "id": "01a0dd56-ca2d-79c0-b159-bde80074a026",
+      "hostId": "local",
+      "status": {
+        "type": "active",
+        "activeFlags": []
+      }
+    },
+    "latestTurn": {
+      "id": "01a0e305-e254-77a1-a22e-9855d9268052",
+      "status": "inProgress",
+      "error": null,
+      "startedAt": 1790515208,
+      "completedAt": null,
+      "durationMs": null
+    },
+    "latestAssistantMessageId": null,
+    "latestAssistantMessage": null,
+    "latestToolMarkerId": null,
+    "latestToolMarker": null
+  },
+  "last_instruction": {
+    "target": "01a0dd56-ca2d-79c0-b159-bde80074a026",
+    "sha256": "4546bb6cae7a51278b2f7852a20d0b6732565ac6a4472a809c0d78209e23a8e0",
+    "status": "ACKNOWLEDGED",
+    "created_at": "2026-09-27T13:20:08.289404+00:00",
+    "message_id": "bos3-owner-week-goal-20260927-cutoff-20261004",
+    "model": null,
+    "thinking": null,
+    "updated_at": "2026-09-27T13:20:09.154436+00:00",
+    "receipt": {
+      "threadId": "01a0dd56-ca2d-79c0-b159-bde80074a026"
+    }
+  },
+  "automation": {
+    "checked_at_utc": "2026-09-27T13:20:07.110640+00:00",
+    "verified": true,
+    "checks": {
+      "name": true,
+      "prompt": true,
+      "rrule": true,
+      "status": true,
+      "kind": true,
+      "id": true,
+      "target_preserved": true
+    },
+    "status": "ACTIVE",
+    "rrule": "RRULE:FREQ=MINUTELY;INTERVAL=15",
+    "target_thread_id": "01a0dd56-ca2d-79c0-b159-bde80074a026",
+    "deadline_local": "2026-10-04T23:59:00+02:00",
+    "timezone": "Europe/Berlin",
+    "prompt_sha256": "2bf683c8daf72c30da9340f98e9838c314045a85f5c77ae5f5bf9f6a12231b6f",
+    "updated_at": 1790515207074
+  },
+  "control_setup_result": "INDEPENDENTLY_REVIEWED_APPLIED",
+  "product_result": "NO_NEW_PRODUCT_OR_RUNTIME_ACCEPTANCE",
+  "published_documentation_head": "54764b0ac33e7e7a0f044a21a7ea1899410b6fb8",
+  "product_commit": "f55a15de4006d10c0d7c65f8a2ca8499fbb99819",
+  "runtime_commit_last_verified_git_only": "33d7d387aa582c04339a91ae94361948ea67904c",
+  "runtime_http_verified_this_cycle": false,
+  "blocker": {
+    "priority": 1,
+    "reason": "Exact one-shot local update/restart plus desktop/mobile entry permission pending; existing limits retained",
+    "decision_owner": "user",
+    "next_card": "B30-PREVIEW-DELIVERY",
+    "next_step": "After exact owner answer sole integrator uses independently reviewed f55 maintenance package; until then record blocked and proceed only eligible next priority"
+  },
+  "next_coordination_step": "Integrator updates canonical week plan/control/card matrix and PR, then issues eligible work. Delivery ACK and active status are not evidence of completion.",
+  "independent_reviews": {
+    "channel": "ACCEPT_SCOPED_INFRA_CHANNEL",
+    "weekly_plan": "ACCEPT"
+  },
+  "evidence": [
+    {
+      "path": "D:/3/BOSDev/plans/BOS3_WEEK_TARGET_20260927_RU.md",
+      "sha256": "9110e09a64a06ccf6bfb40cd9a869fa9c5dcaaaca4b71968768ab98ffbe3dffc"
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\bos3-week-20260927\\weekly-plan-independent-review.json",
+      "sha256": "8114be3f5b674aaa48897152104e2e9933cb457f8adb82c7c0b3126f977dbca4"
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\bos3-week-20260927\\channel-independent-review.json",
+      "sha256": "b68525af0ed8890f0e194f76cb4381c64d0df91ba8596bf7b463eb625f472896"
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\bos3-week-20260927\\automation-verification.json",
+      "sha256": "15d4cce5ff16228df31ddfcc463a07cc915c9438d85075db0aea6d34d9b65dc8"
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\bos3-week-20260927\\integrator-delivery.json",
+      "sha256": "cc7c9765fc5c164c9a03d1c6e2890efc1018efa8741de418f80cbdfd4abdda0a"
+    }
+  ]
+}

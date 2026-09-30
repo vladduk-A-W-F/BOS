@@ -1,0 +1,472 @@
+{
+  "card_id": "B30-SOLUTIONS-JOURNEY-MAP-20260930",
+  "status": "AUTHOR_COMPLETE_UNREVIEWED",
+  "thread_id": "01a0bffa-3fc7-7bc2-9868-86164c6e0315",
+  "context_acceptance": {
+    "context_file": "D:/3/BOSDev/evidence/resume-solutions-20260930/CONTEXT_RU.md",
+    "sha256": "de485e9cda52221cacea01fd4b5752de2ec88bd905fc777d699ad7c4099af0f6",
+    "resume_file": "D:/3/BOSDev/evidence/resume-solutions-20260930/USER_RESUME_CONFIRMED.json",
+    "resume_sha256": "c53d6849166a22420e167b18382da2cfc6968a66dfca4f484200885eeafe70f3",
+    "owner_resume_message_id": "01a0f28f-7be2-7813-b4c2-fd44c838a0e7",
+    "owner_resume_at": "2026-09-30T13:44:44.771Z"
+  },
+  "authority": {
+    "role_proposal_sha256": "59a8b2258734c50ce6e87bd427a7873334149d8bea83f64e85c10ec72d6057d9",
+    "source_pins_sha256": "4f61c3eafced23ad66bac8ed9624176f5b92a4b0245e9ba5ebca034c1c4e4f9c",
+    "role_queue_sha256": "cb8c514faebdc4f0e6a4aa011db703257560677f2ad1a3a85c43850b36f1c9b1",
+    "role_ownership_sha256": "5372d394ebd2baf232f3ff0cdaa2aa1e1c4ceb210ab9f79763d688943f5f4c77",
+    "design_release_sha256": "7dce6a54fe3fc1cc968bfa2be716d12bb48149af2af17104687f29aab0f65aa7",
+    "scope": "OUTPUT_ONLY_STATIC_ANALYSIS",
+    "product_source": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo",
+    "product_source_head": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+    "output_allowlist": [
+      "JOURNEY_MAP.json",
+      "JOURNEY_RU.md"
+    ]
+  },
+  "user_update": {
+    "top_panel": "Общий мониторинг на верхнем уровне продукта",
+    "entry": "Онлайн-брошюра перед основным маршрутом, доступная для пролистывания",
+    "motion": "Оживить существующую брошюру по прошлым итерациям после проверки источника"
+  },
+  "source_verification": {
+    "head": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+    "files": [
+      {
+        "path": "frontend/bos3_content.json",
+        "sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390",
+        "lines": "1-83"
+      },
+      {
+        "path": "frontend/boss_app_source.html",
+        "sha256": "145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9",
+        "lines": "1-5806"
+      },
+      {
+        "path": "docs/orchestration/bos3/SCENARIOS_UA.md",
+        "sha256": "91505207014291baeebeecee1d6e159432ecac0754ae9a94f7f7efe3082f9d43",
+        "lines": "1-105"
+      },
+      {
+        "path": "erp/experience.py",
+        "sha256": "db613bacaecd2b60c3656042d52016a6c692865115176e0cc473a24c66a2702b",
+        "lines": "1-179"
+      },
+      {
+        "path": "frontend/bos_design.css",
+        "sha256": "30e1db301539b97080705c463c0fec14ae6370de577f824318484c42d159fd54",
+        "lines": "670-715"
+      }
+    ]
+  },
+  "entry_and_global_monitor": {
+    "requested_order": [
+      "Публічна онлайн-брошура",
+      "Вибір бізнес-питання і кейсу",
+      "Персональний вхід",
+      "Загальний моніторинг над робочою областю",
+      "Навчальний сценарій",
+      "Перевірний результат",
+      "Передача до CRM"
+    ],
+    "current": [
+      {
+        "claim": "Онлайн-брошура першою в навчальному і звичайному неавторизованому вході",
+        "status": "SOURCE_SUPPORTED",
+        "source": "frontend/boss_app_source.html:5785-5787"
+      },
+      {
+        "claim": "Шість сторінок, ручне гортання кнопками, клавішами й свайпом, інтерактивні передачі/області, початкова анімація",
+        "status": "SOURCE_SUPPORTED",
+        "source": "frontend/boss_app_source.html:5372-5406,5409-5451; frontend/bos_design.css:682-710"
+      },
+      {
+        "claim": "Загальний моніторинг розміщений під Topbar і над робочим вмістом",
+        "status": "SOURCE_SUPPORTED",
+        "source": "frontend/boss_app_source.html:5735-5743"
+      },
+      {
+        "claim": "Метрики ERP з поясненням джерела, формули, охоплення, бізнес-дати та часу читання",
+        "status": "SOURCE_SUPPORTED",
+        "source": "frontend/boss_app_source.html:5171-5205,5284-5315"
+      }
+    ],
+    "proposed": [
+      "Зробити брошуру явною першою сходинкою єдиного шляху, з постійним прогресом, доступним ручним гортанням і CTA до конкретного кейсу; не примушувати проходити всі сторінки.",
+      "Зберегти наявну стриману анімацію сторінок і схеми, додати виразні переходи факт → передача → результат лише за підтвердженими станами; поважати prefers-reduced-motion.",
+      "Верхню інформаційну панель позначити як загальний моніторинг поточного ERP-читання після входу; надати коротке розкриття кожного показника до точного списку або розділу.",
+      "Візуально відділити статичний графік навчального кейсу в брошурі від робочого моніторингу ERP; показати навчальну мітку, дату зрізу, час читання і помилку/застаріння."
+    ],
+    "gaps": [
+      {
+        "claim": "Наскрізний візуальний стан брошура → вибраний кейс → моніторинг → результат → CRM не представлений як єдина послідовність",
+        "status": "GAP",
+        "source": "frontend/boss_app_source.html:5440-5459,5482-5499,5735-5743"
+      },
+      {
+        "claim": "Брошурний графік є початковою ілюстрацією з content registry, не live-метрикою ERP",
+        "status": "SOURCE_SUPPORTED",
+        "source": "frontend/boss_app_source.html:5428-5430; frontend/bos_design.css:702-703"
+      }
+    ],
+    "not_executed": [
+      "Візуальне приймання у браузері",
+      "Перевірка анімації і адаптивності на пристроях"
+    ]
+  },
+  "journeys": [
+    {
+      "case_id": "BOS3-CASE-01",
+      "slug": "supply",
+      "title": "Чи можемо пообіцяти клієнту 500 комплектів?",
+      "entry": "Брошура: постачання → кейс 01",
+      "current_facts": "500 потрібно; 140 готово; 360 заплановано; дефіцит 120 шайб",
+      "department_handoffs": "Продажі → Планування → Закупівлі/склад → Якість/виробництво → Продажі/CRM",
+      "explainable_result": "План не дорівнює обіцянці; лише перевірені приймання, допуск і випуск підтримують наступний контакт",
+      "proposed_visual_sequence": [
+        "Картка питання у брошурі",
+        "Статичний вступ: початкові факти і джерела",
+        "Активний крок навчальної сесії та відповідальний",
+        "Передача між відділами з окремим статусом перевірки",
+        "Результат із посиланням на джерело/квитанцію",
+        "CTA «Підготувати передачу до CRM»",
+        "Серверна чернетка й preview передавання",
+        "Явне підтвердження після preview та квитанція"
+      ],
+      "crm_continuity": {
+        "current": "Передається session_id і case_id у CRM handoff; сервер формує чернетку; preview і явне підтвердження",
+        "status": "SOURCE_SUPPORTED",
+        "source": "frontend/boss_app_source.html:5482-5499,5507,5522",
+        "contract_gap": "Source ID-контракт для case_id, публічного UUID сесії та пов'язаних customer/order/invoice/source PK надано у writer/IDENTITY_MAP.json і незалежно статично звірено. Live-тотожність сесії та CRM-угоди не виконувалася.",
+        "gap_status": "SOURCE_CONTRACT_STATICALLY_REVIEWED_LIVE_NOT_RUN",
+        "source_contract": {
+          "status": "SOURCE_SUPPORTED_STATIC_REVIEW",
+          "writer_path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/writer/IDENTITY_MAP.json",
+          "writer_sha256": "91237e09cce96aa8927470455b0f50995caa5a72f4a0c77fcc44199adbf49a00",
+          "independent_review_sha256": "08534c340663c95e30bc5e5bd9f037e42b335746f5ba83bcde5a083cf70ab930",
+          "live_status": "NOT_RUN"
+        }
+      },
+      "sources": [
+        "frontend/bos3_content.json:23-37",
+        "docs/orchestration/bos3/SCENARIOS_UA.md:41-61"
+      ]
+    },
+    {
+      "case_id": "BOS3-CASE-02",
+      "slug": "quality",
+      "title": "Відвантажити замовлення і не випустити заблоковану партію",
+      "entry": "Брошура: якість → кейс 02",
+      "current_facts": "250 дозволених; 20 на hold; резерв і відвантаження окремі",
+      "department_handoffs": "Продажі → Якість → Склад → Логістика/керівник → Продажі/CRM",
+      "explainable_result": "Квитанція відвантаження рівно 250 із LOT-A, LOT-B 20 залишається на hold; завдання не знімає блокування",
+      "proposed_visual_sequence": [
+        "Картка питання у брошурі",
+        "Статичний вступ: початкові факти і джерела",
+        "Активний крок навчальної сесії та відповідальний",
+        "Передача між відділами з окремим статусом перевірки",
+        "Результат із посиланням на джерело/квитанцію",
+        "CTA «Підготувати передачу до CRM»",
+        "Серверна чернетка й preview передавання",
+        "Явне підтвердження після preview та квитанція"
+      ],
+      "crm_continuity": {
+        "current": "Передається session_id і case_id у CRM handoff; сервер формує чернетку; preview і явне підтвердження",
+        "status": "SOURCE_SUPPORTED",
+        "source": "frontend/boss_app_source.html:5482-5499,5507,5522",
+        "contract_gap": "Source ID-контракт для case_id, публічного UUID сесії та пов'язаних customer/order/invoice/source PK надано у writer/IDENTITY_MAP.json і незалежно статично звірено. Live-тотожність сесії та CRM-угоди не виконувалася.",
+        "gap_status": "SOURCE_CONTRACT_STATICALLY_REVIEWED_LIVE_NOT_RUN",
+        "source_contract": {
+          "status": "SOURCE_SUPPORTED_STATIC_REVIEW",
+          "writer_path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/writer/IDENTITY_MAP.json",
+          "writer_sha256": "91237e09cce96aa8927470455b0f50995caa5a72f4a0c77fcc44199adbf49a00",
+          "independent_review_sha256": "08534c340663c95e30bc5e5bd9f037e42b335746f5ba83bcde5a083cf70ab930",
+          "live_status": "NOT_RUN"
+        }
+      },
+      "sources": [
+        "frontend/bos3_content.json:41-55",
+        "docs/orchestration/bos3/SCENARIOS_UA.md:63-81"
+      ]
+    },
+    {
+      "case_id": "BOS3-CASE-03",
+      "slug": "payment",
+      "title": "Після відвантаження довести оплату до контрольованого результату",
+      "entry": "Брошура: оплата → кейс 03",
+      "current_facts": "Рахунок 16 400 грн; підтверджена оплата 10 000 грн; відкрито 6 400 грн",
+      "department_handoffs": "Фінанси → Керівник/відповідальний (доручення) → Продажі/CRM",
+      "explainable_result": "Відповідальний, строк і контакт на 6 400 грн; CRM і завдання не погашають борг і не дублюють платіж",
+      "proposed_visual_sequence": [
+        "Картка питання у брошурі",
+        "Статичний вступ: початкові факти і джерела",
+        "Активний крок навчальної сесії та відповідальний",
+        "Передача між відділами з окремим статусом перевірки",
+        "Результат із посиланням на джерело/квитанцію",
+        "CTA «Підготувати передачу до CRM»",
+        "Серверна чернетка й preview передавання",
+        "Явне підтвердження після preview та квитанція"
+      ],
+      "crm_continuity": {
+        "current": "Передається session_id і case_id у CRM handoff; сервер формує чернетку; preview і явне підтвердження",
+        "status": "SOURCE_SUPPORTED",
+        "source": "frontend/boss_app_source.html:5482-5499,5507,5522",
+        "contract_gap": "Source ID-контракт для case_id, публічного UUID сесії та пов'язаних customer/order/invoice/source PK надано у writer/IDENTITY_MAP.json і незалежно статично звірено. Live-тотожність сесії та CRM-угоди не виконувалася.",
+        "gap_status": "SOURCE_CONTRACT_STATICALLY_REVIEWED_LIVE_NOT_RUN",
+        "source_contract": {
+          "status": "SOURCE_SUPPORTED_STATIC_REVIEW",
+          "writer_path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/writer/IDENTITY_MAP.json",
+          "writer_sha256": "91237e09cce96aa8927470455b0f50995caa5a72f4a0c77fcc44199adbf49a00",
+          "independent_review_sha256": "08534c340663c95e30bc5e5bd9f037e42b335746f5ba83bcde5a083cf70ab930",
+          "live_status": "NOT_RUN"
+        }
+      },
+      "sources": [
+        "frontend/bos3_content.json:59-70",
+        "docs/orchestration/bos3/SCENARIOS_UA.md:83-97"
+      ]
+    }
+  ],
+  "shared_states": {
+    "entry": [
+      "Брошура доступна до входу; кнопки Назад/Далі, 1–6, клавіші та свайп",
+      "Вибраний slug зберігається в ?training= і через логін"
+    ],
+    "monitor": [
+      "loading/refreshing: значення приховані або попередні лише з явним статусом",
+      "empty: немає доступних записів",
+      "error/stale/denied/context-drift: не показувати попереднє як чинне, дати ручне оновлення",
+      "fresh: доступні точний список/джерело згідно з роллю"
+    ],
+    "training": [
+      "not_started: почати сесію",
+      "in_progress: доступний крок і перевірка відповіді",
+      "completed: результат, тур або вільний простір",
+      "error/unavailable: причина та повторне читання без вигаданого успіху"
+    ],
+    "crm": [
+      "CTA підготувати передачу: сервер перевіряє сесію і джерела та повертає чернетку",
+      "existing: відкрити наявну угоду без дубля",
+      "draft: preview перед підтвердженням",
+      "після preview: явне підтвердження, потім квитанція і наступна дія"
+    ],
+    "sources": [
+      "frontend/boss_app_source.html:5220-5265,5171-5205,5477-5499,5507-5522,5753-5787"
+    ]
+  },
+  "limitations": [
+    "Статичний аналіз immutable candidate; жоден runtime, браузер, HTTP, БД або тест не запускався.",
+    "Синтетичні гривневі приклади з content registry не є live-показниками компанії.",
+    "План, preview, завдання та CRM-активність не підміняють підтверджені відвантаження, оплату або бізнес-факт.",
+    "Підтвердження доставки dev9, технічної/пілотної готовності та MVP відсутнє.",
+    "Наявний UXD07 CRM detail-race не перевірявся й не дублюється в цій карті."
+  ],
+  "execution_record": {
+    "product_edits": 0,
+    "builds": 0,
+    "tests": 0,
+    "browser_runs": 0,
+    "http_calls": 0,
+    "database_calls": 0,
+    "commits": 0,
+    "status": "NOT_RUN_STATIC_ONLY"
+  },
+  "revision": "R4_QUALITY_FINDINGS_CORRECTED",
+  "r1_preserved": {
+    "snapshot": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/author-snapshots/design-r1/SNAPSHOT.json",
+    "snapshot_sha256": "fdc88b83560967fc55c36ccea64d7f743dc073eacdc4bc128b911d1a22760275",
+    "json_sha256": "75d95134c0e0f340bb0687ec687d8a282df69927d8b95b85036910245b211659",
+    "markdown_sha256": "c61007ad316ec962d5e7b27d3dc08a77dae63790f9c80d96dffb5a298eb48e2c"
+  },
+  "concept_alignment": {
+    "owner_context": {
+      "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/CONCEPT_OWNER_CONTEXT.json",
+      "sha256": "56fb61ca97ba5d91200d325f85f31126cb500d099e67210dc922ef14503609b9",
+      "conditional_interest_message_id": "01a0f2bd-d743-78f1-b72a-1f9c83dfd9c0",
+      "ukrainian_and_path_comparison_message_id": "01a0f2c3-4c66-7a90-8221-e975de38d2e7",
+      "brochure_first_source": "Пряме повідомлення власника в поточному чаті: «...НАШУ ОНЛАЙН БРОШУРУ ПЕРЕД ВСЕМ ЧТОБ ОНИ ПОЛИТСАЛИ ПОСМОТРЕЛИ...»",
+      "brochure_first_status": "DIRECT_OWNER_REQUIREMENT",
+      "concept_status": "CONDITIONAL_INTEREST_ONLY"
+    },
+    "inputs": {
+      "continuation_card_sha256": "55e3855249c900bc4ea4370db8d5a3406c45639273c95356a4a3923c146bf636",
+      "root_admission_sha256": "d8ea0e28f4f46ac0092d58cc137b20123f60ba1f6b63a59c7846a42cb4a9e536",
+      "observer_brief_sha256": "a4032e27d0f6b05939fa1b4c02f69839e5ac5b0f06f8cc7da0a262f38e7b5ded",
+      "historical_mockup_evidence_sha256": "18aba66ed1e04ad8c509b3e483bffc530ccae73a1084628ca84de1d31812513d",
+      "identity_map_sha256": "91237e09cce96aa8927470455b0f50995caa5a72f4a0c77fcc44199adbf49a00"
+    },
+    "slogan": {
+      "ua": "BoS — рішення під ваш бізнес",
+      "status": "PROPOSED_UA_COPY",
+      "source": "observer brief based on owner conditional interest; not final layout approval"
+    },
+    "current": [
+      {
+        "finding": "Онлайн-брошура стоїть перед входом і підтримує ручне гортання; моніторинг — зверху після входу.",
+        "status": "SOURCE_SUPPORTED",
+        "source": "frontend/boss_app_source.html:5372-5451,5735-5743,5785-5787"
+      },
+      {
+        "finding": "Три case_id/slug і факти збігаються з концептуальними демонстраціями observer.",
+        "status": "SOURCE_SUPPORTED",
+        "source": "frontend/bos3_content.json:21-73; observer CONCEPT_REVIEW.json demonstration_cases"
+      },
+      {
+        "finding": "Верхній моніторинг має джерело, охоплення, розрахунок, час читання та role-gated перехід.",
+        "status": "SOURCE_SUPPORTED",
+        "source": "frontend/boss_app_source.html:5171-5205,5284-5315"
+      }
+    ],
+    "proposal": [
+      {
+        "finding": "Показати три задачі вже на першій сторінці брошури під лозунгом; залишити повне гортання і доступ до кейсів без примусового шляху.",
+        "status": "PROPOSAL_COMPATIBLE_WITH_OWNER_BROCHURE_FIRST"
+      },
+      {
+        "finding": "У сценарії тримати поточний крок, відповідальний відділ і очікуваний результат видимими; джерела/історію відкривати за потреби.",
+        "status": "PROPOSAL"
+      },
+      {
+        "finding": "Перед CRM назвати точний замовлення/клієнта/рахунок і поля передачі тільки після перевірки identity contract; не домислювати ID.",
+        "status": "PROPOSAL_REQUIRES_ID_CONTRACT"
+      },
+      {
+        "finding": "Перенести спокійний зелений акцент і ясну типографіку Опори в чинні BoS tokens без окремого framework.",
+        "status": "PROPOSAL"
+      }
+    ],
+    "unverified": [
+      {
+        "finding": "Концепт Опори та історичний мокап не затверджені власником як остаточний UI.",
+        "status": "UNVERIFIED_APPROVAL"
+      },
+      {
+        "finding": "Історичний NodeVM/fakeDOM PASS і синтаксичні перевірки не є browser acceptance; Chromium не запустився.",
+        "status": "NOT_EXECUTED_BROWSER",
+        "source": "MOCKAP_AUTHOR_EVIDENCE.json; CONCEPT_REVIEW.json evidence_verdict"
+      },
+      {
+        "finding": "Поточний runtime, backend continuity та delivery не перевірялися цією карткою.",
+        "status": "NOT_RUN"
+      }
+    ],
+    "open_decision": "Точне розташування трьох задач на першій сторінці брошури потребує дизайн-перевірки; вимога брошури першою не переглядається.",
+    "language": "Українська для нового UI і нового пояснення; contract keys, case_id та slug залишено без змін."
+  },
+  "r2_preserved": {
+    "snapshot": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/author-snapshots/design-r2/SNAPSHOT.json",
+    "snapshot_sha256": "a4f55f3dbb88b624987323c133c4da444570d937ac37c157fd5a749a289a8291",
+    "json_sha256": "1dec0a4b9608797af3f5b912e31aeb91f001bf26f9fa1c71156fa7d641f5c5b6",
+    "markdown_sha256": "9de0bde528b52057d858ddb469329b002c8ba167072205ed9770d34cd9c2249a"
+  },
+  "ua_copy_alignment": {
+    "status": "PROPOSED_NOT_APPLIED",
+    "locale": "uk-UA",
+    "provenance": {
+      "ui_copy_path": "D:/3/BOSDev/evidence/release-path-20260930/UI_COPY_UA.json",
+      "ui_copy_sha256": "3532d53eb870ee058e320955434bc59b61af377838ca07894b4b42dd374974ac",
+      "assessment_path": "D:/3/BOSDev/evidence/release-path-20260930/ASSESSMENT_UA.txt",
+      "assessment_sha256": "40157364fdad78c92a1cab32c930904cfedebcbc9169ea515da2bfc2311ef859",
+      "source_snapshot_sha256": "f62602b30de6db55cc91c5136361c0d2ad3dc436b5fde467d57fb8dfd009f0ca",
+      "root_alignment_sha256": "e70be5ee4f12db7ea3f3498515e5322ca7e8694919c086d68bf9a85873a1e78d",
+      "continuation_card_sha256": "a4c2064f182d6bde4aea3506353c21d0c7b135bd8e4d4104d73cada4c304f4b8",
+      "scope_publication_receipt_sha256": "9ca5d4f254e956f22313c2a88d30dc25ed8e0db5e2a0b0374fc7ab4c4e581342",
+      "direct_owner_request_id": "01a0f2c3-4c66-7a90-8221-e975de38d2e7",
+      "copy_origin": "Observer authored UI-copy proposal and release-path assessment; not approved final UI"
+    },
+    "hero": {
+      "title": "BoS — рішення під ваш бізнес",
+      "description": "Оберіть задачу, пройдіть наочний сценарій і продовжте роботу в CRM з тими самими даними.",
+      "primary": "Обрати задачу",
+      "secondary": "Переглянути можливості",
+      "login": "Увійти",
+      "brochure_skip": "Одразу до задач",
+      "demo_label": "Навчальний приклад"
+    },
+    "case_titles": {
+      "supply": "Забезпечити замовлення",
+      "quality": "Відвантажити дозволену партію",
+      "payment": "Узгодити залишок оплати"
+    },
+    "step_labels": {
+      "facts": "Початкові дані",
+      "owner": "Відповідальний відділ",
+      "action": "Наступна дія",
+      "result": "Результат",
+      "source": "Джерело",
+      "back": "Назад",
+      "next": "Далі",
+      "details": "Документи й подробиці",
+      "history": "Історія передавання"
+    },
+    "crm": {
+      "prepare": "Підготувати передачу до CRM",
+      "preview": "Перевірити дані перед передаванням",
+      "confirm": "Підтвердити створення",
+      "existing": "Відкрити наявну угоду",
+      "back": "Повернутися до сценарію",
+      "confirmation_rule": "Успіх показується лише після фактичної відповіді сервера. У демо повідомлення прямо містить «у навчальному прикладі»."
+    },
+    "states": {
+      "loading": "Завантажуємо дані…",
+      "refreshing": "Оновлюємо дані…",
+      "empty": "Доступних записів немає.",
+      "denied": "У вас немає доступу до цієї дії.",
+      "stale": "Дані застаріли. Оновіть їх перед дією.",
+      "error": "Не вдалося отримати дані. Спробуйте ще раз.",
+      "context_changed": "Вибраний запис змінився. Перевірте дані знову.",
+      "freshness": "Останнє успішне оновлення"
+    },
+    "warnings": {
+      "payment": "Створення контакту не змінює залишок оплати.",
+      "shipment": "Готовність товару ще не підтверджує відвантаження.",
+      "quality": "Заблокована партія потребує окремого рішення якості."
+    },
+    "placement": {
+      "brochure": "FIRST",
+      "first_page_tasks": "PROPOSED_WITH_MANUAL_BROWSING_PRESERVED",
+      "monitor": "AFTER_LOGIN_TOP_OF_WORKSPACE",
+      "source": "frontend/boss_app_source.html:5372-5451,5735-5743,5785-5787"
+    },
+    "recommended_path": {
+      "text": "Доводити BoS до релізу, використовуючи зрозумілу подачу «Опори» в чинному продукті.",
+      "status": "ENGINEERING_RECOMMENDATION_NOT_OWNER_FINAL_APPROVAL",
+      "source": "ASSESSMENT_UA.txt",
+      "runtime": "NOT_RUN"
+    },
+    "constraints": [
+      "Contract keys, API names, case_id, slug та машинні ID не перекладати.",
+      "Той самий перевірений клієнт/замовлення/рахунок/контекст до CRM; не домислювати ID.",
+      "Залишити серверні preview/confirm та розмежування плану й факту.",
+      "Тексти не впроваджено; авторська карта не є незалежним review."
+    ]
+  },
+  "r3_preserved": {
+    "snapshot": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/author-snapshots/design-r3/SNAPSHOT.json",
+    "snapshot_sha256": "a9944ef34f568431ac39c9a4a844f1be07f97ed4ca4201ce30f3d51d8bb16c06",
+    "json_sha256": "2bcd391ef0659d0c0853cd81ee84303a8310936f1f6e46350bcc4b7e8e1feb39",
+    "markdown_sha256": "0ee199b9132ba0b05c8376fe0b07ad82e6ff435f77bd12a64c9be596f2bee779"
+  },
+  "independent_review_correction": {
+    "status": "AUTHOR_CORRECTED_UNREVIEWED_DELTA",
+    "card_sha256": "7e75b95a8655e230abc25a849e35bda90726ee54dda0e230b0e7824eaee2167a",
+    "review_sha256": "08534c340663c95e30bc5e5bd9f037e42b335746f5ba83bcde5a083cf70ab930",
+    "responses": [
+      {
+        "id": "Q-01",
+        "result": "CTA підготовки перенесено перед серверною чернеткою та preview; явне підтвердження після preview у всіх трьох маршрутах.",
+        "status": "CORRECTED_STATIC"
+      },
+      {
+        "id": "Q-02",
+        "result": "Доручення кейсу 03 показано в кроці керівника/відповідального до CRM; окрему передачу після CRM вилучено.",
+        "status": "CORRECTED_STATIC"
+      },
+      {
+        "id": "Q-03",
+        "result": "Writer source ID-контракт надано і незалежно статично звірено; live-тотожність лишається NOT_RUN.",
+        "status": "CORRECTED_STATIC_LIVE_NOT_RUN"
+      }
+    ]
+  }
+}

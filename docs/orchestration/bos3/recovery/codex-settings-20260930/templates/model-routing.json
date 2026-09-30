@@ -1,0 +1,53 @@
+{
+  "schema": "bos.portable-model-routing.v1",
+  "project_root": "<PROJECT_ROOT>",
+  "control_home": "<CONTROL_HOME>",
+  "snapshot_date": "2026-09-30",
+  "profiles": {
+    "none": {
+      "model": null,
+      "thinking": null,
+      "purpose": "Idle, status, hashes, schema/index operations use scripts"
+    },
+    "inherit": {
+      "model": null,
+      "thinking": null,
+      "purpose": "Keep the recipient current model, especially main approval/integration"
+    },
+    "economy": {
+      "model": "gpt-6-luna",
+      "thinking": "medium",
+      "purpose": "Small semantic summary or mechanical documentation only; arithmetic, hashes, status and indexing remain no-model. No independent verdict."
+    },
+    "standard": {
+      "model": "gpt-6-sol",
+      "thinking": "medium",
+      "purpose": "Bounded implementation, UX work, package preparation and execution of an already authorized QA plan."
+    },
+    "review": {
+      "model": "gpt-6-sol",
+      "thinking": "high",
+      "purpose": "Independent bounded code/evidence review; escalate material cross-module uncertainty to critical."
+    },
+    "critical": {
+      "model": "gpt-6-astra",
+      "thinking": "high",
+      "purpose": "Architecture, permissions/data migration, consequential diagnosis, full readiness audit and difficult cross-module decisions."
+    }
+  },
+  "assignment_requires": [
+    "task_class",
+    "profile",
+    "short_reason",
+    "source",
+    "allowlist",
+    "done_when",
+    "authorized_checks"
+  ],
+  "max_concurrent_subagents": 3,
+  "default_parallel_workers": 2,
+  "reserved_review_slots": 1,
+  "heavy_local_jobs_at_once": 1,
+  "limits": "No model call for hashes/status; no automatic retries, quota reset, or downgrade of critical acceptance.",
+  "status": "Guidance for future assignments; does not change running tasks or grant permission."
+}

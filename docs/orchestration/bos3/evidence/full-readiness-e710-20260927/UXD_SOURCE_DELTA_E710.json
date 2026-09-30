@@ -1,0 +1,114 @@
+{
+  "schema": "bos.full-readiness.e710-delta.v1",
+  "checked_at_utc": "2026-09-27T15:25:33.073Z",
+  "source_commit": "e710eb568717dfe3ede945feb899f030bd5ad1ab",
+  "baseline": "f55a15de4006d10c0d7c65f8a2ca8499fbb99819",
+  "author": "/root/readiness_requirements",
+  "observer": "01a0bf0f-a9e4-7631-87e1-bb1aed03f174",
+  "scope": "Read-only source/evidence applicability; no implementation, product testing, acceptance or competing QA harness",
+  "server_findings": "tasks/erp/operations/Policy unchanged; original S1/S2/S3 source trace and backend UXD03/04/08 gaps continue",
+  "changed_paths": [
+    "frontend/boss_app_source.html",
+    "frontend/boss_app_html.html",
+    "frontend/bos_design.css",
+    "assets/app.js",
+    "scripts/build_frontend.cjs",
+    "boss_project/version.py"
+  ],
+  "rows": [
+    {
+      "id": "UXD-01",
+      "state": "PARTIAL_CHANGED_NOT_ACCEPTED",
+      "finding": "BosGlobalMonitor reads protected ERP snapshot, shows date/time/currency/states; cards lack branch/period, deviation cause and specific next action",
+      "references": [
+        "frontend/boss_app_source.html:5112",
+        "frontend/boss_app_source.html:5211",
+        "frontend/boss_app_source.html:5644"
+      ]
+    },
+    {
+      "id": "UXD-02",
+      "state": "PARTIAL_CONTEXT_DRILLDOWN_UNPROVEN",
+      "finding": "Metric navigation passes section/sub only, no branch/period/order/line/record target; complete metric-list-record-source-return chain unproven",
+      "references": [
+        "frontend/boss_app_source.html:5128"
+      ]
+    },
+    {
+      "id": "UXD-03",
+      "state": "PARTIAL_CONFIRMED_IMPLEMENTATION_GAP",
+      "finding": "Real department_id Task queue exists; current filters incoming/in-progress/completed/overdue. Waiting-for-another-participant and waiting cause absent; linked business record, recipient and handoff history not displayed on queue card. Refines earlier overbroad no-queue wording; dev4 changes styling only",
+      "references": [
+        "frontend/boss_app_source.html:2443",
+        "frontend/boss_app_source.html:2459",
+        "frontend/boss_app_source.html:2461"
+      ]
+    },
+    {
+      "id": "UXD-04",
+      "state": "PARTIAL_CROSS_ROLE_DYNAMIC_EVIDENCE_MISSING",
+      "finding": "Server handoff role/source/audit basis unchanged; new entry brochure transfers are presentation data, not actual work transfer proof",
+      "references": [
+        "tasks/handoffs.py:37",
+        "tasks/handoffs.py:65",
+        "tasks/queries.py:55",
+        "frontend/boss_app_source.html:5329"
+      ]
+    },
+    {
+      "id": "UXD-05",
+      "state": "PARTIAL_CHANGED_NOT_ACCEPTED",
+      "finding": "Desktop labeled rail/mobile select improved; role-specific functional search/menu/primary-operation walkthrough absent",
+      "references": [
+        "frontend/bos_design.css:90",
+        "frontend/bos_design.css:177"
+      ]
+    },
+    {
+      "id": "UXD-06",
+      "state": "PARTIAL_SCOPED_OFFLINE_VISUAL_ONLY",
+      "finding": "Focus/skip-link and 28 offline 390/1440 captures exist; not 768/200%, live keyboard/close/return-focus acceptance",
+      "references": [
+        "frontend/bos_design.css:22",
+        "frontend/boss_app_source.html:5636",
+        "docs/design/evidence-20260927/QA_REPORT.md:44",
+        "docs/design/evidence-20260927/QA_REPORT.md:70"
+      ]
+    },
+    {
+      "id": "UXD-07",
+      "state": "PARTIAL_CHANGED_DYNAMIC_EVIDENCE_MISSING",
+      "finding": "Monitor abort/access-revision/context-drift safeguards in source; delayed/role-switch/empty/error/repeated-action proof absent",
+      "references": [
+        "frontend/boss_app_source.html:5147",
+        "frontend/boss_app_source.html:5160",
+        "frontend/boss_app_source.html:5166"
+      ]
+    },
+    {
+      "id": "UXD-08",
+      "state": "PARTIAL_RIGHTS_AND_FACT_RECONCILIATION_UNPROVEN",
+      "finding": "Policy/command/projection unchanged; disabled monitor navigation does not prove role/UAH/ID consistency among dashboard, queue, card and action",
+      "references": [
+        "frontend/boss_app_source.html:5210"
+      ]
+    }
+  ],
+  "accepted_original_requirements": 0,
+  "executions": 0,
+  "readiness_changed": false,
+  "proposed_existing_destination": "B30-12 full traceability, then B30-12R; no new claim; sole integrator coordinates central UI scope",
+  "exact_source_sha256": {
+    "assets/app.js": "e193d08b31e16b3c2100fa14414aa87a4c8f5946da7396081503fa353920f8d9",
+    "boss_project/version.py": "9740188c7ab0bd77915c22f908712d0559d81574201e8ef99b0693cea4af390c",
+    "docs/design/evidence-20260927/QA_REPORT.md": "a2735f8d9356ba96870b2549cf531d6234cf21e06efc47f4d6761f832c031340",
+    "docs/orchestration/bos3/DESIGN_DEV4_CANDIDATE.json": "b41e71852bf6a24316d5854ec8da26661359b3e7ebe2ddd615a5c511f6d8b0f0",
+    "frontend/bos_design.css": "79fc5209bb5c781b3ae052b6aa920e5171d405cc9aa6a6e8c2b6daa99aed4977",
+    "frontend/boss_app_html.html": "33a8372fb84a83f6c4d3e51cbb6ac3524b74ac5d47ff9b85d9bb808c988a69f5",
+    "frontend/boss_app_source.html": "0fe2a86c6fe4cda53f83507f9eafe4be1a066be193c133cf5b9f2a45d63884e8",
+    "scripts/build_frontend.cjs": "fe7c38f0d8bb48b7fdbdd56851deeab209c2a30cfb311b897a879e0f3e285f1f",
+    "tasks/handoffs.py": "5365a898eeb4d5db606e8f9d10ccc25fc1a84bc6ec663ffac27e9c5f76039a7f",
+    "tasks/queries.py": "c259a1cb70d5f27e8d52b58336bf42633833ff6745b2493820e4ebdc239195ec"
+  },
+  "backend_diff_verified_empty": true
+}

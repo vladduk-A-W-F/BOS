@@ -92,6 +92,38 @@ class Policy:
         from tasks.queries import visible_tasks
         return visible_tasks(self)
 
+    def crm_deals(self):
+        """CRM reads are bound to this verified synthetic installation and user."""
+        from crm.models import CRMDeal
+        from training.access import require_training
+        marker = require_training(self)
+        rows = CRMDeal.objects.filter(
+            training_session__user_id=self.actor.user_id,
+            training_session__role=self.role,
+            training_session__installation_id=marker['installation_id'],
+            training_session__fixture_id=marker['id'],
+            training_session__fixture_hash=marker['hash'],
+        )
+        if self.ceo:
+            return rows
+        readable_orders = self.queryset(__import__('erp.models', fromlist=['SalesOrder']).SalesOrder)
+        scoped = rows.filter(sales_order__in=readable_orders)
+        employee_id = self.actor.employee_id
+        if not employee_id:
+            return scoped.none()
+        return scoped.filter(Q(owner_id=employee_id) | Q(activities__owner_id=employee_id)).distinct()
+
+    def crm_activities(self):
+        from crm.models import CRMActivity
+        return CRMActivity.objects.filter(deal__in=self.crm_deals())
+
+    def can_manage_crm_deal(self, deal):
+        if self.ceo:
+            return True
+        if self.role != 'manager' or not self.actor.employee_id:
+            return False
+        return self.crm_deals().filter(pk=deal.pk).exists()
+
     def transactions(self):
         from finance.models import Transaction
         rows = Transaction.objects.all()
@@ -220,6 +252,12 @@ class Policy:
             from erp.models import InvoiceLink
             for order_id in InvoiceLink.objects.filter(invoice_id=value).values_list('order_id', flat=True):
                 self.check_reference('order_id', order_id)
+        elif name in ('deal_id', 'crm_deal_id'):
+            from crm.models import CRMDeal
+            self.crm_deals().get(pk=value)
+        elif name in ('activity_id', 'crm_activity_id'):
+            from crm.models import CRMActivity
+            self.crm_activities().get(pk=value)
 
     def check_payload(self, data):
         if self.ceo:

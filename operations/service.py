@@ -66,6 +66,10 @@ def validate(data):
         from .document_matching.commands import clean
         return clean(data)
     action=data.get('action')
+    from crm.commands import ACTIONS as CRM_ACTIONS
+    if action in CRM_ACTIONS:
+        from crm.commands import clean as crm_clean
+        return crm_clean(data)
     if isinstance(action,str) and action.startswith('erp_'):
         from erp.service import clean
         return clean(data)
@@ -73,6 +77,10 @@ def validate(data):
     return clean(data)
 
 def fingerprint(payload):
+    from crm.commands import ACTIONS as CRM_ACTIONS
+    if payload.get('action') in CRM_ACTIONS:
+        from crm.commands import fingerprint as crm_fingerprint
+        return crm_fingerprint(payload)
     if payload.get('action') in ('create_task','update_task','handoff_task'):
         from tasks.commands import fingerprint as task_fingerprint
         return task_fingerprint(payload)
@@ -94,6 +102,10 @@ def preview(request,payload,snapshot_fingerprint=None,*,dependency_context=None)
     if isinstance(payload,dict) and payload.get('action') in ('create_task','update_task','handoff_task'):
         from tasks.commands import preview as task_preview
         return task_preview(request,payload)
+    from crm.commands import ACTIONS as CRM_ACTIONS
+    if isinstance(payload,dict) and payload.get('action') in CRM_ACTIONS:
+        from crm.commands import preview as crm_preview
+        return crm_preview(request,payload)
     if isinstance(payload,dict) and payload.get('action')=='erp_import_batch':
         raise ValueError('Пакет імпорту потребує окремого перегляду файла.')
     principal=actor(request);role=principal.role
@@ -120,6 +132,10 @@ def execute(request,proposal_id):
     p=ActionProposal.objects.filter(id=proposal_id,session_key=request.session.session_key).first()
     if not p:raise PermissionError('Погодження недоступне в цій сесії.')
     if p.user_id != principal.user_id or principal.role!=p.role or p.role not in ('ceo','manager'):raise PermissionError('Немає дозволу на виконання. Підготуйте власне нове погодження.')
+    from crm.commands import ACTIONS as CRM_ACTIONS
+    if p.payload.get('action') in CRM_ACTIONS:
+        from crm.commands import apply as crm_apply
+        return projections.receipt(Policy(request),crm_apply(request,p))
     if p.payload['action'].startswith('erp_') or p.payload['action'] in ('create_task','update_task','handoff_task'):
         from erp.service import write_lock
         write_lock()

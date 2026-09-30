@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "id": "B30-ATOMIC-RECEIPT-RECOVERY-PREP",
+  "status": "PREPARATION_ONLY_NO_EXECUTION",
+  "base": {
+    "failed_source_commit": "60f1e31fca6056711ea52d7aade6b65e0b14afff",
+    "failed_source_sha256": "06a4bf2fa7f681a0a4c83612045d894feebc7908849beb574359792a119f4fc8",
+    "accepted_atomic_repair_source_sha256": "6483cc03bb7ea8fbf4e15a4b52c881b14ef0d8005cd0b16bafdf6455fa4c79da"
+  },
+  "final_repaired_pin": "PENDING_REPAIRED_IMMUTABLE_COMMIT",
+  "artifact_sha256": {
+    "recovery_source_prepare_template.py": "58fdc28ded628c1824f283390abb82ed6a748e2b726c30b970357c282dede1fd",
+    "recovery_official_start_native_exit_template.ps1": "b121fcf1de087d647b1a5612305fac053a6e3f5527dc98534bf1430bfb00f307",
+    "recovery_post_start_template.py": "545174920850e8197589b5377a5d9a740aaad3734108fbac3a032445a0f62fd8",
+    "AUTHOR_REPORT_RU.md": "49041246992729d48cd5818226a08716d52cb6537dbd9bb9d3844390e1c68f68",
+    "IMMUTABLE_DEV9_SOURCE_PLAN_RU.md": "db9574d26a8389fcf713614b0895978df7dcf808e61c7ed1127f40273e34a407"
+  },
+  "review_repair": {
+    "review_sha256": "afca406381cfea759f20e7fa91fa21e289795ab2e4634e4a9f73e235faeb4371",
+    "previous_artifact_sha256": {
+      "recovery_source_prepare_template.py": "906e00cc02b4ee920aa1524ac2a686915bf7d51012348ce4f9622bdcac789f29",
+      "recovery_official_start_native_exit_template.ps1": "b78739546e0f2d367ee588494c8eccf93de7e90ed752b4b9d8a249039a110aeb",
+      "recovery_post_start_template.py": "846777b89e812fd4b30a5fadf838461ced522311c18c1cfdfa44dfd63282eb9b",
+      "AUTHOR_REPORT_RU.md": "63b4b2022383170cf4a6195ca7e08b4237e64be34f07a5857bcff21a7a661706",
+      "MANIFEST.json": "8ada39e7b6cad19a241f2939593801e80c1493b15c408efab86d0794c8c67f9d"
+    },
+    "disposition": {
+      "P1_failed_source": "repaired by clean HEAD plus source-digest guard in preflight/apply path",
+      "P1_native_powershell": "repaired by absolute SystemRoot executable and subprocess-local native PSMODULEPATH",
+      "P2_preflight_handoff": "repaired by required SHA-pinned reviewed receipt compared byte-for-field with fresh preflight"
+    }
+  },
+  "post_start_p1_repair": {
+    "delta_review_sha256": "ff8c31a8e1b788c0418632723116bba39846ec2dab401dc0f46168a74ad6a004",
+    "previous_post_start_sha256": "846777b89e812fd4b30a5fadf838461ced522311c18c1cfdfa44dfd63282eb9b",
+    "disposition": [
+      "fixed owner root lexical alias rejection and ordinary/no-reparse guard precede owner reads",
+      "official native-exit receipt, ready receipt, live process identity, command tokens and sole loopback listener PID bind the one GET",
+      "one normalized served HTML is compared to the exact committed versioned template",
+      "same data/media/access/secrets aggregate must equal saved failed baseline and apply receipt before GET, then remain equal with residual metadata after GET"
+    ],
+    "execution": "UNRUN_STATIC_PREPARATION_ONLY"
+  },
+  "fixed_paths": {
+    "failed_source": "D:/3/BOSDev/workspaces/bos3-runtime-dev8/repo",
+    "future_repaired_source": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo",
+    "owner_root": "D:/3/BOSDev/local-bos3/owner"
+  },
+  "historical_facts_only": {
+    "old_stop_native_exit": 0,
+    "saved_cleanup": "pid 55564, stopped_after_start_failure true",
+    "prepared_source_at_failed_attempt": "D runtime-dev8 / 60f",
+    "availability_now": "UNCONFIRMED"
+  },
+  "procedure": [
+    "Final pins and an explicit root decision must be present before any future template reads owner/runtime state.",
+    "Run exactly one separately authorized no-write preflight; state divergence, any server, or port listener refuses without kill.",
+    "After a fresh reviewed preflight, apply may bind only prepared.source and prepared.source_sha256 and must preserve protected aggregate and residual temp metadata.",
+    "One separately authorized official start captures native exit; the post-start receipt is a separate one-HTTP operation."
+  ],
+  "prohibited": ["blind old-window replay", "capture", "stop", "kill", "ACL change", "overwrite", "rollback", "init", "seed", "migrate", "reset"],
+  "execution": {"authorized": 0, "performed": 0, "preflight": "UNRUN", "apply": "UNRUN", "official_start": "UNRUN", "post_start": "UNRUN"},
+  "attempt_accounting": {"same_problem_consumed": "2/3", "window1_start_consumed": "1/1", "new_execution_authorized": false},
+  "next_recipient": "start_overview_review"
+}

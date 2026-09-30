@@ -1,0 +1,56 @@
+{
+  "id": "B30-POST-MOVE-RESUME",
+  "stage": "CURRENT_SCOPE_CORRECTION_REVIEW",
+  "classification": "NEW_OWNER_CLARIFICATION_DOCS_ONLY_NO_EXECUTION",
+  "owner_clarification": {
+    "source": "User heartbeat2026-09-30T14:38:56.207Z in integrator thread",
+    "text": "Полный объём сохраняется: S1/S2/S3, UXD01–08, 11 gates, действующие требования обучения/входа и exact-version доставки; полный перенос данных на D отменён владельцем 30.09 и не является условием текущего продукта."
+  },
+  "author": "root",
+  "reviewer": "/root/crm_stale_review",
+  "base_sha": "ea699ffa44319a3e02804509855e6039734bb437",
+  "immutable_source": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+  "files": [
+    {
+      "path": "D:/3/BOSDev/workspaces/bos3-canonical/repo/docs/orchestration/bos3/CONTROL_STATE.json",
+      "sha256": "a7667ed871fc7c956c8a00ed6dcb3de6b2c255f2526d7c474a5ac80dadaa54ea"
+    },
+    {
+      "path": "D:/3/BOSDev/workspaces/bos3-canonical/repo/docs/orchestration/bos3/ACTIVE_WORK_PLAN_RU.md",
+      "sha256": "115be6701941aab8da99fac5e99bd65d3e32a53035f9859acc8e02f8d846a1cc"
+    },
+    {
+      "path": "D:/3/BOSDev/workspaces/bos3-canonical/repo/docs/orchestration/bos3/CURRENT_STAGE_20260929_RU.md",
+      "sha256": "186901f995053050c107543022f55245e4e17a6f969dc5a9fa20b825ac8b6802"
+    },
+    {
+      "path": "D:/3/BOSDev/workspaces/bos3-canonical/repo/docs/orchestration/bos3/RELEASE_PLAN_RU.md",
+      "sha256": "55b936243c969500fd18881d328dfccd812ac8aeacfe8e45ae9b4e7aa0a2cbf6"
+    },
+    {
+      "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/DATA_MIGRATION_SCOPE.patch",
+      "sha256": "d5133fce6cb18d8a87e80d0571ab37cfc7745c71beee713a28e770adea3523ee"
+    }
+  ],
+  "output_allowlist": [
+    "D:/3/BOSDev/qa-scratch/bos3-current-scope-review-20260930/SCOPE_REVIEW_RU.md"
+  ],
+  "requested_model": "gpt-6-sol",
+  "requested_effort": "high",
+  "observed_model": "UNCONFIRMED",
+  "checks_allowed": [
+    "Read exact 4-doc diff",
+    "Hashes/JSON/Git comparisons"
+  ],
+  "forbidden": [
+    "Edits outside reviewer output",
+    "Source/model/gates change",
+    "App/tests/build/browser/Node/runtime/probes",
+    "Subagents/native messages",
+    "Repeat accepted source review"
+  ],
+  "done_when": "Verify only the cancelled data move is excluded from current product conditions, never marked PASS; all11gates and remaining product scope/readiness/limits/history stay intact. Review root-authored docs, not source.",
+  "check_in_utc": "2026-09-30T14:50:00Z",
+  "next_recipient": "Root for scope-only commit after acceptance",
+  "executions": 0
+}

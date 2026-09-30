@@ -1,0 +1,97 @@
+{
+  "schema": "bos.owner-journey-requirements.v2",
+  "prepared_at_utc": "2026-09-30T15:02:07.255253+00:00",
+  "previous_snapshot": {
+    "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\REQUIREMENTS_CHAIN.json",
+    "sha256": "1d349290704f32aa9f202165808a9e2418a8140bac8647ba2c36e67882a0ce21"
+  },
+  "owner_authority": [
+    {
+      "message_id": "01a0f281-a359-7fc2-95d5-515cec1de0fc",
+      "intent": "Обрати бізнес-задачу → наочний сценарій → результат → CRM з тими самими даними."
+    },
+    {
+      "message_id": "01a0f28f-7be2-7813-b4c2-fd44c838a0e7",
+      "intent": "Стару зупинку скасовано; продовжувати погоджений план."
+    },
+    {
+      "message_id": "01a0f2c3-4c66-7a90-8221-e975de38d2e7",
+      "intent": "Розробляти, оцінити шлях Опора/BoS до релізу; усі нові тексти українською."
+    }
+  ],
+  "context_refs": [
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\USER_RESUME_CONFIRMED.json",
+      "sha256": "c53d6849166a22420e167b18382da2cfc6968a66dfca4f484200885eeafe70f3"
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\CONCEPT_OWNER_CONTEXT.json",
+      "sha256": "56fb61ca97ba5d91200d325f85f31126cb500d099e67210dc922ef14503609b9"
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\integrator\\MAIN_UA_ALIGNMENT.md",
+      "sha256": "e70be5ee4f12db7ea3f3498515e5322ca7e8694919c086d68bf9a85873a1e78d"
+    }
+  ],
+  "required_chain": [
+    "choose_business_task",
+    "follow_existing_visual_scenario",
+    "explain_result_with_sources",
+    "continue_in_crm_same_entities"
+  ],
+  "fixture_id": "bos3-fasteners-uk-v1",
+  "source": {
+    "path": "D:\\3\\BOSDev\\workspaces\\bos3-runtime-dev9\\repo\\frontend\\bos3_content.json",
+    "sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390"
+  },
+  "cases": [
+    {
+      "id": "BOS3-CASE-01",
+      "slug": "supply",
+      "title": "Чи можемо пообіцяти клієнту 500 комплектів?",
+      "goal": "Обґрунтувати строк через замовлення, забезпечення, постачання та план комплектації.",
+      "crm_label": "Наступний контакт після перевірки джерел",
+      "state": "AUTHOR_MAPPED_PENDING_INDEPENDENT_REVIEW"
+    },
+    {
+      "id": "BOS3-CASE-02",
+      "slug": "quality",
+      "title": "Відвантажити замовлення і не випустити заблоковану партію",
+      "goal": "Відібрати допущену партію, зберегти простежуваність і не змішати резерв з допуском якості.",
+      "crm_label": "Контакт щодо отримання та очікуваної дії",
+      "state": "AUTHOR_MAPPED_PENDING_INDEPENDENT_REVIEW"
+    },
+    {
+      "id": "BOS3-CASE-03",
+      "slug": "payment",
+      "title": "Після відвантаження довести оплату до контрольованого результату",
+      "goal": "Відрізнити рахунок, підтверджену часткову оплату та відкритий залишок перед наступним контактом.",
+      "crm_label": "Одна активність наступного контакту",
+      "state": "AUTHOR_MAPPED_PENDING_INDEPENDENT_REVIEW"
+    }
+  ],
+  "criteria": [
+    "Вибраний кейс і навчальна сесія зберігаються через вхід та повернення; підміни демонстраційними даними немає.",
+    "Передачі між бізнес-відділами мають дозволені синтетичні джерела та ті самі ідентифікатори.",
+    "Початкові дані прикладу, план, підтверджений факт та навчальний розрахунок позначені окремо; метрика має джерело й охоплення.",
+    "CRM використовує існуючі preview/confirm і перевірку прав; наявна пов’язана угода відкривається без прихованого дубля.",
+    "Клієнт, замовлення та рахунок зберігають зв’язки. External fixture ID, slug, case_id та runtime PK не змішуються.",
+    "Стан завантаження, відсутності даних, помилки, застаріння, зміни контексту й повернення пояснюється чесно.",
+    "Контакт не є оплатою, готовність товару не є відвантаженням; блокування якості не зникає від переходу екрана."
+  ],
+  "entry_design_alignment": {
+    "brochure_first": "Зберегти чинну брошуру першою та ручне гортання; source підтримує таку композицію.",
+    "proposed_ui_copy": {
+      "path": "D:\\3\\BOSDev\\evidence\\release-path-20260930\\UI_COPY_UA.json",
+      "sha256": "3532d53eb870ee058e320955434bc59b61af377838ca07894b4b42dd374974ac"
+    },
+    "proposed_first_page": "Лозунг «BoS — рішення під ваш бізнес» і вибір трьох задач на першій сторінці.",
+    "source_status": "Пропозиція для наступної обмеженої реалізації; точний макет та поведінка в браузері не прийняті.",
+    "release_path_recommendation": "Продовжувати чинний BoS, використовуючи зрозумілу подачу Опори. Це інженерна оцінка observer, не окреме затвердження макета власником."
+  },
+  "review_status": "PENDING",
+  "product_scope": "Три кейси не замінюють повний погоджений обсяг S1/S2/S3, UXD01–08 і 11 умов готовності.",
+  "execution_scope": "Лише карти й перевірка контракту. Окремого допуску на реалізацію/запуск цим файлом не надано.",
+  "readiness": false,
+  "executions": 0
+}

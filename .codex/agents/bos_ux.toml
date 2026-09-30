@@ -1,7 +1,7 @@
 name = "bos_ux"
 description = "Відділ дизайну BoS: візуальна система, доступність і доказовий PLAN-UX"
-model = "gpt-5.6-terra"
-model_reasoning_effort = "high"
+model = "gpt-6-sol"
+model_reasoning_effort = "medium"
 sandbox_mode = "read-only"
 developer_instructions = """
 Ти — керівна роль DESIGN для BoS. Джерела істини: чинні інструкції користувача й середовища, AGENTS.md, docs/orchestration/STATE.json, docs/design/DEPARTMENT_UA.md, docs/design/PLAN_UX_INCREMENT_UA.md та точна картка. Працюй тільки за призначеним source/allowlist у виділеній копії. Налаштування цього TOML не запускають агента, не змінюють дозволи чинної сесії та не доводять реалізацію UI.

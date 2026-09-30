@@ -1,0 +1,84 @@
+{
+  "schema": "bos3.dev9.source-result/v1",
+  "card": "B30-DEV9-SOURCE-RESULT-COLLECTION",
+  "status": "SOURCE_INTEGRITY_COLLECTED_RUNTIME_NOT_TOUCHED",
+  "source": {
+    "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo",
+    "commit": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+    "head_detached": true,
+    "symbolic_ref_native_exit": 1,
+    "clean_before": true,
+    "clean_after": true,
+    "status_before_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "status_after_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "git_read_environment": {
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_ATTR_NOSYSTEM": "1",
+    "TEMP": "D:/3/BOSDev/tmp/sessions",
+    "TMP": "D:/3/BOSDev/tmp/sessions"
+  },
+  "clone_checkout_once": {
+    "clone": {
+      "native_exit": 0,
+      "maximum": 1,
+      "invocations": 1,
+      "argv_receipt": "source-once/CLONE_RECEIPT.json",
+      "argv": ["-c","core.autocrlf=false","-c","core.hooksPath=D:/3/BOSDev/evidence/storage-d-20260927/root/d-source-once/empty-git-hooks-template","-c","core.attributesFile=D:/3/BOSDev/evidence/storage-d-20260927/root/d-source-once/empty-attributes","-c","core.fsmonitor=false","-c","submodule.recurse=false","clone","--shared","--no-checkout","--origin","source-local","--template=D:/3/BOSDev/evidence/storage-d-20260927/root/d-source-once/empty-git-hooks-template","--config","core.autocrlf=false","--config","core.hooksPath=D:/3/BOSDev/evidence/storage-d-20260927/root/d-source-once/empty-git-hooks-template","--config","core.attributesFile=D:/3/BOSDev/evidence/storage-d-20260927/root/d-source-once/empty-attributes","--config","core.fsmonitor=false","--config","submodule.recurse=false","D:/3/BOSDev/workspaces/bos3-canonical/repo","D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo"]
+    },
+    "checkout": {
+      "native_exit": 0,
+      "maximum": 1,
+      "invocations": 1,
+      "argv_receipt": "source-once/CHECKOUT_RECEIPT.json",
+      "argv": ["-C","D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo","-c","core.autocrlf=false","-c","core.hooksPath=D:/3/BOSDev/evidence/storage-d-20260927/root/d-source-once/empty-git-hooks-template","-c","core.attributesFile=D:/3/BOSDev/evidence/storage-d-20260927/root/d-source-once/empty-attributes","-c","core.fsmonitor=false","-c","submodule.recurse=false","checkout","--detach","aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975"]
+    }
+  },
+  "config_controls": {
+    "core.autocrlf": "false",
+    "core.hooksPath": "D:/3/BOSDev/evidence/storage-d-20260927/root/d-source-once/empty-git-hooks-template",
+    "core.attributesFile": "D:/3/BOSDev/evidence/storage-d-20260927/root/d-source-once/empty-attributes",
+    "core.fsmonitor": "false",
+    "submodule.recurse": "false",
+    "empty_attributes_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "object_dependency": {
+    "target_git_dir": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/.git",
+    "target_objects_alternate": "D:/3/BOSDev/workspaces/bos3-canonical/repo/.git/objects",
+    "canonical_git_dir": "D:/3/BOSDev/workspaces/bos3-canonical/repo/.git",
+    "canonical_objects_alternate": "D:/3/BOSDev/repo/.git/objects",
+    "chain": "target -> D canonical -> D main"
+  },
+  "tracked_source_aggregate": {
+    "git_ls_files_native_exit": 0,
+    "raw_manifest_sha256": "1ee32da09880ccb84ec657f857b6c2db98186ad9adfee2a8099d06448350267c",
+    "tracked_file_count": 2997,
+    "sha256": "e7046ad6e0374d36de33716ffa0152e31330dbf82fab3e24184bf3d573abebe0",
+    "algorithm": "SHA-256 update UTF-8(relative path with forward slashes) + NUL + raw disk bytes for every git ls-files -z entry in returned order"
+  },
+  "candidate_manifest": {
+    "path": "docs/orchestration/bos3/ATOMIC_DEV9_CANDIDATE.json",
+    "expected_sha256": "1d39d2b329c5a5cfc6706caecaa99e674e40eb14c795cc82d8547851b5a37d00",
+    "disk_bytes": 5238,
+    "git_blob_bytes": 5238,
+    "disk_equals_git_blob": true
+  },
+  "declared_runtime_delta_disk_and_git_blob": [
+    {"path":"README.md","bytes":5463,"sha256":"6ddbbd67f7eb978bee436f936501acca4287e31e651fa9d7763a5df2a8e573f9","disk_equals_git_blob":true},
+    {"path":"README_UA.md","bytes":16098,"sha256":"4532a7aad23c57aa714dde908d74dafd3f84fa1fbaf666ba1b1cfb83f387a829","disk_equals_git_blob":true},
+    {"path":"boss_project/version.py","bytes":24,"sha256":"d980c5408b53854e08ed32707dd8187fe030a27395f43211b2475533432b3d6d","disk_equals_git_blob":true},
+    {"path":"scripts/bos3_local.py","bytes":32535,"sha256":"6483cc03bb7ea8fbf4e15a4b52c881b14ef0d8005cd0b16bafdf6455fa4c79da","disk_equals_git_blob":true},
+    {"path":"scripts/test_bos3_local_atomic.py","bytes":5132,"sha256":"8b953ad4bfe8430e4da8e2b81c59105be116ae4364caf0b5d006409159264a1c","disk_equals_git_blob":true}
+  ],
+  "prior_raw_receipts": [
+    {"path":"source-once/PREBIND.json","bytes":1881,"sha256":"32d1d3934c06a04af62891fd6230524375dce054dcd3165d5fc34a3184b6fe1d"},
+    {"path":"source-once/CLONE_RECEIPT.json","bytes":1531,"sha256":"0d397d02705c16e7f187eb08a74103bd9f843e19869e550e6cafed40b8996c21"},
+    {"path":"source-once/clone.stdout.raw.txt","bytes":0,"sha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+    {"path":"source-once/clone.stderr.raw.txt","bytes":72,"sha256":"9fae1edf4ff1362fc2fe63f8793de43c43b47f1c6d926e59b58c4dd24ffb6b34"},
+    {"path":"source-once/CHECKOUT_RECEIPT.json","bytes":998,"sha256":"97e0711a5f20d8912be37e3004eefbb00bcd4d1636b4c1664a8eb167675bdb0d"},
+    {"path":"source-once/checkout.stdout.raw.txt","bytes":0,"sha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+    {"path":"source-once/checkout.stderr.raw.txt","bytes":74,"sha256":"97dd2e615dd596cca06678562d7549a5f1db88254eb20f88d608aca6e023e396"}
+  ],
+  "runtime_claim": "NONE",
+  "not_performed_by_collector_after_root_clone_checkout": ["config write", "app import", "test", "build", "runtime or instance access", "DB", "process", "HTTP", "lifecycle"]
+}

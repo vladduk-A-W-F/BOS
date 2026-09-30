@@ -1,0 +1,134 @@
+{
+  "schema": "bos.coordination-package-closeout.v1",
+  "parent_card": "B30-POST-MOVE-RESUME",
+  "review_card": "B30-SOLUTIONS-CONTRACT-REVIEW-20260930",
+  "at_utc": "2026-09-30T15:43:05.647706+00:00",
+  "status": "SOURCE_ID_MAP_REVIEWED_AND_DESIGN_DELTA_ACCEPTED_HANDOFF_READY",
+  "summary_uk": "Узгоджено три маршрути від задачі до CRM, статично звірено ідентифікатори та українські тексти. Незалежний reviewer виявив три неточності; той самий автор виправив їх, reviewer закрив Q-01–Q-03. Це приймання обмеженого документаційного пакета, не продукту.",
+  "manifest": {
+    "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\COMBINED_INPUT_MANIFEST_R3.json",
+    "sha256": "6cbc0d44d3193a44a755e493e5b8241329aab1520e996783a8b4ba3bef1f4bbc"
+  },
+  "author_inputs": [
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\writer\\IDENTITY_MAP.json",
+      "sha256": "91237e09cce96aa8927470455b0f50995caa5a72f4a0c77fcc44199adbf49a00"
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\writer\\FINDINGS_RU.md",
+      "sha256": "77ae326cdc588bceff250c2aca57bb458af60511af44efe9efc39d32d64a1dbb"
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\design\\JOURNEY_MAP.json",
+      "sha256": "04e72766640752226eff4609cf628c862b4716d14bcb734044503579ead59c51"
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\design\\JOURNEY_RU.md",
+      "sha256": "70c6a89f08381bb7d274e6496ee53220cdbce64577e19beaa9177a8c08663014"
+    }
+  ],
+  "role_matrix": {
+    "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\ROLE_TASK_MATRIX_R4.json",
+    "sha256": "42f3776d1c820d917ed6de11f200db3c84b0cd6a51b5e63855891d190f89fddf"
+  },
+  "requirements": {
+    "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\REQUIREMENTS_CHAIN_R2.json",
+    "sha256": "f49ed1c9b92943ed605e36d2be93928f67654449444a336824fed3db075b7b26"
+  },
+  "independent_review_r1": {
+    "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\review-snapshots\\quality-r1\\REVIEW.json",
+    "sha256": "08534c340663c95e30bc5e5bd9f037e42b335746f5ba83bcde5a083cf70ab930"
+  },
+  "independent_review_r2": {
+    "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\review-snapshots\\quality-r2\\REVIEW.json",
+    "sha256": "ff88cf49c9d922a55ce25779fcc4204482731a133d34b36dced953b32a969c0b"
+  },
+  "independent_review_text": {
+    "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\review-snapshots\\quality-r2\\REVIEW_RU.md",
+    "sha256": "5c13d3c19e0ee76f18defec5029da6f02671dbaf601d30b103d7e6f881718e56"
+  },
+  "quality_context": {
+    "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\QUALITY_CONTEXT_RECEIPT_R2.json",
+    "sha256": "d1dd80ac0c740092be2d719cfb357b626a3242ce9dbe5462ad17c4e2fd8608f6"
+  },
+  "scope_admission": {
+    "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\integrator\\QUALITY_R3_DELTA_ADMISSION_UA.md",
+    "sha256": "095dfb0f6bae7f509d22e730dd5ff90d85dd298e6ce27264446e1697939a7654"
+  },
+  "roster_addendum": {
+    "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\ROLE_ROSTER_ENABLEMENT_ADDENDUM.json",
+    "sha256": "3e06080b023603163fe5c2c823315a2912bab15c09bc1b9a368ee4b5d2d4639b"
+  },
+  "findings_disposition": [
+    {
+      "id": "Q-01",
+      "prior_priority": "P2",
+      "decision": "CLOSED_STATIC",
+      "evidence": [
+        "main/design/JOURNEY_MAP.json:126-135",
+        "main/design/JOURNEY_MAP.json:163-172",
+        "main/design/JOURNEY_MAP.json:200-209",
+        "main/design/JOURNEY_RU.md:27,29",
+        "frontend/boss_app_source.html:5498,5506-5507,5522"
+      ],
+      "reason": "CTA підготовки стоїть перед серверною чернеткою та preview у трьох маршрутах; явне підтвердження й квитанція після preview."
+    },
+    {
+      "id": "Q-02",
+      "prior_priority": "P2",
+      "decision": "CLOSED_STATIC",
+      "evidence": [
+        "main/design/JOURNEY_MAP.json:198",
+        "main/design/JOURNEY_RU.md:21",
+        "frontend/bos3_content.json:67-70"
+      ],
+      "reason": "Доручення кейсу 03 повернуто в крок керівника/відповідального до CRM; четверту передачу після CRM прибрано."
+    },
+    {
+      "id": "Q-03",
+      "prior_priority": "P3",
+      "decision": "CLOSED_SOURCE_SCOPE_LIVE_NOT_RUN",
+      "evidence": [
+        "main/design/JOURNEY_MAP.json:137-148,174-185,211-222",
+        "main/design/JOURNEY_RU.md:27,31",
+        "main/writer/IDENTITY_MAP.json"
+      ],
+      "reason": "Точний writer ID-контракт і R1 review наведені; source-зіставлення статично підтримане, live-тотожність NOT_RUN."
+    }
+  ],
+  "checks": {
+    "final_author_hashes_match": 4,
+    "reviewed_manifest_inputs_match": 21,
+    "snapshot_files_checked_by_quality": 4,
+    "json_parse": "PASS",
+    "product_qa": "NOT_RUN",
+    "product_executions": 0,
+    "source_edits": 0,
+    "commits_by_main": 0
+  },
+  "pins": {
+    "canonical_docs_baseline": "d4715a088784cb442a3c82f8f3ec44a91b2ddc94",
+    "immutable_product_source": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+    "product": "6b3aab22b3f8254d5f65846f54ceeed7049e1ddf",
+    "runtime_delivery": "NOT_DELIVERED",
+    "runtime_availability": "UNCONFIRMED"
+  },
+  "readiness": {
+    "TECHNICAL_READY": false,
+    "PILOT_ALLOWED": false,
+    "MVP": false
+  },
+  "not_done_uk": [
+    "Запропоновані UI-тексти та композиція ще не застосовані до виконуваного інтерфейсу.",
+    "Прийнятий source-пакет CRM R2 залишається неактивним; виконуване застосування та перевірка окремі.",
+    "Доставка exact runtime, наскрізні сценарії та збереження навчального прогресу не доведені цим пакетом.",
+    "Посібник і контракт enablement мають окремий review через observer."
+  ],
+  "next_owners": {
+    "integrator": "Отримати цей пакет, звільнити review-слот для підготовленого intake review, окремо визначити одну обмежену source-картку з урахуванням CRM R2; інтегрувати послідовно після незалежного review.",
+    "observer": "Передати прийняту designR4 як версійну залежність посібника/enablement; лише адресна звірка дельти, без дублювання поточного автора.",
+    "main": "Зберігати реєстр ролей, точні передачі та відмінність accepted/applied/delivered. Нові продуктові допуски цим закриттям не створюються."
+  },
+  "historical_limits_preserved": true,
+  "source_implementation_admitted_by_this_record": false
+}

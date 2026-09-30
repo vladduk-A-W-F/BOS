@@ -1,0 +1,95 @@
+{
+  "schema": "bos.uxd03-wait.proposal.v1",
+  "record_kind": "observer_summary_of_readonly_author_proposal_with_separate_review_caveats",
+  "prepared_at_utc": "2026-09-27T15:57:39.577Z",
+  "author": "/root/readiness_requirements",
+  "observer": "01a0bf0f-a9e4-7631-87e1-bb1aed03f174",
+  "existing_decision": "UXD03-WAIT-01",
+  "source_commit": "e710eb568717dfe3ede945feb899f030bd5ad1ab",
+  "source_workspace": "C:/Users/user/.codex/worktrees/bos3-learning-proof/repo",
+  "accepted_parent_contract": {
+    "path": "D:/3/BOSDev/qa-scratch/bos3-uxd03-prep-20260927/UXD03_CONTRACT_RU.md",
+    "sha256": "0a8f0f64cc566db6d855d37d7905a7fa98be682a37527d7ea59a53355de7735e"
+  },
+  "review_status": "NOT_REVIEWED_NOT_AUTHORIZED_NOT_IMPLEMENTED",
+  "recommendation": {
+    "choice": "Persistent orthogonal waiting blocker, not Task.status waiting",
+    "reason": "Task active/process/done expresses execution lifecycle; overdue is derived. A dependency can block either active or process without substituting lifecycle.",
+    "data_fields": [
+      "Task.waiting_for_employee nullable FK Employee PROTECT",
+      "Task.waiting_reason nullable text max1000",
+      "DB constraint both nonnull together or both null"
+    ],
+    "history": "Existing immutable AuditEvent created_at/before/after records begin/end; no separate start timestamp proposed",
+    "commands": [
+      {
+        "action": "start_task_wait",
+        "required": [
+          "task_id",
+          "waiting_for_employee_id",
+          "waiting_reason"
+        ],
+        "conditions": "Unarchived, not done, no existing wait, current assignee; participant distinct active Employee with active User and department branch"
+      },
+      {
+        "action": "end_task_wait",
+        "required": [
+          "task_id",
+          "reason"
+        ],
+        "conditions": "Active wait; explicit end reason; no automatic status change"
+      }
+    ],
+    "actors": "CEO for visible Task; manager only current assignee; observer read only. Expected participant does not automatically clear blocker.",
+    "invariants": [
+      "Preserve existing preview/confirm, transaction.atomic, erp.service.write_lock, fingerprint/CAS/replay path; no raw route.",
+      "Retain active/process status; deadline/overdue not paused.",
+      "Reject handoff, completion, archive and owner/status changes while waiting; explicit end first.",
+      "Validate Task/current assignee/expected participant and recheck role/source/access drift on confirm.",
+      "One current blocker only; start/end audit events preserve reasons and actors."
+    ],
+    "projection": "Proposed current waiting whitelist with reason and participant id/name/department only; full event history via existing guarded history route. Requires independent disclosure/access review.",
+    "segmentation": "archive -> done -> overdue -> waiting -> process -> active; overdue waiting remains visibly waiting on card, not hidden.",
+    "proposed_future_scope": [
+      "tasks/models.py",
+      "tasks/migrations/new waiting migration",
+      "tasks/commands.py",
+      "tasks/handoffs.py",
+      "tasks/queries.py",
+      "tasks/history.py",
+      "operations/service.py (shared ACTIONS routing)"
+    ],
+    "source_refs": [
+      "tasks/models.py:11",
+      "tasks/models.py:47",
+      "tasks/queries.py:11",
+      "tasks/queries.py:55",
+      "tasks/commands.py:18",
+      "tasks/commands.py:140",
+      "tasks/handoffs.py:56",
+      "tasks/handoffs.py:65",
+      "tasks/history.py:14",
+      "tasks/views.py:39",
+      "operations/service.py:84",
+      "operations/service.py:139",
+      "boss_project/policy.py:278"
+    ],
+    "scope_extensions_requiring_separate_owner_choice": [
+      "External party/document/system dependencies",
+      "Multiple parallel dependencies",
+      "Participant self-clears another owner's blocker",
+      "Pause contractual deadlines/remove overdue"
+    ]
+  },
+  "observer_review_caveats": [
+    "Draft author recommendation is not independent approval. Root selects/reviews exact contract before appointing implementation.",
+    "Independently verify participant source-access/visibility and whether displaying free-text reason through list projection preserves current Policy boundaries.",
+    "Verify employee deactivation/deletion, access revision, stale proposals, lock ordering and lifecycle edges; do not assume current handoff policy automatically covers new waiting behavior.",
+    "Two persistent fields imply a new migration: this proposal grants no migrate/seed/DB/runtime permission and cannot be applied via source-only owner-local delivery preservation rules.",
+    "Current B30-UXD03-CARD allowlist excludes backend/waiting; keep UI author isolated and preserve full UXD requirement beyond display-only work."
+  ],
+  "executions": 0,
+  "files_edited_in_product": 0,
+  "new_claims": 0,
+  "readiness_changed": false
+}
