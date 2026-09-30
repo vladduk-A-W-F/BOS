@@ -1,6 +1,24 @@
 # BoS 3.0: отделы на текущем задании
 
-## Текущая работа 29.09: UXD04 и сверка этапа
+## Текущая работа 30.09
+
+Root01a0dd56 остаётся sole integrator D canonical, basec9053d6. Актуальное owner resume и явное снятие старого STOP проверены в native user messages01a0f281-a359-7fc2-95d5-515cec1de0fc /01a0f28f-7be2-7813-b4c2-fd44c838a0e7. Ошибочная остановка по старой записи28.09 исправлена; те же прерванные author/reviewer продолжили прежние карточки, без дублирования. Context/chronology/assignment receipts: `D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/`.
+
+Единственный UI автор `/root/crm_stale_resume`, Sol/medium requested, завершил source R2fc82733a в D scratch `bos3-crm-stale-detail-20260930`. Независимый `/root/crm_stale_review`, Sol/high requested, принял его статически review58932676 после сохранённого R1 CHANGES_REQUIRED7b4a9de4. Автор освобождён; reviewer проверяет exact inactive package, не runnable product. UXD04 proposal reviewe6c6282c также завершён, с тремя условиями будущего manifest и без допуска к исполнению. Observed models UNCONFIRMED. Source/tests/build/generated/runtime/delivery статусы разделены; executions0.
+
+Main ведёт существующие output-only writer/design/quality: writer фактически принял context и source (receipta3b5edd8), design получил capacity release после окончания R2 автора, quality ещё ждёт итоговых hashes и root review-slot release. Matrix R1 SHA38afc57d имеет подтверждённые ownership boundaries, не независимую приёмку содержимого. Pinned queuecb8c514f и stable IDs сохранены; observer устранил channel notLoaded blocker, live hashbd3e6bd9. Root не назначает второго UI автора, main не интегрирует. Observer владеет каналом, прежним heartbeat и отдельным sanitized recovery package; root эти работы не дублирует.
+
+Продукт6b3aab22, immutableaa6a4ca4, runtime UNCONFIRMED; точный новый исходник/пакет ещё не является доставкой. Все прежние лимиты, ERP mutex и максимум3 subagents сохранены. Перенос данных отменён; C home остаётся единственным.
+
+## История возобновления после переноса приложения
+
+Root проверил новый owner message `01a0ef1c-2910-74c3-9829-ddfb600309cf` и реальные context receipts main/writer/design/quality на SHA `78e13993`. Временная product-пауза снята для согласованной работы, single control home C сохранён. Сами бизнес-отделы BoS этим не проверены: рабочие чаты не являются runtime. Канонический редактор один, root01a0dd56 в D canonical; base `c9053d6`, product `6b3aab22`, immutable `aa6a4ca4`.
+
+Назначены два независимых автора Sol/medium requested, observed UNCONFIRMED: `/root/uxd05_07_gap` (только три evidence файла в `D:/3/BOSDev/qa-scratch/bos3-uxd05-07-gap-20260929`) и `/root/uxd04_admission` (два proposal файла в `D:/3/BOSDev/qa-scratch/bos3-uxd04-admission-20260929`). Точные карточки: `D:/3/BOSDev/evidence/codex-post-move-20260929/ROOT_WORK_CARDS.json`; check-in22:11UTC, следующий получатель root и независимый reviewer. Они не меняют source, canonical, БД/media или runtime, не запускают проверки и не принимают себя. Native role-chat остаются без параллельных дублирующих назначений. Резерв review1, максимум активных subagents3.
+
+Observer единолично владеет live channel MODELS repair. Future D consumer delta ждёт его стабильного live receipt; frozen installer не переписывается. Основные технические пределы и открытые решения владельца прежние.
+
+## Предыдущий результат 29.09: UXD04 и сверка этапа
 
 Root01a0dd56 остаётся единственным интегратором в `D:/3/BOSDev/workspaces/bos3-canonical/repo`. Установщик уже завершён в source-only scope, независимо принят и опубликован9638dce; автор и reviewers этой карточки освобождены. Новое поручение владельца message01a0eec9-aa90-75e0-9003-f7def11ca5e5 продолжает согласованный план, не расширяет execution admission.
 

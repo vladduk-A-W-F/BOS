@@ -6,6 +6,22 @@
 
 ## Настройка разработки и следующий шаг
 
+### Актуально 30.09: задача, сценарий, результат, CRM
+
+Root native-read подтвердил owner resume `01a0f281-a359-7fc2-95d5-515cec1de0fc` и последующее явное снятие старой остановки `01a0f28f-7be2-7813-b4c2-fd44c838a0e7`. STOP main относится к28.09 20:57:08UTC, его ошибочная повторная передача не задаёт текущий режим. Перенос данных отменён владельцем. Пять dirty docs совпали с checkpoint по SHA-256 и сохранены без reset; записи29.09 ниже исторические, не текущие назначения.
+
+Действует прежний полный план с понятным путём «выбор бизнес-задачи → наглядный сценарий → результат с источником → CRM с теми же сущностями/ID». Source-карточка `B30-UXD07-CRM-STALE-DETAIL-20260930` завершена в узком статическом объёме: P2 поздний ответ по A заменял выбранную позже B; finding независимо подтверждён `c779dab4`. Автор `/root/crm_stale_resume` подготовил R1ef7206b5; reviewer `/root/crm_stale_review` вернул CHANGES_REQUIRED7b4a9de4 из-за позднего preview/confirm. Тот же автор исправил R2fc82733a; независимый verdict58932676 **ACCEPT_SOURCE_STATIC_R2**. История и обе версии сохранены в `evidence/crm-stale-source-20260930/`; исходный HTML145bcaa3 на immutableaa6a4ca4 и executable frontend не изменены. Автор Sol/medium, reviewer Sol/high requested, observed UNCONFIRMED. Публикуется только неактивный пакет после exact package review; сборка, QA, product integration и доставка NOT_RUN.
+
+Main ведёт output-only writer identity map и design journey map без UI/backend правок. Writer фактически принял context/source, receipt a3b5edd8; design capacity released после R2 author completion, transport receipt не считается результатом. Quality ждёт exact final inputs и отдельного review-slot. UXD04 proposal принят e6c6282c только с тремя pre-execution уточнениями, не как admission: равенство history/receipt.handoff, разные expected/actual с сохранением Task.result, same_session/proposal/ActionProposal replay. Accepted trace не повторён. Observer занимается своим каналом и sanitized recovery package. Запас614MiB не разрешает новые heavy jobs/probes/build/server/runtime или повторы исчерпанных QA. Приоритеты1–4 и их blockers/решения сохраняются; эта статическая правка не закрывает полные S1/S2/S3, UXD01–08 и11gates.
+
+### История после ручного переноса приложения 29.09
+
+Новое прямое поручение владельца message `01a0ef1c-2910-74c3-9829-ddfb600309cf` проверено root: согласованная разработка возобновлена после временного migration checkpoint. Перенесено Windows-приложение Codex; его рабочие данные и единственный BoS control home остаются на C. Старый cold-transfer helper не запускать. Полный перенос на D не принят; история остановки и лимитов сохранена.
+
+Текущий docs baseline `c9053d6`; immutable dev9 `aa6a4ca4` не меняется и не доставлен. Все четыре существующих role-chat приняли context SHA `78e13993`; повторные context-сообщения не нужны. Root назначил две независимые output-only части существующих UXD требований: `/root/uxd05_07_gap` ищет один доказуемый исходниками дефект навигации/focus/состояний UXD05–07, `/root/uxd04_admission` готовит точный synthetic cross-role proposal по уже принятому UXD04 NEXT_SCOPE. Это не повтор trace и не допуск к тесту. Их отдельные D scratch, allowlists, DoD, pins, зависимости, requested Sol/medium, observed UNCONFIRMED и check-in записаны в `D:/3/BOSDev/evidence/codex-post-move-20260929/ROOT_WORK_CARDS.json`. Третий слот оставлен независимому review. Native design/writer/quality не получили дублирующих авторских заданий.
+
+Приоритеты1–4 сохраняют прежние blockers и владельца решения. Новый точный source defect после независимой проверки может получить узкую реализацию; отсутствующий динамический результат остаётся NOT_RUN. Future D consumer delta отложен до стабильного результата observer channel repair; root живой канал не меняет. Новых целей/чатов/таймеров, QA, build, browser, runtime и probes нет.
+
 ### Актуально 29.09.2026: продолжение плана после публикации
 
 Прямое поручение владельца «продолжай разработку согласно плану и обнови на каком мы сейчас этапе и как идет» проверено по native message01a0eec9-aa90-75e0-9003-f7def11ca5e5. Исходник установщика уже опубликован в9638dce228070cef6384eebe96e3f86be237faf0, package review621aa11d принят, observer подтвердил exact archive. Повтор архивирования не является следующим заданием. SOURCE_COMPLETE=true только статически; TESTED/INSTALLED/MIGRATED=false.

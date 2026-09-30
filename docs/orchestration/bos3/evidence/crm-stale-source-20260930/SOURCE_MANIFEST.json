@@ -1,0 +1,37 @@
+{
+  "schema": "bos.source-gap-manifest.v1",
+  "card_id": "B30-UXD05-07-SOURCE-GAP-20260929",
+  "candidate_commit": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+  "classification": "NEW_SOURCE_GAP_PREPARATION_SAME_UXD_REQUIREMENTS_NOT_BROWSER_QA",
+  "finding": "UXD07_CRM_DETAIL_OUT_OF_ORDER_RESPONSE",
+  "sources": [
+    {
+      "path": "D:/3/BOSDev/evidence/codex-post-move-20260929/ROOT_WORK_CARDS.json",
+      "sha256": "5c5211bac7140040e6574586fa3e49fd9074eb1ac5aa89f87496bb02e1d8f7ba",
+      "lines": [10, 31],
+      "purpose": "assigned scope and limits"
+    },
+    {
+      "path": "D:/3/BOSDev/workspaces/bos3-canonical/repo/docs/orchestration/bos3/CURRENT_STAGE_20260929_RU.md",
+      "sha256": "53a85ee96775ed633a97fc7e5c5f8b1009a0970df96fddc78251efc2fd2829a3",
+      "purpose": "remaining UXD05/06/07 and gate requirements"
+    },
+    {
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/frontend/boss_app_source.html",
+      "sha256": "145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9",
+      "lines": [5502, 5522, 5726],
+      "purpose": "CRM async fetch, selection, UI binding and route"
+    }
+  ],
+  "checks": {
+    "source_head": "MATCH",
+    "source_html_sha256": "MATCH",
+    "card_sha256": "MATCH",
+    "current_stage_sha256": "MATCH",
+    "executions": 0,
+    "runtime_or_browser": "NOT_RUN"
+  },
+  "requested_model": "gpt-6-sol",
+  "requested_effort": "medium",
+  "observed_model": "UNCONFIRMED"
+}
