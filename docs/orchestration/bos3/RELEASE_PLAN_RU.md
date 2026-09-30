@@ -1,5 +1,18 @@
 # BoS 3.0: план и управление выпуском
 
+## Чинний стан випуску 01.10.2026
+
+Прийнятий план і його повний обсяг: [ACTIVE_WORK_PLAN_RU.md](ACTIVE_WORK_PLAN_RU.md). Незмінний оригінал `c9a721bf` та final review `cdb364bd` збережені в `evidence/plan-actualization-20261001/inputs/`. PR10 злитий за окремим owner request, main `87e1a4f`; canonical docs base `dec5997`. Нове застосування плану має окрему гілку/PR, не новий дозвіл на main merge.
+
+UI має авторський результат `564df459`, незалежний review ще потрібен; CRM R2 у його seed не є runtime-інтеграцією. Writer/enablement завершують контракт як документацію. S1–S3, UXD01–08, 11 gates, персональний вхід/навчання/прогрес і exact-version delivery не скорочені. TECHNICAL_READY/PILOT_ALLOWED/MVP=false; dev9 NOT_DELIVERED, availability UNCONFIRMED; dynamic QA NOT_RUN. Скасований повний перенос даних Codex не відновлювати.
+
+01.10 уточнюється реалістичний кандидат за фактичними авторськими результатами та review; 02–03.10 лише дозволені exact перевірки; до04.10 23:59 Europe/Berlin доказовий GO або NO-GO. Після cutoff тільки читання, підсумок і штатна пауза циклу без вимкнення застосунку. Вичерпані допуски не поновлено. Поточні ролі й дозволені next actions у CONTROL_STATE.plan_actualization_current; історичні snapshots нижче не задають поточні pins.
+
+## Історичні записи до актуалізації 01.10
+
+Увесь попередній текст нижче збережений як історія, не як поточне призначення або дозвіл. Точні байти до змін та SHA-256 збережені в `evidence/plan-actualization-20261001/before/`.
+
+
 ## Поточне включення змін 30.09, 17:48 Europe/Berlin
 
 `CHANGE_INTAKE_CURRENT.json` є єдиним канонічним реєстром 11 запитів; незмінні registry/review/dispositions та actual PR9 closure містяться у `evidence/change-intake-20260930/`. PR9 поглинуто історією PR10 і закрито без merge чи видалення гілки. PR10 залишається draft; нового продуктового приймання або main merge немає.

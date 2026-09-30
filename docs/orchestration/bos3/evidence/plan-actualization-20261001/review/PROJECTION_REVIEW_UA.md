@@ -1,0 +1,8 @@
+# Незалежний review структурної проєкції
+
+**Verdict: `CHANGES_REQUIRED_P1_CURRENT_POINTER_DUPLICATE_AND_FUTURE_RECEIPT`.** Перевірено тільки `PROJECTION_MANIFEST.json` (`55746dc0148343ceebd2403bd822beff63861a0f233d8339cde289804dce4422`), `PROJECTION.patch` (`7673f450bf3f2c09e7f6d627494d81b346bf883905b63daef2512cd0bf6623d6`) та прийнятий plan review (`cdb364bd6d42759f154e04d30013efd7e986fbe51dab96f89657ab8341413478`). Product/runtime не читалися і не запускалися; `executions=0`.
+
+1. **PPR-01 — блокер current pointer.** У projected `docs/orchestration/STATE.json` додано current top-level `next_action`, але нижче збережено наявний top-level `next_action` зі старим freeze-текстом. Для звичайного JSON parser останній дубльований ключ перезапише перший. Залиште один поточний `next_action`; старий перенесіть у явно historical_v18 field. Перед повторним review виконайте parse, що відхиляє дублікати ключів.
+2. **PPR-02 — блокер майбутньої квитанції.** `active_workstream.publication_receipt` і `plan_actualization_current.applied_publication_receipt` вказують на `APPLIED_RECEIPT.json` до застосування projection. Manifest називає атомарний docs commit і draft PR наступними діями, а current evidence інвентар не містить цієї квитанції. Позначте посилання planned/pending або додайте його лише після фактичного apply/publication receipt.
+
+Прийнятий плановий зріз 00:38 Berlin збережено окремо; пізніші operational records у patch також відокремлені від нього й не заявлені як independent acceptance, runtime delivery чи readiness. Queue tasks, caps, readiness=false, runtime blocker і межі S1-S3/UXD01-08/11 gates лишаються збереженими. Після двох корекцій потрібен короткий повторний structural review до docs-only commit/PR.

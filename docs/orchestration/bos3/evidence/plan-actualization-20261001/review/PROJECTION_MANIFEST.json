@@ -1,0 +1,93 @@
+{
+  "schema": "bos.plan-projection-review-input.v1",
+  "id": "B30-PLAN-ACTUALIZATION-20261001",
+  "status": "ROOT_PROJECTION_UNREVIEWED",
+  "classification": "SAME_PROBLEM_METADATA_PROJECTION_NO_PRODUCT",
+  "canonical_root": "D:/3/BOSDev/workspaces/bos3-canonical/repo",
+  "base_commit": "dec599752d2703e18dc9b53fbf2e2585b0ede3e0",
+  "branch": "codex/bos3-plan-actualization-20261001",
+  "files": [
+    {
+      "path": "docs/orchestration/STATE.json",
+      "sha256": "5df9471612bf9caf5fb8a59cc7e26416e3ed9a34ffa83f4b60cdf21b5ace79d1"
+    },
+    {
+      "path": "docs/orchestration/QUEUE.json",
+      "sha256": "fb2059096020cdad47b8c90e1b3a0b1d2c61a1475fc20f84a7ebd352878e3f3d"
+    },
+    {
+      "path": "docs/orchestration/bos3/CONTROL_STATE.json",
+      "sha256": "e5d90bc4ddd145569a8c444149a9e351b1caa000292fd5ee1fe0b73784bf4346"
+    },
+    {
+      "path": "docs/orchestration/bos3/ACTIVE_WORK_PLAN_RU.md",
+      "sha256": "5439cd6b91a62c95959bc212f3727ca47e901f6a2b4b0b1b4b240768e5d68592"
+    },
+    {
+      "path": "docs/orchestration/bos3/RELEASE_PLAN_RU.md",
+      "sha256": "4b4b5f4c9e466f298a9db23be9afecf3adc289ca31e5996d37d1541fec2b1d73"
+    },
+    {
+      "path": "docs/orchestration/bos3/TEAM_CURRENT_RU.md",
+      "sha256": "63aa63493446c1fd34fd319b7d54b987a73f2e929935cebcfc4b96c0ffb23cd8"
+    },
+    {
+      "path": "docs/orchestration/bos3/CURRENT_STAGE_20260929_RU.md",
+      "sha256": "3c6d59740621a038cc616bbdcea8a9f672ab553b7d1e9162543b1fddd88fe72f"
+    },
+    {
+      "path": "docs/orchestration/bos3/evidence/plan-actualization-20261001/ARCHIVE_INDEX.json",
+      "sha256": "453af7659c12b66686cd49b9939c479dd632709ae145c7ae6034cd9353ff2f58"
+    }
+  ],
+  "archive_index": "docs/orchestration/bos3/evidence/plan-actualization-20261001/ARCHIVE_INDEX.json",
+  "checks": {
+    "archive_hashes": true,
+    "archive_count": 16,
+    "state_historical_execution": true,
+    "queue_tasks_unchanged": true,
+    "queue_automatic_still_false": true,
+    "control_changed_existing_fields": [
+      "review_pr",
+      "current_priority",
+      "integration_branch",
+      "weekly_execution"
+    ],
+    "control_only_allowed_delta": true,
+    "readiness_false": true,
+    "markdown_history": [
+      {
+        "file": "ACTIVE_WORK_PLAN_RU.md",
+        "old_body_retained": true
+      },
+      {
+        "file": "RELEASE_PLAN_RU.md",
+        "old_body_retained": true
+      },
+      {
+        "file": "TEAM_CURRENT_RU.md",
+        "old_body_retained": true
+      },
+      {
+        "file": "CURRENT_STAGE_20260929_RU.md",
+        "old_body_retained": true
+      }
+    ],
+    "accepted_plan_projected_without_semantic_change": true,
+    "cutoff_unchanged": true,
+    "product_execution_allowed_false": true,
+    "json_parse_count": 13,
+    "product_executions": 0
+  },
+  "diff_check_exit": 0,
+  "diff_check_warning": "Tracked current records use autocrlf; frozen evidence has * -text. Raw working file hashes differ from normalized Git blob hashes when appropriate.",
+  "review_scope": "New root structural projection only. Accepted plan source is unchanged. Do not redo product, runtime, UI or contract review.",
+  "review_allowlist": [
+    "D:/3/BOSDev/evidence/plan-actualization-20261001/integrator/PROJECTION_REVIEW.json",
+    "D:/3/BOSDev/evidence/plan-actualization-20261001/integrator/PROJECTION_REVIEW_UA.md"
+  ],
+  "readiness_changed": false,
+  "product_executions": 0,
+  "allowed_checks": "Metadata reads/hash/byte comparisons/git diff only; no product code executions, imports, app, tests, browser, HTTP, DB, resource/process probes or diagnostics",
+  "next_action": "One docs-only atomic commit and separate new draft PR after exact projection verdict; no main merge"
+}
