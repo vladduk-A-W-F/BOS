@@ -46,7 +46,17 @@
         "https://github.com/vladduk-A-W-F/BOS/pull/17#issuecomment-5939108448"
       ]
     },
-    "pg16": "NOT_RUN_FOR_DEV10_CANDIDATE",
+    "pg16": {
+      "verdict": "REPORTED_PASS_BY_CLAUDE",
+      "source_commit": "a182e3f9cdd87c3c1cc5ab49890310c6dc554157",
+      "postgresql": "16.14",
+      "tests": 77,
+      "exit_code": 0,
+      "labels": ["erp.test_home_projection", "erp.test_order_settlement", "erp.test_snapshot_lot_facts", "operations.test_access", "operations.test_reconciliation"],
+      "comment": "https://github.com/vladduk-A-W-F/BOS/pull/24#issuecomment-5940870058",
+      "raw_not_attached": true,
+      "local_run": false
+    },
     "browser": "NOT_RUN",
     "owner_local_delivery": "NOT_RUN",
     "launch_policy_mock": {
@@ -65,7 +75,7 @@
     }
   },
   "installation_instruction": "docs/strategy/DEV10_INSTALL_UA.md",
-  "installation_dependency": "Claude candidate review and scoped PG16, accepted merge, fresh owner-local state and reviewed backup/rebind/restore execution.",
+  "installation_dependency": "Claude candidate review and reported scoped PG16, accepted merge, fresh owner-local state and reviewed backup/rebind/restore execution.",
   "readiness": {
     "technical_ready": false,
     "pilot_allowed": false,
@@ -76,7 +86,8 @@
     "version": "5.1.19041.6456",
     "effective_execution_policy": "Restricted",
     "policy_changed": false,
-    "delivery_status": "BLOCKED_NATIVE_POLICY_REQUIRES_EXPLICIT_OWNER_DECISION",
+    "builtin_command_preflight_exit_code": 0,
+    "delivery_status": "AWAITING_ACCEPT_AND_BACKUP_REBIND_REVIEW",
     "prepared_source": "D:/3/BOSDev/workspaces/bos3-runtime-dev8/repo",
     "process_receipt_exists": false,
     "runtime_liveness": "NOT_PROBED",

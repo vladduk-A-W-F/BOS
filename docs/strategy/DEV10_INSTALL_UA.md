@@ -14,7 +14,10 @@
   manifest і пакет зберігаються на D:; посилання та SHA — у паспорті кандидата.
 - Frontend, посібники та код навчання/CRM не змінено після прийнятого джерела.
   45/45 SQLite перевірок успадковуються лише для незмінених байтів модулів.
-  PG16, браузер, пароль і фактична доставка цим не доведені.
+  Адресний PG16.14 (77 OK, exit 0) для source `a182e3f` повідомлено Claude
+  [у PR #24](https://github.com/vladduk-A-W-F/BOS/pull/24#issuecomment-5940870058);
+  raw output не додано, локально його не запускали. Браузер, пароль і фактична
+  доставка цим не доведені.
 
 ## Умови перед установкою
 
@@ -26,13 +29,17 @@
 3. Свіжо перевірити `D:/3/BOSDev/local-bos3/owner/state/prepared.json`,
    source digest, власника процесу, БД `data/bos3-fasteners.sqlite3` та media.
    Історична квитанція dev.8 із start exit 1 не доводить поточний стан.
-4. **До зупинки** прочитати effective ExecutionPolicy саме native Windows PowerShell
-   `C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe`, який вибирає launcher.
-   Поточна перевірка цього exe: `Restricted`; PowerShell 7 `RemoteSigned` його не замінює.
-   За `Restricted`/`AllSigned`/`Undefined` доставка зупиняється до окремого явного
-   рішення власника щодо політики. `-EncodedCommand` не використовувати для обходу
-   цієї відмови; глобальну політику, права та секрети не змінювати.
-   Лише після успішного preflight виконати штатний `scripts/bos3-local.ps1 stop` з поточного source,
+4. **До зупинки** перевірити native Windows PowerShell
+   `C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe` командою
+   `-NoProfile -NonInteractive -Command 'exit 0'`; потрібен exit 0.
+   Інтегратор виконав цей preflight: exit 0.
+   Історично effective policy цього exe — `Restricted`. За
+   [Microsoft](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies?view=powershell-5.1)
+   вона дозволяє окремі команди, але забороняє `.ps1` файли. Wrapper
+   `scripts/bos3-local.ps1` лише викликає Python-контролер; для lifecycle
+   використати прямі команди нижче без зміни policy, Bypass чи UnblockFile.
+   Після прийняття кандидата й перевірки поточного стану виконати
+   `D:/3/BOSDev/venv/Scripts/python.exe -X utf8 -B <current-source>/scripts/bos3_local.py stop --root D:/3/BOSDev/local-bos3/owner`,
    лише якщо процес підтверджено як власний. Невідповідність PID/source або
    незавершена попередня спроба — зупинка доставки, без force/видалення receipt.
 
@@ -49,9 +56,11 @@
    незалежну перевірку. Не викликати `init`, seed, reset, flush чи генерацію пароля.
 7. Лише після перевіреної резервної копії змінити у `prepared.json` два поля:
    `source` та `source_sha256`; решта поля і захищені файли мають бути незмінними.
-   Штатний `start` викликати з нової прийнятої Git-копії. Без автоматичних повторів.
+   Штатний `start` викликати з нової прийнятої Git-копії командою
+   `D:/3/BOSDev/venv/Scripts/python.exe -X utf8 -B <accepted-source>/scripts/bos3_local.py start --root D:/3/BOSDev/local-bos3/owner`.
+   Без автоматичних повторів.
    Launcher із PR #22 передає наявний блок прихованого запуску через inline-команду.
-   Це не скасовує preflight кроку 4; Bypass/зміна політики не є fallback.
+   Це не скасовує preflight кроку 4.
 8. Звірити запущений source/version, дані й media, незмінність пароля та
    навчального прогресу. Перевірка звичайного входу й узгоджених маршрутів
    має окремий фактичний результат; старий HTTP 200 не зараховувати.
@@ -61,7 +70,9 @@
 
 ## Невиконана частина доставки
 
-Поточний PR готує code-only кандидат. Кроки 3–9 **не виконано**.
+Поточний PR готує code-only кандидат. Виконано лише native PowerShell
+preflight кроку 4 (exit 0); stop, backup, rebind, start і перевірки runtime,
+пароля та прогресу **не виконано**.
 Mock-перевірка аргументів запуску не запускає PowerShell/сервер і не витрачає
 нове lifecycle-вікно. Вона не підтверджує усунення історичного WinError5.
 Історичні dev.8/dev.9 maintenance/recovery templates мають старі точні pins
