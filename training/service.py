@@ -176,6 +176,19 @@ def observations(policy, marker, case_id, session):
     return facts, links, rows
 
 
+def normalized_current_step(steps, current_step):
+    selected = next((row for row in steps if row['id'] == current_step
+                     and row['status'] != 'locked'), None)
+    if selected is not None:
+        return selected['id']
+    available = next((row for row in steps if row['status'] in ('available', 'needs_recheck')), None)
+    if available is not None:
+        return available['id']
+    if steps and all(row['status'] == 'completed' for row in steps):
+        return steps[0]['id']
+    return None
+
+
 def session_state(policy, marker, case_id, session=None):
     key = identity(policy, marker, case_id)
     if session is None:
@@ -203,7 +216,7 @@ def session_state(policy, marker, case_id, session=None):
               'needs_recheck' if changed else 'paused' if session.status == 'paused' else 'in_progress')
     return dict(case_id=case_id, available=True, status=status,
                 session_id=str(session.public_id) if session else None,
-                current_step=session.current_step if session else steps[0]['id'],
+                current_step=normalized_current_step(steps, session.current_step if session else None),
                 learning_mode='read_only' if policy.role == 'observer' else 'practice',
                 facts=facts, sources=links, steps=steps,
                 tour_state=session.tour_state if session else {},
@@ -243,10 +256,18 @@ def change(request, case_id, action, data):
         if data:
             raise ValueError('Зайві поля навчального запиту.')
         session, _ = TrainingSession.objects.get_or_create(**key)
+        update_fields = []
         if session.status == 'paused':
             session.status = 'in_progress'
-            session.save(update_fields=['status', 'updated_at'])
-        return session_state(policy, marker, case_id, session)
+            update_fields.append('status')
+        state = session_state(policy, marker, case_id, session)
+        current_step = state['current_step'] or ''
+        if session.current_step != current_step:
+            session.current_step = current_step
+            update_fields.append('current_step')
+        if update_fields:
+            session.save(update_fields=[*update_fields, 'updated_at'])
+        return state
     session = TrainingSession.objects.select_for_update().get(**key)
     state = session_state(policy, marker, case_id, session)
     if action == 'pause':

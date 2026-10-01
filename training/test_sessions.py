@@ -8,13 +8,14 @@ import os
 from decimal import Decimal
 from io import StringIO
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import Permission
 from django.core.management import call_command
-from django.test import Client, TestCase, override_settings
+from django.test import Client, SimpleTestCase, TestCase, override_settings
 
 from employees.models import Employee
 from crm.models import CRMDeal
@@ -22,6 +23,36 @@ from erp.models import Lot, Movement, Production, SalesLine
 from operations.models import ActionProposal, Configuration, Document
 from tasks.models import Task
 from training.models import TrainingSession
+from training.service import normalized_current_step, session_state
+
+
+class CurrentStepNormalizationTests(SimpleTestCase):
+    def test_blank_stale_locked_and_selected_completed(self):
+        steps = [{'id': 'order', 'status': 'completed'},
+                 {'id': 'supply', 'status': 'needs_recheck'},
+                 {'id': 'crm', 'status': 'locked'}]
+        self.assertEqual(normalized_current_step(steps, ''), 'supply')
+        self.assertEqual(normalized_current_step(steps, 'unknown'), 'supply')
+        self.assertEqual(normalized_current_step(steps, 'crm'), 'supply')
+        self.assertEqual(normalized_current_step(steps, 'order'), 'order')
+        self.assertEqual(normalized_current_step(steps, 'supply'), 'supply')
+
+    def test_all_completed_and_empty_are_deterministic(self):
+        completed = [{'id': 'order', 'status': 'completed'},
+                     {'id': 'supply', 'status': 'completed'}]
+        self.assertEqual(normalized_current_step(completed, ''), 'order')
+        self.assertEqual(normalized_current_step(completed, 'supply'), 'supply')
+        self.assertIsNone(normalized_current_step([], 'missing'))
+
+    def test_empty_projected_session_has_no_step_index(self):
+        session = SimpleNamespace(progress={}, status='in_progress', current_step='',
+                                  public_id='synthetic-session', tour_state={})
+        marker = {'id': 'synthetic-fixture', 'hash': 'synthetic-hash', 'as_of': '2026-10-01'}
+        with patch('training.service.identity', return_value={}), patch(
+                'training.service.observations', return_value=({}, [], [])):
+            state = session_state(SimpleNamespace(role='ceo'), marker, 'BOS3-CASE-01', session)
+        self.assertEqual(state['steps'], [])
+        self.assertIsNone(state['current_step'])
 
 
 @override_settings(BOS_DATA_MODE='demo', PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'])
@@ -101,6 +132,55 @@ class TrainingSessionContractTests(TestCase):
         restored = self.get_state('BOS3-CASE-01', client=resumed)
         self.assertEqual(restored['session_id'], first['session_id'])
         self.assertEqual(restored['steps'][0]['status'], 'completed')
+
+    def test_current_step_get_is_projection_and_start_persists_normalized_selection(self):
+        self.assertEqual(self.get_state('BOS3-CASE-01')['current_step'], 'order')
+        started = self.start('BOS3-CASE-01')
+        session = TrainingSession.objects.get(public_id=started['session_id'])
+        self.assertEqual(started['current_step'], 'order')
+        self.assertEqual(session.current_step, 'order')
+
+        TrainingSession.objects.filter(pk=session.pk).update(current_step='crm')
+        before = TrainingSession.objects.values('current_step', 'progress', 'status', 'updated_at').get(pk=session.pk)
+        projected = self.get_state('BOS3-CASE-01')
+        self.assertEqual(projected['current_step'], 'order')
+        after = TrainingSession.objects.values('current_step', 'progress', 'status', 'updated_at').get(pk=session.pk)
+        self.assertEqual(after, before)
+        self.assertEqual(self.start('BOS3-CASE-01')['current_step'], 'order')
+        session.refresh_from_db()
+        self.assertEqual(session.current_step, 'order')
+
+        self.check('BOS3-CASE-01', 'order', '500')
+        self.change('BOS3-CASE-01', 'navigate', {'step_id': 'order'})
+        self.assertEqual(self.get_state('BOS3-CASE-01')['current_step'], 'order')
+        self.assertEqual(self.start('BOS3-CASE-01')['current_step'], 'order')
+        self.change('BOS3-CASE-01', 'navigate', {'step_id': 'supply'})
+        self.assertEqual(self.get_state('BOS3-CASE-01')['current_step'], 'supply')
+
+        TrainingSession.objects.filter(pk=session.pk).update(current_step='crm')
+        self.assertEqual(self.get_state('BOS3-CASE-01')['current_step'], 'supply')
+        self.assertEqual(self.start('BOS3-CASE-01')['current_step'], 'supply')
+        session.refresh_from_db()
+        self.assertEqual(session.current_step, 'supply')
+
+    def test_paused_session_projects_then_persists_current_step_on_resume(self):
+        started = self.start('BOS3-CASE-01')
+        self.change('BOS3-CASE-01', 'pause', {})
+        session = TrainingSession.objects.get(public_id=started['session_id'])
+        TrainingSession.objects.filter(pk=session.pk).update(current_step='unknown')
+        projected = self.get_state('BOS3-CASE-01')
+        self.assertEqual(projected['status'], 'paused')
+        self.assertEqual(projected['current_step'], 'order')
+        session.refresh_from_db()
+        self.assertEqual(session.current_step, 'unknown')
+        self.assertEqual(session.status, 'paused')
+
+        resumed = self.start('BOS3-CASE-01')
+        self.assertEqual(resumed['status'], 'in_progress')
+        self.assertEqual(resumed['current_step'], 'order')
+        session.refresh_from_db()
+        self.assertEqual(session.current_step, 'order')
+        self.assertEqual(session.status, 'in_progress')
 
     def test_changed_source_reports_on_read_without_write_and_persists_on_next_mutation(self):
         self.start('BOS3-CASE-01')
