@@ -70,3 +70,26 @@ jobs:
         python -B -m scripts.test_package_server
         python -B -m unittest scripts.test_bos3_local_launch_policy
         python -B scripts/package_server.py --output "$RUNNER_TEMP/bos-dev-package"
+  prepared-update:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+    - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      with:
+        persist-credentials: false
+        fetch-depth: 0
+    - name: Чи змінено процедуру оновлення prepared.json
+      id: scope
+      run: |
+        if git diff --name-only "${{ github.event.pull_request.base.sha }}" HEAD | grep -qE '^(scripts/(bos3_prepared_update|test_bos3_prepared_update|bos3_local)\.py|\.github/workflows/pr-tests\.yml)$'; then
+          echo "run=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "run=false" >> "$GITHUB_OUTPUT"
+        fi
+    - if: steps.scope.outputs.run == 'true'
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+      with:
+        python-version: '3.12'
+    - if: steps.scope.outputs.run == 'true'
+      name: Синтетична перевірка контексту та ACL без запуску застосунку
+      run: python -B -m unittest scripts.test_bos3_prepared_update
