@@ -56,6 +56,11 @@
    незалежну перевірку. Не викликати `init`, seed, reset, flush чи генерацію пароля.
 7. Лише після перевіреної резервної копії змінити у `prepared.json` два поля:
    `source` та `source_sha256`; решта поля і захищені файли мають бути незмінними.
+   Для наступних owner-local оновлень застосовувати
+   `scripts/bos3_prepared_update.py:update_prepared_source` лише після окремих
+   перевірок backup, відсутності власного процесу/слухача та точного source pin.
+   Викликати під звичайним токеном власника `prepared.json`: helper відхиляє
+   підвищений токен або чужий SID і звіряє ACL тимчасового файла до запису.
    Штатний `start` викликати з нової прийнятої Git-копії командою
    `D:/3/BOSDev/venv/Scripts/python.exe -X utf8 -B <accepted-source>/scripts/bos3_local.py start --root D:/3/BOSDev/local-bos3/owner`.
    Без автоматичних повторів.
