@@ -395,7 +395,7 @@ def launch_via_powershell(args, cwd, env, paths):
     powershell, native_env = native_windows_powershell_environment(env)
     launch_stderr = paths['logs'] / 'server-launch.stderr.log'
     with launch_stderr.open('ab') as error_log:
-        result = subprocess.run([powershell, '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
+        result = subprocess.run([powershell, '-NoProfile', '-NonInteractive',
             '-File', str(SOURCE / 'scripts' / 'bos3-local.ps1'), '-InternalLaunch', '-LaunchSpec', encoded],
             env=native_env, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=error_log, timeout=30)
     if result.returncode:
