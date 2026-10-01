@@ -1,0 +1,177 @@
+{
+  "observed_at_utc": "2026-09-30 22:40:59 UTC",
+  "actors": {
+    "main": {
+      "timedOut": true,
+      "wake": null,
+      "polls": [
+        {
+          "schemaVersion": 1,
+          "cursor": "f9c183fb-688d-452b-8b15-0ebf92eebc05:7",
+          "revision": 7,
+          "changed": true,
+          "thread": {
+            "id": "01a0be90-e790-7351-a8ac-059d523941c4",
+            "hostId": "local",
+            "status": {
+              "type": "active",
+              "activeFlags": []
+            }
+          },
+          "latestTurn": {
+            "id": "01a0f475-a34e-7813-9079-aff02d9eb21d",
+            "status": "inProgress",
+            "error": null,
+            "startedAt": 1790807745,
+            "completedAt": null,
+            "durationMs": null
+          },
+          "latestAssistantMessageId": "msg_05574a49272841e9016abd8f9a952487d28bfca0f6e553e4d0",
+          "latestAssistantMessage": {
+            "id": "msg_05574a49272841e9016abd8f9a952487d28bfca0f6e553e4d0",
+            "turnId": "01a0f475-a34e-7813-9079-aff02d9eb21d",
+            "phase": "commentary",
+            "text": "Усі три виконавці відновили роботу. Дизайн зберіг уже зроблений перший екран із трьома задачами й дописує повернення з CRM. Два автори навчального контракту записали прийняття контексту; зараз звірю ці записи, щоб підтвердити інтегратору фактичне продовження."
+          },
+          "latestToolMarkerId": "exec-3dbc2d94-2261-412e-83f7-cc2053347160",
+          "latestToolMarker": {
+            "id": "exec-3dbc2d94-2261-412e-83f7-cc2053347160",
+            "turnId": "01a0f475-a34e-7813-9079-aff02d9eb21d",
+            "type": "commandExecution",
+            "name": "commandExecution",
+            "status": "completed"
+          }
+        }
+      ]
+    },
+    "writer": {
+      "timedOut": true,
+      "wake": null,
+      "polls": [
+        {
+          "schemaVersion": 1,
+          "cursor": "ae365a3d-99bf-49ed-a297-f6d3ef959730:8",
+          "revision": 8,
+          "changed": true,
+          "thread": {
+            "id": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+            "hostId": "local",
+            "status": {
+              "type": "active",
+              "activeFlags": []
+            }
+          },
+          "latestTurn": {
+            "id": "01a0f477-4edd-71f2-9991-11b0879e805e",
+            "status": "inProgress",
+            "error": null,
+            "startedAt": 1790807854,
+            "completedAt": null,
+            "durationMs": null
+          },
+          "latestAssistantMessageId": "msg_080c86dac0a49b9b016abd8fa6b4ec87d2be19b983744188fa",
+          "latestAssistantMessage": {
+            "id": "msg_080c86dac0a49b9b016abd8fa6b4ec87d2be19b983744188fa",
+            "turnId": "01a0f477-4edd-71f2-9991-11b0879e805e",
+            "phase": "commentary",
+            "text": "В коде уже есть серверное сохранение кейса, UUID сессии, текущего шага и отпечатков проверенного прогресса. При этом отдельной версии урока и ссылки из прогресса на квитанцию команды я пока не вижу: версия fixture и сохранённый результат операции — разные сущности. Проверяю границы повторного входа, паузы и повторного подтверждения, чтобы точно описать эти пробелы."
+          },
+          "latestToolMarkerId": "exec-49459890-b422-48e5-b20d-9f6cfa069423",
+          "latestToolMarker": {
+            "id": "exec-49459890-b422-48e5-b20d-9f6cfa069423",
+            "turnId": "01a0f477-4edd-71f2-9991-11b0879e805e",
+            "type": "commandExecution",
+            "name": "commandExecution",
+            "status": "completed"
+          }
+        }
+      ]
+    },
+    "design": {
+      "timedOut": true,
+      "wake": null,
+      "polls": [
+        {
+          "schemaVersion": 1,
+          "cursor": "9b87b0af-60fa-4e5c-97b4-9269c577ba92:7",
+          "revision": 7,
+          "changed": true,
+          "thread": {
+            "id": "01a0bffa-3fc7-7bc2-9868-86164c6e0315",
+            "hostId": "local",
+            "status": {
+              "type": "active",
+              "activeFlags": []
+            }
+          },
+          "latestTurn": {
+            "id": "01a0f477-23b1-7652-9d2c-7dd81fedc9e1",
+            "status": "inProgress",
+            "error": null,
+            "startedAt": 1790807843,
+            "completedAt": null,
+            "durationMs": null
+          },
+          "latestAssistantMessageId": "msg_0a6fe27d34372596016abd8ff5105087d2936c6409a62739da",
+          "latestAssistantMessage": {
+            "id": "msg_0a6fe27d34372596016abd8ff5105087d2936c6409a62739da",
+            "turnId": "01a0f477-23b1-7652-9d2c-7dd81fedc9e1",
+            "phase": "commentary",
+            "text": "Перший екран тепер показує три задачі без обов’язкового гортання; шість сторінок брошури залишилися. Для CRM додано окремий контекст повернення, який не зникає після очищення чернетки. Перед показом тієї самої сесії маршрут перечитує її через наявний серверний шлях і звіряє case_id, slug, UUID сесії та контекст доступу."
+          },
+          "latestToolMarkerId": "exec-e774547f-e4ad-4857-ab2a-43f0ab59ae6e",
+          "latestToolMarker": {
+            "id": "exec-e774547f-e4ad-4857-ab2a-43f0ab59ae6e",
+            "turnId": "01a0f477-23b1-7652-9d2c-7dd81fedc9e1",
+            "type": "commandExecution",
+            "name": "commandExecution",
+            "status": "completed"
+          }
+        }
+      ]
+    },
+    "enablement": {
+      "timedOut": true,
+      "wake": null,
+      "polls": [
+        {
+          "schemaVersion": 1,
+          "cursor": "2de25de7-ed3e-408f-b3aa-b1672c8f96c2:8",
+          "revision": 8,
+          "changed": true,
+          "thread": {
+            "id": "01a0f2ce-270f-7ac3-bea0-1447f87aed61",
+            "hostId": "local",
+            "status": {
+              "type": "active",
+              "activeFlags": []
+            }
+          },
+          "latestTurn": {
+            "id": "01a0f477-7039-7060-8a18-bf8757b4ff9a",
+            "status": "inProgress",
+            "error": null,
+            "startedAt": 1790807863,
+            "completedAt": null,
+            "durationMs": null
+          },
+          "latestAssistantMessageId": "msg_05fe77bef9e82692016abd8fe1535087d29f536c9b8530eb6e",
+          "latestAssistantMessage": {
+            "id": "msg_05fe77bef9e82692016abd8fe1535087d29f536c9b8530eb6e",
+            "turnId": "01a0f477-7039-7060-8a18-bf8757b4ff9a",
+            "phase": "commentary",
+            "text": "Незалежну семантику завершено в статусі WAIT_EXACT_WRITER_DEPENDENCY: правила для п’яти типів кроків і трьох кейсів записані, а сім питань до серверних можливостей залишені відкритими. Зараз додам у авторський звіт результати статичних перевірок і точний хеш кандидата. Файл writer з’явився у своїй папці, але без передачі main його хеш і статус не приймаю як залежність."
+          },
+          "latestToolMarkerId": "exec-75f21eac-c309-4b36-85e2-a0c0f101eab2",
+          "latestToolMarker": {
+            "id": "exec-75f21eac-c309-4b36-85e2-a0c0f101eab2",
+            "turnId": "01a0f477-7039-7060-8a18-bf8757b4ff9a",
+            "type": "commandExecution",
+            "name": "commandExecution",
+            "status": "completed"
+          }
+        }
+      ]
+    }
+  }
+}

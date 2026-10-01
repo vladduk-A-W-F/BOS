@@ -1,0 +1,1988 @@
+{
+  "schema": 1,
+  "updated_at": "2026-09-27",
+  "active_workstream": {
+    "scope": "BoS 3.0 owner-local development; remaining legacy fields preserve accepted v18/main evidence",
+    "control": "docs/orchestration/bos3/CONTROL_STATE.json",
+    "runtime_receipt": "docs/orchestration/bos3/LOCAL_RUNTIME_RECEIPT.json",
+    "version": "0.3.0-dev.2",
+    "runtime_version": "0.3.0-dev.1",
+    "active_work_plan": "docs/orchestration/bos3/ACTIVE_WORK_PLAN_RU.md",
+    "source_commit_scope": "Delivered runtime; candidate integration is tracked by CONTROL_STATE.json and branch HEAD",
+    "source_commit": "33d7d387aa582c04339a91ae94361948ea67904c",
+    "review_pr": "https://github.com/vladduk-A-W-F/BOS/pull/10",
+    "owner_instruction_date": "2026-09-27",
+    "legacy_freeze_is_not_current_bos3_execution_scope": true
+  },
+  "product_version": "BoS v18",
+  "runtime_version": "0.2.18-current",
+  "current_baseline_manifest": "docs/orchestration/CURRENT_BASELINE.json",
+  "current_delivery_card": "V18-PUBLISH-20260926",
+  "historical_snapshot_scope": "Nested prior batch and v17 closeout evidence retains its original candidate and dates. Current identity and publication are in CURRENT_BASELINE.json.",
+  "canonical_repository": "vladduk-A-W-F/BOS",
+  "setup_branch": "setup/bos-gpt-orchestration-20260920",
+  "product_candidate_commit": "25208141c247ba931fce3a972be45536eafdd1c7",
+  "runtime_source_sha256": "44a3a2ee9fb1e8b36917f7c2c5c6aa60e533f1d3236e26de907e64520f94307a",
+  "current_identity_receipt": "docs/orchestration/CURRENT_BASELINE.json",
+  "historical_v17_identity": {
+    "product_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+    "runtime_source_sha256": "77e8ca05b58efc99d47ce8dd2887074b3c93ba6eaff863a24307ae0e89dc622a",
+    "runtime_reconstructed_and_digest_matched": true,
+    "whole_local_git_tree_verified": true
+  },
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "execution": {
+    "status": "V18_CURRENT_MAIN_INTERIM_FINAL",
+    "product_execution_allowed": false,
+    "ci_allowed": false,
+    "deploy_allowed": false,
+    "paid_api_allowed": false,
+    "background_service_running": false,
+    "reason": "26.09.2026 власник прямо дозволив перенести всі прийняті коміти у підсумкову версію. BoS v18 / 0.2.18-current об'єднано в main через PR #8, merge 718b894; docs-only запис і новий тег публікуються атомарно. Checker та bounded static/import audit незалежно прийняті лише у своїх межах. Зберегти поточну версію до наступного доручення; readiness і вичерпані ліміти незмінні.",
+    "superseded_freeze_reason": "21.09.2026 власник доручив завершити поточний цикл, опублікувати перевірену review-збірку, передати звіт і після цього заморозити агентів та автоматичні зміни до нової вказівки.",
+    "superseded_batch_reason": "20.09.2026 власник перевірив план і прямо доручив: «план верный реализуй ... делай несколько задач паралельно ... отчеты по модулям ... остановок без нужды не требуется». Це замінює попередню паузу й правило однієї картки за хід. Дозволено виконувати погоджений план пакетно, інтегрувати перевірені зміни послідовно й зупинятися тільки на реальному питанні/рішенні/доступі. Історичні заборони й межі конкретних операцій зберігаються.",
+    "mode_after_resume": "OWNER_REVIEW_FREEZE",
+    "batch_mode_authorized": false,
+    "ci_scope": "Targeted new-card verification only; no exhausted full/PG suite/E2E retry",
+    "through": "Accepted v18 cards and owner-authorized V18-PUBLISH-20260926 only; no automatic next product stage",
+    "landing_publication_allowed": false,
+    "landing_audience": "Preserve current audience; public revision 2 observed before and after v3 publication; access not changed by this task.",
+    "latest_instruction": "Owner: transfer and consolidate all reviewed commits in the final current version. Main/tag publication authorized for v18; exhausted suites, Sites, live runtime, production and real data remain unchanged.",
+    "historical_landing_audience": "Original authorization preserved existing owner-private audience at initial publication.",
+    "a11_clarification": "Old cloud-CDP/CDN/loopback bypass remains forbidden. The owner explicitly authorizes a new isolated local browser runner on 2026-09-20.",
+    "shared_git_writer": "root",
+    "shared_git_writer_thread": "01a0be90-e790-7351-a8ac-059d523941c4",
+    "original_checkout_preserved": true,
+    "external_owner_reservation": "PRESERVED; no release in this packet",
+    "previous_shared_git_writer": {
+      "owner": "/root/product_integration_continuation",
+      "thread": "01a0be90-e790-7351-a8ac-059d523941c4",
+      "current_role": "Independent reviewer only; no shared write ownership"
+    },
+    "background_service_observed_at_utc": "2026-09-21T21:27:13.1597409Z",
+    "background_service_state_basis": "False denotes only the saved outage observation at the exact timestamp. It is not a new current liveness probe. Controller owns restoration; latest serving state, new process identities and HTTPS URL are in the external final delivery."
+  },
+  "historical_limits": {
+    "P05_timeout_cycle_used": 3,
+    "P05_timeout_cycle_limit": 3,
+    "automatic_full_pg_e2e_retry_allowed": false,
+    "A09_targeted_retry_allowed": false,
+    "A10_activation_upgrade_rollback_allowed": false,
+    "A11_blocked_route_retry_allowed": false
+  },
+  "P10_002": {
+    "review": "ACCEPT_SCOPED",
+    "scope": "VERIFIED_FRESH_SEED",
+    "full_acceptance": "BLOCKED_FULL_ACCEPTANCE",
+    "ci_run": 35470413616,
+    "historical_pg_tests": 6,
+    "historical_sqlite_tests": 6
+  },
+  "P06": "BLOCKED",
+  "next_after_owner_review": "P10-003",
+  "next_after_owner_review_scope": "Legacy validator-compatible checkpoint, not permission to rerun an already evidenced task. No automatic next card after the current baseline freeze.",
+  "master_v2_1_full_text_available": true,
+  "runtime_environment": {
+    "python": "3.12.14",
+    "django_installed": true,
+    "postgres16_available": true,
+    "codex_cli_available": false,
+    "application_started_this_setup": false,
+    "venv": "D:\\3\\Codex\\2026-09-20\\bos-execution\\work\\vertical-ua\\venv",
+    "django_version": "6.0.5",
+    "djangorestframework_version": "3.17.1",
+    "postgres16_ci": {
+      "status": "PASS_SCOPED",
+      "sqlite_tests": 39,
+      "pg_tests": 42,
+      "ui_controlled_component_tests": 18,
+      "postgres_version_num": 160015,
+      "candidate_commit": "8060075455206257d6283c70906facca98f0bc1a",
+      "run_id": 35507888776,
+      "run_attempt": 1,
+      "source_sha256": "ce495b29214f21a80b8efd5bf41f6f219b5cb182b0453a7c43dac8899bc06ed5",
+      "zip_sha256": "4908b2ad522fde391d254061a41560fd8e3336c692d3ad5f6819eff7fe97b6ec",
+      "review": "ACCEPT_SCOPED_POSTGRES_EVIDENCE",
+      "source_and_canaries_unchanged": true,
+      "real_mutex_wait_cases": 3,
+      "browser_acceptance": false
+    },
+    "postgres16_ci_batch01": {
+      "status": "PASS_SCOPED",
+      "candidate_commit": "aecf8ee1f556b60f3fa34b66a001372e332d02ab",
+      "run_id": 35503944302,
+      "run_attempt": 1,
+      "url": "https://github.com/vladduk-A-W-F/BOS/actions/runs/35503944302",
+      "postgres_version_num": 160015,
+      "source_sha256": "31c692c5f3113446452e8d15faf95c29b019f433550bf4d0658c4f0428e54d20",
+      "harness_sha256": "30046f9c933b7a0fefc8e1813e07ca2fbea782bb6ebba9974d74a8dd59a13cfb",
+      "postgres_green_tests": 26,
+      "expected_red_methods": 3,
+      "unit_tests": 7,
+      "source_unchanged": {
+        "candidate": true,
+        "baseline": true
+      },
+      "canaries_unchanged": true,
+      "indexed_files_verified": 22,
+      "artifact_id": 10603616377,
+      "artifact_zip_sha256": "542a3c5975a0a4e1533f0f744bf3ad57e2f0f111afe232f04fb4efaf28185247",
+      "artifact_zip_bytes": 28579,
+      "artifact_expiry": "2026-10-20T10:05:11Z",
+      "archive_local_path": "docs/orchestration/evidence/batch01/PG16/BoS_BATCH01_PG16_35503944302.zip",
+      "full_run": false,
+      "business_e2e_run": false,
+      "technical_ready": false,
+      "pilot_allowed": false,
+      "review": "ACCEPT_SCOPED",
+      "checks": [
+        {
+          "label": "postgres-red-p10-003",
+          "status": "EXPECTED_RED",
+          "accepted": true,
+          "exit_code": 1,
+          "observed_test_counts": [
+            1
+          ],
+          "duration_seconds": 5.093
+        },
+        {
+          "label": "postgres-red-f03",
+          "status": "EXPECTED_RED",
+          "accepted": true,
+          "exit_code": 1,
+          "observed_test_counts": [
+            1
+          ],
+          "duration_seconds": 5.088
+        },
+        {
+          "label": "postgres-red-n1-request",
+          "status": "EXPECTED_RED",
+          "accepted": true,
+          "exit_code": 1,
+          "observed_test_counts": [
+            1
+          ],
+          "duration_seconds": 8.346
+        },
+        {
+          "label": "postgres-green-import",
+          "status": "PASS",
+          "accepted": true,
+          "exit_code": 0,
+          "observed_test_counts": [
+            15
+          ],
+          "duration_seconds": 9.415
+        },
+        {
+          "label": "postgres-green-finance",
+          "status": "PASS",
+          "accepted": true,
+          "exit_code": 0,
+          "observed_test_counts": [
+            5
+          ],
+          "duration_seconds": 21.451
+        },
+        {
+          "label": "postgres-green-request-invoice",
+          "status": "PASS",
+          "accepted": true,
+          "exit_code": 0,
+          "observed_test_counts": [
+            4
+          ],
+          "duration_seconds": 20.998
+        },
+        {
+          "label": "postgres-green-n1-ship",
+          "status": "PASS",
+          "accepted": true,
+          "exit_code": 0,
+          "observed_test_counts": [
+            2
+          ],
+          "duration_seconds": 35.031
+        },
+        {
+          "label": "artifact-unit-f06",
+          "status": "PASS",
+          "accepted": true,
+          "exit_code": 0,
+          "observed_test_counts": [
+            5
+          ],
+          "duration_seconds": 1.183
+        },
+        {
+          "label": "source-unit-digest",
+          "status": "PASS",
+          "accepted": true,
+          "exit_code": 0,
+          "observed_test_counts": [
+            2
+          ],
+          "duration_seconds": 0.328
+        }
+      ],
+      "reviewer": "bos_batch_review",
+      "postgres_green_real_business_http_methods": 16,
+      "postgres_stage_fake_connection_guard_methods": 10
+    },
+    "previous_local_environment": {
+      "postgres16_available": false,
+      "postgres16_local_blocker": "apt-get update: setgroups/setegid/seteuid not permitted; no bypass attempted",
+      "venv": "execution/venv outside repository"
+    },
+    "platform": "Windows 10",
+    "postgres16_local": {
+      "version": "16.15",
+      "version_num": 160015,
+      "port": 55439,
+      "scope": "isolated synthetic verification cluster, not production deployment",
+      "service_created": false
+    }
+  },
+  "config_validation": "PASS_STATIC",
+  "independent_setup_review": "ACCEPT_SCOPED_STATIC",
+  "model_policy": {
+    "orchestrator": "gpt-6-astra",
+    "implementation": "gpt-5.6-terra",
+    "roles_count": 9,
+    "max_concurrent_subagents": 4,
+    "account_default_modified": false,
+    "cli_runtime_validation": "NOT_RUN"
+  },
+  "product_target": "linked_operations_information_resource_flows_metrics_communication_and_gpt_assistant",
+  "github_main_observed": "718b89497da0d338057ab2bd81d5034c68362d79",
+  "github_main_observation_scope": "Confirmed PR #8 merge observed before the docs-only publication receipt commit. Final main/peeled-tag equality is verified externally after atomic push and recorded in PR #8; this field records the observed merge, not a self-referential final commit.",
+  "github_main_diverged": false,
+  "main_reconciliation_before_merge_required": false,
+  "master_v2_1_sha256": "4ab578d4ab1a6c959ed7aa791f09a7c8284c04df1d48b6a575671f53df7c4caf",
+  "master_v2_1_sha_verified": true,
+  "setup_head": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+  "current_batch": "V18-PUBLISH-20260926",
+  "plugins": {
+    "github": "CONFIRMED",
+    "figma": "CONFIRMED",
+    "sites": "CONFIRMED",
+    "openai_developers": "NOT_INSTALLED_REQUIRES_USER_UI",
+    "codex_security": "NOT_INSTALLED_REQUIRES_USER_UI"
+  },
+  "setup_head_note": "Product source207c; the documentation-only commit containing this state has its own Git identity.",
+  "next_action": "Owner manual review; after report no new development, agent or automation changes until new owner instruction.",
+  "batch_result": "SCOPED_SOURCE_AND_NINE_STYLED_CONTEXTS_ACCEPTED_ACROSS_TWO_RUNS_FULL_GATES_OPEN",
+  "baseline_product_commit": "7d46dced3bcf06d44755cf53366c9e16bd465582",
+  "next_after_owner_review_note": "Legacy field next_after_owner_review=P10-003 retained for historical static-validator compatibility; it is not an executable queue. Await new owner instructions.",
+  "verification": {
+    "sqlite_targeted": {
+      "tests": 39,
+      "exit_code": 0,
+      "source_sha256": "ce495b29214f21a80b8efd5bf41f6f219b5cb182b0453a7c43dac8899bc06ed5",
+      "runtime_product_commit": "603de9de7c92c77ce7a69d198fdfc786e8aca8e3",
+      "evidence": "docs/orchestration/evidence/batch02/integration/integrated02",
+      "note": "Test ran before CI-only commit; frozen runtime identical"
+    },
+    "artifact_and_source_units": {
+      "tests": 7,
+      "exit_code": 0,
+      "source_sha256": "31c692c5f3113446452e8d15faf95c29b019f433550bf4d0658c4f0428e54d20"
+    },
+    "pg_ci": {
+      "status": "PASS_SCOPED",
+      "sqlite_tests": 39,
+      "pg_tests": 42,
+      "ui_controlled_component_tests": 18,
+      "postgres_version_num": 160015,
+      "candidate_commit": "8060075455206257d6283c70906facca98f0bc1a",
+      "run_id": 35507888776,
+      "run_attempt": 1,
+      "source_sha256": "ce495b29214f21a80b8efd5bf41f6f219b5cb182b0453a7c43dac8899bc06ed5",
+      "zip_sha256": "4908b2ad522fde391d254061a41560fd8e3336c692d3ad5f6819eff7fe97b6ec",
+      "review": "ACCEPT_SCOPED_POSTGRES_EVIDENCE",
+      "source_and_canaries_unchanged": true,
+      "real_mutex_wait_cases": 3,
+      "browser_acceptance": false
+    },
+    "n2": "ERP adjustment dependency mode implemented;21portable+3realPGconcurrency verified; legacy/otheractions global",
+    "full_acceptance": "BLOCKED; no full rerun; no E2E rerun",
+    "batch02": {
+      "status": "PASS_SCOPED",
+      "sqlite_tests": 39,
+      "pg_tests": 42,
+      "ui_controlled_component_tests": 18,
+      "postgres_version_num": 160015,
+      "candidate_commit": "8060075455206257d6283c70906facca98f0bc1a",
+      "run_id": 35507888776,
+      "run_attempt": 1,
+      "source_sha256": "ce495b29214f21a80b8efd5bf41f6f219b5cb182b0453a7c43dac8899bc06ed5",
+      "zip_sha256": "4908b2ad522fde391d254061a41560fd8e3336c692d3ad5f6819eff7fe97b6ec",
+      "review": "ACCEPT_SCOPED_POSTGRES_EVIDENCE",
+      "source_and_canaries_unchanged": true,
+      "real_mutex_wait_cases": 3,
+      "browser_acceptance": false
+    },
+    "pg_ci_batch01": {
+      "status": "PASS_SCOPED",
+      "candidate_commit": "aecf8ee1f556b60f3fa34b66a001372e332d02ab",
+      "run_id": 35503944302,
+      "run_attempt": 1,
+      "url": "https://github.com/vladduk-A-W-F/BOS/actions/runs/35503944302",
+      "postgres_version_num": 160015,
+      "source_sha256": "31c692c5f3113446452e8d15faf95c29b019f433550bf4d0658c4f0428e54d20",
+      "harness_sha256": "30046f9c933b7a0fefc8e1813e07ca2fbea782bb6ebba9974d74a8dd59a13cfb",
+      "postgres_green_tests": 26,
+      "expected_red_methods": 3,
+      "unit_tests": 7,
+      "source_unchanged": {
+        "candidate": true,
+        "baseline": true
+      },
+      "canaries_unchanged": true,
+      "indexed_files_verified": 22,
+      "artifact_id": 10603616377,
+      "artifact_zip_sha256": "542a3c5975a0a4e1533f0f744bf3ad57e2f0f111afe232f04fb4efaf28185247",
+      "artifact_zip_bytes": 28579,
+      "artifact_expiry": "2026-10-20T10:05:11Z",
+      "archive_local_path": "docs/orchestration/evidence/batch01/PG16/BoS_BATCH01_PG16_35503944302.zip",
+      "full_run": false,
+      "business_e2e_run": false,
+      "technical_ready": false,
+      "pilot_allowed": false,
+      "review": "ACCEPT_SCOPED",
+      "checks": [
+        {
+          "label": "postgres-red-p10-003",
+          "status": "EXPECTED_RED",
+          "accepted": true,
+          "exit_code": 1,
+          "observed_test_counts": [
+            1
+          ],
+          "duration_seconds": 5.093
+        },
+        {
+          "label": "postgres-red-f03",
+          "status": "EXPECTED_RED",
+          "accepted": true,
+          "exit_code": 1,
+          "observed_test_counts": [
+            1
+          ],
+          "duration_seconds": 5.088
+        },
+        {
+          "label": "postgres-red-n1-request",
+          "status": "EXPECTED_RED",
+          "accepted": true,
+          "exit_code": 1,
+          "observed_test_counts": [
+            1
+          ],
+          "duration_seconds": 8.346
+        },
+        {
+          "label": "postgres-green-import",
+          "status": "PASS",
+          "accepted": true,
+          "exit_code": 0,
+          "observed_test_counts": [
+            15
+          ],
+          "duration_seconds": 9.415
+        },
+        {
+          "label": "postgres-green-finance",
+          "status": "PASS",
+          "accepted": true,
+          "exit_code": 0,
+          "observed_test_counts": [
+            5
+          ],
+          "duration_seconds": 21.451
+        },
+        {
+          "label": "postgres-green-request-invoice",
+          "status": "PASS",
+          "accepted": true,
+          "exit_code": 0,
+          "observed_test_counts": [
+            4
+          ],
+          "duration_seconds": 20.998
+        },
+        {
+          "label": "postgres-green-n1-ship",
+          "status": "PASS",
+          "accepted": true,
+          "exit_code": 0,
+          "observed_test_counts": [
+            2
+          ],
+          "duration_seconds": 35.031
+        },
+        {
+          "label": "artifact-unit-f06",
+          "status": "PASS",
+          "accepted": true,
+          "exit_code": 0,
+          "observed_test_counts": [
+            5
+          ],
+          "duration_seconds": 1.183
+        },
+        {
+          "label": "source-unit-digest",
+          "status": "PASS",
+          "accepted": true,
+          "exit_code": 0,
+          "observed_test_counts": [
+            2
+          ],
+          "duration_seconds": 0.328
+        }
+      ],
+      "reviewer": "bos_batch_review",
+      "postgres_green_real_business_http_methods": 16,
+      "postgres_stage_fake_connection_guard_methods": 10
+    },
+    "sqlite_batch01": {
+      "tests": 24,
+      "exit_code": 0,
+      "commit": "f2fa1e91e518a69cf729f1acedeac426dddd5009",
+      "source_sha256": "b9722ed16722cee83de6d7b30d9cac7077488237bd5f3020c60709e851ab859d"
+    },
+    "native_windows_source": {
+      "status": "ACCEPT_SCOPED_NATIVE_WINDOWS_SOURCE",
+      "candidate_commit": "82beca6c14e097a31200068d72b15334c5bed319",
+      "source_sha256": "ce495b29214f21a80b8efd5bf41f6f219b5cb182b0453a7c43dac8899bc06ed5",
+      "runtime_files": 348,
+      "platform": "Windows-10-10.0.19045-SP0",
+      "python": "3.12.14",
+      "actual_path_type": "WindowsPath",
+      "existing_unit_methods": 2,
+      "native_file_probes": 6,
+      "runtime_blobs_verified_before_and_after": true,
+      "exit_code": 0,
+      "independent_node_digest_match": true,
+      "linux_ci_run": 35507888776,
+      "linux_ci_commit": "8060075455206257d6283c70906facca98f0bc1a",
+      "evidence": "docs/orchestration/evidence/windows-source/report.json",
+      "review": "docs/orchestration/evidence/windows-source/REVIEW.md",
+      "full_windows_gate11": "NOT_RUN",
+      "whole_git_tree_verified": false
+    },
+    "browser_followup": {
+      "status": "ACCEPT_SCOPED_LANDING_NAVIGATION",
+      "landing_observed": true,
+      "demo_observed": true,
+      "desktop_tabs_and_keyboard": "PASS_V2_UNCHANGED_CODE",
+      "linked_records": "PASS_READ_ONLY_SO101_MO101_POFAST_AND_SO090_INVOICE_SHIPMENT_PAYMENT",
+      "preview_cancel": "PASS_NO_BROWSER_WRITE_COMMITTED",
+      "mobile_acceptance": "PASS_390x844_AND_320x740",
+      "return_link_acceptance": "PASS_V3",
+      "legacy_route_acceptance": "PASS_LIVE_4_HASHCHANGES_AND_INITIAL_SUFFIX_PLUS_UNIT_ALL_14",
+      "browser_acceptance": true,
+      "browser_acceptance_scope": "landing_and_navigation_only",
+      "full_transactional_demo_e2e": false,
+      "site_defect_established": true,
+      "identified_defects_resolved": true,
+      "console_clean": false,
+      "console_note": "Asynchronous listener/message-channel errors retained in raw evidence; origin unconfirmed, postpublication UI checks passed.",
+      "evidence": "docs/orchestration/evidence/batch04/landing-v3-20260920.json"
+    },
+    "browser_followup_previous": {
+      "status": "PENDING_NO_OBSERVATION",
+      "reason": "CUA_TOOL_TIMEOUT",
+      "source": "Main orchestrator report on 2026-09-20; browser creation did not return page state",
+      "landing_observed": false,
+      "demo_observed": false,
+      "access_denial_established": false,
+      "site_defect_established": false,
+      "browser_acceptance": false
+    },
+    "browser_followup_v2_historical": {
+      "status": "PARTIAL_BROWSER_VERIFIED_MOBILE_PENDING",
+      "landing_observed": true,
+      "demo_observed": true,
+      "desktop_tabs_and_keyboard": "PASS",
+      "linked_records": "PASS_READ_ONLY_SO101_MO101_POFAST",
+      "mobile_acceptance": "PENDING_CUA_TIMEOUT",
+      "return_link_acceptance": "PENDING_NO_OBSERVATION",
+      "browser_acceptance": false,
+      "site_defect_established": false,
+      "evidence": "docs/orchestration/evidence/batch04/browser-followup-20260920.json",
+      "report": "docs/orchestration/LANDING_BROWSER_UA.md"
+    },
+    "plan_time": {
+      "status": "BOUNDED_DIAGNOSTICS_COMPLETE_CAUSES_OPEN",
+      "diagnostic_commit": "1876ad00412b558fcfe0f23ab5291c90caeba63a",
+      "run_id": 35513613026,
+      "run_attempt": 1,
+      "artifact_id": 10606505258,
+      "artifact_zip_sha256": "1fd89539b1fd46fbd27a6b8a79549aad00288519a6ead3b78032749fbb0d53fb",
+      "artifact_zip_bytes": 22338,
+      "postgres_version_num": 160015,
+      "source_sha256": "ce495b29214f21a80b8efd5bf41f6f219b5cb182b0453a7c43dac8899bc06ed5",
+      "django_methods": 1,
+      "django_currency_subtests": 3,
+      "replay_sequences": 1,
+      "replay_requests": 4,
+      "sample_elapsed_seconds": {
+        "django": 6.801,
+        "replay": 5.856
+      },
+      "source_and_canary_unchanged": true,
+      "allocated_databases_cleanup_verified": true,
+      "indexed_files_verified": 10,
+      "root_cause_proven": false,
+      "runtime_fix_applied": false,
+      "full_suite_run": false,
+      "gate3_run": false,
+      "business_e2e_run": false,
+      "evidence": "docs/orchestration/PLAN_TIME_RESULTS_UA.md",
+      "receipt": "docs/orchestration/evidence/plan-time/20260920/receipt.json",
+      "review": "ACCEPT_SCOPED_PLAN_TIME_EVIDENCE",
+      "review_evidence": "docs/orchestration/evidence/plan-time/20260920/REVIEW.md",
+      "evidence_reader_run_id": 35514074336,
+      "evidence_reader_runtime_executed": false
+    },
+    "vertical_ua": {
+      "status": "ACCEPT_SCOPED",
+      "candidate_commit": "e66af863b0bd840cefb4ef78e5a17414411f3db8",
+      "source_sha256": "7ea639f89ed86ac0bc9fc5ecf201d4d4752fab22e5876700f16a1634e59ffad6",
+      "backend_sqlite_tests": 15,
+      "backend_pg16_tests": 15,
+      "owner_sqlite_initial_tests": 16,
+      "owner_sqlite_new_warning_test": 1,
+      "owner_pg16_tests": 17,
+      "ui_controlled_cases": 20,
+      "real_django_role_contracts": 3,
+      "route_catalogue": 192,
+      "required_access_field_tests": 86,
+      "allocated_database_cleanup": true,
+      "whole_cluster_inventory_restored": false,
+      "whole_cluster_inventory_note": "Other independently allocated owner databases changed concurrently; only each cards exact two issued names were verified absent.",
+      "backend_review": "ACCEPTED_SCOPED time_probe_review",
+      "owner_review": "ACCEPT_SCOPED ua_vertical_ui_audit",
+      "ui_review": "ACCEPT_SCOPED root independent of UI author",
+      "browser_acceptance": false,
+      "full_gate_acceptance": false,
+      "full_suite_run": false,
+      "evidence": "docs/orchestration/evidence/vertical-ua/20260920/index.json",
+      "report": "docs/orchestration/VERTICAL_UA_UA.md"
+    },
+    "full_git": {
+      "status": "VERIFIED",
+      "bundle_commit": "8fec775319c0311adf09fc83433cd795dbc14425",
+      "bundle_sha256": "8377d49af1d41cd34e4e2e02bf39142ba0913b6279f1f66ae7df7c3c60b99fcd",
+      "reachable_commits_at_import": 49,
+      "tracked_files_at_import": 1892,
+      "origin_refs_at_import": 9,
+      "shallow": false,
+      "fsck": "PASS",
+      "current_code_commit": "e66af863b0bd840cefb4ef78e5a17414411f3db8",
+      "worktree": "D:\\3\\Codex\\2026-09-20\\bos-execution\\work\\bos-fullgit-20260920",
+      "api_commit_objects_verified": true
+    },
+    "v17_closeout": {
+      "source": {
+        "product_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+        "runtime_sha256": "77e8ca05b58efc99d47ce8dd2887074b3c93ba6eaff863a24307ae0e89dc622a",
+        "app_js_sha256": "4b2918a018cf2499a4aa2ea8ca598c7abfd17fd74379ab4236250723a5390263",
+        "runtime_files": 426,
+        "local_branch": "codex/network-composition-20260920",
+        "remote_branch": "setup/bos-gpt-orchestration-20260920",
+        "pr": "https://github.com/vladduk-A-W-F/BOS/pull/1",
+        "documentation_commit": "The Git commit containing these documents; exact pushed full SHA is recorded in the external final delivery receipt.",
+        "main_merge": false
+      },
+      "checks": [
+        {
+          "name": "S2 backend targeted",
+          "result": "PASS_SCOPED",
+          "attempt": 4,
+          "pass": 11,
+          "prior_failures": 3,
+          "evidence_keys": [
+            "s2_targeted",
+            "s2_backend"
+          ]
+        },
+        {
+          "name": "S2 command UI controlled",
+          "result": "PASS_SCOPED",
+          "attempt": 3,
+          "pass": 10,
+          "history": "attempt1 3 PASS/1 FAIL/6 NOT_RUN; attempt2 4/1/5 retained",
+          "evidence_keys": [
+            "s2_ui_review"
+          ]
+        },
+        {
+          "name": "UI links controlled",
+          "result": "PASS_SCOPED",
+          "attempt": 2,
+          "pass": 12,
+          "history": "attempt1 0 PASS/1 FAIL/11 NOT_RUN retained",
+          "evidence_keys": [
+            "ui_links"
+          ]
+        },
+        {
+          "name": "Linked synthetic service chain",
+          "result": "PASS_SCOPED",
+          "attempt": 2,
+          "steps": 10,
+          "confirmed_transitions": 12,
+          "history": "First launcher failure retained. No real HTTP/browser, both reopen actors CEO; no Task actual result.",
+          "evidence_keys": [
+            "linked",
+            "reuse"
+          ]
+        },
+        {
+          "name": "Compact menu controlled",
+          "result": "PASS_SCOPED",
+          "attempt": 3,
+          "pass": 8,
+          "history": "Two prior FAIL retained; real DOM/layout not proven",
+          "evidence_keys": [
+            "menu"
+          ]
+        },
+        {
+          "name": "Manual/unmeasured KPI controlled",
+          "result": "PASS_SCOPED",
+          "attempt": 2,
+          "pass": 8,
+          "history": "First 0 PASS/1 FAIL/7 NOT_RUN retained",
+          "evidence_keys": [
+            "kpi"
+          ]
+        },
+        {
+          "name": "SDC department settings controlled",
+          "result": "PASS_SCOPED",
+          "attempt": 1,
+          "pass": 10,
+          "not_run": "SDC11 real DOM",
+          "evidence_keys": [
+            "source"
+          ]
+        },
+        {
+          "name": "Private Task queue controlled",
+          "result": "PASS_SCOPED_PRIVATE_NOT_APPLIED",
+          "attempt": 1,
+          "pass": 8,
+          "evidence_keys": [
+            "task_queue"
+          ]
+        },
+        {
+          "name": "Private membership UI",
+          "result": "FAIL",
+          "attempt": 3,
+          "pass": 7,
+          "fail": 1,
+          "not_run": 0,
+          "history": "Actual1 transform failure: 0/0/8; actual2 missing extracted SegmentedControl: 0/1/7; metadata refusals2 do not reset actual3.",
+          "evidence_keys": [
+            "ui3"
+          ]
+        },
+        {
+          "name": "Private membership v5 owner guard",
+          "result": "STATIC_ACCEPT_BEHAVIOR_NOT_RUN",
+          "new_target_invocations": 0,
+          "integrated": false,
+          "evidence_keys": [
+            "v5"
+          ]
+        },
+        {
+          "name": "SDC accepted build/package",
+          "result": "BUILD_EXIT0_WITH_CAPTURE_LIMITS",
+          "build_count": 1,
+          "exits": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "limitations": "Functions ReferenceError preserved; HOST_CAPTURE_COMPLETE/HOST_MANIFEST absent; exact full capture compliance false. No new build needed for unchanged runtime.",
+          "evidence_keys": [
+            "source"
+          ]
+        },
+        {
+          "name": "Historical browser focus/responsive",
+          "result": "PASS_SCOPED_646D3B8",
+          "pass": 7,
+          "source": "646d3b80597e087a1ada14221024ec40588996f0",
+          "limits": "Not 207c full gate10"
+        },
+        {
+          "name": "Historical network browser read-only actual6",
+          "result": "PASS_SCOPED",
+          "pass": 4,
+          "history": "Earlier actual1–5 failure history retained, bounded actual5 subscopes accepted separately",
+          "evidence_keys": [
+            "actual6"
+          ]
+        },
+        {
+          "name": "Full current MVP UI/roles/restart protocol",
+          "result": "NOT_RUN",
+          "groups": 12,
+          "observations": 28,
+          "roles": 5,
+          "limits": "Prepared scripts/fixtures are not execution or MVP PASS"
+        },
+        {
+          "name": "Current review runtime update",
+          "result": "HISTORICAL_UPDATE_ACCEPTED_LATER_OUTAGE_RECOVERY_OWNED_BY_CONTROLLER",
+          "details": {
+            "status": "HISTORICAL_UPDATE_ACCEPTED_LATER_OUTAGE_RECOVERY_OWNED_BY_CONTROLLER",
+            "running": false,
+            "url": "http://127.0.0.1:8876/",
+            "attempt": 2,
+            "migration_count": 6,
+            "seed_count": 0,
+            "build_count": 0,
+            "business_rows_preserved_at_update": 230,
+            "business_tables_preserved_at_update": 53,
+            "preservation_note": "Old-column projections verified at update; later owner activity and ordinary login are not claimed byte-unchanged.",
+            "history": "Actual1 update FAIL before migration; actual2 update PASS with preservation. Smoke3 PASS at20:53UTC. Later outage reported21:18:53UTC, confirmed21:27:13UTC after Codex restart; exact termination event unavailable. Controller restores same207c source/data separately without seed/migrate/build.",
+            "evidence_keys": [
+              "runtime_acceptance",
+              "runtime_review",
+              "runtime_outcome",
+              "runtime_first_failure",
+              "availability_outage"
+            ],
+            "availability_as_of_utc": "2026-09-21T21:27:13.1597409Z",
+            "availability_basis": "False denotes only the saved outage observation at the exact timestamp. It is not a new current liveness probe. Controller owns restoration; latest serving state, new process identities and HTTPS URL are in the external final delivery.",
+            "recovery_owner": "controller 01a0bf0f-a9e4-7631-87e1-bb1aed03f174",
+            "last_successful_smoke_at_utc": "2026-09-21T20:53:00.262288+00:00"
+          },
+          "evidence_keys": [
+            "runtime_acceptance",
+            "runtime_review",
+            "runtime_outcome",
+            "runtime_first_failure",
+            "availability_outage"
+          ]
+        },
+        {
+          "name": "Current review browser smoke",
+          "result": "PASS_SCOPED_4_OF_4_HISTORICAL_AT_2053UTC",
+          "details": {
+            "status": "PASS_SCOPED_4_OF_4_HISTORICAL_AT_2053UTC",
+            "attempt": 3,
+            "PASS": 4,
+            "FAIL": 0,
+            "NOT_RUN": 0,
+            "routes": [
+              "workpoints",
+              "orders",
+              "procurement",
+              "network"
+            ],
+            "scope": "Four read routes at1440x1000 and20:53UTC, normal owner login, source207c and app hash. Orders acceptance is visible sales heading plus authenticated snapshot; not all per-order next actions. No business POST. This does not establish availability after the later outage.",
+            "history": "Actual1 FAIL0/0/4: missing post-login wait. Actual2 FAIL0/1/3: route assertion before loading completed. Both preserved; v3 unexecuted locator HOLD corrected in v3a.",
+            "console": "One expected startup401 for unauthenticated /api/auth/me/. No page errors, request failures or blocked business requests; no blanket clean-console claim.",
+            "cleanup": "At20:53UTC owned browser/profile cleanup completed and server handles were running. Later outage supersedes present-liveness assumptions.",
+            "foreign_actual_review": "Independent historical smoke acceptance is in smoke_actual_review. Its docs HOLD concerns the superseded33-file availability wording; successor acceptance is recorded by exact root integration approval.",
+            "evidence_keys": [
+              "browser_receipt",
+              "browser_outer",
+              "browser_host",
+              "browser_preparation_review",
+              "browser_first_failure",
+              "browser_second_failure",
+              "smoke_actual_review"
+            ]
+          },
+          "evidence_keys": [
+            "browser_receipt",
+            "browser_outer",
+            "browser_host",
+            "browser_preparation_review",
+            "browser_first_failure",
+            "browser_second_failure",
+            "smoke_actual_review"
+          ]
+        },
+        {
+          "name": "Final-head remote CI",
+          "result": "PENDING_POST_PUSH_OBSERVATION",
+          "details": {
+            "status": "PENDING_POST_PUSH_OBSERVATION",
+            "as_of": "Private docs preparation before its ordinary commit/push. Exact final-head runs/jobs are recorded in external final delivery and PR.",
+            "forced_full_suites": false,
+            "skipped_is_pass": false,
+            "automatic_reruns": false
+          }
+        }
+      ],
+      "current_full_acceptance": false
+    }
+  },
+  "implementation_authorization": {
+    "message": "ДОВАЬ В ПЛАН РЕАЛИЗАЦИЮ И ПРОДОЛЖАЙ",
+    "date": "2026-09-20",
+    "applies_to": "Proposed progressive dependency-scoped confirmations and continuation of approved implementation plan",
+    "n2_semantics": "Keep pending proposal usable after independent changes only when relevant sources, displayed effect and rights are unchanged",
+    "scope": "First erp_adjust, explicit server context, global fallback for legacy/other actions; necessary additive proposal metadata allowed",
+    "pilot_process_selection": "UNSPECIFIED; generic synthetic procurement/stock/sale preparation continues"
+  },
+  "product_direction_update": {
+    "source": "User-provided chat screenshot on 2026-09-20",
+    "sequence": [
+      "Complete SaaS panel",
+      "Landing page",
+      "Control/assistant bot",
+      "Customer-specific needs and integrations"
+    ],
+    "hosting_boundary": "Managed isolated company installation remains initial implementation; shared database multi-tenancy not inferred",
+    "app_block": "NOT_EXPOSED_IN_CURRENT_TOOLS",
+    "visualize": "AVAILABLE_INLINE",
+    "through_landing_authorization": "Executed through v3 landing/navigation acceptance. Initial v2 publication was owner-private; current public audience was observed and preserved."
+  },
+  "landing": {
+    "project_id": "appgprj_6aa9057b8e5c8191abe7685fb7c9f145",
+    "source_commit": "ce0322034971a1ddc5cd66470e3792bb26f56493",
+    "version_number": 3,
+    "version_id": "appgprj_6aa9057b8e5c8191abe7685fb7c9f145~appgver_0c7af09216588191a7e3a35d030c8efc",
+    "deployment_id": "appgdep_6aafd80d7dc48191bd0e9f2d4b5711b3",
+    "status": "succeeded",
+    "url": "https://business-operating-system.vladduk134.chatgpt.site",
+    "audience": "public_observed_not_changed_by_this_task",
+    "updated_at": "2026-09-20T12:56:59.878586+00:00",
+    "django_deployed": false,
+    "browser_acceptance": true,
+    "historical_publication_receipt": "docs/orchestration/evidence/batch04/DEPLOYMENT.json",
+    "access_revision": 2,
+    "browser_followup_status": "ACCEPT_SCOPED_LANDING_NAVIGATION",
+    "browser_acceptance_scope": "landing_and_navigation_only",
+    "full_transactional_demo_e2e": false,
+    "current_publication_receipt": "docs/orchestration/evidence/batch04/landing-v3-20260920.json",
+    "current_access_observation": "Native get_site after successful v3 publication: public, revision 2; unchanged policy timestamp 2026-09-20T11:50:53.890750+00:00."
+  },
+  "saas_package": {
+    "status": "PACKAGED_NOT_PRODUCTION_READY",
+    "files_verified": 320,
+    "database_files": 0,
+    "package_sha256": "ae539ebc2797303e7524de9eee9af218411d649b8e2b2d79a0c9c26d753bc427",
+    "installer_run": false
+  },
+  "historical_product_candidate": {
+    "commit": "8060075455206257d6283c70906facca98f0bc1a",
+    "source_sha256": "ce495b29214f21a80b8efd5bf41f6f219b5cb182b0453a7c43dac8899bc06ed5",
+    "note": "Historical BATCH02/PLAN-TIME scoped results remain attached to this previous runtime."
+  },
+  "historical_product_candidate_before_continuation": {
+    "commit": "e66af863b0bd840cefb4ef78e5a17414411f3db8",
+    "source_sha256": "7ea639f89ed86ac0bc9fc5ecf201d4d4752fab22e5876700f16a1634e59ffad6",
+    "evidence": "docs/orchestration/VERTICAL_UA_UA.md",
+    "retained_without_relabelling": true
+  },
+  "product_candidate_scope": "Local e038/c514 accepted only within exact source, actual5 five checks and actual6 four readonly contexts. Prior overallFAILs retained; not one full green run, S2 write or MVP.",
+  "continuation_20260920": {
+    "status": "GATE10_AND_PERSISTENT_DEMO_ACCEPTED_EXACT_SOURCE",
+    "base_head": "646d3b80597e087a1ada14221024ec40588996f0",
+    "tree": "1b0bf4e03a4e506d76f2d264e173d1bdc23e7fd3",
+    "source_sha256": "98b011a583c7803d88c888070a3412789559919ecb5692ef34f5e8ad59b5072a",
+    "local_branch": "codex/continuation-20260920",
+    "worktree": "D:/3/Codex/2026-09-20/bos-execution/work/continuation-20260920",
+    "frozen_worktree": "D:/3/Codex/2026-09-20/bos-execution/work/continuation-focus-frozen-20260920",
+    "published_head_at_saved_observation": "3d979060fe9862119ba8ad6c9d8bd505103796e3",
+    "remote_observation": "D:/3/Codex/2026-09-20/bos-execution/work/continuation-evidence-20260920/publication-plan/pr-snapshot.json",
+    "local_commits_after_published": 11,
+    "freeze_artifact": "D:/3/Codex/2026-09-20/bos-execution/work/continuation-evidence-20260920/focus-freeze.json",
+    "previous_candidate": {
+      "head": "530043a80c1196dfcd7bc8bef73b2ec041c09a68",
+      "tree": "4f7bb2cfe70cbb95f835e58be5ab1e690e3b8122",
+      "source_sha256": "dae72739e3a4a260d23db5259066636b01258de4093f457537df35292cd892a6",
+      "freeze_artifact": "D:/3/Codex/2026-09-20/bos-execution/work/continuation-evidence-20260920/freeze.json",
+      "preserved_evidence_index": "D:/3/BOSDev/handoffs/execution-writer-20260920/_work/base-530043a/EVIDENCE_INDEX.json"
+    },
+    "evidence_index": "D:/3/BOSDev/handoffs/execution-writer-20260920/EVIDENCE_INDEX.json",
+    "report": "docs/orchestration/CONTINUATION_20260920_UA.md",
+    "browser_acceptance": "ACCEPT_SCOPED_GATE10_7_OF_7_EXACT_646D3B8",
+    "persistent_review_runtime_acceptance": "ACCEPT_SCOPED_EXACT_646D3B8",
+    "browser_attempt4": {
+      "status": "FAIL_PRESERVED_HISTORICAL",
+      "candidate_commit": "530043a80c1196dfcd7bc8bef73b2ec041c09a68",
+      "tree": "4f7bb2cfe70cbb95f835e58be5ab1e690e3b8122",
+      "source_sha256": "dae72739e3a4a260d23db5259066636b01258de4093f457537df35292cd892a6",
+      "original_exit_code": 1,
+      "report": "D:/3/Codex/2026-09-20/bos-execution/work/continuation-evidence-20260920/browser-attempt4/artifacts/ui-report.json",
+      "exit_receipt": "D:/3/Codex/2026-09-20/bos-execution/work/continuation-evidence-20260920/browser-attempt4/process-exit.json",
+      "raw": "D:/3/Codex/2026-09-20/bos-execution/work/continuation-evidence-20260920/browser-attempt4/raw.log",
+      "passed_checks": [
+        "native_zoom_200"
+      ],
+      "failure": "Escape closed dialog but did not restore opener focus at390",
+      "downstream_flow_executed": false,
+      "source_unchanged": true,
+      "source_databases_unchanged": true,
+      "cleanup": {
+        "browser_closed": true,
+        "server_stopped": true,
+        "runtime_removed": true
+      },
+      "actual_server_exit_verified": true,
+      "launcher_exit_verified": true,
+      "successor_focus_fix": {
+        "card": "WORKPOINT-DIALOG-FOCUS",
+        "manifest": "D:/3/Codex/2026-09-20/bos-execution/work/continuation-evidence-20260920/workpoint-focus/manifest.json",
+        "independent_verdict": "C:/Users/user/Documents/Codex/2026-09-20/realtime-voice-chat/outputs/BoS-browser-demo-acceptance.md",
+        "controlled_before": "FAIL exit1",
+        "controlled_after": "4PASS exit0",
+        "recovery": "22PASS exit0",
+        "included_in_current_base": true,
+        "successor_commit": "646d3b80597e087a1ada14221024ec40588996f0",
+        "actual_browser": "attempt5 ACCEPT_SCOPED_EXACT_SOURCE"
+      }
+    },
+    "browser_attempt5": {
+      "status": "ACCEPT_SCOPED_EXACT_SOURCE",
+      "candidate_commit": "646d3b80597e087a1ada14221024ec40588996f0",
+      "tree": "1b0bf4e03a4e506d76f2d264e173d1bdc23e7fd3",
+      "source_sha256": "98b011a583c7803d88c888070a3412789559919ecb5692ef34f5e8ad59b5072a",
+      "original_exit_code": 0,
+      "gate10_complete": true,
+      "gate10_passed": 7,
+      "passed_checks": [
+        "native_zoom_200",
+        "viewport_390",
+        "viewport_768",
+        "viewport_1440",
+        "keyboard_escape",
+        "network_failure_recovery",
+        "uah_preview_confirm"
+      ],
+      "report": "D:/3/Codex/2026-09-20/bos-execution/work/continuation-evidence-20260920/browser-attempt5/artifacts/ui-report.json",
+      "report_sha256": "be0ab0e51ce4d03093bbbadf4168dbd626298817f426cc485199f56fc46592e4",
+      "raw": "D:/3/Codex/2026-09-20/bos-execution/work/continuation-evidence-20260920/browser-attempt5/raw.log",
+      "raw_sha256": "4acaac1736918eebf9b9b6ff8e564f5eae61efc2434c564ef5141fbc4d40f3e8",
+      "receipt": "D:/3/Codex/2026-09-20/bos-execution/work/continuation-evidence-20260920/browser-attempt5/receipt.json",
+      "exit_receipt": "D:/3/Codex/2026-09-20/bos-execution/work/continuation-evidence-20260920/browser-attempt5/process-exit.json",
+      "independent_verdict": "C:/Users/user/Documents/Codex/2026-09-20/realtime-voice-chat/outputs/BoS-browser-demo-acceptance.md",
+      "artifact_sha_and_bytes_verified": 26,
+      "separate_bounded_flows": [
+        {
+          "id": "supply_transfer_confirm_replay",
+          "passed": true,
+          "scope": "Separate bounded actual browser flow; not full Gate6",
+          "proposal_id": "be62bb73-0b10-421e-9d12-7d06553462dd",
+          "preview_does_not_write": true,
+          "same_proposal_replay_has_no_duplicate": true,
+          "replay_transport": "same browser session HTTP; same proposal",
+          "business_sha256": {
+            "before": "e5237ef14028a7adad3e5bf17a17cd469934e5dddb5287582c7000d73983f558",
+            "after_preview": "e5237ef14028a7adad3e5bf17a17cd469934e5dddb5287582c7000d73983f558",
+            "after_confirm": "fafb92bc9b8ed8ed8307d8252bcd4fba63f5c3ea3f882c62520e07dd2c652c0f",
+            "after_replay": "fafb92bc9b8ed8ed8307d8252bcd4fba63f5c3ea3f882c62520e07dd2c652c0f"
+          }
+        },
+        {
+          "id": "settlement_payment_confirm_replay",
+          "passed": true,
+          "scope": "Separate bounded actual browser flow; not full Gate6",
+          "proposal_id": "c8a52c41-2009-4684-a54b-369b0b8b4275",
+          "preview_does_not_write": true,
+          "same_proposal_replay_has_no_duplicate": true,
+          "replay_transport": "same browser session HTTP; same proposal",
+          "business_sha256": {
+            "before": "fafb92bc9b8ed8ed8307d8252bcd4fba63f5c3ea3f882c62520e07dd2c652c0f",
+            "after_preview": "fafb92bc9b8ed8ed8307d8252bcd4fba63f5c3ea3f882c62520e07dd2c652c0f",
+            "after_confirm": "ce77e877b28f60baa0bf8c3615fba2f6fe409ff7fb3d0ef985f189baa3b770b0",
+            "after_replay": "ce77e877b28f60baa0bf8c3615fba2f6fe409ff7fb3d0ef985f189baa3b770b0"
+          }
+        },
+        {
+          "id": "document_match_explicit_exception",
+          "passed": true,
+          "scope": "Separate bounded actual browser flow; not full Gate6",
+          "no_business_writes": true,
+          "exceptions": [
+            "unsupported_document"
+          ],
+          "operation_proposal": null,
+          "no_extraction_claim": true
+        }
+      ],
+      "full_gate6_accepted": false,
+      "page_errors": [],
+      "external_requests": [],
+      "server_process": {
+        "ownership": "self-reported child identity matched while exact process handle was held",
+        "launcher_identity": {
+          "pid": 12712,
+          "created_ticks": 134343979324717690,
+          "image": "d:\\3\\codex\\2026-09-20\\bos-execution\\work\\vertical-ua\\venv\\scripts\\python.exe"
+        },
+        "launcher_pid": 12712,
+        "actual_server_pid": 8084,
+        "child_identity": {
+          "pid": 8084,
+          "created_ticks": 134343979325013956,
+          "image": "c:\\users\\user\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe"
+        },
+        "created_ticks": 134343979325013956,
+        "ownership_verified_before_application": true,
+        "actual_server_exit_verified": true,
+        "launcher_exit_verified": true
+      },
+      "source_unchanged": true,
+      "source_databases_unchanged": true,
+      "cleanup": {
+        "browser_closed": true,
+        "server_stopped": true,
+        "runtime_removed": true
+      },
+      "started_at": "2026-09-20T17:11:57.934455+00:00",
+      "finished_at": "2026-09-20T17:12:47.556601+00:00",
+      "does_not_cover": [
+        "separate PR2",
+        "future source/merge",
+        "other10 gate requirements"
+      ]
+    },
+    "persistent_review": {
+      "status": "ACCEPT_SCOPED_EXACT_SOURCE",
+      "candidate_commit": "646d3b80597e087a1ada14221024ec40588996f0",
+      "source_sha256": "98b011a583c7803d88c888070a3412789559919ecb5692ef34f5e8ad59b5072a",
+      "url": "http://127.0.0.1:8876/",
+      "runtime": "D:/3/Codex/2026-09-20/bos-execution/work/continuation-review-demo-20260920",
+      "normal_owner_login_verified": true,
+      "owner_nonstaff_nonsuperuser_verified": true,
+      "working_mode_verified": true,
+      "paid_ai_configured": false,
+      "server_intentionally_persistent_at_observation": true,
+      "actual_browser_viewports": [
+        1440,
+        390
+      ],
+      "page_errors": [],
+      "credential_handling": "DPAPI CurrentUser; no secret read or output by this evidence writer",
+      "receipt": "D:/3/Codex/2026-09-20/bos-execution/work/continuation-evidence-20260920/persistent-review/receipt.json",
+      "independent_verdict": "C:/Users/user/Documents/Codex/2026-09-20/realtime-voice-chat/outputs/BoS-browser-demo-acceptance.md",
+      "guide": "D:/3/Codex/2026-09-20/bos-execution/work/continuation-evidence-20260920/LOCAL_REVIEW_RU.md",
+      "live_public_http_200": "Independently observed by root per saved acceptance report; not freshly requested by evidence writer",
+      "gate_acceptance_from_demo_alone": false
+    },
+    "restore_prerequisites": {
+      "status": "PRECHECK_COMPLETE_EXECUTION_NOT_READY",
+      "gate": 7,
+      "gate_execution": "NOT_RUN",
+      "source_commit_observed": "530043a80c1196dfcd7bc8bef73b2ec041c09a68",
+      "receipt": "D:/3/Codex/2026-09-20/bos-execution/work/continuation-evidence-20260920/restore-prerequisites/receipt.json",
+      "review": "D:/3/Codex/2026-09-20/bos-execution/work/continuation-evidence-20260920/restore-prerequisites/review.md",
+      "remaining_prerequisites": [
+        "proven Linux amd64 runner",
+        "compatible offline exact wheelhouse",
+        "pinned Caddy",
+        "OpenSSL CLI"
+      ],
+      "historical_restore_is_current_proof": false
+    },
+    "postgres_new_read_http": {
+      "status": "BLOCKED_PREFLIGHT_NO_PG_TEST_ATTEMPT",
+      "source_commit_observed": "530043a80c1196dfcd7bc8bef73b2ec041c09a68",
+      "test_attempts": 0,
+      "test_exit_code": null,
+      "receipt": "D:/3/Codex/2026-09-20/bos-execution/work/continuation-evidence-20260920/pg-new-read-http/receipt.json",
+      "blockers": [
+        "PG loopback port 55439 ConnectionTimeout; no start/retry permitted",
+        "Frozen DocumentMatchRouteTests delegates to SQLite-only fixture guards; no failing test run performed"
+      ],
+      "isolated_fixture_correction": {
+        "author_receipt_review_status": "PENDING_INDEPENDENT_REVIEW",
+        "independent_root_review": "ACCEPT_SCOPED reported in chief task instruction; historical author receipt remains pending",
+        "sha256": {
+          "erp/test_document_match_route.py": "e1925196e1cfdfede46c68815aec0e9571f88d5694b1f3236a06a4f714497c76",
+          "operations/test_document_matching_server.py": "e137fa740fc330bebd185edb25051a30ea3141ba4542ffcc0f4680e0db659cff"
+        },
+        "patch_sha256": "6733548592e86bc4ea7eca6912eef3bf7d0d9e66734b575249deb68f592ef2a2",
+        "sqlite_validation_receipt": "D:/3/Codex/2026-09-20/bos-execution/work/continuation-evidence-20260920/pg-new-read-http/sqlite-fixture-validation/receipt.json",
+        "sqlite_tests": 2,
+        "sqlite_exit_code": 0,
+        "integrated_into_base": false,
+        "included_in_registry_patch": false
+      },
+      "pg_pass": false,
+      "new_synthetic_cluster_plan": "Owned by separate lane; no new attempt or runtime change inferred in this snapshot"
+    },
+    "gate4_current_environment": "INCOMPLETE_NO_FINAL_RECEIPT",
+    "new_access_catalogue": {
+      "definitions": 195,
+      "required_field_ids": 95,
+      "scope": "static/discovery only; no full sweep acceptance"
+    },
+    "scoped_cards": [
+      {
+        "id": "S1-CONFIRM-RECOVERY",
+        "commit": "811a61399f4616a3b3d9d5d5305e593eb6e6e9fe",
+        "verdict": "ACCEPT_SCOPED_RECORDED_BY_COORDINATOR"
+      },
+      {
+        "id": "PLAN-DOC-MATCH-CONTRACT",
+        "commit": "90e2cf833ab601fe543d1dbdb64e087b432cfd32",
+        "verdict": "ACCEPT_SCOPED_MOCK_CONTRACT_RECORDED"
+      },
+      {
+        "id": "SUPPLY-OPTIONS-READ",
+        "commit": "92d0713c7cc46c683ae72192661924a3a14083f7",
+        "verdict": "ACCEPT_SCOPED_SQLITE12"
+      },
+      {
+        "id": "FLOW-ORDER-SETTLEMENT",
+        "commit": "ae10e3f2498a8292bcfe065d593a95cc3c0272b9",
+        "verdict": "ACCEPT_SCOPED_REFERENCE_FIX"
+      },
+      {
+        "id": "DOC-MATCH-SERVER",
+        "commit": "67cc588f9f1171442d1822bae127bc6369ecddf3",
+        "verdict": "ACCEPT_SCOPED_RECORDED_BY_COORDINATOR"
+      },
+      {
+        "id": "FLOW-READ-UI",
+        "commit": "bfbc588a2445eeb04e7ef13c2ecca5c72f4eb47d",
+        "verdict": "ACCEPT_SCOPED_RECORDED_BY_COORDINATOR"
+      },
+      {
+        "id": "LOCAL-REVIEW-SUPPORT",
+        "commit": "bc6cc57503fdd042415e1c4ff93c7867e20ae91a",
+        "verdict": "ACCEPT_SCOPED_SUPPORT_ONLY"
+      },
+      {
+        "id": "DOC-MATCH-READ-UI",
+        "commit": "accbedc8582bb05a4e784a46b2c23422dbeaf931",
+        "verdict": "ACCEPT_SCOPED_DOC_READ_UI"
+      },
+      {
+        "id": "FLOW-BROWSER-HELPER",
+        "commit": "23f7145be0e67724719a4dc015c32f2d684b33ad",
+        "verdict": "ACCEPT_SCOPED_HELPER_ONLY"
+      },
+      {
+        "id": "UI-LOCAL-RUNNER",
+        "commit": "530043a80c1196dfcd7bc8bef73b2ec041c09a68",
+        "verdict": "ACCEPT_SCOPED_RUNNER_ONLY"
+      },
+      {
+        "id": "WORKPOINT-DIALOG-FOCUS",
+        "commit": "646d3b80597e087a1ada14221024ec40588996f0",
+        "verdict": "ACCEPT_SCOPED_FOCUS_AND_ACTUAL_BROWSER"
+      }
+    ],
+    "full_gate_acceptance": false,
+    "technical_ready": false,
+    "pilot_allowed": false,
+    "source_pr2_reconciliation": {
+      "status": "RECONCILIATION_PENDING",
+      "url": "https://github.com/vladduk-A-W-F/BOS/pull/2",
+      "reported_head": "abb8845f6563bafa806029ddc1e7c2cace09907c",
+      "reported_product_commit": "b10760b16dfe933511cd880f02a29d840c03dcc1",
+      "source_chat_artifact": "D:/3/Codex/2026-09-20/bos-execution/work/continuation-evidence-20260920/source-chat-read-20260920.json",
+      "comparison_owner": "browser_evidence_check",
+      "integrated_into_this_candidate": false,
+      "features_or_tests_attributed_to_this_candidate": false,
+      "reported_topics": [
+        "network",
+        "transfers",
+        "retentions",
+        "datasets"
+      ],
+      "audit_duplicated": false,
+      "merge_performed": false
+    }
+  },
+  "parallel_scenarios": {
+    "contract": "docs/orchestration/PARALLEL_SCENARIOS_UA.md",
+    "status": "CURRENT_C514_SCOPED_BROWSER_CONTEXTS_ACCEPTED_FULL_SCENARIOS_OPEN",
+    "current_integrator": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+    "external_reservation": "PRESERVED",
+    "end_to_end_accepted": false,
+    "actual_browser_candidate_commit": "e038d6db562c6f36c06808c0793f66a6d63982cf",
+    "scenarios": [
+      {
+        "id": "S1",
+        "scope": "order/reserve/ship/invoice/partial payment/debt",
+        "status": "Current c514 hold/release and settlement reads accepted; payment count unchanged. Prior646 payment evidence remains historical. Complete order-to-debt process open."
+      },
+      {
+        "id": "S2",
+        "scope": "synthetic supplier document extraction/matching/receipt reconciliation",
+        "status": "Current c514 unsupported-document read accepted at1440/768/390 with warnings/original control. Supplier invoice registration v4 remains private and unaccepted; no full write or persistent exception workflow accepted."
+      },
+      {
+        "id": "S3",
+        "scope": "shortage/purchase or transfer/receipt/quality/stock",
+        "status": "Current c514 dispatch/receive plus same-proposal replays accepted; received lot remains pending quality. Full procurement/quality/stock process open."
+      }
+    ]
+  },
+  "continuation_acceptance_gates": [
+    {
+      "id": 1,
+      "requirement": "Міграції на порожніх SQLite і PostgreSQL",
+      "status": "INCOMPLETE_CURRENT_CANDIDATE",
+      "evidence_limit": "Historical e66af PG16 fresh migration exit0; SQLite original exit unknown after observer cleanup error. Current frozen candidate not rerun."
+    },
+    {
+      "id": 2,
+      "requirement": "151 функціональна + 5 launcher + решта тестів на обох СУБД",
+      "status": "NOT_ACCEPTED_CURRENT_CANDIDATE",
+      "evidence_limit": "Scoped new tests and historical CI do not replace both-DB acceptance. PG new-read preflight made0 test attempts: port55439 unavailable and SQLite-only fixture guard. Separate fixture correction has2 SQLite PASS; not PG PASS."
+    },
+    {
+      "id": 3,
+      "requirement": "П’ять інваріантів, мінімум 1000 випадкових прогонів кожний",
+      "status": "NOT_ACCEPTED_CURRENT_CANDIDATE",
+      "evidence_limit": "Five invariants x1000 not established for this candidate."
+    },
+    {
+      "id": 4,
+      "requirement": "Права всіх ролей на всіх API/admin та всіх поверхнях даних",
+      "status": "INCOMPLETE",
+      "evidence_limit": "Old fixture failed after an actual HTTP422 but before route sweep; current-environment/access-current-1 has checks=[] and no final receipt. Catalogue195/required95 is static, not all-role execution."
+    },
+    {
+      "id": 5,
+      "requirement": "Два одночасні виклики кожної грошової та складської дії",
+      "status": "NOT_ACCEPTED_CURRENT_CANDIDATE",
+      "evidence_limit": "Historical concurrency evidence has older source identity; UI same-ID replay and mocked oracles are not all writers concurrently."
+    },
+    {
+      "id": 6,
+      "requirement": "Наскрізний процес на чистій базі, звірка до копійки",
+      "status": "NOT_ACCEPTED_CURRENT_CANDIDATE",
+      "evidence_limit": "Attempt5 separately accepted transfer/payment UI preview-confirm and same-proposal browser HTTP replay, plus ordinary-document unsupported/no-writes. These3 bounded flows do not establish full business E2E. Exhausted preset not retried."
+    },
+    {
+      "id": 7,
+      "requirement": "Backup/restore у чисту установку: кількості, суми, версії, SHA",
+      "status": "NOT_RUN_PREREQUISITES_UNPROVEN",
+      "evidence_limit": "Read-only prerequisite review completed at530043a. Usable Linux amd64 runner, compatible offline wheels, pinned Caddy and OpenSSL remain unproven. Same-N restore NOT RUN; no install/upgrade authority inferred."
+    },
+    {
+      "id": 8,
+      "requirement": "Чиста виробнича установка: TLS, cookies, proxy, health, logs",
+      "status": "NOT_ACCEPTED_BLOCKED_REPEAT",
+      "evidence_limit": "Production install/TLS/cookies/proxy/logs not accepted. A09 exact13MiB retry remains forbidden."
+    },
+    {
+      "id": 9,
+      "requirement": "Оновлення N → N+1 та відновлення N після rollback",
+      "status": "NOT_ACCEPTED_BLOCKED_REPEAT",
+      "evidence_limit": "A10 activation/upgrade/rollback restriction remains; no new run."
+    },
+    {
+      "id": 10,
+      "requirement": "Браузер: 390/768/1440, 200%, клавіатура, Escape, мережа",
+      "status": "ACCEPT_SCOPED_EXACT_646D3B8",
+      "evidence_limit": "Independent root accepted actual attempt5: exit0,7of7 at646d3b80597e087a1ada14221024ec40588996f0/source98b011a583c7803d88c888070a3412789559919ecb5692ef34f5e8ad59b5072a.26 artifacts hash/length verified. Exact child8084/launcher12712 exited; source/DB unchanged. Attempt4 focus FAIL at530043a preserved. Does not cover PR2 or future merge."
+    },
+    {
+      "id": 11,
+      "requirement": "Чиста Windows / Python 3.12: критерії 1–3 і 6",
+      "status": "NOT_ACCEPTED_CURRENT_CANDIDATE",
+      "evidence_limit": "Windows source/stdlib proofs and Python3.12 runtime do not establish fresh Windows criteria1-3 and6."
+    }
+  ],
+  "publication_checkpoint_20260920": {
+    "commit": "620aeab2010c6c8327ce46c25bb62435bcf7f9e4",
+    "tree": "f6c75017e8c59a69d1e33ff67e5d06638e08a132",
+    "pr": "https://github.com/vladduk-A-W-F/BOS/pull/1",
+    "status": "PUBLISHED_CHECKPOINT_REPORTED_BY_ROOT_AND_OBSERVER",
+    "evidence": "Chief DESIGN-ORGANIZATION assignment and prior controller HANDOFF_620AEAB instruction; exact local HEAD/clean state read before preparation",
+    "local_observation": {
+      "head": "620aeab2010c6c8327ce46c25bb62435bcf7f9e4",
+      "clean": true,
+      "at_utc": "2026-09-20T18:03:26+00:00"
+    },
+    "remote_rechecked_by_writer": false,
+    "product_commit": "646d3b80597e087a1ada14221024ec40588996f0",
+    "product_source_sha256": "98b011a583c7803d88c888070a3412789559919ecb5692ef34f5e8ad59b5072a",
+    "previous_product_candidate_scope": "LOCAL_FROZEN_UNPUBLISHED; exact Gate10 and persistent synthetic demo accepted, overall readiness false",
+    "historical_3d_observations_retained": true,
+    "historical_browser_attempt4_fail_retained": true
+  },
+  "design_department": {
+    "role": "bos_ux",
+    "department": "DESIGN",
+    "status": "C514_PRESENTATION_ACCEPTED_SCOPED_OTHER_DESIGN_AND_MVP_GAPS_OPEN",
+    "contract": "docs/design/DEPARTMENT_UA.md",
+    "existing_card": "PLAN-UX",
+    "first_task": "docs/design/PLAN_UX_INCREMENT_UA.md",
+    "first_task_kind": "saved screenshot audit, component rules and exactly one proposed visual increment",
+    "permanent_executor": {
+      "thread_id": "01a0bffa-3fc7-7bc2-9868-86164c6e0315",
+      "host_id": "local",
+      "title": "БОС — отдел дизайна",
+      "worktree": "C:/Users/user/.codex/worktrees/c8b3/repo",
+      "identity_status": "CREATED_VERIFIED",
+      "verified_at": "2026-09-20T18:05:47.677284+00:00",
+      "verification_method": "App read_thread and exact title/managed-worktree identity; list_threads omitted this thread at snapshot",
+      "creation_record": "C:/Users/user/AppData/Local/BOSDev/design-thread-creation.json",
+      "creation_record_sha256": "ca255f02f2261288659dfd27ecc72644d7d2bc70a9d5c6019b9a98161d4d376c",
+      "client_thread_id_used_as_thread_id": false,
+      "created_by_this_writer": false
+    },
+    "first_assignment": {
+      "source": "D:/3/BOSDev/handoffs/DESIGN_DEPARTMENT_INITIAL_PROMPT_RU.md",
+      "sha256": "cdf2386cc7894c4ee67453eae2ebd957916d25b0978af75fb2f36140a1471a8c",
+      "current_allowlist": [
+        "D:/3/BOSDev/reports/design/DESIGN_BRIEF_RU.md",
+        "D:/3/BOSDev/reports/design/UI_DESIGN_AUDIT_RU.md",
+        "D:/3/BOSDev/reports/design/INITIAL_REPORT.json",
+        "D:/3/BOSDev/reports/design/INITIAL_REPORT_MESSAGE.md"
+      ],
+      "independent_review": "PENDING; no visual result accepted by this organization packet"
+    },
+    "first_author_result": {
+      "author_report": "D:/3/BOSDev/reports/design/INITIAL_REPORT.json",
+      "author_report_sha256": "ff488bd662a120ebb50eeb2350e0d31eeb0b0989328e67c0818b488b2828de19",
+      "author_status": "PREPARATION_READY_FOR_INDEPENDENT_REVIEW",
+      "reported_screenshots_inspected": 19,
+      "reported_next_visual_increment_count": 1,
+      "independent_review": "PENDING",
+      "attribution": "Author report and root clarification; not a new visual review by this organization writer",
+      "repeat_audit_requested": false,
+      "next_step": "Root independently reviews the existing design brief/audit/report before assigning integration"
+    },
+    "former_executor": {
+      "owner": "/root/document_server_adapter",
+      "design_audit": "STOPPED_BY_ROOT_PARTIAL_HANDOFF_ONLY",
+      "independent_finance_ui_review": "Completed and accepted per root task clarification; not rerun here"
+    },
+    "handoff_artifacts_directory": "D:/3/Codex/2026-09-20/bos-execution/work/design-department-20260920",
+    "handoff_directory_is_chat_cwd": false,
+    "source_context": {
+      "docs_checkpoint": "620aeab2010c6c8327ce46c25bb62435bcf7f9e4",
+      "accepted_product_commit": "646d3b80597e087a1ada14221024ec40588996f0",
+      "accepted_source_sha256": "98b011a583c7803d88c888070a3412789559919ecb5692ef34f5e8ad59b5072a",
+      "portable_evidence": "docs/orchestration/evidence/continuation-646d3b8",
+      "pending_network_source": "Context only; not accepted screenshot evidence"
+    },
+    "ownership": {
+      "design_domain": "docs/design and privately prepared specifications/patches; repo writes require separately assigned allowlist",
+      "shared_frontend_integrator": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+      "shared_frontend_files": [
+        "frontend/boss_app_source.html",
+        "assets/app.js"
+      ],
+      "independent_reviewer": "root",
+      "controller_thread_id": "01a0bf0f-a9e4-7631-87e1-bb1aed03f174"
+    },
+    "startup_evidence": {
+      "verified_owner": true,
+      "managed_worktree_exists": true,
+      "first_assignment_exists": true,
+      "first_design_report_metadata_read": true,
+      "first_design_visual_findings_reviewed_by_organization_writer": false
+    },
+    "organization_accepted": true,
+    "ui_implemented": true,
+    "audit_duplicated_by_writer": false,
+    "model_or_tool_launch_claimed": false,
+    "runtime_settings_changed": false,
+    "external_reservation": "PRESERVED",
+    "current_brief_review": {
+      "status": "ACCEPT_SCOPED_PREPARATORY_DESIGN_BRIEF",
+      "root": {
+        "path": "D:/3/BOSDev/reports/root/DESIGN-INITIAL-ROOT-REVIEW-20260920.json",
+        "sha256": "b4bb8e0323d84853b724d457af29765959d5acf874a54039aca217f36a77becb",
+        "verdict": "ACCEPT_SCOPED_DESIGN_BRIEF_FOR_PRIVATE_PATCH"
+      },
+      "observer": {
+        "path": "D:/3/BOSDev/evidence/design-initial-independent-review-20260920.json",
+        "sha256": "ebff8a90c7e19924363c6501e8481e305b7c033b732cd6a3b2219a916940b081",
+        "verdict": "APPROVE_SCOPED_PREPARATORY_DESIGN_SPEC"
+      },
+      "scope": "Prepared brief/audit and one proposed increment; source screenshots646 are context only. No changed UI implementation acceptance.",
+      "audit_repeated_by_integrator": false,
+      "implementation_accepted": false
+    },
+    "current_assignment": {
+      "id": "PLAN-UX/READABLE-FACTS",
+      "status": "ACCEPT_SCOPED_NINE_CONTEXTS_ACROSS_ACTUAL5_AND6_OTHER_UX_GAPS_OPEN",
+      "source_commit": "e038d6db562c6f36c06808c0793f66a6d63982cf",
+      "source_sha256": "c514204ef289386959c997a0404a579b5e66ba45c4b2fa9cb1580375413f9d9e",
+      "shared_frontend_integrator": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+      "implementation_accepted": true,
+      "accepted_scope": "Existing three readonly sections at1440/768/390 across two actual runs, plus narrow money nowrap correction; not full current Gate10, native200, accessibility or S2 write.",
+      "evidence": "docs/orchestration/NETWORK_COMPOSITION_UA.md",
+      "application_review": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/money-wrap-application-independent-review/REVIEW.json",
+        "sha256": "d87d8fe3d3dcbcf1b05020262b018bc4a7205e7c67fd1aed1dfc53bb039413f4"
+      },
+      "actual5_review": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/attempt5-independent-review/REVIEW.json",
+        "sha256": "e1661816c6c696b315ac430024a10e941239302fe85fcb8cfe717fda43779575"
+      },
+      "actual6_review": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/attempt6-independent-review/REVIEW.json",
+        "sha256": "fed147aaff757b6c452fa2cdbc7064a628dc3413ef937776866af8c60e0ba2c1"
+      },
+      "root_acceptance": {
+        "path": "D:/3/BOSDev/reports/root/ACTUAL6-READONLY-ACCEPTED-20260921.json",
+        "sha256": "8001b65507ddf515adabe8386b5d9ef4e3f0d2e29c397c2c9f0df30626e6afd8"
+      },
+      "next_step": "Separate accepted S2 backend/UI contract and linked MVP execution package; do not repeat accepted audit/capture scope without a new exact decision."
+    },
+    "historical_fields_note": "first_assignment, first_author_result, source_context and current_brief_review retain initial646/preparatory snapshots; current assignment above records c514 scoped presentation acceptance. Organization committed598143; QA separation committedddafd172. No full UX/MVP readiness claim.",
+    "historical_assignment_before_c514": {
+      "id": "PLAN-UX/READABLE-FACTS",
+      "status": "ACTIVE_PRIVATE_PRESENTATION_PREPARATION",
+      "assignment": {
+        "path": "D:/3/BOSDev/handoffs/design-readable-facts-20260920/ASSIGNMENT_FROM_ROOT_RU.md",
+        "sha256": "c4f9870383751ae35a0a1be22bb8caadd35ec35c3023cbbaa803c88aaf1d7441"
+      },
+      "owner_thread_id": "01a0bffa-3fc7-7bc2-9868-86164c6e0315",
+      "workcopy": "D:/3/BOSDev/handoffs/design-readable-facts-20260920/workcopy",
+      "source_checkout": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-20260920",
+      "source_sha256": "d95e2b05ca06d5190bd2a9429997981acf9886d9218fccf33200df0adf49a56a",
+      "source_manifest": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/candidate-alias-fixed.json",
+        "sha256": "3c4a3e6e69b138fb1e64d778e663741c3c03932cebd06e8fea4b4709fa03d214"
+      },
+      "author_allowlist": [
+        "D:/3/BOSDev/handoffs/design-readable-facts-20260920/workcopy/frontend/boss_app_source.html",
+        "D:/3/BOSDev/handoffs/design-readable-facts-20260920/original/frontend/boss_app_source.html",
+        "D:/3/BOSDev/handoffs/design-readable-facts-20260920/DESIGN_READABLE_FACTS.patch",
+        "D:/3/BOSDev/handoffs/design-readable-facts-20260920/MANIFEST.json",
+        "D:/3/BOSDev/handoffs/design-readable-facts-20260920/REVIEW_NOTES_RU.md"
+      ],
+      "source_scope": [
+        "narrow local CSS",
+        "presentation JSX in OrderSettlement",
+        "presentation JSX in OrderSupplyOptions",
+        "presentation JSX in PurchaseDocumentMatch"
+      ],
+      "preserve": "Current metrics including debt/retained/collectible, exact strings, warnings, null/zero/access distinctions, handlers, payloads, permissions, recovery and effects. No global .bos-order-trace change.",
+      "shared_frontend_integrator": "/root/product_integration_continuation",
+      "source_build_or_browser_execution_authorized_for_designer": false,
+      "implementation_accepted": false,
+      "next_step": "Independent private diff review, then sole integrator imports/builds; actual final browser evidence is a separately bounded acceptance."
+    },
+    "organization_commit": "598143113dfa9cd85caa1403c6d40e4956466468"
+  },
+  "owner_reporting": {
+    "status": "DEFINED_FOR_INDEPENDENT_REVIEW",
+    "contract": "docs/orchestration/REPORTING_UA.md",
+    "controller_thread_id": "01a0bf0f-a9e4-7631-87e1-bb1aed03f174",
+    "assignment_owner_thread_id": "01a0be90-e790-7351-a8ac-059d523941c4",
+    "template": "D:/3/BOSDev/reports/REPORT_TEMPLATE.json",
+    "schema": "bos.department-report.v1",
+    "owners": [
+      {
+        "owner": "root",
+        "thread_id": "01a0be90-e790-7351-a8ac-059d523941c4",
+        "department": "ORCHESTRATION",
+        "reports_directory": "D:/3/BOSDev/reports/root",
+        "delivery": "codex_channel.py --target observer"
+      },
+      {
+        "owner": "/root/product_integration_continuation",
+        "parent_thread_id": "01a0be90-e790-7351-a8ac-059d523941c4",
+        "department": "INDEPENDENT_REVIEW",
+        "reports_directory": "D:/3/BOSDev/reports/product_integration",
+        "delivery": "unchanged author report relayed by root",
+        "scope_note": "Former shared integrator; now independently reviews assigned packets only."
+      },
+      {
+        "owner": "/root/browser_evidence_check",
+        "parent_thread_id": "01a0be90-e790-7351-a8ac-059d523941c4",
+        "department": "DATA_MODEL_REVIEW",
+        "reports_directory": "D:/3/BOSDev/reports/migration_composition",
+        "delivery": "unchanged author report relayed by root"
+      },
+      {
+        "owner": "/root/document_server_adapter",
+        "parent_thread_id": "01a0be90-e790-7351-a8ac-059d523941c4",
+        "department": "INDEPENDENT_REVIEW",
+        "reports_directory": "D:/3/BOSDev/reports/independent_review",
+        "delivery": "unchanged author report relayed by root",
+        "scope_note": "Finance/UI review completed and accepted per root clarification; former design audit stopped, partial handoff only"
+      },
+      {
+        "owner": "bos_ux",
+        "thread_id": "01a0bffa-3fc7-7bc2-9868-86164c6e0315",
+        "department": "DESIGN",
+        "reports_directory": "D:/3/BOSDev/reports/design",
+        "delivery": "explicitly authorized design initial report through codex_channel.py --target observer",
+        "worktree": "C:/Users/user/.codex/worktrees/c8b3/repo"
+      },
+      {
+        "owner": "execution_writer",
+        "thread_id": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+        "department": "ENGINEERING_INTEGRATION",
+        "reports_directory": "D:/3/BOSDev/reports/execution_writer",
+        "delivery": "codex_channel.py --target observer",
+        "scope_note": "Sole shared writer/integrator under exact root decisions; root coordinates/publication."
+      }
+    ],
+    "events": [
+      "assignment",
+      "significant verified result",
+      "ready for independent review",
+      "actual blocker"
+    ],
+    "atomic_individual_json": true,
+    "unchanged_timer_updates": false,
+    "acknowledgment_echoes": false,
+    "delivery": "Only codex_channel.py send --target observer; real CODEX_THREAD_ID and one stable message ID",
+    "uncertain_delivery": "Do not automatically retry or bypass ledger; retain report and record delivery blocker",
+    "observer_json_writer": "controller only under bos_dev.state_lock",
+    "heartbeat": "existing single heartbeat unchanged",
+    "delivery_is_execution_evidence": false
+  },
+  "historical_registry_before_network_c514": {
+    "updated_at": "2026-09-20T18:17:54+00:00",
+    "product_candidate_commit": "646d3b80597e087a1ada14221024ec40588996f0",
+    "runtime_source_sha256": "98b011a583c7803d88c888070a3412789559919ecb5692ef34f5e8ad59b5072a",
+    "current_batch": "VERTICAL-UA",
+    "next_action": "Root reviews this design organization docs/config proposal and separately the dedicated design chat existing author package:19 screenshots and one proposed visual increment, independent review pending. Do not repeat the completed author audit. Old reviewer supplies partial handoff only. Product integration and remaining source/PG/restore/full-business gates stay with their assigned owners. Checkpoint620aeab is already published as reported; do not repeat prior registry work or acceptance runs.",
+    "batch_result": "CONTINUATION_GATE10_AND_PERSISTENT_DEMO_ACCEPTED_EXACT_646D3B8_OTHER_GATES_OPEN",
+    "product_candidate_scope": "Product646d3b8/source98b011 accepted only within existing evidence scopes; documentation checkpoint620aeab reported published. Design organization is a separate proposal pending independent review.",
+    "parallel_scenarios": {
+      "contract": "docs/orchestration/PARALLEL_SCENARIOS_UA.md",
+      "status": "BOUNDED_BROWSER_FLOWS_ACCEPTED_FULL_SCENARIOS_OPEN",
+      "current_integrator": "/root/product_integration_continuation",
+      "external_reservation": "PRESERVED",
+      "end_to_end_accepted": false,
+      "actual_browser_candidate_commit": "646d3b80597e087a1ada14221024ec40588996f0",
+      "scenarios": [
+        {
+          "id": "S1",
+          "scope": "order/reserve/ship/invoice/partial payment/debt",
+          "status": "PAYMENT12.34UAH_UI_PREVIEW_CONFIRM_SAME_PROPOSAL_HTTP_REPLAY_ACCEPTED; complete order-to-debt process remains open"
+        },
+        {
+          "id": "S2",
+          "scope": "synthetic supplier document extraction/matching/receipt reconciliation",
+          "status": "ACTUAL_ORDINARY_DOCUMENT_UNSUPPORTED_NO_WRITES_ACCEPTED; synthetic mock read-only matching only, no approval/posting/persistent exception queue"
+        },
+        {
+          "id": "S3",
+          "scope": "shortage/purchase or transfer/receipt/quality/stock",
+          "status": "TRANSFER1_UNIT_UI_PREVIEW_CONFIRM_SAME_PROPOSAL_HTTP_REPLAY_ACCEPTED; complete procurement/receipt/quality process remains open"
+        }
+      ]
+    }
+  },
+  "network_composition_c514": {
+    "status": "ACCEPT_SCOPED_SOURCE_AND_SEPARATE_BROWSER_CONTEXTS_OTHER_GAPS_OPEN",
+    "report": "docs/orchestration/NETWORK_COMPOSITION_UA.md",
+    "source_commit": "e038d6db562c6f36c06808c0793f66a6d63982cf",
+    "runtime_source_sha256": "c514204ef289386959c997a0404a579b5e66ba45c4b2fa9cb1580375413f9d9e",
+    "local_source_status": "CLEAN_E038_OBSERVED_BEFORE_PRIVATE_DOCS_PROPOSAL",
+    "runtime_file_count": 420,
+    "source_application_review": {
+      "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/money-wrap-application-independent-review/REVIEW.json",
+      "sha256": "d87d8fe3d3dcbcf1b05020262b018bc4a7205e7c67fd1aed1dfc53bb039413f4"
+    },
+    "sole_shared_integrator": {
+      "owner": "execution_writer",
+      "thread_id": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+      "scope": "Only reviewed exact root-authorized integration; root coordinates and publication. Former internal integrator is reviewer only."
+    },
+    "qa_organization": {
+      "commit": "ddafd1727613213dfe7fb6bb9035cf4c3cb102be",
+      "contract": "docs/orchestration/QA_RELEASE_UA.md",
+      "executed_new_tests_by_this_registry": false
+    },
+    "browser": {
+      "actual_attempts_consumed": 6,
+      "previous_overall_failures_preserved": 5,
+      "startup_failure_separate": true,
+      "actual7_authorized": false,
+      "historical_limits_reset": false,
+      "actual5": {
+        "overall": "FAIL_PRESERVED",
+        "accepted_checks": [
+          "network_map_table_1440_390",
+          "hold_payment",
+          "release_payment",
+          "transfer_dispatch",
+          "transfer_receive"
+        ],
+        "four_confirms_and_four_same_proposal_replays": true,
+        "events_added": 4,
+        "movements_added": 2,
+        "payments_added": 0,
+        "accepted_styled_contexts": {
+          "supply": [
+            1440,
+            768,
+            390
+          ],
+          "settlement": [
+            1440,
+            768
+          ]
+        },
+        "exact_failing_ancestor_known": false,
+        "review": {
+          "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/attempt5-independent-review/REVIEW.json",
+          "sha256": "e1661816c6c696b315ac430024a10e941239302fe85fcb8cfe717fda43779575"
+        }
+      },
+      "actual6": {
+        "outcome": "ACCEPT_SCOPED_FOUR_REMAINING_READONLY_CONTEXTS",
+        "contexts": {
+          "settlement": [
+            390
+          ],
+          "document-match": [
+            1440,
+            768,
+            390
+          ]
+        },
+        "business_changes": 0,
+        "auth_login_POSTs": 1,
+        "auth_sessions": [
+          3,
+          4
+        ],
+        "business_before_after_sha256": "15cbbe4c3d4392c36e637f2f0e8bb3367b1415a8ffebd78eed6f12bc72a7263b",
+        "review": {
+          "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/attempt6-independent-review/REVIEW.json",
+          "sha256": "fed147aaff757b6c452fa2cdbc7064a628dc3413ef937776866af8c60e0ba2c1"
+        },
+        "root_acceptance": {
+          "path": "D:/3/BOSDev/reports/root/ACTUAL6-READONLY-ACCEPTED-20260921.json",
+          "sha256": "8001b65507ddf515adabe8386b5d9ef4e3f0d2e29c397c2c9f0df30626e6afd8"
+        },
+        "manifest": {
+          "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/local-review-prep/execution-attempt-6-readonly/manifest.json",
+          "sha256": "b212951a5910b68ca8262ac314db8d0d31d241190d6758c724f08220bef114c7"
+        },
+        "receipt": {
+          "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/local-review-prep/execution-attempt-6-readonly/receipt.json",
+          "sha256": "6605285d5dc969070e5b9209a3b1edeb7e94499fee4c038886ee52b2ab57e684"
+        }
+      },
+      "combined_styled_contexts": 9,
+      "combined_scope": "Nine section/width contexts accepted across two runs; not one all-green run.",
+      "same_proposal_replay_is_full_concurrency": false,
+      "full_gate10_current_source": false,
+      "full_s2_write": false,
+      "full_business_e2e": false,
+      "runtime8879": "STOPPED; child/launcher exits verified, browser/profile closed; outer stop no_owned_record",
+      "older8876": "Historical646 acceptance preserved; no fresh health check in this registry"
+    },
+    "profiler": {
+      "attempts_used": 3,
+      "attempt_limit": 3,
+      "new_run_authorized": false,
+      "historical_postfix_source": "b722646b593cb26853176263e15c5775fa6c2b5b85619c6d320e171d7daef27a",
+      "historical_view_seconds": 3.4038,
+      "scope": "Historical standalone RequestFactory view; not current c514 HTTP timing or speedup ratio"
+    },
+    "delivery": {
+      "source_delivery_review": {
+        "path": "D:/3/BOSDev/reports/root/SOURCE-DELIVERY-C514-INDEPENDENT-REVIEW-20260920.json",
+        "sha256": "b61692ad4082829f8aa990cca07c3e4c2223acae668de3a250ff4a4a208eb98f"
+      },
+      "source_delivery_is_product_release": false,
+      "partial_evidence_status": "ACCEPTED_V5_1_WITH_REQUIRED_ADDENDUM_ACTUAL6_SEPARATE",
+      "partial_package_review": {
+        "path": "D:/3/BOSDev/reports/root/C514-EVIDENCE-V5-1-ACCEPTED-20260921.json",
+        "sha256": "4929fbb97eb6b81808e13f1ecc23d53c271cc8200600c331abd4285227545534"
+      },
+      "partial_manifest": {
+        "path": "D:/3/BOSDev/handoffs/network-c514-evidence-20260921/MANIFEST_C514_v5_1.json",
+        "sha256": "16d317b5931f43f3345327b2a53fb8b03f07dc26f5744a427f204e9199163d23"
+      },
+      "partial_index": {
+        "path": "D:/3/BOSDev/handoffs/network-c514-evidence-20260921/EVIDENCE_INDEX_C514_v5_1.json",
+        "sha256": "4e79cdb67cc3d787fdd46f30e64cbf8dba0a6b58f81712b629a238943c33be88"
+      },
+      "required_addendum": {
+        "path": "D:/3/BOSDev/handoffs/network-c514-evidence-20260921/CURRENT_AUTHORIZATION_ADDENDUM_20260921.json",
+        "sha256": "ac80ef6275fd490b0de5fe6fd9a037436c57cce38c2999ba4f6b111e12bce4b6"
+      },
+      "actual6_in_v5_1": false,
+      "v6_status": "AUTHOR_FROZEN_METADATA_CORRECTION_REQUIRED_NOT_ACCEPTED_AT_THIS_REGISTRY_SNAPSHOT",
+      "portable_tracked_integration": false,
+      "public_download_link_created": false,
+      "installer_ready": false
+    },
+    "publication": {
+      "pr": "https://github.com/vladduk-A-W-F/BOS/pull/1",
+      "last_confirmed_remote_head": "620aeab2010c6c8327ce46c25bb62435bcf7f9e4",
+      "status": "OPEN_DRAFT_620_REPORTED_BY_ROOT_FRESH_METADATA",
+      "e038_published": false,
+      "remote_rechecked_by_this_writer": false,
+      "push_performed_by_this_writer": false
+    },
+    "s2_backend": {
+      "card": "S2-SUPPLIER-INVOICE-REGISTRATION",
+      "owner_thread_id": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+      "status": "PRIVATE_V4_CORRECTION_ASSIGNED_AFTER_V3_CHANGES_REQUIRED",
+      "decision": {
+        "path": "D:/3/BOSDev/reports/root/S2-SUPPLIER-INVOICE-REGISTRATION-CARD-20260921.json",
+        "sha256": "693e5fe52af1686ad64714f04d3561026421bba883f5916288ed93a3006c7c11"
+      },
+      "v2_review_sha256": "72b7a75cbfdc85fa2e16ce2f01f2e79280c0e74c45a37ac916380bebe287229d",
+      "v3_review": {
+        "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/s2-supplier-invoice-private-independent-review/V3_REVIEW.json",
+        "sha256": "a7613f0c002312d999f682e546ce68cb31539aa432c7c5b1060f9ae21b523d30"
+      },
+      "v4_assignment": {
+        "path": "D:/3/BOSDev/reports/root/message-writer-s2-v4-correction-20260921.md",
+        "sha256": "99b43c10b7be82f3e453cae0ffd8ce917651af73167f19d80c2609064addecf3"
+      },
+      "integrated": false,
+      "runtime_tested_on_c514": false,
+      "private_version_history_is_product_acceptance": false,
+      "canonical_task_added_here": false,
+      "scope": "Future durable supplier-side invoice registration; not customer Invoice, payment, repeat receipt, AP settlement or general-ledger posting. Private attempts/findings preserved; no new run authorized by registry."
+    },
+    "planning": {
+      "s2_s3_contracts": {
+        "path": "D:/3/BOSDev/reports/root/CURRENT-SCOPED-ACCEPTANCE-20260921.json",
+        "sha256": "dc1c551c2b03108e9d8214edb9de44d3c57e19617bb0f69c40970d2e4915fc1f"
+      },
+      "s2_source_null": "Inline original action exists only with draft.source; otherwise ordinary document flow/current-source reselect is a planning clarification.",
+      "s3_replay": "New receive preview for already-received transfer returns422; replay of same completed proposal returns200 previous receipt without new movement.",
+      "linked_mvp_fixture_v2_manifest_sha256": "9bff93a49210e8045add2b741828643d2398ffcf4aae19315d26f9bd69fbdfea",
+      "linked_mvp_fixture_review": {
+        "path": "D:/3/BOSDev/reports/mvp/MVP-LINKED-UA-FIXTURE-INDEPENDENT-REVIEW-20260921.json",
+        "sha256": "28d06b3055bf1b117cbd7b225b26b5cb4d2c955dad88ad93aa078ca7f6fe9368"
+      },
+      "fixture_execution_ready": false,
+      "fixture_executed": false
+    },
+    "gate_policy": "The unchanged11 gate objects and old646 continuation are historical scoped evidence; no current c514 gate closure inferred from this reconciliation.",
+    "technical_ready": false,
+    "pilot_allowed": false,
+    "mvp_complete": false
+  },
+  "historical_before_v17_closeout": {
+    "updated_at": "2026-09-20T22:55:47.203089+00:00",
+    "product_candidate_commit": "e038d6db562c6f36c06808c0793f66a6d63982cf",
+    "runtime_source_sha256": "c514204ef289386959c997a0404a579b5e66ba45c4b2fa9cb1580375413f9d9e",
+    "setup_head": "e66af863b0bd840cefb4ef78e5a17414411f3db8",
+    "current_batch": "NETWORK-COMPOSITION-C514",
+    "setup_head_note": "Exact full Git code head before this documentation update; later commit identity is recorded by Git.",
+    "next_action": "Root reviews this private3-file registry; permanent writer alone applies an exact approved package. S2 private v4 source correction/review and separate UI/domain acceptance remain open. v6 evidence metadata correction/review is separate; accepted v5_1 requires its addendum and actual6 has separate accepted refs. No browser7/profiler4/full-suite run or push is authorized here.",
+    "execution": {
+      "status": "BATCH_EXECUTION",
+      "product_execution_allowed": true,
+      "ci_allowed": true,
+      "deploy_allowed": false,
+      "paid_api_allowed": false,
+      "background_service_running": false,
+      "reason": "20.09.2026 власник перевірив план і прямо доручив: «план верный реализуй ... делай несколько задач паралельно ... отчеты по модулям ... остановок без нужды не требуется». Це замінює попередню паузу й правило однієї картки за хід. Дозволено виконувати погоджений план пакетно, інтегрувати перевірені зміни послідовно й зупинятися тільки на реальному питанні/рішенні/доступі. Історичні заборони й межі конкретних операцій зберігаються.",
+      "mode_after_resume": "BATCH_WITH_REVIEW",
+      "batch_mode_authorized": true,
+      "ci_scope": "Targeted new-card verification only; no exhausted full/PG suite/E2E retry",
+      "through": "Three parallel business scenarios -> scoped browser acceptance -> persistent synthetic review -> remaining authorized gates",
+      "landing_publication_allowed": true,
+      "landing_audience": "Preserve current audience; public revision 2 observed before and after v3 publication; access not changed by this task.",
+      "latest_instruction": "Permanent execution_writer is sole shared integrator; root coordinates and publication. Independent agents return private patches/reviews. Existing precise authorizations and historical limits remain.",
+      "historical_landing_audience": "Original authorization preserved existing owner-private audience at initial publication.",
+      "a11_clarification": "Old cloud-CDP/CDN/loopback bypass remains forbidden. The owner explicitly authorizes a new isolated local browser runner on 2026-09-20.",
+      "shared_git_writer": "execution_writer",
+      "shared_git_writer_thread": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+      "original_checkout_preserved": true,
+      "external_owner_reservation": "PRESERVED; no release in this packet",
+      "previous_shared_git_writer": {
+        "owner": "/root/product_integration_continuation",
+        "thread": "01a0be90-e790-7351-a8ac-059d523941c4",
+        "current_role": "Independent reviewer only; no shared write ownership"
+      }
+    }
+  },
+  "cycle_v17_closeout": {
+    "matrix": "docs/orchestration/CYCLE_V17_MATRIX.json",
+    "report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
+    "source": {
+      "product_commit": "207c7426bcd057cc1a5cfcf172d4c040b05221e9",
+      "runtime_sha256": "77e8ca05b58efc99d47ce8dd2887074b3c93ba6eaff863a24307ae0e89dc622a",
+      "app_js_sha256": "4b2918a018cf2499a4aa2ea8ca598c7abfd17fd74379ab4236250723a5390263",
+      "runtime_files": 426,
+      "local_branch": "codex/network-composition-20260920",
+      "remote_branch": "setup/bos-gpt-orchestration-20260920",
+      "pr": "https://github.com/vladduk-A-W-F/BOS/pull/1",
+      "documentation_commit": "The Git commit containing these documents; exact pushed full SHA is recorded in the external final delivery receipt.",
+      "main_merge": false
+    },
+    "publication": {
+      "phase": "FREEZE_FOR_OWNER_REVIEW",
+      "runtime": {
+        "status": "HISTORICAL_UPDATE_ACCEPTED_LATER_OUTAGE_RECOVERY_OWNED_BY_CONTROLLER",
+        "running": false,
+        "url": "http://127.0.0.1:8876/",
+        "attempt": 2,
+        "migration_count": 6,
+        "seed_count": 0,
+        "build_count": 0,
+        "business_rows_preserved_at_update": 230,
+        "business_tables_preserved_at_update": 53,
+        "preservation_note": "Old-column projections verified at update; later owner activity and ordinary login are not claimed byte-unchanged.",
+        "history": "Actual1 update FAIL before migration; actual2 update PASS with preservation. Smoke3 PASS at20:53UTC. Later outage reported21:18:53UTC, confirmed21:27:13UTC after Codex restart; exact termination event unavailable. Controller restores same207c source/data separately without seed/migrate/build.",
+        "evidence_keys": [
+          "runtime_acceptance",
+          "runtime_review",
+          "runtime_outcome",
+          "runtime_first_failure",
+          "availability_outage"
+        ],
+        "availability_as_of_utc": "2026-09-21T21:27:13.1597409Z",
+        "availability_basis": "False denotes only the saved outage observation at the exact timestamp. It is not a new current liveness probe. Controller owns restoration; latest serving state, new process identities and HTTPS URL are in the external final delivery.",
+        "recovery_owner": "controller 01a0bf0f-a9e4-7631-87e1-bb1aed03f174",
+        "last_successful_smoke_at_utc": "2026-09-21T20:53:00.262288+00:00"
+      },
+      "browser": {
+        "status": "PASS_SCOPED_4_OF_4_HISTORICAL_AT_2053UTC",
+        "attempt": 3,
+        "PASS": 4,
+        "FAIL": 0,
+        "NOT_RUN": 0,
+        "routes": [
+          "workpoints",
+          "orders",
+          "procurement",
+          "network"
+        ],
+        "scope": "Four read routes at1440x1000 and20:53UTC, normal owner login, source207c and app hash. Orders acceptance is visible sales heading plus authenticated snapshot; not all per-order next actions. No business POST. This does not establish availability after the later outage.",
+        "history": "Actual1 FAIL0/0/4: missing post-login wait. Actual2 FAIL0/1/3: route assertion before loading completed. Both preserved; v3 unexecuted locator HOLD corrected in v3a.",
+        "console": "One expected startup401 for unauthenticated /api/auth/me/. No page errors, request failures or blocked business requests; no blanket clean-console claim.",
+        "cleanup": "At20:53UTC owned browser/profile cleanup completed and server handles were running. Later outage supersedes present-liveness assumptions.",
+        "foreign_actual_review": "Independent historical smoke acceptance is in smoke_actual_review. Its docs HOLD concerns the superseded33-file availability wording; successor acceptance is recorded by exact root integration approval.",
+        "evidence_keys": [
+          "browser_receipt",
+          "browser_outer",
+          "browser_host",
+          "browser_preparation_review",
+          "browser_first_failure",
+          "browser_second_failure",
+          "smoke_actual_review"
+        ]
+      },
+      "ci": {
+        "status": "PENDING_POST_PUSH_OBSERVATION",
+        "as_of": "Private docs preparation before its ordinary commit/push. Exact final-head runs/jobs are recorded in external final delivery and PR.",
+        "forced_full_suites": false,
+        "skipped_is_pass": false,
+        "automatic_reruns": false
+      },
+      "online_access": {
+        "status": "PRIOR_TEMP_URL_OUTAGE_RESTORATION_PENDING_CONTROLLER_RECEIPT",
+        "scope": "Owner requested temporary HTTPS and then restoration after Error1033. Old URL is retired; final checked URL or blocker is recorded externally. Product source/data remain207c; controller owns persistent serving processes."
+      },
+      "extra_evidence": {
+        "runtime_acceptance": {
+          "path": "D:/3/BOSDev/reports/root/CYCLE-V17-REVIEW-RUNTIME-ACCEPTED-20260921.json",
+          "sha256": "5209934e6afca62654d93fe1cf44763f7d02784f6b05e930dd5cddcd39ee48d6",
+          "bytes": 4765
+        },
+        "runtime_review": {
+          "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/cycle-v17-review-update-actual2-independent-review-20260921/REVIEW.json",
+          "sha256": "690fbf7e27bf225911d7fd15dd2b4e8803a4ec871901f41fd3620df59bb2f321",
+          "bytes": 6645
+        },
+        "runtime_outcome": {
+          "path": "D:/3/BOSDev/handoffs/cycle-v17-review-runtime-update-preparation-20260921/bound207c-update2/execution-attempt-2/OUTCOME.json",
+          "sha256": "236a4b270ed5ac0c684935a2e730b4be8fbe7d42a29c5fbf8a51366dee7fd3f6",
+          "bytes": 624
+        },
+        "runtime_first_failure": {
+          "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/cycle-v17-review-update-actual1-independent-review-20260921/REVIEW.json",
+          "sha256": "9b559bffdd693f3eaba7bf51c91cdb65cb341e744f0ef4656b0593cd443c7f8c",
+          "bytes": 3898
+        },
+        "browser_receipt": {
+          "path": "D:/3/BOSDev/handoffs/cycle-v17-owner-review-browser-smoke-preparation-20260921/correction-v3a/execution-attempt-3/receipt.json",
+          "sha256": "6af4e6f9456be7cc4d1251941d5a3362e42872d71e38288a137a921e6741a0df",
+          "bytes": 11652
+        },
+        "browser_outer": {
+          "path": "D:/3/BOSDev/handoffs/cycle-v17-owner-review-browser-smoke-preparation-20260921/correction-v3a/outer-capture/execution-attempt-3/OUTER_RESULT.json",
+          "sha256": "320fdf061cb7d2b90d8ecd50d0cbe2f638df40d6b4c5994c4cfc439ab64873c4",
+          "bytes": 2153
+        },
+        "browser_host": {
+          "path": "D:/3/BOSDev/handoffs/cycle-v17-owner-review-browser-smoke-preparation-20260921/correction-v3a/outer-capture/original-host-attempt-3/summary.json",
+          "sha256": "bfd371f1bcc128d8f2d0c56f06352cb6a205f01b5030772be2672fe46838aea7",
+          "bytes": 169
+        },
+        "browser_preparation_review": {
+          "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/cycle-v17-owner-smoke-actual2-independent-review-20260921/correction-v3a-review/REVIEW.json",
+          "sha256": "a8774cd85aa9eedba678910d873616fb76914c541ee4af3c52d23dee52591870",
+          "bytes": 3235
+        },
+        "browser_first_failure": {
+          "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/cycle-v17-owner-smoke-actual1-independent-review-20260921/REVIEW.json",
+          "sha256": "25255e22258943906df9524245cdb900bb8fbd2d045a29b0bcac1cdc7067a6ee",
+          "bytes": 3514
+        },
+        "browser_second_failure": {
+          "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/cycle-v17-owner-smoke-actual2-independent-review-20260921/REVIEW.json",
+          "sha256": "c2539f69ec03562f6ab1b468662480570bf434ed582fb0c3a83349f859d5f070",
+          "bytes": 2099
+        },
+        "online_owner_request": {
+          "path": "D:/3/BOSDev/reports/observer_closeout/OWNER_TEMP_ONLINE_ACCESS_20260921.json",
+          "sha256": "cd071d9d08ca346b40ccab7155b8a397d087f0bd5541ecfc597feeb87434f69d",
+          "bytes": 1325
+        },
+        "availability_outage": {
+          "path": "D:/3/BOSDev/online-review/20260921/OUTAGE_20260921_2118.json",
+          "sha256": "3d7564472ac00b5dd472710d93d14c5bc748b6f2c35b01f9b8ea8174d8fa501b",
+          "bytes": 854
+        },
+        "smoke_actual_review": {
+          "path": "D:/3/Codex/2026-09-20/bos-execution/work/network-composition-evidence-20260920/cycle-v17-final-factual-docs-independent-review-20260921/resumed-review/REVIEW_CHECKPOINT.json",
+          "sha256": "09b1b7b47f3ad3695101aca46fda1cd2e39c0e2ffbc905315dbf42023ff2a05c",
+          "bytes": 9088
+        }
+      },
+      "extra_issues": [
+        {
+          "id": "V17-06",
+          "priority": "P1",
+          "function": "Availability after Codex restart",
+          "state": "RECOVERY_DELEGATED_AT_SNAPSHOT",
+          "reproduce": [
+            "Original temporary URL returned Error1033 after Codex restart.",
+            "Saved outage observation21:27UTC has no old serving PIDs or listeners."
+          ],
+          "impact": "Historical four-route PASS does not prove present availability. Parent-lifetime coupling is inferred, exact termination event unavailable.",
+          "remaining": "Controller restores same app/data through serving processes independent of Codex; final external delivery records checked URL and outcome. Do not rebuild, seed or replay UI suites."
+        }
+      ],
+      "final_delivery_authority": "This committed document is an immutable factual snapshot. Current serving availability, exact pushed head/CI and confirmed freeze are completed in the dated external final report and PR."
+    },
+    "counts": {
+      "READY_SCOPED": 24,
+      "PARTIAL": 6,
+      "BLOCKED": 4,
+      "NOT_STARTED": 1
+    },
+    "membership_ui_actual3": {
+      "overall": "FAIL",
+      "PASS": 7,
+      "FAIL": 1,
+      "NOT_RUN": 0,
+      "v5_static_only": true,
+      "v5_behavior": "NOT_RUN",
+      "shared_apply": 0
+    },
+    "s2_acceptance": "Scoped backend/control/service evidence only; full current UI/runtime product acceptance not established."
+  }
+}

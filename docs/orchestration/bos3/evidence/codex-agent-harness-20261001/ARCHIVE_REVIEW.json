@@ -1,0 +1,43 @@
+{
+  "schema": "bos.codex-harness-archive-independent-review.v1",
+  "scope": "Package integrity and handoff boundaries only; no code, test, restore, runtime, product or publication review",
+  "verdict": "ACCEPT_SCOPED_ARCHIVE_CANDIDATE_FOR_SOLE_INTEGRATOR",
+  "reviewer": "/root/harness_projection_review",
+  "author": "01a0bf0f-a9e4-7631-87e1-bb1aed03f174",
+  "pins_sha256": {
+    "BOS_CODEX_HARNESS_ARCHIVE.zip": "71c9f74d604b59e1fe0e84ad2167e62ded445bb85e2c6e971f0eca4d5fc68d05",
+    "MANIFEST.json": "df177b0ecc67147d82c9e17b069c9b47c961efded788aea8718831ce163c8203",
+    "PACKAGE_SNAPSHOT.json": "66089c234c6ea62dba9cdb1e215d4cc8db7f017c5b8ec679648ec4b0a196b6c5",
+    "README_UA.md": "e44ba2887fe8157bed344169f5c005ebcb474ca1cd4998ff463c489c3e9aaaf4"
+  },
+  "mechanical_verification": {
+    "zip_bytes": 64880,
+    "members": 18,
+    "payload_members": 9,
+    "recorded_evidence_members": 7,
+    "other_members": ["README_UA.md", "MANIFEST.json"],
+    "unique_exact_manifest_allowlist": true,
+    "zip_member_sha256_and_size_match_manifest": true,
+    "manifest_sha256_match_current_source_files": true,
+    "zip_crc_error": null,
+    "unsafe_or_absolute_or_parent_paths": [],
+    "symlink_or_encrypted_members": [],
+    "uncompressed_bytes": 178218
+  },
+  "payload_classification": {
+    "accepted_current_payload": 7,
+    "unchanged_support_dependency": ["payload/setup/bos-flow.ps1", "payload/control-tools/bos_dev.py"],
+    "support_files_gain_new_code_verdict": false
+  },
+  "excluded_state_and_secret_review": {
+    "forbidden_member_names_found": [],
+    "absent_classes": [".env", "auth and credential files", "database dumps", "live observer", "live config", "queue", "ledger", "Codex sessions"],
+    "secret_value_pattern_hits": [],
+    "scan_scope": "All 18 ZIP text members were scanned for private keys, long API-token shapes, bearer values, quoted credential assignments and URL userinfo; no hit. This is a bounded value scan, not a proof that all possible secret formats are absent. Environment variable names and local paths are not treated as secret values."
+  },
+  "handoff_boundary": "README explicitly calls this a source/evidence archive, not a standalone installer or automatic migration. Current control-tools home remains C:/Users/user/AppData/Local/BOSDev/tools; live observer/config/queue/ledger and historical linked evidence are external. Proposed docs/orchestration/bos3/evidence/codex-agent-harness-20261001 is a documentation archive destination for sole-integrator decision only; no auto-apply, restore test, Git publication, merge or product readiness is claimed.",
+  "historical_evidence_limit": "Seven recorded evidence files retain their own exact historical pins; nested references and full runtime/control state are not packaged. Missing historical evidence cannot be inferred PASS from this ZIP.",
+  "reviewer_executions": {"payload_commands": 0, "tests": 0, "native_polls": 0, "network": 0, "restore": 0, "product_executions": 0, "package_or_live_edits": 0},
+  "next_allowed_step": "Sole integrator may separately decide whether to commit this exact reviewed archive under the proposed docs-only prefix. Recheck current bytes and external state before any future restoration or use; this review does not authorize automatic installation or product activation.",
+  "product_readiness_verdict": null
+}

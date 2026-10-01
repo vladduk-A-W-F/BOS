@@ -1,0 +1,173 @@
+{
+  "schema": "bos.journey.source-result.v1",
+  "card_id": "B30-SOLUTIONS-JOURNEY-SOURCE-20260930",
+  "status": "AUTHOR_COMPLETE_UNREVIEWED",
+  "thread_id": "01a0bffa-3fc7-7bc2-9868-86164c6e0315",
+  "accepted_at_utc": "2026-09-30T21:47:42.0901457Z",
+  "workspace": "D:\\3\\BOSDev\\qa-scratch\\bos3-brochure-crm-journey-20260930",
+  "workspace_method": "MINIMAL_THREE_FILE_SOURCE_SNAPSHOT_NOT_FULL_CHECKOUT",
+  "authority": {
+    "admission_path": "D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/JOURNEY_SOURCE_ADMISSION.json",
+    "admission_sha256": "7106925d62789fa15063890f73c17294ddb332e175808a616ad5b90712d54a4e",
+    "seed_receipt_path": "D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/JOURNEY_SOURCE_SEED_RECEIPT.json",
+    "seed_receipt_sha256": "9cb423c59115b70e24c94881d2757316cad3a8512b554559d3a3ebec699d387e",
+    "card_path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/NEXT_BOUNDED_SOURCE_CARD.json",
+    "card_sha256": "a032dc63cd570b8ab59769927d3d43fdf6c74e8b7a63db654a9216530bc9df1e",
+    "source_commit": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+    "crm_r2_overlay": "fc82733a97c3532cd8ea45ec9dfbfbd96d9274054c83d512b7fa8d40f8772384",
+    "author_observed_model": "UNCONFIRMED"
+  },
+  "seed_files": [
+    {
+      "path": "frontend/boss_app_source.html",
+      "sha256": "fc82733a97c3532cd8ea45ec9dfbfbd96d9274054c83d512b7fa8d40f8772384",
+      "bytes": 921706,
+      "write_allowed": true
+    },
+    {
+      "path": "frontend/bos3_content.json",
+      "sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390",
+      "bytes": 17408,
+      "write_allowed": false
+    },
+    {
+      "path": "frontend/bos_design.css",
+      "sha256": "30e1db301539b97080705c463c0fec14ae6370de577f824318484c42d159fd54",
+      "bytes": 61963,
+      "write_allowed": false
+    }
+  ],
+  "allowlist": [
+    "frontend/boss_app_source.html",
+    "SOURCE_DELTA.patch",
+    "IMPLEMENTATION_UA.md",
+    "RESULT_MANIFEST.json"
+  ],
+  "source_edits": 1,
+  "executions": {
+    "app": 0,
+    "node": 0,
+    "tests": 0,
+    "build": 0,
+    "browser": 0,
+    "http": 0,
+    "db": 0,
+    "runtime": 0
+  },
+  "qa": "NOT_RUN",
+  "readiness": {
+    "TECHNICAL_READY": false,
+    "PILOT_ALLOWED": false,
+    "MVP": false
+  },
+  "continuation": {
+    "interrupted_turn": "01a0f448-e2cd-7820-998f-141a3d23ad75",
+    "context_receipt_path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/JOURNEY_SOURCE_CONTEXT_RECEIPT.json",
+    "context_receipt_sha256": "513e3261e1fac391f0ace12d761fd035960505904a8ce35c11a8acff3db539a4",
+    "partial_source_hash_preserved": "b52fa015c5ce993a88bfa0b01f6789dd6afcba6c6f1e4ddcf6b9db112502a1bc",
+    "guided_contract_admission_sha256": "d6fdc105b4201dda43f773518e14fcb71e2f352431b9bea70c037fe3485d9ceb",
+    "new_seed_copy": false
+  },
+  "result": {
+    "product_path": "frontend/boss_app_source.html",
+    "product_sha256": "564df459854f14fc194295343b61246961ba5f2463b1756309645a549a4bcc4b",
+    "product_bytes": 926601,
+    "seed_sha256": "fc82733a97c3532cd8ea45ec9dfbfbd96d9274054c83d512b7fa8d40f8772384",
+    "patch_path": "SOURCE_DELTA.patch",
+    "patch_sha256": "693c894371f56f349f23a625f51a39256f830e6e4863753698664d4079e90445",
+    "patch_bytes": 45453,
+    "implementation_path": "IMPLEMENTATION_UA.md",
+    "implementation_sha256": "82eade8d03d85eee022311a967dcf508645640b21d1127662a9f56bbf091aee7",
+    "changed_product_files": [
+      "frontend/boss_app_source.html"
+    ],
+    "readonly_hashes_unchanged": true
+  },
+  "static_checks": {
+    "git_diff": {
+      "command": "git diff --no-index --no-ext-diff --no-textconv -- <exact CRM R2 seed> <result HTML>",
+      "exit_code": 1,
+      "raw_output": "SOURCE_DELTA.patch",
+      "interpretation": "DIFFERENCE_PRESENT"
+    },
+    "git_diff_check": {
+      "command": "git diff --no-index --check --no-ext-diff --no-textconv -- <exact CRM R2 seed> <result HTML>",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "",
+      "interpretation": "NO_WHITESPACE_DIAGNOSTICS; NO_INDEX_DIFFERENCE_EXIT"
+    },
+    "protected_crm_r2": {
+      "crm_proposal_equal": true,
+      "detail_owner_to_owners_equal": true,
+      "preview_confirm_guards_modified": false
+    },
+    "registry": {
+      "json_parse": "PASS_STATIC_METADATA",
+      "case_count": 3,
+      "slugs": [
+        "supply",
+        "quality",
+        "payment"
+      ],
+      "sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390"
+    },
+    "css_sha256": "30e1db301539b97080705c463c0fec14ae6370de577f824318484c42d159fd54",
+    "folder_file_count": 6,
+    "product_qa": "NOT_RUN"
+  },
+  "acceptance_matrix": [
+    {
+      "case_id": "BOS3-CASE-01",
+      "slug": "supply",
+      "origin": "case_id + slug + server session UUID + access scope",
+      "return_read": "existing training GET",
+      "live_status": "NOT_RUN"
+    },
+    {
+      "case_id": "BOS3-CASE-02",
+      "slug": "quality",
+      "origin": "case_id + slug + server session UUID + access scope",
+      "return_read": "existing training GET",
+      "live_status": "NOT_RUN"
+    },
+    {
+      "case_id": "BOS3-CASE-03",
+      "slug": "payment",
+      "origin": "case_id + slug + server session UUID + access scope",
+      "return_read": "existing training GET",
+      "live_status": "NOT_RUN"
+    },
+    {
+      "case_id": null,
+      "slug": null,
+      "origin": "absent",
+      "return_read": "no return button",
+      "live_status": "NOT_RUN"
+    },
+    {
+      "case_id": "mismatch",
+      "slug": "changed",
+      "origin": "session/scope mismatch",
+      "return_read": "context_changed or denied, no continuity success",
+      "live_status": "NOT_RUN"
+    }
+  ],
+  "definition_of_done": {
+    "D1": "SOURCE_IMPLEMENTED_VISUAL_NOT_RUN",
+    "D2": "SOURCE_IMPLEMENTED_LIVE_NOT_RUN",
+    "D3": "SOURCE_IMPLEMENTED_LIVE_NOT_RUN",
+    "D4": "R2_GUARDS_STATICALLY_UNCHANGED_LIVE_NOT_RUN",
+    "D5": "SOURCE_IMPLEMENTED_BEHAVIOR_NOT_RUN",
+    "D6": "STATIC_EVIDENCE_RECORDED",
+    "D7": "INDEPENDENT_REVIEW_PENDING"
+  },
+  "integration": {
+    "independent_review": "PENDING",
+    "canonical_applied": false,
+    "commit": null,
+    "published": false,
+    "runtime_delivered": false,
+    "next_recipient": "main"
+  }
+}

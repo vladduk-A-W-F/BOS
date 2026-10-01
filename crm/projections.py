@@ -5,6 +5,7 @@ import json
 from django.core.exceptions import ObjectDoesNotExist
 
 from boss_project.policy import Policy
+from training.service import case03_handoff_ready
 from .models import CRMDeal
 
 
@@ -103,6 +104,10 @@ def draft(policy, public_id, requested_case=None):
                 'deal': deal_row(existing, include_activities=True)}
     if session.status == 'completed':
         raise PermissionError('Завершена навчальна сесія не може створити нову CRM-передачу.')
+    if case_id == 'BOS3-CASE-03' and not case03_handoff_ready(
+            policy, marker, session, refs['order'].pk,
+            refs['invoice'].pk if refs['invoice'] is not None else None):
+        raise ValueError('Спочатку перевірте попередній крок.')
     defaults = CASE_DEFAULTS[case_id]
     payload = {
         'action': 'crm_handoff', 'training_session_id': str(session.public_id), 'case_id': case_id,

@@ -1,11 +1,157 @@
 {
   "schema": 1,
-  "current_baseline_manifest": "docs/orchestration/CURRENT_BASELINE.json",
-  "product_version": "BoS v18",
-  "runtime_version": "0.2.18-current",
-  "current_delivery": "V18-PUBLISH-20260926",
+  "current_baseline_manifest": "docs/orchestration/bos3/ATOMIC_DEV9_CANDIDATE.json",
+  "product_version": "BoS 3.0 / candidate dev9",
+  "runtime_version": "UNCONFIRMED",
+  "current_delivery": "B30-ATOMIC-RECEIPT-RECOVERY-PREP; BLOCKED_NO_RETRY",
+  "current_bos3": {
+    "active_plan": "docs/orchestration/bos3/ACTIVE_WORK_PLAN_RU.md",
+    "control": "docs/orchestration/bos3/CONTROL_STATE.json",
+    "observed_at_utc": "2026-10-01T10:43:05Z",
+    "current_assignments": "current_bos3.tracks only; previous_projection_0840 is dated history",
+    "canonical_head": "47ceb7f54fba81afa648e93b3954ce550409adb0",
+    "canonical_head_scope": "Observed source before this docs update; resulting head requires sole-integrator receipt",
+    "accepted_source": {
+      "gc_f06": {
+        "status": "SOURCE_ONLY_APPLIED",
+        "head": "b857176b32f83b6c992aae96b354f14c48e8c232",
+        "receipt_sha256": "f444a9094db3493966579d3252b1218549723ed11a7a832d9041bebaa1901584",
+        "scope": "partial current_step; no dynamic proof"
+      },
+      "d02": {
+        "status": "SCOPED_STATIC_SOURCE_APPLIED",
+        "head": "47ceb7f54fba81afa648e93b3954ce550409adb0",
+        "receipt_sha256": "bc1610aa848291a3ed76d4369362170f13dd0375b9638da903d90ead2880ab9c",
+        "regression_methods": 12,
+        "QA": "NOT_RUN"
+      }
+    },
+    "accepted_design": {
+      "status": "ACCEPT_SCOPED_PRE_CODE_DESIGN_GIDR_F01_F02_CLOSED",
+      "design_sha256": "473a572a62a6affedb4191cbee6e8e53283b30fbc97a7becb1ed400c5a759abf",
+      "review_sha256": "b97aa1e80b73ffda3485f3c2f288b148cb451ff18f48af9419ea91082f5588db",
+      "scoping_r1": "HISTORICAL_AUTHOR_COMPLETE_UNREVIEWED"
+    },
+    "next_action": "D08: existing Main/Quality independent changed-code review, then sole-integrator sequential disposition. Other independent parts may prepare/work in parallel only after each own dependencies, allowlist, owner and admission check; no duplicate D08 or automatic product dispatch",
+    "journey_generation": "NOT_ADMITTED",
+    "runtime": "BLOCKED_NO_RETRY",
+    "dev9": "NOT_DELIVERED",
+    "review_pr": "https://github.com/vladduk-A-W-F/BOS/pull/11",
+    "review_pr_state": "OPEN_DRAFT_NOT_MERGED",
+    "observed_pr_head": "47ceb7f54fba81afa648e93b3954ce550409adb0",
+    "github_observation_sha256": "efde2542942ce7d7a03261ac310901c2e2b273135abee0e3e7b247d4182991ec",
+    "new_product_execution_authorized": false,
+    "product_executions": 0,
+    "dynamic_QA": "NOT_RUN",
+    "technical_ready": false,
+    "pilot_allowed": false,
+    "harness_current_advice": "NEEDS_RECONCILIATION_AFTER_PROTECTED_DOCS_CHANGE",
+    "harness_archive": "UNPUBLISHED_INTERMEDIATE",
+    "tracks": [
+      {
+        "id": "GUIDED-LEARNING-GC-F08-D08-A-SOURCE-20261001",
+        "owner_thread": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+        "reviewer_thread": "01a0c05d-6eeb-79f1-a135-be66985b442f",
+        "sole_integrator": "01a0dd56-ca2d-79c0-b159-bde80074a026",
+        "workspace": "D:/3/BOSDev/qa-scratch/bos3-d08-source-20261001",
+        "base_sha": "47ceb7f54fba81afa648e93b3954ce550409adb0",
+        "status": "AUTHOR_COMPLETE_UNREVIEWED",
+        "status_as_of_utc": "2026-10-01T10:43:05Z",
+        "later_review_or_application_requires_separate_receipt": true,
+        "admission_sha256": "d874997e5f6d566f3739701cde6c7112cec47acc58d846a001e51ddf5c8dccf8",
+        "binding_sha256": "eda09cae8d2c3b0684993f7f0341311ea570fb94e5f6368ce2d2a3caf59d39bf",
+        "result_manifest_sha256": "8298ef177c19b78020a632e1c2296492d7c6cebd991b62447fece5179ace6bc4",
+        "author_observation_sha256": "35d037e31c98f01b94824c2c0c4c8805c517b6072019d40a4e9ac89010fa5a1d",
+        "review_sha": null,
+        "integrated_sha": null,
+        "QA": "NOT_RUN",
+        "next_recipient": "Existing Main -> Quality independent changed-code review -> sole integrator",
+        "allowed_checks": "Source/static review only; no Django/fixture/DB/runtime execution"
+      }
+    ],
+    "previous_projection_0840": {
+      "scope": "Dated history, not current assignment",
+      "before_path": "D:/3/BOSDev/qa-scratch/bos3-plan-refresh-20261001-1040/before/QUEUE.json",
+      "before_sha256": "94c14cb5293f16e15eb9eaa2b4ee75fab54a70e799d2826c1fff4727f48d52df",
+      "tracks": [
+        {
+          "id": "B30-SOLUTIONS-JOURNEY-SOURCE-20260930-INTEGRATION-PREP",
+          "owner_thread": "01a0be90-e790-7351-a8ac-059d523941c4",
+          "reviewer_thread": "01a0c05d-6eeb-79f1-a135-be66985b442f",
+          "workspace": "D:/3/BOSDev/qa-scratch/bos3-journey-integration-20261001",
+          "base_sha": "0b96f76a575f88ed450c4be28d265a0cf207e3c4",
+          "dependencies": [
+            "Accepted UI source R2 07590f842d31ba7a5935d873b1a1ecd38c37d277ba1578b077d610e8de0aaf9c",
+            "Preserved canonical input and target bytes"
+          ],
+          "status": "ACCEPT_SCOPED_STATIC_GENERATION_PACKAGE",
+          "result_manifest_sha256": "246f4704acaa9a9efa99be71bba898b7e59d41b7361a912df7ff87bebe5c4dc5",
+          "review": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/review-snapshots/journey-generation-r1/REVIEW.json",
+          "review_sha256": "c89fff022ca3906826719005eaf365a0796e495d6f35592fe5ed52b0b80a15cd",
+          "integrated_sha": null,
+          "done_when": "Exact 5 inputs, 3 preserved targets, 2 generated output paths and failure/ownership gates independently reviewed; executable generation is a separate unadmitted action",
+          "allowed_checks": "Read/hash/byte/text/Git metadata only; Node/build/app/probes NOT_ADMITTED",
+          "execution_disposition": "NOT_ADMITTED; no fresh sufficient resource observation or exact executable admission",
+          "generated_outputs_accepted": false,
+          "next_recipient": "sole integrator static disposition; no automatic build"
+        },
+        {
+          "id": "GUIDED-LEARNING-GC-F06-CURRENT-STEP-SOURCE-20261001",
+          "owner_thread": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+          "reviewer_thread": "01a0c05d-6eeb-79f1-a135-be66985b442f",
+          "workspace": "D:/3/BOSDev/qa-scratch/bos3-gc06-current-step-20261001",
+          "base_sha": "0b96f76a575f88ed450c4be28d265a0cf207e3c4",
+          "dependencies": [
+            "Accepted static guided contract R2",
+            "Exact canonical source base and context accepted before edits"
+          ],
+          "status": "ACTUAL_CONTEXT_ACCEPTED_AUTHOR_IN_PROGRESS",
+          "context_sha256": "be84751e51a229629ffb84dc6004f084a110cedc9cf9af129a76b3f2bfd307da",
+          "allowlist": [
+            "training/service.py",
+            "training/test_sessions.py"
+          ],
+          "requested_model_effort": "gpt-6-sol/medium",
+          "observed_model_effort": "UNCONFIRMED",
+          "result_sha": null,
+          "review_sha": null,
+          "integrated_sha": null,
+          "done_when": "Exact completed source delta and unexecuted regressions normalize existing current_step only; preserve valid unlocked revisits, read-only GET and existing start transaction; independent review before root application",
+          "allowed_checks": "Static read/hash/diff only; test setup invokes seed, no regression execution/DB/fixture admission",
+          "context_check_in_utc": "2026-10-01T06:35:00Z",
+          "result_or_blocker_check_in_utc": "2026-10-01T07:00:00Z",
+          "next_recipient": "main immutable completed author snapshot -> Quality changed-code review -> sole integrator"
+        },
+        {
+          "id": "GUIDED-LEARNING-GC-F01-08-IMPLEMENTATION-SCOPING-20261001",
+          "owner_thread": "01a0f2ce-270f-7ac3-bea0-1447f87aed61",
+          "workspace": "D:/3/BOSDev/qa-scratch/bos3-guided-contract-implementation-scope-20261001",
+          "base_sha": "0b96f76a575f88ed450c4be28d265a0cf207e3c4",
+          "dependencies": [
+            "Accepted static writer and semantic contract R2",
+            "Separate existing GC-F06 assignment must not be duplicated"
+          ],
+          "status": "AUTHOR_COMPLETE_UNREVIEWED",
+          "context_sha256": "a5170706b3b85794e96c74446cb978fa45942f6b72c75f9554adee62fe7ed321",
+          "requested_model_effort": "gpt-6-astra/high",
+          "observed_model_effort": "UNCONFIRMED",
+          "result_snapshot": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/guided-implementation-scope-author-r1/SNAPSHOT.json",
+          "result_snapshot_sha256": "e2c3f7eebfa79cb8ba39c547d46eb7e9a3d1be82ce773d67155930787d61fc70",
+          "result_sequence_sha256": "e3f1195c2fe5ca267771537dcdcaf6e960eba1a993ecd3cdc16e6ce2d9e33234",
+          "review_sha": null,
+          "integrated_sha": null,
+          "done_when": "All eight gaps have exact files, dependencies, one owner, DoD, inherited verification caps and specific decision holder; independent consequential-design review is required before dependent assignments",
+          "allowed_checks": "Output-only planning, source references, hashes and dependency checks; no product executions or new API/schema/rights/content authority",
+          "context_check_in_utc": "2026-10-01T06:35:00Z",
+          "result_or_blocker_check_in_utc": "2026-10-01T07:00:00Z",
+          "next_recipient": "sole integrator to admit independent design review; proposal is not implementation authorization"
+        }
+      ]
+    },
+    "legacy_tasks_scope": "Unchanged historical tasks/claims/dependencies below"
+  },
   "automatic_execution_allowed": false,
-  "launch_gate": "V18_CURRENT_MAIN_INTERIM_FINAL",
+  "launch_gate": "BOS3_EXACT_SOURCE_CONTRACT_ONLY_RUNTIME_BLOCKED",
   "all_tasks_require_owner_plan_review": false,
   "rules": "PLAN-* є запропонованими ключами; не перейменовувати історичні P-ID. Залежності необхідні, але не замінюють external_prerequisites.",
   "tasks": [
@@ -986,7 +1132,7 @@
     }
   ],
   "closeout_report": "docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md",
-  "automatic_execution_allowed": false,
+  "historical_closeout_automatic_execution_allowed": false,
   "closeout_limits": {
     "membership_ui3_overall": "FAIL",
     "private_v5": "STATIC_ONLY_NOT_APPLIED_BEHAVIOR_NOT_RUN",

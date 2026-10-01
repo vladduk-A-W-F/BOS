@@ -1,0 +1,108 @@
+{
+  "schema": "bos.flow-policy.v1",
+  "authority": "Direct user request 2026-09-28: optimize usage limits and capacity; choose an appropriate model per task. Preserve sole integrator and active task ownership.",
+  "snapshot_max_age_seconds": 900,
+  "max_summary_chars": 1800,
+  "max_message_chars": 6500,
+  "max_report_references": 5,
+  "evidence_roots": [
+    "D:/3/BOSDev",
+    "D:/3/Codex/2026-09-20/bos-execution/work"
+  ],
+  "profiles": {
+    "none": {
+      "model": null,
+      "thinking": null,
+      "purpose": "Idle, status, hashes, schema/index operations use scripts"
+    },
+    "inherit": {
+      "model": null,
+      "thinking": null,
+      "purpose": "Keep the recipient current model, especially main approval/integration"
+    },
+    "economy": {
+      "model": "gpt-6-luna",
+      "thinking": "medium",
+      "purpose": "Small semantic summary or mechanical documentation only; arithmetic, hashes, status and indexing remain no-model. No independent verdict."
+    },
+    "standard": {
+      "model": "gpt-6-sol",
+      "thinking": "medium",
+      "purpose": "Bounded implementation, UX work, package preparation and execution of an already authorized QA plan."
+    },
+    "review": {
+      "model": "gpt-6-sol",
+      "thinking": "high",
+      "purpose": "Independent bounded code/evidence review; escalate material cross-module uncertainty to critical."
+    },
+    "critical": {
+      "model": "gpt-6-astra",
+      "thinking": "high",
+      "purpose": "Architecture, permissions/data migration, consequential diagnosis, full readiness audit and difficult cross-module decisions."
+    }
+  },
+  "source": "https://learn.chatgpt.com/docs/agent-configuration/subagents",
+  "available_models_verified_from": "Current Codex app and collaboration tool model schemas, 2026-09-28; request is not proof of actual runtime selection.",
+  "limitations": [
+    "Applies to subsequent assignments; currently running tasks keep their model and context.",
+    "FLOW_POLICY does not by itself change .codex roles or runtime defaults. Sole integrator applies separately reviewed role/config deltas.",
+    "No measured token, latency or monetary savings claim.",
+    "No new permissions for product claims, integration, tests, runtime, migration, cutover or attempts.",
+    "Current goal and full readiness criteria remain unchanged; an efficiency change is not acceptance."
+  ],
+  "sources": [
+    "https://learn.chatgpt.com/docs/agent-configuration/subagents",
+    "https://learn.chatgpt.com/docs/config-file/config-reference"
+  ],
+  "routing_rules": {
+    "enforcement_scope": "profiles are consumed by existing bos_flow handoff; additional rules are orchestrator instructions, not a new automatic scheduler or execution gate",
+    "order": [
+      "No model call when no actionable change",
+      "Use existing deterministic commands for status/hash/index/byte equality",
+      "Choose economy for narrow semantic preparation",
+      "Choose standard for bounded implementation or authorized QA",
+      "Choose review for independent verdict",
+      "Choose critical for consequential uncertainty"
+    ],
+    "new_assignment_required": [
+      "task_class",
+      "profile",
+      "short_reason",
+      "source",
+      "allowlist",
+      "done_when",
+      "authorized_checks"
+    ],
+    "active_task_model_switch": false,
+    "existing_idle_agent_reuse": "Reuse when its confirmed configuration fits. An idle agent with a heavy inherited configuration is not an economy substitute; use a new bounded subagent if the API cannot reconfigure the idle one.",
+    "full_history_fork": "Only when the task requires that history; default to standalone short context for independent work.",
+    "no_model_activities": [
+      "unchanged polling",
+      "hashing and exact byte comparisons",
+      "copying an already accepted immutable package",
+      "schema/index bookkeeping",
+      "receipt acknowledgements"
+    ],
+    "escalation": "One evidence-based escalation of the same authorized task when reasoning complexity requires it; never use a new model/ID/agent to reset an execution cap or owner gate.",
+    "independent_review": "One actual independent review of the relevant change. Reuse its exact hash for unchanged evidence; no new model review just to restate its verdict.",
+    "actual_model": "Store requested model/effort separately from observed runtime model; unknown remains unknown."
+  },
+  "capacity_policy": {
+    "max_concurrent_subagents": 3,
+    "default_parallel_workers": 2,
+    "reserved_review_slots": 1,
+    "new_parallel_task_requires": [
+      "actual available slot",
+      "independent allowlist",
+      "fulfilled dependencies",
+      "useful work not duplicated elsewhere"
+    ],
+    "heavy_local_jobs_at_once": 1,
+    "erp_mutex_preserved": true,
+    "resource_checks": "Use a fresh already authorized resource observation before heavy work. Unknown/low memory means no new heavy job; this policy grants no process/RAM/policy probe.",
+    "limit_pressure": "On an actual quota error stop duplicate retries and preserve the result. A smaller model may receive only a suitable already authorized next task after its availability is verified; no automatic downgrade of acceptance or critical decisions.",
+    "reset_credit": "Never automatically use or purchase a reset.",
+    "idle": "No agent spawned or awakened merely to keep a slot busy.",
+    "event_driven": "Existing heartbeat is a fallback. Poll a confirmed live handle with a bounded wait, or act on a new result/blocker; do not add timers or empty model loops."
+  }
+}

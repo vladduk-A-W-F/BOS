@@ -1,0 +1,377 @@
+{
+  "schema": "bos.journey-source-r2-independent-review.v1",
+  "card": "B30-SOLUTIONS-JOURNEY-SOURCE-20260930-REVIEW-R2",
+  "context_acceptance": {
+    "at_utc": "2026-09-30 23:24:44 UTC",
+    "status": "ACCEPTED_BEFORE_SEMANTIC_REVIEW",
+    "review_admission_sha256": "ea93859c43e68d293ea3423a8bf7d3601ab79a9a76208e1e3e1928bf0643a5ff",
+    "snapshot_sha256": "a28ce0f40209f7a8bff35d6b48c6a328a66afe872b6caf41d014d9e86971409c",
+    "snapshot_refs_matched": 11,
+    "base_r1_sha256": "564df459854f14fc194295343b61246961ba5f2463b1756309645a549a4bcc4b",
+    "result_r2_sha256": "07590f842d31ba7a5935d873b1a1ecd38c37d277ba1578b077d610e8de0aaf9c",
+    "raw_patch_sha256": "806a86394aa2e986a5aee7ba259b9b0211b33636189975479ab24ebf84878d5f",
+    "new_empty_output_directory": true
+  },
+  "verdict": "ACCEPTED_STATIC_SOURCE_DELTA",
+  "executions": 0,
+  "QA": "NOT_RUN",
+  "readiness": {
+    "TECHNICAL_READY": false,
+    "PILOT_ALLOWED": false,
+    "MVP": false,
+    "canonical_applied": false,
+    "published": false,
+    "runtime_delivered": false
+  },
+  "completed_at_utc": "2026-09-30 23:31:56 UTC",
+  "reviewer_thread": "01a0c05d-6eeb-79f1-a135-be66985b442f",
+  "requested_model": "gpt-6-sol",
+  "requested_effort": "high",
+  "observed_model": "UNCONFIRMED",
+  "observed_effort": "UNCONFIRMED",
+  "verdict_scope": "R1_TO_R2_JS01_JS02_JS03_ONLY",
+  "source_readiness": "STATIC_SOURCE_CORRECTED_LIVE_NOT_RUN",
+  "exact_pins": {
+    "admission": {
+      "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/JOURNEY_SOURCE_REVIEW_R2_ADMISSION.json",
+      "sha256": "ea93859c43e68d293ea3423a8bf7d3601ab79a9a76208e1e3e1928bf0643a5ff"
+    },
+    "snapshot": {
+      "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/SNAPSHOT.json",
+      "sha256": "a28ce0f40209f7a8bff35d6b48c6a328a66afe872b6caf41d014d9e86971409c"
+    },
+    "base_r1": {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\journey-source-author-r1\\frontend\\boss_app_source.html",
+      "sha256": "564df459854f14fc194295343b61246961ba5f2463b1756309645a549a4bcc4b"
+    },
+    "result_r2": {
+      "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+      "sha256": "07590f842d31ba7a5935d873b1a1ecd38c37d277ba1578b077d610e8de0aaf9c"
+    },
+    "original_seed": {
+      "path": "D:/3/BOSDev/workspaces/bos3-canonical/repo/docs/orchestration/bos3/evidence/crm-stale-source-20260930/round2/boss_app_source.candidate.html.txt",
+      "sha256": "fc82733a97c3532cd8ea45ec9dfbfbd96d9274054c83d512b7fa8d40f8772384"
+    },
+    "cumulative_patch": {
+      "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/SOURCE_DELTA.patch",
+      "sha256": "806a86394aa2e986a5aee7ba259b9b0211b33636189975479ab24ebf84878d5f"
+    },
+    "r1_review": {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\review-snapshots\\journey-source-r1\\REVIEW.json",
+      "sha256": "b0e60808427b43c82437762386a6e7d619cc7a416a325dce029cf866e42ead9e"
+    }
+  },
+  "reviewed_snapshot_refs": [
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\journey-source-author-r2\\frontend\\boss_app_source.html",
+      "sha256": "07590f842d31ba7a5935d873b1a1ecd38c37d277ba1578b077d610e8de0aaf9c",
+      "matched": true
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\journey-source-author-r2\\SOURCE_DELTA.patch",
+      "sha256": "806a86394aa2e986a5aee7ba259b9b0211b33636189975479ab24ebf84878d5f",
+      "matched": true
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\journey-source-author-r2\\IMPLEMENTATION_UA.md",
+      "sha256": "154e03c1410744cfb550762e2bd3b1a73d7a3248c85b3713afc815593f7f5f99",
+      "matched": true
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\journey-source-author-r2\\RESULT_MANIFEST.json",
+      "sha256": "00a89e10f0d58c662e2baca7fbe747305f661f4779eba6abd1317b60afb053fd",
+      "matched": true
+    },
+    {
+      "path": "D:\\3\\BOSDev\\qa-scratch\\bos3-brochure-crm-journey-20260930\\frontend\\bos3_content.json",
+      "sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390",
+      "matched": true
+    },
+    {
+      "path": "D:\\3\\BOSDev\\qa-scratch\\bos3-brochure-crm-journey-20260930\\frontend\\bos_design.css",
+      "sha256": "30e1db301539b97080705c463c0fec14ae6370de577f824318484c42d159fd54",
+      "matched": true
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\journey-source-author-r1\\frontend\\boss_app_source.html",
+      "sha256": "564df459854f14fc194295343b61246961ba5f2463b1756309645a549a4bcc4b",
+      "matched": true
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\review-snapshots\\journey-source-r1\\REVIEW.json",
+      "sha256": "b0e60808427b43c82437762386a6e7d619cc7a416a325dce029cf866e42ead9e",
+      "matched": true
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\integrator\\JOURNEY_SOURCE_CORRECTION_R2_ADMISSION.json",
+      "sha256": "a4d5a87fbc0d86e490003be9af7c0750caf263388f599aacb6a1795a6160d056",
+      "matched": true
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\NEXT_BOUNDED_SOURCE_CARD.json",
+      "sha256": "a032dc63cd570b8ab59769927d3d43fdf6c74e8b7a63db654a9216530bc9df1e",
+      "matched": true
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\R2_AND_CONTRACT_CONTEXT_RECEIPT.json",
+      "sha256": "6b5a86e540182594e37ba25f5c1626a8d737680e93658c09310e49ad01b68875",
+      "matched": true
+    }
+  ],
+  "closure_map": [
+    {
+      "id": "JS-01",
+      "priority": "P2",
+      "status": "CLOSED_SOURCE_STATIC",
+      "criteria": [
+        "D3",
+        "D4"
+      ],
+      "source_refs": [
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5490
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5501
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5503
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5506
+        }
+      ],
+      "evidence_uk": "Після await перед update/verified live scope звіряється з captured та origin scope; drift інвалідовує ticket і очищує session. loadContent теж не публікує stale success.",
+      "live": "NOT_RUN"
+    },
+    {
+      "id": "JS-02",
+      "priority": "P2",
+      "status": "CLOSED_SOURCE_STATIC",
+      "criteria": [
+        "D3",
+        "D5"
+      ],
+      "source_refs": [
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5494
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5508
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5511
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5515
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5523
+        }
+      ],
+      "evidence_uk": "401/403 або scope drift -> denied; session 404 чи identity mismatch -> changed; network/5xx -> error. runnerCase маскує старий стан; явний retry повторює лише GET content/session.",
+      "live": "NOT_RUN"
+    },
+    {
+      "id": "JS-03",
+      "priority": "P3",
+      "status": "CLOSED_SOURCE_STATIC",
+      "criteria": [
+        "D5"
+      ],
+      "source_refs": [
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5591
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5593
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5756
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5810
+        }
+      ],
+      "evidence_uk": "Pending focus після явного return; effect за nav=info, scope, slug, bosCanView фокусує main з tabIndex=-1.",
+      "keyboard_behavior": "NOT_RUN"
+    }
+  ],
+  "open_r1_findings": [],
+  "new_regression_findings": [],
+  "static_semantic_matrix": {
+    "repeated_request": "Новий GET інкрементує ticket; старе завершення не публікує state/loading.",
+    "access_drift": "Content і session GET звіряють live scope; session drift відхиляється до update/verified.",
+    "unmount_late_response": "Unmount cleanup інкрементує contentRead і returnRead; пізні continuations не проходять ticket.",
+    "origin_session": "case_id/slug/server session UUID/scope і live URL звіряються після GET.",
+    "error_retry": "Тільки error має кнопку повтору; content failure -> content GET, session failure -> session GET; origin зберігається.",
+    "side_effects": "У доданих рядках тільки trainingFetch content/ і sessions/; нових start/check/preview/confirm endpoint calls 0.",
+    "limit": "Live ordering, identity, focus and behavior NOT_RUN."
+  },
+  "preservation": {
+    "D1": {
+      "status": "R1_ACCEPTED_BYTE_PRESERVED",
+      "segment": "Bos3PreviewCaseSelector..Bos3CaseRunner",
+      "characters": 23785,
+      "r1_r2_equal": true
+    },
+    "D2": {
+      "status": "R1_ACCEPTED_ORIGIN_HANDOFF_BYTE_PRESERVED",
+      "segment": "openTrainingCRM..returnToTraining",
+      "characters": 574,
+      "r1_r2_equal": true
+    },
+    "D6": {
+      "status": "STATIC_EVIDENCE_PRESERVED",
+      "snapshot_refs": 11,
+      "matched": 11
+    },
+    "CRM_R2": {
+      "CRMProposal": {
+        "characters": 1445,
+        "seed_r1_r2_equal": true
+      },
+      "detail_guard_block": {
+        "characters": 3157,
+        "seed_r1_r2_equal": true
+      }
+    },
+    "readonly": {
+      "registry": {
+        "sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390",
+        "matched": true
+      },
+      "css": {
+        "sha256": "30e1db301539b97080705c463c0fec14ae6370de577f824318484c42d159fd54",
+        "matched": true
+      }
+    },
+    "prior_full_review_rerun": false
+  },
+  "definition_of_done": {
+    "D1": "PRESERVED_FROM_R1_STATIC_VISUAL_NOT_RUN",
+    "D2": "PRESERVED_FROM_R1_STATIC_LIVE_NOT_RUN",
+    "D3": "R2_SOURCE_CORRECTED_LIVE_IDENTITY_NOT_RUN",
+    "D4": "R2_RETURN_GUARDS_CORRECTED_CRM_R2_BYTE_UNCHANGED_LIVE_NOT_RUN",
+    "D5": "R2_ERROR_RETRY_FOCUS_CORRECTED_BEHAVIOR_NOT_RUN",
+    "D6": "EXACT_STATIC_EVIDENCE_VERIFIED",
+    "D7": "INDEPENDENT_R2_SOURCE_REVIEW_COMPLETE_INTEGRATION_PENDING"
+  },
+  "raw_static_checks": [
+    {
+      "id": "SC01",
+      "command": "Get-FileHash -Algorithm SHA256 on review admission, snapshot and 11 refs",
+      "exit_code": 0,
+      "result": "13/13 exact pins matched"
+    },
+    {
+      "id": "SC02",
+      "command": "git diff --no-index --no-ext-diff --no-textconv -- <immutable R1 HTML> <scratch R2 HTML>",
+      "exit_code": 1,
+      "raw_stdout_exact_match_to_manifest": true,
+      "raw_stdout_characters": 25232,
+      "hunks": [
+        "@@ -5479,18 +5479,40",
+        "@@ -5498,7 +5520,7",
+        "@@ -5566,7 +5588,9",
+        "@@ -5729,7 +5753,7"
+      ]
+    },
+    {
+      "id": "SC03",
+      "command": "git diff --no-index --check --no-ext-diff --no-textconv -- <immutable R1 HTML> <scratch R2 HTML>",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "",
+      "interpretation": "NO_WHITESPACE_DIAGNOSTICS; no-index difference exit"
+    },
+    {
+      "id": "SC04",
+      "command": "git diff --no-index --no-ext-diff --no-textconv --unified=0 -- <immutable R1 HTML> <R2 HTML>",
+      "exit_code": 1,
+      "added_lines": 32,
+      "removed_lines": 8,
+      "added_training_fetch_patterns": [
+        "content/",
+        "sessions/"
+      ],
+      "added_start_check_preview_confirm_endpoints": 0
+    },
+    {
+      "id": "SC05",
+      "command": "git diff --no-index --no-ext-diff --no-textconv -- <exact CRM R2 seed> <scratch R2 HTML>; compare cumulative patch after CRLF/LF normalization",
+      "exit_code": 1,
+      "hunks": 9,
+      "normalized_exact_match": true,
+      "raw_exact_match": false,
+      "patch_extra_cr_characters": 12
+    },
+    {
+      "id": "SC06",
+      "command": "PowerShell ordinal UTF-8 source segment comparison seed/R1/R2",
+      "exit_code": 0,
+      "result": "CRMProposal 1445 and detail guard 3157 seed=R1=R2; D1 brochure 23785 and D2 origin 574 R1=R2"
+    },
+    {
+      "id": "SC07",
+      "command": "Manual static review of R1 findings against R2 changed path",
+      "result": "3/3 source closures; 0 new changed-area regression findings; dynamic QA NOT_RUN"
+    }
+  ],
+  "product_executions": 0,
+  "dynamic_qa_details": {
+    "live": "NOT_RUN",
+    "runtime": "NOT_RUN",
+    "browser": "NOT_RUN",
+    "visual": "NOT_RUN",
+    "behavior": "NOT_RUN",
+    "keyboard_focus": "NOT_RUN",
+    "progress": "NOT_RUN",
+    "identity": "NOT_RUN",
+    "app": "NOT_RUN",
+    "Node_JS": "NOT_RUN",
+    "build": "NOT_RUN",
+    "tests": "NOT_RUN",
+    "PG": "NOT_RUN",
+    "E2E": "NOT_RUN",
+    "HTTP": "NOT_RUN",
+    "DB": "NOT_RUN"
+  },
+  "mutations": {
+    "author_files": false,
+    "source": false,
+    "canonical": false,
+    "DB": false,
+    "media": false,
+    "password": false,
+    "progress": false,
+    "commit": false,
+    "push": false,
+    "allowed_output_files": [
+      "D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/journey-source-review-r2/REVIEW.json",
+      "D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/journey-source-review-r2/REVIEW_UA.md"
+    ],
+    "new_agents": 0,
+    "new_chats": 0,
+    "new_timers": 0
+  },
+  "report": {
+    "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/journey-source-review-r2/REVIEW_UA.md",
+    "sha256": "ccebce5208da719ca443015870549a0a98046539a44bf88392bde863087298eb"
+  },
+  "hash_policy": "Markdown SHA embedded; final JSON SHA reported externally; no self hash.",
+  "next_recipient": "main exact verdict snapshot -> sole integrator disposition; no automatic integration or delivery"
+}

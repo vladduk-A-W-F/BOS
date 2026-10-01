@@ -1,0 +1,256 @@
+{
+  "schema": "bos.journey.source-result.v1",
+  "card_id": "B30-SOLUTIONS-JOURNEY-SOURCE-20260930",
+  "status": "AUTHOR_COMPLETE_UNREVIEWED",
+  "thread_id": "01a0bffa-3fc7-7bc2-9868-86164c6e0315",
+  "accepted_at_utc": "2026-09-30T21:47:42.0901457Z",
+  "workspace": "D:\\3\\BOSDev\\qa-scratch\\bos3-brochure-crm-journey-20260930",
+  "workspace_method": "MINIMAL_THREE_FILE_SOURCE_SNAPSHOT_NOT_FULL_CHECKOUT",
+  "authority": {
+    "admission_path": "D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/JOURNEY_SOURCE_ADMISSION.json",
+    "admission_sha256": "7106925d62789fa15063890f73c17294ddb332e175808a616ad5b90712d54a4e",
+    "seed_receipt_path": "D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/JOURNEY_SOURCE_SEED_RECEIPT.json",
+    "seed_receipt_sha256": "9cb423c59115b70e24c94881d2757316cad3a8512b554559d3a3ebec699d387e",
+    "card_path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/NEXT_BOUNDED_SOURCE_CARD.json",
+    "card_sha256": "a032dc63cd570b8ab59769927d3d43fdf6c74e8b7a63db654a9216530bc9df1e",
+    "source_commit": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+    "crm_r2_overlay": "fc82733a97c3532cd8ea45ec9dfbfbd96d9274054c83d512b7fa8d40f8772384",
+    "author_observed_model": "UNCONFIRMED"
+  },
+  "seed_files": [
+    {
+      "path": "frontend/boss_app_source.html",
+      "sha256": "fc82733a97c3532cd8ea45ec9dfbfbd96d9274054c83d512b7fa8d40f8772384",
+      "bytes": 921706,
+      "write_allowed": true
+    },
+    {
+      "path": "frontend/bos3_content.json",
+      "sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390",
+      "bytes": 17408,
+      "write_allowed": false
+    },
+    {
+      "path": "frontend/bos_design.css",
+      "sha256": "30e1db301539b97080705c463c0fec14ae6370de577f824318484c42d159fd54",
+      "bytes": 61963,
+      "write_allowed": false
+    }
+  ],
+  "allowlist": [
+    "frontend/boss_app_source.html",
+    "SOURCE_DELTA.patch",
+    "IMPLEMENTATION_UA.md",
+    "RESULT_MANIFEST.json"
+  ],
+  "source_edits": 1,
+  "executions": {
+    "app": 0,
+    "node": 0,
+    "tests": 0,
+    "build": 0,
+    "browser": 0,
+    "http": 0,
+    "db": 0,
+    "runtime": 0
+  },
+  "qa": "NOT_RUN",
+  "readiness": {
+    "TECHNICAL_READY": false,
+    "PILOT_ALLOWED": false,
+    "MVP": false
+  },
+  "continuation": {
+    "interrupted_turn": "01a0f448-e2cd-7820-998f-141a3d23ad75",
+    "context_receipt_path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/JOURNEY_SOURCE_CONTEXT_RECEIPT.json",
+    "context_receipt_sha256": "513e3261e1fac391f0ace12d761fd035960505904a8ce35c11a8acff3db539a4",
+    "partial_source_hash_preserved": "b52fa015c5ce993a88bfa0b01f6789dd6afcba6c6f1e4ddcf6b9db112502a1bc",
+    "guided_contract_admission_sha256": "d6fdc105b4201dda43f773518e14fcb71e2f352431b9bea70c037fe3485d9ceb",
+    "new_seed_copy": false
+  },
+  "result": {
+    "product_path": "frontend/boss_app_source.html",
+    "product_sha256": "07590f842d31ba7a5935d873b1a1ecd38c37d277ba1578b077d610e8de0aaf9c",
+    "product_bytes": 927740,
+    "seed_sha256": "fc82733a97c3532cd8ea45ec9dfbfbd96d9274054c83d512b7fa8d40f8772384",
+    "patch_path": "SOURCE_DELTA.patch",
+    "patch_sha256": "806a86394aa2e986a5aee7ba259b9b0211b33636189975479ab24ebf84878d5f",
+    "patch_bytes": 46617,
+    "implementation_path": "IMPLEMENTATION_UA.md",
+    "implementation_sha256": "154e03c1410744cfb550762e2bd3b1a73d7a3248c85b3713afc815593f7f5f99",
+    "changed_product_files": [
+      "frontend/boss_app_source.html"
+    ],
+    "readonly_hashes_unchanged": true
+  },
+  "static_checks": {
+    "git_diff": {
+      "command": "git diff --no-index --no-ext-diff --no-textconv -- <exact CRM R2 seed> <result HTML>",
+      "exit_code": 1,
+      "raw_output": "SOURCE_DELTA.patch",
+      "interpretation": "DIFFERENCE_PRESENT"
+    },
+    "git_diff_check": {
+      "command": "git diff --no-index --check --no-ext-diff --no-textconv -- <exact CRM R2 seed> <result HTML>",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "",
+      "interpretation": "NO_WHITESPACE_DIAGNOSTICS; NO_INDEX_DIFFERENCE_EXIT"
+    },
+    "protected_crm_r2": {
+      "crm_proposal_equal": true,
+      "detail_owner_to_owners_equal": true,
+      "preview_confirm_guards_modified": false
+    },
+    "registry": {
+      "json_parse": "PASS_STATIC_METADATA",
+      "case_count": 3,
+      "slugs": [
+        "supply",
+        "quality",
+        "payment"
+      ],
+      "sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390"
+    },
+    "css_sha256": "30e1db301539b97080705c463c0fec14ae6370de577f824318484c42d159fd54",
+    "folder_file_count": 6,
+    "product_qa": "NOT_RUN"
+  },
+  "acceptance_matrix": [
+    {
+      "case_id": "BOS3-CASE-01",
+      "slug": "supply",
+      "origin": "case_id + slug + server session UUID + access scope",
+      "return_read": "existing training GET",
+      "live_status": "NOT_RUN"
+    },
+    {
+      "case_id": "BOS3-CASE-02",
+      "slug": "quality",
+      "origin": "case_id + slug + server session UUID + access scope",
+      "return_read": "existing training GET",
+      "live_status": "NOT_RUN"
+    },
+    {
+      "case_id": "BOS3-CASE-03",
+      "slug": "payment",
+      "origin": "case_id + slug + server session UUID + access scope",
+      "return_read": "existing training GET",
+      "live_status": "NOT_RUN"
+    },
+    {
+      "case_id": null,
+      "slug": null,
+      "origin": "absent",
+      "return_read": "no return button",
+      "live_status": "NOT_RUN"
+    },
+    {
+      "case_id": "mismatch",
+      "slug": "changed",
+      "origin": "session/scope mismatch",
+      "return_read": "context_changed or denied, no continuity success",
+      "live_status": "NOT_RUN"
+    }
+  ],
+  "definition_of_done": {
+    "D1": "R1_ACCEPTED_STATIC_VISUAL_NOT_RUN",
+    "D2": "R1_ACCEPTED_STATIC_LIVE_NOT_RUN",
+    "D3": "R2_CORRECTED_SOURCE_REVIEW_PENDING_LIVE_NOT_RUN",
+    "D4": "R2_RETURN_GUARD_CORRECTED_CRM_R2_UNCHANGED_LIVE_NOT_RUN",
+    "D5": "R2_ERROR_RETRY_FOCUS_CORRECTED_BEHAVIOR_NOT_RUN",
+    "D6": "STATIC_EVIDENCE_RECORDED",
+    "D7": "INDEPENDENT_R2_REVIEW_PENDING"
+  },
+  "integration": {
+    "independent_review": "R1_CHANGES_REQUIRED_R2_PENDING",
+    "canonical_applied": false,
+    "commit": null,
+    "published": false,
+    "runtime_delivered": false,
+    "next_recipient": "main"
+  },
+  "correction_r2": {
+    "accepted_before_source_edit": true,
+    "accepted_at_utc": "2026-09-30T23:06:50.8260813Z",
+    "admission_sha256": "a4d5a87fbc0d86e490003be9af7c0750caf263388f599aacb6a1795a6160d056",
+    "review_json_sha256": "b0e60808427b43c82437762386a6e7d619cc7a416a325dce029cf866e42ead9e",
+    "review_md_sha256": "282c53143a83a55413eab9dccf944d3bb72bc0f2816ca32b595a29e20cbfe8fa",
+    "r1_source_sha256": "564df459854f14fc194295343b61246961ba5f2463b1756309645a549a4bcc4b",
+    "r1_source_bytes": 926601,
+    "readonly_registry_sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390",
+    "readonly_css_sha256": "30e1db301539b97080705c463c0fec14ae6370de577f824318484c42d159fd54",
+    "source_edits_before_acceptance": 0,
+    "original_seed_sha256": "fc82733a97c3532cd8ea45ec9dfbfbd96d9274054c83d512b7fa8d40f8772384",
+    "r1_report_sha256": "82eade8d03d85eee022311a967dcf508645640b21d1127662a9f56bbf091aee7",
+    "r1_manifest_sha256": "3298e93d6f0979625c77edc5a3384a4a775a5097148ab2fe3fd3c718918c3283",
+    "result": {
+      "status": "AUTHOR_CORRECTED_UNREVIEWED",
+      "current_html_sha256": "07590f842d31ba7a5935d873b1a1ecd38c37d277ba1578b077d610e8de0aaf9c",
+      "cumulative_patch_sha256": "806a86394aa2e986a5aee7ba259b9b0211b33636189975479ab24ebf84878d5f",
+      "report_sha256": "154e03c1410744cfb550762e2bd3b1a73d7a3248c85b3713afc815593f7f5f99",
+      "addressed": [
+        {
+          "id": "JS-01",
+          "symbols": [
+            "Bos3TrainingHub.loadContent",
+            "Bos3TrainingHub.loadSession",
+            "returnRead",
+            "bosHttpScope"
+          ],
+          "static": "CORRECTED_SOURCE",
+          "live": "NOT_RUN"
+        },
+        {
+          "id": "JS-02",
+          "symbols": [
+            "returnStatus",
+            "retryReturnRead",
+            "loadContent",
+            "loadSession",
+            "Bos3CaseRunner"
+          ],
+          "static": "CORRECTED_SOURCE",
+          "live": "NOT_RUN"
+        },
+        {
+          "id": "JS-03",
+          "symbols": [
+            "App.returnToTraining",
+            "returnFocus",
+            "useEffect",
+            "bos-workspace"
+          ],
+          "static": "CORRECTED_SOURCE",
+          "behavior": "NOT_RUN"
+        }
+      ],
+      "targeted_r1_r2": {
+        "command": "git diff --no-index --no-ext-diff --no-textconv -- <immutable R1 HTML> <result HTML>",
+        "exit_code": 1,
+        "raw_stdout": "diff --git \"a/D:\\\\3\\\\BOSDev\\\\evidence\\\\resume-solutions-20260930\\\\main\\\\journey-source-author-r1\\\\frontend\\\\boss_app_source.html\" \"b/D:\\\\3\\\\BOSDev\\\\qa-scratch\\\\bos3-brochure-crm-journey-20260930\\\\frontend\\\\boss_app_source.html\"\nindex cfc6045..8deeaed 100644\n--- \"a/D:\\\\3\\\\BOSDev\\\\evidence\\\\resume-solutions-20260930\\\\main\\\\journey-source-author-r1\\\\frontend\\\\boss_app_source.html\"\n+++ \"b/D:\\\\3\\\\BOSDev\\\\qa-scratch\\\\bos3-brochure-crm-journey-20260930\\\\frontend\\\\boss_app_source.html\"\n@@ -5479,18 +5479,40 @@ function Bos3HandoffChain({caseDef,state}){\n function Bos3CaseRunner({content,caseDef,serverCase,session,loading,error,onBack,onStart,onPause,onRefresh,onCheck,onSelectStep,onOpenRoute,onTour,onWorkspace,onCRM}){\n  const [answers,setAnswers]=useState({});const state=session||serverCase||{};const steps=Array.isArray(state.steps)?state.steps:[];const currentId=state.current_step||state.current_step_id||steps[0]?.id;const current=steps.find(item=>item.id===currentId)||steps[0];const fields=Array.isArray(current?.answer_fields)?current.answer_fields:[];const facts=state.facts&&typeof state.facts==='object'?state.facts:{};const sources=Array.isArray(state.sources)?state.sources:[];const hasSession=!!bos3SessionId(session);\n  useEffect(()=>setAnswers({}),[current?.id]);\n- return <div className=\"bos3-runner\"><header className=\"bos3-runner-header\"><div><p className=\"bos3-kicker\">{content.training_notice} · {caseDef.id}</p><h1>{caseDef.title}</h1><p>{caseDef.goal}</p><p className=\"bos3-note\">{caseDef.story_intro}</p></div><span className=\"bos3-status\" data-status={state.status||'not_started'}>{loading?'Оновлення…':bos3StatusLabel(state.status||'not_started')}</span></header>{error&&<p role=\"alert\" className=\"erp-error\">{error}</p>}<div className=\"bos3-actions\"><Button onClick={onBack}>До всіх кейсів</Button>{!hasSession&&<Button variant=\"primary\" disabled={loading||state.available===false} onClick={onStart}>{loading?'Зачекайте…':'Почати навчання'}</Button>}{hasSession&&<Button disabled={loading} onClick={onRefresh}>Оновити перевірку</Button>}{hasSession&&state.status==='in_progress'&&<Button disabled={loading} onClick={onPause}>Призупинити</Button>}{state.status==='completed'&&<Button variant=\"primary\" onClick={onTour}>Короткий тур</Button>}<Button onClick={onWorkspace}>Робочий простір</Button></div><Bos3HandoffChain caseDef={caseDef} state={state}/>{state.available===false&&<div className=\"bos3-empty\">{state.reason||'Навчальне середовище ще не налаштовано для цього облікового запису. Жоден крок не позначено виконаним.'}</div>}<div className=\"bos3-runner-grid\"><section className=\"bos3-steps\" aria-label=\"Кроки навчального кейсу\">{steps.length?steps.map((step,index)=>{const sourceStep=bos3StepState(state,step.id)||{};const allowed=bosCanView(step.route?.section,step.route?.sub);const status=sourceStep.status||'not_started',selectable=hasSession&&status!=='locked'&&!loading;return <article className=\"bos3-step\" key={step.id} data-current={step.id===current?.id} data-status={status}><span className=\"bos3-step-index\">{index+1}</span><div><h3>{step.title}</h3><p>{sourceStep.instruction||sourceStep.question||'Перевірте джерело та поверніться до навчального кейсу.'}</p><Bos3Evidence evidence={sourceStep.evidence}/><small>{step.route?.section==='heli'?'Вертоліт':step.route?.section==='dash'?'Сьогодні':step.route?.section==='erp'?'ERP':step.route?.section==='hr'?'HR':step.route?.section==='crm'?'CRM':'Робочий розділ'}</small></div><div className=\"bos3-step-actions\"><Button variant={step.id===current?.id?'primary':'subtle'} disabled={!selectable} title={selectable?'Обрати крок для перевірки':'Спершу почніть кейс або перевірте попередній крок'} onClick={()=>onSelectStep(step)}>Обрати</Button><Button disabled={!selectable||!allowed} title={!allowed?'Недоступно поточній ролі':selectable?'Відкрити після підтвердження переходу':'Спершу почніть кейс або перевірте попередній крок'} onClick={()=>onOpenRoute(step)}>{allowed?'Відкрити':'Недоступно'}</Button></div></article>;}) : <p className=\"bos3-note\">Кроки та критерії перевірки надає сервер лише для доступної навчальної сесії.</p>}</section><aside style={{display:'flex',flexDirection:'column',gap:18}}><section className=\"bos3-side-card\"><h2>Факти сесії</h2>{Object.keys(facts).length?<dl>{Object.entries(facts).map(([label,value])=><React.Fragment key={label}><dt>{bos3FactLabel(label)}</dt><dd>{bos3FactValue(value)}</dd></React.Fragment>)}</dl>:<p className=\"bos3-note\">Після підключення навчальної сесії тут з'являться тільки факти fixture, дозволені вашій ролі.</p>}<div className=\"bos3-source-list\">{sources.map(source=><span key={typeof source==='string'?source:source.code||source.id}>{typeof source==='string'?source:source.code||source.id}</span>)}</div></section><section className=\"bos3-side-card\"><h2>Перевірка кроку</h2><p className=\"bos3-note\">Відкриття екрана, перехід або цей запит самі не створюють господарський факт.</p>{current&&<p className=\"bos3-note\"><strong>Завдання:</strong> {current.question||current.instruction||'Оберіть доступний крок.'}</p>}{fields.length>0&&<form className=\"bos3-answer-form\" onSubmit={event=>{event.preventDefault();onCheck(current?.id,answers);}}>{fields.map(field=>{const key=field.key||field.id||field.name;return <label key={key}>{field.label||key}<input type={field.type==='number'?'number':'text'} required={field.required!==false} value={answers[key]||''} onChange={event=>setAnswers(value=>({...value,[key]:event.target.value}))}/></label>;})}<Button variant=\"primary\" disabled={!hasSession||loading}>Перевірити відповідь</Button></form>}{fields.length===0&&<Button variant=\"primary\" disabled={!hasSession||loading||!current} onClick={()=>onCheck(current?.id,{})}>Оновити перевірку</Button>}</section><section className=\"bos3-side-card\"><h2>Передача до CRM</h2><p className=\"bos3-note\">{caseDef.crm?.label||'Наступна дія'}.</p><p className=\"bos3-note\">CRM-передача створюється лише після server preview та явного підтвердження.</p><Button type=\"button\" variant=\"primary\" disabled={!hasSession} onClick={onCRM}>Підготувати передачу до CRM</Button></section></aside></div>{state.status==='completed'&&<section className=\"bos3-empty\"><strong>Кейс завершено серверною перевіркою.</strong> Можна відкрити короткий тур або продовжити роботу в навчальному просторі.</section>}{hasSession&&state.status!=='completed'&&<p className=\"bos3-note\">Для повтору не стирайте дані в браузері: захищене повторне проходження навчальної сесії потребує окремого серверного шляху.</p>}</div>;\n+ return <div className=\"bos3-runner\"><header className=\"bos3-runner-header\"><div><p className=\"bos3-kicker\">{content.training_notice} · {caseDef.id}</p><h1>{caseDef.title}</h1><p>{caseDef.goal}</p><p className=\"bos3-note\">{caseDef.story_intro}</p></div><span className=\"bos3-status\" data-status={state.status||'not_started'}>{loading?'Оновлення…':bos3StatusLabel(state.status||'not_started')}</span></header>{error&&<p role=\"alert\" className=\"erp-error\">{error}</p>}<div className=\"bos3-actions\"><Button onClick={onBack}>До всіх кейсів</Button>{!hasSession&&<Button variant=\"primary\" disabled={loading||state.available===false} onClick={onStart}>{loading?'Зачекайте…':'Почати навчання'}</Button>}{hasSession&&<Button disabled={loading} onClick={onRefresh}>Оновити перевірку</Button>}{hasSession&&state.status==='in_progress'&&<Button disabled={loading} onClick={onPause}>Призупинити</Button>}{state.status==='completed'&&<Button variant=\"primary\" onClick={onTour}>Короткий тур</Button>}<Button onClick={onWorkspace}>Робочий простір</Button></div><Bos3HandoffChain caseDef={caseDef} state={state}/>{state.available===false&&<div className=\"bos3-empty\" role=\"alert\">{state.reason||'Навчальне середовище ще не налаштовано для цього облікового запису. Жоден крок не позначено виконаним.'}</div>}<div className=\"bos3-runner-grid\"><section className=\"bos3-steps\" aria-label=\"Кроки навчального кейсу\">{steps.length?steps.map((step,index)=>{const sourceStep=bos3StepState(state,step.id)||{};const allowed=bosCanView(step.route?.section,step.route?.sub);const status=sourceStep.status||'not_started',selectable=hasSession&&status!=='locked'&&!loading;return <article className=\"bos3-step\" key={step.id} data-current={step.id===current?.id} data-status={status}><span className=\"bos3-step-index\">{index+1}</span><div><h3>{step.title}</h3><p>{sourceStep.instruction||sourceStep.question||'Перевірте джерело та поверніться до навчального кейсу.'}</p><Bos3Evidence evidence={sourceStep.evidence}/><small>{step.route?.section==='heli'?'Вертоліт':step.route?.section==='dash'?'Сьогодні':step.route?.section==='erp'?'ERP':step.route?.section==='hr'?'HR':step.route?.section==='crm'?'CRM':'Робочий розділ'}</small></div><div className=\"bos3-step-actions\"><Button variant={step.id===current?.id?'primary':'subtle'} disabled={!selectable} title={selectable?'Обрати крок для перевірки':'Спершу почніть кейс або перевірте попередній крок'} onClick={()=>onSelectStep(step)}>Обрати</Button><Button disabled={!selectable||!allowed} title={!allowed?'Недоступно поточній ролі':selectable?'Відкрити після підтвердження переходу':'Спершу почніть кейс або перевірте попередній крок'} onClick={()=>onOpenRoute(step)}>{allowed?'Відкрити':'Недоступно'}</Button></div></article>;}) : <p className=\"bos3-note\">Кроки та критерії перевірки надає сервер лише для доступної навчальної сесії.</p>}</section><aside style={{display:'flex',flexDirection:'column',gap:18}}><section className=\"bos3-side-card\"><h2>Факти сесії</h2>{Object.keys(facts).length?<dl>{Object.entries(facts).map(([label,value])=><React.Fragment key={label}><dt>{bos3FactLabel(label)}</dt><dd>{bos3FactValue(value)}</dd></React.Fragment>)}</dl>:<p className=\"bos3-note\">Після підключення навчальної сесії тут з'являться тільки факти fixture, дозволені вашій ролі.</p>}<div className=\"bos3-source-list\">{sources.map(source=><span key={typeof source==='string'?source:source.code||source.id}>{typeof source==='string'?source:source.code||source.id}</span>)}</div></section><section className=\"bos3-side-card\"><h2>Перевірка кроку</h2><p className=\"bos3-note\">Відкриття екрана, перехід або цей запит самі не створюють господарський факт.</p>{current&&<p className=\"bos3-note\"><strong>Завдання:</strong> {current.question||current.instruction||'Оберіть доступний крок.'}</p>}{fields.length>0&&<form className=\"bos3-answer-form\" onSubmit={event=>{event.preventDefault();onCheck(current?.id,answers);}}>{fields.map(field=>{const key=field.key||field.id||field.name;return <label key={key}>{field.label||key}<input type={field.type==='number'?'number':'text'} required={field.required!==false} value={answers[key]||''} onChange={event=>setAnswers(value=>({...value,[key]:event.target.value}))}/></label>;})}<Button variant=\"primary\" disabled={!hasSession||loading}>Перевірити відповідь</Button></form>}{fields.length===0&&<Button variant=\"primary\" disabled={!hasSession||loading||!current} onClick={()=>onCheck(current?.id,{})}>Оновити перевірку</Button>}</section><section className=\"bos3-side-card\"><h2>Передача до CRM</h2><p className=\"bos3-note\">{caseDef.crm?.label||'Наступна дія'}.</p><p className=\"bos3-note\">CRM-передача створюється лише після server preview та явного підтвердження.</p><Button type=\"button\" variant=\"primary\" disabled={!hasSession} onClick={onCRM}>Підготувати передачу до CRM</Button></section></aside></div>{state.status==='completed'&&<section className=\"bos3-empty\"><strong>Кейс завершено серверною перевіркою.</strong> Можна відкрити короткий тур або продовжити роботу в навчальному просторі.</section>}{hasSession&&state.status!=='completed'&&<p className=\"bos3-note\">Для повтору не стирайте дані в браузері: захищене повторне проходження навчальної сесії потребує окремого серверного шляху.</p>}</div>;\n }\n function Bos3TrainingHub({onNavigate,tourState,setTourState,onOpenCRM,returnOrigin,onReturnVerified,onClearReturnOrigin}){\n- const initial=bos3Registry();const [content,setContent]=useState(initial);const [server,setServer]=useState(null);const [slug,setSlug]=useState(()=>bos3Slug()||initial?.cases[0]?.slug||null);const [view,setView]=useState(()=>bos3Slug()?'case':'start');const [session,setSession]=useState(null);const [loading,setLoading]=useState(false);const [error,setError]=useState('');const [returnStatus,setReturnStatus]=useState(returnOrigin?'pending':'none');const returnRead=useRef(0);\n+ const initial=bos3Registry();const [content,setContent]=useState(initial);const [server,setServer]=useState(null);const [slug,setSlug]=useState(()=>bos3Slug()||initial?.cases[0]?.slug||null);const [view,setView]=useState(()=>bos3Slug()?'case':'start');const [session,setSession]=useState(null);const [loading,setLoading]=useState(false);const [error,setError]=useState('');const [returnStatus,setReturnStatus]=useState(returnOrigin?'pending':'none');const returnRead=useRef(0),contentRead=useRef(0);\n  const selected=content?.cases.find(item=>item.slug===slug)||content?.cases[0]||null;const caseStates=(server?.cases||[]).reduce((result,item)=>({...result,[item.case_id||item.id]:item}),{});\n  const choose=next=>{onClearReturnOrigin?.();setReturnStatus('none');setSlug(next);setView('case');setSession(null);setError('');};\n- const loadContent=async()=>{setLoading(true);setError('');try{const result=await trainingFetch('content/');setServer(result);const next=bos3ValidContent(result.content);if(next)setContent(next);if(result.available===false&&returnOrigin){setReturnStatus('denied');setError('У вас немає доступу до цієї навчальної сесії.');}}catch(e){setServer({available:false,reason:e.message});if(returnOrigin){setReturnStatus('denied');setError('Не вдалося отримати дані. Спробуйте ще раз.');}}finally{setLoading(false);}};\n- const loadSession=async()=>{if(!selected||server?.available===false)return;const ticket=++returnRead.current,scope=bosHttpScope();setLoading(true);setError('');try{const payload=await trainingFetch('sessions/'+encodeURIComponent(selected.id)+'/');if(ticket!==returnRead.current)return;if(returnOrigin){const state=bos3CaseState(payload,selected.id);if(!scope||scope!==returnOrigin.scope){setReturnStatus('denied');setSession(null);setError('У вас немає доступу до цієї навчальної сесії.');return;}if(selected.id!==returnOrigin.case_id||selected.slug!==returnOrigin.slug||bos3Slug()!==returnOrigin.slug||bos3SessionId(state)!==returnOrigin.session_id){setReturnStatus('changed');setSession(null);setError('Вибраний запис змінився. Перевірте дані знову.');return;}update(state);setReturnStatus('verified');onReturnVerified?.();}else update(payload);}catch(e){if(ticket===returnRead.current){if(returnOrigin){setReturnStatus(e.status===401||e.status===403?'denied':'changed');setError(e.status===401||e.status===403?'У вас немає доступу до цієї навчальної сесії.':'Не вдалося отримати дані. Спробуйте ще раз.');}else if(e.status!==404)setError(e.message);setSession(null);}}finally{if(ticket===returnRead.current)setLoading(false);}};\n- useEffect(()=>{loadContent();return()=>{returnRead.current++;};},[]);useEffect(()=>{const changed=()=>{const next=bos3Slug();if(next){setSlug(next);setView('case');setSession(null);}};window.addEventListener('popstate',changed);return()=>window.removeEventListener('popstate',changed);},[]);useEffect(()=>{if(view==='case'&&selected&&server&&server.available!==false)loadSession();},[slug,view,server?.available]);\n+ const loadContent=async()=>{\n+  const ticket=++contentRead.current,scope=bosHttpScope();setLoading(true);setError('');\n+  try{const result=await trainingFetch('content/');if(ticket!==contentRead.current)return;\n+   if(returnOrigin&&(!scope||scope!==returnOrigin.scope||bosHttpScope()!==scope)){setReturnStatus('denied');setSession(null);return;}\n+   setServer(result);const next=bos3ValidContent(result.content);if(next)setContent(next);\n+   if(result.available===false&&returnOrigin){setReturnStatus('denied');setSession(null);}\n+  }catch(e){if(ticket!==contentRead.current)return;setServer({available:false,reason:e.message});\n+   if(returnOrigin){const live=bosHttpScope();setReturnStatus(!live||live!==scope||live!==returnOrigin.scope||e.status===401||e.status===403?'denied':'error');setSession(null);}\n+  }finally{if(ticket===contentRead.current)setLoading(false);}\n+ };\n+ const loadSession=async()=>{\n+  if(!selected||server?.available===false)return;\n+  const ticket=++returnRead.current,scope=bosHttpScope();setLoading(true);setError('');\n+  try{const payload=await trainingFetch('sessions/'+encodeURIComponent(selected.id)+'/');if(ticket!==returnRead.current)return;\n+   if(returnOrigin){const live=bosHttpScope();\n+    if(!scope||scope!==returnOrigin.scope||live!==scope||live!==returnOrigin.scope){returnRead.current++;setReturnStatus('denied');setSession(null);setLoading(false);return;}\n+    const state=bos3CaseState(payload,selected.id);\n+    if(selected.id!==returnOrigin.case_id||selected.slug!==returnOrigin.slug||bos3Slug()!==returnOrigin.slug||bos3SessionId(state)!==returnOrigin.session_id){setReturnStatus('changed');setSession(null);return;}\n+    update(state);setReturnStatus('verified');onReturnVerified?.();\n+   }else update(payload);\n+  }catch(e){if(ticket===returnRead.current){if(returnOrigin){const live=bosHttpScope();setReturnStatus(!live||live!==scope||live!==returnOrigin.scope||e.status===401||e.status===403?'denied':e.status===404?'changed':'error');}else if(e.status!==404)setError(e.message);setSession(null);}}\n+  finally{if(ticket===returnRead.current)setLoading(false);}\n+ };\n+ const retryReturnRead=()=>{if(!returnOrigin||returnStatus!=='error'||loading)return;setReturnStatus('pending');if(!server||server.available===false)loadContent();else loadSession();};\n+ useEffect(()=>{loadContent();return()=>{returnRead.current++;contentRead.current++;};},[]);useEffect(()=>{const changed=()=>{const next=bos3Slug();if(next){setSlug(next);setView('case');setSession(null);}};window.addEventListener('popstate',changed);return()=>window.removeEventListener('popstate',changed);},[]);useEffect(()=>{if(view==='case'&&selected&&server&&server.available!==false)loadSession();},[slug,view,server?.available]);\n  if(!content)return <div className=\"bos3-empty\">Навчальний реєстр для цього кандидата недоступний.</div>;\n  if(view==='start')return <Bos3Brochure onSelectCase={choose}/>;\n- const serverCase=caseStates[selected?.id]||null;const runnerCase=returnOrigin&&returnStatus!=='verified'?{available:false,reason:returnStatus==='denied'?'У вас немає доступу до цієї навчальної сесії.':returnStatus==='changed'?'Вибраний запис змінився. Перевірте дані знову.':'Завантажуємо дані…'}:server?.available===false?{...(serverCase||{}),available:false,reason:server.reason}:serverCase;const update=next=>{const state=bos3CaseState(next,selected.id);if(!state)return null;setSession(bos3SessionId(state)?state:null);setServer(current=>current?{...current,cases:Array.isArray(current.cases)?current.cases.map(item=>(item.case_id||item.id)===selected.id?state:item):[state]}:{available:true,cases:[state]});return state;};\n+ const serverCase=caseStates[selected?.id]||null;const runnerCase=returnOrigin&&returnStatus!=='verified'?{available:false,reason:returnStatus==='denied'?'У вас немає доступу до цієї навчальної сесії.':returnStatus==='changed'?'Вибраний запис змінився. Перевірте дані знову.':returnStatus==='error'?'Не вдалося отримати дані. Спробуйте ще раз.':'Завантажуємо дані…'}:server?.available===false?{...(serverCase||{}),available:false,reason:server.reason}:serverCase;const update=next=>{const state=bos3CaseState(next,selected.id);if(!state)return null;setSession(bos3SessionId(state)?state:null);setServer(current=>current?{...current,cases:Array.isArray(current.cases)?current.cases.map(item=>(item.case_id||item.id)===selected.id?state:item):[state]}:{available:true,cases:[state]});return state;};\n  const start=async()=>{if(!selected)return;setLoading(true);setError('');try{update(await trainingFetch('sessions/'+encodeURIComponent(selected.id)+'/start/',{}));}catch(e){setError(e.message);}finally{setLoading(false);}};\n  const pause=async()=>{if(!selected)return;setLoading(true);setError('');try{update(await trainingFetch('sessions/'+encodeURIComponent(selected.id)+'/pause/',{}));}catch(e){setError(e.message);}finally{setLoading(false);}};\n  const check=async(stepId,answers)=>{if(!selected||!stepId||!bos3SessionId(session))return;setLoading(true);setError('');try{const next=update(await trainingFetch('sessions/'+encodeURIComponent(selected.id)+'/check/',{step_id:stepId,answers}));const available=next?.steps?.find(step=>step.id!==stepId&&step.status==='available');if(available)update(await trainingFetch('sessions/'+encodeURIComponent(selected.id)+'/navigate/',{step_id:available.id}));}catch(e){setError(e.message);}finally{setLoading(false);}};\n@@ -5498,7 +5520,7 @@ function Bos3TrainingHub({onNavigate,tourState,setTourState,onOpenCRM,returnOrig\n  const openRoute=async step=>{if(!step?.route||!(await selectStep(step)))return;if(step.kind==='crm'){openCRM();return;}onNavigate(step.route.section,step.route.sub);};\n  const saveTour=async status=>{if(!selected||!bos3SessionId(session))return true;try{update(await trainingFetch('sessions/'+encodeURIComponent(selected.id)+'/tour/',{status}));return true;}catch(e){setError(e.message);return false;}};\n  const openCRM=()=>{const sessionId=bos3SessionId(session);if(!sessionId){setError('Сервер не надав ідентифікатор навчальної сесії для CRM-передачі.');return;}if(onOpenCRM?.({session_id:sessionId,case_id:selected.id,slug:selected.slug})===false)setError('Вибраний запис змінився. Перевірте дані знову.');};\n- return <>{tourState&&<div className=\"bos3-runner\"><Bos3Tour content={content} tourState={tourState} setTourState={setTourState} onNavigate={onNavigate} onPersist={saveTour}/></div>}<Bos3CaseRunner content={content} caseDef={selected} serverCase={runnerCase} session={session} loading={loading} error={error} onBack={()=>{onClearReturnOrigin?.();setReturnStatus('none');setView('start');bos3SetSlug(null);}} onStart={start} onPause={pause} onRefresh={loadSession} onCheck={check} onSelectStep={selectStep} onOpenRoute={openRoute} onTour={()=>setTourState({index:0})} onWorkspace={()=>onNavigate('dash',null)} onCRM={openCRM}/></>;\n+ return <>{tourState&&<div className=\"bos3-runner\"><Bos3Tour content={content} tourState={tourState} setTourState={setTourState} onNavigate={onNavigate} onPersist={saveTour}/></div>}{returnOrigin&&returnStatus==='error'&&<div className=\"bos3-actions\"><Button type=\"button\" disabled={loading} onClick={retryReturnRead}>Повторити читання</Button></div>}<Bos3CaseRunner content={content} caseDef={selected} serverCase={runnerCase} session={session} loading={loading} error={returnOrigin?'':error} onBack={()=>{onClearReturnOrigin?.();setReturnStatus('none');setView('start');bos3SetSlug(null);}} onStart={start} onPause={pause} onRefresh={loadSession} onCheck={check} onSelectStep={selectStep} onOpenRoute={openRoute} onTour={()=>setTourState({index:0})} onWorkspace={()=>onNavigate('dash',null)} onCRM={openCRM}/></>;\n }\n \n async function crmFetch(path){const response=await fetch('/api/crm/'+path);let body;try{body=await response.json();}catch{throw Error('CRM-сервіс повернув некоректну відповідь.');}if(!response.ok)throw Error(body?.error||'CRM-сервіс недоступний.');return body;}\n@@ -5566,7 +5588,9 @@ function App(){\n   const [crmHandoff,setCrmHandoff]=useState(null);\n   const [trainingOrigin,setTrainingOrigin]=useState(null);\n   const [trainingReturnError,setTrainingReturnError]=useState('');\n+  const returnFocus=useRef(null);\n   useEffect(()=>{if(nav.section!=='info'&&nav.section!=='crm'){setTrainingOrigin(null);setTrainingReturnError('');}},[nav.section]);\n+  useEffect(()=>{const pending=returnFocus.current;if(!pending)return;if(nav.section!=='info'){if(nav.section!=='crm')returnFocus.current=null;return;}returnFocus.current=null;if(bosHttpScope()===pending.scope&&bos3Slug()===pending.slug&&bosCanView('info',null))document.querySelector('#bos-workspace[data-bos-main]')?.focus({preventScroll:true});},[nav.section]);\n   const [opRole,setOpRole]=useState(bosRole());\n   // Контекстна AI-панель відкривається окремою дією, зберігаючи простір для робочих даних.\n   // Пользователь может вручную открывать/закрывать через кнопку в Topbar.\n@@ -5729,7 +5753,7 @@ function App(){\n      if(bos3Slug()!==origin.slug||!bos3Registry()?.cases.some(item=>item.id===origin.case_id&&item.slug===origin.slug)){\n        setTrainingReturnError('Вибраний запис змінився. Перевірте дані знову.');return;\n      }\n-     setTrainingReturnError('');setCrmHandoff(null);setNav({section:'info',sub:null});\n+     setTrainingReturnError('');setCrmHandoff(null);returnFocus.current={scope:origin.scope,slug:origin.slug};setNav({section:'info',sub:null});\n    };\n    const renderContent=()=>{\n     if(!bosCanView(section,sub)){if(section==='hr'&&sub==='kpi')return <KPI employees={[]} loading={false} error={null} refetchEmployees={refetchEmployees} denied/>;return <div className=\"erp-workspace\"><Card><h2>Розділ недоступний</h2><p>Поточний обліковий запис не має доступу до цього розділу.</p><Button onClick={()=>setNav({section:'dash',sub:null})}>Відкрити робочий огляд</Button></Card></div>;}\n",
+        "raw_stderr": "",
+        "check_command": "git diff --no-index --check --no-ext-diff --no-textconv -- <immutable R1 HTML> <result HTML>",
+        "check_exit_code": 1,
+        "check_stdout": "",
+        "check_stderr": "",
+        "interpretation": "DIFFERENCE_PRESENT_NO_WHITESPACE_DIAGNOSTICS",
+        "cumulative_patch_remains_seed_to_result": true
+      },
+      "protected_equal": {
+        "CRMProposal": true,
+        "detailOwner_to_owners": true
+      },
+      "readonly": {
+        "registry_sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390",
+        "css_sha256": "30e1db301539b97080705c463c0fec14ae6370de577f824318484c42d159fd54"
+      },
+      "changed_product_files": [
+        "frontend/boss_app_source.html"
+      ],
+      "scratch_file_count": 6,
+      "product_executions": 0,
+      "qa": "NOT_RUN"
+    }
+  }
+}

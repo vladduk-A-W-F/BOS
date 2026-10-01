@@ -1,0 +1,50 @@
+{
+  "schema": "bos.plan-projection-independent-review.v1",
+  "reviewed_at": "2026-10-01T01:04:03.8888946+02:00",
+  "reviewer": "/root/acceleration_bottleneck_audit",
+  "scope": "New structural projection only. Accepted current-plan text was not re-reviewed; no product, runtime, test, app, network, browser, database, process, or resource action was performed.",
+  "inputs": {
+    "manifest": {
+      "path": "D:/3/BOSDev/evidence/plan-actualization-20261001/integrator/PROJECTION_MANIFEST.json",
+      "sha256": "55746dc0148343ceebd2403bd822beff63861a0f233d8339cde289804dce4422"
+    },
+    "patch": {
+      "path": "D:/3/BOSDev/evidence/plan-actualization-20261001/integrator/PROJECTION.patch",
+      "sha256": "7673f450bf3f2c09e7f6d627494d81b346bf883905b63daef2512cd0bf6623d6"
+    },
+    "accepted_plan_review": {
+      "path": "D:/3/BOSDev/evidence/plan-actualization-20261001/PLAN_REVIEW_FINAL.json",
+      "sha256": "cdb364bd6d42759f154e04d30013efd7e986fbe51dab96f89657ab8341413478"
+    }
+  },
+  "verified": [
+    "The patch keeps the accepted 00:38 Europe/Berlin current-plan section dated and adds later 00:40-00:55 operational facts separately, with explicit non-readiness language.",
+    "Projection pointers consistently distinguish immutable aa6, product baseline 6b3aab22, canonical documentation base dec5997, and published main 87e1a4f; no product or runtime change is claimed.",
+    "QUEUE.tasks remain outside the changed hunk, automatic_execution_allowed remains false, runtime recovery stays separately owner-blocked, and S1-S3, UXD01-08, 11 gates, caps, delivery and readiness boundaries remain explicit.",
+    "The manifest declares eight output pins, sixteen archive entries, raw checks, product_executions=0 and readiness=false. The target archive is part of the unapplied projection, so this review checks its declared structural linkage rather than treating it as a present canonical artifact."
+  ],
+  "findings": [
+    {
+      "id": "PPR-01",
+      "priority": "P1",
+      "file": "docs/orchestration/STATE.json",
+      "location": "top-level next_action and existing later top-level next_action",
+      "finding": "The patch adds a new current top-level next_action but does not rename or remove the existing later top-level next_action. Standard JSON parsers retain the last duplicate key, so the historical text 'Owner manual review; after report no new development...' overrides the new current pointer despite current_state_scope claiming otherwise.",
+      "required_correction": "Keep exactly one top-level current next_action. Rename or move the old value into an explicitly historical_v18 field and retain its historical date/scope. Run a duplicate-key-sensitive JSON check before re-submission."
+    },
+    {
+      "id": "PPR-02",
+      "priority": "P1",
+      "file": "docs/orchestration/STATE.json and docs/orchestration/bos3/CONTROL_STATE.json",
+      "location": "active_workstream.publication_receipt and plan_actualization_current.applied_publication_receipt",
+      "finding": "Both current-state fields name D:/3/BOSDev/evidence/plan-actualization-20261001/integrator/APPLIED_RECEIPT.json, while the manifest says the projection is unreviewed and its next action is a future docs-only atomic commit and draft PR. The evidence directory inventory exposes no such current receipt. As written, a current pointer can be interpreted as an applied/publication fact before application.",
+      "required_correction": "Mark this reference as planned/pending, or omit it until the actual apply/publication receipt is created after accepted projection, atomic commit and PR creation. Do not use it as a current evidence pointer."
+    }
+  ],
+  "verdict": "CHANGES_REQUIRED_P1_CURRENT_POINTER_DUPLICATE_AND_FUTURE_RECEIPT",
+  "blocked_actions": [
+    "Do not make the docs-only atomic commit or open the new PR from this projection until PPR-01 and PPR-02 are corrected and independently rechecked.",
+    "No product/runtime execution, readiness change, or main merge follows from this review."
+  ],
+  "executions": 0
+}

@@ -1,5 +1,18 @@
 # BoS 3.0: отделы на текущем задании
 
+## Чинні ролі 01.10.2026
+
+Sole integrator `01a0dd56` застосовує прийняті частини послідовно; Main `01a0be90` координує exact передачі. Design `01a0bffa` завершив UI source R1 `564df459` в окремій копії; це AUTHOR_COMPLETE_UNREVIEWED. Quality `01a0c05d` отримує тільки цю нову дельту за exact root review admission `dba807c3`, requested Sol/high; автор не приймає себе.
+
+На 00:55:44 Berlin writer `01a0be9f` завершив output-only fields/rights/persistence таблицю `4902e0bf` (requested Astra/high), AUTHOR_COMPLETE_UNREVIEWED; enablement `01a0f2ce` прийняв exact writer snapshot `bcc3ee89` і завершує семантику кроків (requested Sol/medium). Quality прийняв 10/10 UI inputs, source-review триває. Observed models UNCONFIRMED. Це не бізнес-відділи runtime і не другі UI/backend автори. Незавершені копії збережені, одноразове recovery вже прийняте; не повторювати його.
+
+Observer `01a0bf0f` веде контроль/канал окремо, його native goal останнім спостерігався blocked, root goal — null; heartbeat окремий. Нових чатів, цілей чи таймерів немає. До трьох незалежних виконавців за фактичними слотами, ERP mutex, один canonical writer. Повні призначення/allowlist/check-ins: CONTROL_STATE.plan_actualization_current та поточний operational delta. Запуски/готовність не випливають із active чи ACK.
+
+## Історичні записи до актуалізації 01.10
+
+Увесь попередній текст нижче збережений як історія, не як поточне призначення або дозвіл. Точні байти до змін та SHA-256 збережені в `evidence/plan-actualization-20261001/before/`.
+
+
 ## Чинні ролі 30.09, 17:48 Europe/Berlin
 
 Root 01a0dd56 є єдиним canonical інтегратором. Main 01a0be90 координує точні manifests і залежності. Writer 01a0be9f завершив ID-карту 91237e09; її source-підтримку трьох кейсів підтвердив quality у R1. Design 01a0bffa завершив адресну поправку Q-01–03, result 04e72766/70c6a89f. Quality 01a0c05d прийняв лише цю дельту ff88cf49 за окремим допуском 095dfb0f і завершив роботу; це не повне app QA. Запитано Sol/medium авторові та Sol/high reviewer; observed models UNCONFIRMED. Попередні exact snapshots збережені.

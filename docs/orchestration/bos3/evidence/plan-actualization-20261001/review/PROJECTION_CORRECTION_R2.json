@@ -1,0 +1,77 @@
+{
+  "schema": "bos.plan-projection-correction.v1",
+  "id": "B30-PLAN-ACTUALIZATION-20261001-PPR01-PPR02",
+  "base_review_sha256": "55ac6158cdd798a73b0aa8d7c280da3364759bbd9201269de21e9084f93e37c7",
+  "original_manifest_sha256": "55746dc0148343ceebd2403bd822beff63861a0f233d8339cde289804dce4422",
+  "status": "TWO_STRUCTURAL_FINDINGS_CORRECTED_WAIT_INDEPENDENT_RECHECK",
+  "files": [
+    {
+      "path": "docs/orchestration/STATE.json",
+      "sha256": "6c9e61f8d9e9a6adc58ade7a6853d4fac2e6405f7dbef698ce9d969934a47e6f"
+    },
+    {
+      "path": "docs/orchestration/QUEUE.json",
+      "sha256": "50197453cae9f64e354b1d63bb1f9c61f70333b5edb3ed32d31a80b5316bdb92"
+    },
+    {
+      "path": "docs/orchestration/bos3/CONTROL_STATE.json",
+      "sha256": "d35f238a9b1b011235413a7f5c82d7d6b53f29f0d4e20f1d781dcba75d42ec52"
+    },
+    {
+      "path": "docs/orchestration/bos3/ACTIVE_WORK_PLAN_RU.md",
+      "sha256": "5439cd6b91a62c95959bc212f3727ca47e901f6a2b4b0b1b4b240768e5d68592"
+    },
+    {
+      "path": "docs/orchestration/bos3/RELEASE_PLAN_RU.md",
+      "sha256": "4b4b5f4c9e466f298a9db23be9afecf3adc289ca31e5996d37d1541fec2b1d73"
+    },
+    {
+      "path": "docs/orchestration/bos3/TEAM_CURRENT_RU.md",
+      "sha256": "63aa63493446c1fd34fd319b7d54b987a73f2e929935cebcfc4b96c0ffb23cd8"
+    },
+    {
+      "path": "docs/orchestration/bos3/CURRENT_STAGE_20260929_RU.md",
+      "sha256": "3c6d59740621a038cc616bbdcea8a9f672ab553b7d1e9162543b1fddd88fe72f"
+    },
+    {
+      "path": "docs/orchestration/bos3/evidence/plan-actualization-20261001/ARCHIVE_INDEX.json",
+      "sha256": "3d8885e8fc183aca1cf41468ff41e4f2a23e4b0f62b827900007682248871e82"
+    }
+  ],
+  "changes": [
+    {
+      "id": "PPR-01",
+      "correction": "Single current top-level next_action; old text preserved as historical_v18_next_action with explicit historical scope. Duplicate-sensitive check also exposed pre-existing identical false automatic_execution_allowed in QUEUE closeout; renamed only the historical duplicate, current false and tasks unchanged."
+    },
+    {
+      "id": "PPR-02",
+      "correction": "Both current receipt fields null, publication PENDING; path only planned_publication_receipt_path. Archive index also corrected. No publication fact asserted."
+    }
+  ],
+  "duplicate_key_sensitive_check": [
+    {
+      "path": "D:/3/BOSDev/workspaces/bos3-canonical/repo/docs/orchestration/STATE.json",
+      "duplicate_key_count": 0,
+      "duplicates": []
+    },
+    {
+      "path": "D:/3/BOSDev/workspaces/bos3-canonical/repo/docs/orchestration/QUEUE.json",
+      "duplicate_key_count": 0,
+      "duplicates": []
+    },
+    {
+      "path": "D:/3/BOSDev/workspaces/bos3-canonical/repo/docs/orchestration/bos3/CONTROL_STATE.json",
+      "duplicate_key_count": 0,
+      "duplicates": []
+    }
+  ],
+  "diff_check_exit": 0,
+  "check_tool": "PowerShell/.NET System.Text.Json JsonDocument recursive ordinal object-key detection; metadata only",
+  "metadata_check_note": "Initial PowerShell pipeline form rejected before body; corrected capture expression returned results. No product or exhausted QA executed.",
+  "output_allowlist": [
+    "D:/3/BOSDev/evidence/plan-actualization-20261001/integrator/PROJECTION_REVIEW_FINAL.json",
+    "D:/3/BOSDev/evidence/plan-actualization-20261001/integrator/PROJECTION_REVIEW_FINAL_UA.md"
+  ],
+  "product_executions": 0,
+  "readiness_changed": false
+}

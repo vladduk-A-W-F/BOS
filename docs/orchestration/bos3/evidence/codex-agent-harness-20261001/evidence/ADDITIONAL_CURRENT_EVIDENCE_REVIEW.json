@@ -1,0 +1,40 @@
+{
+  "schema": "bos.harness-additional-current-evidence-review.v1",
+  "scope": "Independent read-only H01/H06 evidence review for the six observed current actor turns and two serialized canonical applications; H03 candidate and product readiness excluded",
+  "verdict": "ACCEPT_SCOPED_CURRENT_OBSERVATIONS",
+  "reviewed_sources_sha256": {
+    "NATIVE_STATUS.json": "af9c48f6e3aad5344fc13396a49a61748158ebd7dfbc7cca05a4e262c07c3faa",
+    "OBSERVED_CURRENT_TURN_CONTEXTS.json": "0e5688c83b5ca308ad351cd055e09f27b9ea7504f45168de31caaab43f893fe3",
+    "CURRENT_PLAN_APPLIED_RECEIPT.json": "4c8689f5f0bf21a1590485df86b0882870941df6adcce635ec1e2fd8339d360c",
+    "GC06_APPLIED_RECEIPT_20261001.json": "f444a9094db3493966579d3252b1218549723ed11a7a832d9041bebaa1901584",
+    "FLOW_POLICY.json": "32d2953ce2e323402ee27a4c6664d46bf899161b80b6624ba866cda06e39fc29"
+  },
+  "h06": {
+    "status": "EVIDENCED_SCOPED_SIX_SELECTED_TURNS",
+    "native_checked_at_utc": "2026-10-01T07:12:13.417510+00:00",
+    "context_observed_at_utc": "2026-10-01T07:13:25.400760+00:00",
+    "actor_count": 6,
+    "context_record_count": 8,
+    "actors": [
+      {"alias": "main", "thread_id": "01a0be90-e790-7351-a8ac-059d523941c4", "latest_turn_id": "01a0f61b-d8cb-7783-a6c7-affa4b36e8e0", "selected_model": "gpt-6-astra", "selected_effort": "ultra", "context_lines": [34087, 34607], "context_records_consistent": true},
+      {"alias": "integrator", "thread_id": "01a0dd56-ca2d-79c0-b159-bde80074a026", "latest_turn_id": "01a0f64e-43ed-7ce1-9248-863a366c7ad1", "selected_model": "gpt-6-astra", "selected_effort": "ultra", "context_lines": [36491], "context_records_consistent": true},
+      {"alias": "writer", "thread_id": "01a0be9f-b413-7822-9f93-16ba69f4f00f", "latest_turn_id": "01a0f61e-21cf-74e2-b2f8-9a92891ab33f", "selected_model": "gpt-6-sol", "selected_effort": "medium", "context_lines": [10817], "context_records_consistent": true},
+      {"alias": "design", "thread_id": "01a0bffa-3fc7-7bc2-9868-86164c6e0315", "latest_turn_id": "01a0f491-7fa6-7b63-aa35-43f5321122c2", "selected_model": "gpt-6-sol", "selected_effort": "medium", "context_lines": [7589], "context_records_consistent": true},
+      {"alias": "quality", "thread_id": "01a0c05d-6eeb-79f1-a135-be66985b442f", "latest_turn_id": "01a0f64c-324f-70f0-9897-947a886d8fa3", "selected_model": "gpt-6-astra", "selected_effort": "high", "context_lines": [9235, 9265], "context_records_consistent": true},
+      {"alias": "enablement", "thread_id": "01a0f2ce-270f-7ac3-bea0-1447f87aed61", "latest_turn_id": "01a0f61e-46e1-7822-9f00-18163a04b26e", "selected_model": "gpt-6-astra", "selected_effort": "high", "context_lines": [729], "context_records_consistent": true}
+    ],
+    "verification": "Each actor maps to exactly one native poll and its latest turn ID/status; snapshot SHA matches; all eight saved source line hashes match UTF-8 line plus LF, and each source turn_context record matches saved timestamp, turn/root IDs, model, effort and cwd. The two main and two quality records are same-turn, same-profile observations.",
+    "boundary": "Selected turn_context metadata for these exact turns only. It does not expose hidden serving backend, prove past/future assignments generally, or require new model jobs to fill a matrix. Future task routing still follows current policy."
+  },
+  "h01": {
+    "status": "EVIDENCED_SCOPED_TWO_SERIAL_APPLICATIONS",
+    "integrator_thread_id": "01a0dd56-ca2d-79c0-b159-bde80074a026",
+    "first": {"card": "B30-CURRENT-PLAN-PROJECTION-20261001", "receipt_at_utc": "2026-10-01T06:57:12Z", "commit": "92d444d40d3184eb06ce79f1ee42b15e194db1e7", "author_thread_id": "01a0dd56-ca2d-79c0-b159-bde80074a026", "reviewer_thread_id": "01a0c05d-6eeb-79f1-a135-be66985b442f", "changed_files": ["docs/orchestration/QUEUE.json", "docs/orchestration/STATE.json", "docs/orchestration/bos3/ACTIVE_WORK_PLAN_RU.md"], "independent_verdict": "ACCEPT_SCOPED_CURRENT_PROJECTION"},
+    "second": {"card": "GUIDED-LEARNING-GC-F06-CURRENT-STEP-SOURCE-20261001", "receipt_at_utc": "2026-10-01T07:04:14Z", "commit": "b857176b32f83b6c992aae96b354f14c48e8c232", "parent_commit": "92d444d40d3184eb06ce79f1ee42b15e194db1e7", "author_thread_id": "01a0be9f-b413-7822-9f93-16ba69f4f00f", "reviewer_thread_id": "01a0c05d-6eeb-79f1-a135-be66985b442f", "changed_files": ["training/service.py", "training/test_sessions.py"], "independent_verdict": "ACCEPT_SCOPED_STATIC_CURRENT_STEP_DELTA"},
+    "verification": "Both exact receipt hashes checked. Read-only git show/diff-tree confirms b857176 has 92d444d as its sole parent and confirms disjoint three-file then two-file commits. Both receipts name the same integrator and distinct author/reviewer roles for the second application.",
+    "boundary": "These receipts prove the two recorded serialized applications. The controller's reported initial root-only collaboration slot view has no immutable source in this review and is not counted as independent proof. Before each future assignment, the integrator still checks current card, allowlist, dependencies and actual free subagent slots; no permanent capacity or universal compliance is inferred."
+  },
+  "relation_to_prior_audit": "Adds current H01/H06 observations to REQUIREMENTS_AUDIT_R2.json without editing or retroactively broadening that preserved audit. H03 is not reviewed here.",
+  "reviewer_executions": {"tests": 0, "native_polls": 0, "messages_or_dispatches": 0, "product_executions": 0, "live_or_canonical_writes": 0},
+  "product_readiness_verdict": null
+}

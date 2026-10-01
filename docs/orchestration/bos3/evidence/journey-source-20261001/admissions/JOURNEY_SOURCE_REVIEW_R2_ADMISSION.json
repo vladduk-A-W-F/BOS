@@ -1,0 +1,60 @@
+{
+  "schema": "bos.exact-source-delta-review-admission.v1",
+  "id": "B30-SOLUTIONS-JOURNEY-SOURCE-20260930-REVIEW-R2",
+  "classification": "SAME_PROBLEM_REVIEW_JS01_JS02_JS03_CORRECTION_ONLY",
+  "author": "01a0bffa-3fc7-7bc2-9868-86164c6e0315",
+  "reviewer": "01a0c05d-6eeb-79f1-a135-be66985b442f",
+  "requested_model": "gpt-6-sol",
+  "requested_effort": "high",
+  "observed_model": "UNCONFIRMED",
+  "dispatch_owner": "main",
+  "dispatch_gate": "Full contract review final native completed/error=null observed 23:19 UTC; main must recheck fresh idle/completed before explicit Sol/high assignment. Preserve finished contract review before dependent author corrections; never switch active task.",
+  "snapshot": {
+    "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/SNAPSHOT.json",
+    "sha256": "a28ce0f40209f7a8bff35d6b48c6a328a66afe872b6caf41d014d9e86971409c"
+  },
+  "result_sha256": "07590f842d31ba7a5935d873b1a1ecd38c37d277ba1578b077d610e8de0aaf9c",
+  "base_r1_sha256": "564df459854f14fc194295343b61246961ba5f2463b1756309645a549a4bcc4b",
+  "original_seed_sha256": "fc82733a97c3532cd8ea45ec9dfbfbd96d9274054c83d512b7fa8d40f8772384",
+  "r1_review_sha256": "b0e60808427b43c82437762386a6e7d619cc7a416a325dce029cf866e42ead9e",
+  "patch_sha256": "806a86394aa2e986a5aee7ba259b9b0211b33636189975479ab24ebf84878d5f",
+  "root_verification": "11/11 snapshot refs exact; R2 output directory not yet present",
+  "output_directory": "D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/journey-source-review-r2",
+  "output_allowlist": [
+    "REVIEW.json",
+    "REVIEW_UA.md"
+  ],
+  "start_gate": "Record acceptance of exact snapshot/base/result and raw correction before semantic review",
+  "review_scope_uk": [
+    "Лише R1->R2 виправлення JS01/JS02/JS03: live scope після await перед update/verified; error проти denied/changed та явний read-only retry; guarded focus після повернення.",
+    "Перевірити patch provenance та збереження раніше прийнятих CRM R2 guards/D1/D2/D6 порівнянням байтів, не повторною повною модельною рецензією.",
+    "На зміненому read-path перевірити повторний запит, зміну доступу, unmount/late response, збереження origin/session та відсутність start/check/preview/confirm side effects. Не вважати static огляд runtime PASS.",
+    "Exact result/base hashes, findings IDs closed/open, regression findings за зміненою ділянкою, D3/D4/D5 disposition та всі live/visual/browser/behavior NOT_RUN. Автор не приймає себе."
+  ],
+  "allowed": [
+    "read pinned source/evidence",
+    "metadata JSON parse",
+    "hash/byte comparison",
+    "git diff --no-index --no-ext-diff --no-textconv and diff --check",
+    "manual static review",
+    "two output writes only"
+  ],
+  "forbidden": [
+    "app/Node/JS/NodeVM/fakeDOM/build/tests/PG/E2E/browser/HTTP",
+    "source/author/canonical edits",
+    "runtime/DB/media/password/progress mutations",
+    "resource/process/network probes",
+    "commit/push",
+    "new chats/goals/timers"
+  ],
+  "product_executions": 0,
+  "all_attempt_histories_preserved": true,
+  "check_in_utc": "2026-09-30T23:45:00Z",
+  "next_recipient": "main exact verdict snapshot -> sole integrator disposition; no automatic executable integration or delivery",
+  "integrated_sha": null,
+  "readiness": {
+    "TECHNICAL_READY": false,
+    "PILOT_ALLOWED": false,
+    "MVP": false
+  }
+}

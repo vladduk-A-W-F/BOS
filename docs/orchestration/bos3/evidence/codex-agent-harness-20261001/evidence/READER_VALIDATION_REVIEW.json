@@ -1,0 +1,37 @@
+{
+  "schema": "bos.harness-reader-focused-independent-validation-review.v1",
+  "verdict": "ACCEPT_SCOPED_FOCUSED_VALIDATION",
+  "scope": "Independent review of one recorded R4 reader fixture result against accepted R5 source; no rerun or live application",
+  "source_review": {
+    "path": "D:/3/BOSDev/evidence/harness-current-cards-20261001/SOURCE_REVIEW_R5.json",
+    "sha256": "c3d59c1fc9cb05f6fd55b9f2ea4307f4d327b87462d825cbfed64a6d7883d92a",
+    "verdict": "ACCEPT_SCOPED_SOURCE_PENDING_FOCUSED_VALIDATION"
+  },
+  "result": {
+    "path": "D:/3/BOSDev/evidence/harness-current-cards-20261001/READER_FOCUSED_RESULT.json",
+    "sha256": "ccc17a45ea0dea00815ea0c2babd13b059dd1234493b4ef719c4cf94d22e86a8",
+    "native_exit_code": 0,
+    "test_count": 1,
+    "elapsed_seconds": 0.003,
+    "stderr_sha256": "9d20a3fb764bcb8c8a2e4a57e27a08f174a018fdc2aa340edfba0c2ba4c46988",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "raw_result": "test_reader_distinguishes_filter_clean_crlf_from_dirty_and_race ... ok; Ran 1 test in 0.003s; OK",
+    "previous_four_methods_repeated": false
+  },
+  "binding": {
+    "command_matches_r5_proposed_executable_flags_file_and_one_method": true,
+    "exact_nonempty_manifest_keyset": ["EXACT_DIFF_R4.patch", "FLOW_COMMANDS_RU.md", "bos3_guidance.py", "bos_flow.py", "test_bos3_guidance.py"],
+    "all_five_staged_hashes_checked_before_and_after": true,
+    "current_staged_hashes_match_frozen_r4": true,
+    "manifest_sha256": "ff019dd55605156f377f15e2c91ee327c4cea962170630f01437a00a9d84c199",
+    "live_bos_flow_unchanged_sha256": "35142ff7ad90d93da792a7dd0f19ef5d1a6d765c2a8f3efc0d7d71c8ce7d17a4",
+    "live_guide_before_sha256": "2ad745b1ffe448da3b8075b35bf4cde272f922df774de233178a7cfc85307af2",
+    "live_reader_before_sha256": "5d4ac9fe0f194c0f78cd4fe8e4e67dbeb3ed256d1019bf66e98bde3008cd44ec"
+  },
+  "meaningful_coverage": "The single new synthetic reader method checks Git-filter-clean LF blob versus CRLF worktree with separate hashes, a truly dirty tracked document, raw-worktree mutation after the first read, and HEAD change after the first clean check while fixed docs remain stable. It exercises the R4 regression without rerunning four accepted pure projection methods.",
+  "limits": "This is isolated fake-reader evidence. It does not prove the installed CLI now projects the real clean canonical checkout, nor product/app/DB/runtime behavior. One actual cached next read after exact two-file install remains necessary.",
+  "install_disposition": "ADMISSIBLE_TWO_FILE_SERIAL_EXACT_INSTALL_AFTER_LIVE_BASELINE_AND_STAGED_RECHECK_WITH_BACKUPS_AND_STATE_LOCK",
+  "next_allowed_step": "Controller rechecks live guide and reader before hashes plus five staged R4 pins, uses existing state lock and before backups, installs only FLOW_COMMANDS_RU.md and bos3_guidance.py exact bytes, leaves bos_flow.py untouched, then captures one cached read-only next full raw output and source pins for independent final review.",
+  "reviewer_executions": {"tests": 0, "native_polls": 0, "cached_next": 0, "sends": 0, "live_or_canonical_writes": 0},
+  "product_readiness_verdict": null
+}

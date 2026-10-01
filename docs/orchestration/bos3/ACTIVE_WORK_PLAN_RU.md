@@ -1,5 +1,127 @@
 # BoS 3.0: действующая очередь работ
 
+## Чинний стан 01.10.2026, 12:43 Europe/Berlin
+
+Цей датований шар замінює як поточну проєкцію шар 08:40 нижче. Canonical source для підготовки — clean `47ceb7f54fba81afa648e93b3954ce550409adb0`; exact before bytes чотирьох документів є в `D:/3/BOSDev/qa-scratch/bos3-plan-refresh-20261001-1040/before/`. На зріз 10:43 цей авторський пакет має статус `AUTHOR_COMPLETE_UNREVIEWED`; пізніший review і застосування встановлюються окремими receipts. Лише єдиний integrator `01a0dd56-ca2d-79c0-b159-bde80074a026` може послідовно застосувати після незалежного review.
+
+GC-F06 частковий source-only застосовано в `b857176b32f83b6c992aae96b354f14c48e8c232` (receipt SHA `f444a9094db3493966579d3252b1218549723ed11a7a832d9041bebaa1901584`). D02 source-only статично прийнято й застосовано в `47ceb7f54fba81afa648e93b3954ce550409adb0` (receipt SHA `bc1610aa848291a3ed76d4369362170f13dd0375b9638da903d90ead2880ab9c`); 12 regression methods **NOT_RUN**. Design R2 `DESIGN_RESOLUTION_R2.json` SHA `473a572a62a6affedb4191cbee6e8e53283b30fbc97a7becb1ed400c5a759abf` має незалежний `ACCEPT_SCOPED_PRE_CODE_DESIGN_GIDR_F01_F02_CLOSED`, review SHA `b97aa1e80b73ffda3485f3c2f288b148cb451ff18f48af9419ea91082f5588db`. Scoping R1 лишається історичним `AUTHOR_COMPLETE_UNREVIEWED` без retroactive acceptance.
+
+| Пріоритет і частина | Власник / залежність | Поточний стан і DoD наступного кроку |
+|---|---|---|
+| P1 D08-A source | Існуючий writer `01a0be9f…`; exact D02 head та прийнятий Design R2. Main координує, Quality `01a0c05d…` перевіряє; sole integrator застосовує | Admission SHA `d874997e5f6d566f3739701cde6c7112cec47acc58d846a001e51ddf5c8dccf8`, binding SHA `eda09cae8d2c3b0684993f7f0341311ea570fb94e5f6368ce2d2a3caf59d39bf`. Авторський manifest SHA `8298ef177c19b78020a632e1c2296492d7c6cebd991b62447fece5179ace6bc4`, `AUTHOR_COMPLETE_UNREVIEWED`, seven refs stable. DoD тепер: незалежний changed-code verdict на exact bytes, потім окреме рішення інтегратора. Review/integrated SHA null; 15 source regressions NOT_RUN. Повторну реалізацію не призначати |
+| P1 Journey generation | Main / раніше прийнятий static package; окремий exact executable admission відсутній | `NOT_ADMITTED`. DoD підготовки: конкретний resource observation та exact execution admission; до цього generated output, Node/build і app QA не стверджувати |
+| P2 Інші GC-F01–08 gaps | Для кожної частини окремо перевірити залежності, allowlist, owner і admission; D08 не дублювати | Нових source-карток не призначено; не розпочато. Design R2 дає вузьку передкодову основу, не загальний дозвіл реалізації або нові права/schema |
+| Блокер runtime | Власник окремого рішення; `RUNTIME_DECISION_PACKET.json` | `BLOCKED_NO_RETRY`; dev9 `NOT_DELIVERED`. DoD відновлення потребує окремого exact рішення, не автоматичного повтору |
+
+Порядок для D08: exact author result → існуючий Main/Quality independent review → sole-integrator disposition/application. Незалежна дозволена підготовка й робота інших частин може йти паралельно після окремої перевірки їхніх залежностей, allowlist, owner і admission; інтеграція послідовна, D08 не дублювати. Далі — лише окремо дозволені перевірки exact candidate та evidence GO/NO-GO. PR #11 на 10:43:05 UTC OPEN/DRAFT/NOT_MERGED, head `47ceb7f…`; workflow `36841461644` attempt1 completed/success є checkout/echo, не app QA (observation SHA `efde2542942ce7d7a03261ac310901c2e2b273135abee0e3e7b247d4182991ec`). Пізніші результати фіксуються окремими receipts, без переписування цього зрізу.
+
+Повний обсяг лишається: S1–S3 на одному актуальному кандидатові; UXD-01–08, включно з dashboard/metric sources, міжрольовими переходами, keyboard/focus і loading/empty/denied/stale; 11 gates; особистий вхід; навчальні проходження зі збереженням прогресу; exact-version delivery. Ці критерії ще не доведені завершеними. Cutoff **04.10.2026 23:59 Europe/Berlin** незмінний; **TECHNICAL_READY=false; PILOT_ALLOWED=false; MVP=false; product executions=0; dynamic QA NOT_RUN**. Історичні P05/A09/A10/A11, fixture/progress та інші ліміти не скидаються.
+
+Прийнятий harness source ledger — окрема інфраструктура; H03 stale current advice відкритий, архів-доповнення `UNPUBLISHED_INTERMEDIATE`. Зміна цих protected docs зрушить hash/HEAD anchors reader, отже harness `NEEDS_RECONCILIATION` до окремої exact прив'язки. Це не блокує правдиве оновлення плану й не обіцяє автоматичної сумісності.
+
+## Історичний шар 01.10.2026, 08:40 Europe/Berlin
+
+Усі старі «поточні» statuses/assignments нижче є датованою історією. Exact цілий файл до змін — `before/bos3/ACTIVE_WORK_PLAN_RU.md` цього пакета.
+
+
+## Чинний план 01.10.2026, 08:40 Europe/Berlin
+
+Цей датований шар визначає поточні призначення; усі попередні зрізи нижче збережені як історія. Підстава: чинне доручення власника продовжити й актуалізувати погоджений план; SAME-PROBLEM, без скидання лімітів. Поточна черга з точними власниками, копіями, залежностями й DoD: `../QUEUE.json` -> `current_bos3.tracks`; поточний стан: `../STATE.json` -> `execution` та `active_workstream`. Пізніші receipts у `D:/3/BOSDev/release-planning/bos-3.0-20260927/POST_CHECKPOINT_OPERATIONAL_DELTA.json` уточнюють прогрес після цього зрізу, не розширюють дозволи.
+
+### Версії та вже прийняті результати
+
+- Canonical: `D:/3/BOSDev/workspaces/bos3-canonical/repo`, гілка `codex/bos3-plan-actualization-20261001`; перевірений base цього документаційного оновлення `0b96f76a575f88ed450c4be28d265a0cf207e3c4`, clean. PR #11: https://github.com/vladduk-A-W-F/BOS/pull/11, OPEN/DRAFT/NOT_MERGED; head `0b96f76a575f88ed450c4be28d265a0cf207e3c4`, main `87e1a4f504d24f6d47add511eb8b68a7fa592efc`. Підсумковий commit цього оновлення встановить actual receipt після незалежного review, не сам текст плану.
+- UI source R2 незалежно прийнятий статично: `07590f842d31ba7a5935d873b1a1ecd38c37d277ba1578b077d610e8de0aaf9c`. Неактивний evidence-архів 24 файлів опубліковано commit `a1e3413312e541914e6978ee9183382142192154`; це не інтеграція виконуваного frontend.
+- Guided contract R2 незалежно прийнятий статично; неактивний evidence-архів 28 файлів опубліковано commit `0b96f76a575f88ed450c4be28d265a0cf207e3c4`. GC-F01–08 залишаються implementation gaps, не завершеним навчанням. Спільна квитанція: `D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/ACCEPTED_PACKAGE_R2_APPLIED_RECEIPT.json`, SHA-256 `8442ec8ca357f9239b3ac7f269a85baa548c925c2574d0dacb2517ac610193b5`.
+- Immutable dev9 source `aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975`, product baseline `6b3aab22b3f8254d5f65846f54ceeed7049e1ddf`; **NOT_DELIVERED, availability UNCONFIRMED**. Немає нового доказу збереження live даних. Службовий checkout/echo CI не є app QA; історичний whitespace exit2 для архівів не перетворюється на PASS.
+
+### Три чинні напрями
+
+| Напрям | Власник і фактичний стан | Наступний результат / межа |
+|---|---|---|
+| B30-SOLUTIONS-JOURNEY-SOURCE-20260930-INTEGRATION-PREP | Main `01a0be90…`; Quality `01a0c05d…` завершив незалежний `ACCEPT_SCOPED_STATIC_GENERATION_PACKAGE`, review `c89fff022ca3906826719005eaf365a0796e495d6f35592fe5ed52b0b80a15cd` | 5 exact inputs і 3 preserved targets підготовлені. Generated outputs відсутні; **execution NOT_ADMITTED**: немає свіжого достатнього resource observation та exact execution admission. Статичне приймання не дозволяє Node/build/probe або автоматичний retry |
+| GUIDED-LEARNING-GC-F06-CURRENT-STEP-SOURCE-20261001 | Writer `01a0be9f…`; exact context прийнято до правок, автор завершує ізольовані `training/service.py` та `training/test_sessions.py` | Лише нормалізація існуючого current_step, без next_step/API/schema/rights/reset/lessons; GET без нового DB write, persistence лише в існуючому start transaction. Exact completed snapshot -> незалежний changed-code review Quality -> послідовне рішення root. Regression source NOT_RUN; GC-F06 лише частковий |
+| GUIDED-LEARNING-GC-F01-08-IMPLEMENTATION-SCOPING-20261001 | Enablement `01a0f2ce…`; авторський snapshot `e2c3f7eebfa79cb8ba39c547d46eb7e9a3d1be82ce773d67155930787d61fc70`, AUTHOR_COMPLETE_UNREVIEWED | Усі 8 gaps описані; незалежний consequential-design review ще потрібний. Це не нові призначення й не дозвіл реалізувати запропоновані API/schema/rights/content рішення. Уже призначений GC-F06 не дублювати |
+
+Спільний exact admission: `D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/NEXT_SOURCE_GC06_ADMISSION_20261001.json`, SHA-256 `b48087b0e41be53f8e83de7abc6581df0f991b37927fad8609bea297bfdb627c`. Контекст обох авторів фактично прийнято до контрольної точки 08:35 Berlin; результати або конкретний blocker очікуються до 09:00 Berlin. Авторський scoping та generation review вже надані. Main координує один reserved review slot; поточні роботи не переривати, не перемикати активні моделі, не створювати дублікати.
+
+### Обсяг, порядок і рішення
+
+«BoS — рішення під ваш бізнес»: задача -> наочний сценарій -> підтверджений результат -> CRM з тими самими сутностями/ID. Повний обсяг незмінний: S1/S2/S3, UXD-01–08, 11 gates, персональний вхід, збереження навчання й прогресу, exact-version доставка. Порядок: owner-local кандидат -> світле адаптивне прев'ю -> три синтетичні сценарії -> вхід/збереження -> решта покращень. Runtime blocker має окремого власника рішення та не забороняє вже допущену source-only роботу.
+
+01.10: зафіксувати реалістичний склад версії за прийнятими результатами та конкретними блокерами; цей план не оголошує всі вимоги виконаними. 02–03.10: лише окремо дозволені фінальні перевірки exact candidate. До **04.10.2026 23:59 Europe/Berlin**: evidence за кожним критерієм, GO або чесний NO-GO; після cutoff лише читання, підсумок і штатна пауза циклу без вимкнення застосунку. Срок 11.10 не діє.
+
+Runtime recovery залишається BLOCKED_NO_RETRY за `RUNTIME_DECISION_PACKET.json`; уже поставлені питання не повторювати. Немає дозволу на нові resource/process probes, Node/build/app/import/test/browser/HTTP/DB/fixture/seed/migrate/reset/lesson запуски. `training/test_sessions.py` setup викликає seed: навіть адресний regression run потребує окремого допуска і не обходить fixture caps. Зберегти P05/A09/A10/A11 та всю історію інших лімітів, ERP mutex, синтетичні українські дані UAH, БД/media/пароль/прогрес. Main merge, Sites, production, paid API, зміна прав/архітектури та відновлення скасованого переносу Codex не дозволені.
+
+**TECHNICAL_READY=false; PILOT_ALLOWED=false; MVP=false; product executions=0; dynamic QA NOT_RUN.** Єдиний integrator `01a0dd56-ca2d-79c0-b159-bde80074a026` застосовує лише незалежно прийняті exact bytes, по одному commit на картку; фактична публікація й runtime delivery мають окремі receipts.
+
+## Історичний зріз 01.10.2026, 00:38 Europe/Berlin
+
+Усі статуси, призначення й pins від цього заголовка до кінця файлу є датованою історією. Вони не перекривають поточний шар 08:40 вище. Початкові exact bytes збережено у `D:/3/BOSDev/evidence/current-plan-projection-20261001/integrator/before/` та Git commit `0b96f76a575f88ed450c4be28d265a0cf207e3c4`.
+
+Зріз: 01.10.2026, 00:38 Europe/Berlin; час окремих спостережень збережено в OBSERVATIONS.json і SOURCE_OBSERVATION.json. Підстава: доручення власника «ПЛАН УСКОРИТЬ И ВЫПОЛНИТЬ» та «исполни актуализацию плана». Поточний етап — реалізація узгодженого користувацького шляху й завершення контракту навчання. Фінальна перевірка MVP ще не виконана.
+
+## Мета і критерії завершення
+
+«BoS — рішення під ваш бізнес»: вибрати задачу → пройти наочний сценарій → побачити підтверджений результат і його джерело → продовжити в CRM з тими самими даними → повернутися без втрати контексту.
+
+Обов'язковий обсяг залишається повним: три бізнес-сценарії S1–S3; UXD-01–08, включно з читабельними дашбордами, джерелами метрик, бізнес-відділами й передачею роботи, кнопковими переходами, компактною навігацією, keyboard/focus та loading/empty/denied/stale; 11 gates; персональний вхід, навчальні сценарії зі збереженням прогресу; точна версія для ручної перевірки. Детальні незмінні критерії — RELEASE_PLAN_RU.md, MVP_REQUIREMENTS_CURRENT.json і відповідні evidence, а не спрощений перелік чатів.
+
+Контрольна дата — **04.10.2026 23:59 Europe/Berlin**. Це дата звіту GO/NO-GO за доказами; неперевірені вимоги не стають готовими через настання строку. Після неї — чинна штатна пауза змін та звіт без вимкнення застосунку. Автоматичного продовження до 11.10 немає.
+
+## Що реально готово
+
+| Частина | Фактичний результат | Межа готовності |
+|---|---|---|
+| Об'єднання джерел | PR10 злитий у main, commit `87e1a4f504d24f6d47add511eb8b68a7fa592efc`; main tree відповідає прийнятому `dec5997` | Злиття не є перевіркою або доставкою застосунку |
+| CRM stale-response R2 | Незалежно прийнята статична правка; HTML seed `fc82733a…`; archived/published | До виконуваного canonical frontend та runtime не інтегрована |
+| Три кейси: ID та шлях | Прийняті identity map і design Q01–Q03; verdict `ff88cf49…` | Live тотожність та наскрізне виконання NOT_RUN |
+| Посібник | author-v3, незалежний `ACCEPT_DRAFT_SCOPED_V3`, review `9b9c24dd…` | Прийнята документаційна чернетка, не готове навчання |
+| Організація роботи | Один інтегратор, відокремлені автори й review; чинним порядком передбачена резервна сверка кожні 15 хвилин | Записаний розклад, активність чату або ACK не є результатом |
+
+Git-позиції розділені: перевірений remote main `87e1a4f…`; локальна canonical гілка `codex/bos3-prerelease-20260927` на `dec599752d2703e18dc9b53fbf2e2585b0ede3e0`, clean; immutable продуктове джерело `aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975`; product baseline `6b3aab22…`. Нових відкритих PR до main на момент звірки немає. Наступна публікація — окремий PR; закритий PR10 повторно не використовується.
+
+## Поточні роботи й відповідальні
+
+| Пріоритет / поточна частина | Власник | Перевірений стан | Наступний конкретний результат |
+|---|---|---|---|
+| P1. B30-SOLUTIONS-JOURNEY-SOURCE-20260930 | Design; coordinator main; sole integrator | Exact admission та seed є, context прийнято. Після переривання WIP збережено; спостережений hash незавершеного HTML на час зрізу — `7666b065…`. Це не підсумкова дельта: patch/review ще немає | Завершити в тій самій копії три задачі на першій сторінці, збереження origin/session та повернення з CRM. Повернути patch, source hash, звіт і D1–D7 |
+| P1. GUIDED-LEARNING-CONTRACT-FIELDS | Writer | Після переривання створено SESSION_CAPABILITIES.json та звіт із `CONTEXT_ACCEPTED_AUTHOR_IN_PROGRESS`; повної таблиці й review ще немає | Зіставити поля, права та збереження існуючої навчальної сесії з pinned source; кожен відсутній механізм — окремий implementation gap |
+| P1. GUIDED-LEARNING-CONTRACT-SEMANTICS | Enablement | Після переривання створено CONTRACT_CANDIDATE_UA.json та звіт із `CONTEXT_ACCEPTED_SEMANTICS_IN_PROGRESS`; фінальна залежність від таблиці writer відкрита | Завершити completion/evidence/pause-resume для п'яти типів кроків і трьох кейсів; остаточно зіставити з exact таблицею writer |
+| P1. Незалежна перевірка нових результатів | Quality | Попередні Q01–Q03 прийняті; нових inputs для review немає | Отримати точні зміни після авторського результату; не повторювати незмінні прийняті матеріали |
+| P1. Інтеграція й актуальні записи | Sole integrator `01a0dd56…` | Новий хід активний; canonical ще `dec5997` | Послідовно застосувати тільки прийняті результати, оновити план/стан/чергу, зробити атомарні commits і новий PR |
+| Окремий blocker. B30-RECOVERY-OBSERVATION-DIAGNOSIS | Integrator; рішення власника для точної додаткової спроби | Windows execution policy відхилила попередню діагностику до тіла; preflight1/1, diagnosis1/1, global2/3 | Є RUNTIME_DECISION_PACKET.json. Підготувати завершений перевірений предмет рішення; без автоматичного повтору, обходу або зміни runtime |
+
+Поточні повідомлення про `interrupted` не означають завершення, відмову користувача від плану або втрату вже записаних файлів. Інтегратор уже передав main одне змістовне продовження **тих самих** доручень через ledger без зміни моделі чи скидання копій. Нових авторів, чатів і дублюючих карток не потрібно. Старі check-in 30.09 21:50/22:15/22:20 UTC минули під час перерви. Нові контрольні точки root: main підтверджує фактичне відновлення до **01.10 00:55 Europe/Berlin**; результати або конкретний blocker — до **01.10 01:15 Europe/Berlin**. Повторний blocker ескалюється без циклу пробуджень; загальна дата 04.10 не переноситься.
+
+## Послідовність до завершення
+
+1. **01.10 — відновлення й завершення вузьких результатів.** Design продовжує власний WIP у `bos3-brochure-crm-journey-20260930`; writer і enablement — свої окремі outputs у `bos3-guided-contract-20260930`. Загальні UI, API, моделі та БД не роздаються кільком авторам. Main збирає авторські звіти без повторного дослідження прийнятих карт.
+2. **Після готової дельти — review та інтеграція.** Quality перевіряє exact patch/seed/result і збереження CRM R2 guards. Інтегратор застосовує прийнятий результат одним commit на картку, без amend. Contract review відрізняється від реалізації контракту. Enablement звіряє посібник з реально інтегрованою версією.
+3. **02–03.10 — лише дозволені перевірки конкретного кандидата.** До кожної нової перевірки визначаються candidate, середовище, scope, залишок спроб та independent verdict. Не переносити старі PASS і не повторювати вичерпані повні/PG/E2E/browser перевірки. Ресурсна оцінка перед важкою роботою; не запускати одночасні важкі jobs за браку RAM.
+4. **До 04.10 23:59 — підсумок і передача або NO-GO.** Для всіх S1–S3, UXD-01–08, 11 gates, входу/навчання/збереження та exact-version доставки зафіксувати evidence і відкриті проблеми. Лише після фінальної технічної й незалежної звірки — робоча локальна версія для ручної перевірки з адресою, точним build/source, входом і сценарним чеклістом. Немає доказу чи доставки — чесний NO-GO з конкретним залишком, а не готовність за датою.
+
+## Що залишається неперевіреним
+
+Фінальне виконання S1 «замовлення → резерв/відвантаження → рахунок/оплата», S2 «документ → чернетка → звірка → підтверджена операція», S3 «дефіцит → закупівля/переміщення → приймання/якість → доступний залишок» на одному актуальному кандидатові; повна UXD-01–08 перевірка; фактичні три навчальні проходження, повторний вхід і прогрес; правильність міжрольових переходів; поточна доступність та exact delivery dev9. Це відкриті критерії, не новий дозвіл на їх виконання.
+
+**TECHNICAL_READY=false; PILOT_ALLOWED=false; MVP=false; dev9 NOT_DELIVERED; availability UNCONFIRMED.** CI main виконав checkout/echo і не є app QA. Повний перенос робочих даних Codex на D виключений власником з умов продукту; його не відновлювати. Зберігаються P05/A09/A10/A11, ERP mutex, синтетичні дані UAH, заборона paid API/production і ліміти кожної проблеми.
+
+Це актуальний зріз роботи, а не нова продуктова авторизація. Приймання джерела, review, інтеграція, публікація й runtime-доставка обліковуються окремо. Історичні записи з попередніми статусами зберігаються, але не перекривають цей датований стан.
+
+### Пізніші події, окремо від прийнятого зрізу
+
+Native-звірка 01.10 00:40:59 Europe/Berlin у `evidence/plan-actualization-20261001/inputs/RECOVERED_STATUS.json` підтвердила active/inProgress main та трьох авторів після одного recovery. Це не independent acceptance. О 00:46 отримано завершений авторський UI snapshot `11dc9215`, source `564df459854f14fc194295343b61246961ba5f2463b1756309645a549a4bcc4b`, статус AUTHOR_COMPLETE_UNREVIEWED. Root допускає окремий quality source-review R1 за `dba807c3`; до verdict немає UI інтеграції, build, app QA чи доставки. Контракт writer/enablement залишається підготовкою, не реалізацією.
+
+На 00:55:44 Berlin quality фактично прийняв 10/10 exact inputs і виконує source-review. Writer завершив таблицю `4902e0bf`, snapshot `bcc3ee89`, AUTHOR_COMPLETE_UNREVIEWED; enablement прийняв саме ці байти й завершує семантичне зіставлення. Квитанція `inputs/REVIEW_AND_CONTRACT_DEPENDENCY_RECEIPT.json`, SHA-256 `2c3868f0b2d4d58e4324d11dbde55d557210bf62803bb91feaf50bc81cd674aa`. Авторські результати та прийняття контексту не замінюють незалежний verdict; права/контракт ще не реалізовані.
+
+Ця документаційна інтеграція виконується у `codex/bos3-plan-actualization-20261001`, від source/docs base `dec599752d2703e18dc9b53fbf2e2585b0ede3e0`; GitHub main після одноразового owner merge PR10 — `87e1a4f504d24f6d47add511eb8b68a7fa592efc`. Новий commit/PR встановлюються actual applied/publication receipt, не самим текстом плану.
+
+## Історичні записи до актуалізації 01.10
+
+Увесь попередній текст нижче збережений як історія, не як поточне призначення або дозвіл. Точні байти до змін та SHA-256 збережені в `evidence/plan-actualization-20261001/before/`.
+
+
 ## Чинне приймання змін 30.09, 17:48 Europe/Berlin
 
 Єдиний поточний реєстр: `CHANGE_INTAKE_CURRENT.json`; порядок і незмінні докази: `evidence/change-intake-20260930/`. Він систематизує 11 запитів, не замінює картки/QUEUE. Приймання конкретного обсягу, застосування байтів, GitHub-публікація та runtime-доставка обліковуються окремо; фактичний docs commit фіксується publication receipt із CONTROL_STATE.

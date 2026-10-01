@@ -1,5 +1,18 @@
 # BoS 3.0: текущий этап, обновление 30.09.2026
 
+## Чинний етап 01.10.2026
+
+Прийнятий актуальний план: [ACTIVE_WORK_PLAN_RU.md](ACTIVE_WORK_PLAN_RU.md), exact оригінал `c9a721bf`, final review `cdb364bd` у `evidence/plan-actualization-20261001/inputs/`. Стару назву цього файлу збережено для сумісності посилань.
+
+PR10 merged/main `87e1a4f`; canonical docs base `dec5997`, поточна документаційна інтеграція має окрему гілку/PR. UI source R1 `564df459` завершений автором, independent review pending. Навчальний контракт готується writer/enablement у непересічних outputs. Actual recovery підтверджено окремим RECOVERED_STATUS, але ні native active, ні context receipt не є готовим результатом.
+
+Продукт `6b3aab22`, immutable `aa6a4ca4`, dev9 NOT_DELIVERED; availability UNCONFIRMED. Всі S1–S3, UXD01–08, 11 gates, вхід/навчання/збереження і exact delivery залишаються обов'язковими. Нових PASS/запусків немає; TECHNICAL_READY/PILOT_ALLOWED/MVP=false. Runtime-policy blocker вимагає окремого чинного рішення, не зупиняючи дозволену source/contract роботу. Cutoff04.10 23:59Berlin без продовження й без вимкнення застосунку.
+
+## Історичні записи до актуалізації 01.10
+
+Увесь попередній текст нижче збережений як історія, не як поточне призначення або дозвіл. Точні байти до змін та SHA-256 збережені в `evidence/plan-actualization-20261001/before/`.
+
+
 ## Поточний реєстр 30.09, 17:48 Europe/Berlin
 
 11 запитів систематизовано в `CHANGE_INTAKE_CURRENT.json`: прийняті scoped пакети відділені від застосованих, опублікованих і недоставлених. PR9 закрито як поглинутий PR10 без merge, гілку збережено. CRM c7ad513, налаштування ea699ff і scope d4715a0 повторно не призначаються. Design Q-01–03 закрито незалежним delta verdict ff88cf49; посібник author-v3 прийнято 9b9c24dd як документаційну чернетку після Q02. Це документальні зауваження, не встановлені дефекти runtime. Enablement веде зміст і посібник без права другого UI-автора.

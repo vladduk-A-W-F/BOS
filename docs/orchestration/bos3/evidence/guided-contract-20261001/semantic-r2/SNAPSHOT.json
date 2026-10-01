@@ -1,0 +1,76 @@
+{
+  "schema": "bos.guided-semantic-r2-final-snapshot.v1",
+  "captured_at_utc": "2026-09-30T23:34:27.309656+00:00",
+  "status": "AUTHOR_COMPLETE_UNREVIEWED_BYTES_VERIFIED",
+  "native_turn": "01a0f4a7-500a-7ad0-a7af-adc006201c49",
+  "native_status": "idle/completed/error=null",
+  "files": [
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\guided-author-snapshots\\enablement-final-r2\\CONTRACT_CANDIDATE_UA.json",
+      "sha256": "e1fadc4fa80aee35c18033ceee722acdaba74243a35dc2d0f6534f64c653375d"
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\guided-author-snapshots\\enablement-final-r2\\AUTHOR_REPORT_UA.md",
+      "sha256": "0ce1d09bcf16aa736e8e80138c7f8745af38cde834cbca0674ff5fcb1ad71336"
+    }
+  ],
+  "writer_dependency": {
+    "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/guided-author-snapshots/writer-r2/SESSION_CAPABILITIES.json",
+    "sha256": "a5d0baa5797a795931dedc9fa6c8d54a6c288acfcee403e6671bef49c7ffa4c8",
+    "author_report_path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/guided-author-snapshots/writer-r2/AUTHOR_REPORT_UA.md",
+    "author_report_sha256": "b578ee71082bc56cc2231fc7fa6ad4399f9fbd171fcf243e0dfbf37106b8dc4d",
+    "snapshot_path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/guided-author-snapshots/writer-r2/SNAPSHOT.json",
+    "snapshot_sha256": "a4237071aa15b7afe1ca0c912f8b12a2b770156212c5afc48909946402cb8930",
+    "status": "EXACT_DEPENDENCY_ACCEPTED_AUTHOR_COMPLETE_UNREVIEWED",
+    "r1_provenance": {
+      "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/guided-author-snapshots/writer-r1/SESSION_CAPABILITIES.json",
+      "sha256": "4902e0bf6d508848dbe62c5a3c907f68a2ca4293ad3717b69e0de029a4ee5e02",
+      "author_report_sha256": "c8c4493415c8d1b608b88bede769a42d1ca9a3ba423c813f8b22dc1db1633752",
+      "snapshot_sha256": "bcc3ee897e94e9ee4b3bb609d81a4eaf7429ed4daf8eec546b55b568ebfde707"
+    },
+    "counts": {
+      "lesson_fields": 12,
+      "step_fields": 12,
+      "session_requirements": 5,
+      "gap_groups": 8
+    },
+    "rule_uk": "Підтримку можна стверджувати лише за конкретним writer field/operation; таблиця ще чекає незалежного review разом із кандидатом."
+  },
+  "correction_closure_claim": {
+    "GCR01": {
+      "status": "AUTHOR_CORRECTED_UNREVIEWED",
+      "candidate_refs": [
+        "clear_reset_disposition",
+        "lifecycle_source_alignment.CLEAR_RESET",
+        "gap_register.GC-F05",
+        "gap_register.GC-F06",
+        "writer_handoff"
+      ],
+      "meaning_uk": "Чинний training API не підтримує server reset; start/pause зберігають progress/current_step. Локальне очищення UI не стирає серверний стан. Майбутня поведінка потребує окремого рішення sole integrator і власника training/domain."
+    },
+    "GCR02": {
+      "status": "AUTHOR_CORRECTED_UNREVIEWED",
+      "candidate_refs": [
+        "case_application.BOS3-CASE-01.restriction_uk",
+        "role_step_transition_disposition",
+        "gap_register.GC-F05",
+        "gap_register.GC-F06"
+      ],
+      "meaning_uk": "Чинний observer operation/crm -> answer з valid stamp відділено від denied; not_applicable визначено тільки як майбутнє role/version правило з evidence, transition, lesson completion та recheck."
+    },
+    "GCR03": {
+      "status": "AUTHOR_CORRECTED_UNREVIEWED",
+      "candidate_refs": [
+        "case_application.BOS3-CASE-03",
+        "case_source_alignment.BOS3-CASE-03"
+      ],
+      "meaning_uk": "Чинний create_task через operations preview/confirm та followup predicate зазначено прямо; step->receipt лишається GC-F03, CRM prerequisite — GC-F08."
+    }
+  },
+  "interim_snapshot": {
+    "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\guided-author-snapshots\\enablement-r2-interim\\SNAPSHOT.json",
+    "sha256": "2f5ed890d169ea93efce4d2c525d1a7d64520b51d4ef88239329e555388994ed"
+  },
+  "product_executions": 0,
+  "independent_review": "PENDING"
+}

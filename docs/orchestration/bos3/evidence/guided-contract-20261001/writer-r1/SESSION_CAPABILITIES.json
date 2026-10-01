@@ -1,0 +1,3353 @@
+{
+  "schema": "bos.guided-session-capabilities.v1",
+  "task": "GUIDED-LEARNING-CONTRACT-FIELDS",
+  "status": "AUTHOR_COMPLETE_UNREVIEWED",
+  "context_acceptance": {
+    "actual": true,
+    "recovery": "SAME_TASK_AFTER_INTERRUPTION",
+    "admission_and_five_references_match": true,
+    "source_head_match": true,
+    "output_directory_was_empty": true,
+    "writer_thread": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+    "requested_model": "gpt-6-astra",
+    "requested_effort": "high",
+    "observed_model": "UNCONFIRMED",
+    "recovery_support": [
+      {
+        "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/JOURNEY_SOURCE_ADMISSION.json",
+        "sha256": "7106925d62789fa15063890f73c17294ddb332e175808a616ad5b90712d54a4e",
+        "verified": true
+      },
+      {
+        "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/JOURNEY_SOURCE_CONTEXT_RECEIPT.json",
+        "sha256": "513e3261e1fac391f0ace12d761fd035960505904a8ce35c11a8acff3db539a4",
+        "verified": true
+      }
+    ]
+  },
+  "inputs": [
+    {
+      "path": "D:/3/BOSDev/evidence/plan-acceleration-20260930/GUIDED_CONTRACT_ADMISSION.json",
+      "sha256": "d6fdc105b4201dda43f773518e14fcb71e2f352431b9bea70c037fe3485d9ceb",
+      "verified": true
+    },
+    {
+      "path": "D:/3/BOSDev/evidence/product-enablement-20260930/GUIDED_LEARNING_CONTRACT_UA.json",
+      "sha256": "631074d8894c8fd40650947350167b99724d435aa1f0e00ab4a4ea95e07976cc",
+      "verified": true
+    },
+    {
+      "path": "D:/3/BOSDev/departments/product-enablement/CONTRACT_DEPENDENCY_R4_UA.json",
+      "sha256": "87a834a7a4bb7b29525a32fc56cb2084215f8f54d8a82557717a1a5f338eaa93",
+      "verified": true
+    },
+    {
+      "path": "D:/3/BOSDev/evidence/change-intake-20260930/ENABLEMENT_CONTRACT_DELTA_REVIEW.json",
+      "sha256": "6180fe7cd27a9b6aac6a913e3f8dfe8eea7dbaa64daa676fce8bd53d8b65c208",
+      "verified": true
+    },
+    {
+      "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/writer/IDENTITY_MAP.json",
+      "sha256": "91237e09cce96aa8927470455b0f50995caa5a72f4a0c77fcc44199adbf49a00",
+      "verified": true
+    },
+    {
+      "path": "D:/3/BOSDev/evidence/plan-acceleration-20260930/ACCELERATION_UA.md",
+      "sha256": "30a86d4be9d191db89b1afa86c2f972452fc16987ac45507821cac451709f3b1",
+      "verified": true
+    }
+  ],
+  "source": {
+    "workspace": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo",
+    "commit": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+    "access": "READ_ONLY"
+  },
+  "output_allowlist": [
+    "D:/3/BOSDev/qa-scratch/bos3-guided-contract-20260930/writer/SESSION_CAPABILITIES.json",
+    "D:/3/BOSDev/qa-scratch/bos3-guided-contract-20260930/writer/AUTHOR_REPORT_UA.md"
+  ],
+  "accepted_dependencies_preserved": [
+    "IDENTITY_MAP",
+    "Q01",
+    "Q02",
+    "Q03"
+  ],
+  "lesson_fields": [
+    {
+      "field": "lesson_id",
+      "status": "implementation_gap",
+      "actual_uk": "Окремого lesson_id немає. Є CASE_IDS, registry cases[].id і TrainingSession.case_id; case_id не оголошуємо lesson_id.",
+      "persistence_uk": "Окремого поля немає; case_id зберігається.",
+      "current_operation_uk": "TRAINING_READ/WRITE оперують case_id, не lesson_id.",
+      "rights_owner_refs": [
+        "TRAINING_READ",
+        "TRAINING_WRITE"
+      ],
+      "gap_ids": [
+        "GC-F01"
+      ],
+      "evidence": [
+        {
+          "file": "training/models.py",
+          "symbol": "TrainingSession",
+          "line_start": 7,
+          "line_end": 30,
+          "file_sha256": "cc7cf39bdada46d73a87dc39e18da3a81336c1ea3881c588dbfbdf227b78383a"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "CASE_IDS / identity",
+          "line_start": 19,
+          "line_end": 40,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    },
+    {
+      "field": "lesson_version",
+      "status": "implementation_gap",
+      "actual_uk": "fixture_hash — hash seed JSON, schema bos.training.content.v1 — формат контенту. Жодне не є версією уроку.",
+      "persistence_uk": "Немає lesson_version/content hash у session або progress stamp.",
+      "current_operation_uk": "Немає операції передавання/збереження версії уроку.",
+      "rights_owner_refs": [
+        "CONTENT_SOURCE_ONLY",
+        "TRAINING_WRITE"
+      ],
+      "gap_ids": [
+        "GC-F01"
+      ],
+      "evidence": [
+        {
+          "file": "training/models.py",
+          "symbol": "TrainingSession",
+          "line_start": 7,
+          "line_end": 30,
+          "file_sha256": "cc7cf39bdada46d73a87dc39e18da3a81336c1ea3881c588dbfbdf227b78383a"
+        },
+        {
+          "file": "training/access.py",
+          "symbol": "installation manifest_hash",
+          "line_start": 34,
+          "line_end": 47,
+          "file_sha256": "c1d12118b65543d5eb5ef46f84c7457f57127410e8c7cba825434c7d45d44a6b"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "session_state stamp / progress write",
+          "line_start": 179,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "change check",
+          "line_start": 266,
+          "line_end": 297,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "boss_project/policy.py",
+          "symbol": "access_revision",
+          "line_start": 33,
+          "line_end": 37,
+          "file_sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1"
+        },
+        {
+          "file": "frontend/bos3_content.json",
+          "symbol": "schema / fixture_id",
+          "line_start": 1,
+          "line_end": 7,
+          "file_sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390"
+        }
+      ]
+    },
+    {
+      "field": "product_source",
+      "status": "partial",
+      "actual_uk": "Відповідь містить fixture id/hash/as_of; content також installation_id. Source commit/UI/content revision не повертаються.",
+      "persistence_uk": "fixture_id/hash/installation_id в session, product SHA відсутній.",
+      "current_operation_uk": "GET content/state; marker визначає сервер.",
+      "rights_owner_refs": [
+        "TRAINING_READ"
+      ],
+      "gap_ids": [
+        "GC-F01"
+      ],
+      "evidence": [
+        {
+          "file": "training/models.py",
+          "symbol": "TrainingSession",
+          "line_start": 7,
+          "line_end": 30,
+          "file_sha256": "cc7cf39bdada46d73a87dc39e18da3a81336c1ea3881c588dbfbdf227b78383a"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "session_state / content return",
+          "line_start": 202,
+          "line_end": 231,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    },
+    {
+      "field": "case_id",
+      "status": "exists",
+      "actual_uk": "Registry cases[].id і response.case_id; session.case_id є ключем identity.",
+      "persistence_uk": "DB CharField; складена unique constraint.",
+      "current_operation_uk": "GET state; POST start get_or_create; подальші операції URL case_id.",
+      "rights_owner_refs": [
+        "TRAINING_READ",
+        "TRAINING_WRITE"
+      ],
+      "gap_ids": [],
+      "evidence": [
+        {
+          "file": "training/models.py",
+          "symbol": "TrainingSession",
+          "line_start": 7,
+          "line_end": 30,
+          "file_sha256": "cc7cf39bdada46d73a87dc39e18da3a81336c1ea3881c588dbfbdf227b78383a"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "identity / change",
+          "line_start": 35,
+          "line_end": 40,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "change start",
+          "line_start": 234,
+          "line_end": 250,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    },
+    {
+      "field": "goal_uk",
+      "status": "exists",
+      "actual_uk": "Alias: registry cases[].goal — українська мета для кожного з трьох кейсів. Поле goal_uk буквально не введено.",
+      "persistence_uk": "Статичний versioned source JSON, не session write.",
+      "current_operation_uk": "catalog/content; редагування через source, не API навчання.",
+      "rights_owner_refs": [
+        "CONTENT_SOURCE_ONLY"
+      ],
+      "gap_ids": [],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "catalog / content",
+          "line_start": 22,
+          "line_end": 27,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "content",
+          "line_start": 213,
+          "line_end": 231,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "frontend/bos3_content.json",
+          "symbol": "cases[].goal / id / presentation",
+          "line_start": 21,
+          "line_end": 74,
+          "file_sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390"
+        }
+      ]
+    },
+    {
+      "field": "prerequisites",
+      "status": "partial",
+      "actual_uk": "Передумови установки, прав і послідовності enforced у коді. Структурованого per-lesson prerequisites немає.",
+      "persistence_uk": "Умови коду; попередній progress stamp у session.",
+      "current_operation_uk": "require_training, sources, unlocked chain; check/navigate відхиляє locked.",
+      "rights_owner_refs": [
+        "TRAINING_READ",
+        "TRAINING_WRITE"
+      ],
+      "gap_ids": [
+        "GC-F05"
+      ],
+      "evidence": [
+        {
+          "file": "boss_project/identity.py",
+          "symbol": "actor_for_user",
+          "line_start": 25,
+          "line_end": 44,
+          "file_sha256": "20ffca4ca027940ec18ea2f7b984d9d87f7e3df617ddeace3c15a771650da117"
+        },
+        {
+          "file": "training/access.py",
+          "symbol": "require_training / installation",
+          "line_start": 18,
+          "line_end": 66,
+          "file_sha256": "c1d12118b65543d5eb5ef46f84c7457f57127410e8c7cba825434c7d45d44a6b"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "identity",
+          "line_start": 35,
+          "line_end": 40,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "session_state unlocked",
+          "line_start": 183,
+          "line_end": 203,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "change selected step",
+          "line_start": 260,
+          "line_end": 265,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    },
+    {
+      "field": "role_requirements",
+      "status": "partial",
+      "actual_uk": "Серверні правила є; JSON переліку required roles/actions на урок немає. Case03 ceo; case01/02 source-scoped, observer read_only answers.",
+      "persistence_uk": "role в session; права перечитуються.",
+      "current_operation_uk": "GET content повертає finance_role для case03 non-ceo; operation gates окремо.",
+      "rights_owner_refs": [
+        "TRAINING_READ",
+        "TRAINING_WRITE",
+        "BUSINESS_COMMAND",
+        "CRM_COMMAND"
+      ],
+      "gap_ids": [
+        "GC-F05"
+      ],
+      "evidence": [
+        {
+          "file": "training/models.py",
+          "symbol": "TrainingSession",
+          "line_start": 7,
+          "line_end": 30,
+          "file_sha256": "cc7cf39bdada46d73a87dc39e18da3a81336c1ea3881c588dbfbdf227b78383a"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "observer mode / finance case",
+          "line_start": 171,
+          "line_end": 175,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "content",
+          "line_start": 213,
+          "line_end": 231,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    },
+    {
+      "field": "data_mode",
+      "status": "partial",
+      "actual_uk": "installation вимагає BOS_DATA_MODE=demo та isolated-synthetic; learning_mode=read_only/practice у state. Це різні поняття; per-lesson data_mode немає.",
+      "persistence_uk": "Режим установки не поле уроку; session зберігає fixture identity.",
+      "current_operation_uk": "require_training; GET state learning_mode.",
+      "rights_owner_refs": [
+        "TRAINING_READ"
+      ],
+      "gap_ids": [
+        "GC-F05"
+      ],
+      "evidence": [
+        {
+          "file": "training/access.py",
+          "symbol": "installation",
+          "line_start": 18,
+          "line_end": 47,
+          "file_sha256": "c1d12118b65543d5eb5ef46f84c7457f57127410e8c7cba825434c7d45d44a6b"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "session_state",
+          "line_start": 202,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    },
+    {
+      "field": "steps",
+      "status": "exists",
+      "actual_uk": "Alias: response.steps масив із observations, для case01/02 5 кроків, case03 3; не окремі LessonStep ORM записи.",
+      "persistence_uk": "Дефініції у service; progress за step id у session.",
+      "current_operation_uk": "GET state обчислює steps; check зберігає stamp.",
+      "rights_owner_refs": [
+        "TRAINING_READ",
+        "TRAINING_WRITE"
+      ],
+      "gap_ids": [],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "observations",
+          "line_start": 80,
+          "line_end": 176,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "session_state stamp / progress write",
+          "line_start": 179,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "change check",
+          "line_start": 266,
+          "line_end": 297,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "boss_project/policy.py",
+          "symbol": "access_revision",
+          "line_start": 33,
+          "line_end": 37,
+          "file_sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1"
+        }
+      ]
+    },
+    {
+      "field": "source_references",
+      "status": "partial",
+      "actual_uk": "Case-level sources містять kind/id/code/route. Це живі PK і source list, але не повний provenance lesson version/product source.",
+      "persistence_uk": "Динамічна проєкція; повний список не зберігається у progress.",
+      "current_operation_uk": "GET session_state -> observations/sources.",
+      "rights_owner_refs": [
+        "TRAINING_READ"
+      ],
+      "gap_ids": [
+        "GC-F01",
+        "GC-F02"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "sources",
+          "line_start": 43,
+          "line_end": 56,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "observations links",
+          "line_start": 83,
+          "line_end": 87,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "links per case",
+          "line_start": 113,
+          "line_end": 166,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "session_state return",
+          "line_start": 204,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    },
+    {
+      "field": "faq",
+      "status": "implementation_gap",
+      "actual_uk": "FAQ поля/колекції у реєстрі та TrainingSession немає. Instruction/goal не підміняють FAQ.",
+      "persistence_uk": "Не зберігається.",
+      "current_operation_uk": "Відповідного current API немає.",
+      "rights_owner_refs": [
+        "CONTENT_SOURCE_ONLY"
+      ],
+      "gap_ids": [
+        "GC-F07"
+      ],
+      "evidence": [
+        {
+          "file": "frontend/bos3_content.json",
+          "symbol": "cases registry",
+          "line_start": 21,
+          "line_end": 74,
+          "file_sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390"
+        },
+        {
+          "file": "training/models.py",
+          "symbol": "TrainingSession",
+          "line_start": 7,
+          "line_end": 30,
+          "file_sha256": "cc7cf39bdada46d73a87dc39e18da3a81336c1ea3881c588dbfbdf227b78383a"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "catalog",
+          "line_start": 22,
+          "line_end": 27,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    },
+    {
+      "field": "acceptance_status",
+      "status": "implementation_gap",
+      "actual_uk": "Статус session completed — навчальний прогрес; це не незалежне приймання lesson/contract. Поля acceptance_status немає.",
+      "persistence_uk": "Не зберігається у продукті.",
+      "current_operation_uk": "Жодної операції приймання контракту/уроку через training API.",
+      "rights_owner_refs": [
+        "CONTENT_SOURCE_ONLY"
+      ],
+      "gap_ids": [
+        "GC-F07"
+      ],
+      "evidence": [
+        {
+          "file": "training/models.py",
+          "symbol": "TrainingSession",
+          "line_start": 7,
+          "line_end": 30,
+          "file_sha256": "cc7cf39bdada46d73a87dc39e18da3a81336c1ea3881c588dbfbdf227b78383a"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "session_state status",
+          "line_start": 190,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/urls.py",
+          "symbol": "urlpatterns",
+          "line_start": 4,
+          "line_end": 8,
+          "file_sha256": "95fe0e023a7d881cb45b98089af9af8462415277a308969155a44a3fe1e1b96e"
+        }
+      ]
+    }
+  ],
+  "step_fields": [
+    {
+      "field": "step_id",
+      "status": "exists",
+      "actual_uk": "Alias id у step()/response.steps[] і selected step_id у POST.",
+      "persistence_uk": "Ключ session.progress та session.current_step.",
+      "current_operation_uk": "GET state; POST navigate/check {step_id}.",
+      "rights_owner_refs": [
+        "TRAINING_READ",
+        "TRAINING_WRITE"
+      ],
+      "gap_ids": [],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "step",
+          "line_start": 64,
+          "line_end": 67,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "change",
+          "line_start": 260,
+          "line_end": 292,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    },
+    {
+      "field": "kind",
+      "status": "partial",
+      "actual_uk": "Наявні answer/operation/crm; observer перетворює operation/crm на answer. П'яти видів information/knowledge_check/source_check/business_action/crm_handoff буквально немає.",
+      "persistence_uk": "Вид обчислюється, не зберігається в progress.",
+      "current_operation_uk": "GET observations -> steps[].kind; check розрізняє answer та row.passed.",
+      "rights_owner_refs": [
+        "TRAINING_READ",
+        "TRAINING_WRITE"
+      ],
+      "gap_ids": [
+        "GC-F04"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "step / observations",
+          "line_start": 64,
+          "line_end": 175,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "check",
+          "line_start": 266,
+          "line_end": 287,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    },
+    {
+      "field": "title_uk",
+      "status": "exists",
+      "actual_uk": "Alias steps[].title містить український текст, з step(title).",
+      "persistence_uk": "Source code, не per-session змінне поле.",
+      "current_operation_uk": "GET state.",
+      "rights_owner_refs": [
+        "TRAINING_READ"
+      ],
+      "gap_ids": [],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "step",
+          "line_start": 64,
+          "line_end": 67,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "observations",
+          "line_start": 98,
+          "line_end": 170,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "session_state projection",
+          "line_start": 196,
+          "line_end": 200,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    },
+    {
+      "field": "explanation_uk",
+      "status": "partial",
+      "actual_uk": "Alias instruction/question пояснює дію/відповідь; окремої повної explanation_uk дефініції немає.",
+      "persistence_uk": "Source instructions не входять у progress stamp.",
+      "current_operation_uk": "GET state instruction/question.",
+      "rights_owner_refs": [
+        "TRAINING_READ",
+        "CONTENT_SOURCE_ONLY"
+      ],
+      "gap_ids": [
+        "GC-F01",
+        "GC-F05"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "step",
+          "line_start": 64,
+          "line_end": 67,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "session_state projection / stamp",
+          "line_start": 183,
+          "line_end": 200,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    },
+    {
+      "field": "source_refs",
+      "status": "partial",
+      "actual_uk": "Case sources є; step evidence.observed має нерівномірні посилання: code/aggregate, lot PK, shipment PK, task PK або лише CRM boolean.",
+      "persistence_uk": "Progress містить тільки stamp, не source_refs snapshot.",
+      "current_operation_uk": "GET state sources/evidence.observed; source PK перечитуються через policy.",
+      "rights_owner_refs": [
+        "TRAINING_READ"
+      ],
+      "gap_ids": [
+        "GC-F02",
+        "GC-F03"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "observations",
+          "line_start": 80,
+          "line_end": 170,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "progress write",
+          "line_start": 285,
+          "line_end": 287,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    },
+    {
+      "field": "expected_context",
+      "status": "partial",
+      "actual_uk": "Перевіряються owner/role/installation/fixture/case; stamp містить observed/expected/access_revision/fixture hash. Клієнт не передає очікуваний context token; повний набір PK/lesson version не включений у stamp системно.",
+      "persistence_uk": "Складена session identity + stamp; відсутні version/context snapshot/token.",
+      "current_operation_uk": "check повторно читає поточні sources, але не порівнює їх із контекстом, який клієнт бачив перед запитом.",
+      "rights_owner_refs": [
+        "TRAINING_READ",
+        "TRAINING_WRITE"
+      ],
+      "gap_ids": [
+        "GC-F01",
+        "GC-F02"
+      ],
+      "evidence": [
+        {
+          "file": "boss_project/identity.py",
+          "symbol": "actor_for_user",
+          "line_start": 25,
+          "line_end": 44,
+          "file_sha256": "20ffca4ca027940ec18ea2f7b984d9d87f7e3df617ddeace3c15a771650da117"
+        },
+        {
+          "file": "training/access.py",
+          "symbol": "require_training / installation",
+          "line_start": 18,
+          "line_end": 66,
+          "file_sha256": "c1d12118b65543d5eb5ef46f84c7457f57127410e8c7cba825434c7d45d44a6b"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "identity",
+          "line_start": 35,
+          "line_end": 40,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "session_state stamp / progress write",
+          "line_start": 179,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "change check",
+          "line_start": 266,
+          "line_end": 297,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "boss_project/policy.py",
+          "symbol": "access_revision",
+          "line_start": 33,
+          "line_end": 37,
+          "file_sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "change payload allowlist",
+          "line_start": 260,
+          "line_end": 268,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    },
+    {
+      "field": "allowed_action",
+      "status": "partial",
+      "actual_uk": "Є route.section/sub та kind, не command/action allowlist у step. Бізнес-дії запускаються чинним operations шляхом у відкритому модулі.",
+      "persistence_uk": "Не зберігається у навчальному progress.",
+      "current_operation_uk": "navigate змінює current_step; operations preview/confirm окремі від training check.",
+      "rights_owner_refs": [
+        "TRAINING_WRITE",
+        "BUSINESS_COMMAND",
+        "CRM_COMMAND"
+      ],
+      "gap_ids": [
+        "GC-F05",
+        "GC-F08"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "step",
+          "line_start": 64,
+          "line_end": 67,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "frontend/boss_app_source.html",
+          "symbol": "Bos3TrainingHub.openRoute",
+          "line_start": 5495,
+          "line_end": 5498,
+          "file_sha256": "145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9"
+        },
+        {
+          "file": "operations/service.py",
+          "symbol": "preview / execute",
+          "line_start": 99,
+          "line_end": 217,
+          "file_sha256": "73f865cf65914f585fb5f4eccb9706fdb56c1b20a55545f4dfe047deadccb223"
+        },
+        {
+          "file": "operations/views.py",
+          "symbol": "preview / confirm",
+          "line_start": 161,
+          "line_end": 170,
+          "file_sha256": "a79e00c4550a0e8b44f873f008680bf2a9f99d34c2318e23d5e8d5c897d23a77"
+        },
+        {
+          "file": "boss_project/policy.py",
+          "symbol": "action / check_payload",
+          "line_start": 262,
+          "line_end": 285,
+          "file_sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1"
+        }
+      ]
+    },
+    {
+      "field": "completion_rule",
+      "status": "partial",
+      "actual_uk": "Наявні конкретні predicates у observations і check: answer Decimal equality; operation/crm require passed; stamp match і послідовність. Немає декларативного правила для всіх п'яти proposed kinds.",
+      "persistence_uk": "Зберігається stamp успішної перевірки, не правило.",
+      "current_operation_uk": "POST check; GET state revalidates; navigate сам не завершує.",
+      "rights_owner_refs": [
+        "TRAINING_READ",
+        "TRAINING_WRITE"
+      ],
+      "gap_ids": [
+        "GC-F04",
+        "GC-F05"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "observations predicates",
+          "line_start": 98,
+          "line_end": 175,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "session_state stamp / progress write",
+          "line_start": 179,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "change check",
+          "line_start": 266,
+          "line_end": 297,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "boss_project/policy.py",
+          "symbol": "access_revision",
+          "line_start": 33,
+          "line_end": 37,
+          "file_sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1"
+        }
+      ]
+    },
+    {
+      "field": "success_evidence",
+      "status": "partial",
+      "actual_uk": "GET дає evidence={passed:valid,observed}; DB progress[step_id]={stamp}. Бізнес-квитанції існують окремо; check не вимагає receipt/proposal/event ID і не зберігає їх.",
+      "persistence_uk": "Stamp без перевіреної відповіді, checked_at, full source snapshot або receipt link.",
+      "current_operation_uk": "check перевіряє факт; operations confirm повертає receipt; task status може відновити receipt за proposal UUID.",
+      "rights_owner_refs": [
+        "TRAINING_WRITE",
+        "BUSINESS_COMMAND",
+        "CRM_COMMAND"
+      ],
+      "gap_ids": [
+        "GC-F03"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "session_state stamp / progress write",
+          "line_start": 179,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "change check",
+          "line_start": 266,
+          "line_end": 297,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "boss_project/policy.py",
+          "symbol": "access_revision",
+          "line_start": 33,
+          "line_end": 37,
+          "file_sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1"
+        },
+        {
+          "file": "operations/models.py",
+          "symbol": "ActionProposal.receipt",
+          "line_start": 50,
+          "line_end": 60,
+          "file_sha256": "67448adcf1318ac57fef3d1b573c3f0b3a714d6b71dfd012e58cfef2cf509d7e"
+        },
+        {
+          "file": "operations/service.py",
+          "symbol": "execute",
+          "line_start": 130,
+          "line_end": 217,
+          "file_sha256": "73f865cf65914f585fb5f4eccb9706fdb56c1b20a55545f4dfe047deadccb223"
+        },
+        {
+          "file": "crm/commands.py",
+          "symbol": "apply",
+          "line_start": 404,
+          "line_end": 451,
+          "file_sha256": "7bac2ee56ce74a1c3763f55f08cb103f69f42d206e1f47934291e26d9acacb37"
+        },
+        {
+          "file": "crm/projections.py",
+          "symbol": "receipt",
+          "line_start": 128,
+          "line_end": 144,
+          "file_sha256": "5e5ba574d0fc9a6a1c35ebb1a69ea58fc032baef45f8d6b91b4dd5803d3a198a"
+        },
+        {
+          "file": "tasks/history.py",
+          "symbol": "proposal_status",
+          "line_start": 49,
+          "line_end": 65,
+          "file_sha256": "7ace3476863ce36516411c8cd078555f6538f0dfcea44e0079c95e63818306c4"
+        }
+      ]
+    },
+    {
+      "field": "next_step",
+      "status": "partial",
+      "actual_uk": "Сервер повертає впорядкований масив зі status, але next_step немає. UI після check знаходить перший інший available step і окремо викликає navigate.",
+      "persistence_uk": "current_step зберігається лише через navigate/check; не є автоматичним next_step.",
+      "current_operation_uk": "GET state / POST navigate; новий start не записує початковий step (поле blank, UI fallback).",
+      "rights_owner_refs": [
+        "TRAINING_READ",
+        "TRAINING_WRITE"
+      ],
+      "gap_ids": [
+        "GC-F06"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "session_state",
+          "line_start": 185,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "start / current_step save",
+          "line_start": 242,
+          "line_end": 249,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "change selected",
+          "line_start": 260,
+          "line_end": 296,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "frontend/boss_app_source.html",
+          "symbol": "current fallback / check",
+          "line_start": 5477,
+          "line_end": 5478,
+          "file_sha256": "145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9"
+        },
+        {
+          "file": "frontend/boss_app_source.html",
+          "symbol": "check callback",
+          "line_start": 5494,
+          "line_end": 5494,
+          "file_sha256": "145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9"
+        }
+      ]
+    },
+    {
+      "field": "error_states",
+      "status": "partial",
+      "actual_uk": "Є available=false reason training_not_configured/finance_role/source_access, step locked/needs_recheck, HTTP 403/404/409/422. Немає загального typed expected_context/context_changed контракту для training.",
+      "persistence_uk": "GET revalidates; needs_recheck може бути тільки обчисленим до наступного write.",
+      "current_operation_uk": "views.errors, content/state/change; frontend trainingFetch переносить лише message/status.",
+      "rights_owner_refs": [
+        "TRAINING_READ",
+        "TRAINING_WRITE"
+      ],
+      "gap_ids": [
+        "GC-F05",
+        "GC-F02"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "session_state / content",
+          "line_start": 179,
+          "line_end": 231,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "operations/views.py",
+          "symbol": "errors",
+          "line_start": 28,
+          "line_end": 41,
+          "file_sha256": "a79e00c4550a0e8b44f873f008680bf2a9f99d34c2318e23d5e8d5c897d23a77"
+        },
+        {
+          "file": "frontend/boss_app_source.html",
+          "symbol": "trainingFetch",
+          "line_start": 5353,
+          "line_end": 5353,
+          "file_sha256": "145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9"
+        }
+      ]
+    },
+    {
+      "field": "pause_resume_rule",
+      "status": "partial",
+      "actual_uk": "Загальне session pause; start відновлює paused, progress/current_step не стирає; navigate/check також ставить in_progress. Окремого per-kind/per-step pause rule або snapshot немає.",
+      "persistence_uk": "status/current_step/progress/tour_state в TrainingSession.",
+      "current_operation_uk": "POST pause {} / start {}; GET state перед поверненням перераховує valid; completed/needs_recheck мають пріоритет над paused.",
+      "rights_owner_refs": [
+        "TRAINING_READ",
+        "TRAINING_WRITE"
+      ],
+      "gap_ids": [
+        "GC-F05",
+        "GC-F06"
+      ],
+      "evidence": [
+        {
+          "file": "training/models.py",
+          "symbol": "TrainingSession",
+          "line_start": 7,
+          "line_end": 30,
+          "file_sha256": "cc7cf39bdada46d73a87dc39e18da3a81336c1ea3881c588dbfbdf227b78383a"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "session_state status",
+          "line_start": 190,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "start / pause",
+          "line_start": 234,
+          "line_end": 259,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "navigation resumes",
+          "line_start": 288,
+          "line_end": 297,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    }
+  ],
+  "session_requirements": [
+    {
+      "id": "SR01",
+      "requirement_uk": "Використати наявну серверну навчальну сесію, перевірити підтримку потрібних полів у точній версії перед реалізацією.",
+      "status": "partial",
+      "actual_uk": "TrainingSession з полями; public UUID, user, role, installation_id, fixture_id/hash, case_id, status, current_step, progress, tour_state, created/updated timestamps. Окремих lesson_id/version/receipt немає; read/write API підтверджений source aa6.",
+      "current_operation_uk": "GET content/state; POST start,pause,navigate,check,tour",
+      "rights_owner_refs": [
+        "TRAINING_READ",
+        "TRAINING_WRITE"
+      ],
+      "gap_ids": [
+        "GC-F01",
+        "GC-F03"
+      ],
+      "evidence": [
+        {
+          "file": "training/models.py",
+          "symbol": "TrainingSession",
+          "line_start": 7,
+          "line_end": 30,
+          "file_sha256": "cc7cf39bdada46d73a87dc39e18da3a81336c1ea3881c588dbfbdf227b78383a"
+        },
+        {
+          "file": "training/views.py",
+          "symbol": "state",
+          "line_start": 39,
+          "line_end": 45,
+          "file_sha256": "f91391b5c1549800baa2ce38ecdb7bfa4089017a8f9f47fb383b85f66ba6a466"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "session_state",
+          "line_start": 179,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/urls.py",
+          "symbol": "urlpatterns",
+          "line_start": 4,
+          "line_end": 8,
+          "file_sha256": "95fe0e023a7d881cb45b98089af9af8462415277a308969155a44a3fe1e1b96e"
+        }
+      ]
+    },
+    {
+      "id": "SR02",
+      "requirement_uk": "Користувач/роль/кейс/версія уроку/поточний крок/фактичний результат повинні бути узгоджені; браузерний стан не є єдиним доказом.",
+      "status": "partial",
+      "actual_uk": "User/role/case/fixture identity, persisted current_step/progress і server observations є. Версія уроку відсутня. current_step на GET не переміщується, якщо через invalidation він тепер locked. Фактичний результат виводиться з джерел, а receipt linkage не зберігається.",
+      "current_operation_uk": "GET session_state; POST check/navigate",
+      "rights_owner_refs": [
+        "TRAINING_READ",
+        "TRAINING_WRITE"
+      ],
+      "gap_ids": [
+        "GC-F01",
+        "GC-F02",
+        "GC-F03",
+        "GC-F06"
+      ],
+      "evidence": [
+        {
+          "file": "training/models.py",
+          "symbol": "TrainingSession",
+          "line_start": 7,
+          "line_end": 30,
+          "file_sha256": "cc7cf39bdada46d73a87dc39e18da3a81336c1ea3881c588dbfbdf227b78383a"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "session_state stamp / progress write",
+          "line_start": 179,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "change check",
+          "line_start": 266,
+          "line_end": 297,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "boss_project/policy.py",
+          "symbol": "access_revision",
+          "line_start": 33,
+          "line_end": 37,
+          "file_sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "current_step return / write",
+          "line_start": 202,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "selected / current_step",
+          "line_start": 260,
+          "line_end": 296,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    },
+    {
+      "id": "SR03",
+      "requirement_uk": "Пауза та повернення відновлюють підтверджений стан; вихід зі сценарію доступний без завершення всіх уроків.",
+      "status": "partial",
+      "actual_uk": "Зберігаються progress/current_step; pause/start не стирають їх; GET переоцінює facts/stamps. UI back/workspace доступні без completion; вихід сам не викликає pause. Збережений paused може бути перевизначений computed needs_recheck/completed; step validity та current_step потребують явного узгодження.",
+      "current_operation_uk": "POST pause/start; GET state; onBack/onWorkspace UI navigation",
+      "rights_owner_refs": [
+        "TRAINING_READ",
+        "TRAINING_WRITE"
+      ],
+      "gap_ids": [
+        "GC-F05",
+        "GC-F06"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "session_state status",
+          "line_start": 179,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "pause / start",
+          "line_start": 242,
+          "line_end": 259,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "frontend/boss_app_source.html",
+          "symbol": "Bos3TrainingHub handlers / exit",
+          "line_start": 5492,
+          "line_end": 5499,
+          "file_sha256": "145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9"
+        }
+      ]
+    },
+    {
+      "id": "SR04",
+      "requirement_uk": "Зміна версії уроку, джерел або прав не має непомітно переносити старий успіх на нові факти.",
+      "status": "partial",
+      "actual_uk": "Role/fixture/installation changes змінюють identity або deny installation; current permission revision/observed/expected changes invalidates stamp. Lesson content/version та повний source PK context не входять системно у stamp. Зміна лише тексту/правила при тих самих observed+expected може залишити старий stamp valid.",
+      "current_operation_uk": "GET state recalculation; POST check restamp",
+      "rights_owner_refs": [
+        "TRAINING_READ",
+        "TRAINING_WRITE"
+      ],
+      "gap_ids": [
+        "GC-F01",
+        "GC-F02"
+      ],
+      "evidence": [
+        {
+          "file": "boss_project/identity.py",
+          "symbol": "actor_for_user",
+          "line_start": 25,
+          "line_end": 44,
+          "file_sha256": "20ffca4ca027940ec18ea2f7b984d9d87f7e3df617ddeace3c15a771650da117"
+        },
+        {
+          "file": "training/access.py",
+          "symbol": "require_training / installation",
+          "line_start": 18,
+          "line_end": 66,
+          "file_sha256": "c1d12118b65543d5eb5ef46f84c7457f57127410e8c7cba825434c7d45d44a6b"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "identity",
+          "line_start": 35,
+          "line_end": 40,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "session_state stamp / progress write",
+          "line_start": 179,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "change check",
+          "line_start": 266,
+          "line_end": 297,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "boss_project/policy.py",
+          "symbol": "access_revision",
+          "line_start": 33,
+          "line_end": 37,
+          "file_sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1"
+        },
+        {
+          "file": "training/access.py",
+          "symbol": "installation manifest identity",
+          "line_start": 34,
+          "line_end": 47,
+          "file_sha256": "c1d12118b65543d5eb5ef46f84c7457f57127410e8c7cba825434c7d45d44a6b"
+        }
+      ]
+    },
+    {
+      "id": "SR05",
+      "requirement_uk": "Якщо операція вже виконана, супровід показує її джерело й наступний крок, не проводить її повторно.",
+      "status": "partial",
+      "actual_uk": "Training check не dispatch бізнес-команд; він читає наявний факт. Case02 allocation визнає вже правильну shipment; CRM повертає існуючий handoff; повтор того самого proposal повертає stored receipt за поточними правами. Немає загального lesson-to-receipt зв'язку або механізму, що виключає новий дублюючий proposal для будь-якої бізнес-дії.",
+      "current_operation_uk": "GET/POST check existing facts; CRM draft/preview existing branch; operations confirm same proposal; tasks proposal-status read",
+      "rights_owner_refs": [
+        "TRAINING_READ",
+        "TRAINING_WRITE",
+        "BUSINESS_COMMAND",
+        "CRM_COMMAND"
+      ],
+      "gap_ids": [
+        "GC-F03",
+        "GC-F06",
+        "GC-F08"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "existing source observation",
+          "line_start": 119,
+          "line_end": 143,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "check",
+          "line_start": 266,
+          "line_end": 297,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "operations/models.py",
+          "symbol": "ActionProposal.receipt",
+          "line_start": 50,
+          "line_end": 60,
+          "file_sha256": "67448adcf1318ac57fef3d1b573c3f0b3a714d6b71dfd012e58cfef2cf509d7e"
+        },
+        {
+          "file": "operations/service.py",
+          "symbol": "execute",
+          "line_start": 130,
+          "line_end": 217,
+          "file_sha256": "73f865cf65914f585fb5f4eccb9706fdb56c1b20a55545f4dfe047deadccb223"
+        },
+        {
+          "file": "crm/commands.py",
+          "symbol": "apply",
+          "line_start": 404,
+          "line_end": 451,
+          "file_sha256": "7bac2ee56ce74a1c3763f55f08cb103f69f42d206e1f47934291e26d9acacb37"
+        },
+        {
+          "file": "crm/projections.py",
+          "symbol": "receipt",
+          "line_start": 128,
+          "line_end": 144,
+          "file_sha256": "5e5ba574d0fc9a6a1c35ebb1a69ea58fc032baef45f8d6b91b4dd5803d3a198a"
+        },
+        {
+          "file": "tasks/history.py",
+          "symbol": "proposal_status",
+          "line_start": 49,
+          "line_end": 65,
+          "file_sha256": "7ace3476863ce36516411c8cd078555f6538f0dfcea44e0079c95e63818306c4"
+        },
+        {
+          "file": "crm/projections.py",
+          "symbol": "draft existing",
+          "line_start": 98,
+          "line_end": 105,
+          "file_sha256": "5e5ba574d0fc9a6a1c35ebb1a69ea58fc032baef45f8d6b91b4dd5803d3a198a"
+        }
+      ]
+    }
+  ],
+  "source_files": [
+    {
+      "file": "training/service.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/training/service.py",
+      "sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+    },
+    {
+      "file": "training/models.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/training/models.py",
+      "sha256": "cc7cf39bdada46d73a87dc39e18da3a81336c1ea3881c588dbfbdf227b78383a"
+    },
+    {
+      "file": "training/access.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/training/access.py",
+      "sha256": "c1d12118b65543d5eb5ef46f84c7457f57127410e8c7cba825434c7d45d44a6b"
+    },
+    {
+      "file": "training/views.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/training/views.py",
+      "sha256": "f91391b5c1549800baa2ce38ecdb7bfa4089017a8f9f47fb383b85f66ba6a466"
+    },
+    {
+      "file": "training/urls.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/training/urls.py",
+      "sha256": "95fe0e023a7d881cb45b98089af9af8462415277a308969155a44a3fe1e1b96e"
+    },
+    {
+      "file": "boss_project/policy.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/boss_project/policy.py",
+      "sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1"
+    },
+    {
+      "file": "boss_project/identity.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/boss_project/identity.py",
+      "sha256": "20ffca4ca027940ec18ea2f7b984d9d87f7e3df617ddeace3c15a771650da117"
+    },
+    {
+      "file": "boss_project/auth_views.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/boss_project/auth_views.py",
+      "sha256": "93f5bc145a47e83dd2b2eb20b108931f51f691a4f9fba80ddd7772fbcacaec07"
+    },
+    {
+      "file": "boss_project/urls.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/boss_project/urls.py",
+      "sha256": "5be20defa8440fc5cbf4f3bedec1733759006b44f28fde7b543c1530798723e1"
+    },
+    {
+      "file": "operations/middleware.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/operations/middleware.py",
+      "sha256": "10193f1ba1ed107f6563ddae6b7dd5a9fcefdf5c77a42643ce60cd95f55f568c"
+    },
+    {
+      "file": "operations/service.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/operations/service.py",
+      "sha256": "73f865cf65914f585fb5f4eccb9706fdb56c1b20a55545f4dfe047deadccb223"
+    },
+    {
+      "file": "operations/models.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/operations/models.py",
+      "sha256": "67448adcf1318ac57fef3d1b573c3f0b3a714d6b71dfd012e58cfef2cf509d7e"
+    },
+    {
+      "file": "operations/views.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/operations/views.py",
+      "sha256": "a79e00c4550a0e8b44f873f008680bf2a9f99d34c2318e23d5e8d5c897d23a77"
+    },
+    {
+      "file": "operations/urls.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/operations/urls.py",
+      "sha256": "47d6b30fcd463c30854c1d62e19b2a7284a34a70b55d09955813c8f24a32ab87"
+    },
+    {
+      "file": "operations/projections.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/operations/projections.py",
+      "sha256": "f80ac3f74bac52e25148d2c530e728d430e6a79422da7405725693e075c8f4e2"
+    },
+    {
+      "file": "crm/commands.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/crm/commands.py",
+      "sha256": "7bac2ee56ce74a1c3763f55f08cb103f69f42d206e1f47934291e26d9acacb37"
+    },
+    {
+      "file": "crm/projections.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/crm/projections.py",
+      "sha256": "5e5ba574d0fc9a6a1c35ebb1a69ea58fc032baef45f8d6b91b4dd5803d3a198a"
+    },
+    {
+      "file": "crm/models.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/crm/models.py",
+      "sha256": "0aa48179015824cf558ef213e4d6c98d2c239386776978aadcf30a07ca8d9475"
+    },
+    {
+      "file": "tasks/commands.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/tasks/commands.py",
+      "sha256": "a70afb3f52a3f327ebc601e420ee386553002c3911463bbe680eef66dc72503e"
+    },
+    {
+      "file": "tasks/queries.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/tasks/queries.py",
+      "sha256": "c259a1cb70d5f27e8d52b58336bf42633833ff6745b2493820e4ebdc239195ec"
+    },
+    {
+      "file": "frontend/bos3_content.json",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/frontend/bos3_content.json",
+      "sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390"
+    },
+    {
+      "file": "frontend/boss_app_source.html",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/frontend/boss_app_source.html",
+      "sha256": "145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9"
+    },
+    {
+      "file": "tasks/history.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/tasks/history.py",
+      "sha256": "7ace3476863ce36516411c8cd078555f6538f0dfcea44e0079c95e63818306c4"
+    },
+    {
+      "file": "erp/service.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/erp/service.py",
+      "sha256": "3fcc4fc7db14984c20e271357dbf5ac92402a26da17198dc683694d061cadc61"
+    }
+  ],
+  "static_checks": [
+    {
+      "id": "SC01",
+      "command": "Get-Content GUIDED_CONTRACT_ADMISSION.json -Raw; Get-Content ACCELERATION_UA.md -Raw; Get-FileHash <both exact admission paths> -Algorithm SHA256",
+      "exit_code": 0,
+      "raw_result": "admission d6fdc105b4201dda43f773518e14fcb71e2f352431b9bea70c037fe3485d9ceb; acceleration 30a86d4be9d191db89b1afa86c2f972452fc16987ac45507821cac451709f3b1",
+      "scope": "metadata/static read"
+    },
+    {
+      "id": "SC02",
+      "command": "Parse admission.references with ConvertFrom-Json; foreach reference Get-FileHash -LiteralPath path -Algorithm SHA256; compare lowercase actual with expected",
+      "exit_code": 0,
+      "raw_result": "5/5 match=true; exact values recorded in inputs",
+      "scope": "metadata comparison"
+    },
+    {
+      "id": "SC03",
+      "command": "git rev-parse HEAD",
+      "cwd": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo",
+      "exit_code": 0,
+      "raw_result": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+      "scope": "read-only Git metadata"
+    },
+    {
+      "id": "SC04",
+      "command": "Get-ChildItem -Force D:/3/BOSDev/qa-scratch/bos3-guided-contract-20260930/writer | Select-Object Name,Length",
+      "exit_code": 0,
+      "raw_result": "no entries before context acceptance files were added",
+      "scope": "allowlist precondition"
+    },
+    {
+      "id": "SC05",
+      "command": "Get-Content selected source files; enumerate 1-based line excerpts; rg -n source symbols/fields",
+      "exit_code": 0,
+      "raw_result": "Evidence excerpts captured in per-row symbol/file/line/SHA references. No import/application execution.",
+      "scope": "static source read"
+    },
+    {
+      "id": "SC06",
+      "command": "rg -n 'def |principal|training|login|logout' boss_project/auth_views.py operations/auth.py",
+      "exit_code": 1,
+      "raw_result": "rg: operations/auth.py: file not found (os error 2); auth_views matches returned. Resolved via actual boss_project/identity.py and boss_project/auth_views.py static reads (exit 0).",
+      "scope": "disclosed path lookup error, not product/test failure"
+    },
+    {
+      "id": "SC07",
+      "command": "rg -n '\"(lesson_id|lesson_version|product_source|goal_uk|prerequisites|role_requirements|source_references|faq|acceptance_status|expected_context|allowed_action|completion_rule|success_evidence|next_step|error_states|pause_resume_rule|proposal_id|receipt_id)\"' training/models.py training/service.py frontend/bos3_content.json",
+      "exit_code": 1,
+      "raw_result": "no matches; limited literal double-quoted field search, supplemented by complete model/service and registry reads; not claimed as repository-wide absence proof",
+      "scope": "expected no-match"
+    },
+    {
+      "id": "SC08",
+      "command": "Get-FileHash <source_files paths> -Algorithm SHA256",
+      "exit_code": 0,
+      "raw_result": "exact source hashes in source_files and every evidence row",
+      "scope": "static file hashing"
+    },
+    {
+      "id": "SC09",
+      "command": "Get-FileHash <JOURNEY_SOURCE_ADMISSION.json and JOURNEY_SOURCE_CONTEXT_RECEIPT.json> -Algorithm SHA256; read GUIDED_CONTRACT_WRITER_ASSIGNMENT_UA.txt",
+      "exit_code": 0,
+      "raw_result": "7106925d62789fa15063890f73c17294ddb332e175808a616ad5b90712d54a4e / 513e3261e1fac391f0ace12d761fd035960505904a8ce35c11a8acff3db539a4; matches recovery message",
+      "scope": "recovery context"
+    },
+    {
+      "id": "SC10",
+      "command": "$capPath='D:\\3\\BOSDev\\qa-scratch\\bos3-guided-contract-20260930\\writer\\SESSION_CAPABILITIES.json'\n$proposalPath='D:\\3\\BOSDev\\evidence\\product-enablement-20260930\\GUIDED_LEARNING_CONTRACT_UA.json'\n$cap=Get-Content -LiteralPath $capPath -Raw | ConvertFrom-Json\n$proposal=Get-Content -LiteralPath $proposalPath -Raw | ConvertFrom-Json\nif(Compare-Object @($proposal.lesson_fields) @($cap.lesson_fields.field)){throw 'lesson field coverage mismatch'}\nif(Compare-Object @($proposal.step_fields) @($cap.step_fields.field)){throw 'step field coverage mismatch'}\nif($cap.session_requirements.Count -ne $proposal.session_requirements.Count){throw 'session requirement count mismatch'}\n$rows=@($cap.lesson_fields)+@($cap.step_fields)+@($cap.session_requirements)\nforeach($row in $rows){if($row.status -notin @('exists','partial','implementation_gap')){throw 'invalid classification'}; if(!$row.evidence){throw 'missing evidence'}}\n$hashes=@{}\n$lineCounts=@{}\nforeach($f in $cap.source_files){$hashes[$f.file]=(Get-FileHash -LiteralPath $f.path -Algorithm SHA256).Hash.ToLower();$lineCounts[$f.file]=(Get-Content -LiteralPath $f.path).Count;if($hashes[$f.file] -ne $f.sha256){throw ('source hash mismatch '+$f.file)}}\n$sections=@('lesson_fields','step_fields','session_requirements','rights_and_ownership','persistence_contract','lifecycle','case_capabilities','kind_mapping','gaps')\n$evidenceCount=0\nforeach($section in $sections){foreach($row in $cap.$section){foreach($e in $row.evidence){if($e.file_sha256 -ne $hashes[$e.file]){throw ('evidence hash mismatch '+$e.file)};if($e.line_start -lt 1 -or $e.line_end -lt $e.line_start -or $e.line_end -gt $lineCounts[$e.file]){throw ('bad line range '+$e.file)};$evidenceCount++}}}\nif($cap.executions -ne 0 -or $cap.QA -ne 'NOT_RUN'){throw 'execution status changed'}\nif(@($cap.readiness.PSObject.Properties | Where-Object {$_.Value -ne $false}).Count){throw 'readiness changed'}\n$actualNames=@(Get-ChildItem -LiteralPath (Split-Path $capPath) -File | ForEach-Object {$_.Name})\nif(Compare-Object @('SESSION_CAPABILITIES.json','AUTHOR_REPORT_UA.md') $actualNames){throw 'output allowlist mismatch'}\n[pscustomobject]@{lesson_fields=$cap.lesson_fields.Count;step_fields=$cap.step_fields.Count;session_requirements=$cap.session_requirements.Count;source_hashes=$hashes.Count;evidence_refs=$evidenceCount;gaps=$cap.gaps.Count;status=$cap.status;executions=$cap.executions;QA=$cap.QA} | ConvertTo-Json -Compress",
+      "cwd": "D:/3/BOSDev/qa-scratch/bos3-guided-contract-20260930/writer",
+      "exit_code": 0,
+      "raw_result": "{\"lesson_fields\":12,\"step_fields\":12,\"session_requirements\":5,\"source_hashes\":24,\"evidence_refs\":293,\"gaps\":8,\"status\":\"AUTHOR_COMPLETE_UNREVIEWED\",\"executions\":0,\"QA\":\"NOT_RUN\"}",
+      "scope": "deterministic JSON coverage/hash/line-range/allowlist/status validation, not application QA"
+    }
+  ],
+  "executions": 0,
+  "QA": "NOT_RUN",
+  "readiness": {
+    "contract_accepted": false,
+    "guided_implementation": false,
+    "TECHNICAL_READY": false,
+    "PILOT_ALLOWED": false,
+    "MVP": false,
+    "guided_integration_implemented": false
+  },
+  "classification_uk": {
+    "exists": "Вказана семантика є у чинному полі/проєкції (назва alias наведена явно); це статичне зіставлення, не QA PASS.",
+    "partial": "Є частина семантики або обчислювана заміна, але повна вимога пропозиції не реалізована.",
+    "implementation_gap": "Немає потрібного поля/операції у перевіреному training контурі; найближчий чинний символ і точна межа пошуку наведені.",
+    "source_evidence": "Кожне evidence містить відносний файл у source.workspace, фактичний symbol, 1-based lines і SHA-256 цього файла."
+  },
+  "rights_and_ownership": [
+    {
+      "id": "TRAINING_READ",
+      "owner": "user_id та username є призначеним власником установки; роль — одна серверна група ceo/manager/observer",
+      "read": "GET /api/training/content/ або sessions/<case_id>/; actor перечитує active user, groups, archived employee; require_training перевіряє isolated-synthetic/demo SQLite installation, marker/manifest hash, owner та path identity. Сесія шукається за user+role+installation+fixture+hash+case.",
+      "write": "Немає запису під час GET session_state; content може повернути registry і available=false без навчальних фактів.",
+      "rights": "sources застосовує Policy.queryset до order/line/production/purchase/lots; case03 тільки ceo. Це не універсальний доступ до фінансів або інших клієнтів.",
+      "evidence": [
+        {
+          "file": "boss_project/identity.py",
+          "symbol": "actor_for_user",
+          "line_start": 25,
+          "line_end": 44,
+          "file_sha256": "20ffca4ca027940ec18ea2f7b984d9d87f7e3df617ddeace3c15a771650da117"
+        },
+        {
+          "file": "training/access.py",
+          "symbol": "require_training / installation",
+          "line_start": 18,
+          "line_end": 66,
+          "file_sha256": "c1d12118b65543d5eb5ef46f84c7457f57127410e8c7cba825434c7d45d44a6b"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "identity",
+          "line_start": 35,
+          "line_end": 40,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/views.py",
+          "symbol": "state",
+          "line_start": 39,
+          "line_end": 45,
+          "file_sha256": "f91391b5c1549800baa2ce38ecdb7bfa4089017a8f9f47fb383b85f66ba6a466"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "session_state",
+          "line_start": 179,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "sources / content",
+          "line_start": 43,
+          "line_end": 56,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "content",
+          "line_start": 213,
+          "line_end": 231,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "boss_project/policy.py",
+          "symbol": "queryset / erp_ids",
+          "line_start": 140,
+          "line_end": 213,
+          "file_sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1"
+        }
+      ]
+    },
+    {
+      "id": "TRAINING_WRITE",
+      "owner": "та сама складена identity; не переданий клієнтом user/role/session PK",
+      "read": "Перераховує sources, session_state, observations під час зміни.",
+      "write": "POST sessions/<case_id>/{start,pause,navigate,check,tour}/. CSRF; atomic+ERP write_lock; start get_or_create, інші select_for_update. Зайві поля відхиляються; navigate/check лише для наявного unlocked step.",
+      "rights": "Observer має явний виняток middleware тільки для навчального прогресу; operation/crm кроки для нього перетворюються на числові answer. Це запис навчання, не ERP/CRM право.",
+      "evidence": [
+        {
+          "file": "boss_project/identity.py",
+          "symbol": "actor_for_user",
+          "line_start": 25,
+          "line_end": 44,
+          "file_sha256": "20ffca4ca027940ec18ea2f7b984d9d87f7e3df617ddeace3c15a771650da117"
+        },
+        {
+          "file": "training/access.py",
+          "symbol": "require_training / installation",
+          "line_start": 18,
+          "line_end": 66,
+          "file_sha256": "c1d12118b65543d5eb5ef46f84c7457f57127410e8c7cba825434c7d45d44a6b"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "identity",
+          "line_start": 35,
+          "line_end": 40,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "change",
+          "line_start": 234,
+          "line_end": 297,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "operations/middleware.py",
+          "symbol": "LocalRoleGuard.handle",
+          "line_start": 33,
+          "line_end": 57,
+          "file_sha256": "10193f1ba1ed107f6563ddae6b7dd5a9fcefdf5c77a42643ce60cd95f55f568c"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "observations observer conversion",
+          "line_start": 171,
+          "line_end": 175,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/urls.py",
+          "symbol": "urlpatterns",
+          "line_start": 4,
+          "line_end": 8,
+          "file_sha256": "95fe0e023a7d881cb45b98089af9af8462415277a308969155a44a3fe1e1b96e"
+        }
+      ]
+    },
+    {
+      "id": "BUSINESS_COMMAND",
+      "owner": "ActionProposal прив'язаний до user_id, role і Django session_key; це інша сесія, ніж TrainingSession.public_id",
+      "read": "Поточні source references перевіряє Policy; manager бачить доступні через documents/ERP refs записи, ceo має ширший scope.",
+      "write": "POST /api/operations/preview/ -> proposal UUID -> POST confirm/ {proposal_id, confirmed:true}; execute вимагає той самий auth session, user/role, чинні права; ERP/task mutex, fingerprint/expiry, compare-and-set receipt.",
+      "rights": "Тільки ceo/manager; observer заборонено. CEO_ACTIONS (зокрема erp_payment) лише ceo; non-ceo inspector_id/operator_id дорівнює actor.employee_id. Для create_task активний assignee та видимий order/request; власник training не дає автоматичного права на будь-яку команду.",
+      "evidence": [
+        {
+          "file": "operations/service.py",
+          "symbol": "preview / execute",
+          "line_start": 99,
+          "line_end": 217,
+          "file_sha256": "73f865cf65914f585fb5f4eccb9706fdb56c1b20a55545f4dfe047deadccb223"
+        },
+        {
+          "file": "operations/views.py",
+          "symbol": "preview / confirm",
+          "line_start": 161,
+          "line_end": 170,
+          "file_sha256": "a79e00c4550a0e8b44f873f008680bf2a9f99d34c2318e23d5e8d5c897d23a77"
+        },
+        {
+          "file": "boss_project/policy.py",
+          "symbol": "action / check_payload",
+          "line_start": 262,
+          "line_end": 285,
+          "file_sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1"
+        },
+        {
+          "file": "boss_project/policy.py",
+          "symbol": "CEO_ACTIONS",
+          "line_start": 7,
+          "line_end": 7,
+          "file_sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1"
+        },
+        {
+          "file": "tasks/commands.py",
+          "symbol": "prepare",
+          "line_start": 84,
+          "line_end": 114,
+          "file_sha256": "a70afb3f52a3f327ebc601e420ee386553002c3911463bbe680eef66dc72503e"
+        },
+        {
+          "file": "operations/models.py",
+          "symbol": "ActionProposal",
+          "line_start": 50,
+          "line_end": 60,
+          "file_sha256": "67448adcf1318ac57fef3d1b573c3f0b3a714d6b71dfd012e58cfef2cf509d7e"
+        }
+      ]
+    },
+    {
+      "id": "CRM_COMMAND",
+      "owner": "своя TrainingSession (public UUID, user/role/installation/fixture/hash) плюс case; для non-ceo owner source має дорівнювати actor.employee_id",
+      "read": "draft і receipt фільтрують current CRM object scope. CRM read також прив'язаний до user/role/installation/fixture/hash; non-ceo має readable order та owner/activity assignment.",
+      "write": "crm_handoff через operations preview/confirm; сервер повторно перевіряє source IDs і stable hash; існуюча передача повертається, completed session нової не створює.",
+      "rights": "Observer mutation заборонено. Customer active, employee unarchived, order належить customer; invoice пов'язаний InvoiceLink та доступний через policy. Stored receipt повертається лише після поточного scoped projection.",
+      "evidence": [
+        {
+          "file": "crm/commands.py",
+          "symbol": "_session / _case_sources / prepare",
+          "line_start": 170,
+          "line_end": 224,
+          "file_sha256": "7bac2ee56ce74a1c3763f55f08cb103f69f42d206e1f47934291e26d9acacb37"
+        },
+        {
+          "file": "crm/commands.py",
+          "symbol": "prepare",
+          "line_start": 263,
+          "line_end": 298,
+          "file_sha256": "7bac2ee56ce74a1c3763f55f08cb103f69f42d206e1f47934291e26d9acacb37"
+        },
+        {
+          "file": "crm/projections.py",
+          "symbol": "draft",
+          "line_start": 72,
+          "line_end": 125,
+          "file_sha256": "5e5ba574d0fc9a6a1c35ebb1a69ea58fc032baef45f8d6b91b4dd5803d3a198a"
+        },
+        {
+          "file": "boss_project/policy.py",
+          "symbol": "crm_deals",
+          "line_start": 95,
+          "line_end": 114,
+          "file_sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1"
+        },
+        {
+          "file": "crm/commands.py",
+          "symbol": "preview / apply",
+          "line_start": 370,
+          "line_end": 451,
+          "file_sha256": "7bac2ee56ce74a1c3763f55f08cb103f69f42d206e1f47934291e26d9acacb37"
+        },
+        {
+          "file": "crm/projections.py",
+          "symbol": "receipt",
+          "line_start": 128,
+          "line_end": 144,
+          "file_sha256": "5e5ba574d0fc9a6a1c35ebb1a69ea58fc032baef45f8d6b91b4dd5803d3a198a"
+        }
+      ]
+    },
+    {
+      "id": "CONTENT_SOURCE_ONLY",
+      "owner": "затверджений код/контент кандидата, не користувацька навчальна сесія",
+      "read": "catalog читає frontend/bos3_content.json; API повертає registry поряд із доступними навчальними станами.",
+      "write": "У перевірених training URLs/change немає операції редагування lesson/step metadata, версії чи approval. Source edits не допускаються цією картою.",
+      "rights": "API фактів і прогресу — TRAINING_READ/TRAINING_WRITE. Публічний brochure містить synthetic зміст; він не надає прав на source PK.",
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "catalog / content",
+          "line_start": 22,
+          "line_end": 27,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "content",
+          "line_start": 213,
+          "line_end": 231,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "frontend/bos3_content.json",
+          "symbol": "cases[].goal / id / presentation",
+          "line_start": 21,
+          "line_end": 74,
+          "file_sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390"
+        },
+        {
+          "file": "training/urls.py",
+          "symbol": "urlpatterns",
+          "line_start": 4,
+          "line_end": 8,
+          "file_sha256": "95fe0e023a7d881cb45b98089af9af8462415277a308969155a44a3fe1e1b96e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "change allowed actions",
+          "line_start": 234,
+          "line_end": 297,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    }
+  ],
+  "persistence_contract": [
+    {
+      "field": "public session UUID",
+      "status": "exists",
+      "storage": "TrainingSession.public_id UUID unique; response.session_id string",
+      "read_write": "start creates once per identity; GET reads; client cannot choose UUID",
+      "rights_owner_refs": [
+        "TRAINING_READ",
+        "TRAINING_WRITE"
+      ],
+      "evidence": [
+        {
+          "file": "training/models.py",
+          "symbol": "TrainingSession",
+          "line_start": 7,
+          "line_end": 30,
+          "file_sha256": "cc7cf39bdada46d73a87dc39e18da3a81336c1ea3881c588dbfbdf227b78383a"
+        },
+        {
+          "file": "training/views.py",
+          "symbol": "state",
+          "line_start": 39,
+          "line_end": 45,
+          "file_sha256": "f91391b5c1549800baa2ce38ecdb7bfa4089017a8f9f47fb383b85f66ba6a466"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "session_state",
+          "line_start": 179,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    },
+    {
+      "field": "user/role/case/fixture/context",
+      "status": "exists",
+      "storage": "DB identity fields user,role,installation_id,fixture_id,fixture_hash,case_id; unique tuple",
+      "read_write": "start get_or_create; other mutations locate exact tuple; role is server-derived, no arbitrary owner input",
+      "rights_owner_refs": [
+        "TRAINING_READ",
+        "TRAINING_WRITE"
+      ],
+      "evidence": [
+        {
+          "file": "training/models.py",
+          "symbol": "TrainingSession",
+          "line_start": 7,
+          "line_end": 30,
+          "file_sha256": "cc7cf39bdada46d73a87dc39e18da3a81336c1ea3881c588dbfbdf227b78383a"
+        },
+        {
+          "file": "boss_project/identity.py",
+          "symbol": "actor_for_user",
+          "line_start": 25,
+          "line_end": 44,
+          "file_sha256": "20ffca4ca027940ec18ea2f7b984d9d87f7e3df617ddeace3c15a771650da117"
+        },
+        {
+          "file": "training/access.py",
+          "symbol": "require_training / installation",
+          "line_start": 18,
+          "line_end": 66,
+          "file_sha256": "c1d12118b65543d5eb5ef46f84c7457f57127410e8c7cba825434c7d45d44a6b"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "identity",
+          "line_start": 35,
+          "line_end": 40,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    },
+    {
+      "field": "lesson/version/product_source",
+      "status": "implementation_gap",
+      "storage": "No separate columns or runtime metadata; fixture hash is not lesson revision",
+      "read_write": "No existing corresponding session write",
+      "rights_owner_refs": [
+        "CONTENT_SOURCE_ONLY"
+      ],
+      "gap_ids": [
+        "GC-F01"
+      ],
+      "evidence": [
+        {
+          "file": "training/models.py",
+          "symbol": "TrainingSession",
+          "line_start": 7,
+          "line_end": 30,
+          "file_sha256": "cc7cf39bdada46d73a87dc39e18da3a81336c1ea3881c588dbfbdf227b78383a"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "session_state stamp / progress write",
+          "line_start": 179,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "change check",
+          "line_start": 266,
+          "line_end": 297,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "boss_project/policy.py",
+          "symbol": "access_revision",
+          "line_start": 33,
+          "line_end": 37,
+          "file_sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1"
+        }
+      ]
+    },
+    {
+      "field": "current_step",
+      "status": "partial",
+      "storage": "CharField blank default; written by navigate/check; start can return empty field with UI fallback",
+      "read_write": "GET returns stored id even when an earlier step changed; navigate rejects locked target",
+      "rights_owner_refs": [
+        "TRAINING_READ",
+        "TRAINING_WRITE"
+      ],
+      "gap_ids": [
+        "GC-F06"
+      ],
+      "evidence": [
+        {
+          "file": "training/models.py",
+          "symbol": "TrainingSession",
+          "line_start": 7,
+          "line_end": 30,
+          "file_sha256": "cc7cf39bdada46d73a87dc39e18da3a81336c1ea3881c588dbfbdf227b78383a"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "current_step return",
+          "line_start": 204,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "navigate/check write",
+          "line_start": 260,
+          "line_end": 297,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "frontend/boss_app_source.html",
+          "symbol": "Bos3CaseRunner fallback",
+          "line_start": 5477,
+          "line_end": 5478,
+          "file_sha256": "145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9"
+        }
+      ]
+    },
+    {
+      "field": "actual result",
+      "status": "partial",
+      "storage": "progress[step_id]={stamp}; live evidence.observed and facts recomputed, not persisted full result snapshot",
+      "read_write": "check validates answer/fact then saves stamp; GET only computes stale status; actual answer, timestamp, source revision/result FK not stored",
+      "rights_owner_refs": [
+        "TRAINING_READ",
+        "TRAINING_WRITE"
+      ],
+      "gap_ids": [
+        "GC-F02",
+        "GC-F03"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "session_state stamp / progress write",
+          "line_start": 179,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "change check",
+          "line_start": 266,
+          "line_end": 297,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "boss_project/policy.py",
+          "symbol": "access_revision",
+          "line_start": 33,
+          "line_end": 37,
+          "file_sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1"
+        }
+      ]
+    },
+    {
+      "field": "command receipt",
+      "status": "partial",
+      "storage": "ActionProposal.receipt separate JSON; task AuditEvent/ERP Event/CRM deal identities exist outside TrainingSession",
+      "read_write": "operations confirm same auth session; task-proposals GET can read own permitted receipt across auth sessions; no per-training-step link/receipt lookup",
+      "rights_owner_refs": [
+        "BUSINESS_COMMAND",
+        "CRM_COMMAND"
+      ],
+      "gap_ids": [
+        "GC-F03"
+      ],
+      "evidence": [
+        {
+          "file": "operations/models.py",
+          "symbol": "ActionProposal.receipt",
+          "line_start": 50,
+          "line_end": 60,
+          "file_sha256": "67448adcf1318ac57fef3d1b573c3f0b3a714d6b71dfd012e58cfef2cf509d7e"
+        },
+        {
+          "file": "operations/service.py",
+          "symbol": "execute",
+          "line_start": 130,
+          "line_end": 217,
+          "file_sha256": "73f865cf65914f585fb5f4eccb9706fdb56c1b20a55545f4dfe047deadccb223"
+        },
+        {
+          "file": "crm/commands.py",
+          "symbol": "apply",
+          "line_start": 404,
+          "line_end": 451,
+          "file_sha256": "7bac2ee56ce74a1c3763f55f08cb103f69f42d206e1f47934291e26d9acacb37"
+        },
+        {
+          "file": "crm/projections.py",
+          "symbol": "receipt",
+          "line_start": 128,
+          "line_end": 144,
+          "file_sha256": "5e5ba574d0fc9a6a1c35ebb1a69ea58fc032baef45f8d6b91b4dd5803d3a198a"
+        },
+        {
+          "file": "tasks/history.py",
+          "symbol": "proposal_status",
+          "line_start": 49,
+          "line_end": 65,
+          "file_sha256": "7ace3476863ce36516411c8cd078555f6538f0dfcea44e0079c95e63818306c4"
+        },
+        {
+          "file": "operations/urls.py",
+          "symbol": "task-proposals / confirm routes",
+          "line_start": 3,
+          "line_end": 4,
+          "file_sha256": "47d6b30fcd463c30854c1d62e19b2a7284a34a70b55d09955813c8f24a32ab87"
+        },
+        {
+          "file": "training/urls.py",
+          "symbol": "training routes",
+          "line_start": 4,
+          "line_end": 8,
+          "file_sha256": "95fe0e023a7d881cb45b98089af9af8462415277a308969155a44a3fe1e1b96e"
+        }
+      ]
+    },
+    {
+      "field": "pause/tour",
+      "status": "exists",
+      "storage": "session.status and tour_state={status:skipped|completed}; tour has no per-information-step acknowledgement",
+      "read_write": "pause/start; tour allowed values; neither changes ERP facts",
+      "rights_owner_refs": [
+        "TRAINING_WRITE"
+      ],
+      "evidence": [
+        {
+          "file": "training/models.py",
+          "symbol": "TrainingSession",
+          "line_start": 7,
+          "line_end": 30,
+          "file_sha256": "cc7cf39bdada46d73a87dc39e18da3a81336c1ea3881c588dbfbdf227b78383a"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "start / pause / tour",
+          "line_start": 242,
+          "line_end": 259,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    }
+  ],
+  "lifecycle": [
+    {
+      "id": "REENTRY",
+      "status": "partial",
+      "current_behavior_uk": "Auth login/logout змінює auth session, але TrainingSession identity не має session_key: те саме user/role/fixture/case відновлює той самий навчальний запис. URL training slug зберігається AuthGate перед входом; App відкриває info. Це не гарантія відновлення вибраного кейсу на іншому пристрої/URL: server last_case поля немає. Непідтверджений proposal старої auth session не можна execute з нової; task proposal read recovery — окрема операція.",
+      "gap_ids": [
+        "GC-F03"
+      ],
+      "evidence": [
+        {
+          "file": "boss_project/auth_views.py",
+          "symbol": "login / logout",
+          "line_start": 33,
+          "line_end": 68,
+          "file_sha256": "93f5bc145a47e83dd2b2eb20b108931f51f691a4f9fba80ddd7772fbcacaec07"
+        },
+        {
+          "file": "boss_project/identity.py",
+          "symbol": "actor_for_user",
+          "line_start": 25,
+          "line_end": 44,
+          "file_sha256": "20ffca4ca027940ec18ea2f7b984d9d87f7e3df617ddeace3c15a771650da117"
+        },
+        {
+          "file": "training/access.py",
+          "symbol": "require_training / installation",
+          "line_start": 18,
+          "line_end": 66,
+          "file_sha256": "c1d12118b65543d5eb5ef46f84c7457f57127410e8c7cba825434c7d45d44a6b"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "identity",
+          "line_start": 35,
+          "line_end": 40,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "frontend/boss_app_source.html",
+          "symbol": "AuthGate preserveSelectedCase / enter",
+          "line_start": 5752,
+          "line_end": 5785,
+          "file_sha256": "145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9"
+        },
+        {
+          "file": "frontend/boss_app_source.html",
+          "symbol": "App initial nav",
+          "line_start": 5541,
+          "line_end": 5541,
+          "file_sha256": "145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9"
+        },
+        {
+          "file": "operations/service.py",
+          "symbol": "execute session binding",
+          "line_start": 130,
+          "line_end": 146,
+          "file_sha256": "73f865cf65914f585fb5f4eccb9706fdb56c1b20a55545f4dfe047deadccb223"
+        },
+        {
+          "file": "tasks/history.py",
+          "symbol": "proposal_status",
+          "line_start": 49,
+          "line_end": 65,
+          "file_sha256": "7ace3476863ce36516411c8cd078555f6538f0dfcea44e0079c95e63818306c4"
+        }
+      ],
+      "dynamic_check": "NOT_RUN"
+    },
+    {
+      "id": "ROLE_CHANGE",
+      "status": "exists",
+      "current_behavior_uk": "actor перечитує одну серверну роль; нова роль вибирає іншу session identity, старий UUID CRM відхиляє. Для observer operation/crm стає answer; case03 недоступний non-ceo. Це не перенос бізнес-успіху. Повернення до попередньої ролі з тим самим актуальним access_revision може знову дати валідний старий stamp; окремої історії epochs відкликання немає.",
+      "gap_ids": [],
+      "evidence": [
+        {
+          "file": "boss_project/identity.py",
+          "symbol": "actor_for_user",
+          "line_start": 25,
+          "line_end": 44,
+          "file_sha256": "20ffca4ca027940ec18ea2f7b984d9d87f7e3df617ddeace3c15a771650da117"
+        },
+        {
+          "file": "training/access.py",
+          "symbol": "require_training / installation",
+          "line_start": 18,
+          "line_end": 66,
+          "file_sha256": "c1d12118b65543d5eb5ef46f84c7457f57127410e8c7cba825434c7d45d44a6b"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "identity",
+          "line_start": 35,
+          "line_end": 40,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "observer conversion / finance role",
+          "line_start": 171,
+          "line_end": 175,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "finance role",
+          "line_start": 221,
+          "line_end": 229,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "crm/commands.py",
+          "symbol": "_session",
+          "line_start": 170,
+          "line_end": 184,
+          "file_sha256": "7bac2ee56ce74a1c3763f55f08cb103f69f42d206e1f47934291e26d9acacb37"
+        }
+      ],
+      "dynamic_check": "NOT_RUN"
+    },
+    {
+      "id": "PERMISSION_CHANGE",
+      "status": "exists",
+      "current_behavior_uk": "Новий access_revision хешує user_id, employee_id, role і permissions; на GET/check відмінний stamp знімає valid, наступні кроки блокуються. Невидимий source дає deny/404/unavailable. GET не переписує progress; до нового write зберігається старий stamp, але він не вважається поточним valid.",
+      "gap_ids": [],
+      "evidence": [
+        {
+          "file": "boss_project/policy.py",
+          "symbol": "access_revision",
+          "line_start": 33,
+          "line_end": 37,
+          "file_sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "session_state stamp / progress write",
+          "line_start": 179,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "change check",
+          "line_start": 266,
+          "line_end": 297,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "boss_project/policy.py",
+          "symbol": "access_revision",
+          "line_start": 33,
+          "line_end": 37,
+          "file_sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "content exceptions",
+          "line_start": 221,
+          "line_end": 229,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ],
+      "dynamic_check": "NOT_RUN"
+    },
+    {
+      "id": "LESSON_VERSION_CHANGE",
+      "status": "implementation_gap",
+      "current_behavior_uk": "Instruction/title/completion code чи content JSON revision не входять у session identity/stamp; схему bos.training.content.v1 не можна видавати за lesson_version. Зміна лише цих даних не гарантовано скидає попередній успіх.",
+      "gap_ids": [
+        "GC-F01"
+      ],
+      "evidence": [
+        {
+          "file": "training/models.py",
+          "symbol": "TrainingSession",
+          "line_start": 7,
+          "line_end": 30,
+          "file_sha256": "cc7cf39bdada46d73a87dc39e18da3a81336c1ea3881c588dbfbdf227b78383a"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "catalog",
+          "line_start": 22,
+          "line_end": 27,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "session_state stamp / progress write",
+          "line_start": 179,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "change check",
+          "line_start": 266,
+          "line_end": 297,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "boss_project/policy.py",
+          "symbol": "access_revision",
+          "line_start": 33,
+          "line_end": 37,
+          "file_sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1"
+        },
+        {
+          "file": "frontend/bos3_content.json",
+          "symbol": "schema",
+          "line_start": 1,
+          "line_end": 7,
+          "file_sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390"
+        }
+      ],
+      "dynamic_check": "NOT_RUN"
+    },
+    {
+      "id": "FIXTURE_OR_INSTALLATION_CHANGE",
+      "status": "exists",
+      "current_behavior_uk": "installation перевіряє hash seed manifest і marker, environment installation/owner та hash DB path. Mismatch -> deny; валідна інша identity не збігається зі старою сесією. Це source-only висновок, не permission на seed/migrate/change.",
+      "gap_ids": [],
+      "evidence": [
+        {
+          "file": "training/access.py",
+          "symbol": "installation",
+          "line_start": 18,
+          "line_end": 48,
+          "file_sha256": "c1d12118b65543d5eb5ef46f84c7457f57127410e8c7cba825434c7d45d44a6b"
+        },
+        {
+          "file": "boss_project/identity.py",
+          "symbol": "actor_for_user",
+          "line_start": 25,
+          "line_end": 44,
+          "file_sha256": "20ffca4ca027940ec18ea2f7b984d9d87f7e3df617ddeace3c15a771650da117"
+        },
+        {
+          "file": "training/access.py",
+          "symbol": "require_training / installation",
+          "line_start": 18,
+          "line_end": 66,
+          "file_sha256": "c1d12118b65543d5eb5ef46f84c7457f57127410e8c7cba825434c7d45d44a6b"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "identity",
+          "line_start": 35,
+          "line_end": 40,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ],
+      "dynamic_check": "NOT_RUN"
+    },
+    {
+      "id": "SOURCE_OR_CONTEXT_CHANGE",
+      "status": "partial",
+      "current_behavior_uk": "Зміни observed/expected або access_revision invalidates step stamp; sources перевіряє поточні PK. Проте stamp не включає всю source_map чи всі PK, case source snapshots/lesson version, а check не приймає очікуваний client context. Наприклад order answer хешує code+quantity, CRM observed — boolean. Заміна іншими доступними сутностями з тими самими observed даними не має окремого гарантованого detection у навчальному stamp.",
+      "gap_ids": [
+        "GC-F01",
+        "GC-F02"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "order observed",
+          "line_start": 98,
+          "line_end": 102,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "crm_exists / crm observed",
+          "line_start": 70,
+          "line_end": 77,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "crm observed",
+          "line_start": 167,
+          "line_end": 170,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "session_state stamp / progress write",
+          "line_start": 179,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "change check",
+          "line_start": 266,
+          "line_end": 297,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "boss_project/policy.py",
+          "symbol": "access_revision",
+          "line_start": 33,
+          "line_end": 37,
+          "file_sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1"
+        }
+      ],
+      "dynamic_check": "NOT_RUN"
+    },
+    {
+      "id": "PAUSE_RESUME_EXIT",
+      "status": "partial",
+      "current_behavior_uk": "POST pause залишає progress/current_step; start змінює paused на in_progress. navigate/check можуть відновити paused без start; tour має власний save. Computed completed/needs_recheck пріоритетніші за paused. UI вихід доступний; він не є pause або completion. Поточний step не перенаправляється сервером до першого needs_recheck.",
+      "gap_ids": [
+        "GC-F05",
+        "GC-F06"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "session status",
+          "line_start": 202,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "pause/start",
+          "line_start": 242,
+          "line_end": 259,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "navigate resume",
+          "line_start": 288,
+          "line_end": 296,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "frontend/boss_app_source.html",
+          "symbol": "exit handlers",
+          "line_start": 5499,
+          "line_end": 5499,
+          "file_sha256": "145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9"
+        }
+      ],
+      "dynamic_check": "NOT_RUN"
+    },
+    {
+      "id": "ALREADY_EXECUTED_COMMAND",
+      "status": "partial",
+      "current_behavior_uk": "Навчальний check повторно читає факт без бізнес-dispatch. CRM draft/preview повертає existing; повтор одного proposal повертає receipt (вихід фільтрується поточними правами). Загальної повторної операції не допускаємо як семантику уроку: новий proposal відрізняється від replay попереднього, а no-double-write для кожної команди — окреме правило її service.",
+      "gap_ids": [
+        "GC-F03"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "check",
+          "line_start": 266,
+          "line_end": 297,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "crm/projections.py",
+          "symbol": "draft existing",
+          "line_start": 98,
+          "line_end": 105,
+          "file_sha256": "5e5ba574d0fc9a6a1c35ebb1a69ea58fc032baef45f8d6b91b4dd5803d3a198a"
+        },
+        {
+          "file": "crm/commands.py",
+          "symbol": "preview/apply",
+          "line_start": 370,
+          "line_end": 451,
+          "file_sha256": "7bac2ee56ce74a1c3763f55f08cb103f69f42d206e1f47934291e26d9acacb37"
+        },
+        {
+          "file": "operations/service.py",
+          "symbol": "execute receipt branches",
+          "line_start": 130,
+          "line_end": 217,
+          "file_sha256": "73f865cf65914f585fb5f4eccb9706fdb56c1b20a55545f4dfe047deadccb223"
+        },
+        {
+          "file": "operations/projections.py",
+          "symbol": "receipt",
+          "line_start": 130,
+          "line_end": 161,
+          "file_sha256": "f80ac3f74bac52e25148d2c530e728d430e6a79422da7405725693e075c8f4e2"
+        }
+      ],
+      "dynamic_check": "NOT_RUN"
+    },
+    {
+      "id": "DENIED_STALE_ERROR",
+      "status": "partial",
+      "current_behavior_uk": "403/404/409/422 та unavailable/needs_recheck є. TrainingFetch зберігає error.status/message, не окремий typed context_changed. Навчальний check при непідтвердженому факті повертає Conflict; progress не позначається успішним. UI loading/errors не є доказом completed.",
+      "gap_ids": [
+        "GC-F05"
+      ],
+      "evidence": [
+        {
+          "file": "operations/views.py",
+          "symbol": "errors",
+          "line_start": 28,
+          "line_end": 41,
+          "file_sha256": "a79e00c4550a0e8b44f873f008680bf2a9f99d34c2318e23d5e8d5c897d23a77"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "check conflict",
+          "line_start": 266,
+          "line_end": 287,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "frontend/boss_app_source.html",
+          "symbol": "trainingFetch",
+          "line_start": 5353,
+          "line_end": 5353,
+          "file_sha256": "145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9"
+        }
+      ],
+      "dynamic_check": "NOT_RUN"
+    }
+  ],
+  "case_capabilities": [
+    {
+      "case_id": "BOS3-CASE-01",
+      "step_ids": [
+        "order",
+        "supply"
+      ],
+      "current_kind": "answer",
+      "completion_source_uk": "Decimal answer equals line.quantity / refs.initial.washer_shortage. Initial shortage є незмінним фактом fixture, не сьогоднішнім залишком.",
+      "current_business_operation": null,
+      "rights_owner_refs": [
+        "TRAINING_READ",
+        "TRAINING_WRITE"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "observations",
+          "line_start": 98,
+          "line_end": 103,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ],
+      "receipt_bound_to_training_step": false,
+      "dynamic_check": "NOT_RUN"
+    },
+    {
+      "case_id": "BOS3-CASE-01",
+      "step_ids": [
+        "receipt"
+      ],
+      "current_kind": "operation",
+      "completion_source_uk": "purchase.received >= purchase.quantity",
+      "current_business_operation": "erp_receive via operations preview/confirm",
+      "rights_owner_refs": [
+        "TRAINING_WRITE",
+        "BUSINESS_COMMAND"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "observations",
+          "line_start": 104,
+          "line_end": 107,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "erp/service.py",
+          "symbol": "dispatch receive",
+          "line_start": 196,
+          "line_end": 200,
+          "file_sha256": "3fcc4fc7db14984c20e271357dbf5ac92402a26da17198dc683694d061cadc61"
+        },
+        {
+          "file": "erp/service.py",
+          "symbol": "dispatch receive",
+          "line_start": 258,
+          "line_end": 264,
+          "file_sha256": "3fcc4fc7db14984c20e271357dbf5ac92402a26da17198dc683694d061cadc61"
+        }
+      ],
+      "receipt_bound_to_training_step": false,
+      "dynamic_check": "NOT_RUN"
+    },
+    {
+      "case_id": "BOS3-CASE-01",
+      "step_ids": [
+        "production"
+      ],
+      "current_kind": "operation",
+      "completion_source_uk": "job.status == done AND job.produced == job.quantity",
+      "current_business_operation": "erp_quality / erp_reserve / erp_start / erp_operator / erp_finish as needed by current ERP sources; check itself runs none",
+      "rights_owner_refs": [
+        "TRAINING_WRITE",
+        "BUSINESS_COMMAND"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "observations",
+          "line_start": 108,
+          "line_end": 116,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "erp/service.py",
+          "symbol": "dispatch reserve",
+          "line_start": 279,
+          "line_end": 295,
+          "file_sha256": "3fcc4fc7db14984c20e271357dbf5ac92402a26da17198dc683694d061cadc61"
+        },
+        {
+          "file": "erp/service.py",
+          "symbol": "dispatch quality/start/operator/finish",
+          "line_start": 309,
+          "line_end": 351,
+          "file_sha256": "3fcc4fc7db14984c20e271357dbf5ac92402a26da17198dc683694d061cadc61"
+        }
+      ],
+      "receipt_bound_to_training_step": false,
+      "dynamic_check": "NOT_RUN"
+    },
+    {
+      "case_id": "BOS3-CASE-02",
+      "step_ids": [
+        "order",
+        "quality"
+      ],
+      "current_kind": "answer",
+      "completion_source_uk": "Decimal answer equals line.quantity / blocked.quantity",
+      "current_business_operation": null,
+      "rights_owner_refs": [
+        "TRAINING_READ",
+        "TRAINING_WRITE"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "observations",
+          "line_start": 129,
+          "line_end": 134,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ],
+      "receipt_bound_to_training_step": false,
+      "dynamic_check": "NOT_RUN"
+    },
+    {
+      "case_id": "BOS3-CASE-02",
+      "step_ids": [
+        "reservation"
+      ],
+      "current_kind": "operation",
+      "completion_source_uk": "blocked remains blocked AND (reservation >= line quantity OR only-approved shipments equal line quantity)",
+      "current_business_operation": "erp_reserve via operations preview/confirm; already-correct shipment can satisfy observed allocation",
+      "rights_owner_refs": [
+        "TRAINING_WRITE",
+        "BUSINESS_COMMAND"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "observations",
+          "line_start": 119,
+          "line_end": 138,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "erp/service.py",
+          "symbol": "dispatch reserve",
+          "line_start": 279,
+          "line_end": 295,
+          "file_sha256": "3fcc4fc7db14984c20e271357dbf5ac92402a26da17198dc683694d061cadc61"
+        }
+      ],
+      "receipt_bound_to_training_step": false,
+      "dynamic_check": "NOT_RUN"
+    },
+    {
+      "case_id": "BOS3-CASE-02",
+      "step_ids": [
+        "shipment"
+      ],
+      "current_kind": "operation",
+      "completion_source_uk": "Nonempty shipments all approved lot; sum and line.shipped equal line.quantity; blocked quality and initial blocked quantity unchanged",
+      "current_business_operation": "erp_ship via operations preview/confirm",
+      "rights_owner_refs": [
+        "TRAINING_WRITE",
+        "BUSINESS_COMMAND"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "observations",
+          "line_start": 139,
+          "line_end": 144,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "erp/service.py",
+          "symbol": "dispatch ship",
+          "line_start": 352,
+          "line_end": 362,
+          "file_sha256": "3fcc4fc7db14984c20e271357dbf5ac92402a26da17198dc683694d061cadc61"
+        }
+      ],
+      "receipt_bound_to_training_step": false,
+      "dynamic_check": "NOT_RUN"
+    },
+    {
+      "case_id": "BOS3-CASE-03",
+      "step_ids": [
+        "invoice"
+      ],
+      "current_kind": "answer",
+      "completion_source_uk": "Decimal answer equals invoice.amount - invoice.paid; no new payment command in lesson",
+      "current_business_operation": "read invoice facts; do not replay historical payment",
+      "rights_owner_refs": [
+        "TRAINING_READ",
+        "TRAINING_WRITE"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "observations",
+          "line_start": 148,
+          "line_end": 160,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ],
+      "receipt_bound_to_training_step": false,
+      "dynamic_check": "NOT_RUN"
+    },
+    {
+      "case_id": "BOS3-CASE-03",
+      "step_ids": [
+        "followup"
+      ],
+      "current_kind": "operation",
+      "completion_source_uk": "Any visible unarchived task linked to same order with assignee_employee and deadline; completion does not require task done, task.result or task proposal receipt",
+      "current_business_operation": "create_task via operations preview/confirm; before crm step",
+      "rights_owner_refs": [
+        "TRAINING_WRITE",
+        "BUSINESS_COMMAND"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "observations",
+          "line_start": 153,
+          "line_end": 163,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "tasks/commands.py",
+          "symbol": "prepare / preview / apply",
+          "line_start": 84,
+          "line_end": 163,
+          "file_sha256": "a70afb3f52a3f327ebc601e420ee386553002c3911463bbe680eef66dc72503e"
+        }
+      ],
+      "receipt_bound_to_training_step": false,
+      "dynamic_check": "NOT_RUN"
+    },
+    {
+      "case_id": "ALL_THREE",
+      "step_ids": [
+        "crm"
+      ],
+      "current_kind": "crm",
+      "completion_source_uk": "policy.crm_deals().filter(training_session=session).exclude(next_action='').exists(); check records only stamp of boolean",
+      "current_business_operation": "crm_handoff",
+      "rights_owner_refs": [
+        "TRAINING_WRITE",
+        "CRM_COMMAND"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "observations",
+          "line_start": 167,
+          "line_end": 170,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "crm_exists",
+          "line_start": 70,
+          "line_end": 77,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "crm/commands.py",
+          "symbol": "_session / _case_sources / prepare",
+          "line_start": 170,
+          "line_end": 224,
+          "file_sha256": "7bac2ee56ce74a1c3763f55f08cb103f69f42d206e1f47934291e26d9acacb37"
+        },
+        {
+          "file": "crm/commands.py",
+          "symbol": "prepare",
+          "line_start": 263,
+          "line_end": 298,
+          "file_sha256": "7bac2ee56ce74a1c3763f55f08cb103f69f42d206e1f47934291e26d9acacb37"
+        },
+        {
+          "file": "crm/projections.py",
+          "symbol": "draft",
+          "line_start": 72,
+          "line_end": 125,
+          "file_sha256": "5e5ba574d0fc9a6a1c35ebb1a69ea58fc032baef45f8d6b91b4dd5803d3a198a"
+        }
+      ],
+      "receipt_bound_to_training_step": false,
+      "dynamic_check": "NOT_RUN"
+    }
+  ],
+  "kind_mapping": [
+    {
+      "proposed": "information",
+      "status": "implementation_gap",
+      "current": "tour_state skipped/completed applies to whole tour; no information step or reading receipt",
+      "gap_ids": [
+        "GC-F04"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "tour",
+          "line_start": 256,
+          "line_end": 259,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    },
+    {
+      "proposed": "knowledge_check",
+      "status": "partial",
+      "current": "answer Decimal equality; source-backed quantity/balance answers, not general quiz engine",
+      "gap_ids": [
+        "GC-F04"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "check answer",
+          "line_start": 269,
+          "line_end": 282,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    },
+    {
+      "proposed": "source_check",
+      "status": "partial",
+      "current": "operation/crm predicates inspect sources; observer receives numeric answer instead. No distinct source_check kind",
+      "gap_ids": [
+        "GC-F04"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "observations",
+          "line_start": 98,
+          "line_end": 175,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    },
+    {
+      "proposed": "business_action",
+      "status": "partial",
+      "current": "operation checks domain facts after independent command execution; it is not a command executor and does not require step receipt",
+      "gap_ids": [
+        "GC-F03",
+        "GC-F04"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "operation observations",
+          "line_start": 104,
+          "line_end": 170,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "check",
+          "line_start": 266,
+          "line_end": 287,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    },
+    {
+      "proposed": "crm_handoff",
+      "status": "partial",
+      "current": "crm checks record_exists; UUID/PK identity dependency preserved, handoff draft/preview/confirm/receipt are separate stages",
+      "gap_ids": [
+        "GC-F03",
+        "GC-F04"
+      ],
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "crm observations",
+          "line_start": 167,
+          "line_end": 170,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "crm/commands.py",
+          "symbol": "_session / _case_sources / prepare",
+          "line_start": 170,
+          "line_end": 224,
+          "file_sha256": "7bac2ee56ce74a1c3763f55f08cb103f69f42d206e1f47934291e26d9acacb37"
+        },
+        {
+          "file": "crm/commands.py",
+          "symbol": "prepare",
+          "line_start": 263,
+          "line_end": 298,
+          "file_sha256": "7bac2ee56ce74a1c3763f55f08cb103f69f42d206e1f47934291e26d9acacb37"
+        },
+        {
+          "file": "crm/projections.py",
+          "symbol": "draft",
+          "line_start": 72,
+          "line_end": 125,
+          "file_sha256": "5e5ba574d0fc9a6a1c35ebb1a69ea58fc032baef45f8d6b91b4dd5803d3a198a"
+        }
+      ]
+    }
+  ],
+  "gaps": [
+    {
+      "id": "GC-F01",
+      "title_uk": "Ідентичність і версія уроку та точний product source",
+      "missing_uk": "Немає lesson_id/lesson_version/content revision/product commit у session identity або progress stamp. Fixture hash — seed, не lesson revision.",
+      "expected_result_uk": "Майбутній контракт має визначити approved lesson/version/source binding і правило перевірки старого прогресу після зміни; не прирівнювати case/schema/fixture до версії уроку.",
+      "future_owner": "sole integrator: training/domain owner with enablement contract; any schema/API decision separate",
+      "evidence": [
+        {
+          "file": "training/models.py",
+          "symbol": "TrainingSession",
+          "line_start": 7,
+          "line_end": 30,
+          "file_sha256": "cc7cf39bdada46d73a87dc39e18da3a81336c1ea3881c588dbfbdf227b78383a"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "session_state stamp / progress write",
+          "line_start": 179,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "change check",
+          "line_start": 266,
+          "line_end": 297,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "boss_project/policy.py",
+          "symbol": "access_revision",
+          "line_start": 33,
+          "line_end": 37,
+          "file_sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1"
+        },
+        {
+          "file": "training/access.py",
+          "symbol": "manifest hash",
+          "line_start": 34,
+          "line_end": 47,
+          "file_sha256": "c1d12118b65543d5eb5ef46f84c7457f57127410e8c7cba825434c7d45d44a6b"
+        }
+      ]
+    },
+    {
+      "id": "GC-F02",
+      "title_uk": "Повний контекст джерел і звірка з тим, що бачив користувач",
+      "missing_uk": "Немає expected_context input або системного stamp всіх source PK/lesson revision. Observed values можуть збігатися у змінених джерел; check читає current facts без client expected context.",
+      "expected_result_uk": "Контракт має визначити які source identities/revisions прив'язують доказ, і поведінку context_changed без перенесення успіху на інший context.",
+      "future_owner": "sole integrator: training/rights owner; enablement defines expected semantics",
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "sources",
+          "line_start": 43,
+          "line_end": 56,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "session_state stamp / progress write",
+          "line_start": 179,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "change check",
+          "line_start": 266,
+          "line_end": 297,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "boss_project/policy.py",
+          "symbol": "access_revision",
+          "line_start": 33,
+          "line_end": 37,
+          "file_sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "change input whitelist",
+          "line_start": 260,
+          "line_end": 268,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    },
+    {
+      "id": "GC-F03",
+      "title_uk": "Зв'язок навчального результату з квитанцією команди",
+      "missing_uk": "progress зберігає лише stamp. Немає link step -> proposal/receipt/event/task/deal або перевіреного result snapshot; crm step evidence — boolean. Task proposal-status recovery існує, але training не зберігає потрібний proposal UUID.",
+      "expected_result_uk": "Семантика має відрізняти already-existing domain fact від команди цього навчального проходження; для вимоги receipt визначити чинний спосіб зв'язку/відновлення або явний implementation gap.",
+      "future_owner": "sole integrator: training + operations/CRM owners; no receipt API invented by this report",
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "session_state stamp / progress write",
+          "line_start": 179,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "change check",
+          "line_start": 266,
+          "line_end": 297,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "boss_project/policy.py",
+          "symbol": "access_revision",
+          "line_start": 33,
+          "line_end": 37,
+          "file_sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1"
+        },
+        {
+          "file": "operations/models.py",
+          "symbol": "ActionProposal.receipt",
+          "line_start": 50,
+          "line_end": 60,
+          "file_sha256": "67448adcf1318ac57fef3d1b573c3f0b3a714d6b71dfd012e58cfef2cf509d7e"
+        },
+        {
+          "file": "operations/service.py",
+          "symbol": "execute",
+          "line_start": 130,
+          "line_end": 217,
+          "file_sha256": "73f865cf65914f585fb5f4eccb9706fdb56c1b20a55545f4dfe047deadccb223"
+        },
+        {
+          "file": "crm/commands.py",
+          "symbol": "apply",
+          "line_start": 404,
+          "line_end": 451,
+          "file_sha256": "7bac2ee56ce74a1c3763f55f08cb103f69f42d206e1f47934291e26d9acacb37"
+        },
+        {
+          "file": "crm/projections.py",
+          "symbol": "receipt",
+          "line_start": 128,
+          "line_end": 144,
+          "file_sha256": "5e5ba574d0fc9a6a1c35ebb1a69ea58fc032baef45f8d6b91b4dd5803d3a198a"
+        },
+        {
+          "file": "tasks/history.py",
+          "symbol": "proposal_status",
+          "line_start": 49,
+          "line_end": 65,
+          "file_sha256": "7ace3476863ce36516411c8cd078555f6538f0dfcea44e0079c95e63818306c4"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "crm step",
+          "line_start": 167,
+          "line_end": 170,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    },
+    {
+      "id": "GC-F04",
+      "title_uk": "П'ять видів кроку проти трьох чинних видів",
+      "missing_uk": "Source має answer/operation/crm; information і source_check не окремі типи; operator/observer semantics різні.",
+      "expected_result_uk": "Кожен proposed kind повинен мати явне зіставлення або окремий implementation gap. Tour completed не дорівнює information step/ERP result.",
+      "future_owner": "enablement semantic author; sole integrator chooses future training implementation",
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "step / observations",
+          "line_start": 64,
+          "line_end": 175,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "tour/check",
+          "line_start": 256,
+          "line_end": 287,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    },
+    {
+      "id": "GC-F05",
+      "title_uk": "Декларативні передумови, дозволена дія, стани помилки й правила паузи",
+      "missing_uk": "Права й predicates існують у коді, але немає structured prerequisites/role_requirements/allowed_action/expected_context/error_states/per-kind pause_resume_rule; route не є command permission.",
+      "expected_result_uk": "Контракт описує чинні gates, operations та status/error mapping; не додає мовчазного права, нового API чи generic executor. Наявний код не називається повною підтримкою proposed полів.",
+      "future_owner": "enablement contract owner; training/API owner for any future delta under integrator",
+      "evidence": [
+        {
+          "file": "boss_project/identity.py",
+          "symbol": "actor_for_user",
+          "line_start": 25,
+          "line_end": 44,
+          "file_sha256": "20ffca4ca027940ec18ea2f7b984d9d87f7e3df617ddeace3c15a771650da117"
+        },
+        {
+          "file": "training/access.py",
+          "symbol": "require_training / installation",
+          "line_start": 18,
+          "line_end": 66,
+          "file_sha256": "c1d12118b65543d5eb5ef46f84c7457f57127410e8c7cba825434c7d45d44a6b"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "identity",
+          "line_start": 35,
+          "line_end": 40,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "change",
+          "line_start": 234,
+          "line_end": 297,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "operations/middleware.py",
+          "symbol": "LocalRoleGuard.handle",
+          "line_start": 33,
+          "line_end": 57,
+          "file_sha256": "10193f1ba1ed107f6563ddae6b7dd5a9fcefdf5c77a42643ce60cd95f55f568c"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "step",
+          "line_start": 64,
+          "line_end": 67,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "operations/views.py",
+          "symbol": "errors",
+          "line_start": 28,
+          "line_end": 41,
+          "file_sha256": "a79e00c4550a0e8b44f873f008680bf2a9f99d34c2318e23d5e8d5c897d23a77"
+        }
+      ]
+    },
+    {
+      "id": "GC-F06",
+      "title_uk": "Збережений поточний крок і наступний доступний крок",
+      "missing_uk": "Немає server next_step. New session.current_step може бути blank; GET не нормалізує current_step після stale попереднього кроку; frontend сам знаходить available і викликає navigate.",
+      "expected_result_uk": "Контракт визначає valid current/next on start/reentry/invalidation/pause та чіткий статус; ці правила не оголошуються реалізованими сервером.",
+      "future_owner": "sole integrator: training API + existing frontend owner, isolated future scope",
+      "evidence": [
+        {
+          "file": "training/models.py",
+          "symbol": "current_step",
+          "line_start": 16,
+          "line_end": 16,
+          "file_sha256": "cc7cf39bdada46d73a87dc39e18da3a81336c1ea3881c588dbfbdf227b78383a"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "session_state",
+          "line_start": 179,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "start / navigate",
+          "line_start": 242,
+          "line_end": 297,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "frontend/boss_app_source.html",
+          "symbol": "current fallback",
+          "line_start": 5477,
+          "line_end": 5478,
+          "file_sha256": "145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9"
+        },
+        {
+          "file": "frontend/boss_app_source.html",
+          "symbol": "check navigate next",
+          "line_start": 5494,
+          "line_end": 5494,
+          "file_sha256": "145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9"
+        }
+      ]
+    },
+    {
+      "id": "GC-F07",
+      "title_uk": "FAQ і статус приймання навчального змісту",
+      "missing_uk": "Немає lesson FAQ/acceptance_status у registry/model/API. Навчальне completed не є прийняттям contract або product readiness.",
+      "expected_result_uk": "Enablement має визначити approved content/FAQ/acceptance як матеріал контракту або окрему реалізацію. Наявні review артефакти не стають runtime fields автоматично.",
+      "future_owner": "enablement content owner; independent quality for acceptance; sole integrator for future code",
+      "evidence": [
+        {
+          "file": "frontend/bos3_content.json",
+          "symbol": "case definitions",
+          "line_start": 21,
+          "line_end": 74,
+          "file_sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390"
+        },
+        {
+          "file": "training/models.py",
+          "symbol": "TrainingSession",
+          "line_start": 7,
+          "line_end": 30,
+          "file_sha256": "cc7cf39bdada46d73a87dc39e18da3a81336c1ea3881c588dbfbdf227b78383a"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "catalog / status",
+          "line_start": 22,
+          "line_end": 27,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "session_state status",
+          "line_start": 190,
+          "line_end": 210,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ]
+    },
+    {
+      "id": "GC-F08",
+      "title_uk": "Навчальні передумови до CRM handoff",
+      "missing_uk": "Порядок followup -> crm є у training steps; check/navigate не приймає locked step. Однак CRM draft/prepare приймають in_progress/paused/needs_recheck session і перевіряють ownership/sources без перевірки session.progress попередніх кроків. UI CRM CTA залежить від hasSession, а не завершеного followup.",
+      "expected_result_uk": "Зберегти Q02 як прийняту вимогу порядку; не заявляти backend-enforced prerequisite. Якщо потрібен обов'язковий допуск лише після підтвердженого доручення, це конкретний майбутній implementation gap.",
+      "future_owner": "sole integrator: training/CRM boundary owner; enablement specifies prerequisite semantics",
+      "evidence": [
+        {
+          "file": "training/service.py",
+          "symbol": "case03 followup / crm",
+          "line_start": 153,
+          "line_end": 170,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "symbol": "locked selection",
+          "line_start": 260,
+          "line_end": 265,
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "crm/commands.py",
+          "symbol": "_session / prepare",
+          "line_start": 170,
+          "line_end": 184,
+          "file_sha256": "7bac2ee56ce74a1c3763f55f08cb103f69f42d206e1f47934291e26d9acacb37"
+        },
+        {
+          "file": "crm/commands.py",
+          "symbol": "prepare handoff",
+          "line_start": 269,
+          "line_end": 298,
+          "file_sha256": "7bac2ee56ce74a1c3763f55f08cb103f69f42d206e1f47934291e26d9acacb37"
+        },
+        {
+          "file": "crm/projections.py",
+          "symbol": "draft",
+          "line_start": 72,
+          "line_end": 115,
+          "file_sha256": "5e5ba574d0fc9a6a1c35ebb1a69ea58fc032baef45f8d6b91b4dd5803d3a198a"
+        },
+        {
+          "file": "frontend/boss_app_source.html",
+          "symbol": "Bos3CaseRunner CRM button",
+          "line_start": 5480,
+          "line_end": 5480,
+          "file_sha256": "145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9"
+        }
+      ]
+    }
+  ],
+  "q01_q03_preservation": {
+    "Q01": "CTA -> server draft -> preview -> explicit confirm -> receipt or existing handoff preserved; check crm bool is not a receipt, GC-F03.",
+    "Q02": "Case03 linked task with assignee/deadline before CRM preserved as accepted contract requirement. Static training order exists; mandatory CRM admission gate not implemented, GC-F08. No new post-CRM task invented.",
+    "Q03": "Accepted identity-map SHA preserved as dependency. public UUID/case/PK mapping not rewritten or re-reviewed; no synthetic B3/slug treated as PK; live identity NOT_RUN."
+  },
+  "known_limits": [
+    "Source-only at immutable aa6, not canonical dec5997 or merged remote main.",
+    "No QA/app/browser/Node/build/DB/HTTP/probes executed.",
+    "No proof of live receipt/identity/result; existing code predicates are not dynamic acceptance.",
+    "No schema/API/rights change or future implementation authorized by this artifact.",
+    "Historical P05/A09/A10/A11 and all fixture/progress/payment/network/full/PG/E2E/browser/lifecycle/storage/diagnostic caps preserved.",
+    "No independent reviewer verdict for this author artifact."
+  ],
+  "next_recipient": "main; exact artifact dependency to enablement; independent quality only after root admission",
+  "output_hash_policy": "SESSION_CAPABILITIES SHA is recorded in AUTHOR_REPORT and final handoff; report SHA in final handoff. No self-referential hash field."
+}

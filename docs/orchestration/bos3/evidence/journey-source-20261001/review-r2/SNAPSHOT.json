@@ -1,0 +1,175 @@
+{
+  "schema": "bos.main-ui-r2-review-snapshot.v1",
+  "captured_at_utc": "2026-09-30T23:34:27.309656+00:00",
+  "verdict": "ACCEPTED_STATIC_SOURCE_DELTA",
+  "verdict_scope": "R1_TO_R2_JS01_JS02_JS03_ONLY",
+  "native_turn": "01a0f4a2-21ee-7df3-a6d6-cf442d1495bf",
+  "native_status": "idle/completed/error=null",
+  "files": [
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\review-snapshots\\journey-source-r2\\REVIEW.json",
+      "sha256": "1b44bd7de57b616b48d5d7d6974c1b918d0a0ea3234be98b21590632c605bc96"
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\review-snapshots\\journey-source-r2\\REVIEW_UA.md",
+      "sha256": "ccebce5208da719ca443015870549a0a98046539a44bf88392bde863087298eb"
+    }
+  ],
+  "exact_pins": {
+    "admission": {
+      "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/JOURNEY_SOURCE_REVIEW_R2_ADMISSION.json",
+      "sha256": "ea93859c43e68d293ea3423a8bf7d3601ab79a9a76208e1e3e1928bf0643a5ff"
+    },
+    "snapshot": {
+      "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/SNAPSHOT.json",
+      "sha256": "a28ce0f40209f7a8bff35d6b48c6a328a66afe872b6caf41d014d9e86971409c"
+    },
+    "base_r1": {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\journey-source-author-r1\\frontend\\boss_app_source.html",
+      "sha256": "564df459854f14fc194295343b61246961ba5f2463b1756309645a549a4bcc4b"
+    },
+    "result_r2": {
+      "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+      "sha256": "07590f842d31ba7a5935d873b1a1ecd38c37d277ba1578b077d610e8de0aaf9c"
+    },
+    "original_seed": {
+      "path": "D:/3/BOSDev/workspaces/bos3-canonical/repo/docs/orchestration/bos3/evidence/crm-stale-source-20260930/round2/boss_app_source.candidate.html.txt",
+      "sha256": "fc82733a97c3532cd8ea45ec9dfbfbd96d9274054c83d512b7fa8d40f8772384"
+    },
+    "cumulative_patch": {
+      "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/SOURCE_DELTA.patch",
+      "sha256": "806a86394aa2e986a5aee7ba259b9b0211b33636189975479ab24ebf84878d5f"
+    },
+    "r1_review": {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\review-snapshots\\journey-source-r1\\REVIEW.json",
+      "sha256": "b0e60808427b43c82437762386a6e7d619cc7a416a325dce029cf866e42ead9e"
+    }
+  },
+  "closure_map": [
+    {
+      "id": "JS-01",
+      "priority": "P2",
+      "status": "CLOSED_SOURCE_STATIC",
+      "criteria": [
+        "D3",
+        "D4"
+      ],
+      "source_refs": [
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5490
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5501
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5503
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5506
+        }
+      ],
+      "evidence_uk": "Після await перед update/verified live scope звіряється з captured та origin scope; drift інвалідовує ticket і очищує session. loadContent теж не публікує stale success.",
+      "live": "NOT_RUN"
+    },
+    {
+      "id": "JS-02",
+      "priority": "P2",
+      "status": "CLOSED_SOURCE_STATIC",
+      "criteria": [
+        "D3",
+        "D5"
+      ],
+      "source_refs": [
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5494
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5508
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5511
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5515
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5523
+        }
+      ],
+      "evidence_uk": "401/403 або scope drift -> denied; session 404 чи identity mismatch -> changed; network/5xx -> error. runnerCase маскує старий стан; явний retry повторює лише GET content/session.",
+      "live": "NOT_RUN"
+    },
+    {
+      "id": "JS-03",
+      "priority": "P3",
+      "status": "CLOSED_SOURCE_STATIC",
+      "criteria": [
+        "D5"
+      ],
+      "source_refs": [
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5591
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5593
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5756
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r2/frontend/boss_app_source.html",
+          "line": 5810
+        }
+      ],
+      "evidence_uk": "Pending focus після явного return; effect за nav=info, scope, slug, bosCanView фокусує main з tabIndex=-1.",
+      "keyboard_behavior": "NOT_RUN"
+    }
+  ],
+  "open_findings": [],
+  "new_regression_findings": [],
+  "author_snapshot": {
+    "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\journey-source-author-r2\\SNAPSHOT.json",
+    "sha256": "a28ce0f40209f7a8bff35d6b48c6a328a66afe872b6caf41d014d9e86971409c"
+  },
+  "product_executions": 0,
+  "dynamic_qa": {
+    "live": "NOT_RUN",
+    "runtime": "NOT_RUN",
+    "browser": "NOT_RUN",
+    "visual": "NOT_RUN",
+    "behavior": "NOT_RUN",
+    "keyboard_focus": "NOT_RUN",
+    "progress": "NOT_RUN",
+    "identity": "NOT_RUN",
+    "app": "NOT_RUN",
+    "Node_JS": "NOT_RUN",
+    "build": "NOT_RUN",
+    "tests": "NOT_RUN",
+    "PG": "NOT_RUN",
+    "E2E": "NOT_RUN",
+    "HTTP": "NOT_RUN",
+    "DB": "NOT_RUN"
+  },
+  "readiness": {
+    "TECHNICAL_READY": false,
+    "PILOT_ALLOWED": false,
+    "MVP": false,
+    "canonical_applied": false,
+    "published": false,
+    "runtime_delivered": false
+  },
+  "canonical_applied": false,
+  "next": "Sole integrator scoped disposition; no automatic executable integration or delivery"
+}

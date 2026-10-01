@@ -1,0 +1,46 @@
+{
+  "schema": "bos.harness-current-cards-final-apply-review.v1",
+  "scope": "Independent exact-byte application and saved actual-next-output audit for the H03 read-only Codex harness projection; observation at 2026-10-01T07:56:46Z, not a current or product-readiness verdict",
+  "verdict": "ACCEPT_SCOPED_RECORDED_APPLICATION_AND_OUTPUT",
+  "sources_sha256": {
+    "APPLIED_RECEIPT_R2.json": "ddd8e5714fd022deec2726863d9ce503483a551dcf6f03a72594946dd93a14cd",
+    "NEXT_VERIFIED_R2.json": "544d66d7ecbe6d265010dc7f2553119ec0dc09b25414c7dce8ccf15156b90fab",
+    "NEXT_STDOUT_R2.json": "751a3f5e805647c5d2fc09c882eff53d64555e82507f06a21dcc14f2420efa5c",
+    "NEXT_STDERR_R2.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "READER_VALIDATION_REVIEW.json": "f64bf264f059896d57d35028f90f726ccc980692eb747afd6bd894e7e6d36991",
+    "CANONICAL_PATH_CORRECTION.json": "4af396a2869cfea8079462d58e7cfd1879185a4d70f281b4ad63fd9188d73776"
+  },
+  "installed_exact_sha256": {
+    "setup/bos3_guidance.py": "5d695bd9ee27218d8dc74c5d51e1cecc8968b35de03b9ba38cdc4a97ffc5e065",
+    "setup/FLOW_COMMANDS_RU.md": "c23d0f7fbb8e9325c9970e62ae5965c8bc9e4289bc533d47bbdb495604fce58f",
+    "setup/bos_flow.py_unchanged": "35142ff7ad90d93da792a7dd0f19ef5d1a6d765c2a8f3efc0d7d71c8ce7d17a4"
+  },
+  "before_backups_exact_sha256": {
+    "before-reader-r4/bos3_guidance.py": "5d4ac9fe0f194c0f78cd4fe8e4e67dbeb3ed256d1019bf66e98bde3008cd44ec",
+    "before-reader-r4/FLOW_COMMANDS_RU.md": "2ad745b1ffe448da3b8075b35bf4cde272f922df774de233178a7cfc85307af2"
+  },
+  "application_findings": [
+    "Receipt records a corrected nonempty five-key staged guard and only the two changed production files. Independently rehashed both installed files, the unchanged caller, the two before backups, stdout and empty stderr; all match the receipt/result pins.",
+    "The focused synthetic reader test had a separate accepted validation; its fixture remains staged. The prior failed actual read is preserved as a fail-closed diagnostic."
+  ],
+  "actual_next_observation": {
+    "command": "pwsh -NoProfile -File D:/3/BOSDev/setup/bos-flow.ps1 next",
+    "recorded_native_exit": 0,
+    "recorded_at_utc": "2026-10-01T07:56:46.385241+00:00",
+    "parsed_status": "SCOPED_CURRENT_CARDS",
+    "authority": "same-head docs/orchestration/QUEUE.json#current_bos3.tracks",
+    "recorded_canonical_head": "b857176b32f83b6c992aae96b354f14c48e8c232",
+    "track_count": 3,
+    "track_scopes": [
+      "Journey preparation; executable generation NOT_ADMITTED and generated outputs not accepted",
+      "GC06 partial current_step source application only; separate later receipt and reviewer hashes verified; product QA NOT_RUN and runtime NOT_DELIVERED",
+      "GC-F01-08 scoping author snapshot; canonical planned status AUTHOR_COMPLETE_UNREVIEWED with no application in this recorded projection"
+    ],
+    "controls": "No automatic product proposal, dispatch, inferred slots/admission/dynamic QA, or claim; legacy next index remains advisory and product_assignment_authority=false.",
+    "git_blob_vs_raw_worktree": "The recorded same-head Git blob pins and raw worktree pins are separate. CONTROL_STATE.json raw SHA d35f238a... differs from Git blob SHA 72b6ab24... under core.autocrlf=true; the repaired reader did not mistake this alone for dirty content."
+  },
+  "temporal_limit": "The successful output proves the recorded 07:56:46Z snapshot. The mutable operational-delta source subsequently changed from the output's 783c791340c2ba3bb03ea07beec0e94f41603f0034ba34097c117cf31d2f5d33 pin to 4c9006daabc4f3133c582699fac977be5f0facc7e2f9b7fe3728c351d58b479d. A read of D:/3/BOSDev/repo initially suggested HEAD drift, but that is a different checkout: the addressed canonical path D:/3/BOSDev/workspaces/bos3-canonical/repo returned HEAD b857176b32f83b6c992aae96b354f14c48e8c232 and empty porcelain at this review's read. The other checkout observation is withdrawn as canonical evidence. No assertion is made that rerunning next now would reproduce the saved projection; any consequential assignment must freshly reconcile current canonical files and operational delta.",
+  "limits": "Canonical planned statuses are dated source records, not a fresh product review. This audit does not accept GC06 dynamic behavior, QA, runtime delivery, the journey generation or later scoping/design progress, and does not grant execution/admission or model slots.",
+  "reviewer_executions": {"tests": 0, "native_polls": 0, "network_or_product": 0, "live_or_canonical_writes": 0},
+  "product_readiness_verdict": null
+}

@@ -1,0 +1,52 @@
+{
+  "schema": "bos.guided-rights-contract-delta-review-admission.v1",
+  "id": "GUIDED-LEARNING-CONTRACT-REVIEW-R2-20261001",
+  "created_at_utc": "2026-09-30T23:42:00Z",
+  "cutoff_utc": "2026-10-04T21:59:00Z",
+  "classification": "SAME_PROBLEM_GCR01_GCR02_GCR03_CORRECTION_REVIEW_ONLY",
+  "task_class": "rights_and_persistence_contract_delta_review",
+  "profile": "critical",
+  "reason_uk": "Зміни стосуються reset, прав ролей та збереження навчального прогресу; потрібна незалежна перевірка Astra/high, не виконання продукту.",
+  "reviewer": "01a0c05d-6eeb-79f1-a135-be66985b442f",
+  "requested_model": "gpt-6-astra",
+  "requested_effort": "high",
+  "observed_model": "UNCONFIRMED",
+  "observed_effort": "UNCONFIRMED",
+  "dispatch_owner": "main",
+  "dispatch_gate": "Fresh channel idle/completed preflight required. UI R2 review completed in turn01a0f4a2-21ee-7df3-a6d6-cf442d1495bf, observed idle/error=null. Never override an active task or duplicate an existing assignment.",
+  "authors": ["01a0be9f-b413-7822-9f93-16ba69f4f00f", "01a0f2ce-270f-7ac3-bea0-1447f87aed61"],
+  "input_manifest": {
+    "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/GUIDED_CONTRACT_REVIEW_INPUT_R2.json",
+    "sha256": "0e858e65e9cdba8177f8622327ffd9e080699fe1eea2f2160b692f303740f5b0"
+  },
+  "source": {"path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo", "commit": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975", "access": "READ_ONLY"},
+  "pins": {
+    "review_r1_sha256": "23b3a1e1b1bf0d8184a0852073f971ef6ff71e8b3f12235aa2b971a54509b672",
+    "writer_r1_sha256": "4902e0bf6d508848dbe62c5a3c907f68a2ca4293ad3717b69e0de029a4ee5e02",
+    "writer_r2_sha256": "a5d0baa5797a795931dedc9fa6c8d54a6c288acfcee403e6671bef49c7ffa4c8",
+    "semantic_r1_sha256": "faf6588f755a43de12b45c9b30256fb07ef380e87a6c22f5be4ecbb652932753",
+    "semantic_r2_sha256": "e1fadc4fa80aee35c18033ceee722acdaba74243a35dc2d0f6534f64c653375d",
+    "canonical_documentation_head": "bc3fe4efd59be1ae87da5e334cba06af85ce1192",
+    "result_review_sha256": null,
+    "integrated_sha": null
+  },
+  "root_verification": "15/15 exact manifest refs matched; aa6 immutable source HEAD matched; writer dependency in final semantic snapshot matches corrected writer. Mechanical verification is not semantic acceptance.",
+  "output_directory": "D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/guided-contract-review-r2",
+  "output_allowlist": ["REVIEW.json", "REVIEW_UA.md"],
+  "start_gate": "Verify exact admission/input/source and record actual context acceptance in allowed output before dependent semantic work. Preserve previous outputs; do not overwrite R1.",
+  "review_scope_uk": [
+    "Порівняти лише R1 -> R2 та вплив виправлень GCR-01/02/03. Незмінну прийняту source/identity карту не рецензувати повторно; для збережених частин достатньо механічного порівняння.",
+    "GCR-01: writer і semantic явно відокремлюють unsupported server CLEAR_RESET від локального очищення UI; start/pause не стирають progress. GC-F05/06 та майбутнє рішення не створюють нового API, права reset або повторного проведення ERP/CRM.",
+    "GCR-02: чинний observer-to-answer/valid stamp відділений від denied і майбутнього not_applicable. Skip/unlock/lesson completion/evidence/role-change чітко current або proposal/gap; denied не означає успіх і не надає права.",
+    "GCR-03: підтверджений create_task preview/confirm не описано як очікуване підтвердження writer; gap step->receipt збережено. Чинний visible/unarchived task/assignee/deadline predicate не підмінено task-done чи оплатою.",
+    "Перевірити лише змінені перехресні залежності та відсутність нових суперечностей. Verdict має closure map з пріоритетами, exact source refs і окремими NOT_RUN; контракт не стає реалізацією."
+  ],
+  "done_when": "Independent exact R2 contract verdict with GCR01/02/03 closure or concrete remaining findings; preserved implementation gaps and evidence boundaries; two hashed review outputs.",
+  "allowed_checks": ["metadata JSON parse", "read pinned source/evidence", "hash and deterministic byte/diff comparison", "manual static rights/semantic review"],
+  "forbidden": ["author/canonical/product edits", "app/import/Node/JS/build/tests/PG/E2E/browser/HTTP", "DB/media/password/progress mutations", "resource/process/network probes", "runtime/diagnostic retries", "commit/push", "new agents/chats/timers"],
+  "product_executions": 0,
+  "all_attempt_histories_preserved": true,
+  "check_in_utc": "2026-10-01T00:05:00Z",
+  "next_recipient": "main immutable verdict snapshot -> sole integrator disposition; no automatic implementation",
+  "readiness": {"contract_accepted": false, "guided_integration_implemented": false, "TECHNICAL_READY": false, "PILOT_ALLOWED": false, "MVP": false}
+}
