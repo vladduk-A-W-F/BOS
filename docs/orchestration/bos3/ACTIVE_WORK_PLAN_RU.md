@@ -1,5 +1,29 @@
 # BoS 3.0: действующая очередь работ
 
+## Чинний стан 01.10.2026, 12:43 Europe/Berlin
+
+Цей датований шар замінює як поточну проєкцію шар 08:40 нижче. Canonical source для підготовки — clean `47ceb7f54fba81afa648e93b3954ce550409adb0`; exact before bytes чотирьох документів є в `D:/3/BOSDev/qa-scratch/bos3-plan-refresh-20261001-1040/before/`. На зріз 10:43 цей авторський пакет має статус `AUTHOR_COMPLETE_UNREVIEWED`; пізніший review і застосування встановлюються окремими receipts. Лише єдиний integrator `01a0dd56-ca2d-79c0-b159-bde80074a026` може послідовно застосувати після незалежного review.
+
+GC-F06 частковий source-only застосовано в `b857176b32f83b6c992aae96b354f14c48e8c232` (receipt SHA `f444a9094db3493966579d3252b1218549723ed11a7a832d9041bebaa1901584`). D02 source-only статично прийнято й застосовано в `47ceb7f54fba81afa648e93b3954ce550409adb0` (receipt SHA `bc1610aa848291a3ed76d4369362170f13dd0375b9638da903d90ead2880ab9c`); 12 regression methods **NOT_RUN**. Design R2 `DESIGN_RESOLUTION_R2.json` SHA `473a572a62a6affedb4191cbee6e8e53283b30fbc97a7becb1ed400c5a759abf` має незалежний `ACCEPT_SCOPED_PRE_CODE_DESIGN_GIDR_F01_F02_CLOSED`, review SHA `b97aa1e80b73ffda3485f3c2f288b148cb451ff18f48af9419ea91082f5588db`. Scoping R1 лишається історичним `AUTHOR_COMPLETE_UNREVIEWED` без retroactive acceptance.
+
+| Пріоритет і частина | Власник / залежність | Поточний стан і DoD наступного кроку |
+|---|---|---|
+| P1 D08-A source | Існуючий writer `01a0be9f…`; exact D02 head та прийнятий Design R2. Main координує, Quality `01a0c05d…` перевіряє; sole integrator застосовує | Admission SHA `d874997e5f6d566f3739701cde6c7112cec47acc58d846a001e51ddf5c8dccf8`, binding SHA `eda09cae8d2c3b0684993f7f0341311ea570fb94e5f6368ce2d2a3caf59d39bf`. Авторський manifest SHA `8298ef177c19b78020a632e1c2296492d7c6cebd991b62447fece5179ace6bc4`, `AUTHOR_COMPLETE_UNREVIEWED`, seven refs stable. DoD тепер: незалежний changed-code verdict на exact bytes, потім окреме рішення інтегратора. Review/integrated SHA null; 15 source regressions NOT_RUN. Повторну реалізацію не призначати |
+| P1 Journey generation | Main / раніше прийнятий static package; окремий exact executable admission відсутній | `NOT_ADMITTED`. DoD підготовки: конкретний resource observation та exact execution admission; до цього generated output, Node/build і app QA не стверджувати |
+| P2 Інші GC-F01–08 gaps | Для кожної частини окремо перевірити залежності, allowlist, owner і admission; D08 не дублювати | Нових source-карток не призначено; не розпочато. Design R2 дає вузьку передкодову основу, не загальний дозвіл реалізації або нові права/schema |
+| Блокер runtime | Власник окремого рішення; `RUNTIME_DECISION_PACKET.json` | `BLOCKED_NO_RETRY`; dev9 `NOT_DELIVERED`. DoD відновлення потребує окремого exact рішення, не автоматичного повтору |
+
+Порядок для D08: exact author result → існуючий Main/Quality independent review → sole-integrator disposition/application. Незалежна дозволена підготовка й робота інших частин може йти паралельно після окремої перевірки їхніх залежностей, allowlist, owner і admission; інтеграція послідовна, D08 не дублювати. Далі — лише окремо дозволені перевірки exact candidate та evidence GO/NO-GO. PR #11 на 10:43:05 UTC OPEN/DRAFT/NOT_MERGED, head `47ceb7f…`; workflow `36841461644` attempt1 completed/success є checkout/echo, не app QA (observation SHA `efde2542942ce7d7a03261ac310901c2e2b273135abee0e3e7b247d4182991ec`). Пізніші результати фіксуються окремими receipts, без переписування цього зрізу.
+
+Повний обсяг лишається: S1–S3 на одному актуальному кандидатові; UXD-01–08, включно з dashboard/metric sources, міжрольовими переходами, keyboard/focus і loading/empty/denied/stale; 11 gates; особистий вхід; навчальні проходження зі збереженням прогресу; exact-version delivery. Ці критерії ще не доведені завершеними. Cutoff **04.10.2026 23:59 Europe/Berlin** незмінний; **TECHNICAL_READY=false; PILOT_ALLOWED=false; MVP=false; product executions=0; dynamic QA NOT_RUN**. Історичні P05/A09/A10/A11, fixture/progress та інші ліміти не скидаються.
+
+Прийнятий harness source ledger — окрема інфраструктура; H03 stale current advice відкритий, архів-доповнення `UNPUBLISHED_INTERMEDIATE`. Зміна цих protected docs зрушить hash/HEAD anchors reader, отже harness `NEEDS_RECONCILIATION` до окремої exact прив'язки. Це не блокує правдиве оновлення плану й не обіцяє автоматичної сумісності.
+
+## Історичний шар 01.10.2026, 08:40 Europe/Berlin
+
+Усі старі «поточні» statuses/assignments нижче є датованою історією. Exact цілий файл до змін — `before/bos3/ACTIVE_WORK_PLAN_RU.md` цього пакета.
+
+
 ## Чинний план 01.10.2026, 08:40 Europe/Berlin
 
 Цей датований шар визначає поточні призначення; усі попередні зрізи нижче збережені як історія. Підстава: чинне доручення власника продовжити й актуалізувати погоджений план; SAME-PROBLEM, без скидання лімітів. Поточна черга з точними власниками, копіями, залежностями й DoD: `../QUEUE.json` -> `current_bos3.tracks`; поточний стан: `../STATE.json` -> `execution` та `active_workstream`. Пізніші receipts у `D:/3/BOSDev/release-planning/bos-3.0-20260927/POST_CHECKPOINT_OPERATIONAL_DELTA.json` уточнюють прогрес після цього зрізу, не розширюють дозволи.
