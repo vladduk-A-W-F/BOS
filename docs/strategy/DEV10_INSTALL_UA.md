@@ -6,7 +6,7 @@
 
 ## Кандидат
 
-- Основа уточненого кандидата: main `4dbf3c4d751238147c417c13e4b072ebe2ea3599`, після PR #19.
+- Основа уточненого кандидата: main `a182e3f9cdd87c3c1cc5ab49890310c6dc554157`, після PR #22.
 - Єдина версія UI/API: `boss_project/version.py`, `0.3.0-dev.10`.
 - Пакет містить Django-код, `training`, `crm`, owner-local settings,
   наявні assets і посібники. БД, media, state та секретів у ньому немає.
@@ -26,7 +26,13 @@
 3. Свіжо перевірити `D:/3/BOSDev/local-bos3/owner/state/prepared.json`,
    source digest, власника процесу, БД `data/bos3-fasteners.sqlite3` та media.
    Історична квитанція dev.8 із start exit 1 не доводить поточний стан.
-4. Виконати штатний `scripts/bos3-local.ps1 stop` з поточного source,
+4. **До зупинки** прочитати effective ExecutionPolicy саме native Windows PowerShell
+   `C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe`, який вибирає launcher.
+   Поточна перевірка цього exe: `Restricted`; PowerShell 7 `RemoteSigned` його не замінює.
+   За `Restricted`/`AllSigned`/`Undefined` доставка зупиняється до окремого явного
+   рішення власника щодо політики. `-EncodedCommand` не використовувати для обходу
+   цієї відмови; глобальну політику, права та секрети не змінювати.
+   Лише після успішного preflight виконати штатний `scripts/bos3-local.ps1 stop` з поточного source,
    лише якщо процес підтверджено як власний. Невідповідність PID/source або
    незавершена попередня спроба — зупинка доставки, без force/видалення receipt.
 
@@ -44,8 +50,8 @@
 7. Лише після перевіреної резервної копії змінити у `prepared.json` два поля:
    `source` та `source_sha256`; решта поля і захищені файли мають бути незмінними.
    Штатний `start` викликати з нової прийнятої Git-копії. Без автоматичних повторів.
-   Новий launcher не перевизначає ExecutionPolicy: застосовується чинна політика
-   Windows. Її відмова зупиняє запуск; Bypass/зміна політики не є fallback.
+   Launcher із PR #22 передає наявний блок прихованого запуску через inline-команду.
+   Це не скасовує preflight кроку 4; Bypass/зміна політики не є fallback.
 8. Звірити запущений source/version, дані й media, незмінність пароля та
    навчального прогресу. Перевірка звичайного входу й узгоджених маршрутів
    має окремий фактичний результат; старий HTTP 200 не зараховувати.
