@@ -2,18 +2,18 @@
   "schema": "bos.dev10-candidate.v1",
   "version": "0.3.0-dev.10",
   "status": "PACKAGED_NOT_INSTALLED",
-  "source_base_commit": "1dcaa8e0c84a109cc8a5df59f894d384268fe061",
+  "source_base_commit": "4dbf3c4d751238147c417c13e4b072ebe2ea3599",
   "source_definition": "Base plus candidate PR head; exact code bytes bound by BOS_PACKAGE.json, not a runtime receipt.",
   "merged_fixes": {
     "D02": "d33ac2ec854650dfb972ad5a385afbcd33c73952",
     "D08": "15f08bb8b839b97ad0785816582f85144b065eb2"
   },
   "package": {
-    "path": "D:/3/BOSDev/releases/0.3.0-dev.10-candidate-20261001-1",
-    "manifest": "D:/3/BOSDev/releases/0.3.0-dev.10-candidate-20261001-1/BOS_PACKAGE.json",
-    "manifest_sha256": "1f5b81df3a074f65a580ef009498c3a41dcc0dc960d2c609c6a0ada0dcdc3795",
-    "source_sha256": "dba51d19452bb86a681895b3de7989cc66379fdd585a09d358f2ca4edd3cbfd2",
-    "files": 427,
+    "path": "D:/3/BOSDev/releases/0.3.0-dev.10-candidate-20261001-2",
+    "manifest": "D:/3/BOSDev/releases/0.3.0-dev.10-candidate-20261001-2/BOS_PACKAGE.json",
+    "manifest_sha256": "83b9c2a8e73a2490969b90cdce285f49cb4a336fafca66d610f7a3fb38ec2756",
+    "source_sha256": "80484969521ac770df247f35e7af5868bfc46074afdf5935232425553064d543",
+    "files": 428,
     "database_files": 0,
     "all_file_hashes_verified": true
   },
@@ -23,12 +23,14 @@
       "python": "3.12.14",
       "exit_code": 0,
       "raw": "D:/3/BOSDev/qa-scratch/release-dev10-20261001/package-test-r2.txt",
-      "raw_sha256": "9f22104d53fe285831d89b3cf458d8e0567190e1a0094c7b7292f8165775acab"
+      "raw_sha256": "9f22104d53fe285831d89b3cf458d8e0567190e1a0094c7b7292f8165775acab",
+      "retained_from_unchanged_packager": true,
+      "rerun": false
     },
     "package_build": {
       "exit_code": 0,
-      "raw": "D:/3/BOSDev/qa-scratch/release-dev10-20261001/package-build.txt",
-      "raw_sha256": "93156522bfb12e18c9bd864cfbf2bcdbb3b06319b568742eb70a108dcf17cf4e"
+      "raw": "D:/3/BOSDev/qa-scratch/dev10-launch-policy-20261001/package-build.txt",
+      "raw_sha256": "f7aeab7e32a06d0fcf84e3c90c38260b004fe31dd413dbb18028c36bd30a28f9"
     },
     "learning_crm_retained": {
       "source_commit": "21a3a10483f149c1da4dfa140ebe13b6cffe1b5a",
@@ -46,7 +48,22 @@
     },
     "pg16": "NOT_RUN_FOR_DEV10_CANDIDATE",
     "browser": "NOT_RUN",
-    "owner_local_delivery": "NOT_RUN"
+    "owner_local_delivery": "NOT_RUN",
+    "launch_policy_mock": {
+      "command": "python -B -m unittest scripts.test_bos3_local_launch_policy",
+      "python": "3.12.14",
+      "exit_code": 0,
+      "tests": 1,
+      "raw": "D:/3/BOSDev/qa-scratch/dev10-launch-policy-20261001/after-portable.txt",
+      "raw_sha256": "00314bcb93032e26b644e3865a18e0f8ea2a564911cc95518a72057ec0a39308",
+      "before_exit_code": 1,
+      "before_raw": "D:/3/BOSDev/qa-scratch/dev10-launch-policy-20261001/before.txt",
+      "before_raw_sha256": "429bc3bbc08922875df984f4cdf6d2b66ed6e4fc85fd686efffe955522153449",
+      "real_powershell_or_app_started": false,
+      "independent_verdict": "ACCEPT_SOURCE_ONLY",
+      "reviewer": "dev10_candidate_review",
+      "ci": "PENDING"
+    }
   },
   "installation_instruction": "docs/strategy/DEV10_INSTALL_UA.md",
   "installation_dependency": "Claude candidate review and scoped PG16, accepted merge, fresh owner-local state and reviewed backup/rebind/restore execution.",
