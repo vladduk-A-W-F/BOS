@@ -1,0 +1,24 @@
+# Нові текстові файли зберігаються з LF; на Windows checkout дає CRLF через core.autocrlf.
+* text=auto eol=lf whitespace=cr-at-eol
+
+# Windows-скрипти лишаються як є.
+*.bat -text
+*.cmd -text
+*.ps1 -text
+
+# Заморожені докази: байти не конвертуються (SHA-пини), перевірка пробілів вимкнена.
+**/evidence/** -text -whitespace
+docs/design/** -text whitespace=cr-at-eol,-blank-at-eof
+docs/orchestration/bos3/recovery/** -text whitespace=cr-at-eol,-blank-at-eof
+
+# Наявні CRLF-файли з пінованими байтами (dev9 manifest, поточний стан). Нормалізувати окремою карткою після 04.10.2026.
+frontend/boss_app_html.html -text
+frontend/boss_app_source.html -text
+erp/test_snapshot_lot_facts.py -text
+docs/orchestration/BATCH_04_UA.md -text
+docs/orchestration/CYCLE_V17_CLOSEOUT_RU.md -text
+docs/orchestration/CYCLE_V17_MATRIX.json -text
+docs/orchestration/LANDING_BROWSER_UA.md -text
+docs/orchestration/PLAN_UA.md -text
+docs/orchestration/QUEUE.json -text
+docs/orchestration/STATE.json -text

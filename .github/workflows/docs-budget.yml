@@ -1,0 +1,18 @@
+# Ліміт документації в PR. Не запускає застосунок, тести чи БД.
+name: BoS — ліміт документації
+'on':
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+permissions:
+  contents: read
+jobs:
+  docs-budget:
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'docs-ok') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+    - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      with:
+        persist-credentials: false
+        fetch-depth: 0
+    - run: python3 .github/ci/docs_budget.py "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}"
