@@ -1,0 +1,158 @@
+{
+  "schema": "bos.harness-current-cards-actual-read-r2.v1",
+  "at_utc": "2026-10-01T07:56:46.385241+00:00",
+  "command": [
+    "C:/Users/user/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell/pwsh.exe",
+    "-NoProfile",
+    "-File",
+    "D:/3/BOSDev/setup/bos-flow.ps1",
+    "next"
+  ],
+  "native_exit": 0,
+  "stdout_path": "D:\\3\\BOSDev\\evidence\\harness-current-cards-20261001\\NEXT_STDOUT_R2.json",
+  "stdout_sha256": "751a3f5e805647c5d2fc09c882eff53d64555e82507f06a21dcc14f2420efa5c",
+  "stderr_path": "D:\\3\\BOSDev\\evidence\\harness-current-cards-20261001\\NEXT_STDERR_R2.txt",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parse_error": null,
+  "current_bos3": {
+    "status": "SCOPED_CURRENT_CARDS",
+    "authority": "same-head docs/orchestration/QUEUE.json#current_bos3.tracks",
+    "canonical_head": "b857176b32f83b6c992aae96b354f14c48e8c232",
+    "canonical_docs_sha256": {
+      "docs/orchestration/QUEUE.json": "94c14cb5293f16e15eb9eaa2b4ee75fab54a70e799d2826c1fff4727f48d52df",
+      "docs/orchestration/STATE.json": "8b5fbe0ae31965124f2a680435cd2abb321fdef0d0fca2c550b5514478cd6569",
+      "docs/orchestration/bos3/CONTROL_STATE.json": "72b6ab24661a046b79cd584f979aae3b8d04345eef5c28193153ecd104ab5fa3",
+      "docs/orchestration/bos3/ACTIVE_WORK_PLAN_RU.md": "5465ab062b0f2d980f21f3a8bf205c7e91439f6fe2bb5093c5fb461ce95eab1c"
+    },
+    "canonical_docs_worktree_raw_sha256": {
+      "docs/orchestration/QUEUE.json": "94c14cb5293f16e15eb9eaa2b4ee75fab54a70e799d2826c1fff4727f48d52df",
+      "docs/orchestration/STATE.json": "8b5fbe0ae31965124f2a680435cd2abb321fdef0d0fca2c550b5514478cd6569",
+      "docs/orchestration/bos3/CONTROL_STATE.json": "d35f238a9b1b011235413a7f5c82d7d6b53f29f0d4e20f1d781dcba75d42ec52",
+      "docs/orchestration/bos3/ACTIVE_WORK_PLAN_RU.md": "5465ab062b0f2d980f21f3a8bf205c7e91439f6fe2bb5093c5fb461ce95eab1c"
+    },
+    "sole_integrator_thread": "01a0dd56-ca2d-79c0-b159-bde80074a026",
+    "execution_gate": "NO_PRODUCT_OR_AUTOMATIC_EXECUTION",
+    "operational_delta_sha256": "783c791340c2ba3bb03ea07beec0e94f41603f0034ba34097c117cf31d2f5d33",
+    "gc06_receipt_sha256": "f444a9094db3493966579d3252b1218549723ed11a7a832d9041bebaa1901584",
+    "tracks": [
+      {
+        "card_id": "B30-SOLUTIONS-JOURNEY-SOURCE-20260930-INTEGRATION-PREP",
+        "owner_thread": "01a0be90-e790-7351-a8ac-059d523941c4",
+        "reviewer_thread": "01a0c05d-6eeb-79f1-a135-be66985b442f",
+        "workspace": "D:\\3\\BOSDev\\qa-scratch\\bos3-journey-integration-20261001",
+        "source_base": "0b96f76a575f88ed450c4be28d265a0cf207e3c4",
+        "planned_status": "ACCEPT_SCOPED_STATIC_GENERATION_PACKAGE",
+        "dependencies": [
+          "Accepted UI source R2 07590f842d31ba7a5935d873b1a1ecd38c37d277ba1578b077d610e8de0aaf9c",
+          "Preserved canonical input and target bytes"
+        ],
+        "allowlist": [],
+        "allowlist_recorded": false,
+        "done_when": "Exact 5 inputs, 3 preserved targets, 2 generated output paths and failure/ownership gates independently reviewed; executable generation is a separate unadmitted action",
+        "allowed_checks": "Read/hash/byte/text/Git metadata only; Node/build/app/probes NOT_ADMITTED",
+        "execution_disposition": "NOT_ADMITTED; no fresh sufficient resource observation or exact executable admission",
+        "generated_outputs_accepted": false,
+        "author_reference": null,
+        "author_manifest_sha256_recorded": "246f4704acaa9a9efa99be71bba898b7e59d41b7361a912df7ff87bebe5c4dc5",
+        "review_reference": {
+          "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\review-snapshots\\journey-generation-r1\\REVIEW.json",
+          "sha256": "c89fff022ca3906826719005eaf365a0796e495d6f35592fe5ed52b0b80a15cd",
+          "verified": true
+        },
+        "application": null,
+        "advice": {
+          "kind": "PREPARATION",
+          "scope": "Reconcile exact source and admission before any executable generation"
+        }
+      },
+      {
+        "card_id": "GUIDED-LEARNING-GC-F06-CURRENT-STEP-SOURCE-20261001",
+        "owner_thread": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+        "reviewer_thread": "01a0c05d-6eeb-79f1-a135-be66985b442f",
+        "workspace": "D:\\3\\BOSDev\\qa-scratch\\bos3-gc06-current-step-20261001",
+        "source_base": "0b96f76a575f88ed450c4be28d265a0cf207e3c4",
+        "planned_status": "ACTUAL_CONTEXT_ACCEPTED_AUTHOR_IN_PROGRESS",
+        "dependencies": [
+          "Accepted static guided contract R2",
+          "Exact canonical source base and context accepted before edits"
+        ],
+        "allowlist": [
+          "training/service.py",
+          "training/test_sessions.py"
+        ],
+        "allowlist_recorded": true,
+        "done_when": "Exact completed source delta and unexecuted regressions normalize existing current_step only; preserve valid unlocked revisits, read-only GET and existing start transaction; independent review before root application",
+        "allowed_checks": "Static read/hash/diff only; test setup invokes seed, no regression execution/DB/fixture admission",
+        "execution_disposition": null,
+        "generated_outputs_accepted": null,
+        "author_reference": null,
+        "author_manifest_sha256_recorded": null,
+        "review_reference": null,
+        "application": {
+          "scope": "PARTIAL_CURRENT_STEP_SOURCE_ONLY",
+          "delta_scope_recorded": "PARTIAL_CURRENT_STEP_SOURCE_ONLY; no next_step/dynamic proof",
+          "status": "SOURCE_ONLY_APPLIED_COMMITTED_PUSHED_PR11_UPDATED",
+          "head": "b857176b32f83b6c992aae96b354f14c48e8c232",
+          "receipt": {
+            "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\integrator\\GC06_APPLIED_RECEIPT_20261001.json",
+            "sha256": "f444a9094db3493966579d3252b1218549723ed11a7a832d9041bebaa1901584",
+            "verified": true
+          },
+          "review": {
+            "path": "D:\\3\\BOSDev\\qa-scratch\\bos3-gc06-current-step-review-20261001\\REVIEW.json",
+            "sha256": "7fa05bd66cc0652ae21de98bcb0f5cdc1c0e6bc223b02f4b7bf0e2319e68ec68",
+            "verified": true
+          },
+          "author": {
+            "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\gc06-source-author-r1\\SNAPSHOT.json",
+            "sha256": "4e419960ba53eaa85085118f71b82a8edfbb31f5cad28481d1e6713db94bbf52",
+            "verified": true
+          },
+          "product_qa": "NOT_RUN",
+          "runtime_delivery": "NOT_DELIVERED"
+        },
+        "advice": {
+          "kind": "REVIEW",
+          "scope": "Check later source pin and partial application disposition; no dynamic QA or downstream completion claim"
+        }
+      },
+      {
+        "card_id": "GUIDED-LEARNING-GC-F01-08-IMPLEMENTATION-SCOPING-20261001",
+        "owner_thread": "01a0f2ce-270f-7ac3-bea0-1447f87aed61",
+        "reviewer_thread": null,
+        "workspace": "D:\\3\\BOSDev\\qa-scratch\\bos3-guided-contract-implementation-scope-20261001",
+        "source_base": "0b96f76a575f88ed450c4be28d265a0cf207e3c4",
+        "planned_status": "AUTHOR_COMPLETE_UNREVIEWED",
+        "dependencies": [
+          "Accepted static writer and semantic contract R2",
+          "Separate existing GC-F06 assignment must not be duplicated"
+        ],
+        "allowlist": [],
+        "allowlist_recorded": false,
+        "done_when": "All eight gaps have exact files, dependencies, one owner, DoD, inherited verification caps and specific decision holder; independent consequential-design review is required before dependent assignments",
+        "allowed_checks": "Output-only planning, source references, hashes and dependency checks; no product executions or new API/schema/rights/content authority",
+        "execution_disposition": null,
+        "generated_outputs_accepted": null,
+        "author_reference": {
+          "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\guided-implementation-scope-author-r1\\SNAPSHOT.json",
+          "sha256": "e2c3f7eebfa79cb8ba39c547d46eb7e9a3d1be82ce773d67155930787d61fc70",
+          "verified": true
+        },
+        "author_manifest_sha256_recorded": null,
+        "review_reference": null,
+        "application": null,
+        "advice": {
+          "kind": "REVIEW",
+          "scope": "Independent design review of recorded author snapshot before dependent assignment"
+        }
+      }
+    ],
+    "automatic_product_proposals": false,
+    "dispatch_performed": false,
+    "dynamic_qa_inferred": false,
+    "slots_inferred": false,
+    "admission_inferred": false
+  },
+  "application_receipt_sha256": "ddd8e5714fd022deec2726863d9ce503483a551dcf6f03a72594946dd93a14cd",
+  "network_native_polls_product_executions": 0
+}
