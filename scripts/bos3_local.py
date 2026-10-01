@@ -392,11 +392,17 @@ def launch_via_powershell(args, cwd, env, paths):
         'stdout': str(paths['logs'] / 'server.stdout.log'),
         'stderr': str(paths['logs'] / 'server.stderr.log')}
     encoded = __import__('base64').b64encode(json.dumps(spec).encode('utf-8')).decode('ascii')
+    # Inline command, not -File: ExecutionPolicy governs script files only, so no Bypass is needed.
+    script = ("$ErrorActionPreference = 'Stop'; "
+        f"$s = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('{encoded}')) | ConvertFrom-Json; "
+        "$p = Start-Process -FilePath $s.python -WorkingDirectory $s.cwd -ArgumentList $s.argument_line "
+        "-RedirectStandardOutput $s.stdout -RedirectStandardError $s.stderr -WindowStyle Hidden -PassThru; "
+        "[Console]::Out.Write($p.Id); exit 0")
+    command = __import__('base64').b64encode(script.encode('utf-16-le')).decode('ascii')
     powershell, native_env = native_windows_powershell_environment(env)
     launch_stderr = paths['logs'] / 'server-launch.stderr.log'
     with launch_stderr.open('ab') as error_log:
-        result = subprocess.run([powershell, '-NoProfile', '-NonInteractive',
-            '-File', str(SOURCE / 'scripts' / 'bos3-local.ps1'), '-InternalLaunch', '-LaunchSpec', encoded],
+        result = subprocess.run([powershell, '-NoProfile', '-NonInteractive', '-EncodedCommand', command],
             env=native_env, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=error_log, timeout=30)
     if result.returncode:
         raise LocalError('Hidden local server process could not be created.')

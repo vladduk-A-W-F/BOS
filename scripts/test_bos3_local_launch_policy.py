@@ -3,6 +3,7 @@
 import base64
 import json
 from pathlib import Path
+import re
 import subprocess
 import tempfile
 import unittest
@@ -29,11 +30,15 @@ class LaunchPolicyTests(unittest.TestCase):
             native.assert_called_once_with(env)
             command = run.call_args.args[0]
             self.assertEqual(command[:4],
-                ['powershell.exe', '-NoProfile', '-NonInteractive', '-File'])
-            self.assertEqual(command[4], str(bos3_local.SOURCE / 'scripts' / 'bos3-local.ps1'))
-            self.assertEqual(command[5:7], ['-InternalLaunch', '-LaunchSpec'])
-            self.assertEqual(len(command), 8)
-            spec = json.loads(base64.b64decode(command[7]).decode('utf-8'))
+                ['powershell.exe', '-NoProfile', '-NonInteractive', '-EncodedCommand'])
+            self.assertEqual(len(command), 5)
+            script = base64.b64decode(command[4]).decode('utf-16-le')
+            self.assertNotIn('Bypass', script)
+            self.assertNotIn('ExecutionPolicy', script)
+            self.assertIn('Start-Process', script)
+            self.assertIn('-WindowStyle Hidden -PassThru', script)
+            embedded = re.search(r"FromBase64String\('([A-Za-z0-9+/=]+)'\)", script).group(1)
+            spec = json.loads(base64.b64decode(embedded).decode('utf-8'))
             self.assertEqual(spec, {
                 'python': str(Path(bos3_local.sys.executable).resolve()),
                 'cwd': str(cwd),
