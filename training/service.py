@@ -176,8 +176,7 @@ def observations(policy, marker, case_id, session):
         direct_ids = {
             'quality': {'blocked_lot': lots['blocked_lot']},
             'reservation': {**lots,
-                            'reservations': [['erp.reservation', r.pk] for r in reservations],
-                            'shipments': shipment_ids},
+                            'reservations': [['erp.reservation', r.pk] for r in reservations]},
             'shipment': {**lots, 'shipments': shipment_ids},
         }
         links.extend([{'kind': 'lot', 'id': row.pk, 'code': row.code,
@@ -246,7 +245,7 @@ def _expected_stamps(marker, case_id, rows, access_revision):
         CASE_IDS[0]: {'receipt': {'purchase'}, 'production': {'production'},
                       'crm': {'deals'}},
         CASE_IDS[1]: {'quality': {'blocked_lot'},
-                      'reservation': {'approved_lot', 'blocked_lot', 'reservations', 'shipments'},
+                      'reservation': {'approved_lot', 'blocked_lot', 'reservations'},
                       'shipment': {'approved_lot', 'blocked_lot', 'shipments'},
                       'crm': {'deals'}},
         CASE_IDS[2]: {'invoice': {'invoice'},

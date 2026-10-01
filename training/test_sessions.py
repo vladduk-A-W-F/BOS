@@ -430,7 +430,7 @@ class TrainingSessionContractTests(TestCase):
                              ('receipt', {'purchase'}), ('production', {'production'}),
                              ('crm', {'deals'})],
             'BOS3-CASE-02': [('order', set()), ('quality', {'blocked_lot'}),
-                             ('reservation', {'approved_lot', 'blocked_lot', 'reservations', 'shipments'}),
+                             ('reservation', {'approved_lot', 'blocked_lot', 'reservations'}),
                              ('shipment', {'approved_lot', 'blocked_lot', 'shipments'}),
                              ('crm', {'deals'})],
             'BOS3-CASE-03': [('invoice', {'invoice'}),
@@ -531,13 +531,10 @@ class TrainingSessionContractTests(TestCase):
         shipment = next(row for row in rows if row['id'] == 'shipment')
         movement = {'pk': 501001, 'lot_id': reservation['_source_ids']['approved_lot'][1],
                     'quantity': Decimal('1')}
-        reservation['_source_ids']['shipments'] = [['erp.movement', movement['pk']]]
         shipment['_source_ids']['shipments'] = [['erp.movement', movement['pk']]]
         shipment['observed']['movements'] = [movement]
         base = training_service._expected_stamps(marker, 'BOS3-CASE-02', rows, access)
         duplicates = deepcopy(rows)
-        next(row for row in duplicates if row['id'] == 'reservation')['_source_ids']['shipments'].append(
-            ['erp.movement', movement['pk']])
         duplicate_shipment = next(row for row in duplicates if row['id'] == 'shipment')
         duplicate_shipment['_source_ids']['shipments'].append(['erp.movement', movement['pk']])
         duplicate_shipment['observed']['movements'].append(deepcopy(movement))
@@ -579,7 +576,6 @@ class TrainingSessionContractTests(TestCase):
         movement = {'pk': 601001, 'lot_id': reservation['_source_ids']['approved_lot'][1],
                     'quantity': Decimal('1')}
         reservation['_source_ids']['reservations'] = [['erp.reservation', 601002]]
-        reservation['_source_ids']['shipments'] = [['erp.movement', movement['pk']]]
         shipment['_source_ids']['shipments'] = [['erp.movement', movement['pk']]]
         shipment['observed']['movements'] = [movement]
         before = training_service._expected_stamps(marker, 'BOS3-CASE-02', rows, access)
@@ -590,14 +586,12 @@ class TrainingSessionContractTests(TestCase):
         self.assertEqual([before[key] == after[key] for key in before],
                          [True, True, False, False, False])
         changed_movement = deepcopy(rows)
-        next(row for row in changed_movement if row['id'] == 'reservation')[
-            '_source_ids']['shipments'][0][1] = 601004
         changed_shipment = next(row for row in changed_movement if row['id'] == 'shipment')
         changed_shipment['_source_ids']['shipments'][0][1] = 601004
         changed_shipment['observed']['movements'][0]['pk'] = 601004
         after = training_service._expected_stamps(marker, 'BOS3-CASE-02', changed_movement, access)
         self.assertEqual([before[key] == after[key] for key in before],
-                         [True, True, False, False, False])
+                         [True, True, True, False, False])
         changed_lot = deepcopy(rows)
         next(row for row in changed_lot if row['id'] == 'shipment')[
             'observed']['movements'][0]['lot_id'] += 1
