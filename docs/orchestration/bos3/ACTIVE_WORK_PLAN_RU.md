@@ -1,6 +1,39 @@
 # BoS 3.0: действующая очередь работ
 
-## Чинний план 01.10.2026, 00:38 Europe/Berlin
+## Чинний план 01.10.2026, 08:40 Europe/Berlin
+
+Цей датований шар визначає поточні призначення; усі попередні зрізи нижче збережені як історія. Підстава: чинне доручення власника продовжити й актуалізувати погоджений план; SAME-PROBLEM, без скидання лімітів. Поточна черга з точними власниками, копіями, залежностями й DoD: `../QUEUE.json` -> `current_bos3.tracks`; поточний стан: `../STATE.json` -> `execution` та `active_workstream`. Пізніші receipts у `D:/3/BOSDev/release-planning/bos-3.0-20260927/POST_CHECKPOINT_OPERATIONAL_DELTA.json` уточнюють прогрес після цього зрізу, не розширюють дозволи.
+
+### Версії та вже прийняті результати
+
+- Canonical: `D:/3/BOSDev/workspaces/bos3-canonical/repo`, гілка `codex/bos3-plan-actualization-20261001`; перевірений base цього документаційного оновлення `0b96f76a575f88ed450c4be28d265a0cf207e3c4`, clean. PR #11: https://github.com/vladduk-A-W-F/BOS/pull/11, OPEN/DRAFT/NOT_MERGED; head `0b96f76a575f88ed450c4be28d265a0cf207e3c4`, main `87e1a4f504d24f6d47add511eb8b68a7fa592efc`. Підсумковий commit цього оновлення встановить actual receipt після незалежного review, не сам текст плану.
+- UI source R2 незалежно прийнятий статично: `07590f842d31ba7a5935d873b1a1ecd38c37d277ba1578b077d610e8de0aaf9c`. Неактивний evidence-архів 24 файлів опубліковано commit `a1e3413312e541914e6978ee9183382142192154`; це не інтеграція виконуваного frontend.
+- Guided contract R2 незалежно прийнятий статично; неактивний evidence-архів 28 файлів опубліковано commit `0b96f76a575f88ed450c4be28d265a0cf207e3c4`. GC-F01–08 залишаються implementation gaps, не завершеним навчанням. Спільна квитанція: `D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/ACCEPTED_PACKAGE_R2_APPLIED_RECEIPT.json`, SHA-256 `8442ec8ca357f9239b3ac7f269a85baa548c925c2574d0dacb2517ac610193b5`.
+- Immutable dev9 source `aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975`, product baseline `6b3aab22b3f8254d5f65846f54ceeed7049e1ddf`; **NOT_DELIVERED, availability UNCONFIRMED**. Немає нового доказу збереження live даних. Службовий checkout/echo CI не є app QA; історичний whitespace exit2 для архівів не перетворюється на PASS.
+
+### Три чинні напрями
+
+| Напрям | Власник і фактичний стан | Наступний результат / межа |
+|---|---|---|
+| B30-SOLUTIONS-JOURNEY-SOURCE-20260930-INTEGRATION-PREP | Main `01a0be90…`; Quality `01a0c05d…` завершив незалежний `ACCEPT_SCOPED_STATIC_GENERATION_PACKAGE`, review `c89fff022ca3906826719005eaf365a0796e495d6f35592fe5ed52b0b80a15cd` | 5 exact inputs і 3 preserved targets підготовлені. Generated outputs відсутні; **execution NOT_ADMITTED**: немає свіжого достатнього resource observation та exact execution admission. Статичне приймання не дозволяє Node/build/probe або автоматичний retry |
+| GUIDED-LEARNING-GC-F06-CURRENT-STEP-SOURCE-20261001 | Writer `01a0be9f…`; exact context прийнято до правок, автор завершує ізольовані `training/service.py` та `training/test_sessions.py` | Лише нормалізація існуючого current_step, без next_step/API/schema/rights/reset/lessons; GET без нового DB write, persistence лише в існуючому start transaction. Exact completed snapshot -> незалежний changed-code review Quality -> послідовне рішення root. Regression source NOT_RUN; GC-F06 лише частковий |
+| GUIDED-LEARNING-GC-F01-08-IMPLEMENTATION-SCOPING-20261001 | Enablement `01a0f2ce…`; авторський snapshot `e2c3f7eebfa79cb8ba39c547d46eb7e9a3d1be82ce773d67155930787d61fc70`, AUTHOR_COMPLETE_UNREVIEWED | Усі 8 gaps описані; незалежний consequential-design review ще потрібний. Це не нові призначення й не дозвіл реалізувати запропоновані API/schema/rights/content рішення. Уже призначений GC-F06 не дублювати |
+
+Спільний exact admission: `D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/NEXT_SOURCE_GC06_ADMISSION_20261001.json`, SHA-256 `b48087b0e41be53f8e83de7abc6581df0f991b37927fad8609bea297bfdb627c`. Контекст обох авторів фактично прийнято до контрольної точки 08:35 Berlin; результати або конкретний blocker очікуються до 09:00 Berlin. Авторський scoping та generation review вже надані. Main координує один reserved review slot; поточні роботи не переривати, не перемикати активні моделі, не створювати дублікати.
+
+### Обсяг, порядок і рішення
+
+«BoS — рішення під ваш бізнес»: задача -> наочний сценарій -> підтверджений результат -> CRM з тими самими сутностями/ID. Повний обсяг незмінний: S1/S2/S3, UXD-01–08, 11 gates, персональний вхід, збереження навчання й прогресу, exact-version доставка. Порядок: owner-local кандидат -> світле адаптивне прев'ю -> три синтетичні сценарії -> вхід/збереження -> решта покращень. Runtime blocker має окремого власника рішення та не забороняє вже допущену source-only роботу.
+
+01.10: зафіксувати реалістичний склад версії за прийнятими результатами та конкретними блокерами; цей план не оголошує всі вимоги виконаними. 02–03.10: лише окремо дозволені фінальні перевірки exact candidate. До **04.10.2026 23:59 Europe/Berlin**: evidence за кожним критерієм, GO або чесний NO-GO; після cutoff лише читання, підсумок і штатна пауза циклу без вимкнення застосунку. Срок 11.10 не діє.
+
+Runtime recovery залишається BLOCKED_NO_RETRY за `RUNTIME_DECISION_PACKET.json`; уже поставлені питання не повторювати. Немає дозволу на нові resource/process probes, Node/build/app/import/test/browser/HTTP/DB/fixture/seed/migrate/reset/lesson запуски. `training/test_sessions.py` setup викликає seed: навіть адресний regression run потребує окремого допуска і не обходить fixture caps. Зберегти P05/A09/A10/A11 та всю історію інших лімітів, ERP mutex, синтетичні українські дані UAH, БД/media/пароль/прогрес. Main merge, Sites, production, paid API, зміна прав/архітектури та відновлення скасованого переносу Codex не дозволені.
+
+**TECHNICAL_READY=false; PILOT_ALLOWED=false; MVP=false; product executions=0; dynamic QA NOT_RUN.** Єдиний integrator `01a0dd56-ca2d-79c0-b159-bde80074a026` застосовує лише незалежно прийняті exact bytes, по одному commit на картку; фактична публікація й runtime delivery мають окремі receipts.
+
+## Історичний зріз 01.10.2026, 00:38 Europe/Berlin
+
+Усі статуси, призначення й pins від цього заголовка до кінця файлу є датованою історією. Вони не перекривають поточний шар 08:40 вище. Початкові exact bytes збережено у `D:/3/BOSDev/evidence/current-plan-projection-20261001/integrator/before/` та Git commit `0b96f76a575f88ed450c4be28d265a0cf207e3c4`.
 
 Зріз: 01.10.2026, 00:38 Europe/Berlin; час окремих спостережень збережено в OBSERVATIONS.json і SOURCE_OBSERVATION.json. Підстава: доручення власника «ПЛАН УСКОРИТЬ И ВЫПОЛНИТЬ» та «исполни актуализацию плана». Поточний етап — реалізація узгодженого користувацького шляху й завершення контракту навчання. Фінальна перевірка MVP ще не виконана.
 
