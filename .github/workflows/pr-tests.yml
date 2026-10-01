@@ -55,7 +55,7 @@ jobs:
     - name: Чи змінено склад пакета
       id: scope
       run: |
-        if git diff --name-only "${{ github.event.pull_request.base.sha }}" HEAD | grep -qE '^(scripts/(package_server|test_package_server)\.py|demo_settings\.py|bos3_local_settings\.py|boss_project/version\.py)$'; then
+        if git diff --name-only "${{ github.event.pull_request.base.sha }}" HEAD | grep -qE '^(scripts/(package_server|test_package_server|bos3_local|test_bos3_local_launch_policy)\.py|demo_settings\.py|bos3_local_settings\.py|boss_project/version\.py)$'; then
           echo "run=true" >> "$GITHUB_OUTPUT"
         else
           echo "run=false" >> "$GITHUB_OUTPUT"
@@ -68,4 +68,5 @@ jobs:
       name: Склад пакета без запуску застосунку
       run: |
         python -B -m scripts.test_package_server
+        python -B -m unittest scripts.test_bos3_local_launch_policy
         python -B scripts/package_server.py --output "$RUNNER_TEMP/bos-dev-package"
