@@ -1,0 +1,49 @@
+# Лише ручний запуск власником: 1–5 адресних міток на PostgreSQL 16. Без full suite і повторних спроб.
+name: BoS — адресні тести PostgreSQL 16
+'on':
+  workflow_dispatch:
+    inputs:
+      labels:
+        description: '1–5 міток через пробіл, напр. training.test_sessions'
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: bos-targeted-pg16-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  targeted:
+    if: ${{ github.run_attempt == 1 }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: bos_ci
+          POSTGRES_PASSWORD: bos_synthetic_ci_only
+          POSTGRES_DB: postgres
+        ports: [5432/tcp]
+        options: --health-cmd "pg_isready -U bos_ci -d postgres" --health-interval 5s --health-timeout 5s --health-retries 12 --tmpfs /var/lib/postgresql/data:rw
+    env:
+      PYTHONUTF8: '1'
+      PYTHONDONTWRITEBYTECODE: '1'
+      BOS_DATA_MODE: demo
+      BOS_PG_DISPOSABLE: '1'
+      BOS_PGHOST: 127.0.0.1
+      BOS_PGUSER: bos_ci
+      BOS_PGPASSWORD: bos_synthetic_ci_only
+    steps:
+    - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      with:
+        persist-credentials: false
+        fetch-depth: 1
+    - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+      with:
+        python-version: '3.12'
+    - run: python -m pip install -r requirements-ci.txt
+    - run: python .github/ci/targeted_pg16.py
+      env:
+        BOS_TEST_LABELS: ${{ inputs.labels }}
+        BOS_PGPORT: ${{ job.services.postgres.ports[5432] }}
