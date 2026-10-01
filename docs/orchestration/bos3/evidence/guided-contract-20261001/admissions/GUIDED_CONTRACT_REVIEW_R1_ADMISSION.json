@@ -1,0 +1,65 @@
+{
+  "schema": "bos.guided-rights-contract-review-admission.v1",
+  "id": "GUIDED-LEARNING-CONTRACT-REVIEW-R1-20261001",
+  "classification": "SAME_PROBLEM_OUTPUT_ONLY_CONTRACT_COMPLETION_REVIEW",
+  "reviewer": "01a0c05d-6eeb-79f1-a135-be66985b442f",
+  "requested_model": "gpt-6-astra",
+  "requested_effort": "high",
+  "observed_model": "UNCONFIRMED",
+  "dispatch_owner": "main",
+  "dispatch_gate": "Only after current UI review final outputs and native completed/inactive preflight; never switch active quality model. No parallel same-reviewer assignments.",
+  "authors": [
+    "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+    "01a0f2ce-270f-7ac3-bea0-1447f87aed61"
+  ],
+  "input_manifest": {
+    "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/GUIDED_CONTRACT_REVIEW_INPUT_R1.json",
+    "sha256": "258e0478443b96acadf0715f6597e0eb6fe23385f8a5a4be9504ce7e230e6301"
+  },
+  "source": {
+    "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo",
+    "commit": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+    "access": "READ_ONLY"
+  },
+  "writer_result_sha256": "4902e0bf6d508848dbe62c5a3c907f68a2ca4293ad3717b69e0de029a4ee5e02",
+  "semantic_result_sha256": "faf6588f755a43de12b45c9b30256fb07ef380e87a6c22f5be4ecbb652932753",
+  "root_verification": "13/13 refs exact; immutable HEAD matches; no semantic acceptance",
+  "output_directory": "D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/guided-contract-review-r1",
+  "output_allowlist": [
+    "REVIEW.json",
+    "REVIEW_UA.md"
+  ],
+  "start_gate": "Verify exact inputs/source and record context acceptance before dependent work in allowed outputs",
+  "review_scope_uk": [
+    "Незалежно звірити новий writer fields/rights/persistence результат і повний semantic candidate між собою та з pinned source. Прийняту ID-карту не рецензувати повторно; перевіряти лише використані нові твердження/залежності.",
+    "29 вимог, п'ять типів кроків, три кейси, сім питань CAP, вісім GC-F gap groups: чи всі завершені як supported/partial/gap/proposal, без прихованого TBD, фальшивої підтримки або підміни contract proposal виконаною реалізацією.",
+    "Session ownership/role rights, read/write command/service path, completion evidence, pause/resume/reentry, origin/ID/version mismatch, progress persistence та clear/reset: підтвердження джерелом або точний implementation gap; не надавати нових прав.",
+    "Зіставити symbols/lines/file hashes, source fact versus future rule, synthetic UAH та існуючі межі; визначити наступні мінімальні implementation dependencies без дозволу на їх виконання.",
+    "Verdict лише контракту: exact pins, пріоритети findings, відтворювані source refs і concrete correction owner. Окремо NOT_RUN для runtime/browser/progress/behavior, readiness false."
+  ],
+  "allowed": [
+    "metadata JSON parse",
+    "read pinned source/evidence",
+    "hash and deterministic byte comparison",
+    "manual static semantic/rights review",
+    "two review output writes"
+  ],
+  "forbidden": [
+    "author/canonical/product edits",
+    "app/import/Node/JS/build/tests/PG/E2E/browser/HTTP",
+    "DB/media/password/progress mutations",
+    "process/resource/network probes",
+    "runtime/diagnostic retries",
+    "commit/push",
+    "new agents/chats/timers"
+  ],
+  "product_executions": 0,
+  "all_attempt_histories_preserved": true,
+  "check_in_utc": "2026-09-30T23:35:00Z",
+  "next_recipient": "main immutable verdict snapshot -> sole integrator scoped disposition; no automatic implementation",
+  "readiness": {
+    "TECHNICAL_READY": false,
+    "PILOT_ALLOWED": false,
+    "MVP": false
+  }
+}

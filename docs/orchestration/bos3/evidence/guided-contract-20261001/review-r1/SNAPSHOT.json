@@ -1,0 +1,75 @@
+{
+  "schema": "bos.main-guided-contract-review-snapshot.v1",
+  "captured_at_utc": "2026-09-30T23:21:16.318942+00:00",
+  "verdict": "CHANGES_REQUIRED",
+  "verdict_scope": "AUTHOR_CONTRACT_ONLY_SOURCE_STATIC",
+  "reviewer_thread": "01a0c05d-6eeb-79f1-a135-be66985b442f",
+  "native_turn": "01a0f48f-cba5-7130-9c63-482572d6265c",
+  "native_status": "idle/completed/error=null",
+  "files": [
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\review-snapshots\\guided-contract-r1\\REVIEW.json",
+      "sha256": "23b3a1e1b1bf0d8184a0852073f971ef6ff71e8b3f12235aa2b971a54509b672"
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\review-snapshots\\guided-contract-r1\\REVIEW_UA.md",
+      "sha256": "1cdd07f59f662d05109fee84c16ea06f4e0070eebc395ae9a4bd4d966161a033"
+    }
+  ],
+  "input_manifest": {
+    "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\GUIDED_CONTRACT_REVIEW_INPUT_R1.json",
+    "sha256": "258e0478443b96acadf0715f6597e0eb6fe23385f8a5a4be9504ce7e230e6301"
+  },
+  "findings": [
+    {
+      "id": "GCR01",
+      "priority": "P2",
+      "title_uk": "Clear/reset не має source disposition або явної прогалини",
+      "correction_owner": {
+        "writer": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+        "semantic": "01a0f2ce-270f-7ac3-bea0-1447f87aed61"
+      },
+      "blocking": true
+    },
+    {
+      "id": "GCR02",
+      "priority": "P2",
+      "title_uk": "Пропуск denied/not_applicable не визначає наступний крок і завершення",
+      "correction_owner": {
+        "semantic": "01a0f2ce-270f-7ac3-bea0-1447f87aed61",
+        "writer_consulted": "01a0be9f-b413-7822-9f93-16ba69f4f00f"
+      },
+      "blocking": true
+    },
+    {
+      "id": "GCR03",
+      "priority": "P3",
+      "title_uk": "У кейсі 03 залишилась закрита умовна залежність від writer",
+      "correction_owner": {
+        "semantic": "01a0f2ce-270f-7ac3-bea0-1447f87aed61"
+      },
+      "blocking": false
+    }
+  ],
+  "coverage": {
+    "lesson_fields": 12,
+    "step_fields": 12,
+    "session_requirements": 5,
+    "step_kinds": 5,
+    "cases": 3,
+    "capability_questions": 7,
+    "gap_groups": 8,
+    "source_files": 24,
+    "evidence_refs": 293
+  },
+  "main_scope": "Exact reviewer hashes/metadata and allowlist verification, verdict attributed to independent quality",
+  "product_executions": 0,
+  "readiness": {
+    "contract_accepted": false,
+    "guided_integration_implemented": false,
+    "TECHNICAL_READY": false,
+    "PILOT_ALLOWED": false,
+    "MVP": false
+  },
+  "next": "Root exact same-author output-only correction scopes; no automatic implementation"
+}

@@ -1,0 +1,122 @@
+{
+  "schema": "bos.guided-learning-contract-candidate.v1",
+  "card_id": "GUIDED-LEARNING-CONTRACT-SEMANTICS",
+  "status": "AUTHOR_COMPLETE_UNREVIEWED",
+  "author_thread_id": "01a0f2ce-270f-7ac3-bea0-1447f87aed61",
+  "requested_model": "gpt-6-sol",
+  "requested_effort": "medium",
+  "observed_model": "UNCONFIRMED",
+  "workspace": "D:/3/BOSDev/qa-scratch/bos3-guided-contract-20260930/enablement",
+  "allowlist": ["CONTRACT_CANDIDATE_UA.json", "AUTHOR_REPORT_UA.md"],
+  "source": {
+    "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo",
+    "commit": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+    "access": "READ_ONLY"
+  },
+  "admission": {
+    "path": "D:/3/BOSDev/evidence/plan-acceleration-20260930/GUIDED_CONTRACT_ADMISSION.json",
+    "sha256": "d6fdc105b4201dda43f773518e14fcb71e2f352431b9bea70c037fe3485d9ceb",
+    "classification": "SAME_PROBLEM_CONTRACT_COMPLETION_OUTPUT_ONLY",
+    "references_verified": 5
+  },
+  "recovery_inputs": [
+    {"path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/GUIDED_CONTRACT_ENABLEMENT_ASSIGNMENT_UA.txt", "sha256": "2fff2bb804d44eb7748fe0ef958a3989d6012ef052fad7bfb7cadaac23a9212d"},
+    {"path": "D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/JOURNEY_SOURCE_ADMISSION.json", "sha256": "7106925d62789fa15063890f73c17294ddb332e175808a616ad5b90712d54a4e"},
+    {"path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/JOURNEY_SOURCE_CONTEXT_RECEIPT.json", "sha256": "513e3261e1fac391f0ace12d761fd035960505904a8ce35c11a8acff3db539a4"}
+  ],
+  "accepted_semantic_dependencies": {
+    "q01": "CTA підготовки CRM -> серверна перевірка і чернетка -> preview -> явне підтвердження -> фактична квитанція; CTA і чернетка не завершують CRM-крок.",
+    "q02": "У кейсі 03 доручення, відповідальний і строк належать кроку керівника до CRM; CRM-контакт не є платежем.",
+    "q03": "slug, case_id та B3-* є селекторами або зовнішніми кодами. Публічний UUID сесії та внутрішні PK джерел зв'язує і повторно перевіряє сервер; live-тотожність NOT_RUN."
+  },
+  "semantic_invariants": [
+    {"id": "INV-ROLE", "rule_uk": "Кожне читання факту, відповідь і бізнес-дія перевіряються для поточного користувача та ролі. Втрата права переводить крок у denied; старе завершення не надає нового права."},
+    {"id": "INV-VERSION", "rule_uk": "Завершення прив'язане до lesson_id, lesson_version, step_id, user/session та версії правила. Нова версія уроку не успадковує старий успіх без явного правила перенесення й перевірки."},
+    {"id": "INV-SOURCE", "rule_uk": "Доказ факту містить серверно визначені ідентифікатори джерел, їхній стан/версію або момент читання та контекст. Зміна джерела чи вибраного запису робить попередній preview і source_check непридатними до повторної перевірки."},
+    {"id": "INV-RELOGIN", "rule_uk": "Після повторного входу спочатку звірити особу, роль, case_id, публічний session UUID, версію уроку й серверний стан; браузерний стан сам не доводить прогрес."},
+    {"id": "INV-REPLAY", "rule_uk": "Вже виконану операцію не проводити знову заради уроку; показати наявну серверну квитанцію та дозволений наступний крок. Якщо квитанцію не знайдено, результат лишається непідтвердженим до безпечної серверної звірки."},
+    {"id": "INV-ERROR", "rule_uk": "loading/empty/error/stale/context_changed/denied мають окремі стани. За stale/context_changed/denied/error не позначати успіх, не пропонувати підтвердження за старим preview; дати оновлення, повернення або вихід відповідно до прав."}
+  ],
+  "step_kinds": [
+    {"kind": "information", "completion_rule_uk": "Лише явне ознайомлення з конкретною версією тексту, кроку й контексту, якщо таке правило затверджено; автоматичне відкриття екрана не означає засвоєння або ERP-факт.", "success_evidence_uk": "Окрема навчальна позначка user/session/lesson_version/step_id/content_version; це не квитанція бізнес-дії.", "pause_resume_rule_uk": "Після входу знову показати поточну версію; відновити позначку тільки за перевіреним серверним записом і незмінним контекстом, інакше запропонувати повторне ознайомлення.", "capability_dependency": ["CAP-STEP-PROGRESS", "CAP-LESSON-VERSION"], "source_status": "implementation_gap", "current_operation_uk": "POST tour зберігає статус цілого огляду skipped/completed; окремого information step чи квитанції прочитання немає.", "rights_owner_refs": ["TRAINING_READ", "TRAINING_WRITE"], "gap_ids": ["GC-F01", "GC-F04", "GC-F05"]},
+    {"kind": "knowledge_check", "completion_rule_uk": "Перевірена відповідь за версійним правилом і дозволеною роллю; перегляд питання або натискання Далі не є успіхом.", "success_evidence_uk": "Результат перевірки, rule_version, user/session/step_id, час і статус; відповіді не змінюють бізнес-дані.", "pause_resume_rule_uk": "Незавершену відповідь не вважати прийнятою. Після повернення звірити версію питання та збережений результат; за зміни версії пройти перевірку заново.", "capability_dependency": ["CAP-KNOWLEDGE-CHECK", "CAP-STEP-PROGRESS", "CAP-LESSON-VERSION"], "source_status": "partial", "current_operation_uk": "POST check для answer порівнює Decimal із поточним source-backed числом і зберігає progress stamp; це не загальний quiz engine, rule_version чи відповідь не зберігаються.", "rights_owner_refs": ["TRAINING_READ", "TRAINING_WRITE"], "gap_ids": ["GC-F01", "GC-F03", "GC-F04"]},
+    {"kind": "source_check", "completion_rule_uk": "Сервер повернув дозволений ролі факт саме для case_id/session та очікуваних PK джерел; факт актуальний на момент перевірки. Саме відкриття панелі не завершує перевірку.", "success_evidence_uk": "Ідентифікатори джерел і версія/час читання, значення, роль/користувач, результат серверної перевірки; це read-only факт, не ERP-операція.", "pause_resume_rule_uk": "Після паузи перечитати джерело; старий факт показувати лише як історичний із часом, без автоматичного перенесення статусу fresh.", "capability_dependency": ["CAP-SOURCE-EVIDENCE", "CAP-SESSION-OWNERSHIP"], "source_status": "partial", "current_operation_uk": "GET state і POST check перечитують дозволені Policy джерела; operation/crm мають predicates, observer отримує числові answer. Окремого source_check виду та повного expected_context PK/version stamp немає.", "rights_owner_refs": ["TRAINING_READ", "TRAINING_WRITE"], "gap_ids": ["GC-F02", "GC-F04", "GC-F05"]},
+    {"kind": "business_action", "completion_rule_uk": "Дозволена чинним command/service дія: перевірка прав і поточного джерела -> preview -> явне підтвердження -> фактична серверна квитанція. План, CTA і preview самі по собі не завершують дію.", "success_evidence_uk": "Серверна квитанція конкретної операції з посиланням на source PK, user/role, session/case і чинний контекст; наявна квитанція повторного виклику показується без нової операції.", "pause_resume_rule_uk": "На поверненні перевірити, чи операцію вже проведено. Незавершений preview вважати застарілим до нового читання й підтвердження; не повторювати команду сліпо.", "capability_dependency": ["CAP-ACTION-RECEIPT-BINDING", "CAP-SESSION-OWNERSHIP", "CAP-STEP-PROGRESS"], "source_status": "partial", "current_operation_uk": "training operation перевіряє вже наявний доменний факт, сам команди не виконує. Окремий operations preview/confirm зберігає ActionProposal.receipt і перевіряє той самий auth session, user/role, права; training progress має лише stamp без step->receipt link.", "rights_owner_refs": ["TRAINING_WRITE", "BUSINESS_COMMAND"], "gap_ids": ["GC-F03", "GC-F04", "GC-F05"]},
+    {"kind": "crm_handoff", "completion_rule_uk": "CTA -> серверна чернетка зі звіркою сесії/PK/прав -> preview -> явне підтвердження -> серверна квитанція угоди або серверна відповідь про вже наявну передачу. Контакт не погашає борг і не відвантажує товар.", "success_evidence_uk": "Підтверджений сервером handoff/deal та зв'язок із тією самою session UUID, case_id і source PK; за повтору — ідентифікатор наявної передачі без дубля.", "pause_resume_rule_uk": "Після паузи запросити серверний стан передачі. Чернетка/preview не прирівнюються до створеної угоди; за зміни ролі, рахунку, замовлення чи джерела отримати новий preview.", "capability_dependency": ["CAP-CRM-RECEIPT-BINDING", "CAP-SESSION-OWNERSHIP", "CAP-STEP-PROGRESS"], "source_status": "partial", "current_operation_uk": "CRM має draft/preview/confirm і scoped existing handoff. training crm check зберігає лише stamp булевого існування угоди, не receipt/deal ID; frontend CTA не перевіряє завершення followup.", "rights_owner_refs": ["TRAINING_WRITE", "CRM_COMMAND"], "gap_ids": ["GC-F03", "GC-F04", "GC-F08"]}
+  ],
+  "case_application": [
+    {"case_id": "BOS3-CASE-01", "slug": "supply", "sequence": ["information: розрізнити 500 потрібно, 140 готово, 360 заплановано, дефіцит 120 шайб", "knowledge_check: пояснити, чому план і випуск не є доставкою чи обіцянкою", "source_check: перечитати замовлення, запас, план і дефіцит із доступних джерел", "business_action: лише дозволені приймання/допуск/випуск із власними квитанціями; без квитанції крок лишається планом", "crm_handoff: перевірені case/session/order/customer -> CTA, чернетка, preview, confirm, receipt або наявна угода"], "restriction_uk": "Посібник не доручає реально виконувати всі бізнес-операції; недоступний ролі вид кроку пропускається зі станом denied/not_applicable, не completed."},
+    {"case_id": "BOS3-CASE-02", "slug": "quality", "sequence": ["information: LOT-A 250 дозволено, LOT-B 20 на hold", "knowledge_check: відрізнити допуск і резерв від відвантаження", "source_check: перечитати стан обох партій і замовлення", "business_action: лише дозволене відвантаження 250 з LOT-A за серверною квитанцією; LOT-B лишається hold", "crm_handoff: контакт про отримання тієї самої дозволеної партії після preview/confirm/receipt"], "restriction_uk": "Переходи й CRM не знімають hold і не замінюють квитанцію відвантаження."},
+    {"case_id": "BOS3-CASE-03", "slug": "payment", "sequence": ["information: рахунок 16 400 грн, підтверджено 10 000 грн, відкрито 6 400 грн", "knowledge_check: контакт/завдання не погашає рахунок", "source_check: за дозволеною роллю перечитати рахунок, зв'язане замовлення та підтверджений платіж", "business_action: доручення, відповідальний і строк у кроці керівника до CRM; завершення тільки за квитанцією чинного дозволеного серверного шляху, якщо він підтверджений writer", "crm_handoff: контакт щодо залишку за тим самим invoice/order/session; CTA -> чернетка -> preview -> confirm -> receipt"], "restriction_uk": "Фінансовий навчальний кейс має чинне обмеження ролі CEO; інша роль отримує denied. Новий платіж не проводити і старий не дублювати."}
+  ],
+  "capability_resolution": [
+    {"id": "CAP-LESSON-VERSION", "status": "implementation_gap", "current_uk": "TrainingSession зберігає case_id та fixture hash; lesson_id, lesson_version і source commit відсутні. Fixture hash є hash seed, не версія уроку.", "writer_refs": ["lesson_fields.lesson_id", "lesson_fields.lesson_version", "lifecycle.LESSON_VERSION_CHANGE"], "gap_ids": ["GC-F01"]},
+    {"id": "CAP-STEP-PROGRESS", "status": "partial", "current_uk": "current_step і progress[step_id]={stamp} існують; observed обчислюється заново. Немає типізованого result/receipt link, а сервер не повертає next_step і не нормалізує stale current_step.", "writer_refs": ["step_fields.success_evidence", "step_fields.next_step", "session_requirements.SR02", "session_requirements.SR03"], "gap_ids": ["GC-F01", "GC-F03", "GC-F06"]},
+    {"id": "CAP-KNOWLEDGE-CHECK", "status": "partial", "current_uk": "answer крок перевіряє Decimal-рівність із source-backed значенням; немає загального quiz engine, rule_version або збереженої відповіді.", "writer_refs": ["kind_mapping.knowledge_check", "step_fields.kind", "step_fields.completion_rule"], "gap_ids": ["GC-F01", "GC-F04"]},
+    {"id": "CAP-SOURCE-EVIDENCE", "status": "partial", "current_uk": "Policy обмежує source PK, а GET/check перечитують факти. Step stamp не містить повної source_map, усіх PK чи клієнтського expected_context; окремого source_check виду немає.", "writer_refs": ["lesson_fields.source_references", "step_fields.source_refs", "step_fields.expected_context", "kind_mapping.source_check"], "gap_ids": ["GC-F02", "GC-F04"]},
+    {"id": "CAP-SESSION-OWNERSHIP", "status": "partial", "current_uk": "Складена user/role/installation/fixture/case identity, публічний UUID, access_revision і серверні gates існують. Повторний вхід у тій самій ролі відновлює запис; інша роль має іншу identity; старий operations proposal не підтверджується в новій auth session. Немає server last_case та повної версії уроку/джерела.", "writer_refs": ["rights_and_ownership.TRAINING_READ", "rights_and_ownership.TRAINING_WRITE", "lifecycle.REENTRY", "lifecycle.ROLE_CHANGE", "lifecycle.PERMISSION_CHANGE"], "gap_ids": ["GC-F01", "GC-F02", "GC-F03", "GC-F06"]},
+    {"id": "CAP-ACTION-RECEIPT-BINDING", "status": "partial", "current_uk": "ActionProposal.receipt і бізнес-події існують поза навчальною сесією; training check перевіряє доменний факт і зберігає stamp, без step->proposal/receipt link. Рівність факту не доводить, хто провів дію в цьому проходженні.", "writer_refs": ["step_fields.success_evidence", "persistence_contract.command receipt", "kind_mapping.business_action"], "gap_ids": ["GC-F03"]},
+    {"id": "CAP-CRM-RECEIPT-BINDING", "status": "partial", "current_uk": "CRM draft/preview/confirm і scoped existing handoff існують; training crm check зберігає булевий stamp без deal/receipt ID. CRM не перевіряє завершення попереднього followup як backend prerequisite.", "writer_refs": ["kind_mapping.crm_handoff", "case_capabilities.ALL_THREE.crm", "gaps.GC-F03", "gaps.GC-F08"], "gap_ids": ["GC-F03", "GC-F08"]}
+  ],
+  "source_field_alignment": {
+    "lesson_fields": ["lesson_id=implementation_gap/GC-F01", "lesson_version=implementation_gap/GC-F01", "product_source=partial/GC-F01", "case_id=exists", "goal_uk=exists via cases[].goal", "prerequisites=partial/GC-F05", "role_requirements=partial/GC-F05", "data_mode=partial/GC-F05", "steps=exists as response.steps", "source_references=partial/GC-F01+GC-F02", "faq=implementation_gap/GC-F07", "acceptance_status=implementation_gap/GC-F07"],
+    "step_fields": ["step_id=exists", "kind=partial/GC-F04", "title_uk=exists via title", "explanation_uk=partial/GC-F01+GC-F05", "source_refs=partial/GC-F02+GC-F03", "expected_context=partial/GC-F01+GC-F02", "allowed_action=partial/GC-F05+GC-F08", "completion_rule=partial/GC-F04+GC-F05", "success_evidence=partial/GC-F03", "next_step=partial/GC-F06", "error_states=partial/GC-F02+GC-F05", "pause_resume_rule=partial/GC-F05+GC-F06"],
+    "session_requirements": ["SR01=partial/GC-F01+GC-F03", "SR02=partial/GC-F01+GC-F02+GC-F03+GC-F06", "SR03=partial/GC-F05+GC-F06", "SR04=partial/GC-F01+GC-F02", "SR05=partial/GC-F03+GC-F06+GC-F08"],
+    "authoritative_detail": "writer_handoff.path; кожен рядок writer має symbol/file/line/fileSHA, read/write та rights_owner_refs. Ця матриця — семантичне зведення, не повторний source review."
+  },
+  "case_source_alignment": [
+    {"case_id": "BOS3-CASE-01", "current_steps": ["order=answer: quantity", "supply=answer: initial washer shortage", "receipt=operation: purchase received >= quantity", "production=operation: job done and produced quantity", "crm=crm: scoped deal exists"], "current_business_paths": ["erp_receive", "erp_quality/erp_reserve/erp_start/erp_operator/erp_finish as applicable", "crm_handoff"], "contract_gap_ids": ["GC-F01", "GC-F02", "GC-F03", "GC-F04", "GC-F05", "GC-F06"], "meaning_uk": "500/140/360/120 та навчальний план не дають права обіцяти або заявляти відвантаження. Operation predicates можуть виконатися від уже наявного факту; жодна квитанція не прив'язана до навчального кроку."},
+    {"case_id": "BOS3-CASE-02", "current_steps": ["order=answer: line quantity", "quality=answer: blocked quantity", "reservation=operation: allowed allocation or already approved shipment", "shipment=operation: approved lot shipments equal line quantity while blocked remains blocked", "crm=crm: scoped deal exists"], "current_business_paths": ["erp_reserve", "erp_ship", "crm_handoff"], "contract_gap_ids": ["GC-F02", "GC-F03", "GC-F04", "GC-F05", "GC-F06"], "meaning_uk": "LOT-A 250 і LOT-B 20 hold читаються окремо; резерв та CRM не доводять відвантаження. Наявний shipment факт може задовольнити predicate, але step->receipt link відсутній."},
+    {"case_id": "BOS3-CASE-03", "current_steps": ["invoice=answer: invoice amount minus paid", "followup=operation: будь-яке видиме неархівоване завдання до того самого order з assignee і deadline", "crm=crm: scoped deal exists"], "current_business_paths": ["create_task через operations preview/confirm", "crm_handoff"], "contract_gap_ids": ["GC-F01", "GC-F02", "GC-F03", "GC-F04", "GC-F05", "GC-F06", "GC-F08"], "meaning_uk": "Рахунок 16 400 грн, підтверджено 10 000 грн, залишок 6 400 грн. Case03 лише для чинно дозволеної ролі CEO. Доручення/відповідальний/строк ідуть до CRM у навчальній послідовності, але CRM draft/prepare не перевіряють progress followup; backend prerequisite не впроваджено. Контакт не погашає борг, платіж не дублювати."}
+  ],
+  "gap_register": [
+    {"id": "GC-F01", "status": "implementation_gap", "expected_result_uk": "Затвердити lesson_id, lesson_version та прив'язку до точного source/content; зміна версії не переносить старий progress без перевірки.", "future_owner": "sole integrator призначає training/domain owner разом з enablement; schema/API рішення окреме"},
+    {"id": "GC-F02", "status": "implementation_gap", "expected_result_uk": "Визначити повний expected_context/source PK та версію чи стан, звірити їх із побаченим користувачем; інший контекст дає context_changed і нове читання.", "future_owner": "sole integrator призначає training/rights owner; enablement визначає семантику"},
+    {"id": "GC-F03", "status": "implementation_gap", "expected_result_uk": "Зв'язати крок із конкретним proposal/receipt/event/task/deal або чітко позначити already-existing доменний факт; без link не заявляти виконання цієї дії в цьому проходженні.", "future_owner": "sole integrator призначає training і operations/CRM owners; новий receipt API не схвалено"},
+    {"id": "GC-F04", "status": "implementation_gap", "expected_result_uk": "Зіставити п'ять семантичних видів із чинними answer/operation/crm або окремо реалізувати відсутні information/source_check; tour completed не підміняє крок.", "future_owner": "enablement semantic owner визначає contract; sole integrator призначає training implementation"},
+    {"id": "GC-F05", "status": "implementation_gap", "expected_result_uk": "Описати передумови, role/action gates, error states і per-kind pause/resume як перевірювані правила; маршрут екрана не є дозволом на command.", "future_owner": "enablement contract owner; training/API owner лише за окремим допуском інтегратора"},
+    {"id": "GC-F06", "status": "implementation_gap", "expected_result_uk": "Визначити valid current/next step після start/reentry/stale/pause; не видавати frontend fallback за серверний next_step.", "future_owner": "sole integrator призначає training API та чинного frontend owner у майбутній окремій картці"},
+    {"id": "GC-F07", "status": "implementation_gap", "expected_result_uk": "Узгодити FAQ та acceptance_status для версійного навчального змісту; session completed не є прийманням контракту або продукту.", "future_owner": "enablement content owner і незалежний quality; код лише за окремим призначенням інтегратора"},
+    {"id": "GC-F08", "status": "implementation_gap", "expected_result_uk": "Якщо доручення кейсу 03 є обов'язковою передумовою CRM, серверний CRM boundary має перевіряти підтверджений followup/дозволений факт; сам порядок UI та locked training step недостатні.", "future_owner": "sole integrator призначає training/CRM boundary owner; enablement визначає prerequisite"}
+  ],
+  "lifecycle_source_alignment": [
+    {"event": "relogin", "source_status": "partial", "current_uk": "Той самий user/role/fixture/case знаходить TrainingSession; server last_case немає, proposal попередньої auth session не підтверджувати.", "gap_ids": ["GC-F03", "GC-F06"]},
+    {"event": "role_or_permission_change", "source_status": "exists_with_limit", "current_uk": "Нова роль дає іншу session identity, access_revision робить старий stamp невалідним; повернення до давньої ролі може відновити її старий stamp, окремої revocation epoch немає.", "gap_ids": ["GC-F01", "GC-F02"]},
+    {"event": "lesson_version_change", "source_status": "implementation_gap", "current_uk": "Зміна title/instruction/content revision не гарантовано інвалідовує stamp; fixture hash не lesson version.", "gap_ids": ["GC-F01"]},
+    {"event": "source_or_context_change", "source_status": "partial", "current_uk": "Зміна observed/expected або access_revision інвалідовує stamp; однакові observed при інших доступних PK можуть залишитися непоміченими.", "gap_ids": ["GC-F02"]},
+    {"event": "pause_resume_exit", "source_status": "partial", "current_uk": "pause зберігає progress/current_step, start відновлює; navigate/check теж можуть відновити paused. Вихід не означає completed; stale current_step сервер не нормалізує.", "gap_ids": ["GC-F05", "GC-F06"]},
+    {"event": "already_executed", "source_status": "partial", "current_uk": "Training check перечитує факт, CRM може повернути existing, той самий proposal може повернути receipt. Новий proposal не є replay; step->receipt link відсутній.", "gap_ids": ["GC-F03"]},
+    {"event": "stale_denied_error", "source_status": "partial", "current_uk": "Є 403/404/409/422, unavailable і needs_recheck; typed context_changed для training відсутній. Успіх не встановлюється на Conflict/denied/error.", "gap_ids": ["GC-F02", "GC-F05"]}
+  ],
+  "implementation_boundary": "Цей JSON є контрактним авторським кандидатом. GC-F01–08 описують очікуваний результат і майбутнього власника; нові schema/API/framework/rights або backend prerequisite не впроваджені й потребують окремого рішення sole integrator.",
+  "writer_handoff": {
+    "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/guided-author-snapshots/writer-r1/SESSION_CAPABILITIES.json",
+    "sha256": "4902e0bf6d508848dbe62c5a3c907f68a2ca4293ad3717b69e0de029a4ee5e02",
+    "author_report_path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/guided-author-snapshots/writer-r1/AUTHOR_REPORT_UA.md",
+    "author_report_sha256": "c8c4493415c8d1b608b88bede769a42d1ca9a3ba423c813f8b22dc1db1633752",
+    "snapshot_path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/guided-author-snapshots/writer-r1/SNAPSHOT.json",
+    "snapshot_sha256": "bcc3ee897e94e9ee4b3bb609d81a4eaf7429ed4daf8eec546b55b568ebfde707",
+    "status": "EXACT_DEPENDENCY_ACCEPTED_AUTHOR_COMPLETE_UNREVIEWED",
+    "counts": {"lesson_fields": 12, "step_fields": 12, "session_requirements": 5, "gap_groups": 8},
+    "rule_uk": "Підтримку можна стверджувати лише за конкретним writer field/operation; таблиця ще чекає незалежного review разом із кандидатом."
+  },
+  "dependency_state": "EXACT_WRITER_DEPENDENCY_ACCEPTED",
+  "static_checks": {
+    "admission_and_recovery_sha256": "PASS_8_INPUTS",
+    "writer_snapshot_sha256": "PASS_3_OF_3",
+    "writer_counts": "PASS_12_LESSON_12_STEP_5_SESSION_8_GAPS",
+    "semantic_coverage": "PASS_5_KINDS_3_CASES_7_CAP_8_GAPS_29_SOURCE_FIELDS",
+    "json_parse_exit_code": 0,
+    "hash_check_exit_code": 0,
+    "dynamic_qa": "NOT_RUN",
+    "product_executions": 0
+  },
+  "independent_review": {"status": "PENDING_ROOT_EXACT_MANIFEST", "verdict": null},
+  "contract_accepted": false,
+  "guided_integration_implemented": false,
+  "technical_ready": false,
+  "pilot_allowed": false,
+  "mvp": false,
+  "product_executions": 0,
+  "dynamic_qa": "NOT_RUN"
+}

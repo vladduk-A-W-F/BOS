@@ -1,0 +1,783 @@
+{
+  "schema": "bos.guided-contract-r2-independent-review.v1",
+  "card": "GUIDED-LEARNING-CONTRACT-REVIEW-R2-20261001",
+  "context_acceptance": {
+    "at_utc": "2026-09-30 23:46:35 UTC",
+    "status": "ACCEPTED_BEFORE_SEMANTIC_REVIEW",
+    "admission_sha256": "4d9fa9e8320b27f5047bc659331ce6a1a51ff3602e670bf8fcb1eba3bec7565e",
+    "manifest_sha256": "0e858e65e9cdba8177f8622327ffd9e080699fe1eea2f2160b692f303740f5b0",
+    "source_commit": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+    "writer_r2_sha256": "a5d0baa5797a795931dedc9fa6c8d54a6c288acfcee403e6671bef49c7ffa4c8",
+    "semantic_r2_sha256": "e1fadc4fa80aee35c18033ceee722acdaba74243a35dc2d0f6534f64c653375d",
+    "input_refs_matched": 15,
+    "source_hashes_matched": 24,
+    "new_empty_output_directory": true
+  },
+  "verdict": "ACCEPTED_STATIC_CONTRACT_DELTA",
+  "product_executions": 0,
+  "QA": "NOT_RUN",
+  "readiness": {
+    "contract_accepted": false,
+    "guided_integration_implemented": false,
+    "TECHNICAL_READY": false,
+    "PILOT_ALLOWED": false,
+    "MVP": false
+  },
+  "completed_at_utc": "2026-09-30 23:52:07 UTC",
+  "reviewer_thread": "01a0c05d-6eeb-79f1-a135-be66985b442f",
+  "requested_model": "gpt-6-astra",
+  "requested_effort": "high",
+  "observed_model": "UNCONFIRMED",
+  "observed_effort": "UNCONFIRMED",
+  "scope": "R1_TO_R2_GCR01_GCR02_GCR03_ONLY",
+  "summary_uk": "Три findings закрито контрактною корекцією; змінені залежності узгоджені. Implementation gaps збережені; full unchanged review не повторювався.",
+  "closure_map": [
+    {
+      "id": "GCR01",
+      "priority": "P2",
+      "status": "CLOSED_CONTRACT_DELTA",
+      "artifact_refs": [
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/guided-author-snapshots/writer-r2/SESSION_CAPABILITIES.json",
+          "line": 2193,
+          "anchor": "lifecycle.CLEAR_RESET"
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/guided-author-snapshots/enablement-final-r2/CONTRACT_CANDIDATE_UA.json",
+          "line": 82,
+          "anchor": "clear_reset_disposition"
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/guided-author-snapshots/enablement-final-r2/CONTRACT_CANDIDATE_UA.json",
+          "line": 119,
+          "anchor": "GC-F05/GC-F06"
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/guided-author-snapshots/enablement-final-r2/CONTRACT_CANDIDATE_UA.json",
+          "line": 130,
+          "anchor": "lifecycle.CLEAR_RESET"
+        }
+      ],
+      "source_refs": [
+        {
+          "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/training/service.py",
+          "file": "training/service.py",
+          "line_start": 234,
+          "line_end": 297,
+          "symbol": "change",
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/training/urls.py",
+          "file": "training/urls.py",
+          "line_start": 4,
+          "line_end": 9,
+          "symbol": "urlpatterns",
+          "file_sha256": "95fe0e023a7d881cb45b98089af9af8462415277a308969155a44a3fe1e1b96e"
+        },
+        {
+          "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/operations/middleware.py",
+          "file": "operations/middleware.py",
+          "line_start": 53,
+          "line_end": 57,
+          "symbol": "training_progress",
+          "file_sha256": "10193f1ba1ed107f6563ddae6b7dd5a9fcefdf5c77a42643ce60cd95f55f568c"
+        },
+        {
+          "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/frontend/boss_app_source.html",
+          "file": "frontend/boss_app_source.html",
+          "line_start": 5480,
+          "line_end": 5485,
+          "symbol": "repeat warning and local choose",
+          "file_sha256": "145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9"
+        }
+      ],
+      "reason_uk": "Unsupported server clear/reset/delete явно відділено від local clear. start/pause зберігають progress/current_step, зміна ролі не reset. Немає нових прав/API/replay; майбутнє рішення та owner зв'язані з GC-F05/06.",
+      "implementation_gaps_preserved": [
+        "GC-F05",
+        "GC-F06"
+      ],
+      "dynamic_status": "NOT_RUN"
+    },
+    {
+      "id": "GCR02",
+      "priority": "P2",
+      "status": "CLOSED_CONTRACT_DELTA",
+      "artifact_refs": [
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/guided-author-snapshots/enablement-final-r2/CONTRACT_CANDIDATE_UA.json",
+          "line": 53,
+          "anchor": "INV-ROLE"
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/guided-author-snapshots/enablement-final-r2/CONTRACT_CANDIDATE_UA.json",
+          "line": 68,
+          "anchor": "case01 restriction"
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/guided-author-snapshots/enablement-final-r2/CONTRACT_CANDIDATE_UA.json",
+          "line": 72,
+          "anchor": "role_step_transition_disposition"
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/guided-author-snapshots/enablement-final-r2/CONTRACT_CANDIDATE_UA.json",
+          "line": 119,
+          "anchor": "GC-F05/GC-F06"
+        }
+      ],
+      "source_refs": [
+        {
+          "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/training/service.py",
+          "file": "training/service.py",
+          "line_start": 171,
+          "line_end": 210,
+          "symbol": "observer answer; valid/unlocked/completed",
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/training/service.py",
+          "file": "training/service.py",
+          "line_start": 260,
+          "line_end": 297,
+          "symbol": "answer/check/stamp",
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/training/service.py",
+          "file": "training/service.py",
+          "line_start": 35,
+          "line_end": 40,
+          "symbol": "identity",
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ],
+      "reason_uk": "Current observer->answer/valid stamp відділено від denied і proposed not_applicable. Визначені condition, evidence, bypass, lesson completion і role/version/access recheck; без затвердженого правила bypass немає. New enum/executor не заявлено реалізованим.",
+      "cross_dependency_uk": "INV-VERSION зберігає lesson/user/session/rule binding; GC-F01 і CAP-LESSON-VERSION зберігають відсутність поточної lesson version. Denied — правило реакції на відмову, не нове збережене поле TrainingSession.",
+      "implementation_gaps_preserved": [
+        "GC-F01",
+        "GC-F05",
+        "GC-F06"
+      ],
+      "dynamic_status": "NOT_RUN"
+    },
+    {
+      "id": "GCR03",
+      "priority": "P3",
+      "status": "CLOSED_CONTRACT_DELTA",
+      "artifact_refs": [
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/guided-author-snapshots/enablement-final-r2/CONTRACT_CANDIDATE_UA.json",
+          "line": 70,
+          "anchor": "case03 sequence/restriction"
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/guided-author-snapshots/enablement-final-r2/CONTRACT_CANDIDATE_UA.json",
+          "line": 112,
+          "anchor": "case03 source alignment"
+        }
+      ],
+      "source_refs": [
+        {
+          "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/training/service.py",
+          "file": "training/service.py",
+          "line_start": 153,
+          "line_end": 163,
+          "symbol": "followup predicate",
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/tasks/commands.py",
+          "file": "tasks/commands.py",
+          "line_start": 140,
+          "line_end": 163,
+          "symbol": "preview/apply",
+          "file_sha256": "a70afb3f52a3f327ebc601e420ee386553002c3911463bbe680eef66dc72503e"
+        },
+        {
+          "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/operations/service.py",
+          "file": "operations/service.py",
+          "line_start": 130,
+          "line_end": 134,
+          "symbol": "execute ownership",
+          "file_sha256": "73f865cf65914f585fb5f4eccb9706fdb56c1b20a55545f4dfe047deadccb223"
+        },
+        {
+          "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/operations/service.py",
+          "file": "operations/service.py",
+          "line_start": 216,
+          "line_end": 217,
+          "symbol": "task receipt persistence",
+          "file_sha256": "73f865cf65914f585fb5f4eccb9706fdb56c1b20a55545f4dfe047deadccb223"
+        },
+        {
+          "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/training/service.py",
+          "file": "training/service.py",
+          "line_start": 285,
+          "line_end": 287,
+          "symbol": "training stamp",
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ],
+      "reason_uk": "Conditional writer wording прибране. Чинний create_task preview/confirm названо прямо; visible unarchived same-order task з assignee/deadline не підмінено done/result/payment. Step->receipt та CRM prerequisite лишаються gaps.",
+      "implementation_gaps_preserved": [
+        "GC-F03",
+        "GC-F08"
+      ],
+      "dynamic_status": "NOT_RUN"
+    }
+  ],
+  "remaining_findings": [],
+  "new_regression_findings": [],
+  "blocker": null,
+  "source": {
+    "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/",
+    "commit": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+    "access": "READ_ONLY",
+    "canonical_documentation_head": "bc3fe4efd59be1ae87da5e334cba06af85ce1192",
+    "canonical_docs_used_as_product_source": false
+  },
+  "exact_input_verification": [
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\integrator\\GUIDED_CONTRACT_CORRECTION_R2_ADMISSION.json",
+      "sha256": "2ee8eeb77792656650c38b8db1d7f9fe39d99953bf9d6407c8ef2ec0146f4fc3",
+      "actual_sha256": "2ee8eeb77792656650c38b8db1d7f9fe39d99953bf9d6407c8ef2ec0146f4fc3",
+      "matched": true
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\GUIDED_CONTRACT_REVIEW_INPUT_R1.json",
+      "sha256": "258e0478443b96acadf0715f6597e0eb6fe23385f8a5a4be9504ce7e230e6301",
+      "actual_sha256": "258e0478443b96acadf0715f6597e0eb6fe23385f8a5a4be9504ce7e230e6301",
+      "matched": true
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\review-snapshots\\guided-contract-r1\\REVIEW.json",
+      "sha256": "23b3a1e1b1bf0d8184a0852073f971ef6ff71e8b3f12235aa2b971a54509b672",
+      "actual_sha256": "23b3a1e1b1bf0d8184a0852073f971ef6ff71e8b3f12235aa2b971a54509b672",
+      "matched": true
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\review-snapshots\\guided-contract-r1\\REVIEW_UA.md",
+      "sha256": "1cdd07f59f662d05109fee84c16ea06f4e0070eebc395ae9a4bd4d966161a033",
+      "actual_sha256": "1cdd07f59f662d05109fee84c16ea06f4e0070eebc395ae9a4bd4d966161a033",
+      "matched": true
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\guided-author-snapshots\\writer-r1\\SESSION_CAPABILITIES.json",
+      "sha256": "4902e0bf6d508848dbe62c5a3c907f68a2ca4293ad3717b69e0de029a4ee5e02",
+      "actual_sha256": "4902e0bf6d508848dbe62c5a3c907f68a2ca4293ad3717b69e0de029a4ee5e02",
+      "matched": true
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\guided-author-snapshots\\writer-r1\\AUTHOR_REPORT_UA.md",
+      "sha256": "c8c4493415c8d1b608b88bede769a42d1ca9a3ba423c813f8b22dc1db1633752",
+      "actual_sha256": "c8c4493415c8d1b608b88bede769a42d1ca9a3ba423c813f8b22dc1db1633752",
+      "matched": true
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\guided-author-snapshots\\enablement-final-r1\\CONTRACT_CANDIDATE_UA.json",
+      "sha256": "faf6588f755a43de12b45c9b30256fb07ef380e87a6c22f5be4ecbb652932753",
+      "actual_sha256": "faf6588f755a43de12b45c9b30256fb07ef380e87a6c22f5be4ecbb652932753",
+      "matched": true
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\guided-author-snapshots\\enablement-final-r1\\AUTHOR_REPORT_UA.md",
+      "sha256": "ce64b36f5ac49d19437ca77bb90499e31004647ae00ec5beec815c9bd7181e01",
+      "actual_sha256": "ce64b36f5ac49d19437ca77bb90499e31004647ae00ec5beec815c9bd7181e01",
+      "matched": true
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\guided-author-snapshots\\writer-r2\\SNAPSHOT.json",
+      "sha256": "a4237071aa15b7afe1ca0c912f8b12a2b770156212c5afc48909946402cb8930",
+      "actual_sha256": "a4237071aa15b7afe1ca0c912f8b12a2b770156212c5afc48909946402cb8930",
+      "matched": true
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\guided-author-snapshots\\writer-r2\\SESSION_CAPABILITIES.json",
+      "sha256": "a5d0baa5797a795931dedc9fa6c8d54a6c288acfcee403e6671bef49c7ffa4c8",
+      "actual_sha256": "a5d0baa5797a795931dedc9fa6c8d54a6c288acfcee403e6671bef49c7ffa4c8",
+      "matched": true
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\guided-author-snapshots\\writer-r2\\AUTHOR_REPORT_UA.md",
+      "sha256": "b578ee71082bc56cc2231fc7fa6ad4399f9fbd171fcf243e0dfbf37106b8dc4d",
+      "actual_sha256": "b578ee71082bc56cc2231fc7fa6ad4399f9fbd171fcf243e0dfbf37106b8dc4d",
+      "matched": true
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\guided-author-snapshots\\enablement-final-r2\\SNAPSHOT.json",
+      "sha256": "724938ed8abceaef167a488c9c3d70584f3aaf89d2ac1c57f0783f337f7b59d2",
+      "actual_sha256": "724938ed8abceaef167a488c9c3d70584f3aaf89d2ac1c57f0783f337f7b59d2",
+      "matched": true
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\guided-author-snapshots\\enablement-final-r2\\CONTRACT_CANDIDATE_UA.json",
+      "sha256": "e1fadc4fa80aee35c18033ceee722acdaba74243a35dc2d0f6534f64c653375d",
+      "actual_sha256": "e1fadc4fa80aee35c18033ceee722acdaba74243a35dc2d0f6534f64c653375d",
+      "matched": true
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\guided-author-snapshots\\enablement-final-r2\\AUTHOR_REPORT_UA.md",
+      "sha256": "0ce1d09bcf16aa736e8e80138c7f8745af38cde834cbca0674ff5fcb1ad71336",
+      "actual_sha256": "0ce1d09bcf16aa736e8e80138c7f8745af38cde834cbca0674ff5fcb1ad71336",
+      "matched": true
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\THREE_R2_CONTEXT_RECEIPT.json",
+      "sha256": "906ba07023ce8e743a2fb15d73db5d38061af5580044fd0cdb7cb133b4a313b3",
+      "actual_sha256": "906ba07023ce8e743a2fb15d73db5d38061af5580044fd0cdb7cb133b4a313b3",
+      "matched": true
+    }
+  ],
+  "source_hash_verification": [
+    {
+      "file": "training/service.py",
+      "sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e",
+      "actual_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e",
+      "matched": true
+    },
+    {
+      "file": "training/models.py",
+      "sha256": "cc7cf39bdada46d73a87dc39e18da3a81336c1ea3881c588dbfbdf227b78383a",
+      "actual_sha256": "cc7cf39bdada46d73a87dc39e18da3a81336c1ea3881c588dbfbdf227b78383a",
+      "matched": true
+    },
+    {
+      "file": "training/access.py",
+      "sha256": "c1d12118b65543d5eb5ef46f84c7457f57127410e8c7cba825434c7d45d44a6b",
+      "actual_sha256": "c1d12118b65543d5eb5ef46f84c7457f57127410e8c7cba825434c7d45d44a6b",
+      "matched": true
+    },
+    {
+      "file": "training/views.py",
+      "sha256": "f91391b5c1549800baa2ce38ecdb7bfa4089017a8f9f47fb383b85f66ba6a466",
+      "actual_sha256": "f91391b5c1549800baa2ce38ecdb7bfa4089017a8f9f47fb383b85f66ba6a466",
+      "matched": true
+    },
+    {
+      "file": "training/urls.py",
+      "sha256": "95fe0e023a7d881cb45b98089af9af8462415277a308969155a44a3fe1e1b96e",
+      "actual_sha256": "95fe0e023a7d881cb45b98089af9af8462415277a308969155a44a3fe1e1b96e",
+      "matched": true
+    },
+    {
+      "file": "boss_project/policy.py",
+      "sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1",
+      "actual_sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1",
+      "matched": true
+    },
+    {
+      "file": "boss_project/identity.py",
+      "sha256": "20ffca4ca027940ec18ea2f7b984d9d87f7e3df617ddeace3c15a771650da117",
+      "actual_sha256": "20ffca4ca027940ec18ea2f7b984d9d87f7e3df617ddeace3c15a771650da117",
+      "matched": true
+    },
+    {
+      "file": "boss_project/auth_views.py",
+      "sha256": "93f5bc145a47e83dd2b2eb20b108931f51f691a4f9fba80ddd7772fbcacaec07",
+      "actual_sha256": "93f5bc145a47e83dd2b2eb20b108931f51f691a4f9fba80ddd7772fbcacaec07",
+      "matched": true
+    },
+    {
+      "file": "boss_project/urls.py",
+      "sha256": "5be20defa8440fc5cbf4f3bedec1733759006b44f28fde7b543c1530798723e1",
+      "actual_sha256": "5be20defa8440fc5cbf4f3bedec1733759006b44f28fde7b543c1530798723e1",
+      "matched": true
+    },
+    {
+      "file": "operations/middleware.py",
+      "sha256": "10193f1ba1ed107f6563ddae6b7dd5a9fcefdf5c77a42643ce60cd95f55f568c",
+      "actual_sha256": "10193f1ba1ed107f6563ddae6b7dd5a9fcefdf5c77a42643ce60cd95f55f568c",
+      "matched": true
+    },
+    {
+      "file": "operations/service.py",
+      "sha256": "73f865cf65914f585fb5f4eccb9706fdb56c1b20a55545f4dfe047deadccb223",
+      "actual_sha256": "73f865cf65914f585fb5f4eccb9706fdb56c1b20a55545f4dfe047deadccb223",
+      "matched": true
+    },
+    {
+      "file": "operations/models.py",
+      "sha256": "67448adcf1318ac57fef3d1b573c3f0b3a714d6b71dfd012e58cfef2cf509d7e",
+      "actual_sha256": "67448adcf1318ac57fef3d1b573c3f0b3a714d6b71dfd012e58cfef2cf509d7e",
+      "matched": true
+    },
+    {
+      "file": "operations/views.py",
+      "sha256": "a79e00c4550a0e8b44f873f008680bf2a9f99d34c2318e23d5e8d5c897d23a77",
+      "actual_sha256": "a79e00c4550a0e8b44f873f008680bf2a9f99d34c2318e23d5e8d5c897d23a77",
+      "matched": true
+    },
+    {
+      "file": "operations/urls.py",
+      "sha256": "47d6b30fcd463c30854c1d62e19b2a7284a34a70b55d09955813c8f24a32ab87",
+      "actual_sha256": "47d6b30fcd463c30854c1d62e19b2a7284a34a70b55d09955813c8f24a32ab87",
+      "matched": true
+    },
+    {
+      "file": "operations/projections.py",
+      "sha256": "f80ac3f74bac52e25148d2c530e728d430e6a79422da7405725693e075c8f4e2",
+      "actual_sha256": "f80ac3f74bac52e25148d2c530e728d430e6a79422da7405725693e075c8f4e2",
+      "matched": true
+    },
+    {
+      "file": "crm/commands.py",
+      "sha256": "7bac2ee56ce74a1c3763f55f08cb103f69f42d206e1f47934291e26d9acacb37",
+      "actual_sha256": "7bac2ee56ce74a1c3763f55f08cb103f69f42d206e1f47934291e26d9acacb37",
+      "matched": true
+    },
+    {
+      "file": "crm/projections.py",
+      "sha256": "5e5ba574d0fc9a6a1c35ebb1a69ea58fc032baef45f8d6b91b4dd5803d3a198a",
+      "actual_sha256": "5e5ba574d0fc9a6a1c35ebb1a69ea58fc032baef45f8d6b91b4dd5803d3a198a",
+      "matched": true
+    },
+    {
+      "file": "crm/models.py",
+      "sha256": "0aa48179015824cf558ef213e4d6c98d2c239386776978aadcf30a07ca8d9475",
+      "actual_sha256": "0aa48179015824cf558ef213e4d6c98d2c239386776978aadcf30a07ca8d9475",
+      "matched": true
+    },
+    {
+      "file": "tasks/commands.py",
+      "sha256": "a70afb3f52a3f327ebc601e420ee386553002c3911463bbe680eef66dc72503e",
+      "actual_sha256": "a70afb3f52a3f327ebc601e420ee386553002c3911463bbe680eef66dc72503e",
+      "matched": true
+    },
+    {
+      "file": "tasks/queries.py",
+      "sha256": "c259a1cb70d5f27e8d52b58336bf42633833ff6745b2493820e4ebdc239195ec",
+      "actual_sha256": "c259a1cb70d5f27e8d52b58336bf42633833ff6745b2493820e4ebdc239195ec",
+      "matched": true
+    },
+    {
+      "file": "frontend/bos3_content.json",
+      "sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390",
+      "actual_sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390",
+      "matched": true
+    },
+    {
+      "file": "frontend/boss_app_source.html",
+      "sha256": "145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9",
+      "actual_sha256": "145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9",
+      "matched": true
+    },
+    {
+      "file": "tasks/history.py",
+      "sha256": "7ace3476863ce36516411c8cd078555f6538f0dfcea44e0079c95e63818306c4",
+      "actual_sha256": "7ace3476863ce36516411c8cd078555f6538f0dfcea44e0079c95e63818306c4",
+      "matched": true
+    },
+    {
+      "file": "erp/service.py",
+      "sha256": "3fcc4fc7db14984c20e271357dbf5ac92402a26da17198dc683694d061cadc61",
+      "actual_sha256": "3fcc4fc7db14984c20e271357dbf5ac92402a26da17198dc683694d061cadc61",
+      "matched": true
+    }
+  ],
+  "mechanical_preservation": {
+    "writer_rest_equal": true,
+    "new_clear_entries": 1,
+    "new_refs": 6,
+    "new_ref_invalid": 0,
+    "semantic_equal_keys": [
+      "accepted_semantic_dependencies",
+      "admission",
+      "allowlist",
+      "author_thread_id",
+      "capability_resolution",
+      "card_id",
+      "contract_accepted",
+      "dynamic_qa",
+      "guided_integration_implemented",
+      "implementation_boundary",
+      "independent_review",
+      "mvp",
+      "observed_model",
+      "pilot_allowed",
+      "product_executions",
+      "recovery_inputs",
+      "requested_effort",
+      "requested_model",
+      "schema",
+      "source",
+      "source_field_alignment",
+      "static_checks",
+      "status",
+      "step_kinds",
+      "technical_ready",
+      "workspace"
+    ],
+    "semantic_changed_keys": [
+      "case_application",
+      "case_source_alignment",
+      "clear_reset_disposition",
+      "correction_r2_closure",
+      "correction_r2_context",
+      "correction_r2_dependency_state",
+      "correction_r2_static_checks",
+      "dependency_state",
+      "gap_register",
+      "lifecycle_source_alignment",
+      "role_step_transition_disposition",
+      "semantic_invariants",
+      "writer_handoff"
+    ],
+    "semantic_original_lifecycle_equal": true,
+    "semantic_unknown_gap_ids": [],
+    "active_writer_sha_matches": true,
+    "stale_conditional_absent": true,
+    "counts": {
+      "lesson": 12,
+      "step": 12,
+      "session": 5,
+      "kinds": 5,
+      "cases": 3,
+      "cap": 7,
+      "gaps": 8
+    }
+  },
+  "semantic_changed_items": {
+    "semantic_invariants": [
+      "INV-ROLE"
+    ],
+    "case_application": [
+      "BOS3-CASE-01.restriction_uk",
+      "BOS3-CASE-03.sequence[3]",
+      "BOS3-CASE-03.restriction_uk"
+    ],
+    "case_source_alignment": [
+      "BOS3-CASE-03.current_business_paths[0]",
+      "BOS3-CASE-03.meaning_uk"
+    ],
+    "gap_register": [
+      "GC-F05.expected_result_uk",
+      "GC-F05.future_owner",
+      "GC-F06.expected_result_uk"
+    ],
+    "lifecycle_source_alignment": "Added CLEAR_RESET only; old entries equal",
+    "added_dispositions": [
+      "role_step_transition_disposition",
+      "clear_reset_disposition"
+    ],
+    "metadata": "R2 closure/context/dependency/static checks; exact active writer_r2; retained R1 provenance"
+  },
+  "preserved_gaps": [
+    {
+      "id": "GC-F01",
+      "status": "implementation_gap",
+      "meaning": "lesson/version/source binding"
+    },
+    {
+      "id": "GC-F02",
+      "status": "implementation_gap",
+      "meaning": "expected_context and full source identities"
+    },
+    {
+      "id": "GC-F03",
+      "status": "implementation_gap",
+      "meaning": "typed result and step->receipt binding"
+    },
+    {
+      "id": "GC-F04",
+      "status": "implementation_gap",
+      "meaning": "five proposed kinds mapping"
+    },
+    {
+      "id": "GC-F05",
+      "status": "implementation_gap",
+      "meaning": "role/error/pause and unsupported reset; proposed not_applicable"
+    },
+    {
+      "id": "GC-F06",
+      "status": "implementation_gap",
+      "meaning": "current/next and proposed role bypass"
+    },
+    {
+      "id": "GC-F07",
+      "status": "implementation_gap",
+      "meaning": "FAQ/content acceptance"
+    },
+    {
+      "id": "GC-F08",
+      "status": "implementation_gap",
+      "meaning": "case03 followup prerequisite at CRM backend boundary"
+    }
+  ],
+  "cross_dependency_review_uk": [
+    "Writer CLEAR_RESET і semantic direct source refs/gap bindings узгоджені; всі шість refs у semantic відповідають writer.",
+    "29 requirements, five kinds, seven CAP і прийняті Q01-Q03/ID dependencies збережені механічно; повторний full review не проводився.",
+    "Proposed not_applicable не надає reset/ERP/CRM прав; versioned evidence залежить від збереженого GC-F01.",
+    "Case03 descriptive current predicate не підміняє future receipt contract; GC-F03/08 явно збережені.",
+    "Нових суперечностей у змінених cross-dependencies не виявлено."
+  ],
+  "raw_static_checks": [
+    {
+      "id": "SC01",
+      "command": "Get-FileHash -LiteralPath <review admission and input manifest> -Algorithm SHA256; Get-Content -Raw | ConvertFrom-Json",
+      "exit_code": 0,
+      "raw_result": "admission=4d9fa9e8320b27f5047bc659331ce6a1a51ff3602e670bf8fcb1eba3bec7565e; manifest=0e858e65e9cdba8177f8622327ffd9e080699fe1eea2f2160b692f303740f5b0"
+    },
+    {
+      "id": "SC02",
+      "command": "git -C 'D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo' rev-parse HEAD",
+      "exit_code": 0,
+      "stdout": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975"
+    },
+    {
+      "id": "SC03",
+      "command": "Parse manifest.inputs and writer_r2.source_files; Get-FileHash -Algorithm SHA256 for each literal path; compare expected with actual",
+      "exit_code": 0,
+      "raw_result": {
+        "input_refs": 15,
+        "input_mismatch": 0,
+        "source_files": 24,
+        "source_mismatch": 0
+      }
+    },
+    {
+      "id": "SC04",
+      "command": "Parse writer R1/R2; remove only correction_r2 and lifecycle[id=CLEAR_RESET] from in-memory R2; compare ConvertTo-Json -Depth 100 -Compress with -ceq",
+      "exit_code": 0,
+      "raw_result": {
+        "writer_rest_equal": true,
+        "added_lifecycle_entries": 1,
+        "added_refs": 6
+      }
+    },
+    {
+      "id": "SC05",
+      "command": "For the 6 CLEAR_RESET.evidence refs compare file_sha256 and line_start/line_end with Get-FileHash/Get-Content line counts",
+      "exit_code": 0,
+      "raw_result": {
+        "new_refs": 6,
+        "invalid": 0
+      }
+    },
+    {
+      "id": "SC06",
+      "command": "Compare semantic R1/R2 top-level JSON values and old lifecycle after excluding CLEAR_RESET; collect gap_ids; compare active writer SHA; check absence of stale writer conditional",
+      "exit_code": 0,
+      "raw_result": {
+        "writer_rest_equal": true,
+        "new_clear_entries": 1,
+        "new_refs": 6,
+        "new_ref_invalid": 0,
+        "semantic_equal_keys": [
+          "accepted_semantic_dependencies",
+          "admission",
+          "allowlist",
+          "author_thread_id",
+          "capability_resolution",
+          "card_id",
+          "contract_accepted",
+          "dynamic_qa",
+          "guided_integration_implemented",
+          "implementation_boundary",
+          "independent_review",
+          "mvp",
+          "observed_model",
+          "pilot_allowed",
+          "product_executions",
+          "recovery_inputs",
+          "requested_effort",
+          "requested_model",
+          "schema",
+          "source",
+          "source_field_alignment",
+          "static_checks",
+          "status",
+          "step_kinds",
+          "technical_ready",
+          "workspace"
+        ],
+        "semantic_changed_keys": [
+          "case_application",
+          "case_source_alignment",
+          "clear_reset_disposition",
+          "correction_r2_closure",
+          "correction_r2_context",
+          "correction_r2_dependency_state",
+          "correction_r2_static_checks",
+          "dependency_state",
+          "gap_register",
+          "lifecycle_source_alignment",
+          "role_step_transition_disposition",
+          "semantic_invariants",
+          "writer_handoff"
+        ],
+        "semantic_original_lifecycle_equal": true,
+        "semantic_unknown_gap_ids": [],
+        "active_writer_sha_matches": true,
+        "stale_conditional_absent": true,
+        "counts": {
+          "lesson": 12,
+          "step": 12,
+          "session": 5,
+          "kinds": 5,
+          "cases": 3,
+          "cap": 7,
+          "gaps": 8
+        }
+      }
+    },
+    {
+      "id": "SC07",
+      "command": "Get-Content pinned source: training/service.py 35-40,153-210,234-297; training/urls.py 4-9; operations/middleware.py 53-57; tasks/commands.py 140-163; operations/service.py 130-138,214-217; frontend/boss_app_source.html 5480,5485",
+      "exit_code": 0,
+      "raw_result": "Manual changed-claim review supports GCR01/02/03 contract closure; dynamic QA NOT_RUN"
+    },
+    {
+      "id": "SC08",
+      "command": "Compare/read changed author report sections; source and old JSON mapping preserved",
+      "exit_code": 0,
+      "raw_result": "Semantic report R1 prefix preserved with R2 history appended; writer report adds R2 section and explicit historical R1 labels. No product execution evidence introduced."
+    }
+  ],
+  "historical_boundaries": {
+    "prior_contract_r1_unchanged": true,
+    "prior_ui_r2_unchanged": true,
+    "identity_map_rereviewed": false,
+    "all_attempt_histories_preserved": true,
+    "new_execution_admission": false
+  },
+  "executions": 0,
+  "dynamic_qa_details": {
+    "runtime": "NOT_RUN",
+    "live": "NOT_RUN",
+    "browser": "NOT_RUN",
+    "visual": "NOT_RUN",
+    "behavior": "NOT_RUN",
+    "progress": "NOT_RUN",
+    "app": "NOT_RUN",
+    "Node_JS": "NOT_RUN",
+    "build": "NOT_RUN",
+    "tests": "NOT_RUN",
+    "PG": "NOT_RUN",
+    "E2E": "NOT_RUN",
+    "HTTP": "NOT_RUN",
+    "DB": "NOT_RUN"
+  },
+  "mutations": {
+    "output_allowlist": [
+      "D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/guided-contract-review-r2/REVIEW.json",
+      "D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/guided-contract-review-r2/REVIEW_UA.md"
+    ],
+    "author_files": false,
+    "product_source": false,
+    "canonical": false,
+    "DB": false,
+    "progress": false,
+    "commit": false,
+    "push": false,
+    "new_agents": 0,
+    "new_chats": 0,
+    "new_goals": 0,
+    "new_timers": 0
+  },
+  "report": {
+    "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/guided-contract-review-r2/REVIEW_UA.md",
+    "sha256": "ff587bc4ff5a8ca384a047b77e9ed987fd8a4f892cbb7d0c97d90967484ac96a"
+  },
+  "hash_policy": "Markdown SHA embedded; JSON SHA reported externally after final write; no self-hash.",
+  "next_recipient": "main immutable verdict snapshot -> sole integrator disposition; no automatic implementation"
+}

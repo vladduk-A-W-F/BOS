@@ -1,0 +1,1079 @@
+{
+  "schema": "bos.guided-contract-independent-review.v1",
+  "card": "GUIDED-LEARNING-CONTRACT-REVIEW-R1-20261001",
+  "context_acceptance": {
+    "at_utc": "2026-09-30 23:05:30 UTC",
+    "status": "ACCEPTED_BEFORE_SEMANTIC_REVIEW",
+    "admission_sha256": "30d45969e90f06cbf3a20de3d76e9e0dcae5090ee56616ed904fdad31df3b4e5",
+    "manifest_sha256": "258e0478443b96acadf0715f6597e0eb6fe23385f8a5a4be9504ce7e230e6301",
+    "source_commit": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+    "manifest_refs_matched": 13,
+    "source_hashes_matched": 24,
+    "new_empty_output_directory": true
+  },
+  "verdict": "CHANGES_REQUIRED",
+  "executions": 0,
+  "QA": "NOT_RUN",
+  "readiness": {
+    "contract_accepted": false,
+    "guided_integration_implemented": false,
+    "TECHNICAL_READY": false,
+    "PILOT_ALLOWED": false,
+    "MVP": false
+  },
+  "completed_at_utc": "2026-09-30 23:15:24 UTC",
+  "reviewer_thread": "01a0c05d-6eeb-79f1-a135-be66985b442f",
+  "requested_model": "gpt-6-astra",
+  "requested_effort": "high",
+  "observed_model": "UNCONFIRMED",
+  "observed_effort": "UNCONFIRMED",
+  "verdict_scope": "AUTHOR_CONTRACT_ONLY_SOURCE_STATIC",
+  "summary_uk": "Кількісне покриття 29/5/3/7/8 повне; два P2 блокують прийняття повного контракту: clear/reset не має disposition та role skip denied/not_applicable не визначає перехід/завершення. Один P3 усуває застарілу умовну залежність від writer у case03.",
+  "findings": [
+    {
+      "id": "GCR01",
+      "priority": "P2",
+      "blocking_contract_acceptance": true,
+      "title_uk": "Clear/reset не має source disposition або явної прогалини",
+      "locations": [
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/guided-author-snapshots/writer-r1/SESSION_CAPABILITIES.json",
+          "line_start": 2123,
+          "line_end": 2123,
+          "anchor": "lifecycle"
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/guided-author-snapshots/enablement-final-r1/CONTRACT_CANDIDATE_UA.json",
+          "line_start": 82,
+          "line_end": 89,
+          "anchor": "lifecycle_source_alignment"
+        }
+      ],
+      "requirement_uk": "Допуск review, scope[2]: progress persistence та clear/reset мають бути підтверджені джерелом або визначені як точний implementation gap.",
+      "finding_uk": "Writer перелічує дев'ять подій lifecycle, semantic candidate — сім, але жоден не визначає clear/reset. Чинний change приймає start/pause/tour/navigate/check; start повторно використовує запис тієї самої identity, pause зберігає progress/current_step, невідома дія відхиляється. Отже, ні start, ні pause, ні зміна ролі не є підтвердженим reset прогресу.",
+      "impact_uk": "Інтегратор не може визначити дозволену поведінку початку заново, межі локального очищення та збереження серверного прогресу. Обов'язкова частина scope лишилася без висновку.",
+      "source_refs": [
+        {
+          "file": "training/service.py",
+          "absolute_path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/training/service.py",
+          "line_start": 234,
+          "line_end": 259,
+          "symbol": "change start/pause/tour",
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "absolute_path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/training/service.py",
+          "line_start": 260,
+          "line_end": 297,
+          "symbol": "change navigate/check/unknown action",
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "operations/middleware.py",
+          "absolute_path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/operations/middleware.py",
+          "line_start": 53,
+          "line_end": 57,
+          "symbol": "training_progress observer allowlist",
+          "file_sha256": "10193f1ba1ed107f6563ddae6b7dd5a9fcefdf5c77a42643ce60cd95f55f568c"
+        },
+        {
+          "file": "training/urls.py",
+          "absolute_path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/training/urls.py",
+          "line_start": 4,
+          "line_end": 9,
+          "symbol": "urlpatterns",
+          "file_sha256": "95fe0e023a7d881cb45b98089af9af8462415277a308969155a44a3fe1e1b96e"
+        }
+      ],
+      "correction_owner": {
+        "writer": "01a0be9f-b413-7822-9f93-16ba69f4f00f",
+        "semantic": "01a0f2ce-270f-7ac3-bea0-1447f87aed61"
+      },
+      "required_correction_uk": "Writer додає окремий CLEAR_RESET із точними source refs: у перевіреному training API скидання не підтримується. Enablement явно фіксує unsupported/implementation_gap та очікувану межу: локальне очищення не є скиданням серверного прогресу; жодних нових reset-прав, видалення сесій або повторного проведення ERP/CRM. Для майбутнього reset визначити owner і окреме рішення інтегратора; можна прив'язати до GC-F05/GC-F06 без додавання нового продуктового API.",
+      "closure_evidence_uk": "У новому writer/semantic snapshot є явний CLEAR_RESET disposition, той самий source pin, source refs та узгоджені межі прав/збереження даних. Лише контрактна корекція; runtime NOT_RUN."
+    },
+    {
+      "id": "GCR02",
+      "priority": "P2",
+      "blocking_contract_acceptance": true,
+      "title_uk": "Пропуск denied/not_applicable не визначає наступний крок і завершення",
+      "locations": [
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/guided-author-snapshots/enablement-final-r1/CONTRACT_CANDIDATE_UA.json",
+          "line_start": 48,
+          "line_end": 48,
+          "anchor": "case_application BOS3-CASE-01 restriction_uk"
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/guided-author-snapshots/enablement-final-r1/CONTRACT_CANDIDATE_UA.json",
+          "line_start": 77,
+          "line_end": 78,
+          "anchor": "GC-F05/GC-F06"
+        }
+      ],
+      "requirement_uk": "П'ять типів кроків, role rights, completion evidence та persistence повинні мати однозначний supported/partial/gap/proposal disposition.",
+      "finding_uk": "Restriction кейсу 01 наказує пропускати недоступний ролі вид зі станом denied/not_applicable, не completed. Не визначено, коли обрати denied або not_applicable, чи розблоковується наступний крок і як це впливає на завершення уроку. У pinned source observer отримує числовий answer замість operation/crm; session_state відкриває наступний крок лише після valid і не має not_applicable. Загальна позначка candidate/proposal зберігає чесну межу реалізації, але не усуває неоднозначність цього нового правила.",
+      "impact_uk": "Дві реалізації можуть або назавжди заблокувати сценарій observer, або зарахувати пропущений обов'язковий крок у завершення уроку. Рольовий контракт не дає критерію перевірки такого результату.",
+      "source_refs": [
+        {
+          "file": "training/service.py",
+          "absolute_path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/training/service.py",
+          "line_start": 167,
+          "line_end": 175,
+          "symbol": "observations observer conversion",
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "absolute_path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/training/service.py",
+          "line_start": 179,
+          "line_end": 210,
+          "symbol": "session_state valid/unlocked/completed",
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "absolute_path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/training/service.py",
+          "line_start": 260,
+          "line_end": 265,
+          "symbol": "change locked target gate",
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ],
+      "correction_owner": {
+        "semantic": "01a0f2ce-270f-7ac3-bea0-1447f87aed61",
+        "writer_consulted": "01a0be9f-b413-7822-9f93-16ba69f4f00f"
+      },
+      "required_correction_uk": "Розвести чинне observer->answer і майбутній role-specific skip. Для proposed denied/not_applicable зазначити умову, блокування/перехід, вплив на lesson completed, доказ і поведінку після зміни ролі; або позначити саме це правило як невпроваджену залежність GC-F05/GC-F06 без твердження, що крок уже можна пропустити. Denied не надає бізнес-прав і не доводить успіх.",
+      "closure_evidence_uk": "У новому semantic snapshot є одна узгоджена таблиця/правило переходу для недоступного кроку з явним source status та gap IDs, без зміни прав або коду."
+    },
+    {
+      "id": "GCR03",
+      "priority": "P3",
+      "blocking_contract_acceptance": false,
+      "title_uk": "У кейсі 03 залишилась закрита умовна залежність від writer",
+      "locations": [
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/guided-author-snapshots/enablement-final-r1/CONTRACT_CANDIDATE_UA.json",
+          "line_start": 50,
+          "line_end": 50,
+          "anchor": "case_application BOS3-CASE-03 sequence"
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/guided-author-snapshots/enablement-final-r1/CONTRACT_CANDIDATE_UA.json",
+          "line_start": 70,
+          "line_end": 70,
+          "anchor": "case_source_alignment BOS3-CASE-03"
+        },
+        {
+          "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/guided-author-snapshots/writer-r1/SESSION_CAPABILITIES.json",
+          "line_start": 2763,
+          "line_end": 2791,
+          "anchor": "case_capabilities followup"
+        }
+      ],
+      "requirement_uk": "Пакет має бути завершений без прихованого TBD та спиратися на точний прийнятий writer dependency.",
+      "finding_uk": "Фраза «якщо він підтверджений writer» лишає враження відкритої перевірки command path. Writer вже вказує create_task через operations preview/confirm, а semantic case_source_alignment це повторює. Непідтверджена частина — прив'язка receipt до training step, а не існування command path.",
+      "impact_uk": "Читач case_application не може однозначно відрізнити завершену source-перевірку від майбутньої реалізації GC-F03.",
+      "source_refs": [
+        {
+          "file": "tasks/commands.py",
+          "absolute_path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/tasks/commands.py",
+          "line_start": 84,
+          "line_end": 101,
+          "symbol": "prepare create_task",
+          "file_sha256": "a70afb3f52a3f327ebc601e420ee386553002c3911463bbe680eef66dc72503e"
+        },
+        {
+          "file": "tasks/commands.py",
+          "absolute_path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/tasks/commands.py",
+          "line_start": 140,
+          "line_end": 163,
+          "symbol": "preview/apply task receipt",
+          "file_sha256": "a70afb3f52a3f327ebc601e420ee386553002c3911463bbe680eef66dc72503e"
+        },
+        {
+          "file": "training/service.py",
+          "absolute_path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/training/service.py",
+          "line_start": 153,
+          "line_end": 163,
+          "symbol": "observations followup predicate",
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        },
+        {
+          "file": "training/service.py",
+          "absolute_path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/training/service.py",
+          "line_start": 285,
+          "line_end": 287,
+          "symbol": "change stamp persistence",
+          "file_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e"
+        }
+      ],
+      "correction_owner": {
+        "semantic": "01a0f2ce-270f-7ac3-bea0-1447f87aed61"
+      },
+      "required_correction_uk": "Замінити умовну фразу точним посиланням на підтверджений create_task preview/confirm; окремо вказати partial/GC-F03 для step->receipt binding і чинний predicate видимого неархівованого task з assignee/deadline. Не вимагати task done і не проводити новий платіж.",
+      "closure_evidence_uk": "Case application і case_source_alignment узгоджені, умовне очікування writer прибране, GC-F03 збережено."
+    }
+  ],
+  "severity_counts": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 2,
+    "P3": 1
+  },
+  "source": {
+    "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo",
+    "commit": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+    "access": "READ_ONLY",
+    "head_exit_code": 0
+  },
+  "exact_inputs": {
+    "admission": {
+      "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/GUIDED_CONTRACT_REVIEW_R1_ADMISSION.json",
+      "sha256": "30d45969e90f06cbf3a20de3d76e9e0dcae5090ee56616ed904fdad31df3b4e5"
+    },
+    "manifest": {
+      "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/GUIDED_CONTRACT_REVIEW_INPUT_R1.json",
+      "sha256": "258e0478443b96acadf0715f6597e0eb6fe23385f8a5a4be9504ce7e230e6301"
+    },
+    "manifest_refs": [
+      {
+        "path": "D:\\3\\BOSDev\\evidence\\plan-acceleration-20260930\\GUIDED_CONTRACT_ADMISSION.json",
+        "expected_sha256": "d6fdc105b4201dda43f773518e14fcb71e2f352431b9bea70c037fe3485d9ceb",
+        "actual_sha256": "d6fdc105b4201dda43f773518e14fcb71e2f352431b9bea70c037fe3485d9ceb",
+        "matched": true
+      },
+      {
+        "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\guided-author-snapshots\\writer-r1\\SNAPSHOT.json",
+        "expected_sha256": "bcc3ee897e94e9ee4b3bb609d81a4eaf7429ed4daf8eec546b55b568ebfde707",
+        "actual_sha256": "bcc3ee897e94e9ee4b3bb609d81a4eaf7429ed4daf8eec546b55b568ebfde707",
+        "matched": true
+      },
+      {
+        "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\guided-author-snapshots\\writer-r1\\SESSION_CAPABILITIES.json",
+        "expected_sha256": "4902e0bf6d508848dbe62c5a3c907f68a2ca4293ad3717b69e0de029a4ee5e02",
+        "actual_sha256": "4902e0bf6d508848dbe62c5a3c907f68a2ca4293ad3717b69e0de029a4ee5e02",
+        "matched": true
+      },
+      {
+        "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\guided-author-snapshots\\writer-r1\\AUTHOR_REPORT_UA.md",
+        "expected_sha256": "c8c4493415c8d1b608b88bede769a42d1ca9a3ba423c813f8b22dc1db1633752",
+        "actual_sha256": "c8c4493415c8d1b608b88bede769a42d1ca9a3ba423c813f8b22dc1db1633752",
+        "matched": true
+      },
+      {
+        "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\guided-author-snapshots\\enablement-final-r1\\SNAPSHOT.json",
+        "expected_sha256": "ac0edf5575419d4fc10715c7ee6a1df60c7ff75f9580fbb393a648c5ffb55f6c",
+        "actual_sha256": "ac0edf5575419d4fc10715c7ee6a1df60c7ff75f9580fbb393a648c5ffb55f6c",
+        "matched": true
+      },
+      {
+        "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\guided-author-snapshots\\enablement-final-r1\\CONTRACT_CANDIDATE_UA.json",
+        "expected_sha256": "faf6588f755a43de12b45c9b30256fb07ef380e87a6c22f5be4ecbb652932753",
+        "actual_sha256": "faf6588f755a43de12b45c9b30256fb07ef380e87a6c22f5be4ecbb652932753",
+        "matched": true
+      },
+      {
+        "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\guided-author-snapshots\\enablement-final-r1\\AUTHOR_REPORT_UA.md",
+        "expected_sha256": "ce64b36f5ac49d19437ca77bb90499e31004647ae00ec5beec815c9bd7181e01",
+        "actual_sha256": "ce64b36f5ac49d19437ca77bb90499e31004647ae00ec5beec815c9bd7181e01",
+        "matched": true
+      },
+      {
+        "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\REVIEW_AND_CONTRACT_DEPENDENCY_RECEIPT.json",
+        "expected_sha256": "2c3868f0b2d4d58e4324d11dbde55d557210bf62803bb91feaf50bc81cd674aa",
+        "actual_sha256": "2c3868f0b2d4d58e4324d11dbde55d557210bf62803bb91feaf50bc81cd674aa",
+        "matched": true
+      },
+      {
+        "path": "D:\\3\\BOSDev\\evidence\\product-enablement-20260930\\GUIDED_LEARNING_CONTRACT_UA.json",
+        "expected_sha256": "631074d8894c8fd40650947350167b99724d435aa1f0e00ab4a4ea95e07976cc",
+        "actual_sha256": "631074d8894c8fd40650947350167b99724d435aa1f0e00ab4a4ea95e07976cc",
+        "matched": true
+      },
+      {
+        "path": "D:\\3\\BOSDev\\departments\\product-enablement\\CONTRACT_DEPENDENCY_R4_UA.json",
+        "expected_sha256": "87a834a7a4bb7b29525a32fc56cb2084215f8f54d8a82557717a1a5f338eaa93",
+        "actual_sha256": "87a834a7a4bb7b29525a32fc56cb2084215f8f54d8a82557717a1a5f338eaa93",
+        "matched": true
+      },
+      {
+        "path": "D:\\3\\BOSDev\\evidence\\change-intake-20260930\\ENABLEMENT_CONTRACT_DELTA_REVIEW.json",
+        "expected_sha256": "6180fe7cd27a9b6aac6a913e3f8dfe8eea7dbaa64daa676fce8bd53d8b65c208",
+        "actual_sha256": "6180fe7cd27a9b6aac6a913e3f8dfe8eea7dbaa64daa676fce8bd53d8b65c208",
+        "matched": true
+      },
+      {
+        "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\writer\\IDENTITY_MAP.json",
+        "expected_sha256": "91237e09cce96aa8927470455b0f50995caa5a72f4a0c77fcc44199adbf49a00",
+        "actual_sha256": "91237e09cce96aa8927470455b0f50995caa5a72f4a0c77fcc44199adbf49a00",
+        "matched": true
+      },
+      {
+        "path": "D:\\3\\BOSDev\\evidence\\plan-acceleration-20260930\\ACCELERATION_UA.md",
+        "expected_sha256": "30a86d4be9d191db89b1afa86c2f972452fc16987ac45507821cac451709f3b1",
+        "actual_sha256": "30a86d4be9d191db89b1afa86c2f972452fc16987ac45507821cac451709f3b1",
+        "matched": true
+      }
+    ]
+  },
+  "source_file_verification": [
+    {
+      "file": "training/service.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/training/service.py",
+      "expected_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e",
+      "actual_sha256": "91d15ac68710f141fef4a542769fee84d99652f70031fdd4a98ec7fc3bc7eb2e",
+      "matched": true
+    },
+    {
+      "file": "training/models.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/training/models.py",
+      "expected_sha256": "cc7cf39bdada46d73a87dc39e18da3a81336c1ea3881c588dbfbdf227b78383a",
+      "actual_sha256": "cc7cf39bdada46d73a87dc39e18da3a81336c1ea3881c588dbfbdf227b78383a",
+      "matched": true
+    },
+    {
+      "file": "training/access.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/training/access.py",
+      "expected_sha256": "c1d12118b65543d5eb5ef46f84c7457f57127410e8c7cba825434c7d45d44a6b",
+      "actual_sha256": "c1d12118b65543d5eb5ef46f84c7457f57127410e8c7cba825434c7d45d44a6b",
+      "matched": true
+    },
+    {
+      "file": "training/views.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/training/views.py",
+      "expected_sha256": "f91391b5c1549800baa2ce38ecdb7bfa4089017a8f9f47fb383b85f66ba6a466",
+      "actual_sha256": "f91391b5c1549800baa2ce38ecdb7bfa4089017a8f9f47fb383b85f66ba6a466",
+      "matched": true
+    },
+    {
+      "file": "training/urls.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/training/urls.py",
+      "expected_sha256": "95fe0e023a7d881cb45b98089af9af8462415277a308969155a44a3fe1e1b96e",
+      "actual_sha256": "95fe0e023a7d881cb45b98089af9af8462415277a308969155a44a3fe1e1b96e",
+      "matched": true
+    },
+    {
+      "file": "boss_project/policy.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/boss_project/policy.py",
+      "expected_sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1",
+      "actual_sha256": "e6d3ea97f11491701096fe001f16c13b1ff56453dfad3d92dae2e1047d38efc1",
+      "matched": true
+    },
+    {
+      "file": "boss_project/identity.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/boss_project/identity.py",
+      "expected_sha256": "20ffca4ca027940ec18ea2f7b984d9d87f7e3df617ddeace3c15a771650da117",
+      "actual_sha256": "20ffca4ca027940ec18ea2f7b984d9d87f7e3df617ddeace3c15a771650da117",
+      "matched": true
+    },
+    {
+      "file": "boss_project/auth_views.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/boss_project/auth_views.py",
+      "expected_sha256": "93f5bc145a47e83dd2b2eb20b108931f51f691a4f9fba80ddd7772fbcacaec07",
+      "actual_sha256": "93f5bc145a47e83dd2b2eb20b108931f51f691a4f9fba80ddd7772fbcacaec07",
+      "matched": true
+    },
+    {
+      "file": "boss_project/urls.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/boss_project/urls.py",
+      "expected_sha256": "5be20defa8440fc5cbf4f3bedec1733759006b44f28fde7b543c1530798723e1",
+      "actual_sha256": "5be20defa8440fc5cbf4f3bedec1733759006b44f28fde7b543c1530798723e1",
+      "matched": true
+    },
+    {
+      "file": "operations/middleware.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/operations/middleware.py",
+      "expected_sha256": "10193f1ba1ed107f6563ddae6b7dd5a9fcefdf5c77a42643ce60cd95f55f568c",
+      "actual_sha256": "10193f1ba1ed107f6563ddae6b7dd5a9fcefdf5c77a42643ce60cd95f55f568c",
+      "matched": true
+    },
+    {
+      "file": "operations/service.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/operations/service.py",
+      "expected_sha256": "73f865cf65914f585fb5f4eccb9706fdb56c1b20a55545f4dfe047deadccb223",
+      "actual_sha256": "73f865cf65914f585fb5f4eccb9706fdb56c1b20a55545f4dfe047deadccb223",
+      "matched": true
+    },
+    {
+      "file": "operations/models.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/operations/models.py",
+      "expected_sha256": "67448adcf1318ac57fef3d1b573c3f0b3a714d6b71dfd012e58cfef2cf509d7e",
+      "actual_sha256": "67448adcf1318ac57fef3d1b573c3f0b3a714d6b71dfd012e58cfef2cf509d7e",
+      "matched": true
+    },
+    {
+      "file": "operations/views.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/operations/views.py",
+      "expected_sha256": "a79e00c4550a0e8b44f873f008680bf2a9f99d34c2318e23d5e8d5c897d23a77",
+      "actual_sha256": "a79e00c4550a0e8b44f873f008680bf2a9f99d34c2318e23d5e8d5c897d23a77",
+      "matched": true
+    },
+    {
+      "file": "operations/urls.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/operations/urls.py",
+      "expected_sha256": "47d6b30fcd463c30854c1d62e19b2a7284a34a70b55d09955813c8f24a32ab87",
+      "actual_sha256": "47d6b30fcd463c30854c1d62e19b2a7284a34a70b55d09955813c8f24a32ab87",
+      "matched": true
+    },
+    {
+      "file": "operations/projections.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/operations/projections.py",
+      "expected_sha256": "f80ac3f74bac52e25148d2c530e728d430e6a79422da7405725693e075c8f4e2",
+      "actual_sha256": "f80ac3f74bac52e25148d2c530e728d430e6a79422da7405725693e075c8f4e2",
+      "matched": true
+    },
+    {
+      "file": "crm/commands.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/crm/commands.py",
+      "expected_sha256": "7bac2ee56ce74a1c3763f55f08cb103f69f42d206e1f47934291e26d9acacb37",
+      "actual_sha256": "7bac2ee56ce74a1c3763f55f08cb103f69f42d206e1f47934291e26d9acacb37",
+      "matched": true
+    },
+    {
+      "file": "crm/projections.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/crm/projections.py",
+      "expected_sha256": "5e5ba574d0fc9a6a1c35ebb1a69ea58fc032baef45f8d6b91b4dd5803d3a198a",
+      "actual_sha256": "5e5ba574d0fc9a6a1c35ebb1a69ea58fc032baef45f8d6b91b4dd5803d3a198a",
+      "matched": true
+    },
+    {
+      "file": "crm/models.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/crm/models.py",
+      "expected_sha256": "0aa48179015824cf558ef213e4d6c98d2c239386776978aadcf30a07ca8d9475",
+      "actual_sha256": "0aa48179015824cf558ef213e4d6c98d2c239386776978aadcf30a07ca8d9475",
+      "matched": true
+    },
+    {
+      "file": "tasks/commands.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/tasks/commands.py",
+      "expected_sha256": "a70afb3f52a3f327ebc601e420ee386553002c3911463bbe680eef66dc72503e",
+      "actual_sha256": "a70afb3f52a3f327ebc601e420ee386553002c3911463bbe680eef66dc72503e",
+      "matched": true
+    },
+    {
+      "file": "tasks/queries.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/tasks/queries.py",
+      "expected_sha256": "c259a1cb70d5f27e8d52b58336bf42633833ff6745b2493820e4ebdc239195ec",
+      "actual_sha256": "c259a1cb70d5f27e8d52b58336bf42633833ff6745b2493820e4ebdc239195ec",
+      "matched": true
+    },
+    {
+      "file": "frontend/bos3_content.json",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/frontend/bos3_content.json",
+      "expected_sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390",
+      "actual_sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390",
+      "matched": true
+    },
+    {
+      "file": "frontend/boss_app_source.html",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/frontend/boss_app_source.html",
+      "expected_sha256": "145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9",
+      "actual_sha256": "145bcaa359138d1046e1aed88540c5975409596531af8ce9d873abe0a3c146c9",
+      "matched": true
+    },
+    {
+      "file": "tasks/history.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/tasks/history.py",
+      "expected_sha256": "7ace3476863ce36516411c8cd078555f6538f0dfcea44e0079c95e63818306c4",
+      "actual_sha256": "7ace3476863ce36516411c8cd078555f6538f0dfcea44e0079c95e63818306c4",
+      "matched": true
+    },
+    {
+      "file": "erp/service.py",
+      "path": "D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo/erp/service.py",
+      "expected_sha256": "3fcc4fc7db14984c20e271357dbf5ac92402a26da17198dc683694d061cadc61",
+      "actual_sha256": "3fcc4fc7db14984c20e271357dbf5ac92402a26da17198dc683694d061cadc61",
+      "matched": true
+    }
+  ],
+  "coverage": {
+    "lesson_fields": [
+      {
+        "field": "lesson_id",
+        "status": "implementation_gap",
+        "gap_ids": [
+          "GC-F01"
+        ]
+      },
+      {
+        "field": "lesson_version",
+        "status": "implementation_gap",
+        "gap_ids": [
+          "GC-F01"
+        ]
+      },
+      {
+        "field": "product_source",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F01"
+        ]
+      },
+      {
+        "field": "case_id",
+        "status": "exists",
+        "gap_ids": []
+      },
+      {
+        "field": "goal_uk",
+        "status": "exists",
+        "gap_ids": []
+      },
+      {
+        "field": "prerequisites",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F05"
+        ]
+      },
+      {
+        "field": "role_requirements",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F05"
+        ]
+      },
+      {
+        "field": "data_mode",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F05"
+        ]
+      },
+      {
+        "field": "steps",
+        "status": "exists",
+        "gap_ids": []
+      },
+      {
+        "field": "source_references",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F01",
+          "GC-F02"
+        ]
+      },
+      {
+        "field": "faq",
+        "status": "implementation_gap",
+        "gap_ids": [
+          "GC-F07"
+        ]
+      },
+      {
+        "field": "acceptance_status",
+        "status": "implementation_gap",
+        "gap_ids": [
+          "GC-F07"
+        ]
+      }
+    ],
+    "step_fields": [
+      {
+        "field": "step_id",
+        "status": "exists",
+        "gap_ids": []
+      },
+      {
+        "field": "kind",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F04"
+        ]
+      },
+      {
+        "field": "title_uk",
+        "status": "exists",
+        "gap_ids": []
+      },
+      {
+        "field": "explanation_uk",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F01",
+          "GC-F05"
+        ]
+      },
+      {
+        "field": "source_refs",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F02",
+          "GC-F03"
+        ]
+      },
+      {
+        "field": "expected_context",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F01",
+          "GC-F02"
+        ]
+      },
+      {
+        "field": "allowed_action",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F05",
+          "GC-F08"
+        ]
+      },
+      {
+        "field": "completion_rule",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F04",
+          "GC-F05"
+        ]
+      },
+      {
+        "field": "success_evidence",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F03"
+        ]
+      },
+      {
+        "field": "next_step",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F06"
+        ]
+      },
+      {
+        "field": "error_states",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F05",
+          "GC-F02"
+        ]
+      },
+      {
+        "field": "pause_resume_rule",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F05",
+          "GC-F06"
+        ]
+      }
+    ],
+    "session_requirements": [
+      {
+        "id": "SR01",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F01",
+          "GC-F03"
+        ]
+      },
+      {
+        "id": "SR02",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F01",
+          "GC-F02",
+          "GC-F03",
+          "GC-F06"
+        ]
+      },
+      {
+        "id": "SR03",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F05",
+          "GC-F06"
+        ]
+      },
+      {
+        "id": "SR04",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F01",
+          "GC-F02"
+        ]
+      },
+      {
+        "id": "SR05",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F03",
+          "GC-F06",
+          "GC-F08"
+        ]
+      }
+    ],
+    "requirement_status_counts": {
+      "exists": 5,
+      "partial": 20,
+      "implementation_gap": 4,
+      "total": 29
+    },
+    "step_kinds": [
+      {
+        "kind": "information",
+        "source_status": "implementation_gap",
+        "gap_ids": [
+          "GC-F01",
+          "GC-F04",
+          "GC-F05"
+        ],
+        "disposition": "SOURCE_MAPPING_VERIFIED_CONTRACT_PROPOSAL"
+      },
+      {
+        "kind": "knowledge_check",
+        "source_status": "partial",
+        "gap_ids": [
+          "GC-F01",
+          "GC-F03",
+          "GC-F04"
+        ],
+        "disposition": "SOURCE_MAPPING_VERIFIED_CONTRACT_PROPOSAL"
+      },
+      {
+        "kind": "source_check",
+        "source_status": "partial",
+        "gap_ids": [
+          "GC-F02",
+          "GC-F04",
+          "GC-F05"
+        ],
+        "disposition": "SOURCE_MAPPING_VERIFIED_CONTRACT_PROPOSAL"
+      },
+      {
+        "kind": "business_action",
+        "source_status": "partial",
+        "gap_ids": [
+          "GC-F03",
+          "GC-F04",
+          "GC-F05"
+        ],
+        "disposition": "SOURCE_MAPPING_VERIFIED_CONTRACT_PROPOSAL"
+      },
+      {
+        "kind": "crm_handoff",
+        "source_status": "partial",
+        "gap_ids": [
+          "GC-F03",
+          "GC-F04",
+          "GC-F08"
+        ],
+        "disposition": "SOURCE_MAPPING_VERIFIED_CONTRACT_PROPOSAL"
+      }
+    ],
+    "cases": [
+      {
+        "case_id": "BOS3-CASE-01",
+        "current_steps": [
+          "order=answer: quantity",
+          "supply=answer: initial washer shortage",
+          "receipt=operation: purchase received >= quantity",
+          "production=operation: job done and produced quantity",
+          "crm=crm: scoped deal exists"
+        ],
+        "current_business_paths": [
+          "erp_receive",
+          "erp_quality/erp_reserve/erp_start/erp_operator/erp_finish as applicable",
+          "crm_handoff"
+        ],
+        "contract_gap_ids": [
+          "GC-F01",
+          "GC-F02",
+          "GC-F03",
+          "GC-F04",
+          "GC-F05",
+          "GC-F06"
+        ],
+        "disposition": "SOURCE_FACTS_SUPPORTED_PROPOSED_ROLE_RULE_NEEDS_GCR02"
+      },
+      {
+        "case_id": "BOS3-CASE-02",
+        "current_steps": [
+          "order=answer: line quantity",
+          "quality=answer: blocked quantity",
+          "reservation=operation: allowed allocation or already approved shipment",
+          "shipment=operation: approved lot shipments equal line quantity while blocked remains blocked",
+          "crm=crm: scoped deal exists"
+        ],
+        "current_business_paths": [
+          "erp_reserve",
+          "erp_ship",
+          "crm_handoff"
+        ],
+        "contract_gap_ids": [
+          "GC-F02",
+          "GC-F03",
+          "GC-F04",
+          "GC-F05",
+          "GC-F06"
+        ],
+        "disposition": "SOURCE_FACTS_SUPPORTED_PROPOSED_SEQUENCE"
+      },
+      {
+        "case_id": "BOS3-CASE-03",
+        "current_steps": [
+          "invoice=answer: invoice amount minus paid",
+          "followup=operation: будь-яке видиме неархівоване завдання до того самого order з assignee і deadline",
+          "crm=crm: scoped deal exists"
+        ],
+        "current_business_paths": [
+          "create_task через operations preview/confirm",
+          "crm_handoff"
+        ],
+        "contract_gap_ids": [
+          "GC-F01",
+          "GC-F02",
+          "GC-F03",
+          "GC-F04",
+          "GC-F05",
+          "GC-F06",
+          "GC-F08"
+        ],
+        "disposition": "SOURCE_FACTS_SUPPORTED_EDITORIAL_GCR03"
+      }
+    ],
+    "capability_resolution": [
+      {
+        "id": "CAP-LESSON-VERSION",
+        "status": "implementation_gap",
+        "gap_ids": [
+          "GC-F01"
+        ],
+        "review": "SOURCE_STATUS_SUPPORTED"
+      },
+      {
+        "id": "CAP-STEP-PROGRESS",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F01",
+          "GC-F03",
+          "GC-F06"
+        ],
+        "review": "SOURCE_STATUS_SUPPORTED"
+      },
+      {
+        "id": "CAP-KNOWLEDGE-CHECK",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F01",
+          "GC-F04"
+        ],
+        "review": "SOURCE_STATUS_SUPPORTED"
+      },
+      {
+        "id": "CAP-SOURCE-EVIDENCE",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F02",
+          "GC-F04"
+        ],
+        "review": "SOURCE_STATUS_SUPPORTED"
+      },
+      {
+        "id": "CAP-SESSION-OWNERSHIP",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F01",
+          "GC-F02",
+          "GC-F03",
+          "GC-F06"
+        ],
+        "review": "SOURCE_STATUS_SUPPORTED"
+      },
+      {
+        "id": "CAP-ACTION-RECEIPT-BINDING",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F03"
+        ],
+        "review": "SOURCE_STATUS_SUPPORTED"
+      },
+      {
+        "id": "CAP-CRM-RECEIPT-BINDING",
+        "status": "partial",
+        "gap_ids": [
+          "GC-F03",
+          "GC-F08"
+        ],
+        "review": "SOURCE_STATUS_SUPPORTED"
+      }
+    ],
+    "gap_groups": [
+      {
+        "id": "GC-F01",
+        "status": "implementation_gap",
+        "review": "EXPLICIT_IMPLEMENTATION_GAP"
+      },
+      {
+        "id": "GC-F02",
+        "status": "implementation_gap",
+        "review": "EXPLICIT_IMPLEMENTATION_GAP"
+      },
+      {
+        "id": "GC-F03",
+        "status": "implementation_gap",
+        "review": "EXPLICIT_IMPLEMENTATION_GAP"
+      },
+      {
+        "id": "GC-F04",
+        "status": "implementation_gap",
+        "review": "EXPLICIT_IMPLEMENTATION_GAP"
+      },
+      {
+        "id": "GC-F05",
+        "status": "implementation_gap",
+        "review": "EXPLICIT_GAP_REQUIRES_GCR01_GCR02_DETAIL"
+      },
+      {
+        "id": "GC-F06",
+        "status": "implementation_gap",
+        "review": "EXPLICIT_GAP_REQUIRES_GCR01_GCR02_DETAIL"
+      },
+      {
+        "id": "GC-F07",
+        "status": "implementation_gap",
+        "review": "EXPLICIT_IMPLEMENTATION_GAP"
+      },
+      {
+        "id": "GC-F08",
+        "status": "implementation_gap",
+        "review": "EXPLICIT_IMPLEMENTATION_GAP"
+      }
+    ],
+    "rights_and_ownership": "TRAINING_READ/WRITE, BUSINESS_COMMAND, CRM_COMMAND, CONTENT_SOURCE_ONLY checked against source; no new rights granted.",
+    "clear_reset": "MISSING_AUTHOR_DISPOSITION_GCR01; verified training API has no reset action.",
+    "counts": {
+      "lesson_fields": 12,
+      "step_fields": 12,
+      "session_requirements": 5,
+      "step_kinds": 5,
+      "cases": 3,
+      "capability_questions": 7,
+      "gap_groups": 8,
+      "source_files": 24,
+      "evidence_refs": 293
+    }
+  },
+  "independent_source_conclusions_uk": [
+    "Session identity = user/role/installation/fixture/hash/case; серверне джерело особи та ролі, не клієнтський owner. CRM public UUID окремо звіряється з цією identity.",
+    "GET state перераховує valid/needs_recheck і не переписує progress. POST check зберігає stamp; повний result, answer, checked_at та receipt linkage відсутні.",
+    "Observer exception дозволяє лише start/pause/navigate/check/tour; operation/crm стають answer. Case03 потребує CEO. Це не право на ERP/CRM mutation.",
+    "Зміни current access_revision/observed/expected інвалідовують stamp; lesson version та повний source PK/client expected context не входять системно. Повернення старої ролі може відновити stamp; revocation epoch відсутня.",
+    "Пауза і start зберігають прогрес; stale current_step не нормалізується. Clear/reset не підтримується перевіреним training change і потребує явної авторської класифікації.",
+    "Operations execute обмежений auth session/user/role/current rights; task proposal_status окремо допускає scoped receipt read після reentry. Receipt не прив'язано до навчального step.",
+    "Case03 followup — будь-яке видиме неархівоване task того самого order з assignee/deadline; не task done, task.result чи конкретний receipt.",
+    "CRM existing handoff і same-proposal receipt не означають загальну гарантію від повторного проведення нового proposal. CRM boundary не перевіряє progress followup як prerequisite.",
+    "Synthetic UAH та Q01/Q02/Q03 межі збережені. Прийнята ID-карта повторно не рецензувалася."
+  ],
+  "static_checks": [
+    {
+      "id": "SC01",
+      "operation": "Get-Content -Raw | ConvertFrom-Json; Get-FileHash -Algorithm SHA256 for admission and all manifest.inputs",
+      "result": "MATCH",
+      "matched": 13,
+      "total": 13,
+      "exit_code": 0
+    },
+    {
+      "id": "SC02",
+      "operation": "git -C D:/3/BOSDev/workspaces/bos3-runtime-dev9/repo rev-parse HEAD",
+      "result": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+      "exit_code": 0
+    },
+    {
+      "id": "SC03",
+      "operation": "Get-FileHash -Algorithm SHA256 for writer.source_files",
+      "result": "MATCH",
+      "matched": 24,
+      "total": 24,
+      "exit_code": 0
+    },
+    {
+      "id": "SC04",
+      "operation": "Recursive PowerShell metadata walk of writer evidence refs; compare file_sha256, line_start/line_end to Get-Content line counts, require nonempty symbol",
+      "result": "VALID",
+      "checked": 293,
+      "invalid": 0,
+      "exit_code": 0,
+      "limit": "Symbol labels are descriptive; no AST/parser symbol resolution or product execution. Relevant semantics manually read."
+    },
+    {
+      "id": "SC05",
+      "operation": "PowerShell object counts/status grouping and deterministic gap_ids comparison with writer.gaps.id",
+      "result": "COUNTS_MATCH",
+      "coverage": "29 requirements / 5 kinds / 3 cases / 7 CAP / 8 GC-F",
+      "unknown_gap_ids": 0,
+      "exit_code": 0
+    },
+    {
+      "id": "SC06",
+      "operation": "Manual static reading of pinned fields/rights/persistence/lifecycle and command/service source references",
+      "result": "CHANGES_REQUIRED",
+      "finding_ids": [
+        "GCR01",
+        "GCR02",
+        "GCR03"
+      ]
+    },
+    {
+      "id": "SC07",
+      "operation": "Final repeat Get-FileHash over exact admission, manifest, 13 inputs and 24 source files plus git rev-parse HEAD",
+      "result": "UNCHANGED",
+      "exit_code": 0
+    }
+  ],
+  "read_probe_notes_uk": [
+    "Один пошук припустив окремі frontend/src/components/Bos3Training.jsx і frontend/src/App.jsx; шляхи відсутні (exit 1). Коректний writer pin frontend/boss_app_source.html прочитано після цього. Невдалий пошук не використано як доказ відсутності функції.",
+    "Завеликі виводи окремих читань були усічені; для висновків повторно прочитано потрібні діапазони та компактні метадані. Product retries не виконувались."
+  ],
+  "preserved_dependencies": {
+    "identity_map_sha256": "91237e09cce96aa8927470455b0f50995caa5a72f4a0c77fcc44199adbf49a00",
+    "id_map_rereviewed": false,
+    "q01_q03_reopened": false,
+    "all_attempt_histories_preserved": true
+  },
+  "minimal_next_dependencies_uk": [
+    "Нові writer/enablement output-only snapshots закривають GCR01–GCR03; main готує новий exact manifest; sole integrator дає окремий допуск на review змінених частин.",
+    "Майбутня реалізація GC-F01/02 потребує рішення про lesson/version/source binding; GC-F03 — typed result/receipt linkage.",
+    "GC-F04/05/06 потребують правила kind/role/error/pause/current/next та явний clear/reset disposition; GC-F07 — content FAQ/acceptance; GC-F08 — рішення щодо backend prerequisite case03.",
+    "Цей висновок не дозволяє implementation, schema/API change, reset, нові права або виконання тестів."
+  ],
+  "product_executions": 0,
+  "dynamic_qa_details": {
+    "runtime": "NOT_RUN",
+    "browser": "NOT_RUN",
+    "progress": "NOT_RUN",
+    "behavior": "NOT_RUN",
+    "app": "NOT_RUN",
+    "build": "NOT_RUN",
+    "tests": "NOT_RUN",
+    "pg": "NOT_RUN",
+    "e2e": "NOT_RUN"
+  },
+  "mutations": {
+    "author_files": false,
+    "source": false,
+    "canonical": false,
+    "db": false,
+    "media": false,
+    "password": false,
+    "progress": false,
+    "commit": false,
+    "push": false,
+    "new_agents": 0,
+    "new_chats": 0,
+    "new_timers": 0,
+    "allowed_output_files": [
+      "D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/guided-contract-review-r1/REVIEW.json",
+      "D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/guided-contract-review-r1/REVIEW_UA.md"
+    ]
+  },
+  "report": {
+    "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/guided-contract-review-r1/REVIEW_UA.md",
+    "sha256": "1cdd07f59f662d05109fee84c16ea06f4e0070eebc395ae9a4bd4d966161a033"
+  },
+  "hash_policy": "REVIEW_UA.md SHA embedded; final REVIEW.json SHA reported externally after write. No self hash.",
+  "next_recipient": "main immutable verdict snapshot -> sole integrator scoped disposition; no automatic implementation"
+}
