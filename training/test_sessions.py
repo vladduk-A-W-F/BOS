@@ -1102,7 +1102,7 @@ class TrainingSessionContractTests(TestCase):
             denied = self.client.post('/api/operations/confirm/',
                 {'proposal_id': str(proposal.pk), 'confirmed': True}, content_type='application/json')
         self.assertEqual(denied.status_code, 403, denied.content)
-        self.assertNotIn(str(deal.pk).encode(), denied.content)
+        self.assertEqual(denied.json(), {'error': 'CRM-квитанція більше недоступна.'})
         missing_activity = ActionProposal.objects.create(
             user=self.owner, session_key=self.client.session.session_key, role='ceo',
             payload=payload, fingerprint='synthetic', expires_at=timezone.now() + timedelta(minutes=10),
@@ -1111,7 +1111,7 @@ class TrainingSessionContractTests(TestCase):
         unavailable = self.client.post('/api/operations/confirm/',
             {'proposal_id': str(missing_activity.pk), 'confirmed': True}, content_type='application/json')
         self.assertEqual(unavailable.status_code, 404, unavailable.content)
-        self.assertNotIn(b'999999999', unavailable.content)
+        self.assertEqual(unavailable.json(), {'error': 'Запис не знайдено в поточній базі.'})
 
     def test_d08_f02_10(self):
         case_id = 'BOS3-CASE-03'
