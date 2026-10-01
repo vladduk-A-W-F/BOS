@@ -7,6 +7,7 @@
 - Звіт по картці до 10 рядків: що змінено, commit, чим перевірено, exit code, findings/verdict, наступний крок. Нові evidence-архіви, переписування плану, проєкції STATE/QUEUE і довгі описи PR — лише коли без них результат неможливий. Зовнішні докази лишаються на D:, у Git — посилання та SHA.
 - CI `docs-budget` (`.github/workflows/docs-budget.yml`): PR додає до docs/ та evidence/ не більше 500 рядків і 20 файлів; більше — лише з міткою власника `docs-ok`.
 - Питання до власника — одним коротким списком «так/ні».
+- Інструменти розробки (SkillSpector, ponytail, MCP context7/playwright, gh) встановлює власник: `scripts/dev-tools/setup-agent-tools.ps1`. На початку картки читай нові коментарі власника/Claude у своєму PR (`gh pr view <N> --comments`); це канал власник/Claude ↔ Codex. Playwright MCP не обходить A11.
 
 ## Поточний стан і дозволи
 - Власник доручив: «Запускай подготовленный план BoS 3.0 во всю силу». Виконувати підготовлений план у виділених копіях, інтегруючи лише перевірене. Координатор і межі: `docs/orchestration/BOS3_EXECUTION_RU.md`; план, стан, ролі, blockers, DoD: `docs/orchestration/bos3/` (`DEVELOPMENT_WORKFLOW_RU.md`, `CONTROL_STATE.json` → `weekly_execution`).
