@@ -8,12 +8,16 @@ from pathlib import Path
 import stat
 
 ROOTS = ('boss_project', 'operations', 'erp', 'finance', 'employees', 'branches',
-         'tasks', 'ai_assistant', 'scripts', 'assets', 'static', 'frontend', 'deploy')
+         'tasks', 'ai_assistant', 'crm', 'training', 'scripts', 'assets', 'static',
+         'frontend', 'deploy')
 EXTENSIONS = {'.py', '.js', '.cjs', '.css', '.html', '.json', '.svg', '.png', '.ico',
               '.woff', '.woff2', '.ttf', '.txt', '.sh', '.ps1', '.bat', '.yml', '.yaml'}
-TOP = ('manage.py', 'demo_settings.py', 'server_settings.py', 'verification_settings.py',
+TOP = ('manage.py', 'demo_settings.py', 'server_settings.py', 'bos3_local_settings.py',
+       'verification_settings.py',
        'requirements.txt', 'requirements-server.txt', 'requirements-ci.txt',
-       'docs/KNOWLEDGE_UA.md', 'docs/PARAMETERS_UA.md')
+       'docs/KNOWLEDGE_UA.md', 'docs/PARAMETERS_UA.md',
+       'docs/BoS_3_0_Start_UA.pdf', 'docs/BoS_v18_Start_UA.pdf',
+       'docs/BoS_3_0_Start_UA.manifest.json')
 
 
 def canonical(value):
@@ -48,7 +52,13 @@ def package(source, output):
             raise ValueError('Джерело має містити окремі звичайні файли.')
         contents[path.relative_to(source).as_posix()] = path.read_bytes()
     for required in ('boss_project/version.py', 'scripts/install_server.py', 'scripts/start_server.py',
-                     'server_settings.py', 'requirements-server.txt'):
+                     'server_settings.py', 'requirements-server.txt', 'bos3_local_settings.py',
+                     'crm/__init__.py', 'training/__init__.py',
+                     'crm/models.py', 'crm/migrations/0001_initial.py',
+                     'training/service.py', 'training/models.py',
+                     'training/migrations/0001_initial.py',
+                     'docs/BoS_3_0_Start_UA.pdf', 'docs/BoS_v18_Start_UA.pdf',
+                     'docs/BoS_3_0_Start_UA.manifest.json'):
         if required not in contents:
             raise ValueError('Джерело не містить повного серверного коду.')
     versions = [node.value.value for node in ast.parse(contents['boss_project/version.py']).body
