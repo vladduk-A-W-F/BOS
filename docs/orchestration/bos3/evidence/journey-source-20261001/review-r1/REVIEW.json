@@ -1,0 +1,284 @@
+{
+  "schema": "bos.journey-source-independent-review.v1",
+  "card": "B30-SOLUTIONS-JOURNEY-SOURCE-20260930-REVIEW-R1",
+  "recorded_at_utc": "2026-09-30 22:53:12 UTC",
+  "finalized_at_utc": "2026-09-30 23:00:33 UTC",
+  "context_acceptance": {
+    "status": "ACCEPTED_EXACT_PINNED_INPUTS_BEFORE_SEMANTIC_REVIEW",
+    "review_admission": {
+      "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/JOURNEY_SOURCE_REVIEW_R1_ADMISSION.json",
+      "sha256": "dba807c32d27d4892054d30ffbcca8764bee01b1b8fa10224a59a2f64f2760f4"
+    },
+    "author_snapshot": {
+      "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r1/SNAPSHOT.json",
+      "sha256": "11dc921528448451ef362387933231ae7e6eb52e77ee614c3dfdb78b11e52e1a"
+    },
+    "card": {
+      "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/NEXT_BOUNDED_SOURCE_CARD.json",
+      "sha256": "a032dc63cd570b8ab59769927d3d43fdf6c74e8b7a63db654a9216530bc9df1e"
+    },
+    "snapshot_reference_hashes_matched": "10/10",
+    "output_directory_new_and_empty": true,
+    "owner": "independent quality"
+  },
+  "review_scope": "Нова source-дельта fc82733a → 564df459; D1–D7; збереження guards CRM R2, без повторного CRM R2/identity/design review",
+  "reviewed_inputs": {
+    "snapshot_references": [
+      {
+        "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\journey-source-author-r1\\frontend\\boss_app_source.html",
+        "sha256": "564df459854f14fc194295343b61246961ba5f2463b1756309645a549a4bcc4b"
+      },
+      {
+        "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\journey-source-author-r1\\SOURCE_DELTA.patch",
+        "sha256": "693c894371f56f349f23a625f51a39256f830e6e4863753698664d4079e90445"
+      },
+      {
+        "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\journey-source-author-r1\\IMPLEMENTATION_UA.md",
+        "sha256": "82eade8d03d85eee022311a967dcf508645640b21d1127662a9f56bbf091aee7"
+      },
+      {
+        "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\journey-source-author-r1\\RESULT_MANIFEST.json",
+        "sha256": "3298e93d6f0979625c77edc5a3384a4a775a5097148ab2fe3fd3c718918c3283"
+      },
+      {
+        "path": "D:\\3\\BOSDev\\qa-scratch\\bos3-brochure-crm-journey-20260930\\frontend\\bos3_content.json",
+        "sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390"
+      },
+      {
+        "path": "D:\\3\\BOSDev\\qa-scratch\\bos3-brochure-crm-journey-20260930\\frontend\\bos_design.css",
+        "sha256": "30e1db301539b97080705c463c0fec14ae6370de577f824318484c42d159fd54"
+      },
+      {
+        "path": "D:\\3\\BOSDev\\workspaces\\bos3-canonical\\repo\\docs\\orchestration\\bos3\\evidence\\crm-stale-source-20260930\\round2\\boss_app_source.candidate.html.txt",
+        "sha256": "fc82733a97c3532cd8ea45ec9dfbfbd96d9274054c83d512b7fa8d40f8772384"
+      },
+      {
+        "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\NEXT_BOUNDED_SOURCE_CARD.json",
+        "sha256": "a032dc63cd570b8ab59769927d3d43fdf6c74e8b7a63db654a9216530bc9df1e"
+      },
+      {
+        "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\integrator\\JOURNEY_SOURCE_ADMISSION.json",
+        "sha256": "7106925d62789fa15063890f73c17294ddb332e175808a616ad5b90712d54a4e"
+      },
+      {
+        "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\JOURNEY_SOURCE_CONTEXT_RECEIPT.json",
+        "sha256": "513e3261e1fac391f0ace12d761fd035960505904a8ce35c11a8acff3db539a4"
+      }
+    ],
+    "matched_count": 10,
+    "mismatch_count": 0,
+    "seed_sha256": "fc82733a97c3532cd8ea45ec9dfbfbd96d9274054c83d512b7fa8d40f8772384",
+    "result_sha256": "564df459854f14fc194295343b61246961ba5f2463b1756309645a549a4bcc4b",
+    "raw_patch_sha256": "693c894371f56f349f23a625f51a39256f830e6e4863753698664d4079e90445",
+    "report_sha256": "82eade8d03d85eee022311a967dcf508645640b21d1127662a9f56bbf091aee7",
+    "result_manifest_sha256": "3298e93d6f0979625c77edc5a3384a4a775a5097148ab2fe3fd3c718918c3283",
+    "readonly_registry_sha256": "1bce859370537437c157893065af499c9edd0fefea90b30c2f3384b2b04b1390",
+    "readonly_css_sha256": "30e1db301539b97080705c463c0fec14ae6370de577f824318484c42d159fd54"
+  },
+  "review_status": "FINAL_FINDINGS_RETURNED",
+  "verdict": "CHANGES_REQUIRED_BEFORE_INTEGRATION",
+  "findings": [
+    {
+      "id": "JS-01",
+      "severity": "P2",
+      "file": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r1/frontend/boss_app_source.html",
+      "line": 5489,
+      "criterion": [
+        "D3",
+        "D4"
+      ],
+      "title": "Після GET не звіряється поточний access scope",
+      "reproduction_source_path": [
+        "CRM з origin.scope=S1",
+        "Активувати повернення; training GET ще pending",
+        "BOS_RUNTIME scope стає S2 до завершення cleanup",
+        "Стара відповідь S1 потрапляє в гілку з ticket, що ще збігається; порівняння виконується із захопленим scope=S1, а не bosHttpScope()=S2",
+        "Можливі update(state), verified та очищення origin для застарілої відповіді"
+      ],
+      "evidence": [
+        "frontend/boss_app_source.html:5489",
+        "frontend/boss_app_source.html:5530-5541"
+      ],
+      "required_change": "Після await перед update/verified звірити поточний bosHttpScope() із захопленим scope й origin.scope; інвалідовувати ticket при зміні доступу."
+    },
+    {
+      "id": "JS-02",
+      "severity": "P2",
+      "file": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r1/frontend/boss_app_source.html",
+      "line": 5488,
+      "criterion": [
+        "D3",
+        "D5"
+      ],
+      "title": "Мережеву помилку повернення помилково показано як denied/changed і немає read-retry",
+      "reproduction_source_path": [
+        "CRM з валідним origin; активувати повернення",
+        "GET content повертає network/500: returnStatus=denied; або GET session повертає network/500: returnStatus=changed",
+        "runnerCase показує повідомлення про відсутність доступу/зміну запису поруч із помилкою",
+        "session=null; refresh показано лише за hasSession, start вимкнено через available=false"
+      ],
+      "evidence": [
+        "frontend/boss_app_source.html:5480-5482",
+        "frontend/boss_app_source.html:5488-5489",
+        "frontend/boss_app_source.html:5493"
+      ],
+      "required_change": "Відокремити error від denied/changed та додати явний повтор GET content/session без start/check/CRM-команд."
+    },
+    {
+      "id": "JS-03",
+      "severity": "P3",
+      "file": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/journey-source-author-r1/frontend/boss_app_source.html",
+      "line": 5725,
+      "criterion": [
+        "D5"
+      ],
+      "title": "Нова дія повернення не переводить клавіатурний фокус",
+      "reproduction_source_path": [
+        "Клавіатурою активувати кнопку повернення в CRM",
+        "returnToTraining викликає прямий setNav(info) і демонтує кнопку",
+        "На відміну від NavBar commitLeaf, цей callback не фокусує новий main/заголовок"
+      ],
+      "evidence": [
+        "frontend/boss_app_source.html:5544",
+        "frontend/boss_app_source.html:5725-5732",
+        "frontend/boss_app_source.html:751-764",
+        "frontend/boss_app_source.html:5786"
+      ],
+      "required_change": "Після переходу фокусувати актуальний main/заголовок із guard nav/доступу; поведінку перевірити окремо за дозволом."
+    }
+  ],
+  "criteria": {
+    "D1": {
+      "static": "ACCEPTED_STATIC",
+      "unverified": "VISUAL_LAYOUT_NOT_RUN",
+      "evidence": [
+        "frontend/boss_app_source.html:5377-5378",
+        "frontend/boss_app_source.html:5411-5412",
+        "frontend/boss_app_source.html:5446-5452"
+      ]
+    },
+    "D2": {
+      "static": "ACCEPTED_STATIC",
+      "unverified": "LIVE_AUTH_NOT_RUN",
+      "evidence": [
+        "frontend/boss_app_source.html:5800-5803",
+        "frontend/boss_app_source.html:5827-5829",
+        "frontend/boss_app_source.html:5735"
+      ]
+    },
+    "D3": {
+      "static": "CHANGES_REQUIRED",
+      "unverified": "LIVE_IDENTITY_NOT_RUN",
+      "findings": [
+        "JS-01",
+        "JS-02"
+      ]
+    },
+    "D4": {
+      "static": "CHANGES_REQUIRED_NEW_RETURN_GUARD",
+      "preserved_crm_r2": "ACCEPTED_STATIC_UNCHANGED",
+      "unverified": "LATE_RESPONSE_BEHAVIOR_NOT_RUN",
+      "findings": [
+        "JS-01"
+      ]
+    },
+    "D5": {
+      "static": "CHANGES_REQUIRED",
+      "unverified": "VISUAL_KEYBOARD_FOCUS_BEHAVIOR_NOT_RUN",
+      "findings": [
+        "JS-02",
+        "JS-03"
+      ]
+    },
+    "D6": {
+      "static": "ACCEPTED_STATIC",
+      "unverified": "PRODUCT_QA_NOT_RUN",
+      "evidence": [
+        "raw patch exact",
+        "readonly hashes match",
+        "scratch six-file allowlist"
+      ]
+    },
+    "D7": {
+      "static": "ACCEPTED_STATIC_REVIEW_WITH_FINDINGS",
+      "unverified": "INTEGRATION_DELIVERY_NOT_RUN",
+      "evidence": [
+        "independent reviewer verdict recorded",
+        "author has not accepted own source"
+      ]
+    }
+  },
+  "edge_cases": {
+    "null_origin": "Кнопка повернення відсутня у звичайній CRM; frontend/boss_app_source.html:5544",
+    "changed_slug_or_case": "Context_changed без успішної безперервності; frontend/boss_app_source.html:5489,5729-5730",
+    "denied_before_return": "Залишається у CRM з повідомленням; frontend/boss_app_source.html:5728",
+    "denied_after_get": "401/403 позначаються denied; frontend/boss_app_source.html:5489",
+    "stale_response": "Ticket і unmount відкидають старе читання, але drift поточного scope не перевірено; JS-01",
+    "network_or_server_error": "Помилково зведено до denied/changed, без явного повтору read-path; JS-02",
+    "draft_close_existing_confirm": "crmHandoff очищується, trainingOrigin зберігається окремо; frontend/boss_app_source.html:5542,5544,5768-5769",
+    "reopen_from_case": "Створює новий origin; frontend/boss_app_source.html:5717-5723",
+    "late_crm_detail_preview_confirm": "Прийнятий guard-блок R2 статично незмінний; runtime NOT_RUN"
+  },
+  "positive_evidence": [
+    "Рівно три чинні slug та українські назви на першій сторінці; шість сторінок і keyboard/touch/reduced-motion структура збережені.",
+    "Origin case/slug/public session UUID/scope окремий від crmHandoff; close/existing/confirm очищують draft без автоматичного очищення origin.",
+    "Повернення викликає наявні GET content/session, без автоматичних start/check/preview/confirm.",
+    "CRMProposal і detailOwner→owners R2 guard-блок збіглися з seed після нормалізації кінців рядків."
+  ],
+  "raw_checks": {
+    "git_diff": {
+      "command": "git diff --no-index --no-ext-diff --no-textconv -- <seed> <result>",
+      "exit_code": 1,
+      "interpretation": "DIFFERENCE_PRESENT",
+      "raw_patch_text_equal_after_line_ending_normalization": true,
+      "numstat": {
+        "insertions": 39,
+        "deletions": 17
+      }
+    },
+    "git_diff_check": {
+      "command": "git diff --no-index --check --no-ext-diff --no-textconv -- <seed> <result>",
+      "exit_code": 1,
+      "whitespace_diagnostic_count": 0,
+      "interpretation": "NO_WHITESPACE_DIAGNOSTICS_NO_INDEX_DIFFERENCE_EXIT"
+    },
+    "protected_block_comparison": {
+      "crm_proposal_equal": true,
+      "crm_proposal_chars": 1445,
+      "detail_guard_equal": true,
+      "detail_guard_chars": 3157
+    },
+    "scratch_workspace_file_count": 6,
+    "changed_product_files": [
+      "frontend/boss_app_source.html"
+    ],
+    "json_registry_case_count": 3
+  },
+  "output_md": {
+    "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/journey-source-review-r1/REVIEW_UA.md",
+    "sha256": "282c53143a83a55413eab9dccf944d3bb72bc0f2816ca32b595a29e20cbfe8fa"
+  },
+  "executions": {
+    "app": 0,
+    "node": 0,
+    "js": 0,
+    "build": 0,
+    "tests": 0,
+    "browser": 0,
+    "http": 0,
+    "db": 0,
+    "runtime": 0
+  },
+  "product_qa": "NOT_RUN",
+  "visual": "NOT_RUN",
+  "behavior": "NOT_RUN",
+  "live_identity": "NOT_RUN",
+  "canonical_applied": false,
+  "runtime_delivered": false,
+  "readiness": {
+    "TECHNICAL_READY": false,
+    "PILOT_ALLOWED": false,
+    "MVP": false
+  },
+  "next_recipient": "main → sole integrator; той самий автор для адресної поправки після рішення root"
+}

@@ -1,0 +1,95 @@
+{
+  "schema": "bos.exact-source-admission.v1",
+  "id": "B30-SOLUTIONS-JOURNEY-SOURCE-20260930-ROOT-ADMISSION",
+  "created_at_utc": "2026-09-30T21:37:00Z",
+  "status": "ADMITTED_ISOLATED_SOURCE_ONLY_SEED_RECEIPT_REQUIRED",
+  "card": {
+    "path": "D:/3/BOSDev/evidence/resume-solutions-20260930/main/NEXT_BOUNDED_SOURCE_CARD.json",
+    "sha256": "a032dc63cd570b8ab59769927d3d43fdf6c74e8b7a63db654a9216530bc9df1e"
+  },
+  "authority_uk": "Чинне доручення власника продовжувати погоджений план; точний source-допуск sole integrator. Це не новий дозвіл на виконання, QA, доставку чи main merge.",
+  "integrator_thread": "01a0dd56-ca2d-79c0-b159-bde80074a026",
+  "classification": "SAME_PROBLEM_BOUNDED_SOURCE_CONTINUATION",
+  "cutoff_utc": "2026-10-04T21:59:00Z",
+  "cutoff_checked_before_write": true,
+  "ownership": {
+    "coordinator": "01a0be90-e790-7351-a8ac-059d523941c4",
+    "author": "01a0bffa-3fc7-7bc2-9868-86164c6e0315",
+    "author_requested_model": "gpt-6-sol",
+    "author_requested_effort": "medium",
+    "author_observed_model": "UNCONFIRMED",
+    "reviewer": "01a0c05d-6eeb-79f1-a135-be66985b442f",
+    "reviewer_requested_model": "gpt-6-sol",
+    "reviewer_requested_effort": "high",
+    "reviewer_observed_model": "UNCONFIRMED",
+    "reviewer_dispatch": "NOT_ADMITTED_UNTIL_EXACT_RESULT_AND_REVIEW_INPUT",
+    "ui_author_slots": 1,
+    "review_slot_reserved": true,
+    "native_design_quality_observed_at_utc": "2026-09-30T21:29:00Z",
+    "native_state": "Both completed/notLoaded; design is the existing author, quality is independent; fresh channel preflight required before model override",
+    "no_duplicate_author": true,
+    "erp_mutex": "No ERP/common models/migrations/command writes admitted"
+  },
+  "pins": {
+    "canonical_base": "dec599752d2703e18dc9b53fbf2e2585b0ede3e0",
+    "remote_main_after_owner_merge": "87e1a4f504d24f6d47add511eb8b68a7fa592efc",
+    "immutable_source": "aa6a4ca4c4b50f0c2ba01495eab74e568d0e2975",
+    "product": "6b3aab22b3f8254d5f65846f54ceeed7049e1ddf",
+    "composite_html_baseline_sha256": "fc82733a97c3532cd8ea45ec9dfbfbd96d9274054c83d512b7fa8d40f8772384",
+    "result_sha256": null,
+    "review_sha256": null,
+    "integrated_sha": null,
+    "pr10": "CLOSED_MERGED; not a future publication target",
+    "future_branch_pr": "Root decides after independent source review; no new main authority"
+  },
+  "runtime_reconciliation": {
+    "manifest": "D:/3/BOSDev/workspaces/bos3-canonical/repo/docs/orchestration/bos3/ATOMIC_DEV9_CANDIDATE.json",
+    "manifest_sha256": "1d39d2b329c5a5cfc6706caecaa99e674e40eb14c795cc82d8547851b5a37d00",
+    "receipt": "D:/3/BOSDev/workspaces/bos3-canonical/repo/docs/orchestration/bos3/LOCAL_RUNTIME_RECEIPT.json",
+    "receipt_sha256": "0dfdba16ddab1695284bcf59515d6e7d2130852f2a15387f34b8eaf758743c1e",
+    "receipt_scope": "Last accepted historical dev7; subsequent dev8 start failed; not current availability",
+    "dev9_delivery": "NOT_DELIVERED",
+    "availability": "UNCONFIRMED",
+    "current_blocker": "BLOCKED_EXECUTION_POLICY_BEFORE_DIAGNOSTIC_BODY; owner decision remains required; no new diagnostic admission",
+    "protected_data": "DB/media/password/progress are outside scope and remain untouched"
+  },
+  "workspace": {
+    "path": "D:/3/BOSDev/qa-scratch/bos3-brochure-crm-journey-20260930",
+    "method": "MINIMAL_THREE_FILE_SOURCE_SNAPSHOT_NOT_FULL_CHECKOUT",
+    "method_clarification_uk": "Root копіює лише три pinned frontend source-файли без .git, залежностей, assets, БД чи media. HTML береться з прийнятого CRM R2, registry/CSS з immutable aa6. Це часткова source-копія, не runtime установка і не DB seed. Решта контексту читається за pinned шляхами картки.",
+    "preexisting_path_rule": "If target exists before creation, stop and reconcile ownership; never overwrite unfinished work",
+    "seed_receipt": "D:/3/BOSDev/evidence/resume-solutions-20260930/integrator/JOURNEY_SOURCE_SEED_RECEIPT.json",
+    "author_start_gate": "Main dispatch only after matching seed receipt. Author records actual path/hash/context acceptance before source edits in IMPLEMENTATION_UA.md and RESULT_MANIFEST.json; transport ACK alone is not acceptance"
+  },
+  "scope": {
+    "product_write": ["frontend/boss_app_source.html"],
+    "author_evidence_write": ["SOURCE_DELTA.patch", "IMPLEMENTATION_UA.md", "RESULT_MANIFEST.json"],
+    "readonly": ["frontend/bos3_content.json", "frontend/bos_design.css", "all pinned inputs and canonical/runtime trees"],
+    "implementation": "Exact UI-01 through UI-04 and DoD D1 through D7 of the pinned card; no silent expansion",
+    "crm_r2_guards": "Preserve unchanged; diff baseline is fc82733a, no repeated accepted R2 review",
+    "other_writers_uk": "Автор не один у проєкті: не змінювати і не відкидати чужі файли; працювати лише у власному allowlist. Main, enablement і reviewer не є другим UI-автором.",
+    "allowed_checks": ["read/hash", "metadata JSON parse", "deterministic source comparison", "git diff --no-index --no-ext-diff --no-textconv and diff --check", "independent manual static review"],
+    "forbidden": ["app/Node/JS/NodeVM/fakeDOM/build/tests", "full/PG/E2E/browser/HTTP/runtime/DB/media", "resource/process/network probes", "init/seed/migrate/reset", "rights/API/commands/backend changes", "generated assets", "author commit/push", "new agents/chats/timers", "Sites/external publication", "production"],
+    "product_executions_allowed": 0,
+    "heavy_jobs_allowed": 0
+  },
+  "historical_limits": {
+    "preserved_in_full": true,
+    "P05": "3/3",
+    "A09_A10_A11": "No blocked route or policy workaround",
+    "fixture": "3/3 exhausted",
+    "progress_node_exception": "1/1 consumed",
+    "runtime_diagnostic": "preflight1/1; diagnosis1/1; global problem2/3; no new body/CIM/listener/apply/start/GET/kill",
+    "payment_network_full_PG_E2E_browser_lifecycle_storage": "Current and historical limits retained; this card grants no execution window",
+    "metadata_shell_error": "One read-only PowerShell pipeline syntax error, corrected; no product execution or QA attempt"
+  },
+  "next": {
+    "recipient": "main via codex_channel.py stable ID and ledger",
+    "main_action": "Dispatch existing design with requested Sol/medium only after seed receipt; record fresh model preflight and actual author context acceptance; no ACK echo",
+    "main_acceptance_check_in_utc": "2026-09-30T21:50:00Z",
+    "author_result_or_precise_blocker_check_in_utc": "2026-09-30T22:15:00Z",
+    "followup_rule": "One justified follow-up if overdue, then concrete blocker escalation; never ACK-on-ACK",
+    "dependent_review": "Wait for exact result manifest/raw patch and source hash; root fixes reviewer output scope before quality dispatch"
+  },
+  "readiness": {"TECHNICAL_READY": false, "PILOT_ALLOWED": false, "MVP": false}
+}

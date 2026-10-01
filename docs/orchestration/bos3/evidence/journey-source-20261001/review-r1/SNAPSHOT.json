@@ -1,0 +1,108 @@
+{
+  "schema": "bos.main-independent-source-review-snapshot.v1",
+  "captured_at_utc": "2026-09-30T23:03:11.872320+00:00",
+  "verdict": "CHANGES_REQUIRED_BEFORE_INTEGRATION",
+  "reviewer_thread": "01a0c05d-6eeb-79f1-a135-be66985b442f",
+  "native_turn": "01a0f484-c756-77a2-b282-0cc9f55d2baa",
+  "native_status": "idle/completed/error=null",
+  "files": [
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\review-snapshots\\journey-source-r1\\REVIEW.json",
+      "sha256": "b0e60808427b43c82437762386a6e7d619cc7a416a325dce029cf866e42ead9e"
+    },
+    {
+      "path": "D:\\3\\BOSDev\\evidence\\resume-solutions-20260930\\main\\review-snapshots\\journey-source-r1\\REVIEW_UA.md",
+      "sha256": "282c53143a83a55413eab9dccf944d3bb72bc0f2816ca32b595a29e20cbfe8fa"
+    }
+  ],
+  "source_result_sha256": "564df459854f14fc194295343b61246961ba5f2463b1756309645a549a4bcc4b",
+  "seed_sha256": "fc82733a97c3532cd8ea45ec9dfbfbd96d9274054c83d512b7fa8d40f8772384",
+  "findings_summary": [
+    {
+      "id": "JS-01",
+      "severity": "P2",
+      "line": 5489,
+      "title": "Після GET не звіряється поточний access scope"
+    },
+    {
+      "id": "JS-02",
+      "severity": "P2",
+      "line": 5488,
+      "title": "Мережеву помилку повернення помилково показано як denied/changed і немає read-retry"
+    },
+    {
+      "id": "JS-03",
+      "severity": "P3",
+      "line": 5725,
+      "title": "Нова дія повернення не переводить клавіатурний фокус"
+    }
+  ],
+  "criteria": {
+    "D1": {
+      "static": "ACCEPTED_STATIC",
+      "unverified": "VISUAL_LAYOUT_NOT_RUN",
+      "evidence": [
+        "frontend/boss_app_source.html:5377-5378",
+        "frontend/boss_app_source.html:5411-5412",
+        "frontend/boss_app_source.html:5446-5452"
+      ]
+    },
+    "D2": {
+      "static": "ACCEPTED_STATIC",
+      "unverified": "LIVE_AUTH_NOT_RUN",
+      "evidence": [
+        "frontend/boss_app_source.html:5800-5803",
+        "frontend/boss_app_source.html:5827-5829",
+        "frontend/boss_app_source.html:5735"
+      ]
+    },
+    "D3": {
+      "static": "CHANGES_REQUIRED",
+      "unverified": "LIVE_IDENTITY_NOT_RUN",
+      "findings": [
+        "JS-01",
+        "JS-02"
+      ]
+    },
+    "D4": {
+      "static": "CHANGES_REQUIRED_NEW_RETURN_GUARD",
+      "preserved_crm_r2": "ACCEPTED_STATIC_UNCHANGED",
+      "unverified": "LATE_RESPONSE_BEHAVIOR_NOT_RUN",
+      "findings": [
+        "JS-01"
+      ]
+    },
+    "D5": {
+      "static": "CHANGES_REQUIRED",
+      "unverified": "VISUAL_KEYBOARD_FOCUS_BEHAVIOR_NOT_RUN",
+      "findings": [
+        "JS-02",
+        "JS-03"
+      ]
+    },
+    "D6": {
+      "static": "ACCEPTED_STATIC",
+      "unverified": "PRODUCT_QA_NOT_RUN",
+      "evidence": [
+        "raw patch exact",
+        "readonly hashes match",
+        "scratch six-file allowlist"
+      ]
+    },
+    "D7": {
+      "static": "ACCEPTED_STATIC_REVIEW_WITH_FINDINGS",
+      "unverified": "INTEGRATION_DELIVERY_NOT_RUN",
+      "evidence": [
+        "independent reviewer verdict recorded",
+        "author has not accepted own source"
+      ]
+    }
+  },
+  "product_executions": 0,
+  "readiness": {
+    "TECHNICAL_READY": false,
+    "PILOT_ALLOWED": false,
+    "MVP": false
+  },
+  "next": "Root same-author correction decision; contract review exact admission separate"
+}
