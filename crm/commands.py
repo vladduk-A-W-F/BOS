@@ -22,6 +22,7 @@ from erp.models import InvoiceLink, SalesOrder
 from operations.models import ActionProposal, AuditEvent, Invoice
 from finance.models import Counterparty
 from tasks.commands import ConfirmConflict
+from training.service import case03_handoff_ready
 
 from .models import CRMActivity, CRMDeal
 
@@ -289,6 +290,10 @@ def prepare(request, payload):
             return {'existing': existing, 'changed': False, 'operation': 'existing_handoff'}
         if session.status == 'completed':
             raise PermissionError('Завершена навчальна сесія може лише повернути наявну CRM-передачу.')
+        if data['case_id'] == 'BOS3-CASE-03' and not case03_handoff_ready(
+                policy, marker, session, refs['order'].pk,
+                refs['invoice'].pk if refs['invoice'] is not None else None):
+            raise ValueError('Спочатку перевірте попередній крок.')
         row = CRMDeal(training_session=session, case_id=data['case_id'], stable_handoff_hash=expected_hash,
             counterparty=refs['counterparty'], owner=refs['owner'], sales_order=refs['order'], invoice=refs['invoice'],
             title=data['title'], next_action=data['next_action'], stage=data['stage'],

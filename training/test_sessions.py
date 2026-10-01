@@ -6,6 +6,7 @@ the historical full suites.
 """
 import os
 from copy import deepcopy
+from datetime import timedelta
 from decimal import Decimal
 from io import StringIO
 from pathlib import Path
@@ -16,11 +17,14 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import Permission
 from django.core.management import call_command
+from django.db.models.query import QuerySet
 from django.test import Client, SimpleTestCase, TestCase, override_settings
+from django.utils import timezone
 
 from employees.models import Employee
 from boss_project.policy import Policy
 from crm.models import CRMDeal
+from crm import commands as crm_commands, projections as crm_projections
 from erp.models import Lot, Movement, Production, Reservation, SalesLine, SalesOrder
 from operations.models import ActionProposal, Configuration, Document
 from operations.service import Conflict
@@ -740,3 +744,669 @@ class TrainingSessionContractTests(TestCase):
         session.refresh_from_db()
         self.assertEqual(set(session.progress), {'unknown-orphan', 'order'})
         self.assertEqual(set(session.progress['order']), {'stamp'})
+
+
+
+    def test_d08_f02_01(self):
+        case_id = 'BOS3-CASE-03'
+        started = self.start(case_id)
+        self.check(case_id, 'invoice', '6400')
+        source = self.marker['source_map'][case_id]
+        task = Task.objects.create(title='Погодити оплату', sales_order_id=source['order_id'],
+                                   assignee_employee_id=source['owner_id'], deadline='2026-10-01')
+        self.check(case_id, 'followup')
+        session = TrainingSession.objects.get(public_id=started['session_id'])
+        policy = Policy.for_user(self.owner)
+        self.assertTrue(training_service.case03_handoff_ready(
+            policy, self.marker, session, source['order_id'], source['invoice_id']))
+        draft = self.client.get(f"/api/crm/handoff/{started['session_id']}/", {'case_id': case_id})
+        self.assertEqual(draft.status_code, 200, draft.content)
+        preview = self.client.post('/api/operations/preview/', draft.json()['payload'],
+                                   content_type='application/json')
+        self.assertEqual(preview.status_code, 200, preview.content)
+        confirm = self.client.post('/api/operations/confirm/',
+                                   {'proposal_id': preview.json()['id'], 'confirmed': True},
+                                   content_type='application/json')
+        self.assertEqual(confirm.status_code, 200, confirm.content)
+        self.assertEqual(CRMDeal.objects.filter(training_session=session).count(), 1)
+        self.assertEqual(Task.objects.get(pk=task.pk).sales_order_id, source['order_id'])
+
+    def test_d08_f02_02(self):
+        case_id = 'BOS3-CASE-03'
+        started = self.start(case_id)
+        source = self.marker['source_map'][case_id]
+        Task.objects.create(title='Видиме доручення', sales_order_id=source['order_id'],
+                            assignee_employee_id=source['owner_id'], deadline='2026-10-01')
+        draft = self.client.get(f"/api/crm/handoff/{started['session_id']}/", {'case_id': case_id})
+        self.assertEqual((draft.status_code, draft.json()),
+                         (422, {'error': 'Спочатку перевірте попередній крок.'}))
+        self.check(case_id, 'invoice', '6400')
+        self.check(case_id, 'followup')
+        session = TrainingSession.objects.get(public_id=started['session_id'])
+        ready = self.client.get(f"/api/crm/handoff/{started['session_id']}/", {'case_id': case_id})
+        self.assertEqual(ready.status_code, 200, ready.content)
+        payload = ready.json()['payload']
+        valid_progress = deepcopy(session.progress)
+        TrainingSession.objects.filter(pk=session.pk).update(progress={})
+        before = ActionProposal.objects.count()
+        preview = self.client.post('/api/operations/preview/', payload, content_type='application/json')
+        self.assertEqual((preview.status_code, preview.json()),
+                         (422, {'error': 'Спочатку перевірте попередній крок.'}))
+        self.assertEqual(ActionProposal.objects.count(), before)
+        self.assertFalse(CRMDeal.objects.exists())
+        TrainingSession.objects.filter(pk=session.pk).update(progress=valid_progress)
+        preview = self.client.post('/api/operations/preview/', payload, content_type='application/json')
+        self.assertEqual(preview.status_code, 200, preview.content)
+        TrainingSession.objects.filter(pk=session.pk).update(progress={})
+        confirm = self.client.post('/api/operations/confirm/',
+                                   {'proposal_id': preview.json()['id'], 'confirmed': True},
+                                   content_type='application/json')
+        self.assertEqual((confirm.status_code, confirm.json()),
+                         (422, {'error': 'Спочатку перевірте попередній крок.'}))
+        self.assertIsNone(ActionProposal.objects.get(pk=preview.json()['id']).receipt)
+        self.assertEqual(TrainingSession.objects.get(pk=session.pk).progress, {})
+        self.assertFalse(CRMDeal.objects.exists())
+
+    def test_d08_f02_03(self):
+        case_id = 'BOS3-CASE-03'
+        started = self.start(case_id)
+        source = self.marker['source_map'][case_id]
+        session = TrainingSession.objects.get(public_id=started['session_id'])
+        policy = Policy.for_user(self.owner)
+        Task.objects.create(title='Поточне доручення', sales_order_id=source['order_id'],
+                            assignee_employee_id=source['owner_id'], deadline='2026-10-01')
+        self.assertFalse(training_service.case03_handoff_ready(
+            policy, self.marker, session, source['order_id'], source['invoice_id']))
+        incomplete = self.client.get(f"/api/crm/handoff/{started['session_id']}/", {'case_id': case_id})
+        self.assertEqual(incomplete.status_code, 422, incomplete.content)
+        self.check(case_id, 'invoice', '6400')
+        session.refresh_from_db()
+        self.assertFalse(training_service.case03_handoff_ready(
+            policy, self.marker, session, source['order_id'], source['invoice_id']))
+        incomplete = self.client.get(f"/api/crm/handoff/{started['session_id']}/", {'case_id': case_id})
+        self.assertEqual(incomplete.status_code, 422, incomplete.content)
+        self.check(case_id, 'followup')
+        session.refresh_from_db()
+        self.assertTrue(training_service.case03_handoff_ready(
+            policy, self.marker, session, source['order_id'], source['invoice_id']))
+        projected = training_service.session_state(policy, self.marker, case_id, session)
+        for step in projected['steps']:
+            if step['id'] == 'followup':
+                step['evidence']['passed'] = False
+        with patch('training.service._project_observation', return_value=projected):
+            self.assertFalse(training_service.case03_handoff_ready(
+                policy, self.marker, session, source['order_id'], source['invoice_id']))
+            denied = self.client.get(f"/api/crm/handoff/{started['session_id']}/", {'case_id': case_id})
+        self.assertEqual((denied.status_code, denied.json()),
+                         (422, {'error': 'Спочатку перевірте попередній крок.'}))
+        observation = training_service.observations(policy, self.marker, case_id, session)
+        for changed in ('missing', 'duplicate'):
+            rows = deepcopy(observation[2])
+            if changed == 'missing':
+                rows.pop(0)
+            else:
+                rows.insert(0, deepcopy(rows[0]))
+            with patch('training.service.observations', return_value=(observation[0], observation[1], rows)):
+                self.assertFalse(training_service.case03_handoff_ready(
+                    policy, self.marker, session, source['order_id'], source['invoice_id']))
+                denied = self.client.get(f"/api/crm/handoff/{started['session_id']}/", {'case_id': case_id})
+            self.assertEqual((denied.status_code, denied.json()),
+                             (422, {'error': 'Спочатку перевірте попередній крок.'}))
+        from operations.models import Invoice
+        paid_before = Invoice.objects.get(pk=source['invoice_id']).paid
+        Invoice.objects.filter(pk=source['invoice_id']).update(paid=paid_before + Decimal('1'))
+        self.assertFalse(training_service.case03_handoff_ready(
+            policy, self.marker, session, source['order_id'], source['invoice_id']))
+        denied = self.client.get(f"/api/crm/handoff/{started['session_id']}/", {'case_id': case_id})
+        self.assertEqual(denied.status_code, 422, denied.content)
+        Invoice.objects.filter(pk=source['invoice_id']).update(paid=paid_before)
+        task = Task.objects.get(sales_order_id=source['order_id'])
+        Task.objects.filter(pk=task.pk).update(title='Змінений поточний контакт')
+        changed_task = self.client.get(f"/api/crm/handoff/{started['session_id']}/", {'case_id': case_id})
+        self.assertEqual(changed_task.status_code, 422, changed_task.content)
+        Task.objects.filter(pk=task.pk).update(title='Поточне доручення')
+        TrainingSession.objects.filter(pk=session.pk).update(progress={'invoice': {'stamp': 'old'},
+            'followup': session.progress['followup']}, status='paused')
+        session.refresh_from_db()
+        self.assertFalse(training_service.case03_handoff_ready(
+            policy, self.marker, session, source['order_id'], source['invoice_id']))
+        stale = self.client.get(f"/api/crm/handoff/{started['session_id']}/", {'case_id': case_id})
+        self.assertEqual((stale.status_code, stale.json()),
+                         (422, {'error': 'Спочатку перевірте попередній крок.'}))
+
+    def test_d08_f02_04(self):
+        case_id = 'BOS3-CASE-03'
+        started = self.start(case_id)
+        self.check(case_id, 'invoice', '6400')
+        source = self.marker['source_map'][case_id]
+        task = Task.objects.create(title='Контакт', sales_order_id=source['order_id'],
+                                   assignee_employee_id=source['owner_id'], deadline='2026-10-01')
+        self.check(case_id, 'followup')
+        draft = self.client.get(f"/api/crm/handoff/{started['session_id']}/", {'case_id': case_id}).json()
+        session = TrainingSession.objects.get(public_id=started['session_id'])
+        before = deepcopy(session.progress)
+        mutations = (
+            ('archived', {'archived_at': timezone.now()}),
+            ('without_assignee', {'assignee_employee_id': None}),
+            ('without_deadline', {'deadline': None}),
+            ('moved_order', {'sales_order_id': self.marker['source_map']['BOS3-CASE-01']['order_id']}),
+        )
+        for label, change in mutations:
+            with self.subTest(task_change=label):
+                preview = self.client.post('/api/operations/preview/', draft['payload'],
+                                           content_type='application/json')
+                self.assertEqual(preview.status_code, 200, preview.content)
+                Task.objects.filter(pk=task.pk).update(**change)
+                confirm = self.client.post('/api/operations/confirm/',
+                    {'proposal_id': preview.json()['id'], 'confirmed': True},
+                    content_type='application/json')
+                self.assertEqual((confirm.status_code, confirm.json()),
+                    (422, {'error': 'Спочатку перевірте попередній крок.'}))
+                self.assertIsNone(ActionProposal.objects.get(pk=preview.json()['id']).receipt)
+                self.assertFalse(CRMDeal.objects.filter(training_session=session).exists())
+                self.assertEqual(TrainingSession.objects.get(pk=session.pk).progress, before)
+                Task.objects.filter(pk=task.pk).update(archived_at=None,
+                    assignee_employee_id=source['owner_id'], deadline='2026-10-01',
+                    sales_order_id=source['order_id'])
+        preview = self.client.post('/api/operations/preview/', draft['payload'],
+                                   content_type='application/json')
+        self.assertEqual(preview.status_code, 200, preview.content)
+        Task.objects.filter(pk=task.pk).delete()
+        confirm = self.client.post('/api/operations/confirm/',
+            {'proposal_id': preview.json()['id'], 'confirmed': True}, content_type='application/json')
+        self.assertEqual((confirm.status_code, confirm.json()),
+                         (422, {'error': 'Спочатку перевірте попередній крок.'}))
+        self.assertIsNone(ActionProposal.objects.get(pk=preview.json()['id']).receipt)
+        self.assertFalse(CRMDeal.objects.filter(training_session=session).exists())
+        self.assertEqual(TrainingSession.objects.get(pk=session.pk).progress, before)
+
+    def test_d08_f02_05(self):
+        case_id = 'BOS3-CASE-03'
+        started = self.start(case_id)
+        self.check(case_id, 'invoice', '6400')
+        source = self.marker['source_map'][case_id]
+        first = Task.objects.create(title='Контакт', sales_order_id=source['order_id'],
+                                    assignee_employee_id=source['owner_id'], deadline='2026-10-01')
+        second = Task.objects.create(title='Наступний контакт', sales_order_id=source['order_id'],
+                                     assignee_employee_id=source['owner_id'], deadline='2026-10-02')
+        self.check(case_id, 'followup')
+        session = TrainingSession.objects.get(public_id=started['session_id'])
+        policy = Policy.for_user(self.owner)
+        self.assertTrue(training_service.case03_handoff_ready(
+            policy, self.marker, session, source['order_id'], source['invoice_id']))
+        observation = training_service.observations(policy, self.marker, case_id, session)
+        shuffled = deepcopy(observation[2])
+        followup = next(row for row in shuffled if row['id'] == 'followup')
+        followup['observed']['tasks'].reverse()
+        followup['_source_ids']['tasks'].reverse()
+        followup['_source_ids']['assignee_refs'].reverse()
+        with patch('training.service.observations', return_value=(observation[0], observation[1], shuffled)):
+            self.assertTrue(training_service.case03_handoff_ready(
+                policy, self.marker, session, source['order_id'], source['invoice_id']))
+        with patch.object(policy, 'tasks', wraps=policy.tasks) as task_query:
+            self.assertTrue(training_service.case03_handoff_ready(
+                policy, self.marker, session, source['order_id'], source['invoice_id']))
+        self.assertEqual(task_query.call_count, 1)
+        other_assignee = Employee.objects.exclude(pk=source['owner_id']).first()
+        self.assertIsNotNone(other_assignee)
+        draft = self.client.get(f"/api/crm/handoff/{started['session_id']}/", {'case_id': case_id}).json()
+        before = deepcopy(session.progress)
+        for label, update in (('title', {'title': 'Змінений контакт'}),
+                              ('deadline', {'deadline': '2026-10-03'}),
+                              ('assignee', {'assignee_employee_id': other_assignee.pk})):
+            with self.subTest(task_change=label):
+                preview = self.client.post('/api/operations/preview/', draft['payload'],
+                                           content_type='application/json')
+                self.assertEqual(preview.status_code, 200, preview.content)
+                Task.objects.filter(pk=first.pk).update(**update)
+                confirm = self.client.post('/api/operations/confirm/',
+                    {'proposal_id': preview.json()['id'], 'confirmed': True},
+                    content_type='application/json')
+                self.assertEqual((confirm.status_code, confirm.json()),
+                    (422, {'error': 'Спочатку перевірте попередній крок.'}))
+                self.assertIsNone(ActionProposal.objects.get(pk=preview.json()['id']).receipt)
+                self.assertFalse(CRMDeal.objects.filter(training_session=session).exists())
+                self.assertEqual(TrainingSession.objects.get(pk=session.pk).progress, before)
+            Task.objects.filter(pk=first.pk).update(title='Контакт', deadline='2026-10-01',
+                                                     assignee_employee_id=source['owner_id'])
+        preview = self.client.post('/api/operations/preview/', draft['payload'],
+                                   content_type='application/json')
+        self.assertEqual(preview.status_code, 200, preview.content)
+        Task.objects.filter(pk=first.pk).delete()
+        Task.objects.create(title='Контакт', sales_order_id=source['order_id'],
+                            assignee_employee_id=source['owner_id'], deadline='2026-10-01')
+        replaced = self.client.post('/api/operations/confirm/',
+            {'proposal_id': preview.json()['id'], 'confirmed': True}, content_type='application/json')
+        self.assertEqual((replaced.status_code, replaced.json()),
+                         (422, {'error': 'Спочатку перевірте попередній крок.'}))
+        self.assertIsNone(ActionProposal.objects.get(pk=preview.json()['id']).receipt)
+        self.assertFalse(CRMDeal.objects.filter(training_session=session).exists())
+        self.assertEqual(TrainingSession.objects.get(pk=session.pk).progress, before)
+        self.assertTrue(Task.objects.filter(pk=second.pk).exists())
+        self.check(case_id, 'followup')
+        current = self.client.get(f"/api/crm/handoff/{started['session_id']}/", {'case_id': case_id})
+        self.assertEqual(current.status_code, 200, current.content)
+        preview = self.client.post('/api/operations/preview/', current.json()['payload'],
+                                   content_type='application/json')
+        self.assertEqual(preview.status_code, 200, preview.content)
+        observation = training_service.observations(policy, self.marker, case_id, session)
+        reordered = deepcopy(observation[2])
+        followup = next(row for row in reordered if row['id'] == 'followup')
+        followup['observed']['tasks'].reverse()
+        followup['_source_ids']['tasks'].reverse()
+        followup['_source_ids']['assignee_refs'].reverse()
+        with patch('training.service.observations', return_value=(observation[0], observation[1], reordered)):
+            accepted = self.client.post('/api/operations/confirm/',
+                {'proposal_id': preview.json()['id'], 'confirmed': True},
+                content_type='application/json')
+        self.assertEqual(accepted.status_code, 200, accepted.content)
+        self.assertEqual(CRMDeal.objects.filter(training_session=session).count(), 1)
+
+    def test_d08_f02_06(self):
+        case_id = 'BOS3-CASE-03'
+        started = self.start(case_id)
+        self.check(case_id, 'invoice', '6400')
+        source = self.marker['source_map'][case_id]
+        task = Task.objects.create(title='Контакт', sales_order_id=source['order_id'],
+                                   assignee_employee_id=source['owner_id'], deadline='2026-10-01')
+        self.check(case_id, 'followup')
+        session = TrainingSession.objects.get(public_id=started['session_id'])
+        policy = Policy.for_user(self.owner)
+        draft = crm_projections.draft(policy, started['session_id'], case_id)
+        refs = crm_commands._case_sources(policy, self.marker, session, case_id)
+        deal = CRMDeal.objects.create(training_session=session, case_id=case_id,
+            stable_handoff_hash=draft['payload']['stable_handoff_hash'],
+            counterparty=refs['counterparty'], owner=refs['owner'], sales_order=refs['order'],
+            invoice=refs['invoice'], title=draft['payload']['title'],
+            next_action=draft['payload']['next_action'], stage=draft['payload']['stage'])
+        Task.objects.filter(pk=task.pk).update(archived_at=timezone.now())
+        TrainingSession.objects.filter(pk=session.pk).update(progress={'invoice': {'stamp': 'legacy'}},
+                                                           status='completed')
+        with patch('crm.projections.case03_handoff_ready', side_effect=AssertionError('existing draft gate')):
+            existing = self.client.get(f"/api/crm/handoff/{started['session_id']}/", {'case_id': case_id})
+        self.assertEqual(existing.status_code, 200, existing.content)
+        self.assertEqual(existing.json()['deal']['id'], deal.pk)
+        with patch('crm.commands.case03_handoff_ready', side_effect=AssertionError('existing preview gate')):
+            preview = self.client.post('/api/operations/preview/', draft['payload'],
+                                       content_type='application/json')
+        self.assertEqual(preview.status_code, 200, preview.content)
+        self.assertEqual(preview.json()['state'], 'existing')
+        self.assertEqual(CRMDeal.objects.count(), 1)
+
+    def test_d08_f02_07(self):
+        case_id = 'BOS3-CASE-03'
+        started = self.start(case_id)
+        self.check(case_id, 'invoice', '6400')
+        source = self.marker['source_map'][case_id]
+        task = Task.objects.create(title='Контакт', sales_order_id=source['order_id'],
+                                   assignee_employee_id=source['owner_id'], deadline='2026-10-01')
+        self.check(case_id, 'followup')
+        draft = self.client.get(f"/api/crm/handoff/{started['session_id']}/", {'case_id': case_id}).json()
+        preview = self.client.post('/api/operations/preview/', draft['payload'], content_type='application/json')
+        confirmed = self.client.post('/api/operations/confirm/',
+            {'proposal_id': preview.json()['id'], 'confirmed': True}, content_type='application/json')
+        self.assertEqual(confirmed.status_code, 200, confirmed.content)
+        session = TrainingSession.objects.get(public_id=started['session_id'])
+        TrainingSession.objects.filter(pk=session.pk).update(progress={'invoice': {'stamp': 'legacy'}})
+        Task.objects.filter(pk=task.pk).update(archived_at=timezone.now())
+        with patch('crm.commands.prepare', side_effect=AssertionError('stored receipt replayed')):
+            replay = self.client.post('/api/operations/confirm/',
+                {'proposal_id': preview.json()['id'], 'confirmed': True}, content_type='application/json')
+        self.assertEqual(replay.status_code, 200, replay.content)
+        self.assertEqual(replay.json()['deal_id'], confirmed.json()['deal_id'])
+        self.assertEqual(CRMDeal.objects.count(), 1)
+
+    def test_d08_f02_08(self):
+        started = self.start('BOS3-CASE-03')
+        proposal = ActionProposal.objects.create(
+            user=self.owner, session_key=self.client.session.session_key, role='ceo',
+            payload={'action': 'crm_handoff', 'training_session_id': started['session_id']},
+            fingerprint='synthetic', expires_at=timezone.now() + timedelta(minutes=10),
+            receipt={'schema': 'crm.deal-receipt.v1', 'state': 'succeeded', 'deal_id': 999999})
+        foreign_user = get_user_model().objects.create_user(username='foreign-d08', password='synthetic-password')
+        Group.objects.get(name='ceo').user_set.add(foreign_user)
+        foreign = Client()
+        foreign.force_login(foreign_user)
+        wrong_user = foreign.post('/api/operations/confirm/',
+            {'proposal_id': str(proposal.pk), 'confirmed': True}, content_type='application/json')
+        self.assertEqual(wrong_user.status_code, 403, wrong_user.content)
+        other_session = Client()
+        other_session.force_login(self.owner)
+        wrong_session = other_session.post('/api/operations/confirm/',
+            {'proposal_id': str(proposal.pk), 'confirmed': True}, content_type='application/json')
+        self.assertEqual(wrong_session.status_code, 403, wrong_session.content)
+        self.owner.groups.remove(Group.objects.get(name='ceo'))
+        self.owner.groups.add(Group.objects.get_or_create(name='manager')[0])
+        wrong_role = self.client.post('/api/operations/confirm/',
+            {'proposal_id': str(proposal.pk), 'confirmed': True}, content_type='application/json')
+        self.assertEqual(wrong_role.status_code, 403, wrong_role.content)
+
+    def test_d08_f02_09(self):
+        case_id = 'BOS3-CASE-03'
+        started = self.start(case_id)
+        session = TrainingSession.objects.get(public_id=started['session_id'])
+        policy = Policy.for_user(self.owner)
+        with patch('crm.projections.case03_handoff_ready', return_value=True):
+            payload = crm_projections.draft(policy, started['session_id'], case_id)['payload']
+        refs = crm_commands._case_sources(policy, self.marker, session, case_id)
+        deal = CRMDeal.objects.create(training_session=session, case_id=case_id,
+            stable_handoff_hash=crm_commands._handoff_hash(self.marker, session, case_id, refs),
+            counterparty=refs['counterparty'], owner=refs['owner'], sales_order=refs['order'],
+            invoice=refs['invoice'], title='Контакт', next_action='Передзвонити', stage='collection')
+        proposal = ActionProposal.objects.create(user=self.owner, session_key=self.client.session.session_key,
+            role='ceo', payload=payload,
+            fingerprint='synthetic', expires_at=timezone.now() + timedelta(minutes=10),
+            receipt={'schema': 'crm.deal-receipt.v1', 'state': 'succeeded',
+                     'action': 'crm_handoff', 'deal_id': deal.pk})
+        with patch.object(Policy, 'crm_deals', return_value=CRMDeal.objects.none()):
+            denied = self.client.post('/api/operations/confirm/',
+                {'proposal_id': str(proposal.pk), 'confirmed': True}, content_type='application/json')
+        self.assertEqual(denied.status_code, 403, denied.content)
+        self.assertNotIn(str(deal.pk).encode(), denied.content)
+        missing_activity = ActionProposal.objects.create(
+            user=self.owner, session_key=self.client.session.session_key, role='ceo',
+            payload=payload, fingerprint='synthetic', expires_at=timezone.now() + timedelta(minutes=10),
+            receipt={'schema': 'crm.deal-receipt.v1', 'state': 'succeeded',
+                     'action': 'crm_handoff', 'deal_id': deal.pk, 'activity_id': 999999999})
+        unavailable = self.client.post('/api/operations/confirm/',
+            {'proposal_id': str(missing_activity.pk), 'confirmed': True}, content_type='application/json')
+        self.assertEqual(unavailable.status_code, 404, unavailable.content)
+        self.assertNotIn(b'999999999', unavailable.content)
+
+    def test_d08_f02_10(self):
+        case_id = 'BOS3-CASE-03'
+        started = self.start(case_id)
+        session = TrainingSession.objects.get(public_id=started['session_id'])
+        with patch('crm.projections.case03_handoff_ready', return_value=True):
+            payload = crm_projections.draft(Policy.for_user(self.owner), started['session_id'], case_id)['payload']
+        foreign_user = get_user_model().objects.create_user(username='foreign-d08-owner',
+                                                              password='synthetic-password')
+        Group.objects.get(name='ceo').user_set.add(foreign_user)
+        foreign = Client()
+        foreign.force_login(foreign_user)
+        denied = foreign.get(f"/api/crm/handoff/{started['session_id']}/", {'case_id': case_id})
+        self.assertEqual(denied.status_code, 403, denied.content)
+        for field, changed in (('user_id', foreign_user.pk), ('role', 'manager'),
+                               ('installation_id', 'other-installation'),
+                               ('fixture_id', 'other-fixture'), ('fixture_hash', '0' * 64)):
+            with self.subTest(session_field=field):
+                original = getattr(session, field)
+                TrainingSession.objects.filter(pk=session.pk).update(**{field: changed})
+                with patch('crm.projections.case03_handoff_ready',
+                           side_effect=AssertionError('session before Q02')):
+                    wrong_draft = self.client.get(
+                        f"/api/crm/handoff/{started['session_id']}/", {'case_id': case_id})
+                with patch('crm.commands.case03_handoff_ready',
+                           side_effect=AssertionError('session before Q02')):
+                    wrong_preview = self.client.post('/api/operations/preview/', payload,
+                        content_type='application/json')
+                self.assertEqual(wrong_draft.status_code, 403, wrong_draft.content)
+                self.assertEqual(wrong_preview.status_code, 403, wrong_preview.content)
+                TrainingSession.objects.filter(pk=session.pk).update(**{field: original})
+        with patch('crm.commands.case03_handoff_ready', side_effect=AssertionError('prior gate')):
+            for change in ({'stable_handoff_hash': '0' * 64}, {'order_id': payload['order_id'] + 1},
+                           {'invoice_id': payload['invoice_id'] + 1},
+                           {'owner_id': payload['owner_id'] + 1}):
+                preview = self.client.post('/api/operations/preview/', {**payload, **change},
+                                           content_type='application/json')
+                self.assertEqual(preview.status_code, 403, preview.content)
+        wrong_case = self.client.get(f"/api/crm/handoff/{started['session_id']}/",
+                                     {'case_id': 'BOS3-CASE-02'})
+        self.assertEqual(wrong_case.status_code, 403, wrong_case.content)
+        with patch('crm.commands.case03_handoff_ready', side_effect=AssertionError('case before Q02')):
+            wrong_post_case = self.client.post('/api/operations/preview/',
+                {**payload, 'case_id': 'BOS3-CASE-02'}, content_type='application/json')
+        self.assertEqual(wrong_post_case.status_code, 403, wrong_post_case.content)
+        missing_marker = deepcopy(self.marker)
+        missing_marker['source_map'][case_id]['order_id'] = 999999999
+        with patch('crm.commands._marker', return_value=missing_marker), patch(
+                'crm.commands.case03_handoff_ready', side_effect=AssertionError('source before Q02')):
+            missing = self.client.post('/api/operations/preview/', payload, content_type='application/json')
+        self.assertEqual(missing.status_code, 404, missing.content)
+        policy = Policy.for_user(self.owner)
+        refs = crm_commands._case_sources(policy, self.marker, session, case_id)
+        other_owner = Employee.objects.exclude(pk=refs['owner'].pk).first()
+        self.assertIsNotNone(other_owner)
+        wrong_owner_refs = {**refs, 'owner': other_owner}
+        with patch('crm.commands._marker', return_value=self.marker), patch(
+                'crm.commands._case_sources', return_value=wrong_owner_refs), patch.object(
+                Policy, 'ceo', property(lambda self: False)), patch(
+                'crm.commands.case03_handoff_ready', side_effect=AssertionError('owner before Q02')):
+            owner_denied = self.client.post('/api/operations/preview/', payload,
+                                            content_type='application/json')
+        self.assertEqual(owner_denied.status_code, 403, owner_denied.content)
+
+    def test_d08_f02_11(self):
+        case_id = 'BOS3-CASE-03'
+        started = self.start(case_id)
+        self.check(case_id, 'invoice', '6400')
+        source = self.marker['source_map'][case_id]
+        Task.objects.create(title='Контакт', sales_order_id=source['order_id'],
+                            assignee_employee_id=source['owner_id'], deadline='2026-10-01')
+        self.check(case_id, 'followup')
+        ready = self.client.get(f"/api/crm/handoff/{started['session_id']}/", {'case_id': case_id})
+        self.assertEqual(ready.status_code, 200, ready.content)
+        payload = ready.json()['payload']
+        admitted = self.client.post('/api/operations/preview/', payload,
+                                    content_type='application/json')
+        self.assertEqual(admitted.status_code, 200, admitted.content)
+        session = TrainingSession.objects.get(public_id=started['session_id'])
+        TrainingSession.objects.filter(pk=session.pk).update(status='completed', current_step='crm',
+                                                           progress={'invoice': {'stamp': 'legacy'}})
+        with patch('crm.projections.case03_handoff_ready', side_effect=AssertionError('completed draft gate')):
+            draft = self.client.get(f"/api/crm/handoff/{started['session_id']}/", {'case_id': case_id})
+        self.assertEqual(draft.status_code, 403, draft.content)
+        with patch('crm.commands.case03_handoff_ready', side_effect=AssertionError('completed prepare gate')):
+            preview = self.client.post('/api/operations/preview/', payload, content_type='application/json')
+        self.assertEqual(preview.status_code, 403, preview.content)
+        with patch('crm.commands.case03_handoff_ready', side_effect=AssertionError('completed confirm gate')):
+            confirm = self.client.post('/api/operations/confirm/',
+                {'proposal_id': admitted.json()['id'], 'confirmed': True},
+                content_type='application/json')
+        self.assertEqual(confirm.status_code, 403, confirm.content)
+        self.assertIsNone(ActionProposal.objects.get(pk=admitted.json()['id']).receipt)
+        self.assertEqual(TrainingSession.objects.get(pk=session.pk).progress,
+                         {'invoice': {'stamp': 'legacy'}})
+        self.assertFalse(CRMDeal.objects.filter(training_session=session).exists())
+
+    def test_d08_f02_12(self):
+        for case_id in ('BOS3-CASE-01', 'BOS3-CASE-02'):
+            started = self.start(case_id)
+            with patch('crm.projections.case03_handoff_ready',
+                       side_effect=AssertionError('other case draft gate')):
+                draft = self.client.get(f"/api/crm/handoff/{started['session_id']}/",
+                                        {'case_id': case_id})
+            self.assertEqual(draft.status_code, 200, draft.content)
+            with patch('crm.commands.case03_handoff_ready',
+                       side_effect=AssertionError('other case preview gate')):
+                preview = self.client.post('/api/operations/preview/', draft.json()['payload'],
+                                           content_type='application/json')
+            self.assertEqual(preview.status_code, 200, preview.content)
+            with patch('crm.commands.case03_handoff_ready',
+                       side_effect=AssertionError('other case confirm gate')):
+                confirm = self.client.post('/api/operations/confirm/',
+                    {'proposal_id': preview.json()['id'], 'confirmed': True},
+                    content_type='application/json')
+            self.assertEqual(confirm.status_code, 200, confirm.content)
+            with patch('crm.projections.case03_handoff_ready',
+                       side_effect=AssertionError('other case recovery gate')):
+                recovered = self.client.get(f"/api/crm/handoff/{started['session_id']}/",
+                                            {'case_id': case_id})
+            self.assertEqual(recovered.status_code, 200, recovered.content)
+            self.assertTrue(recovered.json()['existing'])
+            with patch('crm.commands.case03_handoff_ready',
+                       side_effect=AssertionError('other case existing gate')):
+                existing = self.client.post('/api/operations/preview/', draft.json()['payload'],
+                                            content_type='application/json')
+            self.assertEqual(existing.status_code, 200, existing.content)
+            self.assertEqual(existing.json()['state'], 'existing')
+        deal = CRMDeal.objects.get(case_id='BOS3-CASE-01')
+        with patch('crm.commands.case03_handoff_ready',
+                   side_effect=AssertionError('unrelated update gate')):
+            update = self.client.post('/api/operations/preview/',
+                {'action': 'crm_deal_update', 'deal_id': deal.pk, 'reason': 'Зміна контакту',
+                 'next_action': 'Передзвонити після уточнення строку.'},
+                content_type='application/json')
+        self.assertEqual(update.status_code, 200, update.content)
+        with patch('crm.commands.case03_handoff_ready',
+                   side_effect=AssertionError('unrelated confirm gate')):
+            applied = self.client.post('/api/operations/confirm/',
+                {'proposal_id': update.json()['id'], 'confirmed': True},
+                content_type='application/json')
+        self.assertEqual(applied.status_code, 200, applied.content)
+        deal.refresh_from_db()
+        self.assertEqual(deal.next_action, 'Передзвонити після уточнення строку.')
+
+    def test_d08_f02_13(self):
+        case_id = 'BOS3-CASE-03'
+        started = self.start(case_id)
+        self.check(case_id, 'invoice', '6400')
+        source = self.marker['source_map'][case_id]
+        Task.objects.create(title='Контакт', sales_order_id=source['order_id'],
+                            assignee_employee_id=source['owner_id'], deadline='2026-10-01')
+        self.check(case_id, 'followup')
+        session = TrainingSession.objects.get(public_id=started['session_id'])
+        before = (session.status, session.current_step, deepcopy(session.progress))
+        with patch('erp.service.write_lock', side_effect=AssertionError('GET mutex')), patch.object(
+                TrainingSession, 'save', side_effect=AssertionError('GET session save')), patch.object(
+                CRMDeal, 'save', side_effect=AssertionError('GET deal save')), patch.object(
+                QuerySet, 'select_for_update', side_effect=AssertionError('GET row lock')):
+            draft = self.client.get(f"/api/crm/handoff/{started['session_id']}/", {'case_id': case_id})
+            self.assertTrue(training_service.case03_handoff_ready(Policy.for_user(self.owner),
+                self.marker, session, source['order_id'], source['invoice_id']))
+        self.assertEqual(draft.status_code, 200, draft.content)
+        session.refresh_from_db()
+        self.assertEqual((session.status, session.current_step, session.progress), before)
+        calls = []
+        from erp.service import write_lock as original_write_lock
+        original_session = crm_commands._session
+        original_sources = crm_commands._case_sources
+        original_gate = crm_commands.case03_handoff_ready
+        original_existing = CRMDeal.objects.select_for_update
+        def observed_session(*args, **kwargs):
+            calls.append('session')
+            return original_session(*args, **kwargs)
+        def observed_lock(*args, **kwargs):
+            calls.append('mutex')
+            return original_write_lock(*args, **kwargs)
+        def observed_sources(*args, **kwargs):
+            calls.append('sources')
+            return original_sources(*args, **kwargs)
+        def observed_gate(*args, **kwargs):
+            calls.append('gate')
+            return original_gate(*args, **kwargs)
+        def observed_existing(*args, **kwargs):
+            calls.append('existing')
+            return original_existing(*args, **kwargs)
+        with patch('erp.service.write_lock', side_effect=observed_lock), patch(
+                'crm.commands._session', side_effect=observed_session), patch(
+                'crm.commands._case_sources', side_effect=observed_sources), patch(
+                'crm.commands.case03_handoff_ready', side_effect=observed_gate), patch.object(
+                CRMDeal.objects, 'select_for_update', side_effect=observed_existing):
+            preview = self.client.post('/api/operations/preview/', draft.json()['payload'],
+                                       content_type='application/json')
+        self.assertEqual(preview.status_code, 200, preview.content)
+        self.assertEqual(calls, ['mutex', 'session', 'sources', 'existing', 'gate'])
+        calls.clear()
+        with patch('erp.service.write_lock', side_effect=observed_lock), patch(
+                'crm.commands._session', side_effect=observed_session), patch(
+                'crm.commands._case_sources', side_effect=observed_sources), patch(
+                'crm.commands.case03_handoff_ready', side_effect=observed_gate), patch.object(
+                CRMDeal.objects, 'select_for_update', side_effect=observed_existing):
+            confirm = self.client.post('/api/operations/confirm/',
+                {'proposal_id': preview.json()['id'], 'confirmed': True},
+                content_type='application/json')
+        self.assertEqual(confirm.status_code, 200, confirm.content)
+        self.assertEqual(calls, ['mutex', 'session', 'sources', 'existing', 'gate'])
+        with patch('crm.commands.prepare', side_effect=AssertionError('receipt before prepare')):
+            replay = self.client.post('/api/operations/confirm/',
+                {'proposal_id': preview.json()['id'], 'confirmed': True},
+                content_type='application/json')
+        self.assertEqual(replay.status_code, 200, replay.content)
+
+    def test_d08_f02_14(self):
+        case_id = 'BOS3-CASE-03'
+        started = self.start(case_id)
+        self.check(case_id, 'invoice', '6400')
+        source = self.marker['source_map'][case_id]
+        Task.objects.create(title='Контакт', sales_order_id=source['order_id'],
+                            assignee_employee_id=source['owner_id'], deadline='2026-10-01')
+        self.check(case_id, 'followup')
+        expected = {'error': 'Спочатку перевірте попередній крок.'}
+        ready = self.client.get(f"/api/crm/handoff/{started['session_id']}/", {'case_id': case_id})
+        self.assertEqual(ready.status_code, 200, ready.content)
+        payload = ready.json()['payload']
+        preview = self.client.post('/api/operations/preview/', payload, content_type='application/json')
+        self.assertEqual(preview.status_code, 200, preview.content)
+        session = TrainingSession.objects.get(public_id=started['session_id'])
+        valid_progress = deepcopy(session.progress)
+        TrainingSession.objects.filter(pk=session.pk).update(progress={'invoice': {'stamp': 'stale'}})
+        draft = self.client.get(f"/api/crm/handoff/{started['session_id']}/", {'case_id': case_id})
+        self.assertEqual((draft.status_code, draft.json()), (422, expected))
+        denied_preview = self.client.post('/api/operations/preview/', payload,
+                                          content_type='application/json')
+        self.assertEqual((denied_preview.status_code, denied_preview.json()), (422, expected))
+        confirm = self.client.post('/api/operations/confirm/',
+            {'proposal_id': preview.json()['id'], 'confirmed': True}, content_type='application/json')
+        self.assertEqual((confirm.status_code, confirm.json()), (422, expected))
+        self.assertIsNone(ActionProposal.objects.get(pk=preview.json()['id']).receipt)
+        self.assertFalse(CRMDeal.objects.exists())
+        self.assertEqual(TrainingSession.objects.get(pk=session.pk).progress, {'invoice': {'stamp': 'stale'}})
+        bad_hash = self.client.post('/api/operations/preview/',
+            {**payload, 'stable_handoff_hash': '0' * 64}, content_type='application/json')
+        self.assertEqual(bad_hash.status_code, 403, bad_hash.content)
+        missing = self.client.get('/api/crm/handoff/00000000-0000-0000-0000-000000000001/',
+                                  {'case_id': case_id})
+        self.assertEqual(missing.status_code, 404, missing.content)
+        TrainingSession.objects.filter(pk=session.pk).update(progress=valid_progress)
+        ActionProposal.objects.filter(pk=preview.json()['id']).update(
+            expires_at=timezone.now() - timedelta(seconds=1))
+        expired = self.client.post('/api/operations/confirm/',
+            {'proposal_id': preview.json()['id'], 'confirmed': True}, content_type='application/json')
+        self.assertEqual(expired.status_code, 409, expired.content)
+
+    def test_d08_f02_15(self):
+        case_id = 'BOS3-CASE-03'
+        source = self.marker['source_map'][case_id]
+        from operations.models import Invoice
+        invoice = Invoice.objects.get(pk=source['invoice_id'])
+        invoice.paid = invoice.amount
+        invoice.save(update_fields=['paid'])
+        started = self.start(case_id)
+        self.check(case_id, 'invoice', '0')
+        task = Task.objects.create(title='Контакт без результату', sales_order_id=source['order_id'],
+                                   assignee_employee_id=source['owner_id'], deadline='2020-01-01',
+                                   status='active', result=None)
+        self.check(case_id, 'followup')
+        session = TrainingSession.objects.get(public_id=started['session_id'])
+        policy = Policy.for_user(self.owner)
+        self.assertTrue(training_service.case03_handoff_ready(
+            policy, self.marker, session, source['order_id'], source['invoice_id']))
+        draft = self.client.get(f"/api/crm/handoff/{started['session_id']}/", {'case_id': case_id})
+        self.assertEqual(draft.status_code, 200, draft.content)
+        self.assertEqual(draft.json()['schema'], 'crm.handoff-draft.v1')
+        self.assertEqual(set(draft.json()['payload']), {
+            'action', 'training_session_id', 'case_id', 'stable_handoff_hash',
+            'counterparty_id', 'owner_id', 'order_id', 'invoice_id', 'title',
+            'next_action', 'stage', 'contact_name', 'contact_role', 'contact_email'})
+        preview = self.client.post('/api/operations/preview/', draft.json()['payload'],
+                                   content_type='application/json')
+        self.assertEqual(preview.status_code, 200, preview.content)
+        confirm = self.client.post('/api/operations/confirm/',
+            {'proposal_id': preview.json()['id'], 'confirmed': True},
+            content_type='application/json')
+        self.assertEqual(confirm.status_code, 200, confirm.content)
+        self.assertEqual((confirm.json()['schema'], confirm.json()['state']),
+                         ('crm.deal-receipt.v1', 'succeeded'))
+        self.assertEqual(CRMDeal.objects.filter(training_session=session).count(), 1)
+        Task.objects.filter(pk=task.pk).update(status='done', result='Закрито без оплати')
+        self.assertTrue(training_service.case03_handoff_ready(
+            policy, self.marker, session, source['order_id'], source['invoice_id']))
+        self.assertFalse(training_service.case03_handoff_ready(
+            policy, self.marker, session, None, source['invoice_id']))
+        self.assertFalse(training_service.case03_handoff_ready(
+            policy, self.marker, session, source['order_id'], None))
+        self.assertFalse(training_service.case03_handoff_ready(
+            policy, self.marker, session, source['order_id'] + 1, source['invoice_id']))
+        self.assertFalse(training_service.case03_handoff_ready(
+            policy, self.marker, session, source['order_id'], source['invoice_id'] + 1))

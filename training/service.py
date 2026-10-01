@@ -402,6 +402,40 @@ def session_state(policy, marker, case_id, session=None):
     return _project_observation(policy, marker, case_id, session, observation, stamps)
 
 
+def case03_handoff_ready(policy, marker, session, expected_order_id, expected_invoice_id):
+    if expected_order_id is None or expected_invoice_id is None:
+        return False
+    case_id = CASE_IDS[2]
+    observation = observations(policy, marker, case_id, session)
+    rows = observation[2]
+    if (sum(row['id'] == 'invoice' for row in rows) != 1 or
+            sum(row['id'] == 'followup' for row in rows) != 1):
+        return False
+    invoice = next(row for row in rows if row['id'] == 'invoice')
+    followup = next(row for row in rows if row['id'] == 'followup')
+    if (invoice.get('_source_ids', {}).get('order') != ['erp.salesorder', expected_order_id] or
+            invoice.get('_source_ids', {}).get('invoice') != ['operations.invoice', expected_invoice_id] or
+            followup.get('_source_ids', {}).get('order') != ['erp.salesorder', expected_order_id] or
+            followup.get('_source_ids', {}).get('invoice') != ['operations.invoice', expected_invoice_id]):
+        return False
+    stamps = _expected_stamps(marker, case_id, rows, policy.access_revision())
+    projected = _project_observation(policy, marker, case_id, session, observation, stamps)
+    steps = projected['steps']
+    if (sum(row['id'] == 'invoice' for row in steps) != 1 or
+            sum(row['id'] == 'followup' for row in steps) != 1):
+        return False
+    if (followup['kind'] != 'operation' or followup['passed'] is not True or
+            not followup['observed']['tasks']):
+        return False
+    progress = session.progress or {}
+    for step_id in ('invoice', 'followup'):
+        row = next(row for row in steps if row['id'] == step_id)
+        if (row['status'] != 'completed' or row['evidence']['passed'] is not True or
+                progress.get(step_id, {}).get('stamp') != stamps[step_id]):
+            return False
+    return True
+
+
 def content(request):
     policy = Policy(request)
     registry = catalog()
