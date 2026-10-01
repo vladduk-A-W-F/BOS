@@ -44,3 +44,28 @@ jobs:
         mkdir -p "$RUNNER_TEMP/qa/media"
         BOS_TEST_DB_NAME="$RUNNER_TEMP/qa/bos3-fasteners-qa.sqlite3" BOS_TEST_MEDIA="$RUNNER_TEMP/qa/media" \
           python -B manage.py test training.test_sessions crm.test_contract --noinput
+  package-payload:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+    - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      with:
+        persist-credentials: false
+        fetch-depth: 0
+    - name: Чи змінено склад пакета
+      id: scope
+      run: |
+        if git diff --name-only "${{ github.event.pull_request.base.sha }}" HEAD | grep -qE '^(scripts/(package_server|test_package_server)\.py|demo_settings\.py|bos3_local_settings\.py|boss_project/version\.py)$'; then
+          echo "run=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "run=false" >> "$GITHUB_OUTPUT"
+        fi
+    - if: steps.scope.outputs.run == 'true'
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+      with:
+        python-version: '3.12'
+    - if: steps.scope.outputs.run == 'true'
+      name: Склад пакета без запуску застосунку
+      run: |
+        python -B -m scripts.test_package_server
+        python -B scripts/package_server.py --output "$RUNNER_TEMP/bos-dev-package"

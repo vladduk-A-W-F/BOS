@@ -1,0 +1,58 @@
+{
+  "schema": "bos.dev10-candidate.v1",
+  "version": "0.3.0-dev.10",
+  "status": "PACKAGED_NOT_INSTALLED",
+  "source_base_commit": "1dcaa8e0c84a109cc8a5df59f894d384268fe061",
+  "source_definition": "Base plus candidate PR head; exact code bytes bound by BOS_PACKAGE.json, not a runtime receipt.",
+  "merged_fixes": {
+    "D02": "d33ac2ec854650dfb972ad5a385afbcd33c73952",
+    "D08": "15f08bb8b839b97ad0785816582f85144b065eb2"
+  },
+  "package": {
+    "path": "D:/3/BOSDev/releases/0.3.0-dev.10-candidate-20261001-1",
+    "manifest": "D:/3/BOSDev/releases/0.3.0-dev.10-candidate-20261001-1/BOS_PACKAGE.json",
+    "manifest_sha256": "1f5b81df3a074f65a580ef009498c3a41dcc0dc960d2c609c6a0ada0dcdc3795",
+    "source_sha256": "dba51d19452bb86a681895b3de7989cc66379fdd585a09d358f2ca4edd3cbfd2",
+    "files": 427,
+    "database_files": 0,
+    "all_file_hashes_verified": true
+  },
+  "verification": {
+    "package_regression": {
+      "command": "python -B -m scripts.test_package_server",
+      "python": "3.12.14",
+      "exit_code": 0,
+      "raw": "D:/3/BOSDev/qa-scratch/release-dev10-20261001/package-test-r2.txt",
+      "raw_sha256": "9f22104d53fe285831d89b3cf458d8e0567190e1a0094c7b7292f8165775acab"
+    },
+    "package_build": {
+      "exit_code": 0,
+      "raw": "D:/3/BOSDev/qa-scratch/release-dev10-20261001/package-build.txt",
+      "raw_sha256": "93156522bfb12e18c9bd864cfbf2bcdbb3b06319b568742eb70a108dcf17cf4e"
+    },
+    "learning_crm_retained": {
+      "source_commit": "21a3a10483f149c1da4dfa140ebe13b6cffe1b5a",
+      "tests": 45,
+      "passed": 45,
+      "exit_code": 0,
+      "current_application_bytes_match": true,
+      "rerun": false,
+      "result": "D:/3/BOSDev/qa-scratch/release-section3-20261001/RESULT.json",
+      "result_sha256": "347038a19cb49f0ce473596dd5ee085547affc398b8d5cbd9f39d6127fa66b5b",
+      "independent_reviews": [
+        "https://github.com/vladduk-A-W-F/BOS/pull/16#issuecomment-5939109303",
+        "https://github.com/vladduk-A-W-F/BOS/pull/17#issuecomment-5939108448"
+      ]
+    },
+    "pg16": "NOT_RUN_FOR_DEV10_CANDIDATE",
+    "browser": "NOT_RUN",
+    "owner_local_delivery": "NOT_RUN"
+  },
+  "installation_instruction": "docs/strategy/DEV10_INSTALL_UA.md",
+  "installation_dependency": "Claude candidate review and scoped PG16, accepted merge, fresh owner-local state and reviewed backup/rebind/restore execution.",
+  "readiness": {
+    "technical_ready": false,
+    "pilot_allowed": false,
+    "mvp": false
+  }
+}
