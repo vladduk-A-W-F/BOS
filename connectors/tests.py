@@ -115,6 +115,27 @@ class ConnectorApiTests(TestCase):
         self.assertEqual(self.client.get('/api/connectors/').status_code, 200)
         self.assertEqual(self.upload('/api/connectors/preview/').status_code, 403)
 
+    def test_payment_rows_follow_money_scope(self):
+        payments = Connector.objects.create(kind='csv', name='Оплати', dataset='payments', created_by=self.ceo)
+        orders = Connector.objects.create(kind='csv', name='Замовлення', dataset='orders', created_by=self.ceo)
+        for connector in (payments, orders):
+            ConnectorSnapshot.objects.create(connector=connector, columns=['Сума'], rows=[['12500']],
+                                             row_count=1, sha256='0' * 64)
+        names = lambda: [c['name'] for c in self.client.get('/api/connectors/').json()['connectors']]
+        self.assertEqual(sorted(names()), ['Замовлення', 'Оплати'])
+        self.assertEqual(self.client.get(f'/api/connectors/{payments.pk}/rows/').status_code, 200)
+        self.client.force_login(self.user('manager', 'manager'))
+        self.assertEqual(names(), ['Замовлення'])
+        self.assertEqual(self.client.get(f'/api/connectors/{payments.pk}/rows/').status_code, 404)
+        self.assertEqual(self.client.post(f'/api/connectors/{payments.pk}/disable/').status_code, 404)
+        self.assertEqual(self.client.get(f'/api/connectors/{orders.pk}/rows/').status_code, 200)
+        self.client.force_login(self.observer)
+        self.assertEqual(names(), ['Замовлення'])
+        for connector in (payments, orders):
+            self.assertEqual(self.client.get(f'/api/connectors/{connector.pk}/rows/').status_code, 403)
+        payments.refresh_from_db()
+        self.assertEqual(payments.status, 'connected')
+
     def test_anonymous_is_refused(self):
         self.client.logout()
         self.assertIn(self.client.get('/api/connectors/').status_code, (401, 403))
