@@ -60,18 +60,18 @@ PEOPLE = (
 
 # key, name, AdventureWorks vendor it stands for
 SUPPLIERS = (
-    ('METAL', 'Металопрокат Центр · демо', 'Custom Frames, Inc.'),
-    ('FAST', 'Кріплення Плюс · демо', 'Cruger Bike Company'),
-    ('PAINT', 'Порошкові фарби Схід · демо', 'Trey Research'),
+    ('METAL', 'Металопрокат Центр', 'Custom Frames, Inc.'),
+    ('FAST', 'Кріплення Плюс', 'Cruger Bike Company'),
+    ('PAINT', 'Порошкові фарби Схід', 'Trey Research'),
 )
 
 # key, name, city
 CUSTOMERS = (
-    ('LOGISTIC', 'ТОВ «Логістик Парк» · демо', 'Київ'),
-    ('OFFICE', 'ТОВ «Офіс Сіті» · демо', 'Київ'),
-    ('AGRO', 'ТОВ «Агроснаб Дніпро» · демо', 'Дніпро'),
-    ('AUTO', 'ПП «Автосервіс Захід» · демо', 'Львів'),
-    ('SCHOOL', 'Житомирський ліцей № 7 · демо', 'Житомир'),
+    ('LOGISTIC', 'ТОВ «Логістик Парк»', 'Київ'),
+    ('OFFICE', 'ТОВ «Офіс Сіті»', 'Київ'),
+    ('AGRO', 'ТОВ «Агроснаб Дніпро»', 'Дніпро'),
+    ('AUTO', 'ПП «Автосервіс Захід»', 'Львів'),
+    ('SCHOOL', 'Житомирський ліцей № 7', 'Житомир'),
 )
 
 # AW ProductNumber (kept as article), name, unit, supplier, price UAH, minimum, lead days, certificate

@@ -10,3 +10,7 @@ from . import network_views, module_views
 urlpatterns_network=[path('network/',network_views.snapshot,name='bos-network'),path('network/export/',network_views.export,name='bos-network-export')]
 urlpatterns += urlpatterns_network
 urlpatterns += [path('modules/',module_views.registry,name='bos-modules')]
+
+from . import monitoring_views
+urlpatterns += [path('monitoring/', monitoring_views.overview, name='bos-monitoring'),
+                path('monitoring/query/<slug:key>/', monitoring_views.standard_query, name='bos-monitoring-query')]
