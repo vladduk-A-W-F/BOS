@@ -19,6 +19,12 @@ def _writer(request):
     return policy
 
 
+def _visible(policy):
+    """Connector rows follow the existing money scope: payments only for the CEO."""
+    rows = Connector.objects.exclude(status='disabled')
+    return rows if policy.ceo else rows.exclude(dataset='payments')
+
+
 def _read_source(request):
     """Return (kind, url, table) from an uploaded file or a Google Sheets link."""
     kind = request.POST.get('kind', '')
@@ -59,8 +65,7 @@ def _source_error(fn):
 @require_GET
 @errors
 def index(request):
-    Policy(request)
-    connectors = Connector.objects.exclude(status='disabled').prefetch_related('snapshots')
+    connectors = _visible(Policy(request)).prefetch_related('snapshots')
     return JsonResponse({'catalog': list(sources.CATALOG),
                          'connectors': [_connector_dict(item) for item in connectors]})
 
@@ -105,8 +110,7 @@ def create(request):
 @require_POST
 @errors
 def sync(request, connector_id):
-    _writer(request)
-    connector = Connector.objects.get(pk=connector_id, kind='google_sheets')
+    connector = _visible(_writer(request)).get(pk=connector_id, kind='google_sheets')
     if connector.status == 'disabled':
         raise ValueError('Підключення вимкнено.')
     try:
@@ -129,8 +133,10 @@ def sync(request, connector_id):
 @require_GET
 @errors
 def rows(request, connector_id):
-    Policy(request)
-    connector = Connector.objects.exclude(status='disabled').get(pk=connector_id)
+    policy = Policy(request)
+    if policy.role == 'observer':
+        raise PermissionError('Рядки підключених джерел недоступні спостерігачу.')
+    connector = _visible(policy).get(pk=connector_id)
     snapshot = connector.snapshots.first()
     return JsonResponse({**_connector_dict(connector), 'rows': snapshot.rows if snapshot else []})
 
@@ -139,8 +145,7 @@ def rows(request, connector_id):
 @require_POST
 @errors
 def disable(request, connector_id):
-    _writer(request)
-    updated = Connector.objects.filter(pk=connector_id).exclude(status='disabled').update(status='disabled')
+    updated = _visible(_writer(request)).filter(pk=connector_id).update(status='disabled')
     if not updated:
         raise Connector.DoesNotExist
     return JsonResponse({'id': connector_id, 'status': 'disabled'})
