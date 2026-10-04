@@ -24252,6 +24252,91 @@ function Connections() {
     "data-state": x.state
   }, x.state === 'available' ? 'Працює' : 'Готується'))))));
 }
+
+// BoS 4 first screen: three short cases, one button into the demo. No login, no long text.
+function Showcase({
+  onEnter,
+  busy,
+  error,
+  login
+}) {
+  const [data, setData] = useState(null),
+    [active, setActive] = useState(0),
+    [step, setStep] = useState(0);
+  useEffect(() => {
+    fetch('/api/erp/showcase/').then(r => r.json()).then(setData).catch(() => setData({
+      cases: []
+    }));
+  }, []);
+  const cases = data?.cases || [],
+    current = cases[active],
+    steps = current?.steps || [];
+  const pick = i => {
+    setActive(i);
+    setStep(0);
+  };
+  const move = d => setStep(s => Math.max(0, Math.min(steps.length - 1, s + d)));
+  return /*#__PURE__*/React.createElement("main", {
+    className: "show",
+    onKeyDown: e => {
+      if (e.key === 'ArrowRight') move(1);
+      if (e.key === 'ArrowLeft') move(-1);
+    }
+  }, /*#__PURE__*/React.createElement("header", {
+    className: "show-head"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "show-brand"
+  }, /*#__PURE__*/React.createElement(BosMark, null), /*#__PURE__*/React.createElement("strong", null, "BoS")), /*#__PURE__*/React.createElement("span", null, data?.company || '')), /*#__PURE__*/React.createElement("section", {
+    className: "show-hero"
+  }, /*#__PURE__*/React.createElement("h1", null, "\u0423\u0441\u044F \u043A\u043E\u043C\u043F\u0430\u043D\u0456\u044F \u0432 \u043E\u0434\u043D\u043E\u043C\u0443 \u043C\u043E\u043D\u0456\u0442\u043E\u0440\u0438\u043D\u0433\u0443"), /*#__PURE__*/React.createElement("p", null, "\u041F\u0456\u0434\u043A\u043B\u044E\u0447\u0456\u0442\u044C \u0441\u0435\u0440\u0432\u0456\u0441\u0438, \u044F\u043A\u0438\u043C\u0438 \u0432\u0436\u0435 \u043A\u043E\u0440\u0438\u0441\u0442\u0443\u0454\u0442\u0435\u0441\u044C, \u0456 \u0431\u0430\u0447\u0442\u0435 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F, \u0441\u043A\u043B\u0430\u0434, \u043E\u043F\u043B\u0430\u0442\u0438 \u0439 \u0434\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F \u0432 \u043E\u0434\u043D\u0438\u0445 \u0442\u0430\u0431\u043B\u0438\u0446\u044F\u0445."), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "show-cta",
+    disabled: busy,
+    onClick: onEnter
+  }, busy ? 'Відкриваємо…' : 'Перейти до BoS'), error && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "show-error"
+  }, error)), cases.length > 0 && /*#__PURE__*/React.createElement("section", {
+    className: "show-cases",
+    "aria-label": "\u041A\u0435\u0439\u0441\u0438"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "show-tabs",
+    role: "tablist"
+  }, cases.map((c, i) => /*#__PURE__*/React.createElement("button", {
+    key: c.key,
+    type: "button",
+    role: "tab",
+    "aria-selected": i === active,
+    onClick: () => pick(i)
+  }, /*#__PURE__*/React.createElement("span", null, i + 1), c.title))), /*#__PURE__*/React.createElement("div", {
+    className: "show-case",
+    role: "tabpanel"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "show-case-head"
+  }, /*#__PURE__*/React.createElement("p", null, current.summary), /*#__PURE__*/React.createElement("div", {
+    className: "show-result"
+  }, /*#__PURE__*/React.createElement("strong", null, current.result.value), /*#__PURE__*/React.createElement("span", null, current.result.label))), /*#__PURE__*/React.createElement("ol", {
+    className: "show-steps"
+  }, steps.map((s, i) => /*#__PURE__*/React.createElement("li", {
+    key: i
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    "aria-current": i === step ? 'step' : undefined,
+    "data-done": i < step,
+    onClick: () => setStep(i)
+  }, /*#__PURE__*/React.createElement("span", null, i + 1), /*#__PURE__*/React.createElement("strong", null, s.title), /*#__PURE__*/React.createElement("em", null, s.text))))), /*#__PURE__*/React.createElement("div", {
+    className: "show-nav"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => move(-1),
+    disabled: step === 0
+  }, "\u041D\u0430\u0437\u0430\u0434"), /*#__PURE__*/React.createElement("span", null, step + 1, " / ", steps.length), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => step === steps.length - 1 ? pick((active + 1) % cases.length) : move(1)
+  }, step === steps.length - 1 ? 'Наступний кейс' : 'Далі')))), login && /*#__PURE__*/React.createElement("details", {
+    className: "show-login"
+  }, /*#__PURE__*/React.createElement("summary", null, "\u0412\u0445\u0456\u0434 \u0434\u043B\u044F \u043A\u043E\u043C\u043F\u0430\u043D\u0456\u0457"), login));
+}
 function AuthGate() {
   const [ready, setReady] = useState(false),
     [mode, setMode] = useState(null),
@@ -24451,13 +24536,15 @@ function AuthGate() {
       marginTop: 14
     }
   }, "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0438 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043D\u044F"))));
+  if (mode === 'demo' && !trainingEnabled) return /*#__PURE__*/React.createElement(Showcase, {
+    onEnter: () => enter(true),
+    busy: busy,
+    error: error,
+    login: passwordForm
+  });
   return /*#__PURE__*/React.createElement("main", {
     className: "bos-entry-shell"
-  }, /*#__PURE__*/React.createElement(BosOnlineBrochure, {
-    content: bos3Registry(),
-    onExplore: exploreBrochure,
-    onSignIn: openSignIn
-  }), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     className: "bos-login-standalone",
     ref: signInRef
   }, /*#__PURE__*/React.createElement("section", {
