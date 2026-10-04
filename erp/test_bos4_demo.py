@@ -112,3 +112,13 @@ class Bos4DemoTests(TransactionTestCase):
         with self.assertRaises(CommandError):
             self.command()
         self.assertFalse(Configuration.objects.filter(key='bos4_demo_seed').exists())
+
+    def test_refuses_database_with_connected_sources(self):
+        from connectors.models import Connector
+        owner = get_user_model().objects.create(username='synthetic-owner')
+        Connector.objects.create(kind='csv', name='Наявні замовлення', dataset='orders', created_by=owner)
+        before = (Configuration.objects.count(), Item.objects.count(), Branch.objects.count())
+        with self.assertRaisesRegex(CommandError, 'підключені джерела'):
+            self.command()
+        self.assertEqual((Configuration.objects.count(), Item.objects.count(), Branch.objects.count()), before)
+        self.assertEqual(Connector.objects.count(), 1)
