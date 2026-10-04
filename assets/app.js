@@ -119,10 +119,11 @@ function bosCanAction(action) {
 }
 function bosCanView(section, sub) {
   if (section === 'erp' && sub === 'costs') return bosCan('finance');
+  if (section === 'finance' && sub === 'costs') return bosCan('finance');
   if (section === 'finance' && sub === 'salaries') return bosCan('finance');
   if (section === 'finance' && sub === 'bank') return bosRole() !== 'observer';
   if (section === 'hr' && ['birthdays', 'kpi'].includes(sub)) return bosCan('hr_private');
-  if (section === 'organizer' && sub === 'documents') return bosCan('view_documents');
+  if (section === 'organizer' && sub === 'documents' || section === 'documents') return bosCan('view_documents');
   if (section === 'ai' && ['audiomeeting', 'dictaphone'].includes(sub)) return bosCan('external_llm') && bosCan('write');
   return true;
 }
@@ -258,36 +259,27 @@ const INDUSTRIES = [{
   color: '#F59E0B'
 }];
 const NAV = [{
-  id: 'heli',
-  label: 'Вертоліт',
-  iconKey: 'helicopter',
-  subs: []
-}, {
-  id: 'dash',
-  label: 'Сьогодні',
-  icon: '⊞',
+  id: 'monitor',
+  label: 'Моніторинг',
   iconKey: 'dashboard',
   subs: []
 }, {
+  id: 'structure',
+  label: 'Структура',
+  iconKey: 'organizer',
+  subs: []
+}, {
   id: 'erp',
-  label: 'ERP',
+  label: 'Операції',
   iconKey: 'contracts',
   subs: [{
-    id: 'network',
-    label: 'Мережа та операції',
-    iconKey: 'dashboard'
-  }, {
-    id: 'overview',
-    label: 'Огляд виконання',
-    iconKey: 'dashboard'
-  }, {
-    id: 'catalog',
-    label: 'Номенклатура',
-    iconKey: 'contracts'
-  }, {
     id: 'sales',
     label: 'Продажі',
     iconKey: 'contractors'
+  }, {
+    id: 'purchase',
+    label: 'Постачання',
+    iconKey: 'contracts'
   }, {
     id: 'stock',
     label: 'Склад',
@@ -297,17 +289,17 @@ const NAV = [{
     label: 'Виробництво',
     iconKey: 'tasks'
   }, {
-    id: 'purchase',
-    label: 'Постачання',
-    iconKey: 'contracts'
-  }, {
     id: 'quality',
-    label: 'Якість і зміни',
+    label: 'Якість',
     iconKey: 'tasks'
   }, {
-    id: 'costs',
-    label: 'Фінансовий результат',
-    iconKey: 'finance'
+    id: 'catalog',
+    label: 'Номенклатура',
+    iconKey: 'contracts'
+  }, {
+    id: 'deals',
+    label: 'Угоди',
+    iconKey: 'contractors'
   }]
 }, {
   id: 'finance',
@@ -315,13 +307,8 @@ const NAV = [{
   icon: '₴',
   iconKey: 'finance',
   subs: [{
-    id: 'procurement',
-    label: 'Закупівлі',
-    icon: '📦',
-    iconKey: 'contracts'
-  }, {
     id: 'bank',
-    label: 'Операції',
+    label: 'Оплати',
     icon: '🏦',
     iconKey: 'bank'
   }, {
@@ -335,19 +322,23 @@ const NAV = [{
     icon: '📄',
     iconKey: 'contracts'
   }, {
+    id: 'procurement',
+    label: 'Закупівлі',
+    icon: '📦',
+    iconKey: 'contracts'
+  }, {
     id: 'salaries',
     label: 'Зарплати',
     icon: '💰',
     iconKey: 'salaries'
+  }, {
+    id: 'costs',
+    label: 'Фінансовий результат',
+    iconKey: 'finance'
   }]
 }, {
-  id: 'crm',
-  label: 'CRM',
-  iconKey: 'contractors',
-  subs: []
-}, {
   id: 'hr',
-  label: 'HR',
+  label: 'Команда',
   icon: '👥',
   iconKey: 'hr',
   subs: [{
@@ -360,74 +351,16 @@ const NAV = [{
     label: 'Співробітники',
     icon: '👤',
     iconKey: 'employees'
-  }, {
-    id: 'birthdays',
-    label: 'Дні народження',
-    icon: '🎂',
-    iconKey: 'birthdays'
-  }, {
-    id: 'kpi',
-    label: 'KPI',
-    icon: '📊',
-    iconKey: 'kpi'
   }]
 }, {
-  id: 'organizer',
-  label: 'Органайзер',
-  icon: '📅',
-  iconKey: 'organizer',
-  subs: [{
-    id: 'documents',
-    label: 'Документи',
-    icon: '📄',
-    iconKey: 'contracts'
-  }, {
-    id: 'journal',
-    label: 'Журнал дій',
-    icon: '✓',
-    iconKey: 'tasks'
-  }, {
-    id: 'schedule',
-    label: 'Розклад',
-    icon: '🗓',
-    iconKey: 'schedule'
-  }, {
-    id: 'notes',
-    label: 'Нотатки',
-    icon: '📝',
-    iconKey: 'notes'
-  }, {
-    id: 'reports',
-    label: 'Звітність',
-    icon: '📋',
-    iconKey: 'reports'
-  }]
+  id: 'documents',
+  label: 'Документи',
+  iconKey: 'reports',
+  subs: []
 }, {
-  id: 'ai',
-  label: 'AI Асистент',
-  icon: '✦',
-  iconKey: 'ai',
-  subs: [{
-    id: 'aichat',
-    label: 'Чат-бот',
-    icon: '💬',
-    iconKey: 'aichat'
-  }, {
-    id: 'audiomeeting',
-    label: 'Аудіо нарада',
-    icon: '🎙',
-    iconKey: 'audiomeeting'
-  }, {
-    id: 'dictaphone',
-    label: 'Диктофон',
-    icon: '🎤',
-    iconKey: 'dictaphone'
-  }]
-}, {
-  id: 'info',
-  label: 'Про систему',
-  icon: 'ⓘ',
-  iconKey: 'info',
+  id: 'connectors',
+  label: 'Підключення',
+  iconKey: 'bank',
   subs: []
 }, {
   id: 'settings',
@@ -436,6 +369,32 @@ const NAV = [{
   iconKey: 'settings',
   subs: []
 }];
+// Old routes (BoS 3) open their BoS 4 place instead of an empty screen.
+const NAV_ALIASES = {
+  heli: ['monitor', null],
+  dash: ['monitor', null],
+  info: ['monitor', null],
+  ai: ['monitor', null],
+  crm: ['erp', 'deals'],
+  organizer: ['documents', null]
+};
+function bosRoute(nav) {
+  const a = NAV_ALIASES[nav.section];
+  if (a) return {
+    section: a[0],
+    sub: a[1]
+  };
+  if (nav.section === 'erp' && ['network', 'overview'].includes(nav.sub)) return {
+    section: 'structure',
+    sub: null
+  };
+  if (nav.section === 'finance' && nav.sub === 'costs') return nav;
+  if (!NAV.some(n => n.id === nav.section)) return {
+    section: 'monitor',
+    sub: null
+  };
+  return nav;
+}
 
 // Existing preference IDs remain compatible; all themes use readable light surfaces.
 const THEMES = {
@@ -2146,22 +2105,7 @@ function NavBar({
       borderRadius: '50%',
       background: T.red
     }
-  })), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setAiPanelOpen(p => !p),
-    title: aiPanelOpen ? 'Згорнути AI' : 'Відкрити AI',
-    style: {
-      width: 38,
-      height: 38,
-      background: aiPanelOpen ? T.blueGlow : T.surface,
-      border: '1px solid ' + (aiPanelOpen ? T.blue : T.border),
-      borderRadius: T.radMd,
-      color: aiPanelOpen ? T.blue : T.textMuted,
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    }
-  }, sparklesIcon), /*#__PURE__*/React.createElement("div", {
+  })), /*#__PURE__*/React.createElement("div", {
     title: name + ' — ' + position,
     style: {
       width: 36,
@@ -3553,7 +3497,7 @@ function Heli({
   const diveTo = branchId => {
     setSelectedBranch(branchId ?? null);
     setNav({
-      section: 'dash',
+      section: 'monitor',
       sub: null
     });
   };
@@ -18792,7 +18736,7 @@ function ERPWorkspace({
     className: "erp-workspace"
   }, /*#__PURE__*/React.createElement("div", {
     className: "erp-row"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", null, "ERP \xB7 ", {
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", null, {
     network: 'Мережа та операції',
     overview: 'Огляд виконання',
     catalog: 'Номенклатура',
@@ -23369,15 +23313,13 @@ function App() {
       return null;
     }
   })();
-  const [screen, setScreen] = useState(trainingEnabled || savedIndustry ? 'app' : 'onboarding');
+  const [screen, setScreen] = useState('app');
   const [industry, setIndustry] = useState(trainingEnabled ? null : savedIndustry);
-  const [nav, setNav] = useState(() => bos3Slug() || trainingEnabled ? {
-    section: 'info',
-    sub: null
-  } : {
-    section: 'dash',
+  const [nav, setNavRaw] = useState({
+    section: 'monitor',
     sub: null
   });
+  const setNav = next => setNavRaw(prev => bosRoute(typeof next === 'function' ? next(prev) : next));
   const [trainingTour, setTrainingTour] = useState(null);
   const [crmHandoff, setCrmHandoff] = useState(null);
   const [opRole, setOpRole] = useState(bosRole());
@@ -23590,38 +23532,49 @@ function App() {
         className: "erp-workspace"
       }, /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, "\u0420\u043E\u0437\u0434\u0456\u043B \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0439"), /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0442\u043E\u0447\u043D\u0438\u0439 \u043E\u0431\u043B\u0456\u043A\u043E\u0432\u0438\u0439 \u0437\u0430\u043F\u0438\u0441 \u043D\u0435 \u043C\u0430\u0454 \u0434\u043E\u0441\u0442\u0443\u043F\u0443 \u0434\u043E \u0446\u044C\u043E\u0433\u043E \u0440\u043E\u0437\u0434\u0456\u043B\u0443."), /*#__PURE__*/React.createElement(Button, {
         onClick: () => setNav({
-          section: 'dash',
+          section: 'monitor',
           sub: null
         })
-      }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u0440\u043E\u0431\u043E\u0447\u0438\u0439 \u043E\u0433\u043B\u044F\u0434")));
+      }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u043C\u043E\u043D\u0456\u0442\u043E\u0440\u0438\u043D\u0433")));
     }
-    if (section === 'heli') return /*#__PURE__*/React.createElement(BoSHome, {
-      key: "heli-overview",
-      readOnlyOverview: true,
+    if (section === 'monitor') return /*#__PURE__*/React.createElement(Monitoring, {
       onNavigate: (section, sub) => setNav({
         section,
         sub
-      }),
-      refetchTasks: refetchTasks
+      })
     });
-    if (section === 'dash') return /*#__PURE__*/React.createElement(BoSHome, {
-      key: "today-work",
-      focus: true,
-      onNavigate: (section, sub) => setNav({
-        section,
-        sub
-      }),
-      refetchTasks: refetchTasks
-    });
-    if (section === 'erp') return /*#__PURE__*/React.createElement(ERPWorkspace, {
-      view: sub || 'overview',
+    if (section === 'structure') return /*#__PURE__*/React.createElement(ERPWorkspace, {
+      view: "network",
       refetchTasks: refetchTasks,
       onNavigate: (section, sub) => setNav({
         section,
         sub
       })
     });
+    if (section === 'erp' && sub === 'deals') return /*#__PURE__*/React.createElement(CRMWorkspace, {
+      employees: employees,
+      handoffContext: crmHandoff,
+      onClearHandoff: () => setCrmHandoff(null)
+    });
+    if (section === 'erp') return /*#__PURE__*/React.createElement(ERPWorkspace, {
+      view: sub || 'sales',
+      refetchTasks: refetchTasks,
+      onNavigate: (section, sub) => setNav({
+        section,
+        sub
+      })
+    });
+    if (section === 'documents') return /*#__PURE__*/React.createElement(DocumentRegistry, null);
+    if (section === 'connectors') return /*#__PURE__*/React.createElement(Connections, null);
     if (section === 'finance') {
+      if (sub === 'costs') return /*#__PURE__*/React.createElement(ERPWorkspace, {
+        view: "costs",
+        refetchTasks: refetchTasks,
+        onNavigate: (section, sub) => setNav({
+          section,
+          sub
+        })
+      });
       if (sub === 'procurement') return /*#__PURE__*/React.createElement(Procurement, {
         refetchTasks: refetchTasks,
         onNavigate: (section, sub) => setNav({
@@ -23772,7 +23725,7 @@ function App() {
     href: "#bos-workspace"
   }, "\u0414\u043E \u0432\u043C\u0456\u0441\u0442\u0443"), /*#__PURE__*/React.createElement("div", {
     className: "op-mode"
-  }, /*#__PURE__*/React.createElement("span", null, window.BOS_RUNTIME?.mode === 'demo' ? 'Навчальна компанія · дані на ' + window.BOS_RUNTIME.as_of.split('-').reverse().join('.') : 'Робочий простір', " \xB7 BoS"), window.BOS_RUNTIME?.mode === 'demo' && !window.BOS_RUNTIME?.training_enabled ? /*#__PURE__*/React.createElement("label", null, "\u041D\u0430\u0432\u0447\u0430\u043B\u044C\u043D\u0430 \u0440\u043E\u043B\u044C ", /*#__PURE__*/React.createElement("select", {
+  }, /*#__PURE__*/React.createElement("span", null, window.BOS_RUNTIME?.mode === 'demo' ? 'Демо-компанія · дані на ' + window.BOS_RUNTIME.as_of.split('-').reverse().join('.') : 'Робочий простір', " \xB7 BoS"), window.BOS_RUNTIME?.mode === 'demo' && !window.BOS_RUNTIME?.training_enabled ? /*#__PURE__*/React.createElement("label", null, "\u0420\u043E\u043B\u044C ", /*#__PURE__*/React.createElement("select", {
     value: opRole,
     onChange: async e => {
       try {
@@ -23840,13 +23793,6 @@ function App() {
       refetchDashboard(selectedBranch, period);
       setNotice("Доручення збережено");
     }
-  }), /*#__PURE__*/React.createElement(BoSHome, {
-    monitor: true,
-    readOnlyOverview: true,
-    onNavigate: (section, sub) => setNav({
-      section,
-      sub
-    })
   }), (dataError || notice) && /*#__PURE__*/React.createElement("div", {
     className: "bos-feedback",
     role: "status"
@@ -23871,13 +23817,360 @@ function App() {
       overflowY: 'auto',
       overflowX: 'hidden'
     }
-  }, /*#__PURE__*/React.createElement(ERPConfirmRecovery, null), renderContent())), aiPanelOpen && /*#__PURE__*/React.createElement(AIPanel, {
-    onClose: () => setAiPanelOpen(false),
-    refetchTasks: refetchTasks,
-    refetchEmployees: refetchEmployees,
-    refetchFinance: refetchFinance,
-    aiConfigured: aiConfigured
-  })));
+  }, /*#__PURE__*/React.createElement(ERPConfirmRecovery, null), renderContent()))));
+}
+
+// BoS 4 «Моніторинг»: numbers, standard queries and tables. Read-only.
+const MON_KIND = {
+  order: 'orders',
+  lot: 'lots',
+  purchase: 'purchases',
+  invoice: 'invoices'
+};
+function monValue(v) {
+  if (typeof v === 'number') return v.toLocaleString('uk-UA');
+  if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)) return v.split('-').reverse().join('.');
+  return v;
+}
+function MonTable({
+  table,
+  onRow
+}) {
+  return /*#__PURE__*/React.createElement("section", {
+    className: "mon-card"
+  }, /*#__PURE__*/React.createElement("header", null, /*#__PURE__*/React.createElement("h2", null, table.title), /*#__PURE__*/React.createElement("span", null, table.total)), table.rows.length ? /*#__PURE__*/React.createElement("div", {
+    className: "erp-table",
+    tabIndex: 0
+  }, /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, table.columns.map(c => /*#__PURE__*/React.createElement("th", {
+    key: c
+  }, c)))), /*#__PURE__*/React.createElement("tbody", null, table.rows.map((r, i) => /*#__PURE__*/React.createElement("tr", {
+    key: i,
+    className: 'bos-click-row' + (r.late ? ' mon-late' : ''),
+    tabIndex: 0,
+    onClick: () => onRow(r.ref),
+    onKeyDown: e => {
+      if (e.key === 'Enter') onRow(r.ref);
+    }
+  }, r.cells.map((c, j) => /*#__PURE__*/React.createElement("td", {
+    key: j
+  }, monValue(c)))))))) : /*#__PURE__*/React.createElement("p", {
+    className: "op-muted mon-empty"
+  }, "\u041D\u0435\u043C\u0430\u0454 \u0437\u0430\u043F\u0438\u0441\u0456\u0432"));
+}
+function Monitoring({
+  onNavigate
+}) {
+  const [data, setData] = useState(null),
+    [error, setError] = useState(''),
+    [result, setResult] = useState(null),
+    [snapshot, setSnapshot] = useState(null),
+    [selection, setSelection] = useState(null);
+  const load = async () => {
+    try {
+      setData(await erpFetch('monitoring/'));
+      setError('');
+    } catch (e) {
+      setError(e.message);
+    }
+  };
+  useEffect(() => {
+    load();
+    window.addEventListener('bos:data-changed', load);
+    return () => window.removeEventListener('bos:data-changed', load);
+  }, []);
+  const ask = async key => {
+    try {
+      setResult(await erpFetch('monitoring/query/' + key + '/'));
+      setError('');
+    } catch (e) {
+      setError(e.message);
+    }
+  };
+  const open = async ref => {
+    if (ref.kind === 'task') {
+      onNavigate('hr', 'tasks');
+      return;
+    }
+    try {
+      const d = snapshot || (await erpFetch('snapshot/'));
+      setSnapshot(d);
+      setSelection({
+        kind: MON_KIND[ref.kind],
+        id: ref.id
+      });
+    } catch (e) {
+      setError(e.message);
+    }
+  };
+  if (!data) return /*#__PURE__*/React.createElement("div", {
+    className: "mon"
+  }, /*#__PURE__*/React.createElement("p", null, error || 'Завантаження…'), error && /*#__PURE__*/React.createElement(Button, {
+    onClick: load
+  }, "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0438"));
+  return /*#__PURE__*/React.createElement("div", {
+    className: "mon"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "mon-numbers"
+  }, data.numbers.map(n => /*#__PURE__*/React.createElement("div", {
+    key: n.key,
+    className: 'mon-number' + (n.alert ? ' mon-alert' : '')
+  }, /*#__PURE__*/React.createElement("strong", null, monValue(n.value)), /*#__PURE__*/React.createElement("span", null, n.label)))), /*#__PURE__*/React.createElement("div", {
+    className: "mon-queries",
+    role: "group",
+    "aria-label": "\u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043D\u0456 \u0437\u0430\u043F\u0438\u0442\u0438"
+  }, data.queries.map(q => /*#__PURE__*/React.createElement("button", {
+    key: q.key,
+    type: "button",
+    "aria-pressed": result?.key === q.key,
+    onClick: () => ask(q.key)
+  }, q.title))), error && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, error), result && /*#__PURE__*/React.createElement("div", {
+    className: "mon-result"
+  }, /*#__PURE__*/React.createElement(MonTable, {
+    table: result,
+    onRow: open
+  }), /*#__PURE__*/React.createElement(Button, {
+    onClick: () => setResult(null)
+  }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438")), /*#__PURE__*/React.createElement("div", {
+    className: "mon-grid"
+  }, data.tables.map(t => /*#__PURE__*/React.createElement(MonTable, {
+    key: t.key,
+    table: t,
+    onRow: open
+  }))), selection && snapshot && /*#__PURE__*/React.createElement(BoSInspector, {
+    selection: selection,
+    data: snapshot,
+    readOnly: true,
+    onClose: () => setSelection(null),
+    onSelect: setSelection,
+    onAction: () => {},
+    onNavigate: onNavigate
+  }));
+}
+
+// BoS 4 «Підключення»: connect services the company already uses. Read-only import.
+function Connections() {
+  const [data, setData] = useState(null),
+    [error, setError] = useState(''),
+    [open, setOpen] = useState(null),
+    [form, setForm] = useState({
+      kind: 'csv',
+      name: '',
+      dataset: 'orders',
+      url: ''
+    }),
+    [preview, setPreview] = useState(null),
+    [busy, setBusy] = useState(false);
+  const fileRef = useRef(null);
+  const call = async (path, body) => {
+    const r = await fetch('/api/connectors/' + path, body ? {
+      method: 'POST',
+      body
+    } : {});
+    let d;
+    try {
+      d = await r.json();
+    } catch {
+      throw Error('Сервіс підключень недоступний.');
+    }
+    if (!r.ok) throw Error(d.error || 'Не вдалося виконати запит.');
+    return d;
+  };
+  const load = async () => {
+    try {
+      setData(await call(''));
+      setError('');
+    } catch (e) {
+      setError(e.message);
+    }
+  };
+  useEffect(() => {
+    load();
+  }, []);
+  const source = () => {
+    const f = new FormData();
+    f.append('kind', form.kind);
+    if (form.kind === 'csv') {
+      const file = fileRef.current?.files?.[0];
+      if (!file) throw Error('Оберіть файл .xlsx або .csv.');
+      f.append('file', file);
+    } else f.append('url', form.url.trim());
+    return f;
+  };
+  const run = async fn => {
+    if (busy) return;
+    setBusy(true);
+    setError('');
+    try {
+      await fn();
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const doPreview = () => run(async () => setPreview(await call('preview/', source())));
+  const doCreate = () => run(async () => {
+    const f = source();
+    f.append('name', form.name.trim());
+    f.append('dataset', form.dataset);
+    f.append('expected_sha256', preview.sha256);
+    await call('create/', f);
+    setPreview(null);
+    setForm({
+      kind: 'csv',
+      name: '',
+      dataset: 'orders',
+      url: ''
+    });
+    if (fileRef.current) fileRef.current.value = '';
+    await load();
+  });
+  const doSync = id => run(async () => {
+    await call(id + '/sync/', new FormData());
+    await load();
+  });
+  const doDisable = id => run(async () => {
+    await call(id + '/disable/', new FormData());
+    setOpen(null);
+    await load();
+  });
+  const show = id => run(async () => setOpen(await call(id + '/rows/')));
+  if (!data) return /*#__PURE__*/React.createElement("div", {
+    className: "mon"
+  }, /*#__PURE__*/React.createElement("p", null, error || 'Завантаження…'), error && /*#__PURE__*/React.createElement(Button, {
+    onClick: load
+  }, "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0438"));
+  const when = v => v ? new Date(v).toLocaleString('uk-UA', {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  }) : '—';
+  return /*#__PURE__*/React.createElement("div", {
+    className: "mon"
+  }, error && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, error), /*#__PURE__*/React.createElement("section", {
+    className: "mon-card"
+  }, /*#__PURE__*/React.createElement("header", null, /*#__PURE__*/React.createElement("h2", null, "\u041F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430"), /*#__PURE__*/React.createElement("span", null, data.connectors.length)), data.connectors.length ? /*#__PURE__*/React.createElement("div", {
+    className: "erp-table"
+  }, /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", null, "\u041D\u0430\u0437\u0432\u0430"), /*#__PURE__*/React.createElement("th", null, "\u0421\u0435\u0440\u0432\u0456\u0441"), /*#__PURE__*/React.createElement("th", null, "\u0414\u0430\u043D\u0456"), /*#__PURE__*/React.createElement("th", null, "\u0421\u0442\u0430\u043D"), /*#__PURE__*/React.createElement("th", null, "\u041E\u043D\u043E\u0432\u043B\u0435\u043D\u043E"), /*#__PURE__*/React.createElement("th", null, "\u0420\u044F\u0434\u043A\u0456\u0432"), /*#__PURE__*/React.createElement("th", null))), /*#__PURE__*/React.createElement("tbody", null, data.connectors.map(c => /*#__PURE__*/React.createElement("tr", {
+    key: c.id,
+    className: 'bos-click-row' + (c.status === 'error' ? ' mon-late' : ''),
+    onClick: e => {
+      if (!e.target.closest('button')) show(c.id);
+    }
+  }, /*#__PURE__*/React.createElement("td", null, c.name), /*#__PURE__*/React.createElement("td", null, data.catalog.find(x => x.kind === c.kind)?.title || c.kind), /*#__PURE__*/React.createElement("td", null, c.dataset_label), /*#__PURE__*/React.createElement("td", null, c.status === 'error' ? c.last_error || c.status_label : c.status_label), /*#__PURE__*/React.createElement("td", null, when(c.last_sync_at)), /*#__PURE__*/React.createElement("td", null, monValue(c.row_count)), /*#__PURE__*/React.createElement("td", {
+    className: "mon-actions"
+  }, bosCan('write') && c.kind === 'google_sheets' && /*#__PURE__*/React.createElement(Button, {
+    disabled: busy,
+    onClick: () => doSync(c.id)
+  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438"), bosCan('write') && /*#__PURE__*/React.createElement(Button, {
+    disabled: busy,
+    onClick: () => doDisable(c.id)
+  }, "\u0412\u0438\u043C\u043A\u043D\u0443\u0442\u0438"))))))) : /*#__PURE__*/React.createElement("p", {
+    className: "op-muted mon-empty"
+  }, "\u0429\u0435 \u043D\u0456\u0447\u043E\u0433\u043E \u043D\u0435 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043E")), open && /*#__PURE__*/React.createElement("section", {
+    className: "mon-card"
+  }, /*#__PURE__*/React.createElement("header", null, /*#__PURE__*/React.createElement("h2", null, open.name), /*#__PURE__*/React.createElement("span", null, open.row_count)), /*#__PURE__*/React.createElement("div", {
+    className: "erp-table"
+  }, /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, open.columns.map((c, i) => /*#__PURE__*/React.createElement("th", {
+    key: i
+  }, c)))), /*#__PURE__*/React.createElement("tbody", null, open.rows.slice(0, 100).map((r, i) => /*#__PURE__*/React.createElement("tr", {
+    key: i
+  }, r.map((v, j) => /*#__PURE__*/React.createElement("td", {
+    key: j
+  }, v))))))), /*#__PURE__*/React.createElement(Button, {
+    onClick: () => setOpen(null)
+  }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438")), bosCan('write') && /*#__PURE__*/React.createElement("section", {
+    className: "mon-card"
+  }, /*#__PURE__*/React.createElement("header", null, /*#__PURE__*/React.createElement("h2", null, "\u041D\u043E\u0432\u0435 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043D\u044F")), /*#__PURE__*/React.createElement("div", {
+    className: "erp-form"
+  }, /*#__PURE__*/React.createElement("label", null, "\u0421\u0435\u0440\u0432\u0456\u0441", /*#__PURE__*/React.createElement(Select, {
+    value: form.kind,
+    onChange: e => {
+      setForm(p => ({
+        ...p,
+        kind: e.target.value
+      }));
+      setPreview(null);
+    }
+  }, /*#__PURE__*/React.createElement("option", {
+    value: "csv"
+  }, "Excel / CSV"), /*#__PURE__*/React.createElement("option", {
+    value: "google_sheets"
+  }, "Google \u0422\u0430\u0431\u043B\u0438\u0446\u0456"))), /*#__PURE__*/React.createElement("label", null, "\u041D\u0430\u0437\u0432\u0430", /*#__PURE__*/React.createElement(Input, {
+    value: form.name,
+    maxLength: 120,
+    onChange: e => setForm(p => ({
+      ...p,
+      name: e.target.value
+    })),
+    placeholder: "\u0417\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u0437 \u043C\u0430\u0433\u0430\u0437\u0438\u043D\u0443"
+  })), /*#__PURE__*/React.createElement("label", null, "\u0414\u0430\u043D\u0456", /*#__PURE__*/React.createElement(Select, {
+    value: form.dataset,
+    onChange: e => setForm(p => ({
+      ...p,
+      dataset: e.target.value
+    }))
+  }, /*#__PURE__*/React.createElement("option", {
+    value: "orders"
+  }, "\u0417\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("option", {
+    value: "payments"
+  }, "\u041E\u043F\u043B\u0430\u0442\u0438"), /*#__PURE__*/React.createElement("option", {
+    value: "stock"
+  }, "\u0417\u0430\u043B\u0438\u0448\u043A\u0438"), /*#__PURE__*/React.createElement("option", {
+    value: "calls"
+  }, "\u0414\u0437\u0432\u0456\u043D\u043A\u0438"), /*#__PURE__*/React.createElement("option", {
+    value: "other"
+  }, "\u0406\u043D\u0448\u0435"))), form.kind === 'csv' ? /*#__PURE__*/React.createElement("label", null, "\u0424\u0430\u0439\u043B .xlsx \u0430\u0431\u043E .csv", /*#__PURE__*/React.createElement("input", {
+    ref: fileRef,
+    type: "file",
+    accept: ".xlsx,.csv",
+    onChange: () => setPreview(null)
+  })) : /*#__PURE__*/React.createElement("label", null, "\u041F\u043E\u0441\u0438\u043B\u0430\u043D\u043D\u044F \u043D\u0430 \u0442\u0430\u0431\u043B\u0438\u0446\u044E", /*#__PURE__*/React.createElement(Input, {
+    value: form.url,
+    onChange: e => {
+      setForm(p => ({
+        ...p,
+        url: e.target.value
+      }));
+      setPreview(null);
+    },
+    placeholder: "https://docs.google.com/spreadsheets/d/\u2026"
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "erp-actions"
+  }, /*#__PURE__*/React.createElement(Button, {
+    disabled: busy,
+    onClick: doPreview
+  }, "\u041F\u0435\u0440\u0435\u0433\u043B\u044F\u043D\u0443\u0442\u0438"), preview && /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    disabled: busy || !form.name.trim(),
+    onClick: doCreate
+  }, "\u041F\u0456\u0434\u043A\u043B\u044E\u0447\u0438\u0442\u0438")), preview && /*#__PURE__*/React.createElement("div", {
+    className: "erp-table"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0420\u044F\u0434\u043A\u0456\u0432: ", preview.row_count), /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, preview.columns.map((c, i) => /*#__PURE__*/React.createElement("th", {
+    key: i
+  }, c)))), /*#__PURE__*/React.createElement("tbody", null, preview.rows.map((r, i) => /*#__PURE__*/React.createElement("tr", {
+    key: i
+  }, r.map((v, j) => /*#__PURE__*/React.createElement("td", {
+    key: j
+  }, v)))))))), /*#__PURE__*/React.createElement("section", {
+    className: "mon-card"
+  }, /*#__PURE__*/React.createElement("header", null, /*#__PURE__*/React.createElement("h2", null, "\u0421\u0435\u0440\u0432\u0456\u0441\u0438")), /*#__PURE__*/React.createElement("div", {
+    className: "mon-catalog"
+  }, data.catalog.map(x => /*#__PURE__*/React.createElement("div", {
+    key: x.kind,
+    className: "mon-service"
+  }, /*#__PURE__*/React.createElement("strong", null, x.title), /*#__PURE__*/React.createElement("span", null, x.group), /*#__PURE__*/React.createElement("p", null, x.gives), /*#__PURE__*/React.createElement("em", {
+    "data-state": x.state
+  }, x.state === 'available' ? 'Працює' : 'Готується'))))));
 }
 function AuthGate() {
   const [ready, setReady] = useState(false),
