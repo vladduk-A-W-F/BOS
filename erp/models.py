@@ -394,3 +394,18 @@ class PaymentRetention(models.Model):
             models.CheckConstraint(condition=Q(amount__gt=0,currency__in=['EUR','USD','UAH']),name='bos_retention_amount'),
             models.CheckConstraint(condition=Q(status='held',released_at__isnull=True)|Q(status='released',released_at__isnull=False),name='bos_retention_state'),
         ]
+
+class DocumentLink(models.Model):
+    """A verified document (photo, PDF, Excel) attached to one sales order or one invoice."""
+    document=models.ForeignKey('operations.Document',on_delete=models.PROTECT,related_name='erp_links')
+    order=models.ForeignKey(SalesOrder,null=True,blank=True,on_delete=models.PROTECT,related_name='document_links')
+    invoice=models.ForeignKey('operations.Invoice',null=True,blank=True,on_delete=models.PROTECT,related_name='document_links')
+    note=models.CharField(max_length=200,blank=True,default='')
+    created_at=models.DateTimeField(default=timezone.now,editable=False)
+
+    class Meta:
+        constraints=[
+            models.CheckConstraint(condition=Q(order__isnull=False,invoice__isnull=True)|Q(order__isnull=True,invoice__isnull=False),name='bos_document_link_one_target'),
+            models.UniqueConstraint(fields=['document','order'],condition=Q(order__isnull=False),name='bos_document_link_order'),
+            models.UniqueConstraint(fields=['document','invoice'],condition=Q(invoice__isnull=False),name='bos_document_link_invoice'),
+        ]
