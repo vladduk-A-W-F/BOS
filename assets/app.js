@@ -119,7 +119,7 @@ function bosCanAction(action) {
 }
 function bosCanView(section, sub) {
   if (section === 'erp' && sub === 'costs') return bosCan('finance');
-  if (section === 'finance' && sub === 'costs') return bosCan('finance');
+  if (section === 'finance' && ['costs', 'invoices'].includes(sub)) return bosCan('finance') || bosRole() === 'manager';
   if (section === 'finance' && sub === 'salaries') return bosCan('finance');
   if (section === 'finance' && sub === 'bank') return bosRole() !== 'observer';
   if (section === 'hr' && ['birthdays', 'kpi'].includes(sub)) return bosCan('hr_private');
@@ -130,7 +130,6 @@ function bosCanView(section, sub) {
 function bosNavigation() {
   return NAV.map(n => ({
     ...n,
-    label: n.id === 'finance' && !bosCan('finance') ? 'Партнери й закупівлі' : n.label,
     subs: n.subs.filter(x => bosCanView(n.id, x.id))
   })).filter(n => bosCanView(n.id, null));
 }
@@ -296,10 +295,6 @@ const NAV = [{
     id: 'catalog',
     label: 'Номенклатура',
     iconKey: 'contracts'
-  }, {
-    id: 'deals',
-    label: 'Угоди',
-    iconKey: 'contractors'
   }]
 }, {
   id: 'finance',
@@ -307,10 +302,9 @@ const NAV = [{
   icon: '₴',
   iconKey: 'finance',
   subs: [{
-    id: 'bank',
-    label: 'Оплати',
-    icon: '🏦',
-    iconKey: 'bank'
+    id: 'invoices',
+    label: 'Рахунки й оплати',
+    iconKey: 'finance'
   }, {
     id: 'contractors',
     label: 'Контрагенти',
@@ -322,19 +316,10 @@ const NAV = [{
     icon: '📄',
     iconKey: 'contracts'
   }, {
-    id: 'procurement',
-    label: 'Закупівлі',
-    icon: '📦',
-    iconKey: 'contracts'
-  }, {
     id: 'salaries',
     label: 'Зарплати',
     icon: '💰',
     iconKey: 'salaries'
-  }, {
-    id: 'costs',
-    label: 'Фінансовий результат',
-    iconKey: 'finance'
   }]
 }, {
   id: 'hr',
@@ -375,7 +360,6 @@ const NAV_ALIASES = {
   dash: ['monitor', null],
   info: ['monitor', null],
   ai: ['monitor', null],
-  crm: ['erp', 'deals'],
   organizer: ['documents', null]
 };
 function bosRoute(nav) {
@@ -384,11 +368,29 @@ function bosRoute(nav) {
     section: a[0],
     sub: a[1]
   };
+  if (nav.section === 'crm' || nav.section === 'erp' && nav.sub === 'deals') return {
+    section: 'erp',
+    sub: 'sales',
+    extra: 'deals'
+  };
   if (nav.section === 'erp' && ['network', 'overview'].includes(nav.sub)) return {
     section: 'structure',
     sub: null
   };
-  if (nav.section === 'finance' && nav.sub === 'costs') return nav;
+  if (nav.section === 'erp' && nav.sub === 'costs') return {
+    section: 'finance',
+    sub: 'invoices'
+  };
+  if (nav.section === 'finance' && ['costs', 'bank'].includes(nav.sub)) return {
+    section: 'finance',
+    sub: 'invoices',
+    extra: nav.sub === 'bank' ? 'bank' : null
+  };
+  if (nav.section === 'finance' && nav.sub === 'procurement') return {
+    section: 'erp',
+    sub: 'purchase',
+    extra: 'procurement'
+  };
   if (!NAV.some(n => n.id === nav.section)) return {
     section: 'monitor',
     sub: null
@@ -1978,7 +1980,7 @@ function NavBar({
     ref: mobileNav,
     className: "bos-mobile-nav",
     "aria-label": "\u0420\u043E\u0437\u0434\u0456\u043B \u0441\u0438\u0441\u0442\u0435\u043C\u0438",
-    value: nav.section + ':' + (nav.sub || ''),
+    value: ['erp', 'finance'].includes(nav.section) ? nav.section + ':' : nav.section + ':' + (nav.sub || ''),
     onChange: e => {
       const [section, sub] = e.target.value.split(':');
       commitLeaf(section, sub || null, false, renderOwner);
@@ -1988,7 +1990,7 @@ function NavBar({
     label: n.label
   }, /*#__PURE__*/React.createElement("option", {
     value: n.id + ':'
-  }, n.label), n.subs.map(x => /*#__PURE__*/React.createElement("option", {
+  }, n.label), !['erp', 'finance'].includes(n.id) && n.subs.map(x => /*#__PURE__*/React.createElement("option", {
     key: x.id,
     value: n.id + ':' + x.id
   }, x.label))))), /*#__PURE__*/React.createElement("div", {
@@ -2005,7 +2007,7 @@ function NavBar({
     }
   }, bosNavigation().map(n => {
     const isActive = nav.section === n.id;
-    const hasSubs = n.subs.length > 0;
+    const hasSubs = n.subs.length > 0 && !['erp', 'finance'].includes(n.id);
     const disclosureOwner = pinnedDrop === n.id ? openOwner.current : renderOwner;
     // HR имеет badge с кол-вом активных доручень (фиксированная цифра-заглушка, как в старом Sidebar)
     const badge = n.id === 'hr' ? tasks.filter(t => !t.archived && t.status !== 'done').length : null;
@@ -11474,7 +11476,7 @@ function Topbar({
     return () => document.removeEventListener('keydown', key);
   }, []);
   const section = bosNavigation().find(n => n.id === nav.section),
-    title = section?.subs.find(x => x.id === nav.sub)?.label || section?.label;
+    title = ['erp', 'finance'].includes(nav.section) ? section?.label : section?.subs.find(x => x.id === nav.sub)?.label || section?.label;
   const entries = [...tasks.filter(x => !x.archived).map(x => ({
     label: x.title,
     detail: c01Assignee(x),
@@ -18489,7 +18491,7 @@ function ERPWorkspace({
   }
   if (!bosCanView('erp', view)) return /*#__PURE__*/React.createElement("div", {
     className: "erp-workspace"
-  }, /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, "\u0420\u043E\u0437\u0434\u0456\u043B \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0439"), /*#__PURE__*/React.createElement("p", null, "\u0424\u0456\u043D\u0430\u043D\u0441\u043E\u0432\u0438\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0439 \u043A\u0435\u0440\u0456\u0432\u043D\u0438\u043A\u0443.")));
+  }, /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, "\u0420\u043E\u0437\u0434\u0456\u043B \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0439"), /*#__PURE__*/React.createElement("p", null, "\u0424\u0456\u043D\u0430\u043D\u0441\u043E\u0432\u0456 \u0434\u0430\u043D\u0456 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u043A\u0435\u0440\u0456\u0432\u043D\u0438\u043A\u0443.")));
   if (!data) return /*#__PURE__*/React.createElement("div", {
     style: {
       padding: 24
@@ -18814,7 +18816,7 @@ function ERPWorkspace({
     production: 'Виробництво',
     purchase: 'Постачання',
     quality: 'Якість і зміни',
-    costs: 'Фінансовий результат'
+    costs: 'Рахунки й оплати'
   }[view]), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
   }, "\u0404\u0434\u0438\u043D\u0456 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F, \u043C\u0430\u0442\u0435\u0440\u0456\u0430\u043B\u0438 \u0442\u0430 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u0430\u043B\u044C\u043D\u0456")), /*#__PURE__*/React.createElement("div", {
@@ -21337,7 +21339,7 @@ function BoSHome({
         scope: provenance.scope + ' Валюта: ' + (cur || 'не надано') + '. Валюти не підсумовуються й не конвертуються.',
         calculation: 'Сума невід’ємних залишків рахунків після оплат і чинних кредитових коригувань у вибраній валюті. Утримання з цієї суми не віднімаються.',
         deviation: 'Це залишок до оплати, не сума прострочення. Причини несплати та відхилення від плану не надано.',
-        action: 'Відкрити ERP → Фінансовий результат. Конкретний рахунок автоматично не вибирається.'
+        action: 'Відкрити Фінанси → Рахунки й оплати. Конкретний рахунок автоматично не вибирається.'
       }
     });
     function inspectMetric(key) {
@@ -23370,6 +23372,116 @@ function BoSReadOnlyRecords({
     key: label
   }, /*#__PURE__*/React.createElement("strong", null, label, ": "), typeof field === 'function' ? field(selected) : selected[field] ?? '—'))));
 }
+function WorkspaceTabs({
+  section,
+  active,
+  onNavigate
+}) {
+  const tabs = bosNavigation().find(n => n.id === section)?.subs || [];
+  return /*#__PURE__*/React.createElement("nav", {
+    className: "workspace-tabs",
+    "aria-label": section === 'erp' ? 'Вкладки операцій' : 'Вкладки фінансів'
+  }, tabs.map(tab => /*#__PURE__*/React.createElement("button", {
+    key: tab.id,
+    type: "button",
+    "aria-current": active === tab.id ? 'page' : undefined,
+    onClick: () => onNavigate(section, tab.id)
+  }, tab.label)));
+}
+function OperationsWorkspace({
+  sub,
+  extra,
+  refetchTasks,
+  onNavigate,
+  employees,
+  crmHandoff,
+  onClearHandoff
+}) {
+  const [open, setOpen] = useState(extra || null);
+  useEffect(() => setOpen(extra || null), [sub, extra]);
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(ERPWorkspace, {
+    view: sub,
+    refetchTasks: refetchTasks,
+    onNavigate: onNavigate
+  }), sub === 'sales' && /*#__PURE__*/React.createElement("section", {
+    className: "workspace-extra"
+  }, /*#__PURE__*/React.createElement(Button, {
+    "aria-expanded": open === 'deals',
+    onClick: () => setOpen(open === 'deals' ? null : 'deals')
+  }, "\u0423\u0433\u043E\u0434\u0438"), open === 'deals' && /*#__PURE__*/React.createElement(CRMWorkspace, {
+    employees: employees,
+    handoffContext: crmHandoff,
+    onClearHandoff: onClearHandoff
+  })), sub === 'purchase' && /*#__PURE__*/React.createElement("section", {
+    className: "workspace-extra"
+  }, /*#__PURE__*/React.createElement(Button, {
+    "aria-expanded": open === 'procurement',
+    onClick: () => setOpen(open === 'procurement' ? null : 'procurement')
+  }, "\u0417\u0430\u044F\u0432\u043A\u0438 \u0442\u0430 \u043F\u0440\u043E\u043F\u043E\u0437\u0438\u0446\u0456\u0457"), open === 'procurement' && /*#__PURE__*/React.createElement(Procurement, {
+    refetchTasks: refetchTasks,
+    onNavigate: onNavigate
+  })));
+}
+function FinanceWorkspace({
+  sub,
+  settings,
+  transactions,
+  counterparties,
+  contracts,
+  salaries,
+  employees,
+  refetchTasks,
+  onNavigate,
+  refetchTransactions,
+  refetchCounterparties,
+  refetchContracts,
+  refetchSalaries
+}) {
+  if (sub === 'invoices' && bosRole() === 'manager') return /*#__PURE__*/React.createElement(BoSReadOnlyRecords, {
+    title: "\u0416\u0443\u0440\u043D\u0430\u043B \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0439",
+    rows: transactions,
+    columns: [["Запис", 'id'], ["Дата", 'date'], ["Напрям", r => r.direction === 'in' ? 'Надходження' : 'Витрата'], ["Категорія", 'category'], ["Валюта", 'currency'], ["Договір", r => contracts.find(c => c.id === r.contract)?.number || '—']],
+    onRefresh: refetchTransactions
+  });
+  if (sub === 'invoices') return /*#__PURE__*/React.createElement(React.Fragment, null, bosCan('finance') && /*#__PURE__*/React.createElement(ERPWorkspace, {
+    view: "costs",
+    refetchTasks: refetchTasks,
+    onNavigate: onNavigate
+  }), /*#__PURE__*/React.createElement(Bank, {
+    settings: settings,
+    transactions: transactions,
+    counterparties: counterparties,
+    refetch: refetchTransactions
+  }));
+  if (sub === 'contractors' && !bosCan('write')) return /*#__PURE__*/React.createElement(BoSReadOnlyRecords, {
+    title: "\u041A\u043E\u043D\u0442\u0440\u0430\u0433\u0435\u043D\u0442\u0438",
+    rows: counterparties,
+    columns: [["Назва", 'name'], ["Тип", r => CP_TYPES[r.type] || r.type], ["Стан", r => r.is_active ? 'Активний' : 'Неактивний']],
+    onRefresh: refetchCounterparties
+  });
+  if (sub === 'contractors') return /*#__PURE__*/React.createElement(Contractors, {
+    counterparties: counterparties,
+    refetch: refetchCounterparties
+  });
+  if (sub === 'contracts' && !bosCan('write')) return /*#__PURE__*/React.createElement(BoSReadOnlyRecords, {
+    title: "\u0414\u043E\u0433\u043E\u0432\u043E\u0440\u0438",
+    rows: contracts,
+    columns: [["Номер", 'number'], ["Назва", 'name'], ["Контрагент", 'counterparty_name'], ["Стан", r => CT_STATUS[r.status] || r.status], ["Початок", 'start_date'], ["Закінчення", 'end_date']],
+    onRefresh: refetchContracts
+  });
+  if (sub === 'contracts') return /*#__PURE__*/React.createElement(Contracts, {
+    contracts: contracts,
+    counterparties: counterparties,
+    refetch: refetchContracts
+  });
+  if (sub === 'salaries') return /*#__PURE__*/React.createElement(Salaries, {
+    salaries: salaries,
+    employees: employees,
+    refetch: refetchSalaries,
+    refetchTransactions: refetchTransactions
+  });
+  return null;
+}
 function App() {
   // On first render: try to restore saved industry from localStorage
   // If found → skip onboarding, go straight to app
@@ -23620,77 +23732,38 @@ function App() {
         sub
       })
     });
-    if (section === 'erp' && sub === 'deals') return /*#__PURE__*/React.createElement(CRMWorkspace, {
-      employees: employees,
-      handoffContext: crmHandoff,
-      onClearHandoff: () => setCrmHandoff(null)
-    });
-    if (section === 'erp') return /*#__PURE__*/React.createElement(ERPWorkspace, {
-      view: sub || 'sales',
+    if (section === 'erp') return /*#__PURE__*/React.createElement(OperationsWorkspace, {
+      sub: sub || 'sales',
+      extra: nav.extra,
       refetchTasks: refetchTasks,
       onNavigate: (section, sub) => setNav({
         section,
         sub
-      })
+      }),
+      employees: employees,
+      crmHandoff: crmHandoff,
+      onClearHandoff: () => setCrmHandoff(null)
     });
     if (section === 'documents') return /*#__PURE__*/React.createElement(DocumentRegistry, null);
     if (section === 'connectors') return /*#__PURE__*/React.createElement(Connections, null);
-    if (section === 'finance') {
-      if (sub === 'costs') return /*#__PURE__*/React.createElement(ERPWorkspace, {
-        view: "costs",
-        refetchTasks: refetchTasks,
-        onNavigate: (section, sub) => setNav({
-          section,
-          sub
-        })
-      });
-      if (sub === 'procurement') return /*#__PURE__*/React.createElement(Procurement, {
-        refetchTasks: refetchTasks,
-        onNavigate: (section, sub) => setNav({
-          section,
-          sub
-        })
-      });
-      if (sub === 'bank' && bosRole() === 'manager') return /*#__PURE__*/React.createElement(BoSReadOnlyRecords, {
-        title: "\u0416\u0443\u0440\u043D\u0430\u043B \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0439",
-        rows: transactions,
-        columns: [["Запис", 'id'], ["Дата", 'date'], ["Напрям", r => r.direction === 'in' ? 'Надходження' : 'Витрата'], ["Категорія", 'category'], ["Валюта", 'currency'], ["Договір", r => contracts.find(c => c.id === r.contract)?.number || '—']],
-        onRefresh: refetchTransactions
-      });
-      if (sub === 'bank' || !sub) return /*#__PURE__*/React.createElement(Bank, {
-        settings: settings,
-        transactions: transactions,
-        counterparties: counterparties,
-        refetch: refetchTransactions
-      });
-      if (sub === 'contractors' && !bosCan('write')) return /*#__PURE__*/React.createElement(BoSReadOnlyRecords, {
-        title: "\u041A\u043E\u043D\u0442\u0440\u0430\u0433\u0435\u043D\u0442\u0438",
-        rows: counterparties,
-        columns: [["Назва", 'name'], ["Тип", r => CP_TYPES[r.type] || r.type], ["Стан", r => r.is_active ? 'Активний' : 'Неактивний']],
-        onRefresh: refetchCounterparties
-      });
-      if (sub === 'contractors') return /*#__PURE__*/React.createElement(Contractors, {
-        counterparties: counterparties,
-        refetch: refetchCounterparties
-      });
-      if (sub === 'contracts' && !bosCan('write')) return /*#__PURE__*/React.createElement(BoSReadOnlyRecords, {
-        title: "\u0414\u043E\u0433\u043E\u0432\u043E\u0440\u0438",
-        rows: contracts,
-        columns: [["Номер", 'number'], ["Назва", 'name'], ["Контрагент", 'counterparty_name'], ["Стан", r => CT_STATUS[r.status] || r.status], ["Початок", 'start_date'], ["Закінчення", 'end_date']],
-        onRefresh: refetchContracts
-      });
-      if (sub === 'contracts') return /*#__PURE__*/React.createElement(Contracts, {
-        contracts: contracts,
-        counterparties: counterparties,
-        refetch: refetchContracts
-      });
-      if (sub === 'salaries') return /*#__PURE__*/React.createElement(Salaries, {
-        salaries: salaries,
-        employees: employees,
-        refetch: refetchSalaries,
-        refetchTransactions: refetchTransactions
-      });
-    }
+    if (section === 'finance') return /*#__PURE__*/React.createElement(FinanceWorkspace, {
+      sub: sub,
+      settings: settings,
+      transactions: transactions,
+      counterparties: counterparties,
+      contracts: contracts,
+      salaries: salaries,
+      employees: employees,
+      refetchTasks: refetchTasks,
+      onNavigate: (section, sub) => setNav({
+        section,
+        sub
+      }),
+      refetchTransactions: refetchTransactions,
+      refetchCounterparties: refetchCounterparties,
+      refetchContracts: refetchContracts,
+      refetchSalaries: refetchSalaries
+    });
     if (section === 'hr') {
       if (sub === 'tasks' || !sub) return /*#__PURE__*/React.createElement(Tasks, {
         tasks: tasks,
@@ -23886,7 +23959,14 @@ function App() {
       overflowY: 'auto',
       overflowX: 'hidden'
     }
-  }, /*#__PURE__*/React.createElement(ERPConfirmRecovery, null), renderContent()))));
+  }, /*#__PURE__*/React.createElement(ERPConfirmRecovery, null), ['erp', 'finance'].includes(section) && /*#__PURE__*/React.createElement(WorkspaceTabs, {
+    section: section,
+    active: sub,
+    onNavigate: (section, sub) => setNav({
+      section,
+      sub
+    })
+  }), " ", renderContent()))));
 }
 
 // BoS 4 «Моніторинг»: numbers, standard queries and tables. Read-only.

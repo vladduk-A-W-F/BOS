@@ -13,6 +13,15 @@ def parse(file):
     except Exception as exc:
         raise ValueError('Не вдалося прочитати документ. Перевірте формат і цілісність файла.') from exc
 
+IMAGE_TYPES={'png':'image/png','jpg':'image/jpeg','jpeg':'image/jpeg'}
+
+def image_type(name,data):
+    """Content type of a real PNG/JPEG original, otherwise None. No decoding, no OCR."""
+    ext=(name or '').rsplit('.',1)[-1].lower()
+    if ext=='png' and data[:8]==b'\x89PNG\r\n\x1a\n' and data[12:16]==b'IHDR':return IMAGE_TYPES[ext]
+    if ext in ('jpg','jpeg') and data[:3]==b'\xff\xd8\xff' and data.rstrip(b'\x00')[-2:]==b'\xff\xd9':return IMAGE_TYPES[ext]
+    return None
+
 def _parse(file):
     data=file.read(MAX_BYTES+1)
     if len(data)>MAX_BYTES:raise ValueError('Файл перевищує 10 МБ.')
@@ -38,7 +47,10 @@ def _parse(file):
             parts.append({'source':f'Аркуш {ws.title}','text':'\n'.join(' | '.join(str(v) if v is not None else '' for v in row) for row in ws.iter_rows(values_only=True))})
         wb.close()
     elif ext in ('txt','md'):parts=[{'source':'Текст','text':data.decode('utf-8-sig')}]
-    else:raise ValueError('Підтримуються PDF, DOCX, XLSX, TXT та MD.')
+    elif ext in IMAGE_TYPES:
+        # A photo of a report is stored as the verified original; text recognition is not available yet.
+        if image_type(file.name,data) is None:raise ValueError('Файл не є цілим зображенням PNG або JPEG.')
+    else:raise ValueError('Підтримуються PDF, DOCX, XLSX, TXT, MD, JPEG та PNG.')
     text='\n'.join(p['text'] for p in parts)
     if len(text)>500000:raise ValueError('Текст документа перевищує ліміт.')
     return {'text':text,'sections':parts,'checksum':hashlib.sha256(data).hexdigest(),'status':'needs_review' if text.strip() else 'ocr_required','content':data}

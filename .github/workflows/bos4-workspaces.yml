@@ -1,0 +1,28 @@
+name: BoS 4 — робочі екрани
+'on':
+  pull_request:
+    paths:
+      - 'frontend/**'
+      - 'assets/app.js'
+      - 'scripts/build_frontend.cjs'
+      - 'scripts/test_bos4_workspaces.cjs'
+      - 'scripts/test_bos4_structure.cjs'
+      - '.github/workflows/bos4-workspaces.yml'
+permissions:
+  contents: read
+jobs:
+  workspaces:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - name: Адресна перевірка маршрутів і прав вкладок
+        run: node scripts/test_bos4_workspaces.cjs
+      - name: Підрахунки структури лише з доступних записів
+        run: node scripts/test_bos4_structure.cjs
+      - name: Збірка інтерфейсу без нових залежностей
+        run: node scripts/build_frontend.cjs
+      - name: Похідні файли відповідають вихідному коду
+        run: git diff --exit-code -- assets/app.js frontend/boss_app_html.html
