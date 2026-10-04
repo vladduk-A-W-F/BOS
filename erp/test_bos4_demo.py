@@ -1,0 +1,114 @@
+"""BoS 4 demo company: synthetic, linked through ordinary ERP commands, no accounts seeded."""
+from decimal import Decimal as D
+from io import StringIO
+from pathlib import Path
+from tempfile import TemporaryDirectory
+import json
+
+from django.contrib.auth import get_user_model
+from django.core.management import call_command
+from django.core.management.base import CommandError
+from django.db.models import Sum
+from django.test import TransactionTestCase, override_settings
+
+from branches.models import Branch
+from employees.models import Employee
+from operations.models import Configuration, Document, Invoice
+from operations.private_storage import verified_document_bytes
+from operations.service import as_of
+from tasks.models import Task
+from .balances import invoice_settlement
+from .models import Item, Location, Lot, SalesOrder, Purchase, Production, Movement, StockTransfer
+from .service import dispatch
+
+
+@override_settings(BOS_DATA_MODE='demo')
+class Bos4DemoTests(TransactionTestCase):
+    def setUp(self):
+        self.folder = TemporaryDirectory(prefix='bos4-demo-test-')
+        self.addCleanup(self.folder.cleanup)
+        self.override = override_settings(MEDIA_ROOT=Path(self.folder.name) / 'media')
+        self.override.enable()
+        self.addCleanup(self.override.disable)
+
+    def command(self):
+        output = StringIO()
+        call_command('seed_bos4_demo', stdout=output)
+        return json.loads(output.getvalue())
+
+    def test_company_is_linked_branches_in_hryvnia_without_accounts(self):
+        receipt = self.command()
+        self.assertTrue(receipt['created'])
+        self.assertEqual(receipt['cases'], ['Комплектуючі для партії меблів',
+            'Відвантаження лише допущеної партії', 'Рахунок, оплата й нагадування'])
+        self.assertEqual(Branch.objects.count(), 4)
+        self.assertEqual(Branch.objects.filter(parent__code='KM-KYI').count(), 3)
+        self.assertEqual(Location.objects.filter(branch__isnull=True).count(), 0)
+        self.assertEqual(Item.objects.filter(kind='product').count(), 8)
+        self.assertEqual(Item.objects.filter(kind='material').count(), 16)
+        self.assertFalse(get_user_model().objects.exists())
+        self.assertFalse(Employee.objects.filter(user__isnull=False).exists())
+        for model in (Item, Lot, SalesOrder, Purchase, Production, Invoice, StockTransfer):
+            self.assertEqual(set(model.objects.values_list('currency', flat=True)), {'UAH'})
+        self.assertEqual(str(as_of()), '2026-10-05')
+        for doc in Document.objects.all():
+            self.assertTrue(doc.text.startswith('ДЕМО-ДАНІ.'))
+            self.assertEqual(verified_document_bytes(doc), doc.text.encode())
+        # Every lot balance is the sum of its movements; reservations never exceed stock.
+        for lot in Lot.objects.all():
+            self.assertEqual(lot.quantity, lot.movements.aggregate(n=Sum('quantity'))['n'])
+            self.assertLessEqual(lot.reservations.aggregate(n=Sum('quantity'))['n'] or D(0), lot.quantity)
+        self.assertEqual(StockTransfer.objects.filter(status='in_transit').count(), 1)
+        cases = Configuration.objects.get(key='demo_cases').value['cases']
+        self.assertEqual([c['title'] for c in cases], receipt['cases'])
+
+    def test_case_components_waits_for_rest_of_angle_delivery(self):
+        self.command()
+        order = SalesOrder.objects.get(code='ZM-0141')
+        self.assertEqual(sum(l.quantity * l.price for l in order.lines.all()), D('1922800'))
+        po = Purchase.objects.get(code='ZK-0311')
+        self.assertEqual((po.quantity, po.received, po.status), (D(300), D(200), 'partial'))
+        job = Production.objects.get(code='VZ-0141-1')
+        angle = job.reservations.filter(lot__item__code='MA-7075').aggregate(n=Sum('quantity'))['n']
+        self.assertEqual(angle, D(460))
+        with self.assertRaisesRegex(ValueError, 'Не всі матеріали'):
+            dispatch({'action': 'erp_start', 'production_id': job.pk}, 'ceo')
+        self.assertTrue(Purchase.objects.filter(code='ZK-0309', due_date__lt=as_of(), received=0).exists())
+
+    def test_case_quality_ships_only_approved_batch(self):
+        self.command()
+        line = SalesOrder.objects.get(code='ZM-0144').lines.get(item__code='SHM-2')
+        self.assertEqual((line.quantity, line.shipped), (D(50), D(40)))
+        blocked = Lot.objects.get(code='KM-L-SHM-2-0918')
+        self.assertEqual((blocked.quality, blocked.quantity), ('blocked', D(25)))
+        with self.assertRaises(ValueError):
+            dispatch({'action': 'erp_reserve', 'lot_id': blocked.pk, 'quantity': '10', 'line_id': line.pk}, 'ceo')
+        self.assertFalse(Movement.objects.filter(lot=blocked, kind='shipment').exists())
+        self.assertEqual(Invoice.objects.get(code='RF-0144').amount, D('777700'))
+
+    def test_case_payment_leaves_reminder_for_remaining_debt(self):
+        self.command()
+        invoice = Invoice.objects.get(code='RF-0137')
+        self.assertEqual((invoice.amount, invoice.paid), (D('420000'), D('252000')))
+        self.assertEqual(invoice_settlement(invoice)['receivable'], D('168000'))
+        task = Task.objects.get(title__contains='RF-0137')
+        self.assertEqual((task.assignee, task.priority, task.sales_order.code), ('Дмитро Савченко', 'high', 'ZM-0137'))
+        school = Invoice.objects.get(code='RF-0139')
+        self.assertEqual(invoice_settlement(school)['receivable'], D('0'))
+
+    def test_repeat_is_receipt_and_non_empty_database_is_refused(self):
+        first = self.command()
+        lots = Lot.objects.count()
+        again = self.command()
+        self.assertFalse(again['created'])
+        self.assertEqual(again['company'], first['company'])
+        self.assertEqual(Lot.objects.count(), lots)
+
+    def test_refuses_outside_demo_mode_and_on_foreign_data(self):
+        with override_settings(BOS_DATA_MODE='production'):
+            with self.assertRaises(CommandError):
+                self.command()
+        Branch.objects.create(code='REAL', name='Наявна філія')
+        with self.assertRaises(CommandError):
+            self.command()
+        self.assertFalse(Configuration.objects.filter(key='bos4_demo_seed').exists())
