@@ -36,7 +36,7 @@ class LocalRoleGuard:
             if rejected:return JsonResponse({'error':'Перевірка сесії не пройшла. Оновіть сторінку.'},status=403)
         public = {'/api/auth/csrf/', '/api/auth/login/', '/api/auth/logout/', '/api/auth/me/'}
         if demo:
-            public |= {'/api/auth/demo/', '/api/operations/role/', '/api/operations/status/', '/api/runtime/status/'}
+            public |= {'/api/auth/demo/', '/api/operations/role/', '/api/operations/status/', '/api/runtime/status/', '/api/erp/showcase/'}
         if request.path not in public:
             try:
                 principal = actor(request)
