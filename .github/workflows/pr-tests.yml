@@ -27,10 +27,10 @@ jobs:
     - name: Чи змінено training/ або crm/
       id: scope
       run: |
-        if git diff --name-only "${{ github.event.pull_request.base.sha }}" HEAD | grep -qE '^(training|crm)/'; then
+        if git diff --name-only "${{ github.event.pull_request.base.sha }}" HEAD | grep -qE '^(training|crm|connectors)/'; then
           echo "run=true" >> "$GITHUB_OUTPUT"
         else
-          echo "run=false" >> "$GITHUB_OUTPUT"; echo "training/ і crm/ не змінено — тести не потрібні."
+          echo "run=false" >> "$GITHUB_OUTPUT"; echo "training/, crm/ і connectors/ не змінено — тести не потрібні."
         fi
     - if: steps.scope.outputs.run == 'true'
       uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
@@ -43,7 +43,7 @@ jobs:
       run: |
         mkdir -p "$RUNNER_TEMP/qa/media"
         BOS_TEST_DB_NAME="$RUNNER_TEMP/qa/bos3-fasteners-qa.sqlite3" BOS_TEST_MEDIA="$RUNNER_TEMP/qa/media" \
-          python -B manage.py test training.test_sessions crm.test_contract --noinput
+          python -B manage.py test training.test_sessions crm.test_contract connectors --noinput
   package-payload:
     runs-on: ubuntu-24.04
     timeout-minutes: 5

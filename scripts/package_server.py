@@ -8,7 +8,7 @@ from pathlib import Path
 import stat
 
 ROOTS = ('boss_project', 'operations', 'erp', 'finance', 'employees', 'branches',
-         'tasks', 'ai_assistant', 'crm', 'training', 'scripts', 'assets', 'static',
+         'tasks', 'ai_assistant', 'crm', 'training', 'connectors', 'scripts', 'assets', 'static',
          'frontend', 'deploy')
 EXTENSIONS = {'.py', '.js', '.cjs', '.css', '.html', '.json', '.svg', '.png', '.ico',
               '.woff', '.woff2', '.ttf', '.txt', '.sh', '.ps1', '.bat', '.yml', '.yaml'}
