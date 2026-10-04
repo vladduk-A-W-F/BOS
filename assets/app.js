@@ -18145,6 +18145,119 @@ function CoreModuleWorkspace(props) {
 }
 // CORE_MODULE_VIEWS_END
 
+function structureCounts(rows, ids) {
+  const at = new Set(ids.map(String)),
+    inPoint = row => at.has(String(row.location_id));
+  return {
+    lots: (rows.lots || []).filter(inPoint).length,
+    orders: (rows.orders || []).filter(row => inPoint(row) && row.open_line_count > 0).length,
+    jobs: (rows.jobs || []).filter(row => inPoint(row) && row.status !== 'done').length
+  };
+}
+function NetworkStructure({
+  network,
+  branch,
+  point,
+  onPoint,
+  onRelatedPoint,
+  onSelect
+}) {
+  const rows = network.rows || {},
+    points = rows.points || [],
+    locations = network.locations || [],
+    branches = network.branches || [];
+  const listed = branch === 'unassigned' ? [{
+    id: null,
+    name: 'Без філії',
+    short_name: ''
+  }] : branches.filter(b => !branch || String(b.id) === branch);
+  if (!branch && points.some(p => p.branch_id == null)) listed.push({
+    id: null,
+    name: 'Без філії',
+    short_name: ''
+  });
+  const kind = p => ({
+    warehouse: 'Склад',
+    production: 'Виробництво',
+    supplier: 'Підрядник'
+  })[p.kind] || 'Точка';
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Card, {
+    className: "structure-map"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "erp-row"
+  }, /*#__PURE__*/React.createElement("h3", null, "\u0417\u0432\u2019\u044F\u0437\u043A\u0438 \u043C\u0456\u0436 \u0442\u043E\u0447\u043A\u0430\u043C\u0438"), /*#__PURE__*/React.createElement("span", {
+    className: "erp-status"
+  }, points.length, " \u0442\u043E\u0447\u043E\u043A")), /*#__PURE__*/React.createElement(NetworkMap, {
+    points: points,
+    locations: locations,
+    transfers: rows.transfers || [],
+    selected: point,
+    onPoint: onPoint
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "structure-grid"
+  }, listed.map(b => {
+    const own = points.filter(p => p.branch_id === b.id),
+      counts = structureCounts(rows, own.map(p => p.id));
+    return /*#__PURE__*/React.createElement("details", {
+      key: (b.id ?? 'unassigned') + ':' + point,
+      className: "structure-cell",
+      defaultOpen: !!branch || own.some(p => String(p.id) === String(point))
+    }, /*#__PURE__*/React.createElement("summary", null, /*#__PURE__*/React.createElement("small", null, b.type === 'headquarters' ? 'Офіс' : 'Філія', " \xB7 ", b.short_name || 'Місто не задано'), /*#__PURE__*/React.createElement("strong", null, b.name), /*#__PURE__*/React.createElement("span", {
+      className: "structure-counts"
+    }, /*#__PURE__*/React.createElement("span", null, "\u0422\u043E\u0447\u043A\u0438 ", /*#__PURE__*/React.createElement("b", null, own.length)), /*#__PURE__*/React.createElement("span", null, "\u041F\u0430\u0440\u0442\u0456\u0457 ", /*#__PURE__*/React.createElement("b", null, counts.lots)), /*#__PURE__*/React.createElement("span", null, "\u0417\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F ", /*#__PURE__*/React.createElement("b", null, counts.orders)))), /*#__PURE__*/React.createElement("div", {
+      className: "structure-points"
+    }, own.map(p => {
+      const totals = structureCounts(rows, [p.id]),
+        same = name => (rows[name] || []).filter(r => String(r.location_id) === String(p.id));
+      return /*#__PURE__*/React.createElement("details", {
+        key: p.id,
+        className: "structure-cell structure-point",
+        defaultOpen: String(point) === String(p.id)
+      }, /*#__PURE__*/React.createElement("summary", null, /*#__PURE__*/React.createElement("small", null, kind(p), " \xB7 ", b.short_name || p.branch_name || 'Місто не задано'), /*#__PURE__*/React.createElement("strong", null, p.name), /*#__PURE__*/React.createElement("span", {
+        className: "structure-counts"
+      }, /*#__PURE__*/React.createElement("span", null, "\u041F\u0430\u0440\u0442\u0456\u0457 ", /*#__PURE__*/React.createElement("b", null, totals.lots)), /*#__PURE__*/React.createElement("span", null, "\u0417\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F ", /*#__PURE__*/React.createElement("b", null, totals.orders)), /*#__PURE__*/React.createElement("span", null, "\u0420\u043E\u0431\u043E\u0442\u0438 ", /*#__PURE__*/React.createElement("b", null, totals.jobs)))), /*#__PURE__*/React.createElement("div", {
+        className: "structure-records"
+      }, /*#__PURE__*/React.createElement(Button, {
+        onClick: () => onPoint(String(p.id))
+      }, "\u041F\u043E\u043A\u0430\u0437\u0430\u0442\u0438 \u043D\u0430 \u043A\u0430\u0440\u0442\u0456 \u0439 \u0443 \u0440\u0435\u0454\u0441\u0442\u0440\u0430\u0445"), /*#__PURE__*/React.createElement("h4", null, "\u0421\u043A\u043B\u0430\u0434"), /*#__PURE__*/React.createElement(ERPTable, {
+        rows: same('lots'),
+        onRow: r => onSelect({
+          kind: 'lots',
+          id: r.id
+        }),
+        columns: [["Партія", 'code'], ["Номенклатура", 'item_name'], ["Фізично", r => r.quantity + ' ' + r.unit]]
+      }), /*#__PURE__*/React.createElement("h4", null, "\u0417\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement(ERPTable, {
+        rows: same('orders'),
+        onRow: r => onSelect({
+          kind: 'orders',
+          id: r.id
+        }),
+        columns: [["Замовлення", 'code'], ["Клієнт", 'customer_name'], ["Відкритих позицій", 'open_line_count']]
+      }), /*#__PURE__*/React.createElement("h4", null, "\u041F\u043E\u0441\u0442\u0430\u0447\u0430\u043D\u043D\u044F"), /*#__PURE__*/React.createElement(ERPTable, {
+        rows: same('purchases'),
+        onRow: r => onSelect({
+          kind: 'purchases',
+          id: r.id
+        }),
+        columns: [["Закупівля", 'code'], ["Постачальник", 'supplier_name'], ["Стан", r => ERP_LABELS[r.status] || r.status]]
+      }), /*#__PURE__*/React.createElement("h4", null, "\u0412\u0438\u0440\u043E\u0431\u043D\u0438\u0446\u0442\u0432\u043E"), /*#__PURE__*/React.createElement(ERPTable, {
+        rows: same('jobs'),
+        onRow: r => onSelect({
+          kind: 'jobs',
+          id: r.id
+        }),
+        columns: [["Робота", 'code'], ["Виріб", 'item_name'], ["Стан", r => ERP_LABELS[r.status] || r.status]]
+      }), /*#__PURE__*/React.createElement("h4", null, "\u041F\u0435\u0440\u0435\u043C\u0456\u0449\u0435\u043D\u043D\u044F \u0437 \u0442\u043E\u0447\u043A\u0438"), /*#__PURE__*/React.createElement(ERPTable, {
+        rows: (rows.transfers || []).filter(r => String(r.source_location_id) === String(p.id)),
+        columns: [["Переміщення", 'code'], ["Куди", r => locations.some(p => p.id === r.destination_id) ? /*#__PURE__*/React.createElement(BoSLink, {
+          onClick: () => onRelatedPoint(String(r.destination_id))
+        }, r.destination_name) : r.destination_name], ["Стан", r => ERP_LABELS[r.status] || r.status]]
+      })));
+    }), !own.length && /*#__PURE__*/React.createElement("p", {
+      className: "op-muted"
+    }, "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0442\u043E\u0447\u043E\u043A \u043D\u0435\u043C\u0430\u0454.")));
+  })));
+}
 function ERPNetwork({
   data,
   onSelect,
@@ -18194,7 +18307,6 @@ function ERPNetwork({
     };
   }, [branch, point, currency, data, version]);
   const financial = bosCan('finance') && network?.capabilities?.finance === true,
-    write = bosCan('write') && network?.capabilities?.write === true,
     rows = network?.rows || {},
     metrics = network?.metrics || {},
     branches = network?.branches || data.branches || [],
@@ -18208,20 +18320,11 @@ function ERPNetwork({
     setPoint(value);
     setTable('points');
   }
-  function openRegister(value) {
-    setTable(value);
-    setGroup('operations');
-  }
   function chooseWorkspacePoint(value) {
     const next = modulePointSelection(locations, branch, value);
     setBranch(next.branch);
     setPoint(next.point);
   }
-  const can = a => write && bosCanAction(a),
-    action = (a, p, label) => can(a) ? /*#__PURE__*/React.createElement(Button, {
-      onClick: () => onAction(a, p)
-    }, label || ERP_ACTIONS[a]?.[0]) : null;
-  const money = value => networkMoney(value, network?.currency || currency);
   return /*#__PURE__*/React.createElement("section", {
     className: "network-workspace",
     "aria-label": "\u0423\u043F\u0440\u0430\u0432\u043B\u0456\u043D\u043D\u044F \u043C\u0435\u0440\u0435\u0436\u0435\u044E"
@@ -18229,14 +18332,12 @@ function ERPNetwork({
     className: "network-heading"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
     className: "network-eyebrow"
-  }, window.BOS_RUNTIME?.mode === 'demo' ? 'Навчальні записи BoS' : 'РОБОЧІ ДАНІ BoS'), /*#__PURE__*/React.createElement("h3", null, "\u0412\u0456\u0434 \u0444\u0456\u043B\u0456\u0457 \u0434\u043E \u043A\u043E\u0436\u043D\u043E\u0457 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0457"), /*#__PURE__*/React.createElement("p", {
-    className: "op-muted"
-  }, "\u0421\u043A\u043B\u0430\u0434, \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043D\u043D\u044F, \u043F\u0440\u043E\u0434\u0430\u0436\u0456 \u0439 \u0440\u043E\u0437\u0440\u0430\u0445\u0443\u043D\u043A\u0438 \u0437 \u043F\u043E\u0442\u043E\u0447\u043D\u043E\u0457 \u0431\u0430\u0437\u0438. \u0414\u0456\u044F \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442\u044C \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0443 \u0442\u0430 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F.")), /*#__PURE__*/React.createElement("span", {
+  }, window.BOS_RUNTIME?.mode === 'demo' ? 'Навчальні записи BoS' : 'РОБОЧІ ДАНІ BoS'), /*#__PURE__*/React.createElement("h3", null, "\u041A\u0430\u0440\u0442\u0430 \u043A\u043E\u043C\u043F\u0430\u043D\u0456\u0457")), /*#__PURE__*/React.createElement("span", {
     className: "erp-status"
   }, network?.data_mode === 'demo' ? 'Демонстраційна база' : 'Поточна база', " \xB7 ", network?.as_of ? erpDate(network.as_of) : '…')), /*#__PURE__*/React.createElement("nav", {
     className: "network-groups",
     "aria-label": "\u0420\u043E\u0431\u043E\u0447\u0456 \u0431\u043B\u043E\u043A\u0438 \u043C\u0435\u0440\u0435\u0436\u0456"
-  }, [['overview', 'Огляд'], ['operations', 'Операції'], ['documents', 'Документи й звірки'], ['control', 'Контроль строків']].map(([id, label]) => /*#__PURE__*/React.createElement(Button, {
+  }, [['overview', 'Карта й точки'], ['operations', 'Реєстри'], ['documents', 'Документи й звірки'], ['control', 'Контроль строків']].map(([id, label]) => /*#__PURE__*/React.createElement(Button, {
     key: id,
     "aria-pressed": group === id,
     onClick: () => setGroup(id)
@@ -18303,46 +18404,14 @@ function ERPNetwork({
     className: "erp-error"
   }, error), loading && /*#__PURE__*/React.createElement("p", {
     role: "status"
-  }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F \u043C\u0435\u0440\u0435\u0436\u0456 \u0442\u0430 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0439\u2026"), network && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-    className: "network-kpis"
-  }, (financial ? [['Запас у точках', money(metrics.inventory_value), 'Усі фізичні партії обраної валюти', 'lots'], ['У дорозі', money(metrics.in_transit_value), metrics.in_transit_count + ' відкритих переміщень', 'transfers'], ['Залишилось сплатити', money(metrics.receivable), 'За рахунками обраної валюти', 'invoices'], ['Зокрема утримано', money(metrics.retained), 'Входить у борг; зняття не є оплатою', 'retentions']] : [['Точки мережі', metrics.point_count, 'У поточному відборі', 'points'], ['Складські партії', metrics.lot_count, 'Залишки та стан якості', 'lots'], ['Постачання', metrics.open_purchases, 'Відкриті замовлення', 'purchases'], ['У дорозі', metrics.in_transit_count, 'Ще не прийнято у точці', 'transfers']]).map(([label, value, note, target]) => /*#__PURE__*/React.createElement("button", {
-    className: "bos-kpi",
-    type: "button",
-    key: target,
-    onClick: () => openRegister(target)
-  }, /*#__PURE__*/React.createElement("span", null, label), /*#__PURE__*/React.createElement("strong", null, value ?? '—'), /*#__PURE__*/React.createElement("p", null, note), /*#__PURE__*/React.createElement("em", null, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u0437\u0430\u043F\u0438\u0441\u0438 \u2197")))), group === 'overview' && /*#__PURE__*/React.createElement("div", {
-    className: "network-overview"
-  }, /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("div", {
-    className: "erp-row"
-  }, /*#__PURE__*/React.createElement("h3", null, "\u0413\u0435\u043E\u0433\u0440\u0430\u0444\u0456\u044F \u043C\u0435\u0440\u0435\u0436\u0456"), /*#__PURE__*/React.createElement("span", {
-    className: "erp-status"
-  }, metrics.point_count, " \u0442\u043E\u0447\u043E\u043A \u0443 \u0432\u0456\u0434\u0431\u043E\u0440\u0456")), /*#__PURE__*/React.createElement(NetworkMap, {
-    points: rows.points || [],
-    locations: locations,
-    transfers: rows.transfers || [],
-    selected: point,
-    onPoint: choosePoint
-  })), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u041F\u043E\u0442\u043E\u0447\u043D\u0438\u0439 \u0432\u0456\u0434\u0431\u0456\u0440"), /*#__PURE__*/React.createElement("p", {
-    className: "network-scope"
-  }, branch === 'unassigned' ? 'Без філії' : branches.find(b => String(b.id) === branch)?.name || 'Уся мережа'), /*#__PURE__*/React.createElement("p", null, point ? locations.find(p => String(p.id) === point)?.name : 'Усі робочі точки'), /*#__PURE__*/React.createElement("div", {
-    className: "network-processes"
-  }, [['purchases', 'Постачання / імпорт'], ['orders', 'Продажі / експорт'], ['jobs', 'Виробництво'], ['transfers', 'Переміщення']].map(([id, label]) => /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    key: id,
-    onClick: () => openRegister(id)
-  }, /*#__PURE__*/React.createElement("span", null, label), /*#__PURE__*/React.createElement("strong", null, (rows[id] || []).length)))), write && /*#__PURE__*/React.createElement("div", {
-    className: "erp-actions"
-  }, action('purchase', {
-    currency,
-    destination_id: point || ''
-  }, 'Нова закупівля'), action('order', {
-    currency,
-    fulfillment_location_id: point || ''
-  }, 'Новий продаж'), action('location', {
-    branch_id: branch === 'unassigned' ? '' : branch
-  }, 'Нова точка')), /*#__PURE__*/React.createElement("p", {
-    className: "op-muted"
-  }, "\u0421\u0443\u043C\u0438 \u0432\u0456\u0434\u0431\u0438\u0440\u0430\u044E\u0442\u044C\u0441\u044F \u0437\u0430 \u0432\u0430\u043B\u044E\u0442\u043E\u044E \u0431\u0435\u0437 \u043A\u043E\u043D\u0432\u0435\u0440\u0442\u0430\u0446\u0456\u0457. \u041F\u0440\u0438\u0432\u2019\u044F\u0437\u043A\u0438 \u0444\u0456\u043B\u0456\u0439 \u0442\u0430 \u0442\u043E\u0447\u043E\u043A \u0431\u0435\u0440\u0443\u0442\u044C\u0441\u044F \u0437 \u043A\u0430\u0440\u0442\u043E\u043A BoS."))), network.warnings?.map((w, i) => /*#__PURE__*/React.createElement("p", {
+  }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F \u043C\u0435\u0440\u0435\u0436\u0456 \u0442\u0430 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0439\u2026"), network && /*#__PURE__*/React.createElement(React.Fragment, null, group === 'overview' && /*#__PURE__*/React.createElement(NetworkStructure, {
+    network: network,
+    branch: branch,
+    point: point,
+    onPoint: choosePoint,
+    onRelatedPoint: chooseWorkspacePoint,
+    onSelect: onSelect
+  }), network.warnings?.map((w, i) => /*#__PURE__*/React.createElement("p", {
     className: "op-muted",
     key: i
   }, w)), group === 'operations' && /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("div", {

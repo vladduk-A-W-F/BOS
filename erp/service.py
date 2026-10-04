@@ -13,7 +13,7 @@ from boss_project.data_rules import field_values, portable_tree, decimal_value
 
 D=Decimal
 ZERO=D('0')
-MODELS=[Item,Location,Lot,SalesOrder,SalesLine,Production,Reservation,Purchase,Movement,Inspection,ChangeOrder,InvoiceLink,OperatorEntry]
+MODELS=[Item,Location,Lot,SalesOrder,SalesLine,Production,Reservation,Purchase,Movement,Inspection,ChangeOrder,InvoiceLink,OperatorEntry,DocumentLink]
 # req fields; optional values have explicit defaults, unknown fields rejected.
 SCHEMAS={
 'import_batch':('batch','source_part_sha256'),
@@ -30,6 +30,7 @@ SCHEMAS={
 'transfer':('lot_id quantity location_id code reason','production_id'),
 'quality':('lot_id result inspector_id note',''),
 'attach':('lot_id kind document_id',''),
+'link_document':('document_id','order_id invoice_id note'),
 'start':('production_id',''),
 'operator':('production_id operation operator_id result minutes defects','note'),
 'finish':('production_id quantity code location_id labor_cost','documents'),
@@ -306,6 +307,16 @@ def dispatch(payload,role='manager',log=True,*,import_context=None,import_phase=
         obj=newlot(d['code'],lot.item,loc,qty,lot.unit_cost,lot.currency,lot.revision,lot.documents,'transfer_in',lot.code,production=job);obj.quality=lot.quality;obj.save();out={'lot_id':obj.id,'code':obj.code}
     elif a=='attach':
         lot=Lot.objects.get(pk=d['lot_id']);doc=Document.objects.get(pk=d['document_id']);lot.documents={**lot.documents,d['kind']:doc.id};lot.save();out={'lot_id':lot.id,'document_id':doc.id}
+    elif a=='link_document':
+        doc=Document.objects.get(pk=d['document_id'])
+        if newest(doc.code).id!=doc.id:raise ValueError('Оберіть актуальну версію документа.')
+        order_id,invoice_id=d.get('order_id'),d.get('invoice_id')
+        if bool(order_id)==bool(invoice_id):raise ValueError('Оберіть або замовлення, або рахунок.')
+        if invoice_id and role!='ceo':raise PermissionError('Документ до рахунку прив’язує керівник.')
+        if not isinstance(d.get('note',''),str) or len(d.get('note',''))>200:raise ValueError('Примітка: до 200 символів.')
+        target={'order':SalesOrder.objects.get(pk=order_id)} if order_id else {'invoice':Invoice.objects.get(pk=invoice_id)}
+        if DocumentLink.objects.filter(document=doc,**target).exists():raise ValueError('Документ уже прив’язано до цього запису.')
+        obj=DocumentLink.objects.create(document=doc,note=d.get('note','').strip(),**target);out={'link_id':obj.id,'document_id':doc.id}
     elif a=='quality':
         lot=Lot.objects.select_related('item').get(pk=d['lot_id']);Employee.objects.get(pk=d['inspector_id'])
         if d['result'] not in ('approved','blocked','rework'):raise ValueError('Невідомий результат перевірки.')

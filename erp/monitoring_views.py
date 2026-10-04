@@ -35,3 +35,28 @@ def showcase(request):
     company = Configuration.objects.filter(key='organization').first()
     name = company.value.get('name', '') if company and isinstance(company.value, dict) else ''
     return JsonResponse({'company': name, 'cases': cases.value.get('cases', [])})
+
+
+@identity_errors
+@errors
+@require_GET
+def document_links(request):
+    """Documents attached to an order or invoice, or the records a document is attached to."""
+    from .models import DocumentLink, SalesOrder
+    policy = Policy(request)
+    rows = DocumentLink.objects.select_related('document', 'order', 'invoice').filter(
+        document__in=policy.documents()).order_by('-created_at', '-pk')
+    if not policy.ceo:
+        rows = rows.filter(invoice__isnull=True, order__in=policy.queryset(SalesOrder))
+    keys = [k for k in ('order', 'invoice', 'document') if request.GET.get(k)]
+    if len(keys) != 1:
+        raise ValueError('Вкажіть один параметр: order, invoice або document.')
+    rows = rows.filter(**{keys[0] + '_id': int(request.GET[keys[0]])})
+    image = lambda d: (d.filename or '').rsplit('.', 1)[-1].lower() in ('png', 'jpg', 'jpeg')
+    return JsonResponse({'links': [{
+        'id': x.pk, 'note': x.note, 'created_at': x.created_at.isoformat(),
+        'document': {'id': x.document_id, 'code': x.document.code, 'revision': x.document.revision,
+                     'title': x.document.title, 'status': x.document.status, 'image': image(x.document)},
+        'order': {'id': x.order_id, 'code': x.order.code} if x.order_id else None,
+        'invoice': {'id': x.invoice_id, 'code': x.invoice.code} if x.invoice_id else None,
+    } for x in rows[:200]]})
