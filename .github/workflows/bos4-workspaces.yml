@@ -6,6 +6,7 @@ name: BoS 4 — робочі екрани
       - 'assets/app.js'
       - 'scripts/build_frontend.cjs'
       - 'scripts/test_bos4_workspaces.cjs'
+      - 'scripts/test_bos4_structure.cjs'
       - '.github/workflows/bos4-workspaces.yml'
 permissions:
   contents: read
@@ -19,6 +20,8 @@ jobs:
           persist-credentials: false
       - name: Адресна перевірка маршрутів і прав вкладок
         run: node scripts/test_bos4_workspaces.cjs
+      - name: Підрахунки структури лише з доступних записів
+        run: node scripts/test_bos4_structure.cjs
       - name: Збірка інтерфейсу без нових залежностей
         run: node scripts/build_frontend.cjs
       - name: Похідні файли відповідають вихідному коду
