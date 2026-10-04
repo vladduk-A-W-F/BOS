@@ -61,7 +61,7 @@ def doc_dict(d,policy):
     extra={k:m[k] for k in ('format','parser_version','row_count','source_totals') if k in m} if m else {}
     contract_id=d.contract_id
     if policy and not policy.ceo and contract_id and not policy.contracts().filter(pk=contract_id).exists():contract_id=None
-    return {**extra,'id':d.id,'code':d.code,'revision':d.revision,'title':d.title,'status':d.status,'filename':d.filename,'checksum':d.checksum,'contract_id':contract_id,'created_at':d.created_at.isoformat(),'current':(policy.documents().filter(code=d.code).order_by('-id').first() if policy else s.newest(d.code)).id==d.id}
+    return {**extra,'id':d.id,'code':d.code,'revision':d.revision,'title':d.title,'status':d.status,'filename':d.filename,'checksum':d.checksum,'contract_id':contract_id,'created_at':d.created_at.isoformat(),'image':(d.filename or '').rsplit('.',1)[-1].lower() in ('png','jpg','jpeg'),'current':(policy.documents().filter(code=d.code).order_by('-id').first() if policy else s.newest(d.code)).id==d.id}
 
 @require_GET
 @ensure_csrf_cookie
@@ -121,6 +121,19 @@ def document(request,pk):
 def download(request,pk):
     p=Policy(request);d=p.document(pk);p.require('download_document')
     return FileResponse(io.BytesIO(verified_document_bytes(d)),as_attachment=True,filename=d.filename or d.code+'.txt',content_type='application/octet-stream')
+
+@require_GET
+@errors
+def view(request,pk):
+    """Inline preview of a verified PNG/JPEG original; other documents stay download-only."""
+    from .documents import image_type
+    p=Policy(request);d=p.document(pk);p.require('download_document')
+    data=verified_document_bytes(d);content_type=image_type(d.filename,data)
+    if content_type is None:raise Document.DoesNotExist()
+    response=HttpResponse(data,content_type=content_type)
+    response['Content-Disposition']='inline';response['X-Content-Type-Options']='nosniff'
+    response['Content-Security-Policy']="default-src 'none'; sandbox";response['Cache-Control']='private, no-store'
+    return response
 
 @require_POST
 @errors
