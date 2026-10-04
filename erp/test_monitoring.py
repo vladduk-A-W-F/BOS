@@ -80,3 +80,13 @@ class MonitoringTests(TransactionTestCase):
         self.assertIn(self.client.get('/api/erp/monitoring/').status_code, (401, 403))
         self.login('ceo')
         self.assertEqual(self.client.post('/api/erp/monitoring/').status_code, 405)
+
+    def test_showcase_is_public_only_for_demo(self):
+        data = self.client.get('/api/erp/showcase/').json()
+        self.assertEqual(data['company'], 'Каркас Меблі · демо')
+        self.assertEqual([c['title'] for c in data['cases']], ['Комплектуючі для партії меблів',
+            'Відвантаження лише допущеної партії', 'Рахунок, оплата й нагадування'])
+        self.assertTrue(all(3 <= len(c['steps']) <= 4 for c in data['cases']))
+        with override_settings(BOS_DATA_MODE='production'):
+            # Outside demo the address is not public at all.
+            self.assertEqual(self.client.get('/api/erp/showcase/').status_code, 401)

@@ -20,3 +20,18 @@ def overview(request):
 @require_GET
 def standard_query(request, key):
     return JsonResponse(monitoring.query(Policy(request), key))
+
+
+@require_GET
+def showcase(request):
+    """Public first screen: only the synthetic demo cases of a demo database."""
+    from django.conf import settings
+    from operations.models import Configuration
+    from training.access import enabled
+    cases = Configuration.objects.filter(key='demo_cases').first()
+    if (settings.BOS_DATA_MODE != 'demo' or enabled() or cases is None
+            or not isinstance(cases.value, dict) or cases.value.get('synthetic') is not True):
+        return JsonResponse({'cases': []})
+    company = Configuration.objects.filter(key='organization').first()
+    name = company.value.get('name', '') if company and isinstance(company.value, dict) else ''
+    return JsonResponse({'company': name, 'cases': cases.value.get('cases', [])})

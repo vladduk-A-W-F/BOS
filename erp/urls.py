@@ -13,4 +13,5 @@ urlpatterns += [path('modules/',module_views.registry,name='bos-modules')]
 
 from . import monitoring_views
 urlpatterns += [path('monitoring/', monitoring_views.overview, name='bos-monitoring'),
-                path('monitoring/query/<slug:key>/', monitoring_views.standard_query, name='bos-monitoring-query')]
+                path('monitoring/query/<slug:key>/', monitoring_views.standard_query, name='bos-monitoring-query'),
+                path('showcase/', monitoring_views.showcase, name='bos-showcase')]
