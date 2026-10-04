@@ -1,4 +1,5 @@
 """BoS 4 M8: photos of reports (PNG/JPEG) in the private document store. Synthetic bytes only."""
+import base64
 import struct
 import tempfile
 import zlib
@@ -20,7 +21,19 @@ def png_bytes():
             + chunk(b'IDAT', zlib.compress(b'\x00\xff\xff\xff')) + chunk(b'IEND', b''))
 
 
-JPEG = b'\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00\xff\xd9'
+# 2x2 baseline JPEG encoded by Chromium canvas; synthetic, no metadata of a person or company.
+JPEG = base64.b64decode(
+    '/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAA'
+    'AABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+    'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAA'
+    'ABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAA'
+    'AAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAA'
+    'AAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAA'
+    'AABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABALDA4M'
+    'ChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8a'
+    'Gi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAACAAIDASIAAhEB'
+    'AxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAX/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAgX/'
+    'xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCMASW//9k=')
 
 
 @override_settings(BOS_DATA_MODE='working', DEBUG=False, ANTHROPIC_API_KEY='',
@@ -71,7 +84,11 @@ class DocumentImageTests(TransactionTestCase):
         self.assertEqual((view.status_code, view['Content-Type']), (200, 'image/jpeg'))
 
     def test_renamed_or_broken_image_is_refused_without_rows_or_files(self):
-        for name, data in (('fake.png', b'not an image'), ('cut.jpg', JPEG[:-2]), ('page.html.png', b'<html></html>')):
+        broken = (('fake.png', b'not an image'), ('cut.jpg', JPEG[:-2]), ('page.html.png', b'<html></html>'),
+                  # Signature and header only: magic bytes are not proof of a whole image.
+                  ('header-only.png', png_bytes()[:16]), ('markers-only.jpg', b'\xff\xd8\xff\xff\xd9'),
+                  ('no-iend.png', png_bytes()[:-12]), ('tail.png', png_bytes() + b'x'))
+        for name, data in broken:
             self.assertEqual(self.upload(name, data).status_code, 422)
         self.assertFalse(Document.objects.exists())
         self.assertEqual(self.files(), [])
