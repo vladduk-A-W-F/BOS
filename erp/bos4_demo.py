@@ -39,6 +39,12 @@ def _existing():
     return {**receipt, 'created': False}
 
 
+def _assert_no_connectors():
+    from connectors.models import Connector, ConnectorSnapshot
+    if Connector.objects.exists() or ConnectorSnapshot.objects.exists():
+        raise CommandError('База містить підключені джерела. Змішування з демо-даними заборонене.')
+
+
 def seed_bos4_demo():
     """All rows commit together; only owned new files may be cleaned."""
     if getattr(settings, 'BOS_DATA_MODE', None) != 'demo':
@@ -64,6 +70,7 @@ def seed_bos4_demo():
             if existing is not None:
                 return existing
             _assert_empty_business()
+            _assert_no_connectors()
             result = _populate(pending_files)
             transaction.on_commit(finalize)
         return {**result, 'created': True}
