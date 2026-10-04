@@ -32,4 +32,15 @@ for (const role of ['ceo', 'manager', 'observer']) {
   assert.deepEqual(route('finance', 'costs'), {section: 'finance', sub: 'invoices', extra: null});
   assert.deepEqual(route('finance', 'bank'), {section: 'finance', sub: 'invoices', extra: 'bank'});
 }
+const workspace = part('function ERPWorkspace(', 'const BOS_METRICS=');
+const settings = part('function Settings(', '// InfoPage');
+const finance = part('function FinanceWorkspace(', 'function App()');
+assert.match(settings, /bosRole\(\)==='ceo'&&<ERPWorkspace view="import" onNavigate=\{onNavigate\}/);
+assert.match(workspace, /view==='import'&&bosRole\(\)==='ceo'&&<Button onClick=\{\(\)=>setInitialImport\(true\)\}>Початковий імпорт<\/Button>/);
+assert.doesNotMatch(workspace, /Єдині замовлення, матеріали та відповідальні|Контекст для AI|Собівартість і маржа відвантажень/);
+assert.match(workspace, /if\(view==='costs'&&bosCan\('finance'\)\)content=<>\<Card\><h3>Рахунки й оплати<\/h3>/);
+assert.match(finance, /<ERPWorkspace view="costs"/);
+const erpNumCode = source.match(/^const erpNum=.*;$/m)?.[0];
+assert.ok(erpNumCode);
+assert.deepEqual(Array.from(vm.runInNewContext(`${erpNumCode};[erpNum('0.000'),erpNum('120.000'),erpNum('0.125')]`)), ['0', '120', '0,125']);
 console.log('M7 navigation, legacy routes and role visibility: PASS');
