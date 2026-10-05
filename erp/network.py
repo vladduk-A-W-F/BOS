@@ -99,12 +99,18 @@ def build(policy, params):
         if policy.ceo:
             point['inventory_value'] = money_text(sum((D(row['value']) for row in lots), D(0)))
 
+    # A supplier's own point (kind=supplier) is the origin of its deliveries on the map.
+    supplier_points = {}
+    for row in locations:
+        if row.get('kind') == 'supplier' and row.get('supplier_id'):
+            supplier_points.setdefault(row['supplier_id'], row['id'])
     for source in data['purchases']:
         location_id = source.get('destination_id')
         if source['currency'] != currency or not matches(location_id):
             continue
         row = item_fields(located(deepcopy(source), location_id))
         row['supplier_name'] = partners.get(source['supplier_id'], {}).get('name', '')
+        row['origin_location_id'] = supplier_points.get(source['supplier_id'])
         row['process'] = 'import' if source.get('origin_country') not in ('', None, 'UA') else 'purchase'
         rows['purchases'].append(row)
 

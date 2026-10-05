@@ -117,9 +117,13 @@ def _populate(pending_files):
         places[key] = act('location', code=PREFIX + key, name=b.short_name + ' · ' + name, kind=kind,
             branch_id=b.pk, lat=b.lat, lng=b.lng,
             address='Демо-точка; координати центру міста, не адреса об’єкта')['location_id']
-    for key, name, source in data.SUPPLIERS:
-        suppliers[key] = Counterparty.objects.create(name=name, type='supplier',
+    for key, name, source, city, lat, lng in data.SUPPLIERS:
+        suppliers[key] = Counterparty.objects.create(name=name, type='supplier', address=city,
             notes='Демо-постачальник. Роль узято з AdventureWorks (' + source + ').')
+        # The supplier's own point: the origin of its deliveries on the company map.
+        act('location', code=PREFIX + 'SUP-' + key, name=name + ' · ' + city, kind='supplier',
+            supplier_id=suppliers[key].pk, lat=lat, lng=lng,
+            address='Демо-точка постачальника; координати центру міста, не адреса об’єкта')
     for key, name, city in data.CUSTOMERS:
         customers[key] = Counterparty.objects.create(name=name, type='customer', address=city,
             notes='Демо-клієнт, вигаданий контрагент.')
