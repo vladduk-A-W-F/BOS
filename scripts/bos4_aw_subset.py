@@ -11,13 +11,15 @@ for byte (tests compare the recorded SHA-256 pins with the files when they are a
 """
 import argparse
 import collections
+import datetime
 import hashlib
 from decimal import Decimal as D, ROUND_HALF_UP
 from pathlib import Path
 import pprint
 
 CSV_DIR = 'samples/databases/adventure-works/oltp-install-script'
-FILES = ('AWBuildVersion', 'Product', 'BillOfMaterials', 'SalesOrderHeader', 'SalesOrderDetail')
+FILES = ('AWBuildVersion', 'Product', 'BillOfMaterials', 'SalesOrderHeader', 'SalesOrderDetail',
+         'ProductInventory', 'ProductVendor', 'Vendor', 'WorkOrder')
 SALES_ORDER = '47395'              # the AW reseller order with the most distinct finished goods (40)
 SUBCATEGORIES = {'2': 'bike', '14': 'frame'}   # Road Bikes, Road Frames
 QTY_SCALE = 5                      # AW OrderQty × 5: a furniture distributor's volume
@@ -30,6 +32,9 @@ MARKUP = {'frame': '1.45', 'bike': '1.50'}     # selling price = planned cost ×
 PAINT_KG_PER_OZ = '0.0283495'
 PAINT_COVERAGE = '6'               # liquid frame paint (oz) → powder coating for a furniture frame (kg)
 FASTENER_FACTOR = '8'              # bolts per crank/headset → bolts per five-shelf rack
+STORAGE = {'1', '2', '3', '4', '5', '6'}   # AW Location: Tool Crib … Miscellaneous Storage → «Склад металу»
+SUPPLY_DATE = '2026-10-05'         # scenario day the large order's purchases are placed
+FIRST_START = '2026-10-23'         # scenario day production starts: after the longest AW lead time
 
 COLORS = {'Black': ('B', 'чорний', 'RAL 9005'), 'Red': ('R', 'червоний', 'RAL 3020'),
           'Yellow': ('Y', 'жовтий', 'RAL 1023')}
@@ -105,6 +110,7 @@ def build(source):
     for r in rows(base / 'BillOfMaterials.csv'):
         if r[1] and not r[4].strip():       # assembly rows still in force (no EndDate)
             bom[r[1]].append((r[2], D(r[7]), r[5].strip()))
+    material_ids = {r[0]: r[2] for r in product.values() if r[2] in MATERIALS}
     header = next(r for r in rows(base / 'SalesOrderHeader.csv') if r[0] == SALES_ORDER)
     details = [r for r in rows(base / 'SalesOrderDetail.csv')
                if r[0] == SALES_ORDER and product[r[4]][18] in SUBCATEGORIES]
@@ -172,7 +178,10 @@ def build(source):
                       'aw_unit_price_usd': r[6], 'aw_unit_discount': r[7],
                       'aw_unit_price_uah': money(unit_usd * D(RATE['uah_per_unit'])),
                       'price': by_pid[int(r[4])]['price']})
+    stock, purchases = stock_and_purchases(base, material_ids, products, lines)
+    assert max(p['due_date'] for p in purchases) < FIRST_START, 'production must start after the last delivery'
     return {
+        'stock': stock, 'purchases': purchases, 'jobs': jobs(base, header[2][:10], lines),
         'pins': {'repository': 'https://github.com/microsoft/sql-server-samples', 'path': CSV_DIR,
                  'aw_build_version': build_version, 'license': 'MIT (Copyright (c) Microsoft Corporation)',
                  'csv_sha256': pins},
@@ -187,6 +196,75 @@ def build(source):
                       for k, v in MATERIALS.items()},
         'excluded_leaves': {k: EXCLUDED_PREFIXES.get(k) or EXCLUDED_PREFIXES[k.split('-')[0]] for k in sorted(dropped)},
     }
+
+
+def physical(per_aw, qty):
+    """AW stock/EA unit → BoS unit without usage factors: 1 EA = 1 шт. (MS-0253: 0,1 листа); paint 1 = 1 кг."""
+    return qty * D(per_aw or '1')
+
+
+def stock_and_purchases(base, material_ids, products, lines):
+    inventory = collections.defaultdict(list)
+    for r in rows(base / 'ProductInventory.csv'):
+        if r[0] in material_ids and r[1] in STORAGE:
+            inventory[material_ids[r[0]]].append({'aw_location_id': int(r[1]), 'shelf': r[2], 'bin': int(r[3]),
+                                                  'aw_quantity': int(r[4])})
+    vendors = {r[0]: r[2] for r in rows(base / 'Vendor.csv')}
+    offers = collections.defaultdict(list)
+    for r in rows(base / 'ProductVendor.csv'):
+        if r[0] in material_ids:
+            offers[material_ids[r[0]]].append(r)
+    # The AW vendor with the shortest AverageLeadTime, then the lowest StandardPrice, then the lowest id.
+    terms = {k: min(v, key=lambda r: (int(r[2]), D(r[3]), int(r[1]))) for k, v in offers.items()}
+    by_code = {p['code']: p for p in products}
+    need = collections.Counter()
+    for line in lines:
+        for article, qty in by_code[line['code']]['bom'].items():
+            need[article] += D(qty) * line['quantity']
+    stock, purchases = [], []
+    for aw_number, (article, _, unit, supplier, price, kind, per_aw) in sorted(MATERIALS.items()):
+        rows_ = sorted(inventory[aw_number], key=lambda x: (x['aw_location_id'], x['shelf'], x['bin']))
+        on_hand = physical(per_aw, sum(D(x['aw_quantity']) for x in rows_)).quantize(D('0.01'), rounding=ROUND_HALF_UP)
+        stock.append({'article': article, 'aw_rows': rows_, 'quantity': format(on_hand.normalize(), 'f')})
+        t = terms[aw_number]
+        aw_unit = t[9].strip()
+        # MinOrderQty applies only where the AW purchase unit is the stock unit (EA); packs (CAN/CTN/CS/GAL)
+        # have no size in AW, so they are not converted.
+        minimum = physical(per_aw, D(t[6])) if aw_unit == 'EA' else D(0)
+        shortage = need[article] - on_hand
+        if shortage <= 0:
+            continue
+        quantity = max(shortage, minimum).to_integral_value(rounding='ROUND_CEILING')
+        lead = int(t[2])
+        due = (datetime.date.fromisoformat(SUPPLY_DATE) + datetime.timedelta(days=lead)).isoformat()
+        purchases.append({'article': article, 'supplier': supplier, 'need': format(need[article].normalize(), 'f'),
+                          'on_hand': format(on_hand.normalize(), 'f'), 'quantity': str(quantity), 'price': price,
+                          'lead_days': lead, 'due_date': due, 'aw_vendor_id': int(t[1]), 'aw_vendor_name': vendors[t[1]],
+                          'aw_vendor_offers': len(offers[aw_number]), 'aw_min_order_qty': int(t[6]), 'aw_unit': aw_unit,
+                          'aw_standard_price_usd': t[3],
+                          'aw_standard_price_uah': money(D(t[3]) * D(RATE['uah_per_unit']))})
+    return stock, purchases
+
+
+def jobs(base, order_date, lines):
+    """One job per order line. Its AW WorkOrder is the product's first one starting on or after the AW order
+    date; AW start offsets and durations are kept, shifted so the earliest start is FIRST_START."""
+    wanted = {line['aw_product_id'] for line in lines}
+    first = {}
+    for r in rows(base / 'WorkOrder.csv'):
+        pid, start = int(r[1]), r[5][:10]
+        if pid in wanted and start >= order_date and (pid not in first or (start, int(r[0])) < (first[pid][5][:10], int(first[pid][0]))):
+            first[pid] = r
+    day = datetime.date.fromisoformat
+    shift = day(FIRST_START) - min(day(first[l['aw_product_id']][5][:10]) for l in lines)
+    out = []
+    for n, line in enumerate(lines, 1):
+        r = first[line['aw_product_id']]
+        out.append({'code': f'VZ-0150-{n:02d}', 'product': line['code'], 'aw_detail_id': line['aw_detail_id'],
+                    'quantity': line['quantity'], 'aw_work_order_id': int(r[0]), 'aw_order_qty': int(r[2]),
+                    'aw_scrapped_qty': int(r[4]), 'aw_start_date': r[5][:10], 'aw_due_date': r[7][:10],
+                    'start_date': (day(r[5][:10]) + shift).isoformat(), 'due_date': (day(r[7][:10]) + shift).isoformat()})
+    return out
 
 
 LEDGER = (
@@ -210,7 +288,21 @@ LEDGER = (
      f'Кріплення (болти, гайки, шайби): × {FASTENER_FACTOR} на стелаж.'),
     ('Виключено', 'Велосипедні деталі без меблевого відповідника (колеса, шини, гальма, ланцюг, сідла, педалі, '
      'підшипники, наклейки) — список у EXCLUDED_LEAVES, у специфікацію не входять.'),
-    ('Сценарне', 'Ціни матеріалів у UAH, клієнт, строк, філія, документи, доручення — сценарні, не з AW.'),
+    ('Залишок', 'ProductInventory, місця зберігання AW 1–6 (Tool Crib … Miscellaneous Storage) → «Склад металу». '
+     'Лише перерахунок одиниць: 1 одиниця AW = 1 шт. (MS-0253 — 0,1 листа); фарба: 1 одиниця запасу AW = 1 кг — '
+     'сценарне припущення, бо одиницю запасу фарби AW не вказує. Коефіцієнти витрати (покриття, кріплення на '
+     'стелаж) до залишку не застосовуються.'),
+    ('Закупівля', 'Потреба = Σ специфікація × кількість рядка замовлення; дефіцит = потреба − залишок; кількість = '
+     'дефіцит, округлений вгору до цілого; для металу (одиниця закупівлі AW — EA) не менше MinOrderQty. Для упаковок '
+     '(CAN/CTN/CS/GAL) розмір в AW не задано, тому MinOrderQty записано як є, без перерахунку. Постачальник AW — '
+     'пропозиція ProductVendor з найменшим AverageLeadTime, далі найнижчою StandardPrice; строк = '
+     f'{SUPPLY_DATE} + AverageLeadTime. StandardPrice (USD за одиницю закупівлі AW) × {RATE["uah_per_unit"]} = '
+     'aw_standard_price_uah; ціна закупівлі — сценарна ціна матеріалу за одиницю BoS, окремо.'),
+    ('Виробництво', 'Одна робота на рядок замовлення, кількість = кількість рядка. WorkOrder — перший для того ж '
+     'ProductID зі StartDate не раніше дати замовлення AW; зміщення старту й тривалість збережено, графік зсунуто так, '
+     f'щоб найраніший старт був {FIRST_START} (після найдовшого строку поставки). Строк роботи = DueDate AW + зсув.'),
+    ('Сценарне', 'Ціни матеріалів у UAH, клієнт, строк, філія, документи, доручення, дата закупівлі й старту '
+     'виробництва — сценарні, не з AW.'),
 )
 
 
@@ -228,9 +320,10 @@ def render(data, commit):
              'MARKUP = ' + pprint.pformat(MARKUP, sort_dicts=True) + '\n',
              f'QTY_SCALE = {QTY_SCALE!r}\n',
              f'PAINT_KG_PER_OZ = {PAINT_KG_PER_OZ!r}\nPAINT_COVERAGE = {PAINT_COVERAGE!r}\n',
-             f'FASTENER_FACTOR = {FASTENER_FACTOR!r}\n\n',
+             f'FASTENER_FACTOR = {FASTENER_FACTOR!r}\n',
+             f'SUPPLY_DATE = {SUPPLY_DATE!r}\nFIRST_START = {FIRST_START!r}\n\n',
              'LEDGER = ' + pprint.pformat(LEDGER, width=110) + '\n\n']
-    for key in ('materials', 'products', 'order', 'excluded_leaves'):
+    for key in ('materials', 'products', 'order', 'stock', 'purchases', 'jobs', 'excluded_leaves'):
         parts.append(key.upper() + ' = ' + pprint.pformat(data[key], width=110, sort_dicts=True) + '\n\n')
     return ''.join(parts).rstrip('\n') + '\n'
 

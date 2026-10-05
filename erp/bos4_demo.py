@@ -475,12 +475,47 @@ def _populate_aw(act, document, items, suppliers, customers, people, places, bra
         + customer.name, priority='high', status='active', assignee=people['Ігор Бондар'].full_name,
         assignee_employee=people['Ігор Бондар'], branch=branches['ZHY'], deadline='2026-10-20',
         category='Виробництво', sales_order_id=out['order_id'])
+    supply = _supply_aw(act, document, items, suppliers, people, places, out['order_id'])
     Configuration.objects.create(key='bos4_demo_provenance', value={
         'synthetic': True, 'pins': aw.PINS, 'ledger': [list(row) for row in aw.LEDGER],
         'aw_sales_order_id': aw.ORDER['aw_sales_order_id'], 'aw_order_date': aw.ORDER['aw_order_date'],
         'rate': aw.RATE, 'aw_total_usd': aw.ORDER['aw_total_usd'], 'aw_total_uah': aw.ORDER['aw_total_uah'],
         'scenario_total_uah': aw.ORDER['total_uah'],
         'order_code': AW_ORDER_CODE, 'excluded_leaves': aw.EXCLUDED_LEAVES,
+        'aw_work_order_ids': [j['aw_work_order_id'] for j in aw.JOBS],
+        'aw_vendor_ids': {p['article']: p['aw_vendor_id'] for p in aw.PURCHASES},
+        'supply_date': aw.SUPPLY_DATE, 'first_start': aw.FIRST_START,
         'scenario': ['клієнт ' + customer.name, 'філія й склад виконання', 'строк 27.11.2026',
-                     'документи й доручення', 'ціни матеріалів у UAH', 'сценарна ціна рядків']})
-    return {'aw_products': len(aw.PRODUCTS), 'aw_order_lines': len(lines), 'aw_order_units': units}
+                     'документи й доручення', 'ціни матеріалів у UAH', 'сценарна ціна рядків',
+                     'дата закупівлі й старту виробництва']})
+    return {'aw_products': len(aw.PRODUCTS), 'aw_order_lines': len(lines), 'aw_order_units': units, **supply}
+
+
+def _supply_aw(act, document, items, suppliers, people, places, order_id):
+    """v1.1 supply chain for the large order: AW ProductInventory stock, ProductVendor purchases, WorkOrder jobs."""
+    certificate = document('KM-CERT-AW-0150', 'Сертифікат якості металопрокату · залишок складу',
+        'Метал на складі на початок виконання замовлення ' + AW_ORDER_CODE + '. Кількості — AdventureWorks '
+        'ProductInventory (місця зберігання 1–6), перераховані за правилом «Залишок» у bos4_demo_provenance.')
+    inspector = people['Наталія Ткаченко'].pk
+    stock_lots = 0
+    for row in aw.STOCK:
+        if D(row['quantity']) <= 0:
+            continue
+        item = Item.objects.get(pk=items[row['article']])
+        lot = act('opening', code='KM-L-AW-' + row['article'], item_id=item.pk, location_id=places['ZHY-METAL'],
+            quantity=row['quantity'], unit_cost=str(item.planned_cost), currency='UAH', revision='A',
+            documents={'certificate': certificate.pk} if 'certificate' in item.required_documents else {},
+            reason='Залишок на складі металу (AdventureWorks ProductInventory)')['lot_id']
+        act('quality', lot_id=lot, result='approved', inspector_id=inspector, note='Вхідний контроль пройдено')
+        stock_lots += 1
+    for n, p in enumerate(aw.PURCHASES, 1):
+        act('purchase', code=f'ZK-0150-{n:02d}', item_id=items[p['article']], supplier_id=suppliers[p['supplier']].pk,
+            quantity=p['quantity'], price=p['price'], currency='UAH', due_date=p['due_date'], revision='A',
+            destination_id=places['ZHY-METAL'], origin_country='UA',
+            direct_reason=f'Дефіцит під замовлення {AW_ORDER_CODE}: потреба {p["need"]}, на складі {p["on_hand"]}')
+    lines = {line.item.code: line.pk for line in SalesLine.objects.filter(order_id=order_id).select_related('item')}
+    for job in aw.JOBS:
+        act('job', code=job['code'], item_id=items[job['product']], quantity=str(job['quantity']),
+            location_id=places['ZHY-SHOP'], owner_id=people['Ігор Бондар'].pk, due_date=job['due_date'],
+            line_id=lines[job['product']])
+    return {'aw_stock_lots': stock_lots, 'aw_purchases': len(aw.PURCHASES), 'aw_jobs': len(aw.JOBS)}
