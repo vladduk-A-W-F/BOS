@@ -15736,7 +15736,7 @@ function ERPActionDialog({
     }));
     if (type === 'invoices') return data.invoices.map(x => ({
       value: x.invoice_id,
-      label: x.code + ' · ' + x.open + ' ' + x.currency
+      label: x.code + ' · ' + erpMoney(x.open, x.currency)
     }));
     if (type === 'reservations') return data.reservations.filter(x => Number(x.quantity) > 0).map(x => ({
       value: x.id,
@@ -19210,7 +19210,7 @@ function ERPWorkspace({
       key: s.name
     }, s.name, " \xB7 ", s.days, " \u0434\u043D. \xB7 ", s.instruction)))], ["Коди й вимоги", r => /*#__PURE__*/React.createElement("details", null, /*#__PURE__*/React.createElement("summary", null, "\u041F\u0430\u0441\u043F\u043E\u0440\u0442"), /*#__PURE__*/React.createElement("p", null, "\u041C\u0430\u0442\u0435\u0440\u0456\u0430\u043B: ", r.material || '—'), Object.entries(r.external_codes).map(([k, v]) => /*#__PURE__*/React.createElement("p", {
       key: k
-    }, k, ": ", v)), /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0438: ", r.required_documents.join(', ') || 'Не задані'), bosCan('finance') && /*#__PURE__*/React.createElement("p", null, "\u041F\u043B\u0430\u043D\u043E\u0432\u0430 \u0441\u043E\u0431\u0456\u0432\u0430\u0440\u0442\u0456\u0441\u0442\u044C: ", r.planned_cost, " ", r.currency), /*#__PURE__*/React.createElement("p", null, "\u041C\u0456\u043D\u0456\u043C\u0443\u043C: ", r.minimum, " ", r.unit), r.document_id && /*#__PURE__*/React.createElement(Button, {
+    }, k, ": ", v)), /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0438: ", r.required_documents.join(', ') || 'Не задані'), bosCan('finance') && /*#__PURE__*/React.createElement("p", null, "\u041F\u043B\u0430\u043D\u043E\u0432\u0430 \u0441\u043E\u0431\u0456\u0432\u0430\u0440\u0442\u0456\u0441\u0442\u044C: ", erpMoney(r.planned_cost, r.currency)), /*#__PURE__*/React.createElement("p", null, "\u041C\u0456\u043D\u0456\u043C\u0443\u043C: ", r.minimum, " ", r.unit), r.document_id && /*#__PURE__*/React.createElement(Button, {
       onClick: () => setDoc(r.document_id)
     }, "\u041A\u0440\u0435\u0441\u043B\u0435\u043D\u043D\u044F"))]]
   })), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u0421\u043A\u043B\u0430\u0434\u0438, \u0434\u0456\u043B\u044C\u043D\u0438\u0446\u0456, \u043F\u0456\u0434\u0440\u044F\u0434\u043D\u0438\u043A\u0438"), /*#__PURE__*/React.createElement(ERPTable, {
@@ -19348,7 +19348,7 @@ function ERPWorkspace({
     }, done ? 'Завершено' : 'Очікує результату', " \xB7 ", s.days, " \u0434\u043D."));
   })), /*#__PURE__*/React.createElement("details", null, /*#__PURE__*/React.createElement("summary", null, "\u041C\u0430\u0442\u0435\u0440\u0456\u0430\u043B\u0438, \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u0438 \u0439 \u0432\u0438\u0442\u0440\u0430\u0442\u0438"), j.bom.map(b => /*#__PURE__*/React.createElement("p", {
     key: b.item_id
-  }, itemLabel(b.item_id), ": ", erpNum(b.quantity), " \u043D\u0430 \u043E\u0434\u0438\u043D\u0438\u0446\u044E")), bosCan('finance') && /*#__PURE__*/React.createElement("p", null, "\u041F\u043B\u0430\u043D: ", j.planned_cost, " ", j.currency, "; \u0444\u0430\u043A\u0442: ", j.actual_cost, " ", j.currency), data.operator_entries.filter(e => e.production_id === j.id).map(e => /*#__PURE__*/React.createElement("p", {
+  }, itemLabel(b.item_id), ": ", erpNum(b.quantity), " \u043D\u0430 \u043E\u0434\u0438\u043D\u0438\u0446\u044E")), bosCan('finance') && /*#__PURE__*/React.createElement("p", null, "\u041F\u043B\u0430\u043D: ", erpMoney(j.planned_cost, j.currency), "; \u0444\u0430\u043A\u0442: ", erpMoney(j.actual_cost, j.currency)), data.operator_entries.filter(e => e.production_id === j.id).map(e => /*#__PURE__*/React.createElement("p", {
     key: e.id
   }, e.operation, " \xB7 ", ERP_LABELS[e.result], " \xB7 ", e.minutes, " \u0445\u0432 \xB7 \u0434\u0435\u0444\u0435\u043A\u0442\u0456\u0432 ", e.defects, " \xB7 ", e.note))))));
   if (view === 'purchase') content = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u041F\u043E\u0441\u0442\u0430\u0447\u0430\u043D\u043D\u044F \u043C\u0430\u0442\u0435\u0440\u0456\u0430\u043B\u0456\u0432"), buttons([['Нове замовлення', 'purchase']]), /*#__PURE__*/React.createElement(ERPTable, {
@@ -20604,7 +20604,7 @@ function BoSInspector({
     }
   }, l || B03_ACTIONS[a]?.[0] || ERP_ACTIONS[a]?.[0])));
   const baseTable = (type, rows) => {
-    const cols = type === 'orders' ? [["Замовлення", 'code'], ["Клієнт", r => label('partners', r.customer_id)], ["Строк", r => erpDate(r.due_date)], ["Стан", r => ERP_LABELS[r.status]]] : type === 'invoices' ? [["Рахунок", 'code'], ["Замовлення", r => label('orders', r.order_id)], ["Термін", r => erpDate(r.due_date)], ...(bosCan('finance') ? [["Сума", r => erpMoney(r.amount, r.currency)], ["Оплачено", 'paid'], ["До оплати", 'open']] : [])] : type === 'purchases' ? [["Закупівля", 'code'], ["Матеріал", r => label('items', r.item_id)], ["Замовлено / прийнято", r => /*#__PURE__*/React.createElement(React.Fragment, null, erpNum(r.quantity) + ' / ' + erpNum(r.received), r.approval_snapshot?.source === 'imported_open_balance' && /*#__PURE__*/React.createElement("p", {
+    const cols = type === 'orders' ? [["Замовлення", 'code'], ["Клієнт", r => label('partners', r.customer_id)], ["Строк", r => erpDate(r.due_date)], ["Стан", r => ERP_LABELS[r.status]]] : type === 'invoices' ? [["Рахунок", 'code'], ["Замовлення", r => label('orders', r.order_id)], ["Термін", r => erpDate(r.due_date)], ...(bosCan('finance') ? [["Сума", r => erpMoney(r.amount, r.currency)], ["Оплачено", r => erpMoney(r.paid, r.currency)], ["До оплати", r => erpMoney(r.open, r.currency)]] : [])] : type === 'purchases' ? [["Закупівля", 'code'], ["Матеріал", r => label('items', r.item_id)], ["Замовлено / прийнято", r => /*#__PURE__*/React.createElement(React.Fragment, null, erpNum(r.quantity) + ' / ' + erpNum(r.received), r.approval_snapshot?.source === 'imported_open_balance' && /*#__PURE__*/React.createElement("p", {
       className: "op-muted"
     }, "\u041F\u0435\u0440\u0435\u043D\u0435\u0441\u0435\u043D\u043E / \u043F\u0440\u0438\u0439\u043D\u044F\u0442\u043E \u043F\u0456\u0441\u043B\u044F \u0437\u0440\u0456\u0437\u0443"))], ["Строк", r => erpDate(r.due_date)]] : type === 'jobs' ? [["Робота", 'code'], ["План / випуск", r => r.quantity + ' / ' + r.produced], ["Стан", r => ERP_LABELS[r.status]], ["Строк", r => erpDate(r.due_date)]] : type === 'tasks' ? [["Доручення", 'title'], ["Відповідальний", r => c01Assignee(r)], ["Термін", r => erpDate(r.deadline)], ["Стан", r => (C01_STATUS[r.status] || r.status) + (r.is_overdue ? ' · прострочено' : '')]] : [["Партія", 'code'], ["Матеріал / виріб", r => label('items', r.item_id)], ["Фізично", r => erpNum(r.quantity)], ["У резерві", r => erpNum(r.reserved)], ["Придатно й вільно", 'available'], ["Якість", r => ERP_LABELS[r.quality]]];
     return /*#__PURE__*/React.createElement(ERPTable, {
@@ -20634,9 +20634,9 @@ function BoSInspector({
     if (m[3] === 'lots') rows = rows.filter(x => Number(x.quantity) > 0);
     body = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
       className: "bos-detail-total"
-    }, erpNum(total), " ", currency), /*#__PURE__*/React.createElement("p", null, m[2]), m[3] === 'orders' ? /*#__PURE__*/React.createElement(ERPTable, {
+    }, erpMoney(total, currency)), /*#__PURE__*/React.createElement("p", null, m[2]), m[3] === 'orders' ? /*#__PURE__*/React.createElement(ERPTable, {
       rows: data.costs.filter(x => x.currency === currency),
-      columns: [["Замовлення", 'code'], ["Портфель", r => erpNum(r.order_value)], ["Відвантажено", r => erpNum(r.shipped_value)], ["Собівартість", r => erpNum(r.shipped_cost)], ["Різниця", r => erpNum(r.gross_margin)]],
+      columns: [["Замовлення", 'code'], ["Портфель", r => erpMoney(r.order_value, r.currency)], ["Відвантажено", r => erpMoney(r.shipped_value, r.currency)], ["Собівартість", r => erpMoney(r.shipped_cost, r.currency)], ["Різниця", r => erpMoney(r.gross_margin, r.currency)]],
       onRow: x => onSelect({
         kind: 'orders',
         id: x.order_id
@@ -20727,7 +20727,7 @@ function BoSInspector({
         orderId: id,
         onAction: onAction,
         readOnly: readOnly
-      }), bosCan('finance') && cost && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h3", null, "\u0424\u0456\u043D\u0430\u043D\u0441\u043E\u0432\u0438\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442"), /*#__PURE__*/React.createElement("p", null, "\u0412\u0456\u0434\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043E \u043D\u0430 ", erpNum(cost?.shipped_value), " ", r.currency, "; \u0441\u043E\u0431\u0456\u0432\u0430\u0440\u0442\u0456\u0441\u0442\u044C ", erpNum(cost?.shipped_cost), "; \u0440\u0456\u0437\u043D\u0438\u0446\u044F ", erpNum(cost?.gross_margin), ".")), baseTable('invoices', data.invoices.filter(x => x.order_id === id)), acts([['invoice', {
+      }), bosCan('finance') && cost && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h3", null, "\u0424\u0456\u043D\u0430\u043D\u0441\u043E\u0432\u0438\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442"), /*#__PURE__*/React.createElement("p", null, "\u0412\u0456\u0434\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043E \u043D\u0430 ", erpMoney(cost?.shipped_value, r.currency), "; \u0441\u043E\u0431\u0456\u0432\u0430\u0440\u0442\u0456\u0441\u0442\u044C ", erpMoney(cost?.shipped_cost, r.currency), "; \u0440\u0456\u0437\u043D\u0438\u0446\u044F ", erpMoney(cost?.gross_margin, r.currency), ".")), baseTable('invoices', data.invoices.filter(x => x.order_id === id)), acts([['invoice', {
         order_id: id,
         due_date: r.due_date
       }, 'Створити рахунок за поставкою']]), /*#__PURE__*/React.createElement("h3", null, "\u0424\u0430\u043A\u0442\u0438\u0447\u043D\u0456 \u0432\u0456\u0434\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement(ERPTable, {
@@ -20885,7 +20885,7 @@ function BoSInspector({
         columns: [["Документ", 'code'], ["Тип", x => x.kind === 'credit' ? 'Кредит' : 'Сторно'], ["Сума", x => b03Amount(x.total, x.currency)]]
       }), /*#__PURE__*/React.createElement("h3", null, "\u041F\u043E\u0437\u0438\u0446\u0456\u0457 \u0440\u0430\u0445\u0443\u043D\u043A\u0443"), /*#__PURE__*/React.createElement(ERPTable, {
         rows: r.lines,
-        columns: [["Виріб", x => link('items', find('lines', x.line_id)?.item_id)], ["Кількість", r => erpNum(r.quantity)], ["Ціна", 'price']]
+        columns: [["Виріб", x => link('items', find('lines', x.line_id)?.item_id)], ["Кількість", r => erpNum(r.quantity)], ["Ціна", x => erpMoney(x.price, r.currency)]]
       }), /*#__PURE__*/React.createElement("h3", null, "\u0406\u0441\u0442\u043E\u0440\u0456\u044F \u043E\u043F\u043B\u0430\u0442"), /*#__PURE__*/React.createElement(ERPTable, {
         rows: data.events.filter(x => x.action === 'erp_payment' && x.payload.invoice_id === r.invoice_id),
         columns: [["Дата", x => erpDate(x.created_at)], ["Підтвердження", x => x.payload.reference], ["Сума", x => erpMoney(x.payload.amount, r.currency)]]
@@ -21302,7 +21302,7 @@ function WorkpointsPanel({
     }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u043F\u0430\u0440\u0442\u0456\u044E")]]
   })), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "3. \u0420\u0430\u0445\u0443\u043D\u043A\u0438 \u0442\u0430 \u043E\u043F\u043B\u0430\u0442\u0438"), point.money === null ? /*#__PURE__*/React.createElement("p", null, "\u0413\u0440\u043E\u0448\u043E\u0432\u0456 \u043F\u043E\u043A\u0430\u0437\u043D\u0438\u043A\u0438 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u043F\u043E\u0442\u043E\u0447\u043D\u0456\u0439 \u0440\u043E\u043B\u0456. \u0414\u043E\u0437\u0432\u043E\u043B\u0435\u043D\u0456 \u043F\u043E\u0441\u0438\u043B\u0430\u043D\u043D\u044F \u043D\u0430 \u0440\u0430\u0445\u0443\u043D\u043A\u0438 \u043F\u043E\u043A\u0430\u0437\u0430\u043D\u0456 \u043D\u0438\u0436\u0447\u0435.") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(ERPTable, {
     rows: point.money,
-    columns: [["Валюта", 'currency'], ["Первісні рахунки", 'gross_invoiced'], ["Чинні коригування", 'credited'], ["Рахунки після коригувань", 'invoiced'], ["Зареєстровані оплати", 'paid'], ["До оплати", 'open'], ["Кредит клієнта", 'customer_credit']]
+    columns: [["Валюта", 'currency'], ["Первісні рахунки", r => erpMoney(r.gross_invoiced, r.currency)], ["Чинні коригування", r => erpMoney(r.credited, r.currency)], ["Рахунки після коригувань", r => erpMoney(r.invoiced, r.currency)], ["Зареєстровані оплати", r => erpMoney(r.paid, r.currency)], ["До оплати", r => erpMoney(r.open, r.currency)], ["Кредит клієнта", r => erpMoney(r.customer_credit, r.currency)]]
   }), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
   }, "\u0421\u0443\u043C\u0438 \u0437 \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0438\u0445 \u0440\u0430\u0445\u0443\u043D\u043A\u0456\u0432 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u044C \u0446\u0456\u0454\u0457 \u0442\u043E\u0447\u043A\u0438, \u043E\u043A\u0440\u0435\u043C\u043E \u0437\u0430 \u0432\u0430\u043B\u044E\u0442\u043E\u044E. \u0420\u0435\u0454\u0441\u0442\u0440\u0430\u0446\u0456\u044F \u043E\u043F\u043B\u0430\u0442\u0438 \u043D\u0435 \u0432\u0438\u043A\u043E\u043D\u0443\u0454 \u0431\u0430\u043D\u043A\u0456\u0432\u0441\u044C\u043A\u0438\u0439 \u043F\u0435\u0440\u0435\u043A\u0430\u0437. \u041A\u043E\u043D\u0432\u0435\u0440\u0442\u0430\u0446\u0456\u044F \u0432\u0430\u043B\u044E\u0442 \u043D\u0435 \u0437\u0430\u0441\u0442\u043E\u0441\u043E\u0432\u0443\u0454\u0442\u044C\u0441\u044F.")), /*#__PURE__*/React.createElement("div", {
