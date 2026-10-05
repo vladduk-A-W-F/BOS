@@ -16,6 +16,7 @@ from finance.models import Counterparty
 from operations.models import Configuration, Document
 from operations.private_storage import private_document_storage, legacy_blob_usage
 from tasks.models import Task
+from . import bos4_demo_aw_v11 as aw
 from . import bos4_demo_data as data
 from .models import Item, Location, SalesLine
 from .network_demo import _assert_empty_business
@@ -23,6 +24,11 @@ from .service import dispatch, write_lock
 
 
 VERSION = '1.0'
+# 1.1 = 1.0 plus the AdventureWorks catalog and a large reseller order (erp/bos4_demo_aw_v11.py).
+# Only for a new database; an installed 1.0 demo is never upgraded or reseeded in place.
+VERSIONS = ('1.0', '1.1')
+AW_ORDER_CODE = 'ZM-0150'
+AW_CUSTOMER = {'name': 'ТОВ «Склад-Мережа Схід»', 'city': 'Харків'}   # scenario, not AdventureWorks
 
 # What the public first screen says about each case: plain words for a person, no internal record codes.
 # Kept in code (not only in the seeded database) so wording fixes reach installed demos without reseeding.
@@ -89,13 +95,16 @@ AS_OF = '2026-10-05'
 PREFIX = 'KM-'
 
 
-def _existing():
+def _existing(version):
     marker = Configuration.objects.filter(key=MARKER).first()
     if marker is None:
         return None
     receipt = marker.value
-    if not isinstance(receipt, dict) or receipt.get('version') != VERSION or receipt.get('synthetic') is not True:
+    if not isinstance(receipt, dict) or receipt.get('version') not in VERSIONS or receipt.get('synthetic') is not True:
         raise CommandError('Невідома квитанція демо-компанії. Автоматичних змін немає.')
+    if receipt['version'] != version:
+        raise CommandError(f'У базі вже демо-компанія версії {receipt["version"]}; версію {version} '
+                           'створюють лише в новій базі. Автоматичних змін немає.')
     return {**receipt, 'created': False}
 
 
@@ -105,13 +114,15 @@ def _assert_no_connectors():
         raise CommandError('База містить підключені джерела. Змішування з демо-даними заборонене.')
 
 
-def seed_bos4_demo():
+def seed_bos4_demo(version=VERSION):
     """All rows commit together; only owned new files may be cleaned."""
+    if version not in VERSIONS:
+        raise CommandError('Невідома версія демо-компанії: ' + str(version))
     if getattr(settings, 'BOS_DATA_MODE', None) != 'demo':
         raise CommandError('Демо-компанія дозволена лише за BOS_DATA_MODE=demo.')
     if connection.in_atomic_block:
         raise CommandError('Створення демо-компанії потребує власної зовнішньої транзакції.')
-    existing = _existing()
+    existing = _existing(version)
     if existing is not None:
         return existing
     pending_files = []
@@ -126,12 +137,12 @@ def seed_bos4_demo():
     try:
         with transaction.atomic(durable=True):
             write_lock()
-            existing = _existing()
+            existing = _existing(version)
             if existing is not None:
                 return existing
             _assert_empty_business()
             _assert_no_connectors()
-            result = _populate(pending_files)
+            result = _populate(pending_files, version)
             transaction.on_commit(finalize)
         return {**result, 'created': True}
     except BaseException:
@@ -141,7 +152,7 @@ def seed_bos4_demo():
         raise
 
 
-def _populate(pending_files):
+def _populate(pending_files, version=VERSION):
     def act(action, **payload):
         return dispatch({'action': 'erp_' + action, **payload}, 'ceo')
 
@@ -391,17 +402,85 @@ def _populate(pending_files):
     act('payment', invoice_id=paid['invoice_id'], amount=paid['amount'], reference='PD-5490')
     order('ZM-0148', 'LOGISTIC', 'Андрій Мельник', '2026-11-10', 'ZHY-FG', [('SM-2000', 40)], confirm=False)
 
+    if version == '1.1':
+        aw_counts = _populate_aw(act, document, items, suppliers, customers, people, places, branches)
+
     clock.value = {**clock.value, 'as_of': AS_OF}
     clock.save(update_fields=['value'])
     cases = [{**public, 'steps': [{**step, **refs} for step, refs in zip(public['steps'], CASE_REFS[public['key']])]}
              for public in PUBLIC_CASES]
-    Configuration.objects.create(key='demo_cases', value={'version': VERSION, 'synthetic': True, 'cases': cases})
-    result = {'version': VERSION, 'synthetic': True, 'company': data.COMPANY['name'], 'as_of': AS_OF,
+    Configuration.objects.create(key='demo_cases', value={'version': version, 'synthetic': True, 'cases': cases})
+    result = {'version': version, 'synthetic': True, 'company': data.COMPANY['name'], 'as_of': AS_OF,
         'currency': 'UAH', 'cases': [c['title'] for c in cases],
         'counts': {'branches': Branch.objects.count(), 'locations': Location.objects.count(),
                    'items': Item.objects.count(), 'orders': SalesLine.objects.values('order').distinct().count()},
         'source': 'Microsoft AdventureWorks (MIT): артикули, ролі постачальників, строки, маршрут; решта синтетична',
         'notice': 'Демо-дані. Не реальні клієнти, платежі чи логістика.'}
+    if version == '1.1':
+        result['counts'].update(aw_counts)
+        result['source'] += ('; v1.1: каталог, специфікації й велике замовлення з AdventureWorks SalesOrder '
+                             + str(aw.ORDER['aw_sales_order_id']) + ' (див. bos4_demo_provenance)')
     Configuration.objects.create(key=MARKER, value=result)
-    Configuration.objects.create(key='erp_dataset', value={'bos4_demo': True, 'synthetic': True, 'version': VERSION})
+    Configuration.objects.create(key='erp_dataset', value={'bos4_demo': True, 'synthetic': True, 'version': version})
     return result
+
+
+def _populate_aw(act, document, items, suppliers, customers, people, places, branches):
+    """v1.1: AdventureWorks catalog (40 localized derivatives) and order 47395 at furniture scale.
+
+    Real AW keys (ProductID, ProductNumber, SalesOrderDetailID) are stored on every derived row; scenario
+    links (customer, branch, dates, documents, task) are marked as such in bos4_demo_provenance.
+    """
+    for aw_number, m in sorted(aw.MATERIALS.items()):
+        if m['article'] in items:
+            continue
+        items[m['article']] = act('item', code=m['article'], name=m['name'], unit=m['unit'], kind='material',
+            method='buy', revision='A', currency='UAH', planned_cost=m['price'], minimum='100', lead_days=15,
+            required_documents=[], external_codes={'Артикул AdventureWorks': aw_number})['item_id']
+    for p in aw.PRODUCTS:
+        passport = document('KM-PASS-' + p['code'], 'Паспорт виробу ' + p['name'],
+            p['name'] + '. Похідний виріб від AdventureWorks ' + p['aw_number'] + ' (' + p['aw_name'] + '). '
+            'Специфікація: ' + ', '.join(a + ' × ' + q for a, q in sorted(p['bom'].items())) + '. '
+            'Маршрут: ' + ', '.join(step[0] for step in data.ROUTE) + '. Гарантія 24 місяці.')
+        items[p['code']] = act('item', code=p['code'], name=p['name'], unit='шт.', kind='product', method='make',
+            revision='A', currency='UAH', planned_cost=p['planned_cost'], minimum='5', lead_days=10,
+            required_documents=['passport'], document_id=passport.pk,
+            bom=[{'item_id': items[a], 'quantity': q} for a, q in sorted(p['bom'].items())],
+            routing=[{'name': n, 'instruction': i, 'days': d} for n, i, d in data.ROUTE],
+            external_codes={'AdventureWorks ProductID': str(p['aw_product_id']),
+                            'AdventureWorks ProductNumber': p['aw_number']})['item_id']
+    customer = Counterparty.objects.create(name=AW_CUSTOMER['name'], type='customer',
+        address=AW_CUSTOMER['city'], notes='Демо-клієнт, вигаданий контрагент. Склад замовлення — '
+        'AdventureWorks SalesOrder ' + str(aw.ORDER['aw_sales_order_id']) + '.')
+    lines = aw.ORDER['lines']
+    out = act('order', code=AW_ORDER_CODE, customer_id=customer.pk, owner_id=people['Олена Коваль'].pk,
+        due_date='2026-11-27', currency='UAH', branch_id=branches['KYI'].pk,
+        fulfillment_location_id=places['ZHY-FG'], notes='Демо-замовлення; ціни без ПДВ.',
+        lines=[{'item_id': items[l['code']], 'quantity': str(l['quantity']), 'price': l['price']} for l in lines])
+    act('confirm_order', order_id=out['order_id'])
+    units = sum(l['quantity'] for l in lines)
+    total = sum((D(l['price']) * l['quantity'] for l in lines), D(0))
+    if total != D(aw.ORDER['total_uah']):
+        raise ValueError('Сума сценарних рядків не збігається з ORDER.total_uah')
+    hryvnia = lambda value: f'{D(value):,.2f}'.replace(',', ' ').replace('.', ',') + ' грн'
+    order_doc = document('KM-' + AW_ORDER_CODE, 'Замовлення покупця ' + AW_ORDER_CODE + ' · ' + customer.name,
+        f'Каркаси й стелажі для мережі складів: {len(lines)} позицій, {units} шт. Сума '
+        + hryvnia(total) + ' без ПДВ (сценарна ціна від специфікацій). Строк 27.11.2026. '
+        'Склад позицій і кількості — AdventureWorks ' + aw.ORDER['aw_sales_order_number']
+        + f' × {aw.QTY_SCALE}. Ціна AW, перерахована за курсом НБУ {aw.RATE["uah_per_unit"]} грн/USD на '
+        + aw.RATE['date'] + ': ' + hryvnia(aw.ORDER['aw_total_uah'])
+        + f' ({aw.ORDER["aw_total_usd"]} USD).')
+    act('link_document', document_id=order_doc.pk, order_id=out['order_id'])
+    Task.objects.create(title=f'Спланувати виробництво {units} каркасів і стелажів за великим замовленням '
+        + customer.name, priority='high', status='active', assignee=people['Ігор Бондар'].full_name,
+        assignee_employee=people['Ігор Бондар'], branch=branches['ZHY'], deadline='2026-10-20',
+        category='Виробництво', sales_order_id=out['order_id'])
+    Configuration.objects.create(key='bos4_demo_provenance', value={
+        'synthetic': True, 'pins': aw.PINS, 'ledger': [list(row) for row in aw.LEDGER],
+        'aw_sales_order_id': aw.ORDER['aw_sales_order_id'], 'aw_order_date': aw.ORDER['aw_order_date'],
+        'rate': aw.RATE, 'aw_total_usd': aw.ORDER['aw_total_usd'], 'aw_total_uah': aw.ORDER['aw_total_uah'],
+        'scenario_total_uah': aw.ORDER['total_uah'],
+        'order_code': AW_ORDER_CODE, 'excluded_leaves': aw.EXCLUDED_LEAVES,
+        'scenario': ['клієнт ' + customer.name, 'філія й склад виконання', 'строк 27.11.2026',
+                     'документи й доручення', 'ціни матеріалів у UAH', 'сценарна ціна рядків']})
+    return {'aw_products': len(aw.PRODUCTS), 'aw_order_lines': len(lines), 'aw_order_units': units}

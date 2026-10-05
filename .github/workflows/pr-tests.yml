@@ -27,7 +27,7 @@ jobs:
     - name: Чи змінено training/ або crm/
       id: scope
       run: |
-        if git diff --name-only "${{ github.event.pull_request.base.sha }}" HEAD | grep -qE '^(training|crm|connectors)/|^erp/(bos4_demo|bos4_demo_data|test_bos4_demo|experience|test_next_step_names|monitoring|monitoring_views|test_monitoring|test_document_links|models|service|management/commands/seed_bos4_demo)\.py$|^operations/(documents|views|urls|middleware|test_document_images|test_demo_access_header)\.py$'; then
+        if git diff --name-only "${{ github.event.pull_request.base.sha }}" HEAD | grep -qE '^(training|crm|connectors)/|^erp/(bos4_demo|bos4_demo_data|bos4_demo_aw_v11|test_bos4_demo|test_bos4_demo_v11|experience|test_next_step_names|monitoring|monitoring_views|test_monitoring|test_document_links|models|service|management/commands/seed_bos4_demo)\.py$|^scripts/bos4_aw_subset\.py$|^operations/(documents|views|urls|middleware|test_document_images|test_demo_access_header)\.py$'; then
           echo "run=true" >> "$GITHUB_OUTPUT"
         else
           echo "run=false" >> "$GITHUB_OUTPUT"; echo "training/, crm/ і connectors/ не змінено — тести не потрібні."
@@ -39,11 +39,23 @@ jobs:
     - if: steps.scope.outputs.run == 'true'
       run: python -m pip install -r requirements-ci.txt
     - if: steps.scope.outputs.run == 'true'
+      name: запіновані CSV AdventureWorks для перевірки генератора (лише якщо змінено демо v1.1)
+      run: |
+        if git diff --name-only "${{ github.event.pull_request.base.sha }}" HEAD | grep -qE '^erp/(bos4_demo_aw_v11|test_bos4_demo_v11)\.py$|^scripts/bos4_aw_subset\.py$'; then
+          read -r COMMIT DIR <<< "$(python -c "from erp.bos4_demo_aw_v11 import PINS; print(PINS['commit'], PINS['path'])")"
+          mkdir -p "$RUNNER_TEMP/aw/$DIR"
+          for name in AWBuildVersion Product BillOfMaterials SalesOrderHeader SalesOrderDetail; do
+            curl -fsSL --retry 3 -o "$RUNNER_TEMP/aw/$DIR/$name.csv" \
+              "https://raw.githubusercontent.com/microsoft/sql-server-samples/$COMMIT/$DIR/$name.csv"
+          done
+          echo "BOS_AW_SOURCE=$RUNNER_TEMP/aw" >> "$GITHUB_ENV"
+        fi
+    - if: steps.scope.outputs.run == 'true'
       name: адресні тести змінених модулів (SQLite, bos3-fasteners)
       run: |
         mkdir -p "$RUNNER_TEMP/qa/media"
         BOS_TEST_DB_NAME="$RUNNER_TEMP/qa/bos3-fasteners-qa.sqlite3" BOS_TEST_MEDIA="$RUNNER_TEMP/qa/media" \
-          python -B manage.py test training.test_sessions crm.test_contract connectors erp.test_bos4_demo erp.test_next_step_names erp.test_monitoring erp.test_document_links operations.test_document_images operations.test_demo_access_header --noinput
+          python -B manage.py test training.test_sessions crm.test_contract connectors erp.test_bos4_demo erp.test_bos4_demo_v11 erp.test_next_step_names erp.test_monitoring erp.test_document_links operations.test_document_images operations.test_demo_access_header --noinput
   package-payload:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
