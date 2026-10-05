@@ -24633,23 +24633,34 @@ function Monitoring({
     [error, setError] = useState(''),
     [result, setResult] = useState(null),
     [snapshot, setSnapshot] = useState(null),
-    [selection, setSelection] = useState(null);
+    [selection, setSelection] = useState(null),
+    [taskSelection, setTaskSelection] = useState(null);
+  const taskSerial = useRef(0);
   const life = useRef({
       scope: null,
       load: 0,
       query: 0,
-      record: 0
+      record: 0,
+      version: 0
     }),
     current = scope => life.current.scope === scope && scope === bosHttpScope();
+  const version = life.current.version;
   const load = async () => {
     const scope = life.current.scope,
       seq = ++life.current.load;
+    ++life.current.query;
+    ++life.current.record;
+    ++life.current.version;
+    ++taskSerial.current;
+    setData(null);
+    setResult(null);
+    setSelection(null);
+    setTaskSelection(null);
     try {
       const next = await erpFetch('monitoring/');
       if (current(scope) && seq === life.current.load) {
         setData(next);
         setSnapshot(null);
-        setSelection(null);
         setError('');
       }
     } catch (e) {
@@ -24662,6 +24673,7 @@ function Monitoring({
     window.addEventListener('bos:data-changed', load);
     return () => {
       life.current.scope = null;
+      ++taskSerial.current;
       window.removeEventListener('bos:data-changed', load);
     };
   }, []);
@@ -24671,6 +24683,7 @@ function Monitoring({
     try {
       const next = await erpFetch('monitoring/query/' + key + '/');
       if (current(scope) && seq === life.current.query) {
+        ++life.current.version;
         setResult(next);
         setError('');
       }
@@ -24681,13 +24694,21 @@ function Monitoring({
   const open = async ref => {
     const scope = life.current.scope,
       seq = ++life.current.record;
-    if (!current(scope)) return;
+    if (!current(scope) || version !== life.current.version) return;
     if (ref.kind === 'connector') {
       onNavigate('connectors', ref.id);
       return;
     }
     if (ref.kind === 'task') {
-      onNavigate('hr', 'tasks');
+      const visible = [...(data?.tables || []), result].filter(Boolean).flatMap(t => t.rows || []).some(r => r.ref?.kind === 'task' && r.ref.id === ref.id) || [...(data?.attention || []), ...(data?.source_attention || [])].some(a => a.ref?.kind === 'task' && a.ref.id === ref.id);
+      if (!Number.isSafeInteger(ref.id) || ref.id < 1 || !visible) return;
+      setSelection(null);
+      setTaskSelection({
+        id: ref.id,
+        scope,
+        ticket: ++taskSerial.current,
+        opener: document.activeElement
+      });
       return;
     }
     try {
@@ -24736,7 +24757,10 @@ function Monitoring({
     table: result,
     onRow: open
   }), /*#__PURE__*/React.createElement(Button, {
-    onClick: () => setResult(null)
+    onClick: () => {
+      ++life.current.version;
+      setResult(null);
+    }
   }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438")), /*#__PURE__*/React.createElement("div", {
     className: "mon-grid"
   }, data.tables.map(t => /*#__PURE__*/React.createElement(MonTable, {
@@ -24774,6 +24798,18 @@ function Monitoring({
     onSelect: setSelection,
     onAction: () => {},
     onNavigate: onNavigate
+  }), taskSelection?.ticket === taskSerial.current && current(taskSelection.scope) && /*#__PURE__*/React.createElement(C01TaskLegacy, {
+    key: taskSelection.ticket,
+    taskId: taskSelection.id,
+    mode: "view",
+    onClose: () => {
+      if (taskSerial.current !== taskSelection.ticket || !current(taskSelection.scope)) return;
+      const focusTicket = ++taskSerial.current;
+      setTaskSelection(null);
+      requestAnimationFrame(() => {
+        if (taskSerial.current === focusTicket && current(taskSelection.scope) && taskSelection.opener?.isConnected) taskSelection.opener.focus();
+      });
+    }
   }));
 }
 
