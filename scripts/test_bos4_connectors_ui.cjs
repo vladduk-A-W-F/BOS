@@ -14,7 +14,7 @@ const list = {connectors:[{id:7,name:'Продажі',kind:'google_sheets',datas
 function harness(write){
   let scope='user:1',hook=0,effect,cleanup;
   const state=[],refs=[],requests=[];
-  const context={React,FormData:class{},Button:()=>{},Input:()=>{},Select:()=>{},
+  const context={React,FormData:class{},Button:()=>{},Input:()=>{},BosFile:()=>{},Select:()=>{},
     bosCan:key=>key==='write'&&write,bosHttpScope:()=>scope,monValue:value=>String(value),
     useState(initial){const i=hook++;if(!(i in state))state[i]=initial;return [state[i],value=>{state[i]=typeof value==='function'?value(state[i]):value}];},
     useRef(initial){const i=hook++;if(!(i in refs))refs[i]={current:initial};return refs[i];},

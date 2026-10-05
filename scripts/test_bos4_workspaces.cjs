@@ -68,4 +68,10 @@ assert.deepEqual(Array.from(vm.runInNewContext(`${lineTotalCode};[
   ['1.02', '1.02', '1.00', '156000.00', '0.06', '9007199254740993.12', '-1.02', null]);
 assert.match(source, /\["Вартість",r=>erpMoney\(erpLineTotal\(r\.quantity,r\.price,r\.extras\),r\.currency\)\]/);
 assert.doesNotMatch(source, /toFixed\(2\),r\.currency/);
+// U8: file pickers speak Ukrainian; the browser's «Choose File / No file chosen» is never shown.
+assert.match(source, /if \(props\.type === 'file'\) return <BosFile \{\.\.\.props\}\/>;/);
+assert.match(source, /<span className="bos-file-button" aria-hidden="true">Обрати файл<\/span>/);
+assert.match(source, /\.bos-file-name:empty::before\{content:"Файл не обрано"/);
+// Only the hidden assistant upload (opened by its own button) keeps a bare native file input.
+assert.equal((source.match(/<input [^>]*type="file"/g) || []).length, 1);
 console.log('M7 navigation, legacy routes and role visibility: PASS');

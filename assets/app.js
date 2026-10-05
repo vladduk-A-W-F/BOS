@@ -825,6 +825,7 @@ function Input({
   style = {},
   ...props
 }) {
+  if (props.type === 'file') return /*#__PURE__*/React.createElement(BosFile, props);
   return /*#__PURE__*/React.createElement("input", _extends({
     className: "bos-input",
     style: {
@@ -832,6 +833,34 @@ function Input({
       ...style
     }
   }, props));
+}
+function BosFile({
+  inputRef,
+  ...props
+}) {
+  return /*#__PURE__*/React.createElement("span", {
+    className: "bos-file"
+  }, /*#__PURE__*/React.createElement("input", _extends({
+    ref: inputRef
+  }, props)), /*#__PURE__*/React.createElement("span", {
+    className: "bos-file-button",
+    "aria-hidden": "true"
+  }, "\u041E\u0431\u0440\u0430\u0442\u0438 \u0444\u0430\u0439\u043B"), /*#__PURE__*/React.createElement("span", {
+    className: "bos-file-name",
+    "aria-live": "polite"
+  }));
+}
+function bosFileName(input) {
+  const label = input.closest && input.closest('.bos-file')?.querySelector('.bos-file-name');
+  if (label) label.textContent = input.files && input.files.length ? Array.from(input.files).map(f => f.name).join(', ') : '';
+}
+if (typeof document !== 'undefined') {
+  document.addEventListener('change', e => {
+    if (e.target.matches?.('.bos-file input[type=file]')) bosFileName(e.target);
+  }, true);
+  document.addEventListener('reset', e => {
+    setTimeout(() => e.target.querySelectorAll?.('.bos-file input[type=file]').forEach(bosFileName));
+  }, true);
 }
 
 // Select — обгортка над sStyle (<option> фон — surfaceSolid через CSS)
@@ -5556,8 +5585,8 @@ function C03SourceDialog({
     onChange: e => change('title', e.target.value)
   })), /*#__PURE__*/React.createElement("label", {
     className: "erp-wide"
-  }, "CSV \u043E\u0440\u0438\u0433\u0456\u043D\u0430\u043B", /*#__PURE__*/React.createElement("input", {
-    ref: fileRef,
+  }, "CSV \u043E\u0440\u0438\u0433\u0456\u043D\u0430\u043B", /*#__PURE__*/React.createElement(BosFile, {
+    inputRef: fileRef,
     type: "file",
     accept: ".csv,text/csv",
     required: true,
@@ -14543,7 +14572,7 @@ function DocumentRegistry() {
   }, /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0438 \u0442\u0430 \u0437\u0432\u0456\u0442\u0438"), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
   }, "\u0424\u043E\u0442\u043E, PDF \u0456 Excel \u0437\u0431\u0435\u0440\u0456\u0433\u0430\u044E\u0442\u044C\u0441\u044F \u044F\u043A \u043F\u0440\u0438\u0432\u0430\u0442\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430. \u041F\u043E\u0448\u0443\u043A \u043E\u0445\u043E\u043F\u043B\u044E\u0454 \u0430\u043A\u0442\u0443\u0430\u043B\u044C\u043D\u0456 \u0432\u0435\u0440\u0441\u0456\u0457; \u043F\u043E\u043F\u0435\u0440\u0435\u0434\u043D\u0456 \u0437\u0430\u043B\u0438\u0448\u0430\u044E\u0442\u044C\u0441\u044F \u0443 \u043A\u0430\u0440\u0442\u0446\u0456."), /*#__PURE__*/React.createElement("form", {
-    className: "op-toolbar",
+    className: "op-toolbar erp-search-row",
     onSubmit: e => {
       e.preventDefault();
       search();
@@ -24714,6 +24743,7 @@ function Connections() {
       url: ''
     });
     if (fileRef.current) fileRef.current.value = '';
+    bosFileName(fileRef.current);
     await load();
   });
   const doSync = id => run(async () => {
@@ -24819,8 +24849,8 @@ function Connections() {
     value: "calls"
   }, "\u0414\u0437\u0432\u0456\u043D\u043A\u0438"), /*#__PURE__*/React.createElement("option", {
     value: "other"
-  }, "\u0406\u043D\u0448\u0435"))), form.kind === 'csv' ? /*#__PURE__*/React.createElement("label", null, "\u0424\u0430\u0439\u043B .xlsx \u0430\u0431\u043E .csv", /*#__PURE__*/React.createElement("input", {
-    ref: fileRef,
+  }, "\u0406\u043D\u0448\u0435"))), form.kind === 'csv' ? /*#__PURE__*/React.createElement("label", null, "\u0424\u0430\u0439\u043B .xlsx \u0430\u0431\u043E .csv", /*#__PURE__*/React.createElement(BosFile, {
+    inputRef: fileRef,
     type: "file",
     accept: ".xlsx,.csv",
     onChange: () => setPreview(null)
