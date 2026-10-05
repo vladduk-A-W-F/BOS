@@ -580,6 +580,7 @@ function BosFile({inputRef, ...props}) {
   return <span className="bos-file"><input ref={inputRef} {...props}/><span className="bos-file-button" aria-hidden="true">Обрати файл</span><span className="bos-file-name" aria-live="polite"/></span>;
 }
 function bosFileName(input) {
+  if (!input) return;
   const label = input.closest && input.closest('.bos-file')?.querySelector('.bos-file-name');
   if (label) label.textContent = input.files && input.files.length ? Array.from(input.files).map(f => f.name).join(', ') : '';
 }
@@ -5897,7 +5898,7 @@ function Connections(){
  const source=()=>{const f=new FormData();f.append('kind',form.kind);if(form.kind==='csv'){const file=fileRef.current?.files?.[0];if(!file)throw Error('Оберіть файл .xlsx або .csv.');f.append('file',file);}else f.append('url',form.url.trim());return f;};
  const run=async fn=>{if(busy)return;setBusy(true);setError('');try{await fn();}catch(e){setError(e.message);}finally{setBusy(false);}};
  const doPreview=()=>run(async()=>setPreview(await call('preview/',source())));
- const doCreate=()=>run(async()=>{const f=source();f.append('name',form.name.trim());f.append('dataset',form.dataset);f.append('expected_sha256',preview.sha256);await call('create/',f);setPreview(null);setForm({kind:'csv',name:'',dataset:'orders',url:''});if(fileRef.current)fileRef.current.value='';bosFileName(fileRef.current);await load();});
+ const doCreate=()=>run(async()=>{const f=source();f.append('name',form.name.trim());f.append('dataset',form.dataset);f.append('expected_sha256',preview.sha256);await call('create/',f);setPreview(null);setForm({kind:'csv',name:'',dataset:'orders',url:''});if(fileRef.current){fileRef.current.value='';bosFileName(fileRef.current);}await load();});
  const doSync=id=>run(async()=>{await call(id+'/sync/',new FormData());setFailed(rows=>rows.filter(row=>row.id!==id));await load();});
  const doDisable=id=>run(async()=>{await call(id+'/disable/',new FormData());setOpen(null);await load();});
  const show=id=>run(async()=>setOpen(await call(id+'/rows/')));

@@ -11,7 +11,7 @@ const tick = () => new Promise(setImmediate);
 const response = (data,ok=true) => ({ok,json:async()=>data});
 const list = {connectors:[{id:7,name:'Продажі',kind:'google_sheets',dataset_label:'Замовлення',status:'ready',status_label:'Готово',last_sync_at:null,row_count:4}],catalog:[]};
 
-function harness(write){
+function harness(write,extra={}){
   let scope='user:1',hook=0,effect,cleanup;
   const state=[],refs=[],requests=[];
   const context={React,FormData:class{},Button:()=>{},Input:()=>{},BosFile:()=>{},Select:()=>{},
@@ -20,12 +20,35 @@ function harness(write){
     useRef(initial){const i=hook++;if(!(i in refs))refs[i]={current:initial};return refs[i];},
     useEffect(fn){effect=fn;},
     fetch:(url,options)=>new Promise((resolve,reject)=>requests.push({url,options,resolve,reject})),
+    ...extra,
   };
   vm.createContext(context);vm.runInContext(component,context);
   return {requests,state,render(){hook=0;return context.Connections();},mount(){this.render();cleanup=effect();},unmount(){cleanup();},setScope(value){scope=value;}};
 }
 
 (async()=>{
+  // U8 regression: creating a Google Sheets connector has no file input (fileRef is null). The real
+  // bosFileName from the compiled app must not throw there, and the list must be reloaded after create.
+  {
+    const bosFileName = app.match(/function bosFileName\(input\)\s*\{[\s\S]*?\n\}/)?.[0];
+    assert.ok(bosFileName, 'compiled bosFileName');
+    const extra = {FormData:class{constructor(){this.items=[];}append(k,v){this.items.push([k,v]);}}};
+    vm.runInNewContext(bosFileName + ';globalThis.bosFileName=bosFileName;', extra);
+    const sheets = harness(true, extra);sheets.mount();
+    sheets.requests[0].resolve(response({synced:[],failed:[]}));await tick();
+    sheets.requests[1].resolve(response(list));await tick();
+    const form = sheets.state.findIndex(v=>v&&typeof v==='object'&&v.kind==='csv'&&'dataset' in v);
+    sheets.state[form] = {kind:'google_sheets',name:'Продажі з таблиці',dataset:'orders',url:'https://docs.google.com/spreadsheets/d/synthetic/pub?output=csv'};
+    sheets.state[form+1] = {sha256:'a'.repeat(64),columns:[],rows:[],total:0};
+    const create = nodes(sheets.render()).find(node=>node.props?.onClick&&node.children.includes('Підключити'));
+    assert.ok(create, 'create button after preview');
+    create.props.onClick();await tick();
+    assert.equal(sheets.requests[2].url, '/api/connectors/create/');
+    sheets.requests[2].resolve(response({id:8}));await tick();await tick();
+    assert.equal(sheets.requests[3]?.url, '/api/connectors/', 'list reloads after a Google Sheets create');
+    sheets.requests[3].resolve(response(list));await tick();
+    assert.ok(!nodes(sheets.render()).some(node=>node.props?.role==='alert'), 'no error after a successful create');
+  }
   const writer=harness(true);writer.mount();
   assert.equal(writer.requests.length,1);
   assert.equal(writer.requests[0].url,'/api/connectors/sync-stale/');

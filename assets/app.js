@@ -851,6 +851,7 @@ function BosFile({
   }));
 }
 function bosFileName(input) {
+  if (!input) return;
   const label = input.closest && input.closest('.bos-file')?.querySelector('.bos-file-name');
   if (label) label.textContent = input.files && input.files.length ? Array.from(input.files).map(f => f.name).join(', ') : '';
 }
@@ -24742,8 +24743,10 @@ function Connections() {
       dataset: 'orders',
       url: ''
     });
-    if (fileRef.current) fileRef.current.value = '';
-    bosFileName(fileRef.current);
+    if (fileRef.current) {
+      fileRef.current.value = '';
+      bosFileName(fileRef.current);
+    }
     await load();
   });
   const doSync = id => run(async () => {
