@@ -48,15 +48,34 @@ def _read_source(request):
     raise ValueError('Цей сервіс ще не підключається автоматично.')
 
 
+def read_mapped(connector, snapshot):
+    """The latest snapshot read with the stored mapping, or None when the source has no mapping.
+
+    A mapping that no longer fits the table (a column was renamed in the sheet) is reported as an
+    error, never silently replaced by a new guess.
+    """
+    if connector.dataset not in mapping.FIELDS or not connector.mapping or snapshot is None:
+        return None
+    try:
+        used = mapping.validate(connector.dataset, snapshot.columns, connector.mapping)
+    except mapping.MappingError as exc:
+        return {'error': str(exc)}
+    return mapping.normalize(connector.dataset, snapshot.columns, snapshot.rows, used)
+
+
 def _connector_dict(connector):
     snapshot = connector.snapshots.first()
+    read = read_mapped(connector, snapshot)
+    summary = read if read is None or 'error' in read else {
+        'accepted': read['accepted'], 'total': read['total'], 'rejected': read['total'] - read['accepted']}
     return {'id': connector.pk, 'kind': connector.kind, 'name': connector.name,
             'dataset': connector.dataset, 'dataset_label': connector.get_dataset_display(),
             'status': connector.status, 'status_label': connector.get_status_display(),
             'last_error': connector.last_error,
             'last_sync_at': connector.last_sync_at.isoformat() if connector.last_sync_at else None,
             'row_count': snapshot.row_count if snapshot else 0,
-            'columns': snapshot.columns if snapshot else []}
+            'columns': snapshot.columns if snapshot else [],
+            'mapping': connector.mapping, 'fields': mapping.fields(connector.dataset), 'mapped_summary': summary}
 
 
 def _chosen_mapping(raw, guess):
@@ -134,8 +153,12 @@ def create(request):
     if table['sha256'] != request.POST.get('expected_sha256'):
         return JsonResponse({'error': 'Дані змінилися після попереднього перегляду. Перегляньте ще раз.',
                              'code': 'stale_preview'}, status=409)
+    # The mapping the person confirmed in the preview. Without one the source is stored unmapped,
+    # exactly as before; a guess is never stored on the person's behalf.
+    raw = request.POST.get('mapping')
+    chosen = mapping.validate(dataset, table['columns'], _chosen_mapping(raw, {})) if raw else {}
     with transaction.atomic():
-        connector = Connector.objects.create(kind=kind, name=name, dataset=dataset, source_url=url,
+        connector = Connector.objects.create(kind=kind, name=name, dataset=dataset, source_url=url, mapping=chosen,
                                              last_sync_at=timezone.now(), created_by=policy.user)
         ConnectorSnapshot.objects.create(connector=connector, columns=table['columns'],
                                          rows=table['rows'], row_count=table['row_count'],
@@ -249,3 +272,25 @@ def disable(request, connector_id):
     if not updated:
         raise Connector.DoesNotExist
     return JsonResponse({'id': connector_id, 'status': 'disabled'})
+
+
+@csrf_protect
+@require_POST
+@errors
+def set_mapping(request, connector_id):
+    """Store which columns of this source mean which BoS fields; checked against its latest table."""
+    rows = _visible(_writer(request))
+    with transaction.atomic():
+        if not rows.filter(pk=connector_id).exclude(status='disabled').exists():
+            raise Connector.DoesNotExist
+        connector = _locked(connector_id)
+        if connector.status == 'disabled':
+            raise Connector.DoesNotExist
+        snapshot = connector.snapshots.first()
+        if connector.dataset not in mapping.FIELDS or snapshot is None:
+            raise ValueError('Для цього джерела відповідність колонок не задається.')
+        chosen = mapping.validate(connector.dataset, snapshot.columns,
+                                  _chosen_mapping(request.POST.get('mapping', ''), None))
+        Connector.objects.filter(pk=connector.pk).update(mapping=chosen)
+    connector.refresh_from_db()
+    return JsonResponse(_connector_dict(connector))

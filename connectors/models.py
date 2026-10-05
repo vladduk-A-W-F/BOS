@@ -17,6 +17,8 @@ class Connector(models.Model):
     status = models.CharField(max_length=20, choices=STATUSES, default='connected')
     last_error = models.CharField(max_length=300, blank=True)
     last_sync_at = models.DateTimeField(null=True, blank=True)
+    # {field: source column}; empty for «Інше» and for sources connected before mapping existed.
+    mapping = models.JSONField(default=dict, blank=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
                                    related_name='connectors')
     created_at = models.DateTimeField(auto_now_add=True)
