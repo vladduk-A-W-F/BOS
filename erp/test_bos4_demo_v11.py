@@ -14,9 +14,9 @@ from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import SimpleTestCase, TransactionTestCase, override_settings
 
-from operations.models import Configuration, Document
+from operations.models import Configuration, Document, Invoice
 from . import bos4_demo_aw_v11 as aw
-from .models import DocumentLink, Item, Lot, Production, Purchase, SalesOrder
+from .models import DocumentLink, InvoiceLink, Item, Lot, Movement, Production, Purchase, Reservation, SalesOrder
 
 
 class SubsetModuleTests(SimpleTestCase):
@@ -31,7 +31,8 @@ class SubsetModuleTests(SimpleTestCase):
             self.assertRegex(aw.PINS['csv_sha256'][name], r'^[0-9a-f]{64}$')
         self.assertEqual([row[0] for row in aw.LEDGER], ['Вибір замовлення', 'Кількість', 'Перерахунок ціни AW',
                                                          'Сценарна ціна', 'Виріб', 'Специфікація', 'Виключено',
-                                                         'Залишок', 'Закупівля', 'Виробництво', 'Сценарне'])
+                                                         'Залишок', 'Закупівля', 'Виробництво', 'Виконання',
+                                                         'Сценарне'])
         for name in ('ProductInventory.csv', 'ProductVendor.csv', 'Vendor.csv', 'WorkOrder.csv'):
             self.assertRegex(aw.PINS['csv_sha256'][name], r'^[0-9a-f]{64}$')
         self.assertEqual((aw.RATE['currency'], aw.RATE['date'], aw.RATE['uah_per_unit']), ('USD', '2026-10-01', '44.6819'))
@@ -102,7 +103,8 @@ class SubsetModuleTests(SimpleTestCase):
                 self.assertEqual(p['supplier'], aw.MATERIALS[article]['supplier'])
                 self.assertEqual(D(p['aw_standard_price_uah']),
                                  (D(p['aw_standard_price_usd']) * D(aw.RATE['uah_per_unit'])).quantize(D('0.01'), rounding=ROUND_HALF_UP))
-                self.assertEqual(p['due_date'], str(date.fromisoformat(aw.SUPPLY_DATE) + timedelta(days=p['lead_days'])))
+                self.assertEqual(p['due_date'], str(date.fromisoformat(aw.FIRST_START) - timedelta(days=1)))
+                self.assertEqual(p['ordered_date'], str(date.fromisoformat(p['due_date']) - timedelta(days=p['lead_days'])))
 
     def test_jobs_follow_aw_work_orders_and_fit_the_order(self):
         lines = aw.ORDER['lines']
@@ -114,6 +116,14 @@ class SubsetModuleTests(SimpleTestCase):
         self.assertEqual(len(shift), 1)            # one shift for the whole schedule: AW offsets and durations kept
         self.assertEqual(min(j['start_date'] for j in aw.JOBS), aw.FIRST_START)
         self.assertGreater(aw.FIRST_START, max(p['due_date'] for p in aw.PURCHASES))
+        # The scenario «today» is the demo's own clock, and the stage of each job follows from it.
+        from .bos4_demo import AS_OF, SEED_DATE
+        self.assertEqual(aw.AS_OF, AS_OF)
+        self.assertGreaterEqual(min(p['due_date'] for p in aw.PURCHASES), SEED_DATE)
+        for j in aw.JOBS:
+            self.assertEqual(j['stage'], 'finished' if j['due_date'] < AS_OF else
+                             'running' if j['start_date'] <= AS_OF else 'planned')
+        self.assertGreaterEqual(sum(j['stage'] == 'finished' for j in aw.JOBS), 1)
         self.assertLess(max(j['due_date'] for j in aw.JOBS), '2026-11-27')
         self.assertTrue(all(j['aw_start_date'] >= aw.ORDER['aw_order_date'] for j in aw.JOBS))
 
@@ -161,7 +171,7 @@ class SeedV11Tests(TransactionTestCase):
                              next(p['aw_number'] for p in aw.PRODUCTS if p['code'] == line.item.code))
             self.assertTrue(line.item.bom)
             self.assertTrue(Document.objects.filter(pk=line.item.document_id, status='approved').exists())
-        text = DocumentLink.objects.get(order=order).document.text
+        text = DocumentLink.objects.get(order=order, document__code='KM-ZM-0150').document.text
         amount = f'{total:,.2f}'.replace(',', ' ').replace('.', ',')
         self.assertIn(amount + ' грн', text)
         self.assertEqual(total, D(aw.ORDER['total_uah']))
@@ -177,18 +187,63 @@ class SeedV11Tests(TransactionTestCase):
         receipt = self.seed('1.1')
         self.assertEqual((receipt['counts']['aw_jobs'], receipt['counts']['aw_purchases']), (40, len(aw.PURCHASES)))
         order = SalesOrder.objects.get(code='ZM-0150')
-        jobs = Production.objects.filter(code__startswith='VZ-0150-').select_related('item', 'line')
-        self.assertEqual(jobs.count(), 40)
-        for job in jobs:
-            self.assertEqual((job.line.order_id, job.line.item_id, job.quantity), (order.pk, job.item_id, job.line.quantity))
-            self.assertEqual(job.location.code, 'KM-ZHY-SHOP')
-        for n, p in enumerate(aw.PURCHASES, 1):
-            po = Purchase.objects.get(code=f'ZK-0150-{n:02d}')
-            self.assertEqual((po.item.code, po.quantity, po.price, str(po.due_date)),
-                             (p['article'], D(p['quantity']), D(p['price']), p['due_date']))
         for row in aw.STOCK:
             lot = Lot.objects.get(code='KM-L-AW-' + row['article'])
-            self.assertEqual((lot.quantity, lot.quality, lot.location.code), (D(row['quantity']), 'approved', 'KM-ZHY-METAL'))
+            opening = lot.movements.get(kind='opening')
+            self.assertEqual((opening.quantity, lot.quality, lot.location.code), (D(row['quantity']), 'approved', 'KM-ZHY-METAL'))
+        for n, p in enumerate(aw.PURCHASES, 1):
+            po = Purchase.objects.get(code=f'ZK-0150-{n:02d}')
+            self.assertEqual((po.item.code, po.quantity, po.received, po.price, str(po.due_date)),
+                             (p['article'], D(p['quantity']), D(p['quantity']), D(p['price']), p['due_date']))
+            self.assertEqual(Lot.objects.get(code=f'KM-L-ZK-0150-{n:02d}').quality, 'approved')
+        products = {p['code']: p for p in aw.PRODUCTS}
+        lines = {l.item.code: l for l in order.lines.select_related('item')}
+        for j in aw.JOBS:
+            with self.subTest(job=j['code']):
+                job = Production.objects.get(code=j['code'])
+                line = lines[j['product']]
+                self.assertEqual((job.line_id, job.item_id, job.quantity, str(job.due_date), job.location.code),
+                                 (line.pk, line.item_id, line.quantity, j['due_date'], 'KM-ZHY-SHOP'))
+                consumed, held = {}, {}
+                for m in Movement.objects.filter(production=job, kind='consume').select_related('lot__item'):
+                    consumed[m.lot.item.code] = consumed.get(m.lot.item.code, D(0)) - m.quantity
+                for r in Reservation.objects.filter(production=job).select_related('lot__item'):
+                    held[r.lot.item.code] = held.get(r.lot.item.code, D(0)) + r.quantity
+                need = {a: D(q) * job.quantity for a, q in products[j['product']]['bom'].items()}
+                if j['stage'] == 'finished':
+                    self.assertEqual((job.status, job.produced, line.shipped), ('done', job.quantity, job.quantity))
+                    self.assertEqual({a: consumed.get(a, D(0)) for a in need}, need)
+                    self.assertTrue(Document.objects.filter(code='KM-PASS-' + j['code'], status='approved').exists())
+                elif j['stage'] == 'running':
+                    self.assertEqual((job.status, job.produced, line.shipped), ('running', 0, 0))
+                    self.assertEqual({a: held.get(a, D(0)) for a in need}, need)
+                    self.assertEqual(job.entries.count(), aw.RUNNING_DONE)
+                else:
+                    self.assertEqual((job.status, held, consumed), ('planned', {}, {}))
+        finished = [j for j in aw.JOBS if j['stage'] == 'finished']
+        units = sum(j['quantity'] for j in finished)
+        amount = sum(D(j['quantity']) * lines[j['product']].price for j in finished)
+        invoice = Invoice.objects.get(code='RF-0150')
+        self.assertEqual((invoice.amount, invoice.paid, str(invoice.due_date)),
+                         (amount, (amount * D(aw.PAYMENT_SHARE)).quantize(D('0.01')), '2026-10-19'))
+        self.assertEqual(InvoiceLink.objects.get(invoice=invoice).order_id, order.pk)
+        self.assertEqual((receipt['counts']['aw_shipped_units'], D(receipt['counts']['aw_invoice'])), (units, amount))
+        shipment = DocumentLink.objects.get(order=order, document__code='KM-VN-0150-1').document.text
+        self.assertIn(f'{len(finished)} позицій, {units} шт.', shipment)
+        self.assertTrue(order.controlled_tasks.filter(title__contains=f'решти {1275 - units} ').exists())
+
+    def snapshot(self):
+        tables = (Item, Lot, Movement, Production, Purchase, Reservation, SalesOrder, Invoice, Document, Configuration)
+        return [list(t.objects.order_by('pk').values()) for t in tables]
+
+    def test_repeat_and_reverse_version_do_not_mutate(self):
+        self.seed('1.1')
+        before = self.snapshot()
+        self.assertFalse(self.seed('1.1')['created'])
+        self.assertEqual(self.snapshot(), before)
+        with self.assertRaisesRegex(CommandError, 'версії 1.1'):
+            self.seed('1.0')
+        self.assertEqual(self.snapshot(), before)
 
     def test_three_cases_and_public_screen_are_unchanged(self):
         self.seed('1.1')
@@ -207,7 +262,8 @@ class SeedV11Tests(TransactionTestCase):
         data = self.client.get('/api/erp/monitoring/').json()
         orders = next(t for t in data['tables'] if t['key'] == 'orders')
         row = next(r for r in orders['rows'] if r['cells'][0] == 'ZM-0150')
-        self.assertEqual(row['cells'][4], '0 з 1275')
+        shipped = sum(j['quantity'] for j in aw.JOBS if j['stage'] == 'finished')
+        self.assertEqual(row['cells'][4], f'{shipped} з 1275')
 
     def test_versions_never_mix(self):
         self.seed('1.0')

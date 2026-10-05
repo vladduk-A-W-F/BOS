@@ -33,8 +33,11 @@ PAINT_KG_PER_OZ = '0.0283495'
 PAINT_COVERAGE = '6'               # liquid frame paint (oz) → powder coating for a furniture frame (kg)
 FASTENER_FACTOR = '8'              # bolts per crank/headset → bolts per five-shelf rack
 STORAGE = {'1', '2', '3', '4', '5', '6'}   # AW Location: Tool Crib … Miscellaneous Storage → «Склад металу»
-SUPPLY_DATE = '2026-10-05'         # scenario day the large order's purchases are placed
-FIRST_START = '2026-10-23'         # scenario day production starts: after the longest AW lead time
+FIRST_START = '2026-09-22'         # scenario day production starts; every delivery is due the day before
+AS_OF = '2026-10-05'               # scenario «today»: jobs due before it are finished and shipped
+RUNNING_DONE = 2                   # route operations already reported on a job still running at AS_OF
+PAYMENT_SHARE = '0.5'              # part of the shipment invoice already paid
+INVOICE_DAYS = 14                  # invoice due = AS_OF + INVOICE_DAYS
 
 COLORS = {'Black': ('B', 'чорний', 'RAL 9005'), 'Red': ('R', 'червоний', 'RAL 3020'),
           'Yellow': ('Y', 'жовтий', 'RAL 1023')}
@@ -179,7 +182,6 @@ def build(source):
                       'aw_unit_price_uah': money(unit_usd * D(RATE['uah_per_unit'])),
                       'price': by_pid[int(r[4])]['price']})
     stock, purchases = stock_and_purchases(base, material_ids, products, lines)
-    assert max(p['due_date'] for p in purchases) < FIRST_START, 'production must start after the last delivery'
     return {
         'stock': stock, 'purchases': purchases, 'jobs': jobs(base, header[2][:10], lines),
         'pins': {'repository': 'https://github.com/microsoft/sql-server-samples', 'path': CSV_DIR,
@@ -236,10 +238,11 @@ def stock_and_purchases(base, material_ids, products, lines):
             continue
         quantity = max(shortage, minimum).to_integral_value(rounding='ROUND_CEILING')
         lead = int(t[2])
-        due = (datetime.date.fromisoformat(SUPPLY_DATE) + datetime.timedelta(days=lead)).isoformat()
+        due = datetime.date.fromisoformat(FIRST_START) - datetime.timedelta(days=1)
         purchases.append({'article': article, 'supplier': supplier, 'need': format(need[article].normalize(), 'f'),
                           'on_hand': format(on_hand.normalize(), 'f'), 'quantity': str(quantity), 'price': price,
-                          'lead_days': lead, 'due_date': due, 'aw_vendor_id': int(t[1]), 'aw_vendor_name': vendors[t[1]],
+                          'lead_days': lead, 'due_date': due.isoformat(),
+                          'ordered_date': (due - datetime.timedelta(days=lead)).isoformat(), 'aw_vendor_id': int(t[1]), 'aw_vendor_name': vendors[t[1]],
                           'aw_vendor_offers': len(offers[aw_number]), 'aw_min_order_qty': int(t[6]), 'aw_unit': aw_unit,
                           'aw_standard_price_usd': t[3],
                           'aw_standard_price_uah': money(D(t[3]) * D(RATE['uah_per_unit']))})
@@ -264,6 +267,8 @@ def jobs(base, order_date, lines):
                     'quantity': line['quantity'], 'aw_work_order_id': int(r[0]), 'aw_order_qty': int(r[2]),
                     'aw_scrapped_qty': int(r[4]), 'aw_start_date': r[5][:10], 'aw_due_date': r[7][:10],
                     'start_date': (day(r[5][:10]) + shift).isoformat(), 'due_date': (day(r[7][:10]) + shift).isoformat()})
+        out[-1]['stage'] = ('finished' if out[-1]['due_date'] < AS_OF else
+                            'running' if out[-1]['start_date'] <= AS_OF else 'planned')
     return out
 
 
@@ -295,14 +300,19 @@ LEDGER = (
     ('Закупівля', 'Потреба = Σ специфікація × кількість рядка замовлення; дефіцит = потреба − залишок; кількість = '
      'дефіцит, округлений вгору до цілого; для металу (одиниця закупівлі AW — EA) не менше MinOrderQty. Для упаковок '
      '(CAN/CTN/CS/GAL) розмір в AW не задано, тому MinOrderQty записано як є, без перерахунку. Постачальник AW — '
-     'пропозиція ProductVendor з найменшим AverageLeadTime, далі найнижчою StandardPrice; строк = '
-     f'{SUPPLY_DATE} + AverageLeadTime. StandardPrice (USD за одиницю закупівлі AW) × {RATE["uah_per_unit"]} = '
+     'пропозиція ProductVendor з найменшим AverageLeadTime, далі найнижчою StandardPrice; строк поставки — день '
+     f'перед стартом виробництва ({FIRST_START}), дата замовлення = строк − AverageLeadTime. StandardPrice (USD за одиницю закупівлі AW) × {RATE["uah_per_unit"]} = '
      'aw_standard_price_uah; ціна закупівлі — сценарна ціна матеріалу за одиницю BoS, окремо.'),
     ('Виробництво', 'Одна робота на рядок замовлення, кількість = кількість рядка. WorkOrder — перший для того ж '
      'ProductID зі StartDate не раніше дати замовлення AW; зміщення старту й тривалість збережено, графік зсунуто так, '
-     f'щоб найраніший старт був {FIRST_START} (після найдовшого строку поставки). Строк роботи = DueDate AW + зсув.'),
+     f'щоб найраніший старт був {FIRST_START}. Строк роботи = DueDate AW + зсув.'),
+    ('Виконання', f'Стан на {AS_OF} (сценарний): усі закупівлі прийнято повністю й допущено якістю; роботи зі строком '
+     f'раніше {AS_OF} виконано (усі операції маршруту), допущено, відвантажено одним документом VN-0150-1; роботи, що '
+     f'вже почалися, мають {RUNNING_DONE} перші операції. Матеріал видається в цех під роботу й резервується: '
+     'спершу залишок AW, далі прийняті закупівлі. Робота за випуск = ставка «Сценарна ціна» × кількість. Рахунок '
+     f'RF-0150 — на відвантажене, строк {AS_OF} + {INVOICE_DAYS} дн.; сплачено частку {PAYMENT_SHARE}.'),
     ('Сценарне', 'Ціни матеріалів у UAH, клієнт, строк, філія, документи, доручення, дата закупівлі й старту '
-     'виробництва — сценарні, не з AW.'),
+     'виробництва, стан виконання й оплата — сценарні, не з AW.'),
 )
 
 
@@ -321,7 +331,8 @@ def render(data, commit):
              f'QTY_SCALE = {QTY_SCALE!r}\n',
              f'PAINT_KG_PER_OZ = {PAINT_KG_PER_OZ!r}\nPAINT_COVERAGE = {PAINT_COVERAGE!r}\n',
              f'FASTENER_FACTOR = {FASTENER_FACTOR!r}\n',
-             f'SUPPLY_DATE = {SUPPLY_DATE!r}\nFIRST_START = {FIRST_START!r}\n\n',
+             f'FIRST_START = {FIRST_START!r}\nAS_OF = {AS_OF!r}\n',
+             f'RUNNING_DONE = {RUNNING_DONE!r}\nPAYMENT_SHARE = {PAYMENT_SHARE!r}\nINVOICE_DAYS = {INVOICE_DAYS!r}\n\n',
              'LEDGER = ' + pprint.pformat(LEDGER, width=110) + '\n\n']
     for key in ('materials', 'products', 'order', 'stock', 'purchases', 'jobs', 'excluded_leaves'):
         parts.append(key.upper() + ' = ' + pprint.pformat(data[key], width=110, sort_dicts=True) + '\n\n')
