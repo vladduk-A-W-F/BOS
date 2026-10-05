@@ -30,36 +30,65 @@ def _png_complete(data):
     return False
 
 def _jpeg_complete(data):
-    """Marker walk: SOI, frame header with size, scan data and a final EOI."""
+    """Marker walk: SOI, sized frame, scans with enough coded bytes for every 8x8 block, final EOI.
+
+    libjpeg silently fills a missing scan with grey, so a decode alone does not prove the photo is whole.
+    Lower bound only: each block needs at least 2 coded bits in a baseline scan, 1 bit in a progressive one.
+    """
     if data[:2]!=b'\xff\xd8':return False
-    pos,frame,scan=2,False,False
+    pos,blocks,progressive,coded,scan=2,0,False,0,False
     while pos<len(data):
         if data[pos]!=0xFF:return False
         while pos<len(data) and data[pos]==0xFF:pos+=1
         if pos>=len(data):return False
         marker=data[pos];pos+=1
-        if marker==0xD9:return frame and scan and not data[pos:].strip(b'\x00')
+        if marker==0xD9:return blocks>0 and scan and coded*8>=blocks*(1 if progressive else 2) and not data[pos:].strip(b'\x00')
         if marker==0x01 or 0xD0<=marker<=0xD7:continue
         if pos+2>len(data):return False
         length=int.from_bytes(data[pos:pos+2],'big')
         if length<2 or pos+length>len(data):return False
         if marker in (0xC0,0xC1,0xC2,0xC3,0xC5,0xC6,0xC7,0xC9,0xCA,0xCB,0xCD,0xCE,0xCF):
-            if length<8 or int.from_bytes(data[pos+3:pos+5],'big')==0 or int.from_bytes(data[pos+5:pos+7],'big')==0:return False
-            frame=True
+            height,width,count=int.from_bytes(data[pos+3:pos+5],'big'),int.from_bytes(data[pos+5:pos+7],'big'),data[pos+7] if length>7 else 0
+            if blocks or length!=8+3*count or not (height and width and count):return False
+            factors=[(data[pos+9+3*i]>>4,data[pos+9+3*i]&15) for i in range(count)]
+            hmax,vmax=max(h for h,_ in factors),max(v for _,v in factors)
+            if not (hmax and vmax):return False
+            blocks=sum(-(-(-(-width*h//hmax))//8)*-(-(-(-height*v//vmax))//8) for h,v in factors)
+            progressive=marker in (0xC2,0xC6,0xCA,0xCE)
         pos+=length
         if marker==0xDA:
-            if not frame:return False
+            if not blocks:return False
             scan=True
             # Entropy-coded data runs until a marker that is not stuffing or a restart.
+            begin=pos
             while pos+1<len(data) and not (data[pos]==0xFF and data[pos+1] not in (0x00,*range(0xD0,0xD8))):pos+=1
             if pos+1>=len(data):return False
+            coded+=pos-begin
     return False
 
+MAX_IMAGE_PIXELS=40_000_000
+
+def _decodes(data,expected):
+    """Full decode with Pillow under a pixel limit; any warning or error means not a usable photo."""
+    import io,warnings
+    from PIL import Image
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter('error')
+            with Image.open(io.BytesIO(data)) as image:
+                if image.format!=expected:return False
+                width,height=image.size
+                if not (0<width and 0<height and width*height<=MAX_IMAGE_PIXELS):return False
+                image.load()
+        return True
+    except Exception:
+        return False
+
 def image_type(name,data):
-    """Content type of a structurally complete PNG/JPEG original, otherwise None. No decoding, no OCR."""
+    """Content type of a PNG/JPEG original that is structurally complete and fully decodes, otherwise None. No OCR."""
     ext=(name or '').rsplit('.',1)[-1].lower()
-    if ext=='png' and _png_complete(data):return IMAGE_TYPES[ext]
-    if ext in ('jpg','jpeg') and _jpeg_complete(data):return IMAGE_TYPES[ext]
+    if ext=='png' and _png_complete(data) and _decodes(data,'PNG'):return IMAGE_TYPES[ext]
+    if ext in ('jpg','jpeg') and _jpeg_complete(data) and _decodes(data,'JPEG'):return IMAGE_TYPES[ext]
     return None
 
 def _parse(file):
