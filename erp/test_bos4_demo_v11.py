@@ -100,11 +100,18 @@ class SubsetModuleTests(SimpleTestCase):
                 self.assertEqual(D(p['quantity']), expected)
                 self.assertGreaterEqual(stock[article] + D(p['quantity']), need[article])
                 self.assertEqual(p['price'], aw.MATERIALS[article]['price'])
-                self.assertEqual(p['supplier'], aw.MATERIALS[article]['supplier'])
-                self.assertEqual(D(p['aw_standard_price_uah']),
-                                 (D(p['aw_standard_price_usd']) * D(aw.RATE['uah_per_unit'])).quantize(D('0.01'), rounding=ROUND_HALF_UP))
+                # The real AW purchase record decides the vendor; the mapping to a BoS supplier is one to one.
+                self.assertEqual(p['supplier'], aw.VENDORS[str(p['aw_vendor_id'])]['key'])
+                self.assertGreaterEqual(p['aw_po_order_date'], aw.ORDER['aw_order_date'])
+                self.assertEqual(D(p['aw_po_received_qty']), p['aw_po_qty'])
+                self.assertEqual(D(p['aw_po_unit_price_uah']),
+                                 (D(p['aw_po_unit_price_usd']) * D(aw.RATE['uah_per_unit'])).quantize(D('0.01'), rounding=ROUND_HALF_UP))
                 self.assertEqual(p['due_date'], str(date.fromisoformat(aw.FIRST_START) - timedelta(days=1)))
                 self.assertEqual(p['ordered_date'], str(date.fromisoformat(p['due_date']) - timedelta(days=p['lead_days'])))
+        keys = [v['key'] for v in aw.VENDORS.values()]
+        self.assertEqual(len(keys), len(set(keys)))
+        self.assertEqual(aw.VENDORS['1568']['key'], 'METAL')           # v1.0 «Металопрокат Центр» = Custom Frames
+        self.assertEqual({str(p['aw_vendor_id']) for p in aw.PURCHASES}, set(aw.VENDORS))
 
     def test_jobs_follow_aw_work_orders_and_fit_the_order(self):
         lines = aw.ORDER['lines']
@@ -190,12 +197,30 @@ class SeedV11Tests(TransactionTestCase):
         for row in aw.STOCK:
             lot = Lot.objects.get(code='KM-L-AW-' + row['article'])
             opening = lot.movements.get(kind='opening')
-            self.assertEqual((opening.quantity, lot.quality, lot.location.code), (D(row['quantity']), 'approved', 'KM-ZHY-METAL'))
+            self.assertEqual((opening.quantity, lot.quality, lot.location.code), (D(row['quantity']), 'approved', 'KM-ZHY-AW'))
+        stock = {row['article']: D(row['quantity']) for row in aw.STOCK}
         for n, p in enumerate(aw.PURCHASES, 1):
-            po = Purchase.objects.get(code=f'ZK-0150-{n:02d}')
-            self.assertEqual((po.item.code, po.quantity, po.received, po.price, str(po.due_date)),
-                             (p['article'], D(p['quantity']), D(p['quantity']), D(p['price']), p['due_date']))
-            self.assertEqual(Lot.objects.get(code=f'KM-L-ZK-0150-{n:02d}').quality, 'approved')
+            with self.subTest(purchase=n):
+                po = Purchase.objects.select_related('supplier', 'destination').get(code=f'ZK-0150-{n:02d}')
+                self.assertEqual((po.item.code, po.quantity, po.received, po.price, str(po.due_date), po.destination.code),
+                                 (p['article'], D(p['quantity']), D(p['quantity']), D(p['price']), p['due_date'], 'KM-ZHY-AW'))
+                self.assertIn('(' + p['aw_vendor_name'] + ')', po.supplier.notes)
+                vendor = aw.VENDORS[str(p['aw_vendor_id'])]
+                self.assertEqual(po.supplier.name, vendor.get('name', 'Металопрокат Центр'))
+                reason = po.approval_snapshot['direct_reason']
+                self.assertIn(f'на складі комплектації {p["on_hand"]}', reason)
+                self.assertIn(f'PO {p["aw_purchase_order_id"]}, рядок {p["aw_po_detail_id"]}', reason)
+                # The reason states the real stock of the order's store: only the AW lot was there before.
+                before = Lot.objects.filter(item=po.item, location__code='KM-ZHY-AW').exclude(code=f'KM-L-ZK-0150-{n:02d}')
+                self.assertEqual([l.code for l in before], ['KM-L-AW-' + p['article']])
+                self.assertEqual(stock[p['article']], D(p['on_hand']))
+                self.assertGreaterEqual(D(p['on_hand']) + po.quantity, D(p['need']))
+                self.assertEqual(Lot.objects.get(code=f'KM-L-ZK-0150-{n:02d}').quality, 'approved')
+        # The v1.0 metal store is untouched by the large order: nothing of it is issued under VZ-0150.
+        self.assertFalse(Movement.objects.filter(reference__startswith='VZ-0150').exclude(
+            lot__code__regex=r'^KM-(L-AW-|L-ZK-0150-|T-VZ-0150-|L-VZ-0150-)').exists())
+        self.assertFalse(Movement.objects.filter(kind='transfer_out', reason__contains='VZ-0150',
+            lot__location__code='KM-ZHY-METAL').exists())
         products = {p['code']: p for p in aw.PRODUCTS}
         lines = {l.item.code: l for l in order.lines.select_related('item')}
         for j in aw.JOBS:

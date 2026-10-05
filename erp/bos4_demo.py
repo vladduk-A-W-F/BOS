@@ -472,7 +472,7 @@ def _populate_aw(act, document, items, suppliers, customers, people, places, bra
         + aw.RATE['date'] + ': ' + hryvnia(aw.ORDER['aw_total_uah'])
         + f' ({aw.ORDER["aw_total_usd"]} USD).')
     act('link_document', document_id=order_doc.pk, order_id=out['order_id'])
-    supply = _supply_aw(act, document, items, suppliers, people, places, out['order_id'])
+    supply = _supply_aw(act, document, items, suppliers, people, places, branches, out['order_id'])
     Task.objects.create(title=f'Завершити виробництво й відвантаження решти {units - supply["aw_shipped_units"]} '
         'каркасів і стелажів за великим замовленням ' + customer.name, priority='high', status='active',
         assignee=people['Ігор Бондар'].full_name, assignee_employee=people['Ігор Бондар'], branch=branches['ZHY'],
@@ -484,7 +484,9 @@ def _populate_aw(act, document, items, suppliers, customers, people, places, bra
         'scenario_total_uah': aw.ORDER['total_uah'],
         'order_code': AW_ORDER_CODE, 'excluded_leaves': aw.EXCLUDED_LEAVES,
         'aw_work_order_ids': [j['aw_work_order_id'] for j in aw.JOBS],
-        'aw_vendor_ids': {p['article']: p['aw_vendor_id'] for p in aw.PURCHASES},
+        'aw_purchase_records': {p['article']: [p['aw_purchase_order_id'], p['aw_po_detail_id'], p['aw_vendor_id']]
+                                for p in aw.PURCHASES},
+        'suppliers': {aw_id: v['key'] for aw_id, v in aw.VENDORS.items()}, 'order_store': aw.ORDER_STORE,
         'first_start': aw.FIRST_START, 'as_of': aw.AS_OF,
         'scenario': ['клієнт ' + customer.name, 'філія й склад виконання', 'строк 27.11.2026',
                      'документи й доручення', 'ціни матеріалів у UAH', 'сценарна ціна рядків',
@@ -492,16 +494,32 @@ def _populate_aw(act, document, items, suppliers, customers, people, places, bra
     return {'aw_products': len(aw.PRODUCTS), 'aw_order_lines': len(lines), 'aw_order_units': units, **supply}
 
 
-def _supply_aw(act, document, items, suppliers, people, places, order_id):
+def _supply_aw(act, document, items, suppliers, people, places, branches, order_id):
     """v1.1 supply chain for the large order as of aw.AS_OF: AW ProductInventory stock, ProductVendor purchases
     (received), WorkOrder jobs (finished, running or planned), shipment, invoice and part payment."""
     certificate = document('KM-CERT-AW-0150', 'Сертифікат якості металопрокату · залишок складу',
-        'Метал на складі на початок виконання замовлення ' + AW_ORDER_CODE + '. Кількості — AdventureWorks '
+        'Метал на складі комплектації на початок виконання замовлення ' + AW_ORDER_CODE + '. Кількості — AdventureWorks '
         'ProductInventory (місця зберігання 1–6), перераховані за правилом «Залишок» у bos4_demo_provenance.')
     delivered = document('KM-CERT-ZK-0150', 'Сертифікати постачальників металу · закупівлі ZK-0150',
         'Металопрокат за закупівлями ZK-0150-01…' + f'{len(aw.PURCHASES):02d}' + ' під замовлення ' + AW_ORDER_CODE
         + ' прийнято повністю; марка сталі й геометрія відповідають специфікаціям.')
     inspector, foreman = people['Наталія Ткаченко'].pk, people['Ігор Бондар'].pk
+    # The order's own store keeps its AW stock and deliveries apart from the v1.0 metal store.
+    branch = branches[aw.ORDER_STORE['branch']]
+    store = act('location', code=PREFIX + aw.ORDER_STORE['key'], name=branch.short_name + ' · ' + aw.ORDER_STORE['name'],
+        kind='warehouse', branch_id=branch.pk, lat=branch.lat, lng=branch.lng,
+        address='Демо-точка; координати центру міста, не адреса об’єкта')['location_id']
+    vendors = {}
+    for aw_id, v in sorted(aw.VENDORS.items()):
+        if v['key'] in suppliers:
+            vendors[v['key']] = suppliers[v['key']]
+            continue
+        name = next(p['aw_vendor_name'] for p in aw.PURCHASES if p['aw_vendor_id'] == int(aw_id))
+        vendors[v['key']] = Counterparty.objects.create(name=v['name'], type='supplier', address=v['city'],
+            notes='Демо-постачальник. Роль узято з AdventureWorks (' + name + ').')
+        act('location', code=PREFIX + 'SUP-' + v['key'], name=v['name'] + ' · ' + v['city'], kind='supplier',
+            supplier_id=vendors[v['key']].pk, lat=v['lat'], lng=v['lng'],
+            address='Демо-точка постачальника; координати центру міста, не адреса об’єкта')
     pool = {}                                  # article → [lot id, free quantity] in issue order
     stock_lots = 0
 
@@ -513,20 +531,22 @@ def _supply_aw(act, document, items, suppliers, people, places, order_id):
         if D(row['quantity']) <= 0:
             continue
         item = Item.objects.get(pk=items[row['article']])
-        lot = act('opening', code='KM-L-AW-' + row['article'], item_id=item.pk, location_id=places['ZHY-METAL'],
+        lot = act('opening', code='KM-L-AW-' + row['article'], item_id=item.pk, location_id=store,
             quantity=row['quantity'], unit_cost=str(item.planned_cost), currency='UAH', revision='A',
             documents={'certificate': certificate.pk} if 'certificate' in item.required_documents else {},
-            reason='Залишок на складі металу (AdventureWorks ProductInventory)')['lot_id']
+            reason='Залишок складу комплектації (AdventureWorks ProductInventory)')['lot_id']
         admit(lot, item, 'Вхідний контроль пройдено')
         pool[item.code][-1][1] = D(row['quantity'])
         stock_lots += 1
     for n, p in enumerate(aw.PURCHASES, 1):
         item = Item.objects.get(pk=items[p['article']])
-        po = act('purchase', code=f'ZK-0150-{n:02d}', item_id=item.pk, supplier_id=suppliers[p['supplier']].pk,
+        po = act('purchase', code=f'ZK-0150-{n:02d}', item_id=item.pk, supplier_id=vendors[p['supplier']].pk,
             quantity=p['quantity'], price=p['price'], currency='UAH', due_date=p['due_date'], revision='A',
-            destination_id=places['ZHY-METAL'], origin_country='UA',
-            direct_reason=f'Дефіцит під замовлення {AW_ORDER_CODE}: потреба {p["need"]}, на складі {p["on_hand"]}')['purchase_id']
-        lot = act('receive', purchase_id=po, code=f'KM-L-ZK-0150-{n:02d}', location_id=places['ZHY-METAL'],
+            destination_id=store, origin_country='UA',
+            direct_reason=f'Дефіцит під замовлення {AW_ORDER_CODE}: потреба {p["need"]}, на складі комплектації '
+                          f'{p["on_hand"]}. Запис AdventureWorks PO {p["aw_purchase_order_id"]}, '
+                          f'рядок {p["aw_po_detail_id"]}.')['purchase_id']
+        lot = act('receive', purchase_id=po, code=f'KM-L-ZK-0150-{n:02d}', location_id=store,
             quantity=p['quantity'],
             documents={'certificate': delivered.pk} if 'certificate' in item.required_documents else {})['lot_id']
         admit(lot, item, 'Поставку прийнято повністю, сертифікат і кількість звірено')
