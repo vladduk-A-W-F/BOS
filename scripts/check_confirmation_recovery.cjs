@@ -3,6 +3,8 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),crypto=require('node:crypto');
 const root=path.resolve(__dirname,'..'),babel=require(path.join(root,'assets/babel.js'));
 const html=fs.readFileSync(path.join(root,'frontend/boss_app_source.html'),'utf8');
+const moneySource=html.slice(html.indexOf('function erpAmount('),html.indexOf('const erpDateTime='));
+assert(moneySource.includes('const erpMoney='),'Actual monetary formatter must be available');
 const source=html.slice(html.indexOf('const ERP_ACTIONS='),html.indexOf('function purchaseRemaining('));
 const code=babel.transform(source,{presets:['react'],compact:false}).code;
 const wrapper=html.split('\n').find(line=>line.startsWith('window.fetch=(url,options={})=>'));
@@ -24,7 +26,7 @@ function harness(opts={}){
   useRef(initial){const i=cursor++;if(!hooks[i])hooks[i]={current:initial};return hooks[i];},
   useEffect(fn,deps){const i=cursor++,old=hooks[i];if(!old||deps.some((value,j)=>value!==old.deps[j])){hooks[i]={deps,cleanup:old?.cleanup};pendingEffects.push(()=>{hooks[i].cleanup?.();hooks[i].cleanup=fn();});}}
  };
- vm.createContext(context);vm.runInContext(wrapper,context);context.fetch=(...args)=>window.fetch(...args);
+ vm.createContext(context);vm.runInContext(moneySource,context);vm.runInContext(wrapper,context);context.fetch=(...args)=>window.fetch(...args);
  vm.runInContext(code+'\nthis.Component='+(opts.launcher?'ERPConfirmRecovery':'ERPActionDialog')+';this.readBinding=erpPendingBinding;this.readPending=erpPendingRead;',context);
  const data={items:[],lots:[],lines:[],orders:[],invoices:[{invoice_id:7,code:'INV-7',open:'999999999999.99',currency:'UAH'}],partners:[],employees:[],documents:[],jobs:[],reservations:[]};
  const props=opts.launcher?{}:{action:opts.action||'payment',preset:opts.preset||{invoice_id:7,amount:'1200.01',reference:'CONTROLLED-PAY'},recovery:opts.recovery||null,data,onClose(){closed++;},onDone:opts.onDone||(()=>{done++;})};
@@ -73,7 +75,7 @@ function integratedHarness({ignoreAbort=false}={}){
   useRef(initial){assert(active);const i=cursor++;if(!active.hooks[i])active.hooks[i]={current:initial};return active.hooks[i];},
   useEffect(fn,deps){assert(active);const instance=active,i=cursor++,old=instance.hooks[i];if(!old||deps.some((value,j)=>value!==old.deps[j])){instance.hooks[i]={deps,cleanup:old?.cleanup};instance.effects.push(()=>{instance.hooks[i].cleanup?.();instance.hooks[i].cleanup=fn();});}}
  };
- vm.createContext(context);vm.runInContext(wrapper,context);context.fetch=(...args)=>window.fetch(...args);
+ vm.createContext(context);vm.runInContext(moneySource,context);vm.runInContext(wrapper,context);context.fetch=(...args)=>window.fetch(...args);
  vm.runInContext(integratedCode+'\nthis.components={WorkpointsPanel,BoSActionDialog,ERPActionDialog};',context);
  const executable=new Set(Object.values(context.components));
  function remove(instance){instance.removed=true;instance.hooks.forEach(h=>h?.cleanup?.());}
