@@ -6,7 +6,7 @@ never guessed.
 """
 import re
 from datetime import datetime
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal
 
 # dataset -> ((field, label, required, kind), ...)
 FIELDS = {
@@ -107,22 +107,33 @@ def validate(dataset, columns, mapping):
     return clean
 
 
+# Accepted number shapes, checked on the whole cell. Anything else (mixed or broken grouping, exponents,
+# letters) is rejected, never reinterpreted as another number.
+_GAP = '[   ]'
+_NUMBER = (
+    (re.compile(r'-?\d+(?:[.,]\d+)?'), None),                                    # 1234 · 1234,50 · 1234.50
+    (re.compile(r'-?\d{1,3}(?:' + _GAP + r'\d{3})+(?:[.,]\d+)?'), _GAP),        # 1 234 567,50
+    (re.compile(r'-?\d{1,3}(?:,\d{3})+(?:\.\d+)?'), ','),                         # 1,234,567.50
+    (re.compile(r'-?\d{1,3}(?:\.\d{3})+(?:,\d+)?'), r'\.'),                       # 1.234.567,50
+)
+_CURRENCY_MARK = re.compile(r'(?i)^(?:₴\s*)?(.*?)(?:\s*(?:грн\.?|₴|uah))?$')
+
+
 def _decimal(text, places):
-    raw = re.sub(r'[\s  ]', '', text).replace('₴', '').replace('грн', '').replace('ГРН', '')
-    if ',' in raw and '.' in raw:
-        # The separator written last is the decimal one: «1.234,50» and «1,234.50» both mean 1234.50.
-        thousands = '.' if raw.rfind(',') > raw.rfind('.') else ','
-        raw = raw.replace(thousands, '').replace(',', '.')
-    elif raw.count(',') == 1:
-        raw = raw.replace(',', '.')
-    try:
-        value = Decimal(raw)
-    except InvalidOperation:
+    raw = _CURRENCY_MARK.match(text.strip()).group(1).strip()
+    if len(raw) > 40:
         raise ValueError('не число')
-    if not value.is_finite() or abs(value) > MAX_MONEY:
+    for shape, grouping in _NUMBER:
+        if shape.fullmatch(raw):
+            plain = re.sub(grouping, '', raw) if grouping else raw
+            break
+    else:
+        raise ValueError('не число')
+    value = Decimal(plain.replace(',', '.'))
+    if abs(value) > MAX_MONEY:
         raise ValueError('число поза межами')
     exponent = value.as_tuple().exponent
-    if isinstance(exponent, int) and -exponent > places:
+    if -exponent > places:
         raise ValueError(f'більше {places} знаків після коми')
     return format(value.quantize(Decimal(1).scaleb(-places)), 'f')
 
@@ -141,7 +152,8 @@ def _datetime(text):
     text = text.strip()
     for fmt in ('%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%dT%H:%M', '%d.%m.%Y %H:%M:%S', '%d.%m.%Y %H:%M'):
         try:
-            return datetime.strptime(text, fmt).isoformat(timespec='minutes')
+            # Seconds are kept when the source has them: a call log must not lose its exact time.
+            return datetime.strptime(text, fmt).isoformat(timespec='seconds' if '%S' in fmt else 'minutes')
         except ValueError:
             continue
     return _date(text)

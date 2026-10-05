@@ -67,3 +67,22 @@ class MappingTests(SimpleTestCase):
         calls = normalize('calls', ['Час', 'Телефон', 'Тип'], [['05.10.2026 10:30', '+380000000000', 'вхідний']],
                           {'started_at': 'Час', 'contact': 'Телефон', 'direction': 'Тип'})
         self.assertEqual(calls['rows'], [{'started_at': '2026-10-05T10:30', 'contact': '+380000000000', 'direction': 'in'}])
+
+    def test_broken_grouping_and_exponents_are_rejected_not_reinterpreted(self):
+        cells = ['1,2.34', '1.2,34', '12.34,56', '1 23,4', '1e1000000', '1E5', '0x10', '--5', '1,234,56.7']
+        result = normalize('payments', ['Документ', 'Платник', 'Сума'], [['PD', 'ТОВ', c] for c in cells],
+                           {'reference': 'Документ', 'counterparty': 'Платник', 'amount': 'Сума'})
+        self.assertEqual(result['accepted'], 0)
+        self.assertEqual({r['reason'] for r in result['rejected']}, {'«Сума»: не число'})
+
+    def test_valid_grouping_forms_and_currency_marks(self):
+        cells = ['1 234,50', '1\u00a0234\u00a0567,5', '1,234,567.50', '1.234.567,50', '₴ 99', '1 500 грн', '250 UAH', '-12,5']
+        result = normalize('payments', ['Документ', 'Платник', 'Сума'], [['PD', 'ТОВ', c] for c in cells],
+                           {'reference': 'Документ', 'counterparty': 'Платник', 'amount': 'Сума'})
+        self.assertEqual([r['amount'] for r in result['rows']],
+                         ['1234.50', '1234567.50', '1234567.50', '1234567.50', '99.00', '1500.00', '250.00', '-12.50'])
+
+    def test_call_time_keeps_seconds(self):
+        calls = normalize('calls', ['Час', 'Телефон'], [['05.10.2026 10:30:59', '+380'], ['2026-10-05T10:31', '+380']],
+                          {'started_at': 'Час', 'contact': 'Телефон'})
+        self.assertEqual([r['started_at'] for r in calls['rows']], ['2026-10-05T10:30:59', '2026-10-05T10:31'])
