@@ -13,12 +13,12 @@ from operations.models import Configuration, Document
 from scripts.check_support import login_test_client
 
 
-def png_bytes():
+def png_bytes(width=1, height=1, idat=None):
     def chunk(kind, body):
         return struct.pack('>I', len(body)) + kind + body + struct.pack('>I', zlib.crc32(kind + body))
-    header = struct.pack('>IIBBBBB', 1, 1, 8, 2, 0, 0, 0)
-    return (b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', header)
-            + chunk(b'IDAT', zlib.compress(b'\x00\xff\xff\xff')) + chunk(b'IEND', b''))
+    header = struct.pack('>IIBBBBB', width, height, 8, 2, 0, 0, 0)
+    idat = zlib.compress(b'\x00\xff\xff\xff') if idat is None else idat
+    return b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', header) + chunk(b'IDAT', idat) + chunk(b'IEND', b'')
 
 
 # 2x2 baseline JPEG encoded by Chromium canvas; synthetic, no metadata of a person or company.
@@ -34,6 +34,12 @@ JPEG = base64.b64decode(
     'Gi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAACAAIDASIAAhEB'
     'AxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAX/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAgX/'
     'xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCMASW//9k=')
+
+
+def empty_scan_jpeg():
+    """The real JPEG cut right after its scan header: libjpeg would fill it with grey."""
+    start = JPEG.index(b'\xff\xda')
+    return JPEG[:start + 2 + int.from_bytes(JPEG[start + 2:start + 4], 'big')] + b'\xff\xd9'
 
 
 @override_settings(BOS_DATA_MODE='working', DEBUG=False, ANTHROPIC_API_KEY='',
@@ -87,7 +93,10 @@ class DocumentImageTests(TransactionTestCase):
         broken = (('fake.png', b'not an image'), ('cut.jpg', JPEG[:-2]), ('page.html.png', b'<html></html>'),
                   # Signature and header only: magic bytes are not proof of a whole image.
                   ('header-only.png', png_bytes()[:16]), ('markers-only.jpg', b'\xff\xd8\xff\xff\xd9'),
-                  ('no-iend.png', png_bytes()[:-12]), ('tail.png', png_bytes() + b'x'))
+                  ('no-iend.png', png_bytes()[:-12]), ('tail.png', png_bytes() + b'x'),
+                  # Valid chunk chain or markers, but no real pixel data.
+                  ('fake-idat.png', png_bytes(idat=b'x')), ('empty-scan.jpg', empty_scan_jpeg()),
+                  ('too-large.png', png_bytes(width=100000, height=100000, idat=zlib.compress(b''))))
         for name, data in broken:
             self.assertEqual(self.upload(name, data).status_code, 422)
         self.assertFalse(Document.objects.exists())
