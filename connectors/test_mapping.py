@@ -69,7 +69,8 @@ class MappingTests(SimpleTestCase):
         self.assertEqual(calls['rows'], [{'started_at': '2026-10-05T10:30', 'contact': '+380000000000', 'direction': 'in'}])
 
     def test_broken_grouping_and_exponents_are_rejected_not_reinterpreted(self):
-        cells = ['1,2.34', '1.2,34', '12.34,56', '1 23,4', '1e1000000', '1E5', '0x10', '--5', '1,234,56.7']
+        cells = ['1,2.34', '1.2,34', '12.34,56', '1 23,4', '1e1000000', '1E5', '0x10', '--5', '1,234,56.7',
+                 '12\n34', '₴ 1\n2 грн', '12\r\n34']
         result = normalize('payments', ['Документ', 'Платник', 'Сума'], [['PD', 'ТОВ', c] for c in cells],
                            {'reference': 'Документ', 'counterparty': 'Платник', 'amount': 'Сума'})
         self.assertEqual(result['accepted'], 0)

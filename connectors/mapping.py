@@ -116,11 +116,15 @@ _NUMBER = (
     (re.compile(r'-?\d{1,3}(?:,\d{3})+(?:\.\d+)?'), ','),                         # 1,234,567.50
     (re.compile(r'-?\d{1,3}(?:\.\d{3})+(?:,\d+)?'), r'\.'),                       # 1.234.567,50
 )
-_CURRENCY_MARK = re.compile(r'(?i)^(?:₴\s*)?(.*?)(?:\s*(?:грн\.?|₴|uah))?$')
+_CURRENCY_MARK = re.compile(r'(?is)(?:₴\s*)?(.*?)(?:\s*(?:грн\.?|₴|uah))?')
 
 
 def _decimal(text, places):
-    raw = _CURRENCY_MARK.match(text.strip()).group(1).strip()
+    # DOTALL fullmatch always matches; a cell with an embedded newline then fails every number shape.
+    mark = _CURRENCY_MARK.fullmatch(text.strip())
+    if not mark:
+        raise ValueError('не число')
+    raw = mark.group(1).strip()
     if len(raw) > 40:
         raise ValueError('не число')
     for shape, grouping in _NUMBER:

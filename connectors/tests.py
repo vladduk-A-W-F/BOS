@@ -104,6 +104,11 @@ class ConnectorApiTests(TestCase):
         # Required fields that the headers do not name are reported, not guessed.
         stock = self.upload('/api/connectors/preview/', dataset='stock').json()
         self.assertIn('Номенклатура', stock['mapped']['error'])
+        # A quoted cell with an embedded newline is a rejected row, not a server error.
+        broken = SimpleUploadedFile('orders.csv', 'Замовлення,Клієнт,Сума\nЗМ-9,ТОВ Ліс,"12\n34"\n'.encode(), 'text/csv')
+        response = self.client.post('/api/connectors/preview/', {'kind': 'csv', 'file': broken, 'dataset': 'orders'})
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(response.json()['mapped']['rejected'], [{'row': 2, 'reason': '«Сума»: не число'}])
 
     def test_preview_writes_nothing_then_confirm_creates_snapshot(self):
         preview = self.upload('/api/connectors/preview/')
