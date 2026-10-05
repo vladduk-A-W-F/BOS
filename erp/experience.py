@@ -135,15 +135,15 @@ def next_step(order, policy=None):
                 # before skipping a zero reservation. Do not propose an impossible
                 # replacement reserve or imply a historical conversion took place.
                 if any(r.lot.currency!=job.currency and (r.quantity>0 or usable(r.lot)) for r in material_reservations):
-                    return result('Узгодити валюту резервів '+job.code,'У роботі є резерв матеріалу в іншій валюті. Перевірте історію резервів і погодьте забезпечення у валюті '+job.currency+'; автоматичного перерахунку немає.')
+                    return result('Узгодити валюту резервів: виробництво «'+job.item.name+'»','У роботі є резерв матеріалу в іншій валюті. Перевірте історію резервів і погодьте забезпечення у валюті '+job.currency+'; автоматичного перерахунку немає.')
                 if any(r.quantity>0 and r.lot.location_id!=job.location_id for r in material_reservations):
-                    return result('Звірити місце резервів '+job.code,'Зарезервований матеріал має бути у місці виконання роботи. Перевірте резерви та фактичний рух до продовження.')
+                    return result('Звірити місце резервів: виробництво «'+job.item.name+'»','Зарезервований матеріал має бути у місці виконання роботи. Перевірте резерви та фактичний рух до продовження.')
                 held=sum((r.quantity for r in material_reservations if r.lot.currency==job.currency and r.lot.location_id==job.location_id and usable(r.lot)),D(0))
                 if held>=need:continue
                 item=Item.objects.get(pk=b['item_id'])
                 local=list(visible(Lot.objects.filter(item=item,location=job.location,currency=job.currency,quantity__gt=0)))
                 for lot in local:
-                    if usable(lot) and free(lot)>0:return result('Зарезервувати '+item.code,'Матеріал уже у місці виконання. Резерв захистить його від іншого замовлення.','reserve',lot_id=lot.id,production_id=job.id,quantity=str(min(need-held,free(lot))))
+                    if usable(lot) and free(lot)>0:return result('Зарезервувати «'+item.name+'»','Матеріал уже у місці виконання. Резерв захистить його від іншого замовлення.','reserve',lot_id=lot.id,production_id=job.id,quantity=str(min(need-held,free(lot))))
                 for lot in local:
                     if lot.quality=='pending':
                         missing=next(iter(accepted_documents(lot.item,lot.documents)),None);docs=certs(lot.item)
@@ -151,17 +151,17 @@ def next_step(order, policy=None):
                         if missing:return result('Потрібен документ '+missing,'Відкрийте партію, додайте та перевірте актуальний документ.')
                         return result('Перевірити прийнятий матеріал','Поки немає дозволу за якістю, матеріал не можна використати.','quality',lot_id=lot.id,result='approved',inspector_id=job.owner_id,note='Перевірено кількість, стан і супровідні документи')
                 for lot in visible(Lot.objects.filter(item=item,currency=job.currency,quantity__gt=0).exclude(location=job.location)):
-                    if usable(lot) and free(lot)>0:return result('Передати '+item.code+' до місця виконання','Кількість переміститься між місцями; загальний запас і вартість збережуться.','transfer',lot_id=lot.id,quantity=str(min(need-held,free(lot))),location_id=job.location_id,code=code(Lot,'MOVE-'+lot.code),reason='Матеріали для '+job.code,production_id=job.id)
+                    if usable(lot) and free(lot)>0:return result('Передати «'+item.name+'» до місця виконання','Кількість переміститься між місцями; загальний запас і вартість збережуться.','transfer',lot_id=lot.id,quantity=str(min(need-held,free(lot))),location_id=job.location_id,code=code(Lot,'MOVE-'+lot.code),reason='Матеріали для '+job.code,production_id=job.id)
                 po=next((p for p in visible(Purchase.objects.filter(item=item,production=job,currency=job.currency).exclude(status='received')) if purchase_open(p)>0),None)
-                if po:return result('Прийняти поставку '+po.code,'Виконуйте після фактичного отримання. Партія спочатку очікуватиме перевірки.','receive',purchase_id=po.id,code=code(Lot,'RCV-'+po.code),location_id=po.destination_id or job.location_id,quantity=str(purchase_open(po)),documents=certs(item))
-                return result('Потрібно забезпечити '+item.code,'Немає доступного сумісного забезпечення у валюті '+job.currency+'. Створіть закупівлю або уточніть наявність матеріалу у картці виробництва; інша валюта потребує окремого погодження.')
-            if job.status=='planned':return result('Розпочати '+job.code,'Матеріали зарезервовано. Старт зафіксує початок роботи.','start',production_id=job.id)
+                if po:return result('Прийняти поставку «'+item.name+'» від '+po.supplier.name,'Виконуйте після фактичного отримання. Партія спочатку очікуватиме перевірки.','receive',purchase_id=po.id,code=code(Lot,'RCV-'+po.code),location_id=po.destination_id or job.location_id,quantity=str(purchase_open(po)),documents=certs(item))
+                return result('Потрібно забезпечити «'+item.name+'»','Немає доступного сумісного забезпечення у валюті '+job.currency+'. Створіть закупівлю або уточніть наявність матеріалу у картці виробництва; інша валюта потребує окремого погодження.')
+            if job.status=='planned':return result('Розпочати виробництво «'+job.item.name+'»','Матеріали зарезервовано. Старт зафіксує початок роботи.','start',production_id=job.id)
             done=completed_steps(job)
             for step in job.routing:
                 if step['name'] not in done:return result('Зафіксувати: '+step['name'],step.get('instruction','Перевірте виконання операції.'),'operator',production_id=job.id,operation=step['name'],operator_id=job.owner_id,result='done',minutes=30 if settings.BOS_DATA_MODE=='demo' else 0,defects='0',note='Операцію виконано за погодженими вимогами')
             warehouse=Location.objects.filter(pk=order.fulfillment_location_id).first() if order.fulfillment_location_id else Location.objects.filter(kind='warehouse').first()
             if not warehouse:return result('Додати місце приймання продукції','Потрібен склад, куди буде оприбутковано готову партію.','location',code=code(Location,'WH'),name='Склад готової продукції',kind='warehouse')
-            return result('Випустити продукцію '+job.code,'Матеріали спишуться за специфікацією. Уточніть фактичну вартість робіт.','finish',production_id=job.id,quantity=str(job.quantity-job.produced),code=code(Lot,'OUT-'+job.code),location_id=warehouse.id, labor_cost='1000' if settings.BOS_DATA_MODE=='demo' else '0',documents=certs(job.item))
+            return result('Випустити продукцію «'+job.item.name+'»','Матеріали спишуться за специфікацією. Уточніть фактичну вартість робіт.','finish',production_id=job.id,quantity=str(job.quantity-job.produced),code=code(Lot,'OUT-'+job.code),location_id=warehouse.id, labor_cost='1000' if settings.BOS_DATA_MODE=='demo' else '0',documents=certs(job.item))
         if linked_jobs.exclude(currency=order.currency).exists():
             return result('Узгодити валюту виробничого забезпечення','Пов’язана робота має іншу валюту, ніж замовлення '+order.currency+'. Перевірте облікове забезпечення; її матеріали й випуск не покривають це замовлення автоматично.')
         return result('Запланувати забезпечення решти замовлення','Відкрийте позицію продажу та створіть виробничу роботу або закупівлю.')
