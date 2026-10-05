@@ -19040,6 +19040,43 @@ function ERPNetwork({
 }
 // NETWORK_WORKSPACE_END
 
+// Record names use only relations already present in the authorized snapshot.
+function erpRecordName(data, kind, record) {
+  if (!record) return 'Запис недоступний';
+  const find = (type, id) => b03FindRecord(data, type, id),
+    item = find('items', record.item_id),
+    order = kind === 'orders' ? record : find('orders', record.order_id);
+  const customer = find('partners', order?.customer_id),
+    supplier = find('partners', record.supplier_id);
+  const names = {
+    orders: ['Замовлення', customer?.name],
+    invoices: ['Рахунок', customer?.name],
+    purchases: ['Постачання', item?.name, supplier?.name],
+    jobs: ['Виробництво', item?.name],
+    lots: ['Партія', item?.name],
+    changes: ['Зміна', item?.name]
+  };
+  return names[kind]?.filter(Boolean).join(' · ') || record.name || record.full_name || record.title || B03_KINDS[kind] || {
+    items: 'Номенклатура',
+    locations: 'Місце зберігання',
+    partners: 'Контрагент',
+    employees: 'Співробітник',
+    documents: 'Документ',
+    events: 'Подія'
+  }[kind] || 'Запис';
+}
+function ERPRecordLabel({
+  data,
+  kind,
+  record
+}) {
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("strong", null, erpRecordName(data, kind, record)), record?.code && /*#__PURE__*/React.createElement("small", {
+    className: "op-muted",
+    style: {
+      display: 'block'
+    }
+  }, record.code));
+}
 function ERPWorkspace({
   view = 'overview',
   refetchTasks,
@@ -19105,7 +19142,7 @@ function ERPWorkspace({
   const partner = id => data.partners.find(x => x.id === id)?.name || '—',
     job = id => data.jobs.find(x => x.id === id),
     lot = id => data.lots.find(x => x.id === id),
-    itemLabel = id => item(id)?.code + ' · ' + (item(id)?.name || ''),
+    itemLabel = id => item(id) ? item(id).name + ' · ' + item(id).code : 'Номенклатура недоступна',
     status = x => /*#__PURE__*/React.createElement("span", {
       className: 'erp-status ' + (['blocked', 'rework'].includes(x) ? 'erp-bad' : '')
     }, ERP_LABELS[x] || x);
@@ -19118,7 +19155,12 @@ function ERPWorkspace({
       if (!disabled) begin(a, p);
     }
   }, label)));
-  const filter = rows => rows.filter(x => !search || JSON.stringify(x).toLowerCase().includes(search.toLowerCase()) || itemLabel(x.item_id).toLowerCase().includes(search.toLowerCase()));
+  const recordLabel = (kind, record) => /*#__PURE__*/React.createElement(ERPRecordLabel, {
+    data: data,
+    kind: kind,
+    record: record
+  });
+  const filter = (rows, kind) => rows.filter(x => !search || JSON.stringify(x).toLowerCase().includes(search.toLowerCase()) || itemLabel(x.item_id).toLowerCase().includes(search.toLowerCase()) || erpRecordName(data, kind, x).toLowerCase().includes(search.toLowerCase()));
   let content;
   if (view === 'overview') content = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     className: "erp-metrics"
@@ -19142,7 +19184,7 @@ function ERPWorkspace({
       kind: 'orders',
       id: data.lines.find(l => l.id === p.line_id)?.order_id
     })
-  }, order(data.lines.find(l => l.id === p.line_id)?.order_id)?.code, " \xB7 ", p.item)), /*#__PURE__*/React.createElement(NextAction, {
+  }, recordLabel('orders', order(data.lines.find(l => l.id === p.line_id)?.order_id)), " \xB7 ", p.item)), /*#__PURE__*/React.createElement(NextAction, {
     orderId: data.lines.find(l => l.id === p.line_id)?.order_id,
     version: data.events[0]?.id,
     onAction: begin
@@ -19161,8 +19203,8 @@ function ERPWorkspace({
       kind: 'items',
       id: r.id
     }),
-    rows: filter(data.items),
-    columns: [["Код / назва", r => /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("strong", null, r.code), /*#__PURE__*/React.createElement("p", null, r.name))], ["Виконання", r => status(r.method)], ["Версія", 'revision'], ["Склад виробу й маршрут", r => /*#__PURE__*/React.createElement("details", null, /*#__PURE__*/React.createElement("summary", null, r.bom.length, " \u043A\u043E\u043C\u043F\u043E\u043D\u0435\u043D\u0442\u0456\u0432 \xB7 ", r.routing.length, " \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0439"), r.bom.map(b => /*#__PURE__*/React.createElement("p", {
+    rows: filter(data.items, 'items'),
+    columns: [["Номенклатура", r => recordLabel('items', r)], ["Виконання", r => status(r.method)], ["Версія", 'revision'], ["Склад виробу й маршрут", r => /*#__PURE__*/React.createElement("details", null, /*#__PURE__*/React.createElement("summary", null, r.bom.length, " \u043A\u043E\u043C\u043F\u043E\u043D\u0435\u043D\u0442\u0456\u0432 \xB7 ", r.routing.length, " \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0439"), r.bom.map(b => /*#__PURE__*/React.createElement("p", {
       key: b.item_id
     }, itemLabel(b.item_id), " \xD7 ", erpNum(b.quantity), " ", item(b.item_id)?.unit)), r.routing.map(s => /*#__PURE__*/React.createElement("p", {
       key: s.name
@@ -19177,7 +19219,7 @@ function ERPWorkspace({
       id: r.id
     }),
     rows: data.locations,
-    columns: [["Код", 'code'], ["Місце", 'name'], ["Тип", r => status(r.kind)], ["Підрядник", r => partner(r.supplier_id)]]
+    columns: [["Місце", r => recordLabel('locations', r)], ["Тип", r => status(r.kind)], ["Підрядник", r => partner(r.supplier_id)]]
   })));
   if (view === 'network') content = /*#__PURE__*/React.createElement(ERPNetwork, {
     data: data,
@@ -19187,7 +19229,7 @@ function ERPWorkspace({
     onNavigate: onNavigate,
     onDocument: setDoc
   });
-  if (view === 'sales') content = /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u041F\u0440\u043E\u0434\u0430\u0436\u0456 \u0442\u0430 \u0432\u0438\u043A\u043E\u043D\u0430\u043D\u043D\u044F \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u044C"), buttons([['Нова пропозиція', 'order']]), filter(data.orders).map(o => /*#__PURE__*/React.createElement("div", {
+  if (view === 'sales') content = /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u041F\u0440\u043E\u0434\u0430\u0436\u0456 \u0442\u0430 \u0432\u0438\u043A\u043E\u043D\u0430\u043D\u043D\u044F \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u044C"), buttons([['Нова пропозиція', 'order']]), filter(data.orders, 'orders').map(o => /*#__PURE__*/React.createElement("div", {
     className: "erp-plan",
     key: o.id
   }, /*#__PURE__*/React.createElement("div", {
@@ -19197,7 +19239,7 @@ function ERPWorkspace({
       kind: 'orders',
       id: o.id
     })
-  }, o.code, " \xB7 ", partner(o.customer_id))), /*#__PURE__*/React.createElement(NextAction, {
+  }, recordLabel('orders', o))), /*#__PURE__*/React.createElement(NextAction, {
     orderId: o.id,
     version: data.events[0]?.id,
     onAction: begin
@@ -19234,8 +19276,8 @@ function ERPWorkspace({
       kind: 'lots',
       id: r.id
     }),
-    rows: filter(data.lots),
-    columns: [["Партія", r => /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("strong", null, r.code), /*#__PURE__*/React.createElement("p", null, itemLabel(r.item_id)))], ["Місце", r => location(r.location_id)?.name], ["Фізично", r => erpNum(r.quantity) + ' ' + item(r.item_id)?.unit], ["Резерв", r => erpNum(r.reserved)], ["Доступно", r => /*#__PURE__*/React.createElement("strong", null, erpNum(r.available))], ["Якість", r => /*#__PURE__*/React.createElement(React.Fragment, null, status(r.quality), r.missing_documents.length > 0 && /*#__PURE__*/React.createElement("p", {
+    rows: filter(data.lots, 'lots'),
+    columns: [["Партія", r => recordLabel('lots', r)], ["Місце", r => location(r.location_id)?.name], ["Фізично", r => erpNum(r.quantity) + ' ' + item(r.item_id)?.unit], ["Резерв", r => erpNum(r.reserved)], ["Доступно", r => /*#__PURE__*/React.createElement("strong", null, erpNum(r.available))], ["Якість", r => /*#__PURE__*/React.createElement(React.Fragment, null, status(r.quality), r.missing_documents.length > 0 && /*#__PURE__*/React.createElement("p", {
       className: "erp-error"
     }, "\u0411\u0440\u0430\u043A\u0443\u0454: ", r.missing_documents.join(', ')))], ["Дії", r => buttons([['Перемістити', 'transfer', {
       lot_id: r.id
@@ -19247,7 +19289,7 @@ function ERPWorkspace({
     }]])]]
   })), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u0420\u0435\u0437\u0435\u0440\u0432\u0438"), /*#__PURE__*/React.createElement(ERPTable, {
     rows: data.reservations.filter(r => Number(r.quantity) > 0),
-    columns: [["Партія", r => lot(r.lot_id)?.code], ["Призначення", r => r.line_id ? order(data.lines.find(x => x.id === r.line_id)?.order_id)?.code : job(r.production_id)?.code], ["Кількість", r => erpNum(r.quantity)], ["Дія", r => buttons([['Звільнити', 'release', {
+    columns: [["Партія", r => recordLabel('lots', lot(r.lot_id))], ["Призначення", r => r.line_id ? recordLabel('orders', order(data.lines.find(x => x.id === r.line_id)?.order_id)) : recordLabel('jobs', job(r.production_id))], ["Кількість", r => erpNum(r.quantity)], ["Дія", r => buttons([['Звільнити', 'release', {
       reservation_id: r.id,
       quantity: r.quantity
     }]])]]
@@ -19259,16 +19301,16 @@ function ERPWorkspace({
       id: r.item_id
     }),
     rows: data.replenishment,
-    columns: [["Матеріал", 'code'], ["Мінімум", r => erpNum(r.minimum) + ' ' + r.unit], ["Вільно", r => erpNum(r.available)], ["Очікується", r => erpNum(r.incoming)], ["Поповнити", r => erpNum(r.suggested)]]
+    columns: [["Матеріал", r => recordLabel('items', item(r.item_id))], ["Мінімум", r => erpNum(r.minimum) + ' ' + r.unit], ["Вільно", r => erpNum(r.available)], ["Очікується", r => erpNum(r.incoming)], ["Поповнити", r => erpNum(r.suggested)]]
   })), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u0416\u0443\u0440\u043D\u0430\u043B \u0441\u043A\u043B\u0430\u0434\u0441\u044C\u043A\u0438\u0445 \u0440\u0443\u0445\u0456\u0432"), /*#__PURE__*/React.createElement(ERPTable, {
     onRow: r => setSelection({
       kind: 'lots',
       id: r.lot_id
     }),
     rows: data.movements,
-    columns: [["Дата", r => erpDate(r.created_at)], ["Партія", r => lot(r.lot_id)?.code], ["Рух", r => status(r.kind)], ["Кількість", r => erpNum(r.quantity)], ["Документ", 'reference'], ["Підстава", 'reason']]
+    columns: [["Дата", r => erpDate(r.created_at)], ["Партія", r => recordLabel('lots', lot(r.lot_id))], ["Рух", r => status(r.kind)], ["Кількість", r => erpNum(r.quantity)], ["Документ", 'reference'], ["Підстава", 'reason']]
   })));
-  if (view === 'production') content = /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u0412\u0438\u0440\u043E\u0431\u043D\u0438\u0446\u0442\u0432\u043E \u0442\u0430 \u043F\u0456\u0434\u0440\u044F\u0434\u043D\u0438\u043A\u0438"), buttons([['Нова робота', 'job']]), filter(data.jobs).map(j => /*#__PURE__*/React.createElement("div", {
+  if (view === 'production') content = /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u0412\u0438\u0440\u043E\u0431\u043D\u0438\u0446\u0442\u0432\u043E \u0442\u0430 \u043F\u0456\u0434\u0440\u044F\u0434\u043D\u0438\u043A\u0438"), buttons([['Нова робота', 'job']]), filter(data.jobs, 'jobs').map(j => /*#__PURE__*/React.createElement("div", {
     className: "erp-plan",
     key: j.id
   }, /*#__PURE__*/React.createElement("div", {
@@ -19278,7 +19320,7 @@ function ERPWorkspace({
       kind: 'jobs',
       id: j.id
     })
-  }, j.code, " \xB7 ", itemLabel(j.item_id))), /*#__PURE__*/React.createElement("p", null, location(j.location_id)?.name, " \xB7 ", person(j.owner_id), " \xB7 \u0434\u043E ", erpDate(j.due_date)), /*#__PURE__*/React.createElement("p", null, "\u041F\u043B\u0430\u043D ", erpNum(j.quantity), ", \u0432\u0438\u043F\u0443\u0449\u0435\u043D\u043E ", erpNum(j.produced), " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", j.revision, " \xB7 ", status(j.status)), j.needs_review && /*#__PURE__*/React.createElement("p", {
+  }, recordLabel('jobs', j))), /*#__PURE__*/React.createElement("p", null, location(j.location_id)?.name, " \xB7 ", person(j.owner_id), " \xB7 \u0434\u043E ", erpDate(j.due_date)), /*#__PURE__*/React.createElement("p", null, "\u041F\u043B\u0430\u043D ", erpNum(j.quantity), ", \u0432\u0438\u043F\u0443\u0449\u0435\u043D\u043E ", erpNum(j.produced), " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", j.revision, " \xB7 ", status(j.status)), j.needs_review && /*#__PURE__*/React.createElement("p", {
     className: "erp-error"
   }, "\u0417\u0443\u043F\u0438\u043D\u0435\u043D\u043E \u0434\u043E \u0440\u0456\u0448\u0435\u043D\u043D\u044F \u0449\u043E\u0434\u043E \u0437\u043C\u0456\u043D\u0438 \u0432\u0435\u0440\u0441\u0456\u0457"))), buttons([['Передати матеріали', 'transfer', {
     production_id: j.id,
@@ -19314,12 +19356,12 @@ function ERPWorkspace({
       kind: 'purchases',
       id: r.id
     }),
-    rows: filter(data.purchases),
-    columns: [["Номер / постачальник", r => /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("strong", null, r.code), /*#__PURE__*/React.createElement("p", null, partner(r.supplier_id)))], ["Номенклатура", r => itemLabel(r.item_id)], ["Замовлено / отримано", r => /*#__PURE__*/React.createElement(React.Fragment, null, erpNum(r.quantity) + ' / ' + erpNum(r.received), r.approval_snapshot?.source === 'imported_open_balance' && /*#__PURE__*/React.createElement("p", {
+    rows: filter(data.purchases, 'purchases'),
+    columns: [["Постачання", r => recordLabel('purchases', r)], ["Номенклатура", r => itemLabel(r.item_id)], ["Замовлено / отримано", r => /*#__PURE__*/React.createElement(React.Fragment, null, erpNum(r.quantity) + ' / ' + erpNum(r.received), r.approval_snapshot?.source === 'imported_open_balance' && /*#__PURE__*/React.createElement("p", {
       className: "op-muted"
     }, "\u041F\u0435\u0440\u0435\u043D\u0435\u0441\u0435\u043D\u043E / \u043F\u0440\u0438\u0439\u043D\u044F\u0442\u043E \u043F\u0456\u0441\u043B\u044F \u0437\u0440\u0456\u0437\u0443"))], ...(erpAllZero(data.purchases, 'cancelled_quantity') ? [] : [["Скасовано", r => r.cancelled_quantity == null ? '—' : erpNum(r.cancelled_quantity)]]), ...(erpAllZero(data.purchases, 'returned_quantity') ? [] : [["Повернуто фізично", r => r.returned_quantity == null ? '—' : erpNum(r.returned_quantity)]]), ["До приймання", r => erpNum(b03OpenPurchase(r))], ["Поставка", r => /*#__PURE__*/React.createElement(React.Fragment, null, erpDate(r.due_date), r.due_date !== r.original_due && /*#__PURE__*/React.createElement("p", {
       className: "erp-error"
-    }, "\u041F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u043E ", erpDate(r.original_due)))], ...(bosRole() !== 'observer' ? [["Вартість", r => erpMoney(erpLineTotal(r.quantity, r.price, r.extras), r.currency)]] : []), ["Робота", r => job(r.production_id)?.code || '—'], ["Дії", r => buttons([['Приймання', 'receive', {
+    }, "\u041F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u043E ", erpDate(r.original_due)))], ...(bosRole() !== 'observer' ? [["Вартість", r => erpMoney(erpLineTotal(r.quantity, r.price, r.extras), r.currency)]] : []), ["Робота", r => r.production_id ? recordLabel('jobs', job(r.production_id)) : '—'], ["Дії", r => buttons([['Приймання', 'receive', {
       purchase_id: r.id,
       quantity: b03OpenPurchase(r)
     }], ['Змінити строк', 'postpone', {
@@ -19343,8 +19385,8 @@ function ERPWorkspace({
       kind: 'lots',
       id: r.id
     }),
-    rows: filter(data.lots).filter(x => x.quality !== 'approved' || x.missing_documents.length),
-    columns: [["Партія", 'code'], ["Номенклатура", r => itemLabel(r.item_id)], ["Стан", r => status(r.quality)], ["Бракує документів", r => r.missing_documents.join(', ') || 'Перевірте результати контролю'], ["Дії", r => buttons([['Рішення', 'quality', {
+    rows: filter(data.lots, 'lots').filter(x => x.quality !== 'approved' || x.missing_documents.length),
+    columns: [["Партія", r => recordLabel('lots', r)], ["Номенклатура", r => itemLabel(r.item_id)], ["Стан", r => status(r.quality)], ["Бракує документів", r => r.missing_documents.join(', ') || 'Перевірте результати контролю'], ["Дії", r => buttons([['Рішення', 'quality', {
       lot_id: r.id
     }]])]]
   })), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u0417\u043C\u0456\u043D\u0438 \u043A\u0440\u0435\u0441\u043B\u0435\u043D\u044C \u0456 \u0441\u043F\u0435\u0446\u0438\u0444\u0456\u043A\u0430\u0446\u0456\u0439"), buttons([['Нова зміна', 'change']]), /*#__PURE__*/React.createElement(ERPTable, {
@@ -19352,8 +19394,8 @@ function ERPWorkspace({
       kind: 'changes',
       id: r.id
     }),
-    rows: filter(data.changes),
-    columns: [["Зміна", 'code'], ["Виріб", r => itemLabel(r.item_id)], ["Версія", 'target_revision'], ["Причина", 'reason'], ["Стан", r => status(r.status)], ["Дії", r => /*#__PURE__*/React.createElement("div", {
+    rows: filter(data.changes, 'changes'),
+    columns: [["Зміна", r => recordLabel('changes', r)], ["Виріб", r => itemLabel(r.item_id)], ["Версія", 'target_revision'], ["Причина", 'reason'], ["Стан", r => status(r.status)], ["Дії", r => /*#__PURE__*/React.createElement("div", {
       className: "erp-actions"
     }, /*#__PURE__*/React.createElement(Button, {
       onClick: async () => {
@@ -19374,15 +19416,15 @@ function ERPWorkspace({
     className: "erp-confirm"
   }, /*#__PURE__*/React.createElement("strong", null, impact.change, " \xB7 \u0432\u043F\u043B\u0438\u0432 \u0437\u043C\u0456\u043D\u0438"), /*#__PURE__*/React.createElement("p", null, "\u0420\u043E\u0431\u043E\u0442\u0438: ", impact.jobs.map(x => x.code + ' (' + x.revision + ')').join(', ') || 'немає'), /*#__PURE__*/React.createElement("p", null, "\u0417\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F: ", impact.orders.map(x => x.code).join(', ') || 'немає'))), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u0406\u0441\u0442\u043E\u0440\u0456\u044F \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043E\u043A"), /*#__PURE__*/React.createElement(ERPTable, {
     rows: data.inspections,
-    columns: [["Партія", r => lot(r.lot_id)?.code], ["Результат", r => status(r.result)], ["Перевірив", r => person(r.inspector_id)], ["Підстава", 'note']]
+    columns: [["Партія", r => recordLabel('lots', lot(r.lot_id))], ["Результат", r => status(r.result)], ["Перевірив", r => person(r.inspector_id)], ["Підстава", 'note']]
   })));
   if (view === 'costs' && bosCan('finance')) content = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u0420\u0430\u0445\u0443\u043D\u043A\u0438 \u0439 \u043E\u043F\u043B\u0430\u0442\u0438"), buttons([['Рахунок', 'invoice'], ['Зареєструвати оплату', 'payment']]), /*#__PURE__*/React.createElement(ERPTable, {
     onRow: r => setSelection({
       kind: 'invoices',
       id: r.invoice_id
     }),
-    rows: filter(data.invoices),
-    columns: [["Рахунок", 'code'], ["Замовлення", r => order(r.order_id)?.code], ["Сума", r => erpMoney(r.amount, r.currency)], ["Сплачено", r => erpMoney(r.paid, r.currency)], ...(!erpAllZero(data.invoices, "effective_credit") ? [["Чинний кредит", r => erpMoney(r.effective_credit, r.currency)]] : []), ["До оплати", r => erpMoney(r.open, r.currency)], ...(!erpAllZero(data.invoices, "customer_credit") ? [["Кредит клієнта", r => erpMoney(r.customer_credit, r.currency)]] : []), ["Термін", r => erpDate(r.due_date)], ["Дія", r => buttons([['Оплата', 'payment', {
+    rows: filter(data.invoices, 'invoices'),
+    columns: [["Рахунок", r => recordLabel('invoices', r)], ["Замовлення", r => recordLabel('orders', order(r.order_id))], ["Сума", r => erpMoney(r.amount, r.currency)], ["Сплачено", r => erpMoney(r.paid, r.currency)], ...(!erpAllZero(data.invoices, "effective_credit") ? [["Чинний кредит", r => erpMoney(r.effective_credit, r.currency)]] : []), ["До оплати", r => erpMoney(r.open, r.currency)], ...(!erpAllZero(data.invoices, "customer_credit") ? [["Кредит клієнта", r => erpMoney(r.customer_credit, r.currency)]] : []), ["Термін", r => erpDate(r.due_date)], ["Дія", r => buttons([['Оплата', 'payment', {
       invoice_id: r.invoice_id,
       amount: r.collectible
     }, !flowPositive(r.collectible)]])]]
@@ -20544,7 +20586,7 @@ function BoSInspector({
   const find = (type, id) => b03FindRecord(data, type, id),
     label = (type, id) => {
       const r = find(type, id);
-      return r?.code || r?.full_name || r?.name || '—';
+      return r ? erpRecordName(data, type, r) + (r.code ? ' · ' + r.code : '') : 'Запис недоступний';
     };
   const link = (type, id, text) => /*#__PURE__*/React.createElement(BoSLink, {
     onClick: () => onSelect({
@@ -20567,7 +20609,11 @@ function BoSInspector({
     }, "\u041F\u0435\u0440\u0435\u043D\u0435\u0441\u0435\u043D\u043E / \u043F\u0440\u0438\u0439\u043D\u044F\u0442\u043E \u043F\u0456\u0441\u043B\u044F \u0437\u0440\u0456\u0437\u0443"))], ["Строк", r => erpDate(r.due_date)]] : type === 'jobs' ? [["Робота", 'code'], ["План / випуск", r => r.quantity + ' / ' + r.produced], ["Стан", r => ERP_LABELS[r.status]], ["Строк", r => erpDate(r.due_date)]] : type === 'tasks' ? [["Доручення", 'title'], ["Відповідальний", r => c01Assignee(r)], ["Термін", r => erpDate(r.deadline)], ["Стан", r => (C01_STATUS[r.status] || r.status) + (r.is_overdue ? ' · прострочено' : '')]] : [["Партія", 'code'], ["Матеріал / виріб", r => label('items', r.item_id)], ["Фізично", r => erpNum(r.quantity)], ["У резерві", r => erpNum(r.reserved)], ["Придатно й вільно", 'available'], ["Якість", r => ERP_LABELS[r.quality]]];
     return /*#__PURE__*/React.createElement(ERPTable, {
       rows: rows,
-      columns: cols,
+      columns: cols.map(([heading, cell]) => [heading, cell === 'code' ? row => /*#__PURE__*/React.createElement(ERPRecordLabel, {
+        data: data,
+        kind: type,
+        record: row
+      }) : cell]),
       onRow: r => type === 'tasks' ? onNavigate('hr', 'tasks') : onSelect({
         kind: type,
         id: r.id ?? r.invoice_id
@@ -20620,18 +20666,7 @@ function BoSInspector({
     title = 'Запис недоступний';
     body = /*#__PURE__*/React.createElement("p", null, "\u041E\u043D\u043E\u0432\u0456\u0442\u044C \u0434\u0430\u043D\u0456 \u0442\u0430 \u0432\u0456\u0434\u043A\u0440\u0438\u0439\u0442\u0435 \u0437\u0430\u043F\u0438\u0441 \u043F\u043E\u0432\u0442\u043E\u0440\u043D\u043E.");
   } else {
-    title = (B03_KINDS[kind] || {
-      orders: 'Замовлення',
-      items: 'Паспорт',
-      lots: 'Партія',
-      jobs: 'Виробництво',
-      purchases: 'Закупівля',
-      invoices: 'Рахунок',
-      changes: 'Зміна',
-      events: 'Подія',
-      locations: 'Місце зберігання',
-      partners: 'Контрагент'
-    }[kind]) + ' · ' + (r.code || r.name || id);
+    title = erpRecordName(data, kind, r);
     if (Object.prototype.hasOwnProperty.call(B03_KINDS, kind) || kind === 'movements') {
       body = /*#__PURE__*/React.createElement(B03RecordBody, {
         kind: kind,
@@ -20879,7 +20914,9 @@ function BoSInspector({
     onClose: onClose
   }, /*#__PURE__*/React.createElement("div", {
     className: "erp-row"
-  }, /*#__PURE__*/React.createElement("h2", null, title), selection.supplyReturn && /*#__PURE__*/React.createElement(Button, {
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", null, title), r && /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, r.code || '№' + id)), selection.supplyReturn && /*#__PURE__*/React.createElement(Button, {
     onClick: () => onSelect({
       kind: 'orders',
       id: selection.supplyReturn.order_id,

@@ -24,6 +24,8 @@ const context = {
 vm.createContext(context);
 vm.runInContext(
   part('const erpDate =', 'async function erpFetch(') + '\n' +
+  part('function b03FindRecord(', 'function b03OpenPurchase(') + '\n' +
+  part('function erpRecordName(', 'function ERPWorkspace(') + '\n' +
   part('function ERPWorkspace(', 'const BOS_METRICS =') + '\n' +
   part('function BoSReadOnlyRecords(', 'function WorkspaceTabs('), context);
 const allZero = vm.runInContext('erpAllZero', context);

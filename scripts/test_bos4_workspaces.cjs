@@ -334,3 +334,77 @@ console.log('M7 compact finance journal: PASS');
   assert.equal(stale.state[0],null,'unmounted reply cannot install cases');
   console.log('M5 Showcase loading, empty, failed and malformed GET, retry and cleanup: PASS');
 })().catch(error=>{console.error(error);process.exitCode=1;});
+
+// M7: compiled records show human context first while retaining exact IDs, codes and read-only guards.
+{
+  const app=fs.readFileSync(path.join(__dirname,'../assets/app.js'),'utf8');
+  const labelCode=app.slice(app.indexOf('function erpRecordName('),app.indexOf('function ERPWorkspace('));
+  const workspaceCode=app.slice(app.indexOf('function ERPWorkspace('),app.indexOf('const BOS_METRICS ='));
+  const inspectorCode=app.slice(app.indexOf('function BoSInspector('),app.indexOf('// Workpoint facts'));
+  assert.ok(labelCode&&workspaceCode&&inspectorCode);
+  const data={
+    items:[{id:1,code:'TECH-1',name:'Шафа для інструментів',unit:'шт',method:'make',revision:'A',bom:[],routing:[],external_codes:{},required_documents:[]}],
+    partners:[{id:10,name:'Майстерня Київ'},{id:11,name:'Метал Дніпро'}],
+    orders:[{id:20,code:'ZM-PRIVATE',customer_id:10,status:'confirmed',owner_id:40,due_date:'2026-10-10',currency:'UAH'}],
+    lines:[{id:21,order_id:20,item_id:1,quantity:'100',shipped:'0',price:'25',revision:'A'}],
+    jobs:[{id:30,code:'VR-PRIVATE',item_id:1,owner_id:40,location_id:50,status:'planned',bom:[],routing:[],quantity:'100',produced:'0'}],
+    purchases:[{id:31,code:'ZK-PRIVATE',supplier_id:11,item_id:1,production_id:30,quantity:'200',received:'0',price:'20',extras:'0',currency:'UAH',due_date:'2026-10-10',original_due:'2026-10-10'}],
+    lots:[{id:32,code:'LOT-PRIVATE',item_id:1,location_id:50,quantity:'100',reserved:'0',available:'100',quality:'blocked',missing_documents:[],documents:{}}],
+    invoices:[{invoice_id:33,order_id:20,code:'RAH-PRIVATE',amount:'50',paid:'0',open:'50',collectible:'50',currency:'UAH',due_date:'2026-10-11',lines:[]}],
+    changes:[{id:34,code:'CHANGE-PRIVATE',item_id:1,target_revision:'B',reason:'Оновлене креслення',status:'draft'}],
+    locations:[{id:50,code:'WH-PRIVATE',name:'Центральний склад',kind:'warehouse'}],
+    employees:[{id:40,full_name:'Ірина Майстер'}],
+    events:[],reservations:[],replenishment:[],movements:[],supplier_scores:[],operator_entries:[],inspections:[],costs:[],invoice_adjustments:[],branches:[],source_movements:[],home:{tasks:[]},
+  };
+  let state=[],cursor=0,selected=null,requests=0;
+  const React={Fragment:'Fragment',createElement:(type,props,...children)=>({type,props:props||{},children:children.flat(Infinity)})};
+  const nodes=n=>n&&typeof n==='object'?[n,...(n.children||[]).flatMap(nodes)]:[];
+  const expand=n=>n&&typeof n==='object'?(typeof n.type==='function'?expand(n.type(n.props)):{...n,children:(n.children||[]).map(expand)}):n;
+  const text=n=>typeof n==='string'||typeof n==='number'?String(n):(n?.children||[]).map(text).join(' ');
+  const context={React,B03_KINDS:{},ERP_LABELS:{},ERP_ACTIONS:{},B03_ACTIONS:{},T:{primary:'#000'},
+    b03FindRecord:(d,k,id)=>(d[k]||[]).find(r=>(r.id??r.invoice_id)===id),
+    useState:initial=>{const i=cursor++;if(!(i in state))state[i]=i===0?data:initial;return[state[i],v=>{state[i]=v;}];},useRef:()=>({current:0}),useEffect:()=>{},
+    bosRole:()=> 'ceo',bosCan:()=>true,bosCanView:()=>true,bosCanAction:()=>false,c03Scope:()=> 'scope',
+    erpNum:String,erpMoney:(v,c)=>v+' '+c,erpDate:String,erpAllZero:()=>true,erpLineTotal:()=> '0',flowPositive:()=>true,b03OpenLine:r=>r.quantity,b03OpenPurchase:r=>r.quantity,
+    erpFetch:()=>{requests++;throw Error('No request expected');},
+    Card:'Card',Button:'Button',Input:'Input',ERPTable:'ERPTable',BoSLink:'BoSLink',NextAction:'NextAction',B03Ledger:'B03Ledger',B03PendingLauncher:'B03PendingLauncher',
+    OrderTrace:'OrderTrace',OrderSupplyOptions:'OrderSupplyOptions',OrderSettlement:'OrderSettlement',DocViewer:'DocViewer',
+  };
+  vm.createContext(context);vm.runInContext(labelCode+workspaceCode+inspectorCode,context);
+  const expected={orders:'Замовлення · Майстерня Київ',purchases:'Постачання · Шафа для інструментів · Метал Дніпро',jobs:'Виробництво · Шафа для інструментів',lots:'Партія · Шафа для інструментів',invoices:'Рахунок · Майстерня Київ',items:'Шафа для інструментів',locations:'Центральний склад',changes:'Зміна · Шафа для інструментів'};
+  for(const [kind,name]of Object.entries(expected)){
+    const row=data[kind][0],tree=expand(context.ERPRecordLabel({data,kind,record:row}));
+    assert.equal(text(nodes(tree).find(n=>n.type==='strong')),name,kind+' human primary label');
+    assert.equal(text(nodes(tree).find(n=>n.type==='small')),row.code,kind+' secondary technical code');
+  }
+  assert.equal(context.erpRecordName({...data,partners:[]},'orders',data.orders[0]),'Замовлення','missing visible relation is not inferred');
+  assert.equal(context.erpRecordName(data,'orders',null),'Запис недоступний');
+  const render=view=>{cursor=0;return context.ERPWorkspace({view});};
+  const firstTable=tree=>nodes(tree).find(n=>n.type==='ERPTable');
+  for(const[view,kind]of[['catalog','items'],['stock','lots'],['purchase','purchases'],['quality','lots'],['costs','invoices']]){
+    state=[];const table=firstTable(render(view)),row=table.props.rows[0];
+    assert.equal(text(nodes(expand(table.props.columns[0][1](row))).find(n=>n.type==='strong')),expected[kind]);
+    table.props.onRow(row);assert.deepEqual(JSON.parse(JSON.stringify(state[7])),{kind,id:row.id??row.invoice_id},'click preserves exact '+kind+' ID');
+  }
+  for(const[view,kind]of[['sales','orders'],['production','jobs']]){
+    state=[];let tree=render(view),link=nodes(tree).find(n=>n.type==='BoSLink');
+    assert.equal(text(nodes(expand(link)).find(n=>n.type==='strong')),expected[kind]);
+    link.props.onClick();assert.deepEqual(JSON.parse(JSON.stringify(state[7])),{kind,id:data[kind][0].id});
+    nodes(tree).find(n=>n.type==='Input').props.onChange({target:{value:view==='sales'?'Майстерня Київ':'Шафа для інструментів'}});
+    assert.ok(nodes(render(view)).some(n=>n.type==='BoSLink'),'human relation is searchable');
+    nodes(tree).find(n=>n.type==='Input').props.onChange({target:{value:data[kind][0].code}});
+    assert.ok(nodes(render(view)).some(n=>n.type==='BoSLink'),'technical code remains searchable');
+    nodes(tree).find(n=>n.type==='Input').props.onChange({target:{value:'відсутній запис'}});
+    assert.equal(nodes(render(view)).some(n=>n.type==='BoSLink'),false);
+  }
+  // Read-only inspection keeps the same ID for related links and never enables mutations.
+  context.useState=initial=>[initial,()=>{}];context.bosRole=()=> 'observer';context.bosCan=()=>false;context.bosCanAction=()=>true;
+  const inspected=context.BoSInspector({selection:{kind:'orders',id:20},data,readOnly:true,onSelect:v=>{selected=v;},onClose:()=>{},onAction:()=>{throw Error('No action');}});
+  assert.equal(text(nodes(inspected).find(n=>n.type==='h2')),expected.orders);
+  assert.ok(text(inspected).includes('ZM-PRIVATE'),'inspector preserves technical reference');
+  const partnerLink=nodes(inspected).find(n=>n.type==='BoSLink'&&text(n).includes('Майстерня Київ'));
+  partnerLink.props.onClick();assert.deepEqual(JSON.parse(JSON.stringify(selected)),{kind:'partners',id:10});
+  assert.equal(nodes(inspected).some(n=>n.props.className==='erp-actions'),false,'read-only details cannot mutate');
+  assert.equal(requests,0,'display/search/selection do not access network or submit commands');
+}
+console.log('M7 human record labels, code search, stable IDs and readonly inspection: PASS');
