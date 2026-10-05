@@ -5908,6 +5908,7 @@ function Connections(){
  const show=id=>run(async()=>setOpen(await call(id+'/rows/')));
  if(!data)return <div className="mon"><p>{error||'Завантаження…'}</p>{error&&<Button onClick={()=>load()}>Повторити</Button>}</div>;
  const when=v=>v?new Date(v).toLocaleString('uk-UA',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
+ const readValue=(row,field)=>{const value=row[field];if(value==null||value==='')return '—';if(field==='amount')return erpMoney(value,row.currency);if(field==='due_date'||field==='paid_at')return erpDate(value);if(field==='started_at')return erpDate(value)+String(value).slice(10).replace(/^T/,' ');return value;};
  return <div className="mon">
   {error&&<p role="alert" className="erp-error">{error}</p>}
   <section className="mon-card"><header><h2>Підключені джерела</h2><span>{data.connectors.length}</span></header>
@@ -5925,12 +5926,12 @@ function Connections(){
    {busy&&<p role="status">Завантаження…</p>}
    {preview&&<div className="erp-table"><p className="op-muted">Рядків: {preview.row_count}</p><table><thead><tr>{preview.columns.map((c,i)=><th key={i}>{c}</th>)}</tr></thead><tbody>{preview.rows.map((r,i)=><tr key={i}>{r.map((v,j)=><td key={j}>{v}</td>)}</tr>)}</tbody></table></div>}
    {preview?.fields?.length>0&&<section aria-label="Попередній перегляд відповідності колонок">
-    <h3>Відповідність колонок</h3><p className="op-muted">Мапінг використовується лише для попереднього перегляду й не зберігається. «Підключити» зберігає вихідну таблицю без цього мапінгу.</p>
+    <h3>Відповідність колонок</h3><p className="op-muted">Вибір поки не зберігається. «Підключити» зберігає вихідну таблицю без вибраної відповідності колонок.</p>
     <div className="erp-form">{preview.fields.map(field=><label key={field.field}>{field.label}{field.required?' · обов’язкове':''}<Select aria-label={field.label} required={field.required} value={mapping[field.field]||''} onChange={e=>chooseMapping(field.field,e.target.value)}><option value="">{field.required?'Оберіть колонку':'Пропустити'}</option>{preview.columns.map(column=><option key={column} value={column}>{column}</option>)}</Select></label>)}</div>
-    <Button disabled={busy} onClick={()=>doPreview(true)}>Переглянути з мапінгом</Button>
+    <Button disabled={busy} onClick={()=>doPreview(true)}>Перевірити відповідність</Button>
     {!mapped&&!busy&&<p role="status" className="op-muted">Відповідність змінено. Перегляньте результат ще раз.</p>}
     {mapped?.error&&<p role="alert" className="erp-error">{mapped.error}</p>}
-    {mapped&&!mapped.error&&<div className="erp-table"><p role="status">Усього: {mapped.total} · Прийнято: {mapped.accepted} · Відхилено: {mapped.total-mapped.accepted}</p><p className="op-muted">Перші 5 нормалізованих рядків</p>{mapped.rows?.length?<table><thead><tr>{preview.fields.filter(f=>f.field in (mapped.mapping||{})).map(f=><th key={f.field}>{f.label}</th>)}</tr></thead><tbody>{mapped.rows.slice(0,5).map((row,i)=><tr key={i}>{preview.fields.filter(f=>f.field in (mapped.mapping||{})).map(f=><td key={f.field}>{row[f.field]??'—'}</td>)}</tr>)}</tbody></table>:<p className="op-muted">Немає прийнятих рядків</p>}{mapped.rejected?.length>0&&<ul>{mapped.rejected.map(row=><li key={row.row}>Рядок {row.row}: {row.reason}</li>)}</ul>}</div>}
+    {mapped&&!mapped.error&&<div className="erp-table"><p role="status">Усього: {mapped.total} · Прийнято: {mapped.accepted} · Відхилено: {mapped.total-mapped.accepted}</p><p className="op-muted">Як BoS прочитає перші 5 рядків</p>{mapped.rows?.length?<table><thead><tr>{preview.fields.filter(f=>f.field in (mapped.mapping||{})).map(f=><th key={f.field}>{f.label}</th>)}</tr></thead><tbody>{mapped.rows.slice(0,5).map((row,i)=><tr key={i}>{preview.fields.filter(f=>f.field in (mapped.mapping||{})).map(f=><td key={f.field}>{readValue(row,f.field)}</td>)}</tr>)}</tbody></table>:<p className="op-muted">Немає прийнятих рядків</p>}{mapped.rejected?.length>0&&<ul>{mapped.rejected.slice(0,5).map(row=><li key={row.row} style={{margin:'8px 0'}}>Рядок {row.row}: {row.reason}</li>)}</ul>}{mapped.total-mapped.accepted>Math.min(5,mapped.rejected?.length||0)&&<p className="op-muted">ще {mapped.total-mapped.accepted-Math.min(5,mapped.rejected?.length||0)} відхилених рядків</p>}</div>}
    </section>}
   </section>}
   <section className="mon-card"><header><h2>Сервіси</h2></header>

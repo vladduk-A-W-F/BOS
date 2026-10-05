@@ -4,6 +4,8 @@ const vm = require('node:vm');
 const app = fs.readFileSync(require('node:path').join(__dirname, '..', 'assets/app.js'), 'utf8');
 const component = app.match(/function Connections\(\)\s*\{[\s\S]*?\n}\s*(?=\/\/ BoS 4 first screen)/)?.[0];
 assert.ok(component, 'compiled Connections component');
+const formatters = app.match(/const erpDate = [\s\S]*?(?=const erpDateTime =)/)?.[0];
+assert.ok(formatters, 'compiled date and exact money formatters');
 
 const React = {createElement:(type,props,...children)=>({type,props:props||{},children})};
 const nodes = value => Array.isArray(value)?value.flatMap(nodes):value&&typeof value==='object'?[value,...(value.children||[]).flatMap(nodes)]:[];
@@ -22,11 +24,40 @@ function harness(write,extra={}){
     fetch:(url,options)=>new Promise((resolve,reject)=>requests.push({url,options,resolve,reject})),
     ...extra,
   };
-  vm.createContext(context);vm.runInContext(component,context);
+  vm.createContext(context);vm.runInContext(formatters,context);vm.runInContext(component,context);
   return {requests,state,render(){hook=0;return context.Connections();},mount(){this.render();cleanup=effect();},unmount(){cleanup();},setScope(value){scope=value;}};
 }
 
 (async()=>{
+  {
+    const ui=harness(true);ui.mount();ui.requests[0].resolve(response({synced:[],failed:[]}));await tick();ui.requests[1].resolve(response(list));await tick();
+    const button=label=>nodes(ui.render()).find(n=>n.props.onClick&&n.children.includes(label));
+    const section=()=>nodes(ui.render()).find(n=>n.props['aria-label']==='Попередній перегляд відповідності колонок');
+    nodes(ui.render()).find(n=>n.props.inputRef).props.inputRef.current={files:[{name:'synthetic-ux.csv'}]};
+    button('Переглянути').props.onClick();await tick();
+    const fields=[{field:'amount',label:'Сума'},{field:'currency',label:'Валюта'},{field:'due_date',label:'Строк'}];
+    const rows=[{amount:'999999999999.99',currency:'USD',due_date:'2026-10-05'},
+      {amount:'0.00',currency:'UAH',due_date:null},{amount:'-1234.50',currency:'EUR',due_date:''},
+      {amount:null,currency:'UAH',due_date:'2026-10-06'},{amount:'',currency:'USD',due_date:'2026-10-07'}];
+    const mapping={amount:'Сума',currency:'Валюта',due_date:'Строк'};
+    ui.requests[2].resolve(response({columns:['Сума','Валюта','Строк'],rows:[],row_count:105,fields,suggested_mapping:mapping,
+      mapped:{mapping,rows,accepted:5,total:105,rejected:Array.from({length:50},(_,i)=>({row:i+7,reason:'помилка '+i}))}}));await tick();
+    assert.ok(button('Перевірити відповідність'),'plain Ukrainian action');
+    assert.ok(nodes(section()).some(n=>n.children.includes('Як BoS прочитає перші 5 рядків')));
+    assert.ok(nodes(section()).some(n=>n.children.some(c=>typeof c==='string'&&c.startsWith('Вибір поки не зберігається.'))));
+    const cells=nodes(section()).filter(n=>n.type==='td').map(n=>n.children[0]);
+    assert.deepEqual(cells,['999\u00a0999\u00a0999\u00a0999,99\u00a0USD','USD','05.10.2026',
+      '0\u00a0грн','UAH','—','-1\u00a0234,50\u00a0EUR','EUR','—','—','UAH','06.10.2026','—','USD','07.10.2026']);
+    const rejected=nodes(section()).filter(n=>n.type==='li');
+    assert.equal(rejected.length,5,'only first five reasons');
+    assert.ok(rejected.every(n=>n.props.style.margin==='8px 0'),'reasons have spacing');
+    assert.ok(nodes(section()).some(n=>n.type==='p'&&n.children.includes('ще ')&&n.children.includes(95)),'remaining count uses total minus accepted, not capped reason list');
+    nodes(ui.render()).find(n=>n.props.value==='orders'&&n.props.onChange).props.onChange({target:{value:'calls'}});
+    button('Переглянути').props.onClick();await tick();
+    ui.requests[3].resolve(response({columns:['Час'],rows:[],row_count:2,fields:[{field:'started_at',label:'Час дзвінка',required:true}],
+      suggested_mapping:{started_at:'Час'},mapped:{mapping:{started_at:'Час'},rows:[{started_at:'2026-10-05T12:34:56'},{started_at:null}],accepted:2,total:2,rejected:[]}}));await tick();
+    assert.deepEqual(nodes(section()).filter(n=>n.type==='td').map(n=>n.children[0]),['05.10.2026 12:34:56','—'],'datetime retains seconds; empty stays empty');
+  }
   // Mapping is preview-only: exercise actual compiled event handlers and out-of-order replies.
   {
     const ui=harness(true);ui.mount();
@@ -55,17 +86,17 @@ function harness(write,extra={}){
     assert.ok(nodes(mappingSection()).some(n=>n.type==='p'&&n.children.includes(8)&&n.children.includes(7)&&n.children.includes(1)),'total/accepted/rejected counts');
     mappingField('Вартість звернення').props.onChange({target:{value:''}});
     assert.equal(nodes(mappingSection()).filter(n=>n.type==='tr').length,0,'selection invalidates old mapped result');
-    button('Переглянути з мапінгом').props.onClick();await tick();
+    button('Перевірити відповідність').props.onClick();await tick();
     assert.deepEqual(JSON.parse(ui.requests[3].options.body.items.find(([k])=>k==='mapping')[1]),{ticket:'Номер',total_cost:''});
     assert.equal(ui.requests[3].options.body.items.find(([k])=>k==='file')[1],file,'same source is read again');
     ui.requests[3].resolve(response({...result,mapped:{error:'Оберіть обов’язкову колонку'}}));await tick();
     assert.ok(nodes(mappingSection()).some(n=>n.props.role==='alert'&&n.children.includes('Оберіть обов’язкову колонку')),'HTTP 200 mapping error is visible');
-    button('Переглянути з мапінгом').props.onClick();await tick();
+    button('Перевірити відповідність').props.onClick();await tick();
     mappingField('Номер звернення').props.onChange({target:{value:'Вартість'}});
     ui.requests[4].resolve(response(result));await tick();
     assert.equal(nodes(mappingSection()).filter(n=>n.type==='tr').length,0,'late result after selection change is ignored');
     assert.equal(mappingField('Номер звернення').props.value,'Вартість');
-    button('Переглянути з мапінгом').props.onClick();await tick();
+    button('Перевірити відповідність').props.onClick();await tick();
     ui.requests[5].resolve(response({...result,mapped:{mapping:{ticket:'Вартість'},rows:[],accepted:0,total:8,rejected:[{row:2,reason:'порожнє поле'}]}}));await tick();
     assert.ok(nodes(mappingSection()).some(n=>n.children.includes('Немає прийнятих рядків')));
     field('Назва').props.onChange({target:{value:'Без збереження мапінгу'}});
