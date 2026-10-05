@@ -14271,6 +14271,11 @@ function Procurement({
     }
   }));
 }
+function documentUploadCode(title, now = new Date(), nonce = Math.random().toString(36).slice(2, 8).padEnd(6, '0')) {
+  const stamp = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('') + '-' + [now.getHours(), now.getMinutes(), now.getSeconds()].map(n => String(n).padStart(2, '0')).join('') + String(now.getMilliseconds()).padStart(3, '0') + '-' + nonce;
+  const name = String(title || '').trim().normalize('NFKC').replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '').slice(0, 80 - stamp.length - 1).replace(/-$/, '') || 'Документ';
+  return stamp + '-' + name;
+}
 function DocumentRegistry() {
   const [items, setItems] = useState([]),
     [q, setQ] = useState(''),
@@ -14279,7 +14284,8 @@ function DocumentRegistry() {
     [busy, setBusy] = useState(false),
     [loading, setLoading] = useState(true),
     [notice, setNotice] = useState('');
-  const form = useRef(null);
+  const form = useRef(null),
+    uploading = useRef(false);
   async function search() {
     setLoading(true);
     setError('');
@@ -14296,18 +14302,26 @@ function DocumentRegistry() {
   }, []);
   async function upload(e) {
     e.preventDefault();
-    if (busy) return;
+    if (uploading.current) return;
+    uploading.current = true;
     setBusy(true);
     setError('');
     setNotice('');
     try {
-      const result = await opFetch('documents/upload/', new FormData(form.current));
+      const data = new FormData(form.current);
+      if (!String(data.get('code') || '').trim()) {
+        const code = documentUploadCode(data.get('title'));
+        data.set('code', code);
+        form.current.elements.code.value = code;
+      }
+      const result = await opFetch('documents/upload/', data);
       form.current.reset();
       setNotice('Документ додано: ' + result.code + ' · версія ' + result.revision + '. ' + (result.image ? 'Текст фото не розпізнано; перевірка та допуск партії недоступні.' : 'Перевірте його перед використанням.'));
       await search();
     } catch (e) {
       setError(e.message + ' Якщо відповідь втрачена після надсилання, перевірте список перед новою спробою.');
     } finally {
+      uploading.current = false;
       setBusy(false);
     }
   }
@@ -14338,9 +14352,8 @@ function DocumentRegistry() {
     ref: form,
     onSubmit: upload,
     className: "op-upload"
-  }, /*#__PURE__*/React.createElement("label", null, "\u041A\u043E\u0434 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430", /*#__PURE__*/React.createElement(Input, {
+  }, /*#__PURE__*/React.createElement("label", null, "\u041A\u043E\u0434 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430 (\u043D\u0435\u043E\u0431\u043E\u0432\u2019\u044F\u0437\u043A\u043E\u0432\u043E)", /*#__PURE__*/React.createElement(Input, {
     name: "code",
-    required: true,
     maxLength: 80
   })), /*#__PURE__*/React.createElement("label", null, "\u0412\u0435\u0440\u0441\u0456\u044F", /*#__PURE__*/React.createElement(Input, {
     name: "revision",
@@ -14359,7 +14372,7 @@ function DocumentRegistry() {
     disabled: busy
   }, busy ? 'Зберігаємо…' : 'Додати')), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
-  }, "\u0414\u043E 10 \u041C\u0411. OCR \u043D\u0435 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043E. \u0414\u043B\u044F \u043D\u043E\u0432\u043E\u0457 \u0432\u0435\u0440\u0441\u0456\u0457 \u0432\u043A\u0430\u0436\u0456\u0442\u044C \u0442\u043E\u0439 \u0441\u0430\u043C\u0438\u0439 \u043A\u043E\u0434 \u0456 \u043D\u043E\u0432\u0438\u0439 \u043D\u043E\u043C\u0435\u0440 \u0432\u0435\u0440\u0441\u0456\u0457; \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0456 \u0432\u0438\u0441\u043D\u043E\u0432\u043A\u0438 \u043F\u043E\u0442\u0440\u0435\u0431\u0443\u0432\u0430\u0442\u0438\u043C\u0443\u0442\u044C \u043F\u0435\u0440\u0435\u0433\u043B\u044F\u0434\u0443.")), error && /*#__PURE__*/React.createElement("p", {
+  }, "\u0414\u043E 10 \u041C\u0411. OCR \u043D\u0435 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043E. \u042F\u043A\u0449\u043E \u043A\u043E\u0434 \u043F\u043E\u0440\u043E\u0436\u043D\u0456\u0439, \u0439\u043E\u0433\u043E \u0431\u0443\u0434\u0435 \u0441\u0442\u0432\u043E\u0440\u0435\u043D\u043E \u0437 \u043D\u0430\u0437\u0432\u0438 \u0442\u0430 \u0447\u0430\u0441\u0443 \u0456 \u043F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0443 \u043F\u043E\u043B\u0456. \u0414\u043B\u044F \u043D\u043E\u0432\u043E\u0457 \u0432\u0435\u0440\u0441\u0456\u0457 \u0432\u043A\u0430\u0436\u0456\u0442\u044C \u0442\u043E\u0439 \u0441\u0430\u043C\u0438\u0439 \u043A\u043E\u0434 \u0456 \u043D\u043E\u0432\u0438\u0439 \u043D\u043E\u043C\u0435\u0440 \u0432\u0435\u0440\u0441\u0456\u0457; \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0456 \u0432\u0438\u0441\u043D\u043E\u0432\u043A\u0438 \u043F\u043E\u0442\u0440\u0435\u0431\u0443\u0432\u0430\u0442\u0438\u043C\u0443\u0442\u044C \u043F\u0435\u0440\u0435\u0433\u043B\u044F\u0434\u0443.")), error && /*#__PURE__*/React.createElement("p", {
     role: "alert",
     style: {
       color: T.red
@@ -14716,6 +14729,7 @@ const erpDate = x => x ? String(x).slice(0, 10).split('-').reverse().join('.') :
 const erpNum = x => Number(x || 0).toLocaleString('uk-UA', {
   maximumFractionDigits: 3
 });
+const erpMoney = (value, currency) => value == null ? 'Недоступно' : erpNum(value) + ' ' + currency;
 async function erpFetch(path, data) {
   const r = await fetch('/api/erp/' + path, data === undefined ? {} : {
     method: 'POST',
@@ -18922,11 +18936,11 @@ function ERPWorkspace({
       id: r.invoice_id
     }),
     rows: data.invoices,
-    columns: [["Рахунок", 'code'], ["Замовлення", r => order(r.order_id)?.code], ["Сума", r => erpNum(r.amount) + ' ' + r.currency], ["Сплачено", r => erpNum(r.paid)], ["Чинний кредит", r => b03Amount(r.effective_credit, r.currency)], ["До оплати", r => b03Amount(r.open, r.currency)], ["Кредит клієнта", r => b03Amount(r.customer_credit, r.currency)], ["Термін", r => erpDate(r.due_date)], ["Дія", r => buttons([['Оплата', 'payment', {
+    columns: [["Рахунок", 'code'], ["Замовлення", r => order(r.order_id)?.code], ["Сума", r => erpMoney(r.amount, r.currency)], ["Сплачено", r => erpMoney(r.paid, r.currency)], ["Чинний кредит", r => erpMoney(r.effective_credit, r.currency)], ["До оплати", r => erpMoney(r.open, r.currency)], ["Кредит клієнта", r => erpMoney(r.customer_credit, r.currency)], ["Термін", r => erpDate(r.due_date)], ["Дія", r => buttons([['Оплата', 'payment', {
       invoice_id: r.invoice_id,
       amount: r.collectible
     }, !flowPositive(r.collectible)]])]]
-  })), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u0416\u0443\u0440\u043D\u0430\u043B \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u0438\u0445 ERP-\u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0439"), /*#__PURE__*/React.createElement(ERPTable, {
+  })), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u0416\u0443\u0440\u043D\u0430\u043B \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0439"), /*#__PURE__*/React.createElement(ERPTable, {
     onRow: r => setSelection({
       kind: 'events',
       id: r.id
