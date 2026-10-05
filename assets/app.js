@@ -14928,7 +14928,28 @@ const erpDate = x => x ? String(x).slice(0, 10).split('-').reverse().join('.') :
 const erpNum = x => Number(x || 0).toLocaleString('uk-UA', {
   maximumFractionDigits: 3
 });
-const erpMoney = (value, currency) => value == null ? 'Недоступно' : erpNum(value) + ' ' + currency;
+function erpAmount(v, cents = 0) {
+  if (v == null || v === '') return '—';
+  const m = /^(-?)(\d+)(?:\.(\d+))?$/.exec(String(v).trim());
+  if (!m) return String(v);
+  let frac = (m[3] || '').replace(/0+$/, '');
+  if (frac && frac.length < cents) frac = frac.padEnd(cents, '0');
+  return m[1] + m[2].replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0') + (frac ? ',' + frac : '');
+}
+const ERP_CURRENCY = {
+  UAH: 'грн'
+};
+const erpMoney = (value, currency) => value == null ? 'Недоступно' : erpAmount(value, 2) + '\u00a0' + (ERP_CURRENCY[currency] || currency || '');
+const erpDateTime = x => {
+  const d = new Date(x);
+  return isNaN(d) ? String(x || '—') : d.toLocaleString('uk-UA', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
 async function erpFetch(path, data) {
   const r = await fetch('/api/erp/' + path, data === undefined ? {} : {
     method: 'POST',
@@ -19659,7 +19680,7 @@ function OrderTrace({
     className: "op-muted"
   }, "\u0411\u0456\u0437\u043D\u0435\u0441-\u0434\u0430\u0442\u0430: ", erpDate(trace.as_of), ". \u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0435\u043D\u043E: ", /*#__PURE__*/React.createElement("time", {
     dateTime: trace.generated_at
-  }, trace.generated_at), ". \u041F\u0456\u0441\u043B\u044F \u043D\u043E\u0432\u0438\u0445 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0439 \u043E\u043D\u043E\u0432\u0456\u0442\u044C \u0434\u0436\u0435\u0440\u0435\u043B\u0430."), trace.order.owner && /*#__PURE__*/React.createElement("p", null, "\u0412\u043B\u0430\u0441\u043D\u0438\u043A \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F: ", trace.order.owner.name), trace.completeness === 'restricted' && /*#__PURE__*/React.createElement("p", {
+  }, erpDateTime(trace.generated_at)), ". \u041F\u0456\u0441\u043B\u044F \u043D\u043E\u0432\u0438\u0445 \u043E\u043F\u0435\u0440\u0430\u0446\u0456\u0439 \u043E\u043D\u043E\u0432\u0456\u0442\u044C \u0434\u0436\u0435\u0440\u0435\u043B\u0430."), trace.order.owner && /*#__PURE__*/React.createElement("p", null, "\u0412\u043B\u0430\u0441\u043D\u0438\u043A \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F: ", trace.order.owner.name), trace.completeness === 'restricted' && /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
   }, TRACE_RESTRICTED, "."), (trace.completeness === 'partial' || Object.values(trace.limits?.has_more || {}).some(Boolean)) && /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
@@ -20401,7 +20422,7 @@ function BoSInspector({
     }
   }, l || B03_ACTIONS[a]?.[0] || ERP_ACTIONS[a]?.[0])));
   const baseTable = (type, rows) => {
-    const cols = type === 'orders' ? [["Замовлення", 'code'], ["Клієнт", r => label('partners', r.customer_id)], ["Строк", r => erpDate(r.due_date)], ["Стан", r => ERP_LABELS[r.status]]] : type === 'invoices' ? [["Рахунок", 'code'], ["Замовлення", r => label('orders', r.order_id)], ["Термін", r => erpDate(r.due_date)], ...(bosCan('finance') ? [["Сума", r => r.amount + ' ' + r.currency], ["Оплачено", 'paid'], ["До оплати", 'open']] : [])] : type === 'purchases' ? [["Закупівля", 'code'], ["Матеріал", r => label('items', r.item_id)], ["Замовлено / прийнято", r => /*#__PURE__*/React.createElement(React.Fragment, null, erpNum(r.quantity) + ' / ' + erpNum(r.received), r.approval_snapshot?.source === 'imported_open_balance' && /*#__PURE__*/React.createElement("p", {
+    const cols = type === 'orders' ? [["Замовлення", 'code'], ["Клієнт", r => label('partners', r.customer_id)], ["Строк", r => erpDate(r.due_date)], ["Стан", r => ERP_LABELS[r.status]]] : type === 'invoices' ? [["Рахунок", 'code'], ["Замовлення", r => label('orders', r.order_id)], ["Термін", r => erpDate(r.due_date)], ...(bosCan('finance') ? [["Сума", r => erpMoney(r.amount, r.currency)], ["Оплачено", 'paid'], ["До оплати", 'open']] : [])] : type === 'purchases' ? [["Закупівля", 'code'], ["Матеріал", r => label('items', r.item_id)], ["Замовлено / прийнято", r => /*#__PURE__*/React.createElement(React.Fragment, null, erpNum(r.quantity) + ' / ' + erpNum(r.received), r.approval_snapshot?.source === 'imported_open_balance' && /*#__PURE__*/React.createElement("p", {
       className: "op-muted"
     }, "\u041F\u0435\u0440\u0435\u043D\u0435\u0441\u0435\u043D\u043E / \u043F\u0440\u0438\u0439\u043D\u044F\u0442\u043E \u043F\u0456\u0441\u043B\u044F \u0437\u0440\u0456\u0437\u0443"))], ["Строк", r => erpDate(r.due_date)]] : type === 'jobs' ? [["Робота", 'code'], ["План / випуск", r => r.quantity + ' / ' + r.produced], ["Стан", r => ERP_LABELS[r.status]], ["Строк", r => erpDate(r.due_date)]] : type === 'tasks' ? [["Доручення", 'title'], ["Відповідальний", r => c01Assignee(r)], ["Термін", r => erpDate(r.deadline)], ["Стан", r => (C01_STATUS[r.status] || r.status) + (r.is_overdue ? ' · прострочено' : '')]] : [["Партія", 'code'], ["Матеріал / виріб", r => label('items', r.item_id)], ["Фізично", r => erpNum(r.quantity)], ["У резерві", r => erpNum(r.reserved)], ["Придатно й вільно", 'available'], ["Якість", r => ERP_LABELS[r.quality]]];
     return /*#__PURE__*/React.createElement(ERPTable, {
@@ -20486,7 +20507,7 @@ function BoSInspector({
         cost = data.costs?.find(x => x.order_id === id);
       body = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, link('partners', r.customer_id), " \xB7 ", label('employees', r.owner_id), " \xB7 \u0434\u043E ", erpDate(r.due_date), " \xB7 ", ERP_LABELS[r.status]), r.notes && /*#__PURE__*/React.createElement("p", {
         className: "op-muted"
-      }, r.notes), r.fulfillment_location_id && /*#__PURE__*/React.createElement("p", null, "\u0422\u043E\u0447\u043A\u0430 \u0432\u0438\u043A\u043E\u043D\u0430\u043D\u043D\u044F: ", link('locations', r.fulfillment_location_id), " \xB7 \u043A\u0440\u0430\u0457\u043D\u0430 ", r.destination_country || 'Не задано'), acts([['order_network', {
+      }, r.notes), r.fulfillment_location_id && /*#__PURE__*/React.createElement("p", null, "\u0422\u043E\u0447\u043A\u0430 \u0432\u0438\u043A\u043E\u043D\u0430\u043D\u043D\u044F: ", link('locations', r.fulfillment_location_id), " ", r.destination_country ? ' · країна ' + r.destination_country : ''), acts([['order_network', {
         order_id: id,
         fulfillment_location_id: r.fulfillment_location_id ?? '',
         destination_country: r.destination_country || ''
@@ -20496,7 +20517,7 @@ function BoSInspector({
         onAction: onAction
       }), /*#__PURE__*/React.createElement("h3", null, "\u041F\u043E\u0437\u0438\u0446\u0456\u0457 \u0439 \u0432\u0438\u043A\u043E\u043D\u0430\u043D\u043D\u044F"), /*#__PURE__*/React.createElement(ERPTable, {
         rows: lines,
-        columns: [["Виріб", x => link('items', x.item_id)], ["Версія", 'revision'], ["Замовлено", r => erpNum(r.quantity)], ["Відвантажено", r => erpNum(r.shipped)], ["Скасовано", x => x.cancelled_quantity == null ? '—' : erpNum(x.cancelled_quantity)], ["Фізично повернено", x => x.returned_quantity == null ? '—' : erpNum(x.returned_quantity)], ["Залишилось виконати", x => b03OpenLine(x)], ...(bosRole() !== 'observer' ? [["Ціна", x => x.price + ' ' + r.currency]] : []), ["Дії", x => acts([['reserve', {
+        columns: [["Виріб", x => link('items', x.item_id)], ["Версія", 'revision'], ["Замовлено", r => erpNum(r.quantity)], ["Відвантажено", r => erpNum(r.shipped)], ["Скасовано", x => x.cancelled_quantity == null ? '—' : erpNum(x.cancelled_quantity)], ["Фізично повернено", x => x.returned_quantity == null ? '—' : erpNum(x.returned_quantity)], ["Залишилось виконати", x => erpAmount(b03OpenLine(x))], ...(bosRole() !== 'observer' ? [["Ціна", x => erpMoney(x.price, r.currency)]] : []), ["Дії", x => acts([['reserve', {
           line_id: x.id,
           quantity: b03OpenLine(x)
         }, 'Резерв'], ['job', {
@@ -20550,7 +20571,7 @@ function BoSInspector({
         className: "bos-facts"
       }, [['Фізично', erpNum(r.quantity)], ['У резерві', erpNum(r.reserved)], ['Придатно й вільно', erpNum(r.available)], ['Якість', ERP_LABELS[r.quality]]].map(([l, v]) => /*#__PURE__*/React.createElement("div", {
         key: l
-      }, /*#__PURE__*/React.createElement("span", null, l), /*#__PURE__*/React.createElement("strong", null, v)))), bosCan('finance') && /*#__PURE__*/React.createElement("p", null, "\u0421\u043E\u0431\u0456\u0432\u0430\u0440\u0442\u0456\u0441\u0442\u044C \u043E\u0434\u0438\u043D\u0438\u0446\u0456 ", r.unit_cost, " ", r.currency, "."), /*#__PURE__*/React.createElement("p", null, r.missing_documents.length ? 'Бракує перевірених документів: ' + r.missing_documents.join(', ') : 'Комплектність документів відповідає заданим вимогам.'), acts([['transfer', {
+      }, /*#__PURE__*/React.createElement("span", null, l), /*#__PURE__*/React.createElement("strong", null, v)))), bosCan('finance') && /*#__PURE__*/React.createElement("p", null, "\u0421\u043E\u0431\u0456\u0432\u0430\u0440\u0442\u0456\u0441\u0442\u044C \u043E\u0434\u0438\u043D\u0438\u0446\u0456 ", erpMoney(r.unit_cost, r.currency), "."), /*#__PURE__*/React.createElement("p", null, r.missing_documents.length ? 'Бракує перевірених документів: ' + r.missing_documents.join(', ') : 'Комплектність документів відповідає заданим вимогам.'), acts([['transfer', {
         lot_id: id,
         quantity: r.available
       }, 'Миттєве переміщення'], ['transfer_dispatch', {
@@ -20585,7 +20606,7 @@ function BoSInspector({
         }, 'Звільнити']])]]
       }));
     } else if (kind === 'items') {
-      body = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, r.name, " \xB7 ", r.unit, " \xB7 ", ERP_LABELS[r.method], " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", r.revision), /*#__PURE__*/React.createElement("p", null, "\u041C\u0430\u0442\u0435\u0440\u0456\u0430\u043B: ", r.material || 'Не задано', "."), bosCan('finance') && /*#__PURE__*/React.createElement("p", null, "\u041F\u043B\u0430\u043D\u043E\u0432\u0430 \u0441\u043E\u0431\u0456\u0432\u0430\u0440\u0442\u0456\u0441\u0442\u044C: ", r.planned_cost, " ", r.currency, "."), Object.entries(r.external_codes).map(([k, v]) => /*#__PURE__*/React.createElement("p", {
+      body = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, r.name, " \xB7 ", r.unit, " \xB7 ", ERP_LABELS[r.method], " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", r.revision), /*#__PURE__*/React.createElement("p", null, "\u041C\u0430\u0442\u0435\u0440\u0456\u0430\u043B: ", r.material || 'Не задано', "."), bosCan('finance') && /*#__PURE__*/React.createElement("p", null, "\u041F\u043B\u0430\u043D\u043E\u0432\u0430 \u0441\u043E\u0431\u0456\u0432\u0430\u0440\u0442\u0456\u0441\u0442\u044C: ", erpMoney(r.planned_cost, r.currency), "."), Object.entries(r.external_codes).map(([k, v]) => /*#__PURE__*/React.createElement("p", {
         key: k
       }, k, ": ", v)), r.document_id && /*#__PURE__*/React.createElement(Button, {
         onClick: () => setDoc(r.document_id)
@@ -20623,7 +20644,7 @@ function BoSInspector({
         operator_id: r.owner_id,
         minutes: 30,
         defects: '0'
-      }, 'Записати результат']]))), bosCan('finance') && /*#__PURE__*/React.createElement("p", null, "\u041F\u043B\u0430\u043D \u0432\u0438\u0442\u0440\u0430\u0442 ", r.planned_cost, " ", r.currency, "; \u0444\u0430\u043A\u0442 ", r.actual_cost, " ", r.currency, "."), /*#__PURE__*/React.createElement(ERPTable, {
+      }, 'Записати результат']]))), bosCan('finance') && /*#__PURE__*/React.createElement("p", null, "\u041F\u043B\u0430\u043D \u0432\u0438\u0442\u0440\u0430\u0442 ", erpMoney(r.planned_cost, r.currency), "; \u0444\u0430\u043A\u0442 ", erpMoney(r.actual_cost, r.currency), "."), /*#__PURE__*/React.createElement(ERPTable, {
         rows: data.operator_entries.filter(x => x.production_id === id),
         columns: [["Операція", 'operation'], ["Результат", x => ERP_LABELS[x.result]], ["Хвилин", 'minutes'], ["Дефектів", 'defects'], ["Примітка", 'note']]
       }));
@@ -20632,7 +20653,7 @@ function BoSInspector({
         rows: [["Скасовано", r.cancelled_quantity == null ? null : erpNum(r.cancelled_quantity)], ["Повернуто фізично постачальнику", r.returned_quantity == null ? null : erpNum(r.returned_quantity)], ["Поточний стан", ERP_LABELS[r.effective_status] || r.effective_status]]
       }), /*#__PURE__*/React.createElement("p", {
         className: "op-muted"
-      }, "\u041F\u043E\u0432\u0435\u0440\u043D\u0435\u043D\u043D\u044F \u043D\u0435 \u0437\u043C\u0435\u043D\u0448\u0443\u0454 \u0444\u0430\u043A\u0442 \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F \u0456 \u043D\u0435 \u0441\u0442\u0432\u043E\u0440\u044E\u0454 \u0437\u0430\u043C\u0456\u043D\u043D\u0443 \u043F\u043E\u0441\u0442\u0430\u0432\u043A\u0443."), bosRole() !== 'observer' && /*#__PURE__*/React.createElement("p", null, "\u0426\u0456\u043D\u0430 ", r.price, " ", r.currency, "; \u0434\u043E\u0434\u0430\u0442\u043A\u043E\u0432\u0456 \u0432\u0438\u0442\u0440\u0430\u0442\u0438 ", r.extras, "."), /*#__PURE__*/React.createElement("p", null, "\u041E\u0447\u0456\u043A\u0443\u0454\u043C\u043E ", erpDate(r.due_date), "; \u043F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0438\u0439 \u0441\u0442\u0440\u043E\u043A ", erpDate(r.original_due), "."), r.production_id && /*#__PURE__*/React.createElement("p", null, "\u0414\u043B\u044F ", link('jobs', r.production_id)), r.request_id && /*#__PURE__*/React.createElement("p", null, "\u0417\u0430\u044F\u0432\u043A\u0430 ", label('requests', r.request_id)), /*#__PURE__*/React.createElement("p", null, "\u0422\u043E\u0447\u043A\u0430 \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F: ", r.destination_id ? link('locations', r.destination_id) : 'Не задано', " \xB7 \u043A\u0440\u0430\u0457\u043D\u0430 \u043F\u043E\u0445\u043E\u0434\u0436\u0435\u043D\u043D\u044F ", r.origin_country || 'Не задано'), acts([['purchase_network', {
+      }, "\u041F\u043E\u0432\u0435\u0440\u043D\u0435\u043D\u043D\u044F \u043D\u0435 \u0437\u043C\u0435\u043D\u0448\u0443\u0454 \u0444\u0430\u043A\u0442 \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F \u0456 \u043D\u0435 \u0441\u0442\u0432\u043E\u0440\u044E\u0454 \u0437\u0430\u043C\u0456\u043D\u043D\u0443 \u043F\u043E\u0441\u0442\u0430\u0432\u043A\u0443."), bosRole() !== 'observer' && /*#__PURE__*/React.createElement("p", null, "\u0426\u0456\u043D\u0430 ", erpMoney(r.price, r.currency), "; \u0434\u043E\u0434\u0430\u0442\u043A\u043E\u0432\u0456 \u0432\u0438\u0442\u0440\u0430\u0442\u0438 ", r.extras, "."), /*#__PURE__*/React.createElement("p", null, "\u041E\u0447\u0456\u043A\u0443\u0454\u043C\u043E ", erpDate(r.due_date), "; \u043F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0438\u0439 \u0441\u0442\u0440\u043E\u043A ", erpDate(r.original_due), "."), r.production_id && /*#__PURE__*/React.createElement("p", null, "\u0414\u043B\u044F ", link('jobs', r.production_id)), r.request_id && /*#__PURE__*/React.createElement("p", null, "\u0417\u0430\u044F\u0432\u043A\u0430 ", label('requests', r.request_id)), /*#__PURE__*/React.createElement("p", null, "\u0422\u043E\u0447\u043A\u0430 \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F: ", r.destination_id ? link('locations', r.destination_id) : 'Не задано', " \xB7 \u043A\u0440\u0430\u0457\u043D\u0430 \u043F\u043E\u0445\u043E\u0434\u0436\u0435\u043D\u043D\u044F ", r.origin_country || 'Не задано'), acts([['purchase_network', {
         purchase_id: id,
         destination_id: r.destination_id ?? '',
         origin_country: r.origin_country || ''
@@ -20692,7 +20713,7 @@ function BoSInspector({
         columns: [["Виріб", x => link('items', find('lines', x.line_id)?.item_id)], ["Кількість", r => erpNum(r.quantity)], ["Ціна", 'price']]
       }), /*#__PURE__*/React.createElement("h3", null, "\u0406\u0441\u0442\u043E\u0440\u0456\u044F \u043E\u043F\u043B\u0430\u0442"), /*#__PURE__*/React.createElement(ERPTable, {
         rows: data.events.filter(x => x.action === 'erp_payment' && x.payload.invoice_id === r.invoice_id),
-        columns: [["Дата", x => erpDate(x.created_at)], ["Підтвердження", x => x.payload.reference], ["Сума", x => x.payload.amount + ' ' + r.currency]]
+        columns: [["Дата", x => erpDate(x.created_at)], ["Підтвердження", x => x.payload.reference], ["Сума", x => erpMoney(x.payload.amount, r.currency)]]
       }));
     } else if (kind === 'changes') {
       body = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, link('items', r.item_id), " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", r.target_revision), /*#__PURE__*/React.createElement("p", null, r.reason), /*#__PURE__*/React.createElement(Button, {
