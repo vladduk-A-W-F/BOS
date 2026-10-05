@@ -16,6 +16,13 @@ from scripts import bos3_local as local
 
 
 class LocalProfileTests(unittest.TestCase):
+    def setUp(self):
+        # Keep pathlib/tempfile on the native OS; only lifecycle sees Windows.
+        synthetic_os = types.ModuleType('synthetic_windows_os')
+        synthetic_os.__dict__.update(vars(os))
+        synthetic_os.name = 'nt'
+        self.enterContext(mock.patch.object(local, 'os', synthetic_os))
+
     def test_fresh_init_default_and_bos4_seed_and_environment(self):
         for dataset in ('bos3', 'bos4'):
             with self.subTest(dataset=dataset), tempfile.TemporaryDirectory() as temporary:
