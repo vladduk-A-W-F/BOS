@@ -9,7 +9,7 @@ from django.views.decorators.http import require_GET, require_POST
 
 from boss_project.policy import Policy
 from operations.views import errors
-from . import sources
+from . import mapping, sources
 from .models import Connector, ConnectorSnapshot
 
 PREVIEW_ROWS = 20
@@ -82,8 +82,21 @@ def index(request):
 def preview(request):
     _writer(request)
     kind, _url, table = _read_source(request)
-    return JsonResponse({'kind': kind, 'columns': table['columns'], 'row_count': table['row_count'],
-                         'rows': table['rows'][:PREVIEW_ROWS], 'sha256': table['sha256']})
+    body = {'kind': kind, 'columns': table['columns'], 'row_count': table['row_count'],
+            'rows': table['rows'][:PREVIEW_ROWS], 'sha256': table['sha256']}
+    dataset = request.POST.get('dataset', '')
+    if dataset in mapping.FIELDS:
+        # What the mapping step offers: the fields of this dataset, a guess from the headers, and how
+        # the whole table reads with that guess (nothing is stored by a preview).
+        guess = mapping.suggest(dataset, table['columns'])
+        body.update(fields=mapping.fields(dataset), suggested_mapping=guess)
+        try:
+            read = mapping.normalize(dataset, table['columns'], table['rows'],
+                                     mapping.validate(dataset, table['columns'], guess))
+            body['mapped'] = {**read, 'rows': read['rows'][:PREVIEW_ROWS]}
+        except mapping.MappingError as exc:
+            body['mapped'] = {'error': str(exc)}
+    return JsonResponse(body)
 
 
 @csrf_protect
