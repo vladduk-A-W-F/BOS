@@ -14960,6 +14960,37 @@ function erpAmount(v, cents = 0) {
 const ERP_CURRENCY = {
   UAH: 'грн'
 };
+// quantity*price+extras as an exact decimal string, rounded to cents half-to-even like the server (erp.balances.money).
+function erpLineTotal(quantity, price, extras = '0') {
+  const dec = v => {
+    const m = /^(-?)(\d+)(?:\.(\d+))?$/.exec(String(v ?? '0').trim());
+    return m ? {
+      n: BigInt(m[1] + m[2] + (m[3] || '')),
+      s: (m[3] || '').length
+    } : null;
+  };
+  const q = dec(quantity),
+    p = dec(price),
+    e = dec(extras);
+  if (!q || !p || !e) return null;
+  let n = q.n * p.n,
+    s = q.s + p.s;
+  const S = Math.max(s, e.s);
+  n = n * 10n ** BigInt(S - s) + e.n * 10n ** BigInt(S - e.s);
+  s = S;
+  if (s > 2) {
+    const d = 10n ** BigInt(s - 2),
+      neg = n < 0n;
+    let w = n / d,
+      r = n % d;
+    if (r < 0n) r = -r;
+    if (2n * r > d || 2n * r === d && w % 2n !== 0n) w += neg ? -1n : 1n;
+    n = w;
+  } else n *= 10n ** BigInt(2 - s);
+  const neg = n < 0n,
+    a = (neg ? -n : n).toString().padStart(3, '0');
+  return (neg ? '-' : '') + a.slice(0, -2) + '.' + a.slice(-2);
+}
 const erpMoney = (value, currency) => value == null ? 'Недоступно' : erpAmount(value, 2) + '\u00a0' + (ERP_CURRENCY[currency] || currency || '');
 const erpDateTime = x => {
   const d = new Date(x);
@@ -19202,7 +19233,7 @@ function ERPWorkspace({
       className: "op-muted"
     }, "\u041F\u0435\u0440\u0435\u043D\u0435\u0441\u0435\u043D\u043E / \u043F\u0440\u0438\u0439\u043D\u044F\u0442\u043E \u043F\u0456\u0441\u043B\u044F \u0437\u0440\u0456\u0437\u0443"))], ...(erpAllZero(data.purchases, 'cancelled_quantity') ? [] : [["Скасовано", r => r.cancelled_quantity == null ? '—' : erpNum(r.cancelled_quantity)]]), ...(erpAllZero(data.purchases, 'returned_quantity') ? [] : [["Повернуто фізично", r => r.returned_quantity == null ? '—' : erpNum(r.returned_quantity)]]), ["До приймання", r => erpNum(b03OpenPurchase(r))], ["Поставка", r => /*#__PURE__*/React.createElement(React.Fragment, null, erpDate(r.due_date), r.due_date !== r.original_due && /*#__PURE__*/React.createElement("p", {
       className: "erp-error"
-    }, "\u041F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u043E ", erpDate(r.original_due)))], ...(bosRole() !== 'observer' ? [["Вартість", r => erpMoney((Number(r.quantity) * Number(r.price) + Number(r.extras)).toFixed(2), r.currency)]] : []), ["Робота", r => job(r.production_id)?.code || '—'], ["Дії", r => buttons([['Приймання', 'receive', {
+    }, "\u041F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u043E ", erpDate(r.original_due)))], ...(bosRole() !== 'observer' ? [["Вартість", r => erpMoney(erpLineTotal(r.quantity, r.price, r.extras), r.currency)]] : []), ["Робота", r => job(r.production_id)?.code || '—'], ["Дії", r => buttons([['Приймання', 'receive', {
       purchase_id: r.id,
       quantity: b03OpenPurchase(r)
     }], ['Змінити строк', 'postpone', {
