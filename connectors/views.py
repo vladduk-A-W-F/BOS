@@ -1,4 +1,5 @@
 from datetime import timedelta
+import json
 
 from django.db import transaction
 from django.db.models import F, Q
@@ -15,6 +16,7 @@ from .models import Connector, ConnectorSnapshot
 PREVIEW_ROWS = 20
 STALE_AFTER = timedelta(minutes=15)
 STALE_BATCH = 10
+MAX_MAPPING_CHARS = 20000
 
 
 def _writer(request):
@@ -57,6 +59,22 @@ def _connector_dict(connector):
             'columns': snapshot.columns if snapshot else []}
 
 
+def _chosen_mapping(raw, guess):
+    """The `mapping` form field: a JSON object {field: column}; absent means the suggested one."""
+    if raw is None or raw == '':
+        return guess
+    if len(raw) > MAX_MAPPING_CHARS:
+        raise mapping.MappingError('Відповідність колонок передано в неправильному форматі.')
+    try:
+        value = json.loads(raw)
+    except (ValueError, RecursionError):
+        # Deeply nested JSON exhausts the parser's recursion; it is a malformed mapping, not a server error.
+        raise mapping.MappingError('Відповідність колонок передано в неправильному форматі.')
+    if not isinstance(value, dict) or not all(isinstance(k, str) and isinstance(v, str) for k, v in value.items()):
+        raise mapping.MappingError('Відповідність колонок передано в неправильному форматі.')
+    return value
+
+
 def _source_error(fn):
     def wrapped(request, *args, **kwargs):
         try:
@@ -87,13 +105,14 @@ def preview(request):
     dataset = request.POST.get('dataset', '')
     if dataset in mapping.FIELDS:
         # What the mapping step offers: the fields of this dataset, a guess from the headers, and how
-        # the whole table reads with that guess (nothing is stored by a preview).
+        # the whole table reads with that guess or with the person's own choice (nothing is stored by a preview).
         guess = mapping.suggest(dataset, table['columns'])
         body.update(fields=mapping.fields(dataset), suggested_mapping=guess)
         try:
-            read = mapping.normalize(dataset, table['columns'], table['rows'],
-                                     mapping.validate(dataset, table['columns'], guess))
-            body['mapped'] = {**read, 'rows': read['rows'][:PREVIEW_ROWS]}
+            chosen = _chosen_mapping(request.POST.get('mapping'), guess)
+            used = mapping.validate(dataset, table['columns'], chosen)
+            read = mapping.normalize(dataset, table['columns'], table['rows'], used)
+            body['mapped'] = {**read, 'rows': read['rows'][:PREVIEW_ROWS], 'mapping': used}
         except mapping.MappingError as exc:
             body['mapped'] = {'error': str(exc)}
     return JsonResponse(body)
