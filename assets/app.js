@@ -24322,8 +24322,10 @@ function Connections() {
       url: ''
     }),
     [preview, setPreview] = useState(null),
-    [busy, setBusy] = useState(false);
-  const fileRef = useRef(null);
+    [busy, setBusy] = useState(false),
+    [failed, setFailed] = useState([]);
+  const fileRef = useRef(null),
+    entry = useRef(null);
   const call = async (path, body) => {
     const r = await fetch('/api/connectors/' + path, body ? {
       method: 'POST',
@@ -24338,16 +24340,37 @@ function Connections() {
     if (!r.ok) throw Error(d.error || 'Не вдалося виконати запит.');
     return d;
   };
-  const load = async () => {
+  const current = scope => entry.current === scope && scope === bosHttpScope();
+  const load = async (note = '') => {
+    const scope = entry.current;
     try {
-      setData(await call(''));
-      setError('');
+      const list = await call('');
+      if (current(scope)) {
+        setData(list);
+        setError(note);
+      }
     } catch (e) {
-      setError(e.message);
+      if (current(scope)) setError(e.message);
     }
   };
   useEffect(() => {
-    load();
+    const scope = bosHttpScope();
+    entry.current = scope;
+    (async () => {
+      let note = '';
+      if (bosCan('write')) {
+        try {
+          const result = await call('sync-stale/', new FormData());
+          if (current(scope)) setFailed(result.failed || []);
+        } catch (e) {
+          note = e.message;
+        }
+      }
+      if (current(scope)) await load(note);
+    })();
+    return () => {
+      entry.current = null;
+    };
   }, []);
   const source = () => {
     const f = new FormData();
@@ -24390,6 +24413,7 @@ function Connections() {
   });
   const doSync = id => run(async () => {
     await call(id + '/sync/', new FormData());
+    setFailed(rows => rows.filter(row => row.id !== id));
     await load();
   });
   const doDisable = id => run(async () => {
@@ -24401,7 +24425,7 @@ function Connections() {
   if (!data) return /*#__PURE__*/React.createElement("div", {
     className: "mon"
   }, /*#__PURE__*/React.createElement("p", null, error || 'Завантаження…'), error && /*#__PURE__*/React.createElement(Button, {
-    onClick: load
+    onClick: () => load()
   }, "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0438"));
   const when = v => v ? new Date(v).toLocaleString('uk-UA', {
     day: '2-digit',
@@ -24418,21 +24442,24 @@ function Connections() {
     className: "mon-card"
   }, /*#__PURE__*/React.createElement("header", null, /*#__PURE__*/React.createElement("h2", null, "\u041F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430"), /*#__PURE__*/React.createElement("span", null, data.connectors.length)), data.connectors.length ? /*#__PURE__*/React.createElement("div", {
     className: "erp-table"
-  }, /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", null, "\u041D\u0430\u0437\u0432\u0430"), /*#__PURE__*/React.createElement("th", null, "\u0421\u0435\u0440\u0432\u0456\u0441"), /*#__PURE__*/React.createElement("th", null, "\u0414\u0430\u043D\u0456"), /*#__PURE__*/React.createElement("th", null, "\u0421\u0442\u0430\u043D"), /*#__PURE__*/React.createElement("th", null, "\u041E\u043D\u043E\u0432\u043B\u0435\u043D\u043E"), /*#__PURE__*/React.createElement("th", null, "\u0420\u044F\u0434\u043A\u0456\u0432"), /*#__PURE__*/React.createElement("th", null))), /*#__PURE__*/React.createElement("tbody", null, data.connectors.map(c => /*#__PURE__*/React.createElement("tr", {
-    key: c.id,
-    className: 'bos-click-row' + (c.status === 'error' ? ' mon-late' : ''),
-    onClick: e => {
-      if (!e.target.closest('button')) show(c.id);
-    }
-  }, /*#__PURE__*/React.createElement("td", null, c.name), /*#__PURE__*/React.createElement("td", null, data.catalog.find(x => x.kind === c.kind)?.title || c.kind), /*#__PURE__*/React.createElement("td", null, c.dataset_label), /*#__PURE__*/React.createElement("td", null, c.status === 'error' ? c.last_error || c.status_label : c.status_label), /*#__PURE__*/React.createElement("td", null, when(c.last_sync_at)), /*#__PURE__*/React.createElement("td", null, monValue(c.row_count)), /*#__PURE__*/React.createElement("td", {
-    className: "mon-actions"
-  }, bosCan('write') && c.kind === 'google_sheets' && /*#__PURE__*/React.createElement(Button, {
-    disabled: busy,
-    onClick: () => doSync(c.id)
-  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438"), bosCan('write') && /*#__PURE__*/React.createElement(Button, {
-    disabled: busy,
-    onClick: () => doDisable(c.id)
-  }, "\u0412\u0438\u043C\u043A\u043D\u0443\u0442\u0438"))))))) : /*#__PURE__*/React.createElement("p", {
+  }, /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", null, "\u041D\u0430\u0437\u0432\u0430"), /*#__PURE__*/React.createElement("th", null, "\u0421\u0435\u0440\u0432\u0456\u0441"), /*#__PURE__*/React.createElement("th", null, "\u0414\u0430\u043D\u0456"), /*#__PURE__*/React.createElement("th", null, "\u0421\u0442\u0430\u043D"), /*#__PURE__*/React.createElement("th", null, "\u041E\u043D\u043E\u0432\u043B\u0435\u043D\u043E"), /*#__PURE__*/React.createElement("th", null, "\u0420\u044F\u0434\u043A\u0456\u0432"), /*#__PURE__*/React.createElement("th", null))), /*#__PURE__*/React.createElement("tbody", null, data.connectors.map(c => {
+    const failure = failed.find(row => row.id === c.id);
+    return /*#__PURE__*/React.createElement("tr", {
+      key: c.id,
+      className: (bosCan('write') ? 'bos-click-row' : '') + (failure || c.status === 'error' ? ' mon-late' : ''),
+      onClick: bosCan('write') ? e => {
+        if (!e.target.closest('button')) show(c.id);
+      } : undefined
+    }, /*#__PURE__*/React.createElement("td", null, c.name), /*#__PURE__*/React.createElement("td", null, data.catalog.find(x => x.kind === c.kind)?.title || c.kind), /*#__PURE__*/React.createElement("td", null, c.dataset_label), /*#__PURE__*/React.createElement("td", null, failure ? 'Помилка оновлення: ' + failure.error : c.status === 'error' ? c.last_error || c.status_label : c.status_label), /*#__PURE__*/React.createElement("td", null, when(c.last_sync_at)), /*#__PURE__*/React.createElement("td", null, monValue(c.row_count)), /*#__PURE__*/React.createElement("td", {
+      className: "mon-actions"
+    }, bosCan('write') && c.kind === 'google_sheets' && /*#__PURE__*/React.createElement(Button, {
+      disabled: busy,
+      onClick: () => doSync(c.id)
+    }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438"), bosCan('write') && /*#__PURE__*/React.createElement(Button, {
+      disabled: busy,
+      onClick: () => doDisable(c.id)
+    }, "\u0412\u0438\u043C\u043A\u043D\u0443\u0442\u0438")));
+  })))) : /*#__PURE__*/React.createElement("p", {
     className: "op-muted mon-empty"
   }, "\u0429\u0435 \u043D\u0456\u0447\u043E\u0433\u043E \u043D\u0435 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043E")), open && /*#__PURE__*/React.createElement("section", {
     className: "mon-card"
