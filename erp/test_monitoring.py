@@ -52,6 +52,28 @@ class MonitoringTests(TransactionTestCase):
         self.assertEqual(numbers['invoices'], 168000 + 777700)
         self.assertEqual(numbers['purchases'], 2)
 
+    def test_attention_lists_what_needs_a_decision_in_plain_words(self):
+        self.login('ceo')
+        data = self.client.get('/api/erp/monitoring/').json()
+        items = data['attention']
+        titles = [a['title'] for a in items]
+        self.assertEqual(titles[0], 'Замовлення ZM-0144 прострочене на 2 дні')
+        self.assertIn('ТОВ «Агроснаб Дніпро» винен 168 000 грн', titles)
+        self.assertIn('Партія KM-L-SHM-2-0918 заблокована', titles)
+        self.assertTrue(any(t.startswith('Закупівля ZK-0311 запізнюється') for t in titles))
+        # Worst first: every danger item comes before any warning.
+        levels = [a['level'] for a in items]
+        self.assertEqual(levels, sorted(levels, key=lambda l: l != 'danger'))
+        self.assertTrue(all(a['ref']['kind'] and a['ref']['id'] for a in items))
+        self.assertLessEqual(len(items), 8)
+
+    def test_attention_has_no_money_for_observer(self):
+        self.login('observer')
+        items = self.client.get('/api/erp/monitoring/').json()['attention']
+        self.assertTrue(items)
+        self.assertFalse(any('грн' in a['title'] + a['detail'] for a in items))
+        self.assertNotIn('invoice', [a['ref']['kind'] for a in items])
+
     def test_standard_queries(self):
         self.login('ceo')
         keys = [q['key'] for q in self.client.get('/api/erp/monitoring/').json()['queries']]

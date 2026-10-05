@@ -3,6 +3,7 @@
 Every row comes from Policy-scoped querysets; money is shown only to the CEO,
 matching Policy.capabilities()['finance'].
 """
+from datetime import date
 from decimal import Decimal as D
 
 from django.utils import timezone
@@ -55,7 +56,7 @@ def _open_orders(policy, today, overdue_only=False):
 def _problem_lots(policy):
     lots = (policy.queryset(Lot).exclude(quality='approved').filter(quantity__gt=0)
             .select_related('item', 'location').order_by('quality', 'code'))
-    rows = [{'ref': {'kind': 'lot', 'id': lot.pk}, 'late': lot.quality == 'blocked',
+    rows = [{'ref': {'kind': 'lot', 'id': lot.pk}, 'late': lot.quality == 'blocked', 'unit': lot.item.unit,
              'cells': [lot.item.name, lot.location.name, _num(lot.quantity), QUALITY.get(lot.quality, lot.quality), lot.code]}
             for lot in lots]
     return ['Виріб', 'Склад', 'Кількість', 'Стан', 'Партія'], rows
@@ -107,7 +108,7 @@ def _late_purchases(policy, today):
     for po in policy.queryset(Purchase).filter(due_date__lt=today).select_related('item', 'supplier').order_by('due_date'):
         rest = purchase_open(po)
         if rest:
-            rows.append({'ref': {'kind': 'purchase', 'id': po.pk}, 'late': True,
+            rows.append({'ref': {'kind': 'purchase', 'id': po.pk}, 'late': True, 'unit': po.item.unit,
                          'cells': [po.code, po.item.name, po.supplier.name, _num(rest), _date(po.due_date), (today - po.due_date).days]})
     return ['Закупівля', 'Що', 'Постачальник', 'Чекаємо', 'Строк', 'Днів прострочки'], rows
 
@@ -145,6 +146,52 @@ def query(policy, key):
     return {'as_of': _date(today), **_table(key, title, columns, rows)}
 
 
+def _days(n):
+    n = abs(int(n))
+    word = 'день' if n % 10 == 1 and n % 100 != 11 else 'дні' if 2 <= n % 10 <= 4 and not 12 <= n % 100 <= 14 else 'днів'
+    return f'{n} {word}'
+
+
+def _money(value):
+    return f'{_num(value):,}'.replace(',', ' ') + ' грн'
+
+
+def _attention(policy, today, orders, lots, debts, purchases, tasks):
+    """What needs a person's decision now, in plain words, worst first. Built from the same rows as the tables."""
+    out = []
+    for r in orders:
+        if r['late']:
+            code, customer, _, due, shipped = r['cells'][:5]
+            days = (today - date.fromisoformat(due)).days
+            out.append({'level': 'danger', 'ref': r['ref'], 'title': f'Замовлення {code} прострочене на {_days(days)}',
+                        'detail': f'{customer}: відвантажено {shipped}.'})
+    for r in debts or []:
+        if r['late']:
+            code, customer, _, _, rest, _, days = r['cells']
+            out.append({'level': 'danger', 'ref': r['ref'], 'title': f'{customer} винен {_money(rest)}',
+                        'detail': f'Рахунок {code}, прострочка {_days(days)}.'})
+    for r in lots:
+        if r['late']:
+            item, place, qty, state, code = r['cells']
+            out.append({'level': 'danger', 'ref': r['ref'], 'title': f'Партія {code} заблокована',
+                        'detail': f'{item}, {qty} {r["unit"]} на «{place}». Не відвантажувати до рішення якості.'})
+    for r in purchases:
+        code, item, supplier, rest, _, days = r['cells']
+        out.append({'level': 'warning', 'ref': r['ref'], 'title': f'Закупівля {code} запізнюється на {_days(days)}',
+                    'detail': f'{supplier}: чекаємо ще {rest} {r["unit"]} — {item}.'})
+    for r in lots:
+        if not r['late']:
+            item, place, qty, state, code = r['cells']
+            out.append({'level': 'warning', 'ref': r['ref'], 'title': f'Партія {code}: {state.lower()}',
+                        'detail': f'{item}, {qty} {r["unit"]} на «{place}».'})
+    for r in tasks:
+        if r['late']:
+            title, who = r['cells'][:2]
+            out.append({'level': 'warning', 'ref': r['ref'], 'title': f'Прострочене доручення: {title}',
+                        'detail': f'Відповідальний: {who}.' if who else 'Відповідального не призначено.'})
+    return out[:8]
+
+
 def build(policy):
     today = as_of()
     orders = _table('orders', 'Замовлення в роботі', *_open_orders(policy, today))
@@ -165,5 +212,7 @@ def build(policy):
         numbers.insert(2, {'key': 'invoices', 'label': 'До оплати, грн',
                            'value': _num(sum((D(str(r['cells'][4])) for r in debts[1]), D(0))),
                            'alert': sum(r['late'] for r in debts[1])})
-    return {'as_of': _date(today), 'numbers': numbers, 'tables': tables,
+    attention = _attention(policy, today, orders['rows'], lots['rows'], debts[1] if debts else None, late_po,
+                           _tasks(policy, today)[1])
+    return {'as_of': _date(today), 'numbers': numbers, 'tables': tables, 'attention': attention,
             'queries': [{'key': k, 'title': t} for k, t, ceo in QUERIES if policy.ceo or not ceo]}
