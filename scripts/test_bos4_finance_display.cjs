@@ -10,14 +10,16 @@ function part(start, end) {
   assert(a >= 0 && b > a, start);
   return compiled.slice(a, b);
 }
-let data, slot, search = '', refreshes = 0;
+let data, slot, search = '', refreshes = 0, role = 'ceo';
 const context = {
   React: {Fragment: 'fragment', createElement: (type, props, ...children) => ({type, props: {...props, children}})},
   useState: initial => [slot++ === 0 ? data : slot === 6 ? search : initial, () => {}],
   useRef: () => ({current: 0}), useEffect() {},
-  bosCanView: () => true, bosCan: () => true, bosCanAction: () => false, bosRole: () => 'ceo',
+  bosCanView: () => true, bosCan: () => true, bosCanAction: () => false, bosRole: () => role,
   Card: 'Card', ERPTable: 'ERPTable', Input: 'Input', Button: 'Button',
   B03Ledger: 'B03Ledger', B03PendingLauncher: 'B03PendingLauncher',
+  BoSLink: 'BoSLink', NextAction: 'NextAction', OrderTrace: 'OrderTrace',
+  OrderSupplyOptions: 'OrderSupplyOptions', OrderSettlement: 'OrderSettlement', T: {primary: '#000'},
   ERP_LABELS: {}, flowPositive: value => Number(value) > 0,
   erpFetch: async () => {refreshes++; return data;},
 };
@@ -82,4 +84,25 @@ assert.deepEqual(nodes(readonlyToolbar).filter(n => ['Input', 'Button'].includes
 for (const label of ['Пошук журналу', 'Пошук контрагентів', 'Пошук договорів', 'Пошук зарплат']) {
   assert(source.includes('className="erp-search-row"><Input aria-label="' + label + '"'), label);
 }
-console.log('U3 compiled finance display: credit visibility, unknowns, search, unchanged data and adaptive toolbar PASS');
+// Sales unit prices use the same exact monetary display as purchase and invoice facts.
+search = '';
+for (const [price, currency, expected] of [
+  ['1234.50', 'UAH', '1\u00a0234,50\u00a0грн'],
+  ['9007199254740993.12', 'UAH', '9\u00a0007\u00a0199\u00a0254\u00a0740\u00a0993,12\u00a0грн'],
+  ['5.10', 'EUR', '5,10\u00a0EUR'], ['0.00', 'UAH', '0\u00a0грн'],
+  [null, 'UAH', 'Недоступно'],
+]) {
+  data = {events: [], items: [], partners: [], locations: [], employees: [], jobs: [], lots: [],
+    orders: [{id: 20, code: 'ORDER', currency}],
+    lines: [{id: 21, order_id: 20, quantity: '1', shipped: '0', price}]};
+  const before = JSON.stringify(data);
+  slot = 0; role = 'ceo';
+  const table = nodes(vm.runInContext('ERPWorkspace({view:"sales"})', context)).find(n => n.type === 'ERPTable');
+  assert.equal(table.props.columns.find(c => c[0] === 'Ціна')[1](table.props.rows[0]), expected);
+  slot = 0; role = 'observer';
+  const hidden = nodes(vm.runInContext('ERPWorkspace({view:"sales"})', context)).find(n => n.type === 'ERPTable');
+  assert(!hidden.props.columns.some(c => c[0] === 'Ціна'), 'observer must still have no price column');
+  assert.equal(JSON.stringify(data), before, 'display must preserve order currency and line values');
+}
+assert.equal(refreshes, 0, 'rendering facts must not request or mutate data');
+console.log('U3 compiled finance display: credits, exact sales prices, role guard, unchanged data and adaptive toolbar PASS');

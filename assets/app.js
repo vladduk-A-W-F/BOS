@@ -19249,7 +19249,7 @@ function ERPWorkspace({
     order_id: o.id
   }]])), /*#__PURE__*/React.createElement(ERPTable, {
     rows: data.lines.filter(l => l.order_id === o.id),
-    columns: [["Позиція", r => itemLabel(r.item_id)], ["Кількість", r => erpNum(r.quantity)], ["Відвантажено", r => erpNum(r.shipped)], ...(erpAllZero(data.lines, 'cancelled_quantity') ? [] : [["Скасовано", r => r.cancelled_quantity == null ? '—' : erpNum(r.cancelled_quantity)]]), ...(erpAllZero(data.lines, 'returned_quantity') ? [] : [["Повернуто фізично", r => r.returned_quantity == null ? '—' : erpNum(r.returned_quantity)]]), ["До виконання", r => erpNum(b03OpenLine(r))], ...(bosRole() !== 'observer' ? [["Ціна", r => erpNum(r.price) + ' ' + o.currency]] : []), ["Версія", 'revision'], ["Дії", r => buttons([['Резерв', 'reserve', {
+    columns: [["Позиція", r => itemLabel(r.item_id)], ["Кількість", r => erpNum(r.quantity)], ["Відвантажено", r => erpNum(r.shipped)], ...(erpAllZero(data.lines, 'cancelled_quantity') ? [] : [["Скасовано", r => r.cancelled_quantity == null ? '—' : erpNum(r.cancelled_quantity)]]), ...(erpAllZero(data.lines, 'returned_quantity') ? [] : [["Повернуто фізично", r => r.returned_quantity == null ? '—' : erpNum(r.returned_quantity)]]), ["До виконання", r => erpNum(b03OpenLine(r))], ...(bosRole() !== 'observer' ? [["Ціна", r => erpMoney(r.price, o.currency)]] : []), ["Версія", 'revision'], ["Дії", r => buttons([['Резерв', 'reserve', {
       line_id: r.id
     }], ['Виготовити', 'job', {
       line_id: r.id,
