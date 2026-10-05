@@ -24544,7 +24544,8 @@ function MonTable({
       if (e.key === 'Enter') onRow(r.ref);
     }
   }, r.cells.map((c, j) => /*#__PURE__*/React.createElement("td", {
-    key: j
+    key: j,
+    "data-label": table.columns[j]
   }, monValue(c)))))))) : /*#__PURE__*/React.createElement("p", {
     className: "op-muted mon-empty"
   }, "\u041D\u0435\u043C\u0430\u0454 \u0437\u0430\u043F\u0438\u0441\u0456\u0432"));

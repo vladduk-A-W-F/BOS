@@ -74,4 +74,7 @@ assert.match(source, /<span className="bos-file-button" aria-hidden="true">Об�
 assert.match(source, /\.bos-file-name:empty::before\{content:"Файл не обрано"/);
 // Only the hidden assistant upload (opened by its own button) keeps a bare native file input.
 assert.equal((source.match(/<input [^>]*type="file"/g) || []).length, 1);
+// U9: on a phone the monitoring tables become «label: value» cards instead of a wide table hidden off-screen.
+assert.match(source, /<td key=\{j\} data-label=\{table\.columns\[j\]\}>\{monValue\(c\)\}<\/td>/);
+assert.match(source, /@media\(max-width:600px\)\{\.mon-card \.erp-table\{overflow:visible\}[^\n]*\.mon-card \.erp-table thead\{display:none\}[^\n]*td::before\{content:attr\(data-label\)/);
 console.log('M7 navigation, legacy routes and role visibility: PASS');
