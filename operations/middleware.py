@@ -37,9 +37,11 @@ class LocalRoleGuard:
         public = {'/api/auth/csrf/', '/api/auth/login/', '/api/auth/logout/', '/api/auth/me/'}
         if demo:
             public |= {'/api/auth/demo/', '/api/operations/role/', '/api/operations/status/', '/api/runtime/status/', '/api/erp/showcase/'}
-        if request.path in public and request.user.is_authenticated:
-            # A public demo read still says which access revision it was computed for, so a signed-in
-            # screen can tell fresh facts from a changed session (otherwise «Доручення» refuses the list).
+        if (demo and request.method == 'GET' and request.path in ('/api/operations/status/', '/api/runtime/status/')
+                and request.user.is_authenticated):
+            # Only these safe demo reads: they still say which access revision they were computed for, so a
+            # signed-in screen can tell fresh facts from a changed session (otherwise «Доручення» refuses the
+            # list). Session-changing paths (login, logout, role, demo entry) never get a pre-view revision.
             try:
                 actor(request)
             except IdentityDenied:
