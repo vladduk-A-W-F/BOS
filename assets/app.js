@@ -24539,6 +24539,10 @@ function MonTable({
   table,
   onRow
 }) {
+  const shown = table.columns.map((label, index) => ({
+    label,
+    index
+  })).filter(c => !(c.label === 'Валюта' && table.columns.includes('Сума') && table.rows.length && table.rows.every(r => r.ref.kind === 'connector' && r.cells[table.columns.indexOf('Сума')] != null && r.cells[table.columns.indexOf('Сума')] !== '' && r.cells[c.index])));
   return /*#__PURE__*/React.createElement("section", {
     className: "mon-card"
   }, /*#__PURE__*/React.createElement("header", null, /*#__PURE__*/React.createElement("h2", null, table.title), /*#__PURE__*/React.createElement("span", null, table.total)), table.rows.length ? /*#__PURE__*/React.createElement("div", {
@@ -24548,11 +24552,11 @@ function MonTable({
     role: "table"
   }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
     role: "row"
-  }, table.columns.map(c => /*#__PURE__*/React.createElement("th", {
-    key: c,
+  }, shown.map(c => /*#__PURE__*/React.createElement("th", {
+    key: c.index,
     scope: "col",
     role: "columnheader"
-  }, c)))), /*#__PURE__*/React.createElement("tbody", null, table.rows.map((r, i) => /*#__PURE__*/React.createElement("tr", {
+  }, c.label)))), /*#__PURE__*/React.createElement("tbody", null, table.rows.map((r, i) => /*#__PURE__*/React.createElement("tr", {
     key: i,
     role: "row",
     className: 'bos-click-row' + (r.late ? ' mon-late' : ''),
@@ -24561,11 +24565,16 @@ function MonTable({
     onKeyDown: e => {
       if (e.key === 'Enter') onRow(r.ref);
     }
-  }, r.cells.map((c, j) => /*#__PURE__*/React.createElement("td", {
-    key: j,
-    role: "cell",
-    "data-label": table.columns[j]
-  }, r.ref.kind === 'connector' ? c === '' ? '—' : table.columns[j] === 'Сума' ? erpMoney(c, r.cells[table.columns.indexOf('Валюта')]) : monValue(c) : monValue(c)))))))) : /*#__PURE__*/React.createElement("p", {
+  }, shown.map(({
+    index: j
+  }) => {
+    const c = r.cells[j];
+    return /*#__PURE__*/React.createElement("td", {
+      key: j,
+      role: "cell",
+      "data-label": table.columns[j]
+    }, r.ref.kind === 'connector' ? c === '' ? '—' : table.columns[j] === 'Сума' ? erpMoney(c, r.cells[table.columns.indexOf('Валюта')]) : monValue(c) : monValue(c));
+  })))))) : /*#__PURE__*/React.createElement("p", {
     className: "op-muted mon-empty"
   }, "\u041D\u0435\u043C\u0430\u0454 \u0437\u0430\u043F\u0438\u0441\u0456\u0432"));
 }
@@ -24739,10 +24748,9 @@ function Connections({
   const [mapping, setMapping] = useState({}),
     [mapped, setMapped] = useState(null);
   const [checked, setChecked] = useState(false),
-    [persist, setPersist] = useState(false),
     [editMapping, setEditMapping] = useState({}),
-    [confirmMapping, setConfirmMapping] = useState(false),
     [notice, setNotice] = useState('');
+  const persist = checked;
   const fileRef = useRef(null),
     entry = useRef(null),
     previewSeq = useRef(0),
@@ -24840,7 +24848,6 @@ function Connections({
     setMapping({});
     setMapped(null);
     setChecked(false);
-    setPersist(false);
     if (!mutationBusy.current) setBusy(false);
     setError('');
   };
@@ -24853,7 +24860,6 @@ function Connections({
     }));
     setMapped(null);
     setChecked(false);
-    setPersist(false);
     if (!mutationBusy.current) setBusy(false);
     setError('');
   };
@@ -24866,7 +24872,6 @@ function Connections({
     setError('');
     setMapped(null);
     setChecked(false);
-    setPersist(false);
     if (!withMapping) setPreview(null);
     try {
       const f = source();
@@ -24911,7 +24916,6 @@ function Connections({
       }
       setPreview(null);
       setChecked(false);
-      setPersist(false);
       setForm({
         kind: 'csv',
         name: '',
@@ -24946,7 +24950,6 @@ function Connections({
     const scope = entry.current,
       seq = ++openSeq.current;
     setOpen(null);
-    setConfirmMapping(false);
     const row = await call(id + '/rows/');
     if (current(scope) && seq === openSeq.current) {
       setOpen(row);
@@ -24957,11 +24960,10 @@ function Connections({
     if (mutationBusy.current) return;
     openSeq.current++;
     setOpen(null);
-    setConfirmMapping(false);
   };
   const selectedSeq = openSeq.current;
   const saveMapping = () => {
-    if (selectedSeq !== openSeq.current || !confirmMapping || !open?.fields || !('mapping' in open)) return;
+    if (selectedSeq !== openSeq.current || !open?.fields || !('mapping' in open)) return;
     run(async () => {
       const scope = entry.current,
         seq = ++openSeq.current,
@@ -24980,7 +24982,6 @@ function Connections({
         rows: []
       });
       setEditMapping(saved.mapping || sent);
-      setConfirmMapping(false);
       setNotice(mappingMatches(saved.mapping, sent) ? 'Відповідність джерела збережено.' : 'Сервер не підтвердив збереження відповідності.');
       let note = '';
       try {
@@ -25066,27 +25067,18 @@ function Connections({
         ...p,
         [field.field]: e.target.value
       }));
-      setConfirmMapping(false);
     }
   }, /*#__PURE__*/React.createElement("option", {
     value: ""
   }, field.required ? 'Оберіть колонку' : 'Пропустити'), open.columns.map(column => /*#__PURE__*/React.createElement("option", {
     key: column,
     value: column
-  }, column)))))), /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
-    type: "checkbox",
+  }, column)))))), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041D\u0430\u0442\u0438\u0441\u043D\u0456\u0442\u044C \xAB\u0417\u0431\u0435\u0440\u0435\u0433\u0442\u0438\xBB, \u0449\u043E\u0431 \u0437\u0431\u0435\u0440\u0435\u0433\u0442\u0438 \u0432\u0438\u0431\u0440\u0430\u043D\u0443 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u0456\u0441\u0442\u044C \u0434\u043B\u044F \u0446\u044C\u043E\u0433\u043E \u0434\u0436\u0435\u0440\u0435\u043B\u0430."), /*#__PURE__*/React.createElement(Button, {
     disabled: busy,
-    checked: confirmMapping,
-    onChange: e => {
-      if (!mutationBusy.current && selectedSeq === openSeq.current) {
-        openSeq.current++;
-        setConfirmMapping(e.target.checked);
-      }
-    }
-  }), "\u041F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0443\u044E \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043D\u044F \u0432\u0438\u0431\u0440\u0430\u043D\u043E\u0457 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u043E\u0441\u0442\u0456 \u0434\u043B\u044F \u0446\u044C\u043E\u0433\u043E \u0434\u0436\u0435\u0440\u0435\u043B\u0430"), /*#__PURE__*/React.createElement(Button, {
-    disabled: busy || !confirmMapping,
     onClick: saveMapping
-  }, "\u0417\u0431\u0435\u0440\u0435\u0433\u0442\u0438 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u0456\u0441\u0442\u044C \u0434\u0436\u0435\u0440\u0435\u043B\u0430"), /*#__PURE__*/React.createElement("p", {
+  }, "\u0417\u0431\u0435\u0440\u0435\u0433\u0442\u0438"), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
   }, "\u0421\u0435\u0440\u0432\u0435\u0440 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u0438\u0442\u044C \u0432\u0438\u0431\u0456\u0440 \u0437\u0430 \u043E\u0441\u0442\u0430\u043D\u043D\u044C\u043E\u044E \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043E\u044E \u0442\u0430\u0431\u043B\u0438\u0446\u0435\u044E.")), bosCan('write') && /*#__PURE__*/React.createElement("div", {
     className: "erp-table"
@@ -25167,7 +25159,7 @@ function Connections({
     variant: "primary",
     disabled: busy || !form.name.trim(),
     onClick: doCreate
-  }, "\u041F\u0456\u0434\u043A\u043B\u044E\u0447\u0438\u0442\u0438")), busy && /*#__PURE__*/React.createElement("p", {
+  }, checked ? 'Підключити з цією відповідністю' : 'Підключити')), busy && /*#__PURE__*/React.createElement("p", {
     role: "status"
   }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F\u2026"), preview && /*#__PURE__*/React.createElement("div", {
     className: "erp-table"
@@ -25183,7 +25175,7 @@ function Connections({
     "aria-label": "\u041F\u043E\u043F\u0435\u0440\u0435\u0434\u043D\u0456\u0439 \u043F\u0435\u0440\u0435\u0433\u043B\u044F\u0434 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u043E\u0441\u0442\u0456 \u043A\u043E\u043B\u043E\u043D\u043E\u043A"
   }, /*#__PURE__*/React.createElement("h3", null, "\u0412\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u0456\u0441\u0442\u044C \u043A\u043E\u043B\u043E\u043D\u043E\u043A"), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
-  }, "\u0412\u0438\u0431\u0456\u0440 \u043F\u043E\u043A\u0438 \u043D\u0435 \u0437\u0431\u0435\u0440\u0456\u0433\u0430\u0454\u0442\u044C\u0441\u044F. \u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0442\u0435 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u0456\u0441\u0442\u044C \u0456 \u044F\u0432\u043D\u043E \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u044C\u0442\u0435 \u0457\u0457 \u043D\u0430\u0434\u0441\u0438\u043B\u0430\u043D\u043D\u044F \u0440\u0430\u0437\u043E\u043C \u0456\u0437 \u043D\u043E\u0432\u0438\u043C \u0434\u0436\u0435\u0440\u0435\u043B\u043E\u043C."), /*#__PURE__*/React.createElement("div", {
+  }, "\u041F\u0456\u0441\u043B\u044F \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0438 \u043D\u0430\u0442\u0438\u0441\u043D\u0456\u0442\u044C \xAB\u041F\u0456\u0434\u043A\u043B\u044E\u0447\u0438\u0442\u0438 \u0437 \u0446\u0456\u0454\u044E \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u0456\u0441\u0442\u044E\xBB, \u0449\u043E\u0431 \u0441\u0442\u0432\u043E\u0440\u0438\u0442\u0438 \u0434\u0436\u0435\u0440\u0435\u043B\u043E \u0439 \u0437\u0431\u0435\u0440\u0435\u0433\u0442\u0438 \u0446\u0435\u0439 \u0432\u0438\u0431\u0456\u0440."), /*#__PURE__*/React.createElement("div", {
     className: "erp-form"
   }, preview.fields.map(field => /*#__PURE__*/React.createElement("label", {
     key: field.field
@@ -25200,14 +25192,7 @@ function Connections({
   }, column)))))), /*#__PURE__*/React.createElement(Button, {
     disabled: busy,
     onClick: () => doPreview(true)
-  }, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0438\u0442\u0438 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u0456\u0441\u0442\u044C"), checked && /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
-    type: "checkbox",
-    disabled: busy,
-    checked: persist,
-    onChange: e => {
-      if (!mutationBusy.current) setPersist(e.target.checked);
-    }
-  }), "\u041D\u0430\u0434\u0456\u0441\u043B\u0430\u0442\u0438 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u0435\u043D\u0443 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u0456\u0441\u0442\u044C \u043F\u0456\u0434 \u0447\u0430\u0441 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043D\u044F"), !mapped && !busy && /*#__PURE__*/React.createElement("p", {
+  }, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0438\u0442\u0438 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u0456\u0441\u0442\u044C"), !mapped && !busy && /*#__PURE__*/React.createElement("p", {
     role: "status",
     className: "op-muted"
   }, "\u0412\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u0456\u0441\u0442\u044C \u0437\u043C\u0456\u043D\u0435\u043D\u043E. \u041F\u0435\u0440\u0435\u0433\u043B\u044F\u043D\u044C\u0442\u0435 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u0449\u0435 \u0440\u0430\u0437."), mapped?.error && /*#__PURE__*/React.createElement("p", {

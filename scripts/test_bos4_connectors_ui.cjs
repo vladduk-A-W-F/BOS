@@ -40,9 +40,10 @@ function harness(write,extra={}){
     button('Переглянути').props.onClick();await tick();ui.requests[2].resolve(response(result));await tick();
     assert.ok(!nodes(ui.render()).some(n=>n.type==='input'&&n.props.type==='checkbox'),'automatic guess has no persistence confirmation');
     button('Перевірити відповідність').props.onClick();await tick();ui.requests[3].resolve(response(result));await tick();
-    nodes(ui.render()).find(n=>n.type==='input'&&n.props.type==='checkbox').props.onChange({target:{checked:true}});
+    assert.ok(!nodes(ui.render()).some(n=>n.type==='input'&&n.props.type==='checkbox'),'checked preview needs only the explicit create button');
+    assert.equal(ui.requests.length,4,'checking does not create or save automatically');
     nodes(ui.render()).find(n=>n.props.placeholder==='Замовлення з магазину').props.onChange({target:{value:'Explicit choice'}});
-    const create=button('Підключити').props.onClick;
+    const create=button('Підключити з цією відповідністю').props.onClick;
     ui.setScope('user:2');create();await tick();assert.equal(ui.requests.length,4,'retained create handler cannot POST after account change');
     ui.setScope('user:1');create();await tick();
     assert.deepEqual(JSON.parse(ui.requests[4].options.body.items.find(([k])=>k==='mapping')[1]),chosen);
@@ -57,8 +58,7 @@ function harness(write,extra={}){
     let write=true;const ui=harness(true,{props:{targetId:7},bosCan:key=>key==='write'&&write});ui.mount();
     ui.requests[0].resolve(response({synced:[],failed:[]}));await tick();ui.requests[1].resolve(response(list));await tick();
     ui.requests[2].resolve(response({...list.connectors[0],columns:['Номер'],rows:[],fields:[{field:'code',label:'Номер',required:true}],mapping:{code:'Номер'}}));await tick();
-    nodes(ui.render()).find(n=>n.type==='input'&&n.props.type==='checkbox').props.onChange({target:{checked:true}});
-    const save=nodes(ui.render()).find(n=>n.props.onClick&&n.children.includes('Зберегти відповідність джерела')).props.onClick;
+    const save=nodes(ui.render()).find(n=>n.props.onClick&&n.children.includes('Зберегти')).props.onClick;
     if(boundary==='account')ui.setScope('user:2');else if(boundary==='unmount')ui.unmount();else write=false;
     save();await tick();assert.equal(ui.requests.length,3,'retained save handler cannot POST after '+boundary);
     if(boundary==='account')assert.ok(!nodes(ui.render()).some(n=>n.props['aria-label']==='Джерело: Продажі'),'previous account source editor is hidden');
@@ -66,8 +66,7 @@ function harness(write,extra={}){
   for(const boundary of ['edit','close']){
     const ui=harness(true,{props:{targetId:7}});ui.mount();ui.requests[0].resolve(response({synced:[],failed:[]}));await tick();ui.requests[1].resolve(response(list));await tick();
     ui.requests[2].resolve(response({...list.connectors[0],columns:['Номер'],rows:[['old value']],fields:[{field:'code',label:'Номер',required:true}],mapping:{code:'Номер'}}));await tick();
-    nodes(ui.render()).find(n=>n.type==='input'&&n.props.type==='checkbox').props.onChange({target:{checked:true}});
-    const save=nodes(ui.render()).find(n=>n.props.onClick&&n.children.includes('Зберегти відповідність джерела')).props.onClick;
+    const save=nodes(ui.render()).find(n=>n.props.onClick&&n.children.includes('Зберегти')).props.onClick;
     if(boundary==='edit')nodes(ui.render()).find(n=>n.props['aria-label']==='Джерело: Номер').props.onChange({target:{value:''}});
     else nodes(ui.render()).find(n=>n.props.onClick&&n.children.includes('Закрити')).props.onClick();
     save();await tick();assert.equal(ui.requests.length,3,'retained save confirmation cannot POST after '+boundary);
@@ -76,11 +75,10 @@ function harness(write,extra={}){
     const ui=harness(true,{props:{targetId:7}});ui.mount();ui.requests[0].resolve(response({synced:[],failed:[]}));await tick();ui.requests[1].resolve(response(list));await tick();
     const saved={...list.connectors[0],columns:['Номер'],fields:[{field:'code',label:'Номер',required:true}],mapping:{code:'Номер'},mapped_summary:{accepted:1,total:1,rejected:0}};
     ui.requests[2].resolve(response({...saved,rows:[['ZM-1']]}));await tick();
-    nodes(ui.render()).find(n=>n.type==='input'&&n.props.type==='checkbox').props.onChange({target:{checked:true}});
-    const save=nodes(ui.render()).find(n=>n.props.onClick&&n.children.includes('Зберегти відповідність джерела')).props.onClick;
+    const save=nodes(ui.render()).find(n=>n.props.onClick&&n.children.includes('Зберегти')).props.onClick;
     save();await tick();ui.requests[3].resolve(response(saved));await tick();await tick();
     ui.requests[4].resolve(response({...saved,rows:[['ZM-1']]}));await tick();await tick();ui.requests[5].resolve(response(list));await tick();
-    assert.equal(nodes(ui.render()).find(n=>n.type==='input'&&n.props.type==='checkbox').props.checked,false);
+    assert.ok(!nodes(ui.render()).some(n=>n.type==='input'&&n.props.type==='checkbox'),'save needs one explicit button, no extra checkbox');
     save();await tick();assert.equal(ui.requests.length,6,'completed save consumes its confirmation; retained handler cannot write again');
   }
   {
@@ -91,18 +89,18 @@ function harness(write,extra={}){
     ui.requests[2].resolve(response(saved));await tick();
     const button=label=>nodes(ui.render()).find(n=>n.props.onClick&&n.children.includes(label));
     const select=()=>nodes(ui.render()).find(n=>n.props['aria-label']==='Джерело: Номер');
-    const confirm=()=>nodes(ui.render()).find(n=>n.type==='input'&&n.props.type==='checkbox');
-    assert.equal(button('Зберегти відповідність джерела').props.disabled,true);
-    select().props.onChange({target:{value:'Клієнт'}});confirm().props.onChange({target:{checked:true}});
-    button('Зберегти відповідність джерела').props.onClick();await tick();
+    assert.equal(button('Зберегти').props.disabled,false,'explicit save button is the confirmation');
+    select().props.onChange({target:{value:'Клієнт'}});
+    assert.equal(ui.requests.length,3,'editing an existing mapping never autosaves');
+    button('Зберегти').props.onClick();await tick();
     assert.equal(ui.requests[3].url,'/api/connectors/7/mapping/');
     assert.deepEqual(JSON.parse(ui.requests[3].options.body.items[0][1]),{code:'Клієнт',customer:'Клієнт'});
-    button('Зберегти відповідність джерела').props.onClick();select().props.onChange({target:{value:'Номер'}});await tick();
+    button('Зберегти').props.onClick();select().props.onChange({target:{value:'Номер'}});await tick();
     assert.equal(ui.requests.length,4,'pending mutation cannot be duplicated or edited');
     ui.requests[3].resolve(response({error:'Колонка вже використана'},false));await tick();
     assert.equal(select().props.value,'Клієнт','422 keeps the selected choice');
     assert.ok(!nodes(ui.render()).some(n=>n.props.role==='status'&&n.children.includes('Відповідність джерела збережено.')));
-    select().props.onChange({target:{value:'Номер'}});confirm().props.onChange({target:{checked:true}});button('Зберегти відповідність джерела').props.onClick();await tick();
+    select().props.onChange({target:{value:'Номер'}});button('Зберегти').props.onClick();await tick();
     ui.requests[4].resolve(response({...saved,columns:['Клієнт','Номер'],rows:undefined}));await tick();await tick();
     assert.equal(ui.requests[5].url,'/api/connectors/7/rows/');
     assert.ok(!nodes(ui.render()).some(n=>n.type==='td'&&n.children.includes('ZM-1')),'new headers never label old raw rows after save');
@@ -110,12 +108,12 @@ function harness(write,extra={}){
     assert.ok(nodes(ui.render()).some(n=>n.props.role==='status'&&n.children.includes('Відповідність джерела збережено.')));
     assert.ok(nodes(ui.render()).some(n=>n.props.role==='alert'&&n.children.includes('Refresh after save failed')));
     assert.equal(ui.requests.filter(r=>r.url.endsWith('/mapping/')).length,2,'one failed choice and one successful choice, no retry');
-    confirm().props.onChange({target:{checked:true}});button('Зберегти відповідність джерела').props.onClick();await tick();ui.setScope('user:2');ui.requests[7].resolve(response(saved));await tick();
+    button('Зберегти').props.onClick();await tick();ui.setScope('user:2');ui.requests[7].resolve(response(saved));await tick();
     assert.equal(ui.requests.length,8,'old-account save response cannot reload or report success');
     ui.unmount();
     const observer=harness(false,{props:{targetId:7}});observer.mount();observer.requests[0].resolve(response(list));await tick();
     assert.equal(observer.requests.length,1,'observer opens metadata without rows GET');
-    assert.ok(!nodes(observer.render()).some(n=>n.props.onClick&&n.children.includes('Зберегти відповідність джерела')));
+    assert.ok(!nodes(observer.render()).some(n=>n.props.onClick&&n.children.includes('Зберегти')));
   }
   {
     const ui=harness(true);ui.mount();ui.requests[0].resolve(response({synced:[],failed:[]}));await tick();ui.requests[1].resolve(response(list));await tick();
@@ -132,7 +130,7 @@ function harness(write,extra={}){
       mapped:{mapping,rows,accepted:5,total:105,rejected:Array.from({length:50},(_,i)=>({row:i+7,reason:'помилка '+i}))}}));await tick();
     assert.ok(button('Перевірити відповідність'),'plain Ukrainian action');
     assert.ok(nodes(section()).some(n=>n.children.includes('Як BoS прочитає перші 5 рядків')));
-    assert.ok(nodes(section()).some(n=>n.children.some(c=>typeof c==='string'&&c.startsWith('Вибір поки не зберігається.'))));
+    assert.ok(nodes(section()).some(n=>n.children.some(c=>typeof c==='string'&&c.startsWith('Після перевірки натисніть'))));
     const cells=nodes(section()).filter(n=>n.type==='td').map(n=>n.children[0]);
     assert.deepEqual(cells,['999\u00a0999\u00a0999\u00a0999,99\u00a0USD','USD','05.10.2026',
       '0\u00a0грн','UAH','—','-1\u00a0234,50\u00a0EUR','EUR','—','—','UAH','06.10.2026','—','USD','07.10.2026']);
@@ -187,6 +185,9 @@ function harness(write,extra={}){
     button('Перевірити відповідність').props.onClick();await tick();
     ui.requests[5].resolve(response({...result,mapped:{mapping:{ticket:'Вартість'},rows:[],accepted:0,total:8,rejected:[{row:2,reason:'порожнє поле'}]}}));await tick();
     assert.ok(nodes(mappingSection()).some(n=>n.children.includes('Немає прийнятих рядків')));
+    const staleCheckedCreate=button('Підключити з цією відповідністю').props.onClick;
+    mappingField('Номер звернення').props.onChange({target:{value:'Вартість'}});
+    staleCheckedCreate();await tick();assert.equal(ui.requests.length,6,'edit invalidates retained checked create without sending a POST');
     field('Назва').props.onChange({target:{value:'Без збереження мапінгу'}});
     const createAgain=button('Підключити').props.onClick;
     const syncWhileCreating=button('Оновити').props.onClick;

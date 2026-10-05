@@ -138,6 +138,25 @@ console.log('M7 navigation, legacy routes and role visibility: PASS');
   assert.equal(ui.requests.length,1,'connector handoff happens before ERP snapshot lookup');
   const rendered=ui.context.MonTable({table:sourceTable,onRow:tableNode.props.onRow});
   assert.ok(nodes(rendered).some(n=>n.type==='td'&&n.children.includes('12.50 USD')),'source money uses currency-aware formatter');
+  const headings=tree=>nodes(tree).filter(n=>n.type==='th').map(n=>n.children[0]);
+  assert.deepEqual(headings(rendered),['Клієнт','Сума'],'formatted source amount carries currency without a duplicate column');
+  assert.deepEqual(nodes(rendered).filter(n=>n.type==='td').map(n=>n.props['data-label']),['Клієнт','Сума'],'visible headers and mobile cell labels remain aligned');
+  vm.runInContext(app.match(/const erpDate = [\s\S]*?(?=const erpDateTime =)/)[0],ui.context);
+  const currencyTable=(amount,kind='connector',columns=['Сума','Валюта'])=>ui.context.MonTable({table:{...sourceTable,columns,rows:[{ref:{kind,id:7},cells:columns.length===1?['USD']:[amount,'USD']}]},onRow:()=>{}});
+  for(const amount of ['0.00','-1234.50','999999999999.99']){
+    const view=currencyTable(amount);
+    assert.deepEqual(headings(view),['Сума']);
+    assert.equal(nodes(view).find(n=>n.type==='td').children[0],vm.runInContext('erpMoney('+JSON.stringify(amount)+',"USD")',ui.context),'source currency remains in the existing exact formatter');
+  }
+  for(const amount of [null,'']){
+    const view=currencyTable(amount);
+    assert.deepEqual(headings(view),['Сума','Валюта'],'empty source amount keeps the provided currency column');
+    assert.ok(nodes(view).some(n=>n.type==='td'&&n.props['data-label']==='Валюта'&&n.children.includes('USD')));
+  }
+  assert.deepEqual(headings(currencyTable(null,'connector',['Валюта'])),['Валюта'],'currency-only source keeps its currency');
+  const erpView=currencyTable('12.50','invoice');
+  assert.deepEqual(headings(erpView),['Сума','Валюта'],'ERP columns remain unchanged');
+  assert.deepEqual(nodes(erpView).filter(n=>n.type==='td').map(n=>n.children[0]),['12.50','USD'],'ERP cell values remain unchanged');
   ui.setScope('user:2');assert.ok(!nodes(ui.render()).some(n=>n.props['aria-label']==='Підключені джерела у моніторингу'),'previous account source data is hidden');
   tableNode.props.onRow({kind:'connector',id:7});assert.equal(ui.routes.length,3,'retained source row cannot navigate after account change');
   const old=harness();old.mount();old.requests[0].resolve(base);await tick();
