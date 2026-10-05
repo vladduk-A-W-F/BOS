@@ -1909,25 +1909,31 @@ function NavBar({
       }, 0);
     }
   };
-  const commitLeaf = (section, sub, returnCurrentFocus, owner) => {
+  const commitLeaf = (section, sub, returnCurrentFocus, owner, showSubmenu = false) => {
     const target = {
       section,
-      sub: sub || null
+      sub: sub || (section === 'hr' ? 'tasks' : null)
     };
     cancelPendingFocus();
     if (!ownsCurrent(owner) || !routeIsAllowed(target.section, target.sub)) return;
     if (owner.route.section === target.section && owner.route.sub === target.sub) {
-      if (openRef.current === section) closeDisclosure(section, returnCurrentFocus, owner);
+      if (showSubmenu) setOpenDisclosure(openRef.current === section ? null : section, openRef.current === section ? null : owner);else if (openRef.current === section) closeDisclosure(section, returnCurrentFocus, owner);
       return;
     }
     setOpenDisclosure(null);
     if (!ownsCurrent(owner) || !routeIsAllowed(target.section, target.sub)) return;
     setNav(target);
+    if (showSubmenu) setOpenDisclosure(section, {
+      ...owner,
+      route: target
+    });
     const generation = focusGeneration.current;
     focusTimer.current = window.setTimeout(() => {
       focusTimer.current = null;
       const targetIsCurrent = navRef.current.section === target.section && (navRef.current.sub || null) === target.sub;
-      if (generation === focusGeneration.current && alive.current && owner.epoch === ownerEpoch.current && owner.version === ownerVersion && owner.scope === bosHttpScope() && owner.mobile === mobileMode() && targetIsCurrent && routeIsAllowed(target.section, target.sub)) focusCurrentContent();
+      if (generation === focusGeneration.current && alive.current && owner.epoch === ownerEpoch.current && owner.version === ownerVersion && owner.scope === bosHttpScope() && owner.mobile === mobileMode() && targetIsCurrent && routeIsAllowed(target.section, target.sub)) {
+        if (showSubmenu) focusTrigger(target.section);else focusCurrentContent();
+      }
     }, 0);
   };
   const closeAfterFocusLeaves = (event, owner) => {
@@ -2096,7 +2102,7 @@ function NavBar({
       "aria-controls": hasSubs ? 'bos-nav-disclosure-' + n.id : undefined,
       onClick: () => {
         if (!ownsCurrent(renderOwner)) return;
-        if (hasSubs) {
+        if (n.id === 'hr') commitLeaf(n.id, 'tasks', true, renderOwner, true);else if (hasSubs) {
           cancelPendingFocus();
           setOpenDisclosure(openRef.current === n.id ? null : n.id, openRef.current === n.id ? null : renderOwner);
         } else commitLeaf(n.id, null, true, renderOwner);
@@ -10511,35 +10517,35 @@ function Settings({
   const STABS = [{
     id: 'profile',
     l: 'Профіль',
-    ic: '👤'
+    ic: 'employees'
   }, {
     id: 'theme',
     l: 'Вигляд',
-    ic: '🎨'
+    ic: 'settings'
   }, {
     id: 'employees',
     l: 'Співробітники',
-    ic: '👥'
+    ic: 'hr'
   }, {
     id: 'departments',
     l: 'Відділи',
-    ic: '🏛'
+    ic: 'structure'
   }, {
     id: 'industry',
     l: 'Діяльність',
-    ic: '🏢'
+    ic: 'operations'
   }, {
     id: 'notifications',
     l: 'Сповіщення',
-    ic: '🔔'
+    ic: 'alertTriangle'
   }, {
     id: 'regional',
     l: 'Регіональні',
-    ic: '🌐'
+    ic: 'schedule'
   }, {
     id: 'data',
     l: 'Дані',
-    ic: '📊'
+    ic: 'reports'
   }];
   return /*#__PURE__*/React.createElement("div", {
     className: "bos-settings",
@@ -10564,7 +10570,11 @@ function Settings({
     onChange: setTab,
     options: STABS.map(t => ({
       key: t.id,
-      label: `${t.ic} ${t.l}`
+      label: /*#__PURE__*/React.createElement("span", {
+        className: "bos-settings-label"
+      }, /*#__PURE__*/React.createElement("span", {
+        "aria-hidden": "true"
+      }, ICONS[t.ic]), t.l)
     })),
     style: {
       flexDirection: 'column',
@@ -14856,7 +14866,7 @@ function OrganizationSettings() {
     style: {
       marginBottom: 18
     }
-  }, /*#__PURE__*/React.createElement("h3", null, "\u041E\u0440\u0433\u0430\u043D\u0456\u0437\u0430\u0446\u0456\u044F \u0442\u0430 \u0440\u0435\u0436\u0438\u043C AI"), form && /*#__PURE__*/React.createElement("form", {
+  }, /*#__PURE__*/React.createElement("h3", null, "\u041E\u0440\u0433\u0430\u043D\u0456\u0437\u0430\u0446\u0456\u044F"), form && /*#__PURE__*/React.createElement("form", {
     onSubmit: save,
     className: "op-upload"
   }, [['name', 'Назва організації'], ['description', 'Опис'], ['industry', 'Галузь'], ['process_owner', 'Власник процесу'], ['timezone', 'Часовий пояс']].map(([key, label]) => /*#__PURE__*/React.createElement("label", {
@@ -14867,7 +14877,9 @@ function OrganizationSettings() {
       ...form,
       [key]: e.target.value
     })
-  }))), [['ai_timeout', 'Тайм-аут, с'], ['ai_max_steps', 'Максимум кроків'], ['ai_hourly_limit', 'Запитів за годину']].map(([key, label]) => /*#__PURE__*/React.createElement("label", {
+  }))), /*#__PURE__*/React.createElement("details", {
+    className: "bos-settings-advanced"
+  }, /*#__PURE__*/React.createElement("summary", null, "\u0414\u043E\u0434\u0430\u0442\u043A\u043E\u0432\u043E"), [['ai_timeout', 'Тайм-аут, с'], ['ai_max_steps', 'Максимум кроків'], ['ai_hourly_limit', 'Запитів за годину']].map(([key, label]) => /*#__PURE__*/React.createElement("label", {
     key: key
   }, label, /*#__PURE__*/React.createElement(Input, {
     type: "number",
@@ -14878,7 +14890,7 @@ function OrganizationSettings() {
     })
   }))), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
-  }, "\u041B\u0456\u043C\u0456\u0442\u0438 \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u0456 \u0434\u043B\u044F \u043C\u0430\u0439\u0431\u0443\u0442\u043D\u044C\u043E\u0433\u043E API-\u0430\u0434\u0430\u043F\u0442\u0435\u0440\u0430. \u0423 \u0446\u0456\u0439 \u0432\u0435\u0440\u0441\u0456\u0457 \u043F\u0440\u0430\u0446\u044E\u0454 \u0441\u0446\u0435\u043D\u0430\u0440\u043D\u0438\u0439 \u0440\u0435\u0436\u0438\u043C. \u0421\u0442\u043E\u0440\u043E\u043D\u043D\u0456 ERP, \u0431\u0430\u043D\u043A, \u043F\u043E\u0448\u0442\u0430 \u0442\u0430 OCR \u043D\u0435 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0456."), /*#__PURE__*/React.createElement(Button, null, "\u0417\u0431\u0435\u0440\u0435\u0433\u0442\u0438")), /*#__PURE__*/React.createElement("p", {
+  }, "\u041B\u0456\u043C\u0456\u0442\u0438 \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u0456 \u0434\u043B\u044F \u043C\u0430\u0439\u0431\u0443\u0442\u043D\u044C\u043E\u0433\u043E API-\u0430\u0434\u0430\u043F\u0442\u0435\u0440\u0430. \u0423 \u0446\u0456\u0439 \u0432\u0435\u0440\u0441\u0456\u0457 \u043F\u0440\u0430\u0446\u044E\u0454 \u0441\u0446\u0435\u043D\u0430\u0440\u043D\u0438\u0439 \u0440\u0435\u0436\u0438\u043C. \u0421\u0442\u043E\u0440\u043E\u043D\u043D\u0456 ERP, \u0431\u0430\u043D\u043A, \u043F\u043E\u0448\u0442\u0430 \u0442\u0430 OCR \u043D\u0435 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0456.")), /*#__PURE__*/React.createElement(Button, null, "\u0417\u0431\u0435\u0440\u0435\u0433\u0442\u0438")), /*#__PURE__*/React.createElement("p", {
     role: "status"
   }, message));
 }
