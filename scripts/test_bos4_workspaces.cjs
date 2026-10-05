@@ -43,4 +43,9 @@ assert.match(finance, /<ERPWorkspace view="costs"/);
 const erpNumCode = source.match(/^const erpNum=.*;$/m)?.[0];
 assert.ok(erpNumCode);
 assert.deepEqual(Array.from(vm.runInNewContext(`${erpNumCode};[erpNum('0.000'),erpNum('120.000'),erpNum('0.125')]`)), ['0', '120', '0,125']);
+// Money and quantities are formatted from the exact decimal string: no float rounding, hryvnia as «грн».
+const amountCode = source.slice(source.indexOf('function erpAmount('), source.indexOf('const erpDateTime='));
+assert.ok(amountCode.includes('const erpMoney='));
+assert.deepEqual(Array.from(vm.runInNewContext(`${amountCode};[erpAmount('10900.00'),erpAmount('9007199254740993.125'),erpAmount('0.000'),erpMoney('777700.00','UAH'),erpMoney('-1234.5','UAH'),erpMoney('5.10','EUR'),erpMoney(null,'UAH')]`)),
+  ['10\u00a0900', '9\u00a0007\u00a0199\u00a0254\u00a0740\u00a0993,125', '0', '777\u00a0700\u00a0грн', '-1\u00a0234,50\u00a0грн', '5,10\u00a0EUR', 'Недоступно']);
 console.log('M7 navigation, legacy routes and role visibility: PASS');
