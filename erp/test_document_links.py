@@ -1,4 +1,5 @@
 """Documents attached to sales orders and invoices: preview/confirm write path, role-scoped reads."""
+import hashlib
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -23,7 +24,10 @@ class DocumentLinkTests(TransactionTestCase):
         seed_bos4_demo()
         self.order = SalesOrder.objects.get(code='ZM-0137')
         self.invoice = Invoice.objects.get(code='RF-0137')
-        self.document = Document.objects.get(code='KM-PD-5521')
+        # A document of the test's own: the demo company itself may link its documents to ZM-0137/RF-0137.
+        text = 'ДЕМО-ДАНІ. Синтетичне платіжне доручення для перевірки прив’язок.'
+        self.document = Document.objects.create(code='SYN-LINK-PD', revision='A', title='Синтетичне платіжне доручення',
+            access_level='operational', text=text, status='approved', checksum=hashlib.sha256(text.encode()).hexdigest())
         self.seed_links = DocumentLink.objects.count()
 
     def login(self, role):
@@ -48,9 +52,9 @@ class DocumentLinkTests(TransactionTestCase):
         self.login('ceo')
         self.assertEqual(self.link(order_id=self.order.pk, note='Платіжне доручення').status_code, 200)
         self.assertEqual(self.link(invoice_id=self.invoice.pk).status_code, 200)
-        by_order = self.links(order=self.order.pk).json()['links']
+        by_order = [x for x in self.links(order=self.order.pk).json()['links'] if x['document']['id'] == self.document.pk]
         self.assertEqual([(x['document']['code'], x['order']['code'], x['note']) for x in by_order],
-                         [('KM-PD-5521', 'ZM-0137', 'Платіжне доручення')])
+                         [('SYN-LINK-PD', 'ZM-0137', 'Платіжне доручення')])
         by_document = self.links(document=self.document.pk).json()['links']
         self.assertEqual({(x['order'] or x['invoice'])['code'] for x in by_document}, {'ZM-0137', 'RF-0137'})
         self.assertEqual(self.link(order_id=self.order.pk).status_code, 422)
@@ -79,3 +83,35 @@ class DocumentLinkTests(TransactionTestCase):
         self.assertEqual(DocumentLink.objects.count(), self.seed_links)
         self.assertEqual(self.links().status_code, 422)
         self.assertEqual(self.links(order=self.order.pk, invoice=self.invoice.pk).status_code, 422)
+
+    def test_document_shows_the_lots_it_is_filed_under(self):
+        self.login('ceo')
+        certificate = Document.objects.get(code='KM-CERT-ZK0311')
+        lots = self.links(document=certificate.pk).json()['lots']
+        # The received lot and the lot split off it by a transfer (its code carries a database id).
+        self.assertEqual({x['kind'] for x in lots}, {'certificate'})
+        codes = sorted(x['code'] for x in lots)
+        self.assertEqual(len(codes), 2)
+        self.assertEqual(codes[0], 'KM-L-MA-7075-0926')
+        self.assertTrue(codes[1].startswith('KM-T-MA-7075-'))
+        self.assertEqual(self.links(order=self.order.pk).json()['lots'], [])
+
+    def test_lots_need_the_right_to_see_the_document(self):
+        # A manager without view_document sees no documents, so no lots through one either.
+        user = get_user_model().objects.create_user(username='synthetic-blind', password='synthetic-pass')
+        Group.objects.get_or_create(name='manager')[0].user_set.add(user)
+        self.client.force_login(user)
+        certificate = Document.objects.get(code='KM-CERT-ZK0311')
+        self.assertEqual(self.links(document=certificate.pk).json()['lots'], [])
+
+    def test_only_an_exact_integer_id_links_a_lot(self):
+        # JSON true and 1.0 equal 1 in Python; they must not file a lot under document 1.
+        from .models import Lot
+        self.login('ceo')
+        first = Document.objects.order_by('pk').first()
+        lot = Lot.objects.exclude(documents={}).first()
+        for odd in (True, float(first.pk)):
+            Lot.objects.filter(pk=lot.pk).update(documents={'certificate': odd})
+            self.assertNotIn(lot.code, [x['code'] for x in self.links(document=first.pk).json()['lots']], odd)
+        Lot.objects.filter(pk=lot.pk).update(documents={'certificate': first.pk})
+        self.assertIn(lot.code, [x['code'] for x in self.links(document=first.pk).json()['lots']])

@@ -2,6 +2,8 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const app=fs.readFileSync(path.join(__dirname,'..','assets/app.js'),'utf8');
 const component=app.match(/function DocumentLinks\([\s\S]*?\n}\s*(?=function DocumentImage)/)?.[0];
 assert.ok(component,'compiled DocumentLinks component');
+const docKinds=vm.runInNewContext(app.match(/^const ERP_DOC_KINDS = [\s\S]*?\};/m)?.[0]+';ERP_DOC_KINDS');
+assert.equal(docKinds.certificate,'сертифікат якості');
 const React={createElement:(type,props,...children)=>({type,props:props||{},children})};
 const all=value=>Array.isArray(value)?value.flatMap(all):value&&typeof value==='object'?[value,...(value.children||[]).flatMap(all)]:[];
 const text=value=>Array.isArray(value)?value.map(text).join(''):value&&typeof value==='object'?text(value.children):String(value??'');
@@ -10,7 +12,7 @@ function harness(role,doc={id:42,current:true}){
  let cursor=0,scope='person:1',cleanup,pendingEffect;
  const hooks=[],calls=[],events=new Map();
  const Button=()=>{},Select=()=>{},Input=()=>{},ERPActionDialog=()=>{};
- const ctx={React,Button,Select,Input,ERPActionDialog,window:{addEventListener:(name,fn)=>events.set(name,fn),removeEventListener:name=>events.delete(name)},
+ const ctx={React,Button,Select,Input,ERPActionDialog,ERP_DOC_KINDS:docKinds,window:{addEventListener:(name,fn)=>events.set(name,fn),removeEventListener:name=>events.delete(name)},
   bosHttpScope:()=>scope,bosRole:()=>role,bosCanAction:()=>role!=='observer',
   erpFetch:path=>new Promise((resolve,reject)=>calls.push({path,resolve,reject})),
   useState(initial){const i=cursor++;if(!(i in hooks))hooks[i]=initial;return [hooks[i],value=>{hooks[i]=typeof value==='function'?value(hooks[i]):value}];},
@@ -30,6 +32,14 @@ function harness(role,doc={id:42,current:true}){
  assert.equal(observer.calls[0].path,'document-links/?document=42');observer.calls[0].resolve(rows);await tick();
  assert.ok(text(observer.render()).includes('Замовлення ZM-3'));
  assert.equal(observer.button('Прив’язати до замовлення або рахунку'),undefined,'observer has no write action');observer.unmount();
+
+ // A document also shows the lots it is filed under (reverse of «attach to lot»), in plain Ukrainian.
+ const filed=harness('observer');filed.render();
+ filed.calls[0].resolve({lots:[{id:5,code:'KM-L-1',kind:'certificate'},{id:6,code:'KM-L-2',kind:'custom_kind'}],links:[]});await tick();
+ const filedText=text(filed.render());
+ assert.ok(filedText.includes('Партія KM-L-1 · сертифікат якості'),filedText);
+ assert.ok(filedText.includes('Партія KM-L-2 · custom_kind'),'unknown kinds are shown as they are');
+ assert.ok(!filedText.includes('Зв’язків поки немає'),'lots count as links');filed.unmount();
 
  const manager=harness('manager');manager.render();manager.calls[0].resolve(rows);await tick();
  manager.button('Прив’язати до замовлення або рахунку').props.onClick();

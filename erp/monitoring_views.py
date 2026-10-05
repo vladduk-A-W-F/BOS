@@ -42,7 +42,7 @@ def showcase(request):
 @require_GET
 def document_links(request):
     """Documents attached to an order or invoice, or the records a document is attached to."""
-    from .models import DocumentLink, SalesOrder
+    from .models import DocumentLink, Lot, SalesOrder
     policy = Policy(request)
     rows = DocumentLink.objects.select_related('document', 'order', 'invoice').filter(
         document__in=policy.documents()).order_by('-created_at', '-pk')
@@ -53,7 +53,15 @@ def document_links(request):
         raise ValueError('Вкажіть один параметр: order, invoice або document.')
     rows = rows.filter(**{keys[0] + '_id': int(request.GET[keys[0]])})
     image = lambda d: (d.filename or '').rsplit('.', 1)[-1].lower() in ('png', 'jpg', 'jpeg')
-    return JsonResponse({'links': [{
+    # The reverse of «attach to lot»: lots this exact document version is filed under (Lot.documents).
+    lots = []
+    if keys[0] == 'document':
+        doc_id = int(request.GET['document'])
+        if policy.documents().filter(pk=doc_id).exists():
+            for lot in policy.queryset(Lot).exclude(documents={}).order_by('code').only('id', 'code', 'documents'):
+                lots += [{'id': lot.pk, 'code': lot.code, 'kind': kind}
+                         for kind, value in lot.documents.items() if type(value) is int and value == doc_id]
+    return JsonResponse({'lots': lots[:50], 'links': [{
         'id': x.pk, 'note': x.note, 'created_at': x.created_at.isoformat(),
         'document': {'id': x.document_id, 'code': x.document.code, 'revision': x.document.revision,
                      'title': x.document.title, 'status': x.document.status, 'image': image(x.document)},
