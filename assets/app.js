@@ -18736,6 +18736,7 @@ function NetworkWarnings({
 }
 function ERPNetwork({
   data,
+  onRefresh,
   onSelect,
   onAction,
   onNavigate,
@@ -18838,10 +18839,10 @@ function ERPNetwork({
   }, p.code, " \xB7 ", p.name)))), /*#__PURE__*/React.createElement("span", {
     className: "erp-status"
   }, currency === 'UAH' ? 'Облік у гривні · UAH' : currency), /*#__PURE__*/React.createElement(Button, {
-    onClick: () => setVersion(v => v + 1)
-  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438 \u043C\u0435\u0440\u0435\u0436\u0443")), /*#__PURE__*/React.createElement("details", {
+    onClick: () => onRefresh ? onRefresh() : setVersion(v => v + 1)
+  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438")), /*#__PURE__*/React.createElement("details", {
     className: "network-options"
-  }, /*#__PURE__*/React.createElement("summary", null, "\u0414\u043E\u0434\u0430\u0442\u043A\u043E\u0432\u0456 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u0438 \xB7 \u0432\u0430\u043B\u044E\u0442\u0430 \u0442\u0430 \u0434\u043E\u0432\u0456\u0434\u043A\u043E\u0432\u0438\u0439 \u0435\u043A\u0432\u0456\u0432\u0430\u043B\u0435\u043D\u0442"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("summary", null, "\u0412\u0430\u043B\u044E\u0442\u0430 \u0439 \u0434\u043E\u0432\u0456\u0434\u043A\u043E\u0432\u0438\u0439 \u043A\u0443\u0440\u0441"), /*#__PURE__*/React.createElement("div", {
     className: "network-options-grid"
   }, /*#__PURE__*/React.createElement("label", null, "\u0412\u0430\u043B\u044E\u0442\u0430 \u043D\u0430\u044F\u0432\u043D\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432", /*#__PURE__*/React.createElement(Select, {
     value: currency,
@@ -19057,6 +19058,7 @@ function ERPWorkspace({
   })));
   if (view === 'network') content = /*#__PURE__*/React.createElement(ERPNetwork, {
     data: data,
+    onRefresh: refresh,
     onSelect: setSelection,
     onAction: begin,
     onNavigate: onNavigate,
@@ -19271,11 +19273,11 @@ function ERPWorkspace({
   })));
   return /*#__PURE__*/React.createElement("div", {
     className: "erp-workspace"
-  }, /*#__PURE__*/React.createElement("div", {
+  }, view !== 'network' && /*#__PURE__*/React.createElement("div", {
     className: "erp-row"
   }, view === 'import' && /*#__PURE__*/React.createElement("h3", null, "\u041F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0438\u0439 \u0456\u043C\u043F\u043E\u0440\u0442"), /*#__PURE__*/React.createElement("div", {
     className: "erp-search-row"
-  }, view !== 'network' && view !== 'import' && /*#__PURE__*/React.createElement(Input, {
+  }, view !== 'import' && /*#__PURE__*/React.createElement(Input, {
     "aria-label": "\u041F\u043E\u0448\u0443\u043A ERP",
     placeholder: "\u041A\u043E\u0434, \u043D\u0430\u0437\u0432\u0430, \u0448\u0442\u0440\u0438\u0445\u043A\u043E\u0434\u2026",
     value: search,
