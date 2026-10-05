@@ -24270,7 +24270,10 @@ function App() {
       onClearHandoff: () => setCrmHandoff(null)
     });
     if (section === 'documents') return /*#__PURE__*/React.createElement(DocumentRegistry, null);
-    if (section === 'connectors') return /*#__PURE__*/React.createElement(Connections, null);
+    if (section === 'connectors') return /*#__PURE__*/React.createElement(Connections, {
+      key: sub || 'list',
+      targetId: sub
+    });
     if (section === 'finance') return /*#__PURE__*/React.createElement(FinanceWorkspace, {
       sub: sub,
       settings: settings,
@@ -24507,6 +24510,7 @@ const MON_KIND = {
 };
 function monValue(v) {
   if (typeof v === 'number') return v.toLocaleString('uk-UA');
+  if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(v)) return erpDate(v) + v.slice(10).replace(/^T/, ' ');
   if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)) return v.split('-').reverse().join('.');
   return v;
 }
@@ -24561,7 +24565,7 @@ function MonTable({
     key: j,
     role: "cell",
     "data-label": table.columns[j]
-  }, monValue(c)))))))) : /*#__PURE__*/React.createElement("p", {
+  }, r.ref.kind === 'connector' ? c === '' ? '—' : table.columns[j] === 'Сума' ? erpMoney(c, r.cells[table.columns.indexOf('Валюта')]) : monValue(c) : monValue(c)))))))) : /*#__PURE__*/React.createElement("p", {
     className: "op-muted mon-empty"
   }, "\u041D\u0435\u043C\u0430\u0454 \u0437\u0430\u043F\u0438\u0441\u0456\u0432"));
 }
@@ -24573,46 +24577,78 @@ function Monitoring({
     [result, setResult] = useState(null),
     [snapshot, setSnapshot] = useState(null),
     [selection, setSelection] = useState(null);
+  const life = useRef({
+      scope: null,
+      load: 0,
+      query: 0,
+      record: 0
+    }),
+    current = scope => life.current.scope === scope && scope === bosHttpScope();
   const load = async () => {
+    const scope = life.current.scope,
+      seq = ++life.current.load;
     try {
-      setData(await erpFetch('monitoring/'));
-      setError('');
+      const next = await erpFetch('monitoring/');
+      if (current(scope) && seq === life.current.load) {
+        setData(next);
+        setSnapshot(null);
+        setSelection(null);
+        setError('');
+      }
     } catch (e) {
-      setError(e.message);
+      if (current(scope) && seq === life.current.load) setError(e.message);
     }
   };
   useEffect(() => {
+    life.current.scope = bosHttpScope();
     load();
     window.addEventListener('bos:data-changed', load);
-    return () => window.removeEventListener('bos:data-changed', load);
+    return () => {
+      life.current.scope = null;
+      window.removeEventListener('bos:data-changed', load);
+    };
   }, []);
   const ask = async key => {
+    const scope = life.current.scope,
+      seq = ++life.current.query;
     try {
-      setResult(await erpFetch('monitoring/query/' + key + '/'));
-      setError('');
+      const next = await erpFetch('monitoring/query/' + key + '/');
+      if (current(scope) && seq === life.current.query) {
+        setResult(next);
+        setError('');
+      }
     } catch (e) {
-      setError(e.message);
+      if (current(scope) && seq === life.current.query) setError(e.message);
     }
   };
   const open = async ref => {
+    const scope = life.current.scope,
+      seq = ++life.current.record;
+    if (!current(scope)) return;
+    if (ref.kind === 'connector') {
+      onNavigate('connectors', ref.id);
+      return;
+    }
     if (ref.kind === 'task') {
       onNavigate('hr', 'tasks');
       return;
     }
     try {
       const d = snapshot || (await erpFetch('snapshot/'));
-      setSnapshot(d);
-      setSelection({
-        kind: MON_KIND[ref.kind],
-        id: ref.id
-      });
+      if (current(scope) && seq === life.current.record) {
+        setSnapshot(d);
+        setSelection({
+          kind: MON_KIND[ref.kind],
+          id: ref.id
+        });
+      }
     } catch (e) {
-      setError(e.message);
+      if (current(scope) && seq === life.current.record) setError(e.message);
     }
   };
-  if (!data) return /*#__PURE__*/React.createElement("div", {
+  if (!data || !current(life.current.scope)) return /*#__PURE__*/React.createElement("div", {
     className: "mon"
-  }, /*#__PURE__*/React.createElement("p", null, error || 'Завантаження…'), error && /*#__PURE__*/React.createElement(Button, {
+  }, /*#__PURE__*/React.createElement("p", null, data ? 'Контекст доступу змінився. Відкрийте розділ знову.' : error || 'Завантаження…'), !data && error && /*#__PURE__*/React.createElement(Button, {
     onClick: load
   }, "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0438"));
   return /*#__PURE__*/React.createElement("div", {
@@ -24650,7 +24686,30 @@ function Monitoring({
     key: t.key,
     table: t,
     onRow: open
-  }))), selection && snapshot && /*#__PURE__*/React.createElement(BoSInspector, {
+  }))), Array.isArray(data.sources) && /*#__PURE__*/React.createElement("section", {
+    "aria-label": "\u041F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430 \u0443 \u043C\u043E\u043D\u0456\u0442\u043E\u0440\u0438\u043D\u0433\u0443"
+  }, /*#__PURE__*/React.createElement("h2", null, "\u041F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430"), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041E\u043A\u0440\u0435\u043C\u0456 \u0434\u0430\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B. \u0414\u043E \u043F\u043E\u043A\u0430\u0437\u043D\u0438\u043A\u0456\u0432 ERP \u043D\u0435 \u0434\u043E\u0434\u0430\u044E\u0442\u044C\u0441\u044F."), data.source_attention?.length > 0 && /*#__PURE__*/React.createElement(MonAttention, {
+    items: data.source_attention,
+    onOpen: open
+  }), !data.sources.length && /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0434\u0436\u0435\u0440\u0435\u043B \u043D\u0435\u043C\u0430\u0454"), data.sources.map(s => /*#__PURE__*/React.createElement("section", {
+    className: "mon-card",
+    key: s.id
+  }, /*#__PURE__*/React.createElement("header", null, /*#__PURE__*/React.createElement("h3", null, s.name), /*#__PURE__*/React.createElement("span", null, s.dataset_label)), /*#__PURE__*/React.createElement("p", null, s.freshness_label, " \xB7 ", s.last_sync_at ? erpDateTime(s.last_sync_at) : '—'), s.problem && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, s.problem), s.total != null && /*#__PURE__*/React.createElement("p", null, "\u0423\u0441\u044C\u043E\u0433\u043E: ", s.total, " \xB7 \u041F\u0440\u043E\u0447\u0438\u0442\u0430\u043D\u043E: ", s.accepted, " \xB7 \u0412\u0456\u0434\u0445\u0438\u043B\u0435\u043D\u043E: ", s.rejected), s.table && /*#__PURE__*/React.createElement(MonTable, {
+    table: s.table,
+    onRow: open
+  }), /*#__PURE__*/React.createElement(Button, {
+    onClick: () => open({
+      kind: 'connector',
+      id: s.id
+    })
+  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u0434\u0436\u0435\u0440\u0435\u043B\u043E")))), selection && snapshot && /*#__PURE__*/React.createElement(BoSInspector, {
     selection: selection,
     data: snapshot,
     readOnly: true,
@@ -24662,7 +24721,9 @@ function Monitoring({
 }
 
 // BoS 4 «Підключення»: connect services the company already uses. Read-only import.
-function Connections() {
+function Connections({
+  targetId = null
+} = {}) {
   const [data, setData] = useState(null),
     [error, setError] = useState(''),
     [open, setOpen] = useState(null),
@@ -24677,10 +24738,18 @@ function Connections() {
     [failed, setFailed] = useState([]);
   const [mapping, setMapping] = useState({}),
     [mapped, setMapped] = useState(null);
+  const [checked, setChecked] = useState(false),
+    [persist, setPersist] = useState(false),
+    [editMapping, setEditMapping] = useState({}),
+    [confirmMapping, setConfirmMapping] = useState(false),
+    [notice, setNotice] = useState('');
   const fileRef = useRef(null),
     entry = useRef(null),
     previewSeq = useRef(0),
-    mutationBusy = useRef(false);
+    mutationBusy = useRef(false),
+    openSeq = useRef(0),
+    targetOpened = useRef(false),
+    checkedSeq = useRef(null);
   const call = async (path, body) => {
     const r = await fetch('/api/connectors/' + path, body ? {
       method: 'POST',
@@ -24696,6 +24765,7 @@ function Connections() {
     return d;
   };
   const current = scope => entry.current === scope && scope === bosHttpScope();
+  const mappingMatches = (saved, sent) => saved && Object.keys(saved).length === Object.keys(sent).length && Object.keys(sent).every(field => saved[field] === sent[field]);
   const load = async (note = '') => {
     const scope = entry.current;
     try {
@@ -24703,6 +24773,16 @@ function Connections() {
       if (current(scope)) {
         setData(list);
         setError(note);
+        if (targetId && !targetOpened.current) {
+          targetOpened.current = true;
+          const found = list.connectors.find(c => String(c.id) === String(targetId));
+          if (found) {
+            if (bosCan('write')) show(found.id);else setOpen({
+              ...found,
+              rows: []
+            });
+          } else setError('Джерело недоступне.');
+        }
       }
     } catch (e) {
       if (current(scope)) setError(e.message);
@@ -24738,44 +24818,55 @@ function Connections() {
     return f;
   };
   const run = async fn => {
-    if (busy || mutationBusy.current) return;
+    if (busy || mutationBusy.current || !current(entry.current) || !bosCan('write')) return;
+    const scope = entry.current;
     mutationBusy.current = true;
     setBusy(true);
     setError('');
+    setNotice('');
     try {
       await fn();
     } catch (e) {
-      setError(e.message);
+      if (current(scope)) setError(e.message);
     } finally {
       mutationBusy.current = false;
-      setBusy(false);
+      if (current(scope)) setBusy(false);
     }
   };
   const invalidatePreview = () => {
+    checkedSeq.current = null;
     previewSeq.current++;
     setPreview(null);
     setMapping({});
     setMapped(null);
+    setChecked(false);
+    setPersist(false);
     if (!mutationBusy.current) setBusy(false);
     setError('');
   };
   const chooseMapping = (field, column) => {
+    checkedSeq.current = null;
     previewSeq.current++;
     setMapping(p => ({
       ...p,
       [field]: column
     }));
     setMapped(null);
+    setChecked(false);
+    setPersist(false);
     if (!mutationBusy.current) setBusy(false);
     setError('');
   };
   const doPreview = async (withMapping = false) => {
-    if (busy || mutationBusy.current) return;
+    if (busy || mutationBusy.current || !current(entry.current) || !bosCan('write')) return;
     const scope = entry.current,
       seq = ++previewSeq.current;
+    checkedSeq.current = null;
     setBusy(true);
     setError('');
     setMapped(null);
+    setChecked(false);
+    setPersist(false);
     if (!withMapping) setPreview(null);
     try {
       const f = source();
@@ -24786,6 +24877,8 @@ function Connections() {
         setPreview(result);
         if (!withMapping) setMapping(result.suggested_mapping || {});
         setMapped(result.mapped || null);
+        setChecked(withMapping && !!result.mapped && !result.mapped.error);
+        checkedSeq.current = withMapping && result.mapped && !result.mapped.error ? seq : null;
       }
     } catch (e) {
       if (current(scope) && seq === previewSeq.current) setError(e.message);
@@ -24793,39 +24886,118 @@ function Connections() {
       if (current(scope) && seq === previewSeq.current) setBusy(false);
     }
   };
-  const doCreate = () => run(async () => {
-    const f = source();
-    f.append('name', form.name.trim());
-    f.append('dataset', form.dataset);
-    f.append('expected_sha256', preview.sha256);
-    await call('create/', f);
-    setPreview(null);
-    setForm({
-      kind: 'csv',
-      name: '',
-      dataset: 'orders',
-      url: ''
+  const createSeq = previewSeq.current;
+  const doCreate = () => {
+    if (createSeq !== previewSeq.current || !preview) return;
+    run(async () => {
+      const scope = entry.current,
+        f = source(),
+        sent = persist ? mapped?.mapping : null;
+      f.append('name', form.name.trim());
+      f.append('dataset', form.dataset);
+      f.append('expected_sha256', preview.sha256);
+      if (persist) {
+        if (!checked || checkedSeq.current !== previewSeq.current || !mapped || mapped.error) throw Error('Спершу перевірте відповідність.');
+        f.append('mapping', JSON.stringify(sent));
+      }
+      const seq = ++previewSeq.current;
+      checkedSeq.current = null;
+      const created = await call('create/', f);
+      if (!current(scope)) return;
+      setNotice(persist ? mappingMatches(created.mapping, sent) ? 'Джерело створено; відповідність збережено.' : 'Джерело створено, але сервер не підтвердив збереження відповідності. Повторне створення не потрібне.' : 'Джерело створено без відповідності колонок.');
+      if (seq !== previewSeq.current) {
+        await load();
+        return;
+      }
+      setPreview(null);
+      setChecked(false);
+      setPersist(false);
+      setForm({
+        kind: 'csv',
+        name: '',
+        dataset: 'orders',
+        url: ''
+      });
+      if (fileRef.current) {
+        fileRef.current.value = '';
+        bosFileName(fileRef.current);
+      }
+      await load();
     });
-    if (fileRef.current) {
-      fileRef.current.value = '';
-      bosFileName(fileRef.current);
-    }
-    await load();
-  });
+  };
   const doSync = id => run(async () => {
+    const scope = entry.current;
     await call(id + '/sync/', new FormData());
-    setFailed(rows => rows.filter(row => row.id !== id));
-    await load();
+    if (current(scope)) {
+      setFailed(rows => rows.filter(row => row.id !== id));
+      await load();
+    }
   });
   const doDisable = id => run(async () => {
+    const scope = entry.current;
     await call(id + '/disable/', new FormData());
-    setOpen(null);
-    await load();
+    if (current(scope)) {
+      openSeq.current++;
+      setOpen(null);
+      await load();
+    }
   });
-  const show = id => run(async () => setOpen(await call(id + '/rows/')));
-  if (!data) return /*#__PURE__*/React.createElement("div", {
+  const show = id => run(async () => {
+    const scope = entry.current,
+      seq = ++openSeq.current;
+    setOpen(null);
+    setConfirmMapping(false);
+    const row = await call(id + '/rows/');
+    if (current(scope) && seq === openSeq.current) {
+      setOpen(row);
+      setEditMapping(row.mapping || {});
+    }
+  });
+  const closeOpen = () => {
+    if (mutationBusy.current) return;
+    openSeq.current++;
+    setOpen(null);
+    setConfirmMapping(false);
+  };
+  const selectedSeq = openSeq.current;
+  const saveMapping = () => {
+    if (selectedSeq !== openSeq.current || !confirmMapping || !open?.fields || !('mapping' in open)) return;
+    run(async () => {
+      const scope = entry.current,
+        seq = ++openSeq.current,
+        id = open.id,
+        f = new FormData(),
+        sent = Object.fromEntries(Object.entries(editMapping).filter(([, column]) => column !== ''));
+      f.append('mapping', JSON.stringify(sent));
+      const saved = await call(id + '/mapping/', f);
+      if (!current(scope) || seq !== openSeq.current) return;
+      if (saved.id !== id) {
+        setError('Сервер повернув інше джерело. Перечитайте його.');
+        return;
+      }
+      setOpen({
+        ...saved,
+        rows: []
+      });
+      setEditMapping(saved.mapping || sent);
+      setConfirmMapping(false);
+      setNotice(mappingMatches(saved.mapping, sent) ? 'Відповідність джерела збережено.' : 'Сервер не підтвердив збереження відповідності.');
+      let note = '';
+      try {
+        const fresh = await call(id + '/rows/');
+        if (!current(scope) || seq !== openSeq.current) return;
+        setOpen(fresh);
+        setEditMapping(fresh.mapping || sent);
+      } catch (e) {
+        if (!current(scope) || seq !== openSeq.current) return;
+        note = e.message;
+      }
+      await load(note);
+    });
+  };
+  if (!data || !current(entry.current)) return /*#__PURE__*/React.createElement("div", {
     className: "mon"
-  }, /*#__PURE__*/React.createElement("p", null, error || 'Завантаження…'), error && /*#__PURE__*/React.createElement(Button, {
+  }, /*#__PURE__*/React.createElement("p", null, data ? 'Контекст доступу змінився. Відкрийте розділ знову.' : error || 'Завантаження…'), !data && error && /*#__PURE__*/React.createElement(Button, {
     onClick: () => load()
   }, "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0438"));
   const when = v => v ? new Date(v).toLocaleString('uk-UA', {
@@ -24847,7 +25019,9 @@ function Connections() {
   }, error && /*#__PURE__*/React.createElement("p", {
     role: "alert",
     className: "erp-error"
-  }, error), /*#__PURE__*/React.createElement("section", {
+  }, error), notice && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, notice), /*#__PURE__*/React.createElement("section", {
     className: "mon-card"
   }, /*#__PURE__*/React.createElement("header", null, /*#__PURE__*/React.createElement("h2", null, "\u041F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430"), /*#__PURE__*/React.createElement("span", null, data.connectors.length)), data.connectors.length ? /*#__PURE__*/React.createElement("div", {
     className: "erp-table"
@@ -24871,8 +25045,50 @@ function Connections() {
   })))) : /*#__PURE__*/React.createElement("p", {
     className: "op-muted mon-empty"
   }, "\u0429\u0435 \u043D\u0456\u0447\u043E\u0433\u043E \u043D\u0435 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043E")), open && /*#__PURE__*/React.createElement("section", {
-    className: "mon-card"
-  }, /*#__PURE__*/React.createElement("header", null, /*#__PURE__*/React.createElement("h2", null, open.name), /*#__PURE__*/React.createElement("span", null, open.row_count)), /*#__PURE__*/React.createElement("div", {
+    className: "mon-card",
+    "aria-label": 'Джерело: ' + open.name
+  }, /*#__PURE__*/React.createElement("header", null, /*#__PURE__*/React.createElement("h2", null, open.name), /*#__PURE__*/React.createElement("span", null, open.row_count)), /*#__PURE__*/React.createElement("p", null, open.status_label, " \xB7 ", when(open.last_sync_at)), open.mapped_summary?.error && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, open.mapped_summary.error), open.mapped_summary && !open.mapped_summary.error && /*#__PURE__*/React.createElement("p", null, "\u0417\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u0430 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u0456\u0441\u0442\u044C: ", open.mapped_summary.accepted, " \u0437 ", open.mapped_summary.total, " \u0440\u044F\u0434\u043A\u0456\u0432 \xB7 \u0412\u0456\u0434\u0445\u0438\u043B\u0435\u043D\u043E: ", open.mapped_summary.rejected), bosCan('write') && open.fields?.length > 0 && 'mapping' in open && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h3", null, "\u0412\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u0456\u0441\u0442\u044C \u043A\u043E\u043B\u043E\u043D\u043E\u043A \u0434\u0436\u0435\u0440\u0435\u043B\u0430"), /*#__PURE__*/React.createElement("div", {
+    className: "erp-form"
+  }, open.fields.map(field => /*#__PURE__*/React.createElement("label", {
+    key: field.field
+  }, field.label, field.required ? ' · обов’язкове' : '', /*#__PURE__*/React.createElement(Select, {
+    "aria-label": 'Джерело: ' + field.label,
+    disabled: busy,
+    required: field.required,
+    value: editMapping[field.field] || '',
+    onChange: e => {
+      if (mutationBusy.current || selectedSeq !== openSeq.current) return;
+      openSeq.current++;
+      setEditMapping(p => ({
+        ...p,
+        [field.field]: e.target.value
+      }));
+      setConfirmMapping(false);
+    }
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, field.required ? 'Оберіть колонку' : 'Пропустити'), open.columns.map(column => /*#__PURE__*/React.createElement("option", {
+    key: column,
+    value: column
+  }, column)))))), /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    disabled: busy,
+    checked: confirmMapping,
+    onChange: e => {
+      if (!mutationBusy.current && selectedSeq === openSeq.current) {
+        openSeq.current++;
+        setConfirmMapping(e.target.checked);
+      }
+    }
+  }), "\u041F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0443\u044E \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043D\u044F \u0432\u0438\u0431\u0440\u0430\u043D\u043E\u0457 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u043E\u0441\u0442\u0456 \u0434\u043B\u044F \u0446\u044C\u043E\u0433\u043E \u0434\u0436\u0435\u0440\u0435\u043B\u0430"), /*#__PURE__*/React.createElement(Button, {
+    disabled: busy || !confirmMapping,
+    onClick: saveMapping
+  }, "\u0417\u0431\u0435\u0440\u0435\u0433\u0442\u0438 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u0456\u0441\u0442\u044C \u0434\u0436\u0435\u0440\u0435\u043B\u0430"), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u0421\u0435\u0440\u0432\u0435\u0440 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u0438\u0442\u044C \u0432\u0438\u0431\u0456\u0440 \u0437\u0430 \u043E\u0441\u0442\u0430\u043D\u043D\u044C\u043E\u044E \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u043E\u044E \u0442\u0430\u0431\u043B\u0438\u0446\u0435\u044E.")), bosCan('write') && /*#__PURE__*/React.createElement("div", {
     className: "erp-table"
   }, /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, open.columns.map((c, i) => /*#__PURE__*/React.createElement("th", {
     key: i
@@ -24881,7 +25097,8 @@ function Connections() {
   }, r.map((v, j) => /*#__PURE__*/React.createElement("td", {
     key: j
   }, v))))))), /*#__PURE__*/React.createElement(Button, {
-    onClick: () => setOpen(null)
+    disabled: busy,
+    onClick: closeOpen
   }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438")), bosCan('write') && /*#__PURE__*/React.createElement("section", {
     className: "mon-card"
   }, /*#__PURE__*/React.createElement("header", null, /*#__PURE__*/React.createElement("h2", null, "\u041D\u043E\u0432\u0435 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043D\u044F")), /*#__PURE__*/React.createElement("div", {
@@ -24966,7 +25183,7 @@ function Connections() {
     "aria-label": "\u041F\u043E\u043F\u0435\u0440\u0435\u0434\u043D\u0456\u0439 \u043F\u0435\u0440\u0435\u0433\u043B\u044F\u0434 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u043E\u0441\u0442\u0456 \u043A\u043E\u043B\u043E\u043D\u043E\u043A"
   }, /*#__PURE__*/React.createElement("h3", null, "\u0412\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u0456\u0441\u0442\u044C \u043A\u043E\u043B\u043E\u043D\u043E\u043A"), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
-  }, "\u0412\u0438\u0431\u0456\u0440 \u043F\u043E\u043A\u0438 \u043D\u0435 \u0437\u0431\u0435\u0440\u0456\u0433\u0430\u0454\u0442\u044C\u0441\u044F. \xAB\u041F\u0456\u0434\u043A\u043B\u044E\u0447\u0438\u0442\u0438\xBB \u0437\u0431\u0435\u0440\u0456\u0433\u0430\u0454 \u0432\u0438\u0445\u0456\u0434\u043D\u0443 \u0442\u0430\u0431\u043B\u0438\u0446\u044E \u0431\u0435\u0437 \u0432\u0438\u0431\u0440\u0430\u043D\u043E\u0457 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u043E\u0441\u0442\u0456 \u043A\u043E\u043B\u043E\u043D\u043E\u043A."), /*#__PURE__*/React.createElement("div", {
+  }, "\u0412\u0438\u0431\u0456\u0440 \u043F\u043E\u043A\u0438 \u043D\u0435 \u0437\u0431\u0435\u0440\u0456\u0433\u0430\u0454\u0442\u044C\u0441\u044F. \u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0442\u0435 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u0456\u0441\u0442\u044C \u0456 \u044F\u0432\u043D\u043E \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u044C\u0442\u0435 \u0457\u0457 \u043D\u0430\u0434\u0441\u0438\u043B\u0430\u043D\u043D\u044F \u0440\u0430\u0437\u043E\u043C \u0456\u0437 \u043D\u043E\u0432\u0438\u043C \u0434\u0436\u0435\u0440\u0435\u043B\u043E\u043C."), /*#__PURE__*/React.createElement("div", {
     className: "erp-form"
   }, preview.fields.map(field => /*#__PURE__*/React.createElement("label", {
     key: field.field
@@ -24983,7 +25200,14 @@ function Connections() {
   }, column)))))), /*#__PURE__*/React.createElement(Button, {
     disabled: busy,
     onClick: () => doPreview(true)
-  }, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0438\u0442\u0438 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u0456\u0441\u0442\u044C"), !mapped && !busy && /*#__PURE__*/React.createElement("p", {
+  }, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0438\u0442\u0438 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u0456\u0441\u0442\u044C"), checked && /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    disabled: busy,
+    checked: persist,
+    onChange: e => {
+      if (!mutationBusy.current) setPersist(e.target.checked);
+    }
+  }), "\u041D\u0430\u0434\u0456\u0441\u043B\u0430\u0442\u0438 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u0435\u043D\u0443 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u0456\u0441\u0442\u044C \u043F\u0456\u0434 \u0447\u0430\u0441 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043D\u044F"), !mapped && !busy && /*#__PURE__*/React.createElement("p", {
     role: "status",
     className: "op-muted"
   }, "\u0412\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u0456\u0441\u0442\u044C \u0437\u043C\u0456\u043D\u0435\u043D\u043E. \u041F\u0435\u0440\u0435\u0433\u043B\u044F\u043D\u044C\u0442\u0435 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u0449\u0435 \u0440\u0430\u0437."), mapped?.error && /*#__PURE__*/React.createElement("p", {

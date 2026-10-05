@@ -2,7 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const app = fs.readFileSync(require('node:path').join(__dirname, '..', 'assets/app.js'), 'utf8');
-const component = app.match(/function Connections\(\)\s*\{[\s\S]*?\n}\s*(?=\/\/ BoS 4 first screen)/)?.[0];
+const component = app.match(/function Connections\([^)]*\)\s*\{[\s\S]*?\n}\s*(?=\/\/ BoS 4 first screen)/)?.[0];
 assert.ok(component, 'compiled Connections component');
 const formatters = app.match(/const erpDate = [\s\S]*?(?=const erpDateTime =)/)?.[0];
 assert.ok(formatters, 'compiled date and exact money formatters');
@@ -25,10 +25,98 @@ function harness(write,extra={}){
     ...extra,
   };
   vm.createContext(context);vm.runInContext(formatters,context);vm.runInContext(component,context);
-  return {requests,state,render(){hook=0;return context.Connections();},mount(){this.render();cleanup=effect();},unmount(){cleanup();},setScope(value){scope=value;}};
+  return {requests,state,render(){hook=0;return context.Connections(extra.props||{});},mount(){this.render();cleanup=effect();},unmount(){cleanup();},setScope(value){scope=value;}};
 }
 
 (async()=>{
+  // Persistence uses an explicitly rechecked and confirmed choice, and trusts only matching acknowledgement.
+  for(const acknowledges of [true,false]){
+    const ui=harness(true);ui.mount();ui.requests[0].resolve(response({synced:[],failed:[]}));await tick();ui.requests[1].resolve(response(list));await tick();
+    const button=label=>nodes(ui.render()).find(n=>n.props.onClick&&n.children.includes(label));
+    const fileNode=nodes(ui.render()).find(n=>n.props.inputRef);fileNode.props.inputRef.current={files:[{name:'persist.csv'}]};
+    const chosen={code:'Номер',customer:'Клієнт'},result={sha256:'c'.repeat(64),columns:['Номер','Клієнт'],rows:[],row_count:1,
+      fields:[{field:'code',label:'Номер',required:true},{field:'customer',label:'Клієнт',required:true}],suggested_mapping:chosen,
+      mapped:{mapping:chosen,rows:[{code:'ZM-1',customer:'Synthetic'}],accepted:1,total:1,rejected:[]}};
+    button('Переглянути').props.onClick();await tick();ui.requests[2].resolve(response(result));await tick();
+    assert.ok(!nodes(ui.render()).some(n=>n.type==='input'&&n.props.type==='checkbox'),'automatic guess has no persistence confirmation');
+    button('Перевірити відповідність').props.onClick();await tick();ui.requests[3].resolve(response(result));await tick();
+    nodes(ui.render()).find(n=>n.type==='input'&&n.props.type==='checkbox').props.onChange({target:{checked:true}});
+    nodes(ui.render()).find(n=>n.props.placeholder==='Замовлення з магазину').props.onChange({target:{value:'Explicit choice'}});
+    const create=button('Підключити').props.onClick;
+    ui.setScope('user:2');create();await tick();assert.equal(ui.requests.length,4,'retained create handler cannot POST after account change');
+    ui.setScope('user:1');create();await tick();
+    assert.deepEqual(JSON.parse(ui.requests[4].options.body.items.find(([k])=>k==='mapping')[1]),chosen);
+    ui.requests[4].resolve(response(acknowledges?{id:8,mapping:chosen}:{id:8}));await tick();await tick();
+    ui.requests[5].reject(Error('List refresh failed'));await tick();
+    assert.ok(nodes(ui.render()).some(n=>n.props.role==='status'&&n.children.some(c=>typeof c==='string'&&c.includes(acknowledges?'відповідність збережено':'сервер не підтвердив'))));
+    assert.ok(nodes(ui.render()).some(n=>n.props.role==='alert'&&n.children.includes('List refresh failed')),'refresh failure stays separate from successful POST');
+    assert.equal(ui.requests.filter(r=>r.url==='/api/connectors/create/').length,1,'no automatic retry after success/unsupported persistence');
+    create();await tick();assert.equal(ui.requests.length,6,'completed create consumes its preview intent; retained handler cannot create a duplicate');
+  }
+  for(const boundary of ['account','unmount','role']){
+    let write=true;const ui=harness(true,{props:{targetId:7},bosCan:key=>key==='write'&&write});ui.mount();
+    ui.requests[0].resolve(response({synced:[],failed:[]}));await tick();ui.requests[1].resolve(response(list));await tick();
+    ui.requests[2].resolve(response({...list.connectors[0],columns:['Номер'],rows:[],fields:[{field:'code',label:'Номер',required:true}],mapping:{code:'Номер'}}));await tick();
+    nodes(ui.render()).find(n=>n.type==='input'&&n.props.type==='checkbox').props.onChange({target:{checked:true}});
+    const save=nodes(ui.render()).find(n=>n.props.onClick&&n.children.includes('Зберегти відповідність джерела')).props.onClick;
+    if(boundary==='account')ui.setScope('user:2');else if(boundary==='unmount')ui.unmount();else write=false;
+    save();await tick();assert.equal(ui.requests.length,3,'retained save handler cannot POST after '+boundary);
+    if(boundary==='account')assert.ok(!nodes(ui.render()).some(n=>n.props['aria-label']==='Джерело: Продажі'),'previous account source editor is hidden');
+  }
+  for(const boundary of ['edit','close']){
+    const ui=harness(true,{props:{targetId:7}});ui.mount();ui.requests[0].resolve(response({synced:[],failed:[]}));await tick();ui.requests[1].resolve(response(list));await tick();
+    ui.requests[2].resolve(response({...list.connectors[0],columns:['Номер'],rows:[['old value']],fields:[{field:'code',label:'Номер',required:true}],mapping:{code:'Номер'}}));await tick();
+    nodes(ui.render()).find(n=>n.type==='input'&&n.props.type==='checkbox').props.onChange({target:{checked:true}});
+    const save=nodes(ui.render()).find(n=>n.props.onClick&&n.children.includes('Зберегти відповідність джерела')).props.onClick;
+    if(boundary==='edit')nodes(ui.render()).find(n=>n.props['aria-label']==='Джерело: Номер').props.onChange({target:{value:''}});
+    else nodes(ui.render()).find(n=>n.props.onClick&&n.children.includes('Закрити')).props.onClick();
+    save();await tick();assert.equal(ui.requests.length,3,'retained save confirmation cannot POST after '+boundary);
+  }
+  {
+    const ui=harness(true,{props:{targetId:7}});ui.mount();ui.requests[0].resolve(response({synced:[],failed:[]}));await tick();ui.requests[1].resolve(response(list));await tick();
+    const saved={...list.connectors[0],columns:['Номер'],fields:[{field:'code',label:'Номер',required:true}],mapping:{code:'Номер'},mapped_summary:{accepted:1,total:1,rejected:0}};
+    ui.requests[2].resolve(response({...saved,rows:[['ZM-1']]}));await tick();
+    nodes(ui.render()).find(n=>n.type==='input'&&n.props.type==='checkbox').props.onChange({target:{checked:true}});
+    const save=nodes(ui.render()).find(n=>n.props.onClick&&n.children.includes('Зберегти відповідність джерела')).props.onClick;
+    save();await tick();ui.requests[3].resolve(response(saved));await tick();await tick();
+    ui.requests[4].resolve(response({...saved,rows:[['ZM-1']]}));await tick();await tick();ui.requests[5].resolve(response(list));await tick();
+    assert.equal(nodes(ui.render()).find(n=>n.type==='input'&&n.props.type==='checkbox').props.checked,false);
+    save();await tick();assert.equal(ui.requests.length,6,'completed save consumes its confirmation; retained handler cannot write again');
+  }
+  {
+    const ui=harness(true,{props:{targetId:7}});ui.mount();ui.requests[0].resolve(response({synced:[],failed:[]}));await tick();ui.requests[1].resolve(response(list));await tick();
+    assert.equal(ui.requests[2].url,'/api/connectors/7/rows/','navigation opens exact connector');
+    const saved={...list.connectors[0],columns:['Номер','Клієнт'],rows:[['ZM-1','Synthetic']],mapping:{code:'Номер',customer:'Клієнт'},
+      fields:[{field:'code',label:'Номер',required:true},{field:'customer',label:'Клієнт',required:true}],mapped_summary:{accepted:1,total:1,rejected:0}};
+    ui.requests[2].resolve(response(saved));await tick();
+    const button=label=>nodes(ui.render()).find(n=>n.props.onClick&&n.children.includes(label));
+    const select=()=>nodes(ui.render()).find(n=>n.props['aria-label']==='Джерело: Номер');
+    const confirm=()=>nodes(ui.render()).find(n=>n.type==='input'&&n.props.type==='checkbox');
+    assert.equal(button('Зберегти відповідність джерела').props.disabled,true);
+    select().props.onChange({target:{value:'Клієнт'}});confirm().props.onChange({target:{checked:true}});
+    button('Зберегти відповідність джерела').props.onClick();await tick();
+    assert.equal(ui.requests[3].url,'/api/connectors/7/mapping/');
+    assert.deepEqual(JSON.parse(ui.requests[3].options.body.items[0][1]),{code:'Клієнт',customer:'Клієнт'});
+    button('Зберегти відповідність джерела').props.onClick();select().props.onChange({target:{value:'Номер'}});await tick();
+    assert.equal(ui.requests.length,4,'pending mutation cannot be duplicated or edited');
+    ui.requests[3].resolve(response({error:'Колонка вже використана'},false));await tick();
+    assert.equal(select().props.value,'Клієнт','422 keeps the selected choice');
+    assert.ok(!nodes(ui.render()).some(n=>n.props.role==='status'&&n.children.includes('Відповідність джерела збережено.')));
+    select().props.onChange({target:{value:'Номер'}});confirm().props.onChange({target:{checked:true}});button('Зберегти відповідність джерела').props.onClick();await tick();
+    ui.requests[4].resolve(response({...saved,columns:['Клієнт','Номер'],rows:undefined}));await tick();await tick();
+    assert.equal(ui.requests[5].url,'/api/connectors/7/rows/');
+    assert.ok(!nodes(ui.render()).some(n=>n.type==='td'&&n.children.includes('ZM-1')),'new headers never label old raw rows after save');
+    ui.requests[5].reject(Error('Rows refresh after save failed'));await tick();await tick();ui.requests[6].reject(Error('Refresh after save failed'));await tick();
+    assert.ok(nodes(ui.render()).some(n=>n.props.role==='status'&&n.children.includes('Відповідність джерела збережено.')));
+    assert.ok(nodes(ui.render()).some(n=>n.props.role==='alert'&&n.children.includes('Refresh after save failed')));
+    assert.equal(ui.requests.filter(r=>r.url.endsWith('/mapping/')).length,2,'one failed choice and one successful choice, no retry');
+    confirm().props.onChange({target:{checked:true}});button('Зберегти відповідність джерела').props.onClick();await tick();ui.setScope('user:2');ui.requests[7].resolve(response(saved));await tick();
+    assert.equal(ui.requests.length,8,'old-account save response cannot reload or report success');
+    ui.unmount();
+    const observer=harness(false,{props:{targetId:7}});observer.mount();observer.requests[0].resolve(response(list));await tick();
+    assert.equal(observer.requests.length,1,'observer opens metadata without rows GET');
+    assert.ok(!nodes(observer.render()).some(n=>n.props.onClick&&n.children.includes('Зберегти відповідність джерела')));
+  }
   {
     const ui=harness(true);ui.mount();ui.requests[0].resolve(response({synced:[],failed:[]}));await tick();ui.requests[1].resolve(response(list));await tick();
     const button=label=>nodes(ui.render()).find(n=>n.props.onClick&&n.children.includes(label));
