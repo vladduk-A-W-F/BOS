@@ -62,7 +62,9 @@ def build(policy, params):
         own = coordinate(row.get('lat'), row.get('lng'))
         center = coordinate(branch.get('lat'), branch.get('lng'))
         place = own or center
-        row.update(branch_name=branch.get('short_name') or branch.get('name') or 'Без прив’язки',
+        # A supplier's own point belongs to no branch: label it with the supplier, not "unassigned".
+        supplier = partners.get(row.get('supplier_id'), {}).get('name') if row.get('kind') == 'supplier' else None
+        row.update(branch_name=branch.get('short_name') or branch.get('name') or supplier or 'Без прив’язки',
                    map_lat=place[0] if place else None, map_lng=place[1] if place else None,
                    coordinate_basis='point' if own else 'branch' if center else 'missing')
 
