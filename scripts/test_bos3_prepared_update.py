@@ -41,8 +41,14 @@ class PreparedUpdateTests(unittest.TestCase):
             self.assertEqual(kwargs['env']['PSMODULEPATH'], 'native-only')
             self.assertNotIn('PSModulePath', kwargs['env'])
             script = command[4]
-            if script == update.PREFLIGHT:
+            self.assertEqual(kwargs['timeout'], 60 if script in ('$null', update.PREFLIGHT) else 15)
+            if script == '$null':
+                events.append('warmup')
+                self.assertEqual(list(self.path.parent.iterdir()), [self.path])
+                output = ''
+            elif script == update.PREFLIGHT:
                 events.append('preflight')
+                self.assertEqual(list(self.path.parent.iterdir()), [self.path])
                 output = json.dumps({'sid': SID, 'owner_sid': owner,
                                      'elevated': elevated, 'sddl': SDDL})
             elif script == update.COPY_ACL:
@@ -82,22 +88,43 @@ class PreparedUpdateTests(unittest.TestCase):
     def test_elevated_and_other_owner_refuse_before_temp(self):
         for options in ({'elevated': True}, {'owner': 'S-1-5-32-544'}):
             with self.subTest(options=options):
-                self.assertEqual(self.run_boundary(**options), ['preflight'])
+                self.assertEqual(self.run_boundary(**options), ['warmup', 'preflight'])
                 self.assertEqual(json.loads(self.path.read_text(encoding='utf-8')), self.original)
                 self.assertEqual(list(self.path.parent.iterdir()), [self.path])
 
     def test_success_uses_native_module_env_and_changes_only_two_fields(self):
         self.assertEqual(self.run_boundary(),
-                         ['preflight', 'copy_acl', 'temp_acl', 'file_acl', 'replace', 'file_acl'])
+                         ['warmup', 'preflight', 'copy_acl', 'temp_acl', 'file_acl', 'replace', 'file_acl'])
         expected = dict(self.original, source='new', source_sha256=DIGEST)
         self.assertEqual(json.loads(self.path.read_text(encoding='utf-8')), expected)
         self.assertEqual(list(self.path.parent.iterdir()), [self.path])
 
     def test_acl_mismatch_leaves_original_and_cleans_empty_temp(self):
         self.assertEqual(self.run_boundary(temp_sddl='different'),
-                         ['preflight', 'copy_acl', 'temp_acl'])
+                         ['warmup', 'preflight', 'copy_acl', 'temp_acl'])
         self.assertEqual(json.loads(self.path.read_text(encoding='utf-8')), self.original)
         self.assertEqual(list(self.path.parent.iterdir()), [self.path])
+
+    def test_readonly_timeout_refuses_before_temporary_file_or_replace(self):
+        for delayed in ('$null', update.PREFLIGHT):
+            with self.subTest(delayed=delayed):
+                original = self.path.read_bytes()
+                def run(command, **kwargs):
+                    self.assertEqual(kwargs['timeout'], 60)
+                    self.assertEqual(list(self.path.parent.iterdir()), [self.path])
+                    if command[4] == delayed:
+                        raise subprocess.TimeoutExpired(command, kwargs['timeout'])
+                    self.assertEqual(command[4], '$null')
+                    return subprocess.CompletedProcess(command, 0, stdout='')
+                with mock.patch.object(update, 'native_windows_powershell_environment',
+                                       return_value=('native-powershell', {})), \
+                        mock.patch.object(update.subprocess, 'run', side_effect=run), \
+                        mock.patch.object(update.os, 'replace') as replace:
+                    with self.assertRaises(subprocess.TimeoutExpired):
+                        update.update_prepared_source(self.path, 'new', DIGEST)
+                    replace.assert_not_called()
+                self.assertEqual(self.path.read_bytes(), original)
+                self.assertEqual(list(self.path.parent.iterdir()), [self.path])
 
 
 if __name__ == '__main__':

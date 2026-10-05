@@ -40,14 +40,14 @@ def _ordinary_file(path):
         raise PreparedUpdateError('Prepared path must be an ordinary unlinked file')
 
 
-def _powershell(script, path, temporary=None):
+def _powershell(script, path, temporary=None, *, timeout=15):
     base_env = os.environ.copy()
     base_env['BOS3_PREPARED_PATH'] = str(path)
     if temporary is not None:
         base_env['BOS3_PREPARED_TEMP'] = str(temporary)
     powershell, native_env = native_windows_powershell_environment(base_env)
     result = subprocess.run([powershell, '-NoProfile', '-NonInteractive', '-Command', script],
-                            env=native_env, capture_output=True, text=True, encoding='utf-8', timeout=15)
+                            env=native_env, capture_output=True, text=True, encoding='utf-8', timeout=timeout)
     if result.returncode:
         raise PreparedUpdateError('Native PowerShell ACL preflight failed')
     return result.stdout.strip()
@@ -64,7 +64,8 @@ def update_prepared_source(path, source, source_sha256):
     if not isinstance(source, str) or not source or not isinstance(source_sha256, str) or (
             len(source_sha256) != 64 or any(char not in '0123456789abcdef' for char in source_sha256)):
         raise PreparedUpdateError('Source and SHA-256 are required')
-    preflight = json.loads(_powershell(PREFLIGHT, path))
+    _powershell('$null', path, timeout=60)
+    preflight = json.loads(_powershell(PREFLIGHT, path, timeout=60))
     if preflight.get('elevated') is not False or not preflight.get('sid') or (
             preflight['sid'] != preflight.get('owner_sid')) or not preflight.get('sddl'):
         raise PreparedUpdateError('Prepared owner must match a non-elevated current user')
