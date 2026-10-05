@@ -24,6 +24,7 @@ class DocumentLinkTests(TransactionTestCase):
         self.order = SalesOrder.objects.get(code='ZM-0137')
         self.invoice = Invoice.objects.get(code='RF-0137')
         self.document = Document.objects.get(code='KM-PD-5521')
+        self.seed_links = DocumentLink.objects.count()
 
     def login(self, role):
         user = get_user_model().objects.create_user(username='synthetic-' + role, password='synthetic-pass')
@@ -53,13 +54,13 @@ class DocumentLinkTests(TransactionTestCase):
         by_document = self.links(document=self.document.pk).json()['links']
         self.assertEqual({(x['order'] or x['invoice'])['code'] for x in by_document}, {'ZM-0137', 'RF-0137'})
         self.assertEqual(self.link(order_id=self.order.pk).status_code, 422)
-        self.assertEqual(DocumentLink.objects.count(), 2)
+        self.assertEqual(DocumentLink.objects.count(), self.seed_links + 2)
 
     def test_exactly_one_target(self):
         self.login('ceo')
         self.assertEqual(self.link().status_code, 422)
         self.assertEqual(self.link(order_id=self.order.pk, invoice_id=self.invoice.pk).status_code, 422)
-        self.assertFalse(DocumentLink.objects.exists())
+        self.assertEqual(DocumentLink.objects.count(), self.seed_links)
         with self.assertRaises(IntegrityError), transaction.atomic():
             DocumentLink.objects.create(document=self.document)
 
@@ -75,6 +76,6 @@ class DocumentLinkTests(TransactionTestCase):
     def test_observer_cannot_link_and_bad_query_is_refused(self):
         self.login('observer')
         self.assertEqual(self.link(order_id=self.order.pk).status_code, 403)
-        self.assertFalse(DocumentLink.objects.exists())
+        self.assertEqual(DocumentLink.objects.count(), self.seed_links)
         self.assertEqual(self.links().status_code, 422)
         self.assertEqual(self.links(order=self.order.pk, invoice=self.invoice.pk).status_code, 422)

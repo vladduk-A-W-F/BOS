@@ -37,6 +37,7 @@ class MonitoringTests(TransactionTestCase):
         self.assertEqual([t['key'] for t in data['tables']], ['orders', 'lots', 'invoices', 'tasks', 'movements'])
         orders = self.table(data, 'orders')
         self.assertEqual({r['cells'][0] for r in orders['rows']}, {'ZM-0141', 'ZM-0144', 'ZM-0146'})
+        self.assertEqual(next(r for r in orders['rows'] if r['cells'][0] == 'ZM-0141')['cells'][4], '120 з 254')
         late = next(r for r in orders['rows'] if r['cells'][0] == 'ZM-0144')
         self.assertTrue(late['late'])
         self.assertEqual(late['cells'][4], '90 з 100')
@@ -50,7 +51,7 @@ class MonitoringTests(TransactionTestCase):
         self.assertTrue(all(r['late'] for r in tasks[:sum(r['late'] for r in tasks)]))
         numbers = {n['key']: n['value'] for n in data['numbers']}
         self.assertEqual(numbers['invoices'], 168000 + 777700)
-        self.assertEqual(numbers['purchases'], 2)
+        self.assertEqual(numbers['purchases'], 1)
 
     def test_attention_lists_what_needs_a_decision_in_plain_words(self):
         self.login('ceo')
@@ -60,7 +61,8 @@ class MonitoringTests(TransactionTestCase):
         self.assertEqual(titles[0], 'Замовлення ZM-0144 прострочене на 2 дні')
         self.assertIn('ТОВ «Агроснаб Дніпро» винен 168 000 грн', titles)
         self.assertIn('Партія KM-L-SHM-2-0918 заблокована', titles)
-        self.assertTrue(any(t.startswith('Закупівля ZK-0311 запізнюється') for t in titles))
+        self.assertTrue(any(t.startswith('Закупівля ZK-0309 запізнюється') for t in titles))
+        self.assertFalse(any(t.startswith('Закупівля ZK-0311 запізнюється') for t in titles))
         # Worst first: every danger item comes before any warning.
         levels = [a['level'] for a in items]
         self.assertEqual(levels, sorted(levels, key=lambda l: l != 'danger'))
@@ -106,7 +108,7 @@ class MonitoringTests(TransactionTestCase):
         late = self.client.get('/api/erp/monitoring/query/late_orders/').json()
         self.assertEqual([r['cells'][0] for r in late['rows']], ['ZM-0144'])
         po = self.client.get('/api/erp/monitoring/query/late_purchases/').json()
-        self.assertEqual([r['cells'][0] for r in po['rows']], ['ZK-0311', 'ZK-0309'])
+        self.assertEqual([r['cells'][0] for r in po['rows']], ['ZK-0309'])
         today = self.client.get('/api/erp/monitoring/query/received_today/').json()
         self.assertTrue(today['rows'])
         self.assertEqual(self.client.get('/api/erp/monitoring/query/unknown/').status_code, 422)
