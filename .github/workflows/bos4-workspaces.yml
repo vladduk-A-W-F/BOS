@@ -10,6 +10,7 @@ name: BoS 4 — робочі екрани
       - 'scripts/test_bos4_documents.cjs'
       - 'scripts/test_bos4_document_links_ui.cjs'
       - 'scripts/test_bos4_connectors_ui.cjs'
+      - 'scripts/test_bos4_finance_display.cjs'
       - 'scripts/test_bos4_navigation_settings.cjs'
       - '.github/workflows/bos4-workspaces.yml'
 permissions:
@@ -32,6 +33,8 @@ jobs:
         run: node scripts/test_bos4_document_links_ui.cjs
       - name: Оновлення підключень при відкритті та права ролей
         run: node scripts/test_bos4_connectors_ui.cjs
+      - name: Пошук таблиць та відображення кредитних сум
+        run: node scripts/test_bos4_finance_display.cjs
       - name: Навігація Команди та додаткові налаштування
         run: node scripts/test_bos4_navigation_settings.cjs
       - name: Збірка інтерфейсу без нових залежностей
