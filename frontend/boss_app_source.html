@@ -5807,7 +5807,7 @@ function App(){
     if(section==='structure') return <ERPWorkspace view="network" refetchTasks={refetchTasks} onNavigate={(section,sub)=>setNav({section,sub})}/>;
     if(section==='erp')return <OperationsWorkspace sub={sub||'sales'} extra={nav.extra} refetchTasks={refetchTasks} onNavigate={(section,sub)=>setNav({section,sub})} employees={employees} crmHandoff={crmHandoff} onClearHandoff={()=>setCrmHandoff(null)}/>;
     if(section==='documents') return <DocumentRegistry/>;
-    if(section==='connectors') return <Connections/>;
+    if(section==='connectors') return <Connections key={sub||'list'} targetId={sub}/>;
     if(section==='finance')return <FinanceWorkspace sub={sub} settings={settings} transactions={transactions} counterparties={counterparties} contracts={contracts} salaries={salaries} employees={employees} refetchTasks={refetchTasks} onNavigate={(section,sub)=>setNav({section,sub})} refetchTransactions={refetchTransactions} refetchCounterparties={refetchCounterparties} refetchContracts={refetchContracts} refetchSalaries={refetchSalaries}/>;
     if(section==='hr'){
       if(sub==='tasks'||!sub) return <Tasks tasks={tasks} setTasks={setTasks} loading={tasksLoading} error={tasksError} refetchTasks={refetchTasks}/>;
@@ -5855,7 +5855,7 @@ function App(){
 
 // BoS 4 «Моніторинг»: numbers, standard queries and tables. Read-only.
 const MON_KIND={order:'orders',lot:'lots',purchase:'purchases',invoice:'invoices'};
-function monValue(v){if(typeof v==='number')return v.toLocaleString('uk-UA');if(typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v))return v.split('-').reverse().join('.');return v;}
+function monValue(v){if(typeof v==='number')return v.toLocaleString('uk-UA');if(typeof v==='string'&&/^\d{4}-\d{2}-\d{2}T/.test(v))return erpDate(v)+v.slice(10).replace(/^T/,' ');if(typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v))return v.split('-').reverse().join('.');return v;}
 const MON_LEVEL={danger:'Терміново',warning:'Увага'};
 function MonAttention({items,onOpen}){
  return <section className="mon-card mon-attention" aria-label="Потребує уваги"><header><h2>Потребує уваги</h2><span>{items.length}</span></header>
@@ -5864,22 +5864,26 @@ function MonAttention({items,onOpen}){
  </section>;
 }
 function MonTable({table,onRow}){
+ const shown=table.columns.map((label,index)=>({label,index})).filter(c=>!(c.label==='Валюта'&&table.columns.includes('Сума')&&table.rows.length&&table.rows.every(r=>r.ref.kind==='connector'&&r.cells[table.columns.indexOf('Сума')]!=null&&r.cells[table.columns.indexOf('Сума')]!==''&&r.cells[c.index])));
  return <section className="mon-card"><header><h2>{table.title}</h2><span>{table.total}</span></header>
-  {table.rows.length?<div className="erp-table mon-table" tabIndex={0}><table role="table"><thead><tr role="row">{table.columns.map(c=><th key={c} scope="col" role="columnheader">{c}</th>)}</tr></thead>
-   <tbody>{table.rows.map((r,i)=><tr key={i} role="row" className={'bos-click-row'+(r.late?' mon-late':'')} tabIndex={0} onClick={()=>onRow(r.ref)} onKeyDown={e=>{if(e.key==='Enter')onRow(r.ref);}}>{r.cells.map((c,j)=><td key={j} role="cell" data-label={table.columns[j]}>{monValue(c)}</td>)}</tr>)}</tbody></table></div>
+  {table.rows.length?<div className="erp-table mon-table" tabIndex={0}><table role="table"><thead><tr role="row">{shown.map(c=><th key={c.index} scope="col" role="columnheader">{c.label}</th>)}</tr></thead>
+   <tbody>{table.rows.map((r,i)=><tr key={i} role="row" className={'bos-click-row'+(r.late?' mon-late':'')} tabIndex={0} onClick={()=>onRow(r.ref)} onKeyDown={e=>{if(e.key==='Enter')onRow(r.ref);}}>{shown.map(({index:j})=>{const c=r.cells[j];return <td key={j} role="cell" data-label={table.columns[j]}>{r.ref.kind==='connector'?(c===''?'—':table.columns[j]==='Сума'?erpMoney(c,r.cells[table.columns.indexOf('Валюта')]):monValue(c)):monValue(c)}</td>;})}</tr>)}</tbody></table></div>
   :<p className="op-muted mon-empty">Немає записів</p>}
  </section>;
 }
 function Monitoring({onNavigate}){
  const [data,setData]=useState(null),[error,setError]=useState(''),[result,setResult]=useState(null),[snapshot,setSnapshot]=useState(null),[selection,setSelection]=useState(null);
- const load=async()=>{try{setData(await erpFetch('monitoring/'));setError('');}catch(e){setError(e.message);}};
- useEffect(()=>{load();window.addEventListener('bos:data-changed',load);return()=>window.removeEventListener('bos:data-changed',load);},[]);
- const ask=async key=>{try{setResult(await erpFetch('monitoring/query/'+key+'/'));setError('');}catch(e){setError(e.message);}};
+ const life=useRef({scope:null,load:0,query:0,record:0}),current=scope=>life.current.scope===scope&&scope===bosHttpScope();
+ const load=async()=>{const scope=life.current.scope,seq=++life.current.load;try{const next=await erpFetch('monitoring/');if(current(scope)&&seq===life.current.load){setData(next);setSnapshot(null);setSelection(null);setError('');}}catch(e){if(current(scope)&&seq===life.current.load)setError(e.message);}};
+ useEffect(()=>{life.current.scope=bosHttpScope();load();window.addEventListener('bos:data-changed',load);return()=>{life.current.scope=null;window.removeEventListener('bos:data-changed',load);};},[]);
+ const ask=async key=>{const scope=life.current.scope,seq=++life.current.query;try{const next=await erpFetch('monitoring/query/'+key+'/');if(current(scope)&&seq===life.current.query){setResult(next);setError('');}}catch(e){if(current(scope)&&seq===life.current.query)setError(e.message);}};
  const open=async ref=>{
+  const scope=life.current.scope,seq=++life.current.record;if(!current(scope))return;
+  if(ref.kind==='connector'){onNavigate('connectors',ref.id);return;}
   if(ref.kind==='task'){onNavigate('hr','tasks');return;}
-  try{const d=snapshot||await erpFetch('snapshot/');setSnapshot(d);setSelection({kind:MON_KIND[ref.kind],id:ref.id});}catch(e){setError(e.message);}
+  try{const d=snapshot||await erpFetch('snapshot/');if(current(scope)&&seq===life.current.record){setSnapshot(d);setSelection({kind:MON_KIND[ref.kind],id:ref.id});}}catch(e){if(current(scope)&&seq===life.current.record)setError(e.message);}
  };
- if(!data)return <div className="mon"><p>{error||'Завантаження…'}</p>{error&&<Button onClick={load}>Повторити</Button>}</div>;
+ if(!data||!current(life.current.scope))return <div className="mon"><p>{data?'Контекст доступу змінився. Відкрийте розділ знову.':error||'Завантаження…'}</p>{!data&&error&&<Button onClick={load}>Повторити</Button>}</div>;
  return <div className="mon">
   <div className="mon-numbers">{data.numbers.map(n=><div key={n.key} className={'mon-number'+(n.alert?' mon-alert':'')}><strong>{monValue(n.value)}</strong><span>{n.label}</span></div>)}</div>
   {data.attention&&<MonAttention items={data.attention} onOpen={open}/>}
@@ -5887,37 +5891,46 @@ function Monitoring({onNavigate}){
   {error&&<p role="alert" className="erp-error">{error}</p>}
   {result&&<div className="mon-result"><MonTable table={result} onRow={open}/><Button onClick={()=>setResult(null)}>Закрити</Button></div>}
   <div className="mon-grid">{data.tables.map(t=><MonTable key={t.key} table={t} onRow={open}/>)}</div>
+  {Array.isArray(data.sources)&&<section aria-label="Підключені джерела у моніторингу"><h2>Підключені джерела</h2><p className="op-muted">Окремі дані джерел. До показників ERP не додаються.</p>{data.source_attention?.length>0&&<MonAttention items={data.source_attention} onOpen={open}/>}{!data.sources.length&&<p className="op-muted">Доступних джерел немає</p>}{data.sources.map(s=><section className="mon-card" key={s.id}><header><h3>{s.name}</h3><span>{s.dataset_label}</span></header><p>{s.freshness_label} · {s.last_sync_at?erpDateTime(s.last_sync_at):'—'}</p>{s.problem&&<p role="alert" className="erp-error">{s.problem}</p>}{s.total!=null&&<p>Усього: {s.total} · Прочитано: {s.accepted} · Відхилено: {s.rejected}</p>}{s.table&&<MonTable table={s.table} onRow={open}/>}<Button onClick={()=>open({kind:'connector',id:s.id})}>Відкрити джерело</Button></section>)}</section>}
   {selection&&snapshot&&<BoSInspector selection={selection} data={snapshot} readOnly onClose={()=>setSelection(null)} onSelect={setSelection} onAction={()=>{}} onNavigate={onNavigate}/>}
  </div>;
 }
 
 // BoS 4 «Підключення»: connect services the company already uses. Read-only import.
-function Connections(){
+function Connections({targetId=null}={}){
  const [data,setData]=useState(null),[error,setError]=useState(''),[open,setOpen]=useState(null),[form,setForm]=useState({kind:'csv',name:'',dataset:'orders',url:''}),[preview,setPreview]=useState(null),[busy,setBusy]=useState(false),[failed,setFailed]=useState([]);
  const [mapping,setMapping]=useState({}),[mapped,setMapped]=useState(null);
- const fileRef=useRef(null),entry=useRef(null),previewSeq=useRef(0),mutationBusy=useRef(false);
+ const [checked,setChecked]=useState(false),[editMapping,setEditMapping]=useState({}),[notice,setNotice]=useState('');
+ const persist=checked;
+ const fileRef=useRef(null),entry=useRef(null),previewSeq=useRef(0),mutationBusy=useRef(false),openSeq=useRef(0),targetOpened=useRef(false),checkedSeq=useRef(null);
  const call=async(path,body)=>{const r=await fetch('/api/connectors/'+path,body?{method:'POST',body}:{});let d;try{d=await r.json();}catch{throw Error('Сервіс підключень недоступний.');}if(!r.ok)throw Error(d.error||'Не вдалося виконати запит.');return d;};
  const current=scope=>entry.current===scope&&scope===bosHttpScope();
- const load=async(note='')=>{const scope=entry.current;try{const list=await call('');if(current(scope)){setData(list);setError(note);}}catch(e){if(current(scope))setError(e.message);}};
+ const mappingMatches=(saved,sent)=>saved&&Object.keys(saved).length===Object.keys(sent).length&&Object.keys(sent).every(field=>saved[field]===sent[field]);
+ const load=async(note='')=>{const scope=entry.current;try{const list=await call('');if(current(scope)){setData(list);setError(note);if(targetId&&!targetOpened.current){targetOpened.current=true;const found=list.connectors.find(c=>String(c.id)===String(targetId));if(found){if(bosCan('write'))show(found.id);else setOpen({...found,rows:[]});}else setError('Джерело недоступне.');}}}catch(e){if(current(scope))setError(e.message);}};
  useEffect(()=>{const scope=bosHttpScope();entry.current=scope;(async()=>{let note='';if(bosCan('write')){try{const result=await call('sync-stale/',new FormData());if(current(scope))setFailed(result.failed||[]);}catch(e){note=e.message;}}if(current(scope))await load(note);})();return()=>{entry.current=null;};},[]);
  const source=()=>{const f=new FormData();f.append('kind',form.kind);if(form.kind==='csv'){const file=fileRef.current?.files?.[0];if(!file)throw Error('Оберіть файл .xlsx або .csv.');f.append('file',file);}else f.append('url',form.url.trim());return f;};
- const run=async fn=>{if(busy||mutationBusy.current)return;mutationBusy.current=true;setBusy(true);setError('');try{await fn();}catch(e){setError(e.message);}finally{mutationBusy.current=false;setBusy(false);}};
- const invalidatePreview=()=>{previewSeq.current++;setPreview(null);setMapping({});setMapped(null);if(!mutationBusy.current)setBusy(false);setError('');};
- const chooseMapping=(field,column)=>{previewSeq.current++;setMapping(p=>({...p,[field]:column}));setMapped(null);if(!mutationBusy.current)setBusy(false);setError('');};
- const doPreview=async(withMapping=false)=>{if(busy||mutationBusy.current)return;const scope=entry.current,seq=++previewSeq.current;setBusy(true);setError('');setMapped(null);if(!withMapping)setPreview(null);try{const f=source();f.append('dataset',form.dataset);if(withMapping)f.append('mapping',JSON.stringify(mapping));const result=await call('preview/',f);if(current(scope)&&seq===previewSeq.current){setPreview(result);if(!withMapping)setMapping(result.suggested_mapping||{});setMapped(result.mapped||null);}}catch(e){if(current(scope)&&seq===previewSeq.current)setError(e.message);}finally{if(current(scope)&&seq===previewSeq.current)setBusy(false);}};
- const doCreate=()=>run(async()=>{const f=source();f.append('name',form.name.trim());f.append('dataset',form.dataset);f.append('expected_sha256',preview.sha256);await call('create/',f);setPreview(null);setForm({kind:'csv',name:'',dataset:'orders',url:''});if(fileRef.current){fileRef.current.value='';bosFileName(fileRef.current);}await load();});
- const doSync=id=>run(async()=>{await call(id+'/sync/',new FormData());setFailed(rows=>rows.filter(row=>row.id!==id));await load();});
- const doDisable=id=>run(async()=>{await call(id+'/disable/',new FormData());setOpen(null);await load();});
- const show=id=>run(async()=>setOpen(await call(id+'/rows/')));
- if(!data)return <div className="mon"><p>{error||'Завантаження…'}</p>{error&&<Button onClick={()=>load()}>Повторити</Button>}</div>;
+ const run=async fn=>{if(busy||mutationBusy.current||!current(entry.current)||!bosCan('write'))return;const scope=entry.current;mutationBusy.current=true;setBusy(true);setError('');setNotice('');try{await fn();}catch(e){if(current(scope))setError(e.message);}finally{mutationBusy.current=false;if(current(scope))setBusy(false);}};
+ const invalidatePreview=()=>{checkedSeq.current=null;previewSeq.current++;setPreview(null);setMapping({});setMapped(null);setChecked(false);if(!mutationBusy.current)setBusy(false);setError('');};
+ const chooseMapping=(field,column)=>{checkedSeq.current=null;previewSeq.current++;setMapping(p=>({...p,[field]:column}));setMapped(null);setChecked(false);if(!mutationBusy.current)setBusy(false);setError('');};
+ const doPreview=async(withMapping=false)=>{if(busy||mutationBusy.current||!current(entry.current)||!bosCan('write'))return;const scope=entry.current,seq=++previewSeq.current;checkedSeq.current=null;setBusy(true);setError('');setMapped(null);setChecked(false);if(!withMapping)setPreview(null);try{const f=source();f.append('dataset',form.dataset);if(withMapping)f.append('mapping',JSON.stringify(mapping));const result=await call('preview/',f);if(current(scope)&&seq===previewSeq.current){setPreview(result);if(!withMapping)setMapping(result.suggested_mapping||{});setMapped(result.mapped||null);setChecked(withMapping&&!!result.mapped&&!result.mapped.error);checkedSeq.current=withMapping&&result.mapped&&!result.mapped.error?seq:null;}}catch(e){if(current(scope)&&seq===previewSeq.current)setError(e.message);}finally{if(current(scope)&&seq===previewSeq.current)setBusy(false);}};
+ const createSeq=previewSeq.current;
+ const doCreate=()=>{if(createSeq!==previewSeq.current||!preview)return;run(async()=>{const scope=entry.current,f=source(),sent=persist?mapped?.mapping:null;f.append('name',form.name.trim());f.append('dataset',form.dataset);f.append('expected_sha256',preview.sha256);if(persist){if(!checked||checkedSeq.current!==previewSeq.current||!mapped||mapped.error)throw Error('Спершу перевірте відповідність.');f.append('mapping',JSON.stringify(sent));}const seq=++previewSeq.current;checkedSeq.current=null;const created=await call('create/',f);if(!current(scope))return;setNotice(persist?mappingMatches(created.mapping,sent)?'Джерело створено; відповідність збережено.':'Джерело створено, але сервер не підтвердив збереження відповідності. Повторне створення не потрібне.':'Джерело створено без відповідності колонок.');if(seq!==previewSeq.current){await load();return;}setPreview(null);setChecked(false);setForm({kind:'csv',name:'',dataset:'orders',url:''});if(fileRef.current){fileRef.current.value='';bosFileName(fileRef.current);}await load();});};
+ const doSync=id=>run(async()=>{const scope=entry.current;await call(id+'/sync/',new FormData());if(current(scope)){setFailed(rows=>rows.filter(row=>row.id!==id));await load();}});
+ const doDisable=id=>run(async()=>{const scope=entry.current;await call(id+'/disable/',new FormData());if(current(scope)){openSeq.current++;setOpen(null);await load();}});
+ const show=id=>run(async()=>{const scope=entry.current,seq=++openSeq.current;setOpen(null);const row=await call(id+'/rows/');if(current(scope)&&seq===openSeq.current){setOpen(row);setEditMapping(row.mapping||{});}});
+ const closeOpen=()=>{if(mutationBusy.current)return;openSeq.current++;setOpen(null);};
+ const selectedSeq=openSeq.current;
+ const saveMapping=()=>{if(selectedSeq!==openSeq.current||!open?.fields||!('mapping' in open))return;run(async()=>{const scope=entry.current,seq=++openSeq.current,id=open.id,f=new FormData(),sent=Object.fromEntries(Object.entries(editMapping).filter(([,column])=>column!==''));f.append('mapping',JSON.stringify(sent));const saved=await call(id+'/mapping/',f);if(!current(scope)||seq!==openSeq.current)return;if(saved.id!==id){setError('Сервер повернув інше джерело. Перечитайте його.');return;}setOpen({...saved,rows:[]});setEditMapping(saved.mapping||sent);setNotice(mappingMatches(saved.mapping,sent)?'Відповідність джерела збережено.':'Сервер не підтвердив збереження відповідності.');let note='';try{const fresh=await call(id+'/rows/');if(!current(scope)||seq!==openSeq.current)return;setOpen(fresh);setEditMapping(fresh.mapping||sent);}catch(e){if(!current(scope)||seq!==openSeq.current)return;note=e.message;}await load(note);});};
+ if(!data||!current(entry.current))return <div className="mon"><p>{data?'Контекст доступу змінився. Відкрийте розділ знову.':error||'Завантаження…'}</p>{!data&&error&&<Button onClick={()=>load()}>Повторити</Button>}</div>;
  const when=v=>v?new Date(v).toLocaleString('uk-UA',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
  const readValue=(row,field)=>{const value=row[field];if(value==null||value==='')return '—';if(field==='amount')return erpMoney(value,row.currency);if(field==='due_date'||field==='paid_at')return erpDate(value);if(field==='started_at')return erpDate(value)+String(value).slice(10).replace(/^T/,' ');return value;};
  return <div className="mon">
   {error&&<p role="alert" className="erp-error">{error}</p>}
+  {notice&&<p role="status">{notice}</p>}
   <section className="mon-card"><header><h2>Підключені джерела</h2><span>{data.connectors.length}</span></header>
    {data.connectors.length?<div className="erp-table"><table><thead><tr><th>Назва</th><th>Сервіс</th><th>Дані</th><th>Стан</th><th>Оновлено</th><th>Рядків</th><th></th></tr></thead><tbody>{data.connectors.map(c=>{const failure=failed.find(row=>row.id===c.id);return <tr key={c.id} className={(bosCan('write')?'bos-click-row':'')+(failure||c.status==='error'?' mon-late':'')} onClick={bosCan('write')?e=>{if(!e.target.closest('button'))show(c.id);}:undefined}><td>{c.name}</td><td>{data.catalog.find(x=>x.kind===c.kind)?.title||c.kind}</td><td>{c.dataset_label}</td><td>{failure?'Помилка оновлення: '+failure.error:c.status==='error'?c.last_error||c.status_label:c.status_label}</td><td>{when(c.last_sync_at)}</td><td>{monValue(c.row_count)}</td><td className="mon-actions">{bosCan('write')&&c.kind==='google_sheets'&&<Button disabled={busy} onClick={()=>doSync(c.id)}>Оновити</Button>}{bosCan('write')&&<Button disabled={busy} onClick={()=>doDisable(c.id)}>Вимкнути</Button>}</td></tr>;})}</tbody></table></div>:<p className="op-muted mon-empty">Ще нічого не підключено</p>}
   </section>
-  {open&&<section className="mon-card"><header><h2>{open.name}</h2><span>{open.row_count}</span></header><div className="erp-table"><table><thead><tr>{open.columns.map((c,i)=><th key={i}>{c}</th>)}</tr></thead><tbody>{open.rows.slice(0,100).map((r,i)=><tr key={i}>{r.map((v,j)=><td key={j}>{v}</td>)}</tr>)}</tbody></table></div><Button onClick={()=>setOpen(null)}>Закрити</Button></section>}
+  {open&&<section className="mon-card" aria-label={'Джерело: '+open.name}><header><h2>{open.name}</h2><span>{open.row_count}</span></header><p>{open.status_label} · {when(open.last_sync_at)}</p>{open.mapped_summary?.error&&<p role="alert" className="erp-error">{open.mapped_summary.error}</p>}{open.mapped_summary&&!open.mapped_summary.error&&<p>Збережена відповідність: {open.mapped_summary.accepted} з {open.mapped_summary.total} рядків · Відхилено: {open.mapped_summary.rejected}</p>}{bosCan('write')&&open.fields?.length>0&&'mapping' in open&&<><h3>Відповідність колонок джерела</h3><div className="erp-form">{open.fields.map(field=><label key={field.field}>{field.label}{field.required?' · обов’язкове':''}<Select aria-label={'Джерело: '+field.label} disabled={busy} required={field.required} value={editMapping[field.field]||''} onChange={e=>{if(mutationBusy.current||selectedSeq!==openSeq.current)return;openSeq.current++;setEditMapping(p=>({...p,[field.field]:e.target.value}));}}><option value="">{field.required?'Оберіть колонку':'Пропустити'}</option>{open.columns.map(column=><option key={column} value={column}>{column}</option>)}</Select></label>)}</div><p className="op-muted">Натисніть «Зберегти», щоб зберегти вибрану відповідність для цього джерела.</p><Button disabled={busy} onClick={saveMapping}>Зберегти</Button><p className="op-muted">Сервер перевірить вибір за останньою збереженою таблицею.</p></>}{bosCan('write')&&<div className="erp-table"><table><thead><tr>{open.columns.map((c,i)=><th key={i}>{c}</th>)}</tr></thead><tbody>{open.rows.slice(0,100).map((r,i)=><tr key={i}>{r.map((v,j)=><td key={j}>{v}</td>)}</tr>)}</tbody></table></div>}<Button disabled={busy} onClick={closeOpen}>Закрити</Button></section>}
   {bosCan('write')&&<section className="mon-card"><header><h2>Нове підключення</h2></header>
    <div className="erp-form">
     <label>Сервіс<Select value={form.kind} onChange={e=>{setForm(p=>({...p,kind:e.target.value}));invalidatePreview();}}><option value="csv">Excel / CSV</option><option value="google_sheets">Google Таблиці</option></Select></label>
@@ -5925,11 +5938,11 @@ function Connections(){
     <label>Дані<Select value={form.dataset} onChange={e=>{setForm(p=>({...p,dataset:e.target.value}));invalidatePreview();}}><option value="orders">Замовлення</option><option value="payments">Оплати</option><option value="stock">Залишки</option><option value="calls">Дзвінки</option><option value="other">Інше</option></Select></label>
     {form.kind==='csv'?<label>Файл .xlsx або .csv<BosFile inputRef={fileRef} type="file" accept=".xlsx,.csv" onChange={invalidatePreview}/></label>:<label>Посилання на таблицю<Input value={form.url} onChange={e=>{setForm(p=>({...p,url:e.target.value}));invalidatePreview();}} placeholder="https://docs.google.com/spreadsheets/d/…"/></label>}
    </div>
-   <div className="erp-actions"><Button disabled={busy} onClick={()=>doPreview()}>Переглянути</Button>{preview&&<Button variant="primary" disabled={busy||!form.name.trim()} onClick={doCreate}>Підключити</Button>}</div>
+   <div className="erp-actions"><Button disabled={busy} onClick={()=>doPreview()}>Переглянути</Button>{preview&&<Button variant="primary" disabled={busy||!form.name.trim()} onClick={doCreate}>{checked?'Підключити з цією відповідністю':preview.fields?.length>0?'Підключити без відповідності':'Підключити'}</Button>}</div>
    {busy&&<p role="status">Завантаження…</p>}
    {preview&&<div className="erp-table"><p className="op-muted">Рядків: {preview.row_count}</p><table><thead><tr>{preview.columns.map((c,i)=><th key={i}>{c}</th>)}</tr></thead><tbody>{preview.rows.map((r,i)=><tr key={i}>{r.map((v,j)=><td key={j}>{v}</td>)}</tr>)}</tbody></table></div>}
    {preview?.fields?.length>0&&<section aria-label="Попередній перегляд відповідності колонок">
-    <h3>Відповідність колонок</h3><p className="op-muted">Вибір поки не зберігається. «Підключити» зберігає вихідну таблицю без вибраної відповідності колонок.</p>
+    <h3>Відповідність колонок</h3><p className="op-muted">Після перевірки натисніть «Підключити з цією відповідністю», щоб створити джерело й зберегти цей вибір.</p>
     <div className="erp-form">{preview.fields.map(field=><label key={field.field}>{field.label}{field.required?' · обов’язкове':''}<Select aria-label={field.label} required={field.required} value={mapping[field.field]||''} onChange={e=>chooseMapping(field.field,e.target.value)}><option value="">{field.required?'Оберіть колонку':'Пропустити'}</option>{preview.columns.map(column=><option key={column} value={column}>{column}</option>)}</Select></label>)}</div>
     <Button disabled={busy} onClick={()=>doPreview(true)}>Перевірити відповідність</Button>
     {!mapped&&!busy&&<p role="status" className="op-muted">Відповідність змінено. Перегляньте результат ще раз.</p>}

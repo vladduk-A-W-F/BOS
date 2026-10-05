@@ -9,5 +9,6 @@ urlpatterns = [
     path('sync-stale/', views.sync_stale, name='connectors-sync-stale'),
     path('<int:connector_id>/rows/', views.rows, name='connectors-rows'),
     path('<int:connector_id>/sync/', views.sync, name='connectors-sync'),
+    path('<int:connector_id>/mapping/', views.set_mapping, name='connectors-mapping'),
     path('<int:connector_id>/disable/', views.disable, name='connectors-disable'),
 ]

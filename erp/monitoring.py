@@ -220,5 +220,10 @@ def build(policy):
                                    'alert': sum(r['late'] for r in rows)})
     attention = _attention(policy, today, orders['rows'], lots['rows'], debts[1] if debts else None, late_po,
                            _tasks(policy, today)[1])
+    # Connected sources stay a separate block with their own attention items (ref kind «connector»),
+    # so screens that only know ERP records are unaffected.
+    from connectors import monitoring as connected
+    sources = connected.build(policy)
     return {'as_of': _date(today), 'numbers': numbers, 'tables': tables, 'attention': attention,
+            'sources': sources, 'source_attention': connected.attention(sources),
             'queries': [{'key': k, 'title': t} for k, t, ceo in QUERIES if policy.ceo or not ceo]}

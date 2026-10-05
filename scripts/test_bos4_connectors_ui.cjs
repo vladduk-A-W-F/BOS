@@ -2,7 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const app = fs.readFileSync(require('node:path').join(__dirname, '..', 'assets/app.js'), 'utf8');
-const component = app.match(/function Connections\(\)\s*\{[\s\S]*?\n}\s*(?=\/\/ BoS 4 first screen)/)?.[0];
+const component = app.match(/function Connections\([^)]*\)\s*\{[\s\S]*?\n}\s*(?=\/\/ BoS 4 first screen)/)?.[0];
 assert.ok(component, 'compiled Connections component');
 const formatters = app.match(/const erpDate = [\s\S]*?(?=const erpDateTime =)/)?.[0];
 assert.ok(formatters, 'compiled date and exact money formatters');
@@ -25,10 +25,96 @@ function harness(write,extra={}){
     ...extra,
   };
   vm.createContext(context);vm.runInContext(formatters,context);vm.runInContext(component,context);
-  return {requests,state,render(){hook=0;return context.Connections();},mount(){this.render();cleanup=effect();},unmount(){cleanup();},setScope(value){scope=value;}};
+  return {requests,state,render(){hook=0;return context.Connections(extra.props||{});},mount(){this.render();cleanup=effect();},unmount(){cleanup();},setScope(value){scope=value;}};
 }
 
 (async()=>{
+  // Persistence uses an explicitly rechecked and confirmed choice, and trusts only matching acknowledgement.
+  for(const acknowledges of [true,false]){
+    const ui=harness(true);ui.mount();ui.requests[0].resolve(response({synced:[],failed:[]}));await tick();ui.requests[1].resolve(response(list));await tick();
+    const button=label=>nodes(ui.render()).find(n=>n.props.onClick&&n.children.includes(label));
+    const fileNode=nodes(ui.render()).find(n=>n.props.inputRef);fileNode.props.inputRef.current={files:[{name:'persist.csv'}]};
+    const chosen={code:'Номер',customer:'Клієнт'},result={sha256:'c'.repeat(64),columns:['Номер','Клієнт'],rows:[],row_count:1,
+      fields:[{field:'code',label:'Номер',required:true},{field:'customer',label:'Клієнт',required:true}],suggested_mapping:chosen,
+      mapped:{mapping:chosen,rows:[{code:'ZM-1',customer:'Synthetic'}],accepted:1,total:1,rejected:[]}};
+    button('Переглянути').props.onClick();await tick();ui.requests[2].resolve(response(result));await tick();
+    assert.ok(!nodes(ui.render()).some(n=>n.type==='input'&&n.props.type==='checkbox'),'automatic guess has no persistence confirmation');
+    button('Перевірити відповідність').props.onClick();await tick();ui.requests[3].resolve(response(result));await tick();
+    assert.ok(!nodes(ui.render()).some(n=>n.type==='input'&&n.props.type==='checkbox'),'checked preview needs only the explicit create button');
+    assert.equal(ui.requests.length,4,'checking does not create or save automatically');
+    nodes(ui.render()).find(n=>n.props.placeholder==='Замовлення з магазину').props.onChange({target:{value:'Explicit choice'}});
+    const create=button('Підключити з цією відповідністю').props.onClick;
+    ui.setScope('user:2');create();await tick();assert.equal(ui.requests.length,4,'retained create handler cannot POST after account change');
+    ui.setScope('user:1');create();await tick();
+    assert.deepEqual(JSON.parse(ui.requests[4].options.body.items.find(([k])=>k==='mapping')[1]),chosen);
+    ui.requests[4].resolve(response(acknowledges?{id:8,mapping:chosen}:{id:8}));await tick();await tick();
+    ui.requests[5].reject(Error('List refresh failed'));await tick();
+    assert.ok(nodes(ui.render()).some(n=>n.props.role==='status'&&n.children.some(c=>typeof c==='string'&&c.includes(acknowledges?'відповідність збережено':'сервер не підтвердив'))));
+    assert.ok(nodes(ui.render()).some(n=>n.props.role==='alert'&&n.children.includes('List refresh failed')),'refresh failure stays separate from successful POST');
+    assert.equal(ui.requests.filter(r=>r.url==='/api/connectors/create/').length,1,'no automatic retry after success/unsupported persistence');
+    create();await tick();assert.equal(ui.requests.length,6,'completed create consumes its preview intent; retained handler cannot create a duplicate');
+  }
+  for(const boundary of ['account','unmount','role']){
+    let write=true;const ui=harness(true,{props:{targetId:7},bosCan:key=>key==='write'&&write});ui.mount();
+    ui.requests[0].resolve(response({synced:[],failed:[]}));await tick();ui.requests[1].resolve(response(list));await tick();
+    ui.requests[2].resolve(response({...list.connectors[0],columns:['Номер'],rows:[],fields:[{field:'code',label:'Номер',required:true}],mapping:{code:'Номер'}}));await tick();
+    const save=nodes(ui.render()).find(n=>n.props.onClick&&n.children.includes('Зберегти')).props.onClick;
+    if(boundary==='account')ui.setScope('user:2');else if(boundary==='unmount')ui.unmount();else write=false;
+    save();await tick();assert.equal(ui.requests.length,3,'retained save handler cannot POST after '+boundary);
+    if(boundary==='account')assert.ok(!nodes(ui.render()).some(n=>n.props['aria-label']==='Джерело: Продажі'),'previous account source editor is hidden');
+  }
+  for(const boundary of ['edit','close']){
+    const ui=harness(true,{props:{targetId:7}});ui.mount();ui.requests[0].resolve(response({synced:[],failed:[]}));await tick();ui.requests[1].resolve(response(list));await tick();
+    ui.requests[2].resolve(response({...list.connectors[0],columns:['Номер'],rows:[['old value']],fields:[{field:'code',label:'Номер',required:true}],mapping:{code:'Номер'}}));await tick();
+    const save=nodes(ui.render()).find(n=>n.props.onClick&&n.children.includes('Зберегти')).props.onClick;
+    if(boundary==='edit')nodes(ui.render()).find(n=>n.props['aria-label']==='Джерело: Номер').props.onChange({target:{value:''}});
+    else nodes(ui.render()).find(n=>n.props.onClick&&n.children.includes('Закрити')).props.onClick();
+    save();await tick();assert.equal(ui.requests.length,3,'retained save confirmation cannot POST after '+boundary);
+  }
+  {
+    const ui=harness(true,{props:{targetId:7}});ui.mount();ui.requests[0].resolve(response({synced:[],failed:[]}));await tick();ui.requests[1].resolve(response(list));await tick();
+    const saved={...list.connectors[0],columns:['Номер'],fields:[{field:'code',label:'Номер',required:true}],mapping:{code:'Номер'},mapped_summary:{accepted:1,total:1,rejected:0}};
+    ui.requests[2].resolve(response({...saved,rows:[['ZM-1']]}));await tick();
+    const save=nodes(ui.render()).find(n=>n.props.onClick&&n.children.includes('Зберегти')).props.onClick;
+    save();await tick();ui.requests[3].resolve(response(saved));await tick();await tick();
+    ui.requests[4].resolve(response({...saved,rows:[['ZM-1']]}));await tick();await tick();ui.requests[5].resolve(response(list));await tick();
+    assert.ok(!nodes(ui.render()).some(n=>n.type==='input'&&n.props.type==='checkbox'),'save needs one explicit button, no extra checkbox');
+    save();await tick();assert.equal(ui.requests.length,6,'completed save consumes its confirmation; retained handler cannot write again');
+  }
+  {
+    const ui=harness(true,{props:{targetId:7}});ui.mount();ui.requests[0].resolve(response({synced:[],failed:[]}));await tick();ui.requests[1].resolve(response(list));await tick();
+    assert.equal(ui.requests[2].url,'/api/connectors/7/rows/','navigation opens exact connector');
+    const saved={...list.connectors[0],columns:['Номер','Клієнт'],rows:[['ZM-1','Synthetic']],mapping:{code:'Номер',customer:'Клієнт'},
+      fields:[{field:'code',label:'Номер',required:true},{field:'customer',label:'Клієнт',required:true}],mapped_summary:{accepted:1,total:1,rejected:0}};
+    ui.requests[2].resolve(response(saved));await tick();
+    const button=label=>nodes(ui.render()).find(n=>n.props.onClick&&n.children.includes(label));
+    const select=()=>nodes(ui.render()).find(n=>n.props['aria-label']==='Джерело: Номер');
+    assert.equal(button('Зберегти').props.disabled,false,'explicit save button is the confirmation');
+    select().props.onChange({target:{value:'Клієнт'}});
+    assert.equal(ui.requests.length,3,'editing an existing mapping never autosaves');
+    button('Зберегти').props.onClick();await tick();
+    assert.equal(ui.requests[3].url,'/api/connectors/7/mapping/');
+    assert.deepEqual(JSON.parse(ui.requests[3].options.body.items[0][1]),{code:'Клієнт',customer:'Клієнт'});
+    button('Зберегти').props.onClick();select().props.onChange({target:{value:'Номер'}});await tick();
+    assert.equal(ui.requests.length,4,'pending mutation cannot be duplicated or edited');
+    ui.requests[3].resolve(response({error:'Колонка вже використана'},false));await tick();
+    assert.equal(select().props.value,'Клієнт','422 keeps the selected choice');
+    assert.ok(!nodes(ui.render()).some(n=>n.props.role==='status'&&n.children.includes('Відповідність джерела збережено.')));
+    select().props.onChange({target:{value:'Номер'}});button('Зберегти').props.onClick();await tick();
+    ui.requests[4].resolve(response({...saved,columns:['Клієнт','Номер'],rows:undefined}));await tick();await tick();
+    assert.equal(ui.requests[5].url,'/api/connectors/7/rows/');
+    assert.ok(!nodes(ui.render()).some(n=>n.type==='td'&&n.children.includes('ZM-1')),'new headers never label old raw rows after save');
+    ui.requests[5].reject(Error('Rows refresh after save failed'));await tick();await tick();ui.requests[6].reject(Error('Refresh after save failed'));await tick();
+    assert.ok(nodes(ui.render()).some(n=>n.props.role==='status'&&n.children.includes('Відповідність джерела збережено.')));
+    assert.ok(nodes(ui.render()).some(n=>n.props.role==='alert'&&n.children.includes('Refresh after save failed')));
+    assert.equal(ui.requests.filter(r=>r.url.endsWith('/mapping/')).length,2,'one failed choice and one successful choice, no retry');
+    button('Зберегти').props.onClick();await tick();ui.setScope('user:2');ui.requests[7].resolve(response(saved));await tick();
+    assert.equal(ui.requests.length,8,'old-account save response cannot reload or report success');
+    ui.unmount();
+    const observer=harness(false,{props:{targetId:7}});observer.mount();observer.requests[0].resolve(response(list));await tick();
+    assert.equal(observer.requests.length,1,'observer opens metadata without rows GET');
+    assert.ok(!nodes(observer.render()).some(n=>n.props.onClick&&n.children.includes('Зберегти')));
+  }
   {
     const ui=harness(true);ui.mount();ui.requests[0].resolve(response({synced:[],failed:[]}));await tick();ui.requests[1].resolve(response(list));await tick();
     const button=label=>nodes(ui.render()).find(n=>n.props.onClick&&n.children.includes(label));
@@ -44,7 +130,7 @@ function harness(write,extra={}){
       mapped:{mapping,rows,accepted:5,total:105,rejected:Array.from({length:50},(_,i)=>({row:i+7,reason:'помилка '+i}))}}));await tick();
     assert.ok(button('Перевірити відповідність'),'plain Ukrainian action');
     assert.ok(nodes(section()).some(n=>n.children.includes('Як BoS прочитає перші 5 рядків')));
-    assert.ok(nodes(section()).some(n=>n.children.some(c=>typeof c==='string'&&c.startsWith('Вибір поки не зберігається.'))));
+    assert.ok(nodes(section()).some(n=>n.children.some(c=>typeof c==='string'&&c.startsWith('Після перевірки натисніть'))));
     const cells=nodes(section()).filter(n=>n.type==='td').map(n=>n.children[0]);
     assert.deepEqual(cells,['999\u00a0999\u00a0999\u00a0999,99\u00a0USD','USD','05.10.2026',
       '0\u00a0грн','UAH','—','-1\u00a0234,50\u00a0EUR','EUR','—','—','UAH','06.10.2026','—','USD','07.10.2026']);
@@ -99,15 +185,20 @@ function harness(write,extra={}){
     button('Перевірити відповідність').props.onClick();await tick();
     ui.requests[5].resolve(response({...result,mapped:{mapping:{ticket:'Вартість'},rows:[],accepted:0,total:8,rejected:[{row:2,reason:'порожнє поле'}]}}));await tick();
     assert.ok(nodes(mappingSection()).some(n=>n.children.includes('Немає прийнятих рядків')));
+    const staleCheckedCreate=button('Підключити з цією відповідністю').props.onClick;
+    mappingField('Номер звернення').props.onChange({target:{value:'Вартість'}});
+    staleCheckedCreate();await tick();assert.equal(ui.requests.length,6,'edit invalidates retained checked create without sending a POST');
     field('Назва').props.onChange({target:{value:'Без збереження мапінгу'}});
-    const createAgain=button('Підключити').props.onClick;
+    assert.ok(button('Підключити без відповідності'),'edited mapping explicitly labels raw creation');
+    assert.equal(button('Підключити'),undefined,'edited mapping never offers an ambiguous create label');
+    const createAgain=button('Підключити без відповідності').props.onClick;
     const syncWhileCreating=button('Оновити').props.onClick;
     createAgain();await tick();
     assert.equal(ui.requests[6].url,'/api/connectors/create/');
     assert.ok(!ui.requests[6].options.body.items.some(([key])=>key==='mapping'),'raw connector creation never sends preview mapping');
     mappingField('Номер звернення').props.onChange({target:{value:'Номер'}});
-    assert.equal(button('Підключити').props.disabled,true,'mapping change keeps pending mutation busy');
-    button('Підключити').props.onClick();await tick();
+    assert.equal(button('Підключити без відповідності').props.disabled,true,'mapping change keeps pending mutation busy');
+    button('Підключити без відповідності').props.onClick();await tick();
     assert.equal(ui.requests.length,7,'mapping edit cannot issue a second create');
     fileNode.props.onChange();
     createAgain();syncWhileCreating();button('Переглянути').props.onClick();await tick();
@@ -155,9 +246,11 @@ function harness(write,extra={}){
     sheets.state[form] = {kind:'google_sheets',name:'Продажі з таблиці',dataset:'orders',url:'https://docs.google.com/spreadsheets/d/synthetic/pub?output=csv'};
     sheets.state[form+1] = {sha256:'a'.repeat(64),columns:[],rows:[],total:0};
     const create = nodes(sheets.render()).find(node=>node.props?.onClick&&node.children.includes('Підключити'));
-    assert.ok(create, 'create button after preview');
+    assert.ok(create, 'old backend without fields keeps the ordinary create label');
+    assert.ok(!nodes(sheets.render()).some(node=>node.children.includes('Підключити без відповідності')));
     create.props.onClick();await tick();
     assert.equal(sheets.requests[2].url, '/api/connectors/create/');
+    assert.ok(!sheets.requests[2].options.body.items.some(([key])=>key==='mapping'),'old backend raw flow sends no mapping');
     sheets.requests[2].resolve(response({id:8}));await tick();await tick();
     assert.equal(sheets.requests[3]?.url, '/api/connectors/', 'list reloads after a Google Sheets create');
     sheets.requests[3].resolve(response(list));await tick();

@@ -96,7 +96,76 @@ assert.equal((source.match(/<input [^>]*type="file"/g) || []).length, 1);
   assert.doesNotMatch(phone, /\.mon-card \.erp-table|\.erp-table (thead|td|tr)/, 'phone rules never target other .erp-table screens');
   assert.doesNotMatch(phone, /thead\{display:none\}/, 'headers are only visually hidden');
   assert.match(phone, /\.mon-table thead\{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect\(0 0 0 0\)/);
-  const connections = app.match(/function Connections\(\)\s*\{[\s\S]*?\n\}\s*(?=\/\/ BoS 4 first screen)/)?.[0];
+  const connections = app.match(/function Connections\([^)]*\)\s*\{[\s\S]*?\n\}\s*(?=\/\/ BoS 4 first screen)/)?.[0];
   assert.ok(connections && !connections.includes('mon-table'), 'Connections tables keep the ordinary layout');
 }
 console.log('M7 navigation, legacy routes and role visibility: PASS');
+
+// M3: execute the compiled read-only source block and the connector handoff, including delayed replies.
+(async()=>{
+  const app=fs.readFileSync(path.join(__dirname,'../assets/app.js'),'utf8');
+  const block=app.slice(app.indexOf('const MON_KIND ='),app.indexOf('// BoS 4 «Підключення»'));
+  assert.ok(block.includes('function Monitoring('));
+  const React={createElement:(type,props,...children)=>({type,props:props||{},children:children.flat(Infinity)})};
+  const nodes=n=>n&&typeof n==='object'?[n,...(n.children||[]).flatMap(nodes)]:[];
+  const tick=()=>new Promise(setImmediate);
+  function harness(){
+    let scope='user:1',hook=0,effect,cleanup;const state=[],refs=[],requests=[],routes=[];
+    const context={React,Button:()=>{},BoSInspector:()=>{},bosHttpScope:()=>scope,erpDate:x=>x.split('T')[0].split('-').reverse().join('.'),erpDateTime:x=>x,
+      erpMoney:(v,c)=>v+' '+c,
+      useState(initial){const i=hook++;if(!(i in state))state[i]=initial;return [state[i],v=>state[i]=typeof v==='function'?v(state[i]):v];},
+      useRef(initial){const i=hook++;if(!(i in refs))refs[i]={current:initial};return refs[i];},useEffect(fn){effect=fn;},
+      window:{addEventListener(){},removeEventListener(){}},
+      erpFetch:path=>new Promise((resolve,reject)=>requests.push({path,resolve,reject}))};
+    vm.createContext(context);vm.runInContext(block,context);
+    return {context,state,requests,routes,render(){hook=0;return context.Monitoring({onNavigate:(...route)=>routes.push(route)});},mount(){this.render();cleanup=effect();},unmount(){cleanup();},setScope:v=>scope=v};
+  }
+  const base={numbers:[{key:'orders',value:1,label:'ERP'}],tables:[],attention:[],queries:[]};
+  const sourceTable={key:'source-7',title:'Synthetic orders',columns:['Клієнт','Сума','Валюта'],rows:[{ref:{kind:'connector',id:7},late:false,cells:['Synthetic','12.50','USD']}],total:1};
+  const source={id:7,name:'Synthetic orders',dataset_label:'Замовлення',freshness:'stale',freshness_label:'Дані застаріли, оновіть джерело',last_sync_at:null,mapped:true,total:3,accepted:1,rejected:2,table:sourceTable};
+  const ui=harness();ui.mount();assert.equal(ui.requests[0].path,'monitoring/');
+  ui.requests[0].resolve({...base,sources:[source],source_attention:[{level:'warning',ref:{kind:'connector',id:7},title:'Source stale',detail:'Synthetic warning'}]});await tick();
+  const tree=ui.render(),all=nodes(tree);
+  assert.equal(ui.requests.length,1,'Monitoring GET never triggers connector fetch or synchronization');
+  assert.ok(all.some(n=>n.children.includes('Окремі дані джерел. До показників ERP не додаються.')));
+  assert.equal(all.filter(n=>n.type==='strong'&&n.children.includes('1')).length,1,'ERP total remains its own value');
+  const tableNode=all.find(n=>n.type===ui.context.MonTable);
+  assert.equal(tableNode.props.table,sourceTable);
+  tableNode.props.onRow({kind:'connector',id:7});
+  const attention=all.find(n=>n.type===ui.context.MonAttention);attention.props.onOpen({kind:'connector',id:7});
+  all.find(n=>n.props.onClick&&n.children.includes('Відкрити джерело')).props.onClick();
+  assert.deepEqual(ui.routes,[['connectors',7],['connectors',7],['connectors',7]]);
+  assert.equal(ui.requests.length,1,'connector handoff happens before ERP snapshot lookup');
+  const rendered=ui.context.MonTable({table:sourceTable,onRow:tableNode.props.onRow});
+  assert.ok(nodes(rendered).some(n=>n.type==='td'&&n.children.includes('12.50 USD')),'source money uses currency-aware formatter');
+  const headings=tree=>nodes(tree).filter(n=>n.type==='th').map(n=>n.children[0]);
+  assert.deepEqual(headings(rendered),['Клієнт','Сума'],'formatted source amount carries currency without a duplicate column');
+  assert.deepEqual(nodes(rendered).filter(n=>n.type==='td').map(n=>n.props['data-label']),['Клієнт','Сума'],'visible headers and mobile cell labels remain aligned');
+  vm.runInContext(app.match(/const erpDate = [\s\S]*?(?=const erpDateTime =)/)[0],ui.context);
+  const currencyTable=(amount,kind='connector',columns=['Сума','Валюта'])=>ui.context.MonTable({table:{...sourceTable,columns,rows:[{ref:{kind,id:7},cells:columns.length===1?['USD']:[amount,'USD']}]},onRow:()=>{}});
+  for(const amount of ['0.00','-1234.50','999999999999.99']){
+    const view=currencyTable(amount);
+    assert.deepEqual(headings(view),['Сума']);
+    assert.equal(nodes(view).find(n=>n.type==='td').children[0],vm.runInContext('erpMoney('+JSON.stringify(amount)+',"USD")',ui.context),'source currency remains in the existing exact formatter');
+  }
+  for(const amount of [null,'']){
+    const view=currencyTable(amount);
+    assert.deepEqual(headings(view),['Сума','Валюта'],'empty source amount keeps the provided currency column');
+    assert.ok(nodes(view).some(n=>n.type==='td'&&n.props['data-label']==='Валюта'&&n.children.includes('USD')));
+  }
+  assert.deepEqual(headings(currencyTable(null,'connector',['Валюта'])),['Валюта'],'currency-only source keeps its currency');
+  const erpView=currencyTable('12.50','invoice');
+  assert.deepEqual(headings(erpView),['Сума','Валюта'],'ERP columns remain unchanged');
+  assert.deepEqual(nodes(erpView).filter(n=>n.type==='td').map(n=>n.children[0]),['12.50','USD'],'ERP cell values remain unchanged');
+  ui.setScope('user:2');assert.ok(!nodes(ui.render()).some(n=>n.props['aria-label']==='Підключені джерела у моніторингу'),'previous account source data is hidden');
+  tableNode.props.onRow({kind:'connector',id:7});assert.equal(ui.routes.length,3,'retained source row cannot navigate after account change');
+  const old=harness();old.mount();old.requests[0].resolve(base);await tick();
+  assert.ok(!nodes(old.render()).some(n=>n.props['aria-label']==='Підключені джерела у моніторингу'),'old backend never pretends sources are available');
+  const observer=harness();observer.mount();observer.requests[0].resolve({...base,sources:[{id:7,name:'Observer metadata',freshness_label:'Актуально',dataset_label:'Замовлення',last_sync_at:null}],source_attention:[]});await tick();
+  assert.ok(!nodes(observer.render()).some(n=>n.type===observer.context.MonTable),'observer receives freshness without rows');
+  const manager=harness();manager.mount();manager.requests[0].resolve({...base,sources:[{...source,table:{...sourceTable,columns:['Клієнт'],rows:[{ref:{kind:'connector',id:7},cells:['Synthetic']} ]}}],source_attention:[]});await tick();
+  assert.deepEqual(nodes(manager.render()).find(n=>n.type===manager.context.MonTable).props.table.columns,['Клієнт'],'server role-scoped columns are preserved');
+  const stale=harness();stale.mount();stale.setScope('user:2');stale.requests[0].resolve({...base,sources:[source]});await tick();assert.equal(stale.state[0],null,'old-account source response is ignored');
+  const gone=harness();gone.mount();gone.unmount();gone.requests[0].resolve({...base,sources:[source]});await tick();assert.equal(gone.state[0],null,'unmounted source response is ignored');
+  console.log('M3 Monitoring source blocks, role-shaped rows, separate ERP totals, exact connector handoff and stale reads: PASS');
+})().catch(error=>{console.error(error);process.exitCode=1;});
