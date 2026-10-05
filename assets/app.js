@@ -11766,22 +11766,122 @@ const OP_STATUS = {
   needs_review: 'Потребує перевірки',
   ocr_required: 'Потрібне розпізнавання'
 };
+function DocumentImage({
+  doc
+}) {
+  const [state, setState] = useState('loading');
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 16
+    }
+  }, /*#__PURE__*/React.createElement("img", {
+    src: OP + 'documents/' + doc.id + '/view/',
+    alt: 'Фото документа ' + doc.title,
+    onLoad: () => setState('ready'),
+    onError: () => setState('error'),
+    style: {
+      display: state === 'error' ? 'none' : 'block',
+      maxWidth: '100%',
+      maxHeight: 520,
+      objectFit: 'contain'
+    }
+  }), state === 'loading' && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0443\u0454\u043C\u043E \u043F\u0440\u0438\u0432\u0430\u0442\u043D\u0438\u0439 \u043F\u0435\u0440\u0435\u0433\u043B\u044F\u0434 \u0444\u043E\u0442\u043E\u2026"), state === 'error' && /*#__PURE__*/React.createElement("p", {
+    role: "alert"
+  }, "\u0424\u043E\u0442\u043E \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0435 \u0430\u0431\u043E \u043F\u043E\u0448\u043A\u043E\u0434\u0436\u0435\u043D\u0435. \u0421\u043F\u0440\u043E\u0431\u0443\u0439\u0442\u0435 \u0437\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0438\u0442\u0438 \u043E\u0440\u0438\u0433\u0456\u043D\u0430\u043B, \u044F\u043A\u0449\u043E \u043C\u0430\u0454\u0442\u0435 \u0434\u043E\u0437\u0432\u0456\u043B."));
+}
 function DocViewer({
   id,
   onClose,
   readOnly = false
 }) {
   const [doc, setDoc] = useState(null),
-    [error, setError] = useState('');
-  const ref = useRef(null);
+    [error, setError] = useState(''),
+    [loading, setLoading] = useState(true),
+    [busy, setBusy] = useState(false),
+    [contracts, setContracts] = useState(null),
+    [contractId, setContractId] = useState(''),
+    [attachData, setAttachData] = useState(null),
+    [notice, setNotice] = useState('');
+  const ref = useRef(null),
+    seq = useRef(0),
+    activeId = useRef(id);
+  async function open(version) {
+    const n = ++seq.current;
+    activeId.current = version;
+    setLoading(true);
+    setError('');
+    setNotice('');
+    setDoc(null);
+    setContracts(null);
+    setContractId('');
+    setAttachData(null);
+    try {
+      const d = await opFetch('documents/' + version + '/');
+      if (n === seq.current) setDoc(d);
+    } catch (e) {
+      if (n === seq.current) setError(e.message);
+    } finally {
+      if (n === seq.current) setLoading(false);
+    }
+  }
   useEffect(() => {
     ref.current.showModal();
-    let live = true;
-    opFetch('documents/' + id + '/').then(d => live && setDoc(d)).catch(e => setError(e.message));
+    open(id);
     return () => {
-      live = false;
+      seq.current++;
     };
   }, [id]);
+  async function chooseContract() {
+    const n = seq.current,
+      scope = bosHttpScope();
+    setError('');
+    try {
+      const r = await fetch('/api/contracts/');
+      if (!r.ok) throw Error(r.status === 403 ? 'Доступ до договорів заборонено.' : 'Не вдалося отримати договори.');
+      const data = await r.json();
+      if (n === seq.current && scope === bosHttpScope()) setContracts(Array.isArray(data) ? data : data.results || []);
+    } catch (e) {
+      if (n === seq.current && scope === bosHttpScope()) setError(e.message);
+    }
+  }
+  async function review() {
+    if (busy || loading || !doc || activeId.current !== doc.id) return;
+    const n = seq.current,
+      scope = bosHttpScope();
+    setBusy(true);
+    setError('');
+    try {
+      const body = {
+        checksum: doc.checksum
+      };
+      if (contractId) {
+        if (!contracts?.some(c => String(c.id) === contractId)) throw Error('Оберіть договір із поточного списку.');
+        body.contract_id = Number(contractId);
+      }
+      if (n !== seq.current || scope !== bosHttpScope()) return;
+      await opFetch('documents/' + doc.id + '/review/', body);
+      if (n === seq.current && scope === bosHttpScope()) await open(doc.id);
+    } catch (e) {
+      if (n === seq.current && scope === bosHttpScope()) setError(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function attach() {
+    if (busy || !doc) return;
+    setBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      setAttachData(await erpFetch('snapshot/'));
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
   return /*#__PURE__*/React.createElement("dialog", {
     ref: ref,
     className: "bos-dialog",
@@ -11789,14 +11889,18 @@ function DocViewer({
     style: {
       width: 'min(800px,95vw)'
     }
-  }, /*#__PURE__*/React.createElement("h2", null, doc?.title || 'Документ'), error && /*#__PURE__*/React.createElement("p", {
+  }, /*#__PURE__*/React.createElement("h2", null, doc?.title || 'Документ'), loading && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0443\u0454\u043C\u043E \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u2026"), error && /*#__PURE__*/React.createElement("p", {
     role: "alert"
-  }, error), doc && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
+  }, error), notice && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, notice), doc && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
     style: {
       color: T.textMuted,
       margin: '12px 0'
     }
-  }, doc.code, " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", doc.revision, " \xB7 ", OP_STATUS[doc.status], !doc.current ? ' · Є новіша версія' : ''), /*#__PURE__*/React.createElement("div", {
+  }, doc.code, " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", doc.revision, " \xB7 ", OP_STATUS[doc.status] || doc.status, !doc.current ? ' · Є новіша версія' : ''), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       gap: 8,
@@ -11804,13 +11908,17 @@ function DocViewer({
     }
   }, doc.versions.map(v => /*#__PURE__*/React.createElement(Button, {
     key: v.id,
-    onClick: () => opFetch('documents/' + v.id + '/').then(setDoc).catch(e => setError(e.message))
+    disabled: busy,
+    onClick: () => open(v.id)
   }, "\u0412\u0435\u0440\u0441\u0456\u044F ", v.revision))), bosCan('download_documents') && /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("a", {
     style: {
       color: T.primary
     },
     href: OP + 'documents/' + doc.id + '/download/'
-  }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0438\u0442\u0438 \u0434\u0436\u0435\u0440\u0435\u043B\u043E")), doc.sections.map((p, i) => /*#__PURE__*/React.createElement("section", {
+  }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0438\u0442\u0438 \u043E\u0440\u0438\u0433\u0456\u043D\u0430\u043B")), doc.image && bosCan('download_documents') && /*#__PURE__*/React.createElement(DocumentImage, {
+    key: doc.id,
+    doc: doc
+  }), doc.image && !bosCan('download_documents') && /*#__PURE__*/React.createElement("p", null, "\u041F\u0435\u0440\u0435\u0433\u043B\u044F\u0434 \u0444\u043E\u0442\u043E \u043F\u043E\u0442\u0440\u0435\u0431\u0443\u0454 \u0434\u043E\u0437\u0432\u043E\u043B\u0443 \u043D\u0430 \u0437\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0456\u0432."), doc.sections.map((p, i) => /*#__PURE__*/React.createElement("section", {
     key: i,
     style: {
       marginTop: 16
@@ -11827,20 +11935,34 @@ function DocViewer({
       lineHeight: 1.6,
       color: T.textMuted
     }
-  }, p.text))), !doc.text && /*#__PURE__*/React.createElement("p", null, "\u0422\u0435\u043A\u0441\u0442 \u043D\u0435 \u0440\u043E\u0437\u043F\u0456\u0437\u043D\u0430\u043D\u043E. \u041F\u043E\u0442\u0440\u0456\u0431\u0435\u043D OCR \u0430\u0431\u043E \u0440\u0443\u0447\u043D\u0430 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0430.")), /*#__PURE__*/React.createElement("div", {
+  }, p.text))), !doc.text && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0442\u0440\u0456\u0431\u043D\u0430 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0430: \u0442\u0435\u043A\u0441\u0442 \u043D\u0435 \u0440\u043E\u0437\u043F\u0456\u0437\u043D\u0430\u043D\u043E. OCR \u043F\u043E\u043A\u0438 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0439; \u0446\u0435\u0439 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442 \u043D\u0435 \u043C\u043E\u0436\u043D\u0430 \u0437\u0430\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u0438 \u0447\u0438 \u0432\u0438\u043A\u043E\u0440\u0438\u0441\u0442\u0430\u0442\u0438 \u0434\u043B\u044F \u0434\u043E\u043F\u0443\u0441\u043A\u0443 \u043F\u0430\u0440\u0442\u0456\u0457."), doc.contract_id && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u043E \u0437 \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u043E\u043C \u2116", doc.contract_id, "."), !readOnly && bosCan('write') && doc.current && doc.status === 'needs_review' && !!doc.text && /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("p", null, "\u041F\u0456\u0441\u043B\u044F \u0440\u0443\u0447\u043D\u043E\u0457 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0438 \u043C\u043E\u0436\u043D\u0430 \u043F\u043E\u0433\u043E\u0434\u0438\u0442\u0438 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442 \u0430\u0431\u043E \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u0442\u0438 \u0439\u043E\u0433\u043E \u0437 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u043C \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u043E\u043C."), contracts === null ? /*#__PURE__*/React.createElement(Button, {
+    disabled: busy,
+    onClick: chooseContract
+  }, "\u041E\u0431\u0440\u0430\u0442\u0438 \u0434\u043E\u0433\u043E\u0432\u0456\u0440") : /*#__PURE__*/React.createElement("label", null, "\u0414\u043E\u0433\u043E\u0432\u0456\u0440 ", /*#__PURE__*/React.createElement(Select, {
+    value: contractId,
+    onChange: e => setContractId(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "\u0411\u0435\u0437 \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u0443"), contracts.map(c => /*#__PURE__*/React.createElement("option", {
+    key: c.id,
+    value: c.id
+  }, c.number, " \xB7 ", c.name)))), /*#__PURE__*/React.createElement(Button, {
+    disabled: busy,
+    onClick: review
+  }, busy ? 'Обробка…' : 'Підтвердити ручну перевірку')), !readOnly && bosCanAction('attach') && doc.current && doc.status === 'approved' && /*#__PURE__*/React.createElement(Button, {
+    disabled: busy,
+    onClick: attach
+  }, "\u041F\u0440\u0438\u0432\u2019\u044F\u0437\u0430\u0442\u0438 \u0434\u043E \u043F\u0430\u0440\u0442\u0456\u0457"), attachData && /*#__PURE__*/React.createElement(ERPActionDialog, {
+    action: "attach",
+    preset: {
+      document_id: doc.id
+    },
+    data: attachData,
+    onClose: () => setAttachData(null),
+    onDone: () => setNotice('Документ прив’язано до партії. Перевірте квитанцію в діалозі.')
+  })), /*#__PURE__*/React.createElement("div", {
     className: "actions"
-  }, !readOnly && bosCan('write') && doc?.current && doc.status === 'needs_review' && /*#__PURE__*/React.createElement(Button, {
-    onClick: async () => {
-      try {
-        await opFetch('documents/' + doc.id + '/review/', {
-          checksum: doc.checksum
-        });
-        setDoc(await opFetch('documents/' + doc.id + '/'));
-      } catch (e) {
-        setError(e.message);
-      }
-    }
-  }, "\u041F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u0438 \u0440\u0443\u0447\u043D\u0443 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0443"), /*#__PURE__*/React.createElement(Button, {
+  }, /*#__PURE__*/React.createElement(Button, {
     onClick: () => ref.current.close()
   }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438")));
 }
@@ -14154,14 +14276,19 @@ function DocumentRegistry() {
     [q, setQ] = useState(''),
     [doc, setDoc] = useState(null),
     [error, setError] = useState(''),
-    [busy, setBusy] = useState(false);
+    [busy, setBusy] = useState(false),
+    [loading, setLoading] = useState(true),
+    [notice, setNotice] = useState('');
   const form = useRef(null);
   async function search() {
+    setLoading(true);
+    setError('');
     try {
       setItems((await opFetch('documents/?q=' + encodeURIComponent(q))).items);
-      setError('');
     } catch (e) {
       setError(e.message);
+    } finally {
+      setLoading(false);
     }
   }
   useEffect(() => {
@@ -14171,12 +14298,15 @@ function DocumentRegistry() {
     e.preventDefault();
     if (busy) return;
     setBusy(true);
+    setError('');
+    setNotice('');
     try {
-      await opFetch('documents/upload/', new FormData(form.current));
+      const result = await opFetch('documents/upload/', new FormData(form.current));
       form.current.reset();
+      setNotice('Документ додано: ' + result.code + ' · версія ' + result.revision + '. ' + (result.image ? 'Текст фото не розпізнано; перевірка та допуск партії недоступні.' : 'Перевірте його перед використанням.'));
       await search();
     } catch (e) {
-      setError(e.message);
+      setError(e.message + ' Якщо відповідь втрачена після надсилання, перевірте список перед новою спробою.');
     } finally {
       setBusy(false);
     }
@@ -14185,9 +14315,9 @@ function DocumentRegistry() {
     style: {
       padding: 24
     }
-  }, /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0438 \u0442\u0430 \u0437\u043D\u0430\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("p", {
+  }, /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0438 \u0442\u0430 \u0437\u0432\u0456\u0442\u0438"), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
-  }, "\u041F\u043E\u0448\u0443\u043A \u0443 \u0442\u0435\u043A\u0441\u0442\u0456 \u0430\u043A\u0442\u0443\u0430\u043B\u044C\u043D\u0438\u0445 \u0432\u0435\u0440\u0441\u0456\u0439. \u041F\u043E\u043F\u0435\u0440\u0435\u0434\u043D\u0456 \u0432\u0435\u0440\u0441\u0456\u0457 \u0437\u0430\u043B\u0438\u0448\u0430\u044E\u0442\u044C\u0441\u044F \u0432 \u043A\u0430\u0440\u0442\u0446\u0456 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430."), /*#__PURE__*/React.createElement("form", {
+  }, "\u0424\u043E\u0442\u043E, PDF \u0456 Excel \u0437\u0431\u0435\u0440\u0456\u0433\u0430\u044E\u0442\u044C\u0441\u044F \u044F\u043A \u043F\u0440\u0438\u0432\u0430\u0442\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430. \u041F\u043E\u0448\u0443\u043A \u043E\u0445\u043E\u043F\u043B\u044E\u0454 \u0430\u043A\u0442\u0443\u0430\u043B\u044C\u043D\u0456 \u0432\u0435\u0440\u0441\u0456\u0457; \u043F\u043E\u043F\u0435\u0440\u0435\u0434\u043D\u0456 \u0437\u0430\u043B\u0438\u0448\u0430\u044E\u0442\u044C\u0441\u044F \u0443 \u043A\u0430\u0440\u0442\u0446\u0456."), /*#__PURE__*/React.createElement("form", {
     className: "op-toolbar",
     onSubmit: e => {
       e.preventDefault();
@@ -14195,10 +14325,12 @@ function DocumentRegistry() {
     }
   }, /*#__PURE__*/React.createElement(Input, {
     "aria-label": "\u041F\u043E\u0448\u0443\u043A \u0443 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430\u0445",
-    placeholder: "\u041C\u0430\u0442\u0435\u0440\u0456\u0430\u043B, \u043F\u043E\u043A\u0440\u0438\u0442\u0442\u044F, \u043D\u043E\u043C\u0435\u0440\u2026",
+    placeholder: "\u041D\u0430\u0437\u0432\u0430, \u043A\u043E\u0434 \u0430\u0431\u043E \u0442\u0435\u043A\u0441\u0442\u2026",
     value: q,
     onChange: e => setQ(e.target.value)
-  }), /*#__PURE__*/React.createElement(Button, null, "\u0417\u043D\u0430\u0439\u0442\u0438")), bosCan('write') && /*#__PURE__*/React.createElement("details", {
+  }), /*#__PURE__*/React.createElement(Button, {
+    disabled: loading
+  }, "\u0417\u043D\u0430\u0439\u0442\u0438")), bosCan('write') && /*#__PURE__*/React.createElement("details", {
     style: {
       margin: '18px 0'
     }
@@ -14218,31 +14350,35 @@ function DocumentRegistry() {
     name: "title",
     required: true,
     maxLength: 200
-  })), /*#__PURE__*/React.createElement("label", null, "\u0424\u0430\u0439\u043B PDF, DOCX, XLSX, TXT, MD", /*#__PURE__*/React.createElement(Input, {
+  })), /*#__PURE__*/React.createElement("label", null, "\u0424\u043E\u0442\u043E, PDF \u0430\u0431\u043E Excel", /*#__PURE__*/React.createElement(Input, {
     name: "file",
     type: "file",
-    accept: ".pdf,.docx,.xlsx,.txt,.md",
+    accept: ".jpg,.jpeg,.png,.pdf,.xlsx,.docx,.txt,.md",
     required: true
   })), /*#__PURE__*/React.createElement(Button, {
     disabled: busy
-  }, busy ? 'Обробка…' : 'Додати')), /*#__PURE__*/React.createElement("p", {
+  }, busy ? 'Зберігаємо…' : 'Додати')), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
   }, "\u0414\u043E 10 \u041C\u0411. OCR \u043D\u0435 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043E. \u0414\u043B\u044F \u043D\u043E\u0432\u043E\u0457 \u0432\u0435\u0440\u0441\u0456\u0457 \u0432\u043A\u0430\u0436\u0456\u0442\u044C \u0442\u043E\u0439 \u0441\u0430\u043C\u0438\u0439 \u043A\u043E\u0434 \u0456 \u043D\u043E\u0432\u0438\u0439 \u043D\u043E\u043C\u0435\u0440 \u0432\u0435\u0440\u0441\u0456\u0457; \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0456 \u0432\u0438\u0441\u043D\u043E\u0432\u043A\u0438 \u043F\u043E\u0442\u0440\u0435\u0431\u0443\u0432\u0430\u0442\u0438\u043C\u0443\u0442\u044C \u043F\u0435\u0440\u0435\u0433\u043B\u044F\u0434\u0443.")), error && /*#__PURE__*/React.createElement("p", {
     role: "alert",
     style: {
       color: T.red
     }
-  }, error), items.map(d => /*#__PURE__*/React.createElement("div", {
+  }, error), notice && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, notice), loading ? /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0443\u0454\u043C\u043E \u0441\u043F\u0438\u0441\u043E\u043A\u2026") : !error && !items.length ? /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0456\u0432 \u0437\u0430 \u0437\u0430\u043F\u0438\u0442\u043E\u043C \u043D\u0435\u043C\u0430\u0454.") : items.map(d => /*#__PURE__*/React.createElement("div", {
     className: "op-record",
     key: d.id
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, d.title), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
-  }, d.code, " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", d.revision, " \xB7 ", OP_STATUS[d.status]), d.hits.map((h, i) => /*#__PURE__*/React.createElement("p", {
+  }, d.code, " \xB7 \u0432\u0435\u0440\u0441\u0456\u044F ", d.revision, " \xB7 ", OP_STATUS[d.status] || d.status, d.image ? ' · фото' : ''), d.hits.map((h, i) => /*#__PURE__*/React.createElement("p", {
     key: i,
     className: "op-muted"
   }, h.source, ": ", h.excerpt))), /*#__PURE__*/React.createElement(Button, {
     onClick: () => setDoc(d.id)
-  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438"))), !items.length && /*#__PURE__*/React.createElement("p", null, "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0456\u0432 \u0437\u0430 \u0437\u0430\u043F\u0438\u0442\u043E\u043C \u043D\u0435\u043C\u0430\u0454.")), doc && /*#__PURE__*/React.createElement(DocViewer, {
+  }, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438")))), doc && /*#__PURE__*/React.createElement(DocViewer, {
     id: doc,
     onClose: () => setDoc(null)
   }));
