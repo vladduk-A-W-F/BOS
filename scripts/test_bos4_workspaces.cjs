@@ -74,7 +74,29 @@ assert.match(source, /<span className="bos-file-button" aria-hidden="true">Об�
 assert.match(source, /\.bos-file-name:empty::before\{content:"Файл не обрано"/);
 // Only the hidden assistant upload (opened by its own button) keeps a bare native file input.
 assert.equal((source.match(/<input [^>]*type="file"/g) || []).length, 1);
-// U9: on a phone the monitoring tables become «label: value» cards instead of a wide table hidden off-screen.
-assert.match(source, /<td key=\{j\} data-label=\{table\.columns\[j\]\}>\{monValue\(c\)\}<\/td>/);
-assert.match(source, /@media\(max-width:600px\)\{\.mon-card \.erp-table\{overflow:visible\}[^\n]*\.mon-card \.erp-table thead\{display:none\}[^\n]*td::before\{content:attr\(data-label\)/);
+// U9: on a phone the monitoring tables become «label: value» cards. Rendered from the compiled app:
+// headers stay real (scope + roles, only visually hidden), every cell names its column, and the phone
+// rules are scoped to .mon-table so other .erp-table screens (Connections) are untouched.
+{
+  const app = fs.readFileSync(path.join(__dirname, '../assets/app.js'), 'utf8');
+  const monTable = app.slice(app.indexOf('function MonTable('), app.indexOf('function Monitoring('));
+  assert.ok(monTable, 'compiled MonTable');
+  const React = {createElement:(type,props,...children)=>({type,props:props||{},children:children.flat(Infinity)})};
+  const all = n => n&&typeof n==='object'?[n,...(n.children||[]).flatMap(all)]:[];
+  const tree = vm.runInNewContext(`${monTable};MonTable({table:{title:'Замовлення в роботі',total:1,columns:['Замовлення','Строк'],rows:[{ref:{kind:'order',id:1},late:true,cells:['ZM-1','2026-10-03']}]},onRow:()=>{}})`, {React, monValue:v=>v});
+  const nodes = all(tree);
+  assert.ok(nodes.some(n=>n.type==='div'&&n.props.className==='erp-table mon-table'));
+  const ths = nodes.filter(n=>n.type==='th');
+  assert.deepEqual(ths.map(n=>[n.props.scope,n.props.role,n.children[0]]), [['col','columnheader','Замовлення'],['col','columnheader','Строк']]);
+  const tds = nodes.filter(n=>n.type==='td');
+  assert.deepEqual(tds.map(n=>[n.props.role,n.props['data-label']]), [['cell','Замовлення'],['cell','Строк']]);
+  assert.ok(nodes.filter(n=>n.type==='tr').every(n=>n.props.role==='row'));
+  const phone = source.match(/@media\(max-width:600px\)\{\.mon-table\{overflow:visible\}[^\n]*/)?.[0];
+  assert.ok(phone, 'phone rules exist');
+  assert.doesNotMatch(phone, /\.mon-card \.erp-table|\.erp-table (thead|td|tr)/, 'phone rules never target other .erp-table screens');
+  assert.doesNotMatch(phone, /thead\{display:none\}/, 'headers are only visually hidden');
+  assert.match(phone, /\.mon-table thead\{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect\(0 0 0 0\)/);
+  const connections = app.match(/function Connections\(\)\s*\{[\s\S]*?\n\}\s*(?=\/\/ BoS 4 first screen)/)?.[0];
+  assert.ok(connections && !connections.includes('mon-table'), 'Connections tables keep the ordinary layout');
+}
 console.log('M7 navigation, legacy routes and role visibility: PASS');
