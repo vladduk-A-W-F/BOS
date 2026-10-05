@@ -25159,7 +25159,7 @@ function Connections({
     variant: "primary",
     disabled: busy || !form.name.trim(),
     onClick: doCreate
-  }, checked ? 'Підключити з цією відповідністю' : 'Підключити')), busy && /*#__PURE__*/React.createElement("p", {
+  }, checked ? 'Підключити з цією відповідністю' : preview.fields?.length > 0 ? 'Підключити без відповідності' : 'Підключити')), busy && /*#__PURE__*/React.createElement("p", {
     role: "status"
   }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F\u2026"), preview && /*#__PURE__*/React.createElement("div", {
     className: "erp-table"
