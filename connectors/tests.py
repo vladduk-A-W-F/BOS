@@ -223,3 +223,48 @@ class StaleSheetSyncTests(TestCase):
             call_command('sync_connectors', stdout=out)
         import json
         self.assertEqual(sorted(json.loads(out.getvalue())['synced']), sorted([self.stale.pk, self.never.pk]))
+
+    def test_failing_sheets_do_not_starve_healthy_ones(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        broken = [Connector.objects.create(kind='google_sheets', name='Зламана %d' % i, dataset='orders',
+                                           created_by=self.ceo, source_url=SHEET, status='error',
+                                           last_error='закрито', last_sync_at=None) for i in range(12)]
+        healthy = Connector.objects.get(pk=self.stale.pk)
+        def fetch(url):
+            return sources.parse_csv(CSV)
+        with mock.patch.object(sources, 'fetch_sheet', side_effect=fetch):
+            body = self.client.post('/api/connectors/sync-stale/').json()
+        names = [x['name'] for x in body['synced']]
+        self.assertIn(healthy.name, names)
+        self.assertIn('Ще не читали', names)
+        self.assertEqual(len(names), 10)
+        self.assertTrue(all(c.pk for c in broken))
+
+    def test_disable_during_fetch_wins_and_nothing_is_stored(self):
+        def fetch(url):
+            Connector.objects.filter(pk=self.stale.pk).update(status='disabled')
+            return sources.parse_csv(CSV)
+        from connectors.views import sync_connector
+        with mock.patch.object(sources, 'fetch_sheet', side_effect=fetch):
+            result = sync_connector(Connector.objects.get(pk=self.stale.pk))
+        self.assertEqual(result.status, 'disabled')
+        self.assertFalse(ConnectorSnapshot.objects.filter(connector=self.stale).exists())
+        def failing(url):
+            Connector.objects.filter(pk=self.never.pk).update(status='disabled')
+            raise sources.SourceError('закрито')
+        with mock.patch.object(sources, 'fetch_sheet', side_effect=failing), self.assertRaises(sources.SourceError):
+            sync_connector(Connector.objects.get(pk=self.never.pk))
+        self.assertEqual(Connector.objects.get(pk=self.never.pk).status, 'disabled')
+
+    def test_parallel_sync_does_not_duplicate_the_same_snapshot(self):
+        table = sources.parse_csv(CSV)
+        def fetch(url):
+            # Another request stored the same content while this one was reading.
+            ConnectorSnapshot.objects.create(connector=self.stale, columns=table['columns'], rows=table['rows'],
+                                             row_count=table['row_count'], sha256=table['sha256'])
+            return table
+        from connectors.views import sync_connector
+        with mock.patch.object(sources, 'fetch_sheet', side_effect=fetch):
+            sync_connector(Connector.objects.get(pk=self.stale.pk))
+        self.assertEqual(ConnectorSnapshot.objects.filter(connector=self.stale).count(), 1)

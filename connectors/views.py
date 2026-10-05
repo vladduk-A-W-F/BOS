@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from django.db import transaction
-from django.db.models import F, Q
+from django.db.models import Case, F, IntegerField, Q, When
 from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_protect
@@ -111,31 +111,53 @@ def create(request):
     return JsonResponse(_connector_dict(connector), status=201)
 
 
+def _locked(connector_id):
+    """Serialize with other connector writes (the existing ERP mutex), then re-read the row."""
+    from erp.service import write_lock
+    write_lock()
+    return Connector.objects.select_for_update().get(pk=connector_id)
+
+
 def sync_connector(connector):
-    """Read a published Google Sheet again; store a new snapshot only when its content changed."""
+    """Read a published Google Sheet again; store a new snapshot only when its content changed.
+
+    The network fetch runs outside the transaction; the result is applied only after the
+    row is re-checked under the lock, so a disable during the fetch wins and a parallel
+    sync cannot add the same snapshot twice.
+    """
     try:
         table = sources.fetch_sheet(connector.source_url)
     except sources.SourceError as exc:
-        Connector.objects.filter(pk=connector.pk).update(status='error', last_error=str(exc)[:300])
+        with transaction.atomic():
+            if _locked(connector.pk).status != 'disabled':
+                Connector.objects.filter(pk=connector.pk).update(status='error', last_error=str(exc)[:300])
         raise
     with transaction.atomic():
-        latest = connector.snapshots.first()
+        current = _locked(connector.pk)
+        if current.status == 'disabled':
+            return current
+        latest = current.snapshots.first()
         if latest is None or latest.sha256 != table['sha256']:
-            ConnectorSnapshot.objects.create(connector=connector, columns=table['columns'],
+            ConnectorSnapshot.objects.create(connector=current, columns=table['columns'],
                                              rows=table['rows'], row_count=table['row_count'],
                                              sha256=table['sha256'])
-        Connector.objects.filter(pk=connector.pk).update(status='connected', last_error='',
-                                                         last_sync_at=timezone.now())
+        Connector.objects.filter(pk=current.pk).update(status='connected', last_error='',
+                                                       last_sync_at=timezone.now())
     connector.refresh_from_db()
     return connector
 
 
 def stale_sheets(rows, now=None):
-    """Google Sheets connectors whose last reading is older than STALE_AFTER, oldest first."""
+    """Google Sheets read more than STALE_AFTER ago. Healthy ones first, oldest first.
+
+    A source that keeps failing keeps its last successful time, so without this order ten
+    broken sheets would hold the whole batch and healthy ones would never be read again.
+    """
     cutoff = (now or timezone.now()) - STALE_AFTER
     return (rows.filter(kind='google_sheets').exclude(status='disabled')
             .filter(Q(last_sync_at__isnull=True) | Q(last_sync_at__lt=cutoff))
-            .order_by(F('last_sync_at').asc(nulls_first=True), 'pk')[:STALE_BATCH])
+            .order_by(Case(When(status='error', then=1), default=0, output_field=IntegerField()),
+                      F('last_sync_at').asc(nulls_first=True), 'pk')[:STALE_BATCH])
 
 
 @csrf_protect
@@ -181,7 +203,11 @@ def rows(request, connector_id):
 @require_POST
 @errors
 def disable(request, connector_id):
-    updated = _visible(_writer(request)).filter(pk=connector_id).update(status='disabled')
+    rows = _visible(_writer(request))
+    with transaction.atomic():
+        if rows.filter(pk=connector_id).exclude(status='disabled').exists():
+            _locked(connector_id)
+        updated = rows.filter(pk=connector_id).exclude(status='disabled').update(status='disabled')
     if not updated:
         raise Connector.DoesNotExist
     return JsonResponse({'id': connector_id, 'status': 'disabled'})
