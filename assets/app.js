@@ -11766,6 +11766,131 @@ const OP_STATUS = {
   needs_review: 'Потребує перевірки',
   ocr_required: 'Потрібне розпізнавання'
 };
+function DocumentLinks({
+  doc,
+  readOnly
+}) {
+  const [links, setLinks] = useState(null),
+    [error, setError] = useState(''),
+    [targets, setTargets] = useState(null),
+    [target, setTarget] = useState(''),
+    [action, setAction] = useState(null),
+    [busy, setBusy] = useState(false),
+    [notice, setNotice] = useState('');
+  const live = useRef(true),
+    scope = useRef(bosHttpScope()),
+    seq = useRef(0);
+  const current = n => live.current && scope.current === bosHttpScope() && n === seq.current;
+  async function loadLinks() {
+    const n = ++seq.current;
+    setError('');
+    try {
+      const result = await erpFetch('document-links/?document=' + doc.id);
+      if (current(n)) setLinks(result.links || []);
+    } catch (e) {
+      if (current(n)) {
+        setLinks([]);
+        setError(e.message);
+      }
+    }
+  }
+  useEffect(() => {
+    live.current = true;
+    const denied = () => {
+      live.current = false;
+      seq.current++;
+      setTargets(null);
+      setTarget('');
+      setAction(null);
+      setLinks(null);
+    };
+    window.addEventListener('bos:session-ended', denied);
+    loadLinks();
+    return () => {
+      live.current = false;
+      seq.current++;
+      window.removeEventListener('bos:session-ended', denied);
+    };
+  }, [doc.id]);
+  async function chooseTarget() {
+    const n = seq.current;
+    if (!current(n) || busy) return;
+    setBusy(true);
+    setError('');
+    setTarget('');
+    setTargets(null);
+    try {
+      const data = await erpFetch('snapshot/');
+      if (current(n)) setTargets(data);
+    } catch (e) {
+      if (current(n)) setError(e.message);
+    } finally {
+      if (current(n)) setBusy(false);
+    }
+  }
+  function prepare() {
+    const [kind, raw] = target.split(':');
+    const id = Number(raw),
+      rows = kind === 'order' ? targets?.orders : kind === 'invoice' && bosRole() === 'ceo' ? targets?.invoices : null;
+    if (!current(seq.current) || !doc.current || readOnly || !bosCanAction('link_document') || !rows?.some(row => (row.invoice_id ?? row.id) === id)) return;
+    setAction({
+      document_id: doc.id,
+      [kind + '_id']: id
+    });
+  }
+  if (!live.current || scope.current !== bosHttpScope()) return /*#__PURE__*/React.createElement("p", {
+    role: "alert"
+  }, "\u0421\u0435\u0441\u0456\u044E \u0437\u043C\u0456\u043D\u0435\u043D\u043E. \u0417\u0430\u043A\u0440\u0438\u0439\u0442\u0435 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442 \u0456 \u0432\u0456\u0434\u043A\u0440\u0438\u0439\u0442\u0435 \u0439\u043E\u0433\u043E \u0437\u043D\u043E\u0432\u0443.");
+  return /*#__PURE__*/React.createElement("section", {
+    "aria-label": "\u041F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0456 \u0437\u0430\u043F\u0438\u0441\u0438",
+    style: {
+      marginTop: 16
+    }
+  }, /*#__PURE__*/React.createElement("h3", null, "\u041F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0456 \u0437\u0430\u043F\u0438\u0441\u0438"), links === null ? /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0443\u0454\u043C\u043E \u0437\u0432\u2019\u044F\u0437\u043A\u0438\u2026") : links.length ? links.map(row => /*#__PURE__*/React.createElement("p", {
+    key: row.id
+  }, row.order ? 'Замовлення ' + row.order.code : row.invoice ? 'Рахунок ' + row.invoice.code : 'Запис недоступний', row.note ? ' · ' + row.note : '')) : !error && /*#__PURE__*/React.createElement("p", null, "\u0417\u0432\u2019\u044F\u0437\u043A\u0456\u0432 \u043F\u043E\u043A\u0438 \u043D\u0435\u043C\u0430\u0454."), error && /*#__PURE__*/React.createElement("p", {
+    role: "alert"
+  }, error), notice && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, notice), !readOnly && doc.current && bosCanAction('link_document') && /*#__PURE__*/React.createElement(React.Fragment, null, targets === null ? /*#__PURE__*/React.createElement(Button, {
+    disabled: busy,
+    onClick: chooseTarget
+  }, busy ? 'Завантажуємо…' : 'Прив’язати до замовлення або рахунку') : /*#__PURE__*/React.createElement("div", {
+    className: "op-toolbar"
+  }, /*#__PURE__*/React.createElement("label", null, "\u0417\u0430\u043F\u0438\u0441 ", /*#__PURE__*/React.createElement(Select, {
+    value: target,
+    onChange: e => setTarget(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "\u041E\u0431\u0435\u0440\u0456\u0442\u044C \u0437\u0430\u043F\u0438\u0441"), (targets.orders || []).map(row => /*#__PURE__*/React.createElement("option", {
+    key: 'order-' + row.id,
+    value: 'order:' + row.id
+  }, "\u0417\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F ", row.code)), bosRole() === 'ceo' && [...new Map((targets.invoices || []).map(row => [row.invoice_id, row])).values()].map(row => /*#__PURE__*/React.createElement("option", {
+    key: 'invoice-' + row.invoice_id,
+    value: 'invoice:' + row.invoice_id
+  }, "\u0420\u0430\u0445\u0443\u043D\u043E\u043A ", row.code)))), /*#__PURE__*/React.createElement(Button, {
+    disabled: !target,
+    onClick: prepare
+  }, "\u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0438\u0442\u0438 \u043F\u0440\u0438\u0432\u2019\u044F\u0437\u043A\u0443"))), action && /*#__PURE__*/React.createElement(ERPActionDialog, {
+    key: doc.id,
+    action: "link_document",
+    preset: action,
+    data: targets,
+    onClose: () => {
+      setAction(null);
+      setTargets(null);
+      setTarget('');
+    },
+    onDone: () => {
+      if (current(seq.current)) {
+        setNotice('Прив’язку збережено.');
+        loadLinks();
+      }
+    }
+  }));
+}
 function DocumentImage({
   doc
 }) {
@@ -11935,7 +12060,11 @@ function DocViewer({
       lineHeight: 1.6,
       color: T.textMuted
     }
-  }, p.text))), !doc.text && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0442\u0440\u0456\u0431\u043D\u0430 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0430: \u0442\u0435\u043A\u0441\u0442 \u043D\u0435 \u0440\u043E\u0437\u043F\u0456\u0437\u043D\u0430\u043D\u043E. OCR \u043F\u043E\u043A\u0438 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0439; \u0446\u0435\u0439 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442 \u043D\u0435 \u043C\u043E\u0436\u043D\u0430 \u0437\u0430\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u0438 \u0447\u0438 \u0432\u0438\u043A\u043E\u0440\u0438\u0441\u0442\u0430\u0442\u0438 \u0434\u043B\u044F \u0434\u043E\u043F\u0443\u0441\u043A\u0443 \u043F\u0430\u0440\u0442\u0456\u0457."), doc.contract_id && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u043E \u0437 \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u043E\u043C \u2116", doc.contract_id, "."), !readOnly && bosCan('write') && doc.current && doc.status === 'needs_review' && !!doc.text && /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("p", null, "\u041F\u0456\u0441\u043B\u044F \u0440\u0443\u0447\u043D\u043E\u0457 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0438 \u043C\u043E\u0436\u043D\u0430 \u043F\u043E\u0433\u043E\u0434\u0438\u0442\u0438 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442 \u0430\u0431\u043E \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u0442\u0438 \u0439\u043E\u0433\u043E \u0437 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u043C \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u043E\u043C."), contracts === null ? /*#__PURE__*/React.createElement(Button, {
+  }, p.text))), !doc.text && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0442\u0440\u0456\u0431\u043D\u0430 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0430: \u0442\u0435\u043A\u0441\u0442 \u043D\u0435 \u0440\u043E\u0437\u043F\u0456\u0437\u043D\u0430\u043D\u043E. OCR \u043F\u043E\u043A\u0438 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0439; \u0446\u0435\u0439 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442 \u043D\u0435 \u043C\u043E\u0436\u043D\u0430 \u0437\u0430\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u0438 \u0447\u0438 \u0432\u0438\u043A\u043E\u0440\u0438\u0441\u0442\u0430\u0442\u0438 \u0434\u043B\u044F \u0434\u043E\u043F\u0443\u0441\u043A\u0443 \u043F\u0430\u0440\u0442\u0456\u0457."), doc.contract_id && /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u043E \u0437 \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u043E\u043C \u2116", doc.contract_id, "."), /*#__PURE__*/React.createElement(DocumentLinks, {
+    key: doc.id,
+    doc: doc,
+    readOnly: readOnly
+  }), !readOnly && bosCan('write') && doc.current && doc.status === 'needs_review' && !!doc.text && /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("p", null, "\u041F\u0456\u0441\u043B\u044F \u0440\u0443\u0447\u043D\u043E\u0457 \u043F\u0435\u0440\u0435\u0432\u0456\u0440\u043A\u0438 \u043C\u043E\u0436\u043D\u0430 \u043F\u043E\u0433\u043E\u0434\u0438\u0442\u0438 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442 \u0430\u0431\u043E \u043F\u043E\u0432\u2019\u044F\u0437\u0430\u0442\u0438 \u0439\u043E\u0433\u043E \u0437 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u043C \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u043E\u043C."), contracts === null ? /*#__PURE__*/React.createElement(Button, {
     disabled: busy,
     onClick: chooseContract
   }, "\u041E\u0431\u0440\u0430\u0442\u0438 \u0434\u043E\u0433\u043E\u0432\u0456\u0440") : /*#__PURE__*/React.createElement("label", null, "\u0414\u043E\u0433\u043E\u0432\u0456\u0440 ", /*#__PURE__*/React.createElement(Select, {
@@ -14748,6 +14877,7 @@ async function erpFetch(path, data) {
   return d;
 }
 const ERP_ACTIONS = {
+  link_document: ['Прив’язати документ до запису', [['document_id', 'Документ', 'documents'], ['order_id', 'Замовлення', 'orders?'], ['invoice_id', 'Рахунок', 'invoices?'], ['note', 'Примітка', 'text?']]],
   register_supplier_invoice: ['Зареєструвати рахунок постачальника', [['document_id', 'Документ', 'documents'], ['purchase_id', 'Закупівля', 'purchases'], ['supplier_id', 'Постачальник', 'suppliers'], ['item_id', 'Номенклатура', 'items'], ['source_sha256', 'SHA-256 джерела']]],
   item: ['Нова номенклатура', [['code', 'Код'], ['name', 'Назва'], ['unit', 'Одиниця'], ['kind', 'Тип', 'enum:product,material,component'], ['method', 'Спосіб виконання', 'enum:buy,make,subcontract'], ['revision', 'Версія'], ['currency', 'Валюта', 'enum:UAH,EUR,USD'], ['material', 'Матеріал'], ['document_id', 'Креслення', 'documents?'], ['external_codes', 'Зовнішні коди', 'codes'], ['required_documents', 'Обов’язкові документи', 'tags'], ['minimum', 'Мінімальний запас', 'number'], ['lead_days', 'Строк закупівлі, днів', 'integer'], ['planned_cost', 'Планова собівартість одиниці', 'money'], ['bom', 'Склад виробу', 'bom'], ['routing', 'Маршрут операцій', 'routing']]],
   location: ['Нове місце зберігання', [['code', 'Код'], ['name', 'Назва / комірка'], ['kind', 'Тип', 'enum:warehouse,production,supplier'], ['supplier_id', 'Підрядник', 'suppliers?'], ['branch_id', 'Філія', 'branches?'], ['address', 'Адреса', 'text?'], ['lat', 'Широта WGS84', 'coordinate?'], ['lng', 'Довгота WGS84', 'coordinate?']]],
@@ -15408,6 +15538,12 @@ function ERPActionDialog({
     const value = values[key],
       base = type.replace('?', ''),
       optional = type.endsWith('?');
+    if (action === 'link_document' && ['document_id', 'order_id', 'invoice_id'].includes(key)) return value ? /*#__PURE__*/React.createElement("label", {
+      key: key
+    }, label, /*#__PURE__*/React.createElement(Input, {
+      readOnly: true,
+      value: options(base).find(x => x.value === Number(value))?.label || value
+    })) : null;
     if (action === 'purchase' && key === 'quote_id') return /*#__PURE__*/React.createElement("label", {
       key: key
     }, label, /*#__PURE__*/React.createElement(Input, {
@@ -15642,7 +15778,7 @@ function ERPActionDialog({
       min: numeric && !['signed', 'coordinate'].includes(base) ? '0' : undefined,
       required: !optional && !['material', 'notes', 'note'].includes(key) && (key !== 'reason' || ['location_update', 'order_network', 'purchase_network', 'transfer_dispatch', 'transfer_receive', 'hold_payment', 'release_payment'].includes(action)),
       value: value ?? '',
-      maxLength: ['code', 'reference', 'revision', 'target_revision'].includes(key) ? 60 : 1000,
+      maxLength: action === 'link_document' && key === 'note' ? 200 : ['code', 'reference', 'revision', 'target_revision'].includes(key) ? 60 : 1000,
       onChange: e => change(key, e.target.value)
     }));
   }

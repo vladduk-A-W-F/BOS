@@ -33,7 +33,7 @@ const calls = [];
 const detail = id => ({id, title:'Джерело '+id, code:'DOC', revision:id === 1?'A':'B', status:'needs_review', current:true, text:'Перевірений текст', checksum:'sha'+id, image:false, contract_id:null, sections:[], versions:[{id:1,revision:'A'},{id:2,revision:'B'}]});
 const ctx = {
   React, OP:'/api/operations/', OP_STATUS:{needs_review:'Потребує перевірки'}, T:{textMuted:'#555',primary:'#080'},
-  Button, Select, DocumentImage:()=>{}, ERPActionDialog:()=>{},
+  Button, Select, DocumentImage:()=>{}, DocumentLinks:()=>{}, ERPActionDialog:()=>{},
   bosCan:key=>key==='write', bosCanAction:()=>false, bosHttpScope:()=> 'session-1',
   useState(initial){const i=hook++;if(!(i in hooks))hooks[i]=initial;return [hooks[i], value=>{hooks[i]=typeof value==='function'?value(hooks[i]):value}];},
   useRef(initial){const i=hook++;if(!(i in hooks))hooks[i]={current:refs++===0?{showModal(){},close(){}}:initial};return hooks[i];},
