@@ -37,4 +37,4 @@ jobs:
       - name: Збірка інтерфейсу без нових залежностей
         run: node scripts/build_frontend.cjs
       - name: Похідні файли відповідають вихідному коду
-        run: git diff --exit-code -- assets/app.js frontend/boss_app_html.html
+        run: git diff --exit-code -- assets/app.js frontend/boss_app_html.html frontend/bos_design.css
