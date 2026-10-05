@@ -92,6 +92,19 @@ class ConnectorApiTests(TestCase):
         self.assertEqual(states['binotel'], 'planned')
         self.assertEqual(body['connectors'], [])
 
+    def test_preview_suggests_mapping_and_reads_the_table_with_it(self):
+        body = self.upload('/api/connectors/preview/', dataset='orders').json()
+        self.assertEqual(body['suggested_mapping'], {'code': 'Замовлення', 'customer': 'Клієнт', 'amount': 'Сума'})
+        self.assertEqual([f['field'] for f in body['fields'] if f['required']], ['code', 'customer'])
+        self.assertEqual((body['mapped']['accepted'], body['mapped']['total']), (2, 2))
+        self.assertEqual(body['mapped']['rows'][0], {'code': 'ЗМ-1', 'customer': 'ТОВ Ліс', 'amount': '12500.00', 'currency': 'UAH'})
+        self.assertFalse(Connector.objects.exists())
+        other = self.upload('/api/connectors/preview/', dataset='other').json()
+        self.assertNotIn('suggested_mapping', other)
+        # Required fields that the headers do not name are reported, not guessed.
+        stock = self.upload('/api/connectors/preview/', dataset='stock').json()
+        self.assertIn('Номенклатура', stock['mapped']['error'])
+
     def test_preview_writes_nothing_then_confirm_creates_snapshot(self):
         preview = self.upload('/api/connectors/preview/')
         self.assertEqual(preview.status_code, 200, preview.content)
