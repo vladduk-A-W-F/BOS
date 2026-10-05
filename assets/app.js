@@ -17735,17 +17735,38 @@ function networkClusters(points) {
   }
   return [...buckets.values()];
 }
+function networkSupplierLines(points, purchases) {
+  const byId = new Map(points.map(point => [point.id, point]));
+  return purchases.flatMap(purchase => {
+    const a = byId.get(purchase.origin_location_id),
+      b = byId.get(purchase.destination_id);
+    if (!a || !b || a.id === b.id || a.kind !== 'supplier') return [];
+    const from = networkProject(a.map_lat, a.map_lng),
+      to = networkProject(b.map_lat, b.map_lng);
+    if (!from || !to || [from, to].some(([x, y]) => x < 0 || x > 960 || y < 0 || y > 570) || Math.hypot(from[0] - to[0], from[1] - to[1]) < 12) return [];
+    return [{
+      purchase,
+      from,
+      to,
+      origin: a,
+      destination: b
+    }];
+  });
+}
 function NetworkMap({
   points,
   locations,
   transfers,
+  purchases = [],
   selected,
-  onPoint
+  onPoint,
+  onPurchase
 }) {
   const [cluster, setCluster] = useState(null),
     map = window.BOS_NETWORK_MAP,
     clusters = networkClusters(points),
     current = clusters.find(x => x.key === cluster);
+  const suppliers = networkSupplierLines(points, purchases);
   useEffect(() => setCluster(null), [selected, points]);
   const outside = points.filter(p => {
     const xy = networkProject(p.map_lat, p.map_lng);
@@ -17760,8 +17781,8 @@ function NetworkMap({
     "aria-label": "\u0422\u043E\u0447\u043A\u0438 \u043C\u0435\u0440\u0435\u0436\u0456 \u043D\u0430 \u043A\u0430\u0440\u0442\u0456 \u0423\u043A\u0440\u0430\u0457\u043D\u0438"
   }, /*#__PURE__*/React.createElement("svg", {
     viewBox: "0 0 960 570",
-    role: "img",
-    "aria-label": "\u0413\u0435\u043E\u0433\u0440\u0430\u0444\u0456\u0447\u043D\u0456 \u043C\u0435\u0436\u0456 \u0423\u043A\u0440\u0430\u0457\u043D\u0438 \u0442\u0430 \u043D\u0430\u043F\u0440\u044F\u043C\u043A\u0438 \u0432\u0456\u0434\u043A\u0440\u0438\u0442\u0438\u0445 \u043F\u0435\u0440\u0435\u043C\u0456\u0449\u0435\u043D\u044C"
+    role: "group",
+    "aria-label": "\u0413\u0435\u043E\u0433\u0440\u0430\u0444\u0456\u0447\u043D\u0456 \u043C\u0435\u0436\u0456 \u0423\u043A\u0440\u0430\u0457\u043D\u0438, \u043F\u0435\u0440\u0435\u043C\u0456\u0449\u0435\u043D\u043D\u044F \u0442\u0430 \u0437\u0432\u2019\u044F\u0437\u043A\u0438 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u0435\u043B\u044C"
   }, /*#__PURE__*/React.createElement("g", {
     className: "network-regions"
   }, map.paths.map(r => /*#__PURE__*/React.createElement("path", {
@@ -17779,7 +17800,31 @@ function NetworkMap({
       key: t.id,
       d: 'M' + p[0] + ',' + p[1] + ' Q' + (p[0] + q[0]) / 2 + ',' + ((p[1] + q[1]) / 2 - 25) + ' ' + q[0] + ',' + q[1]
     }, /*#__PURE__*/React.createElement("title", null, t.code, ": ", t.source_location_name, " \u2192 ", t.destination_name));
-  }))), /*#__PURE__*/React.createElement("div", {
+  })), /*#__PURE__*/React.createElement("g", {
+    className: "network-supplier-lines"
+  }, suppliers.map(({
+    purchase,
+    from,
+    to,
+    origin,
+    destination
+  }) => /*#__PURE__*/React.createElement("path", {
+    key: purchase.id,
+    d: 'M' + from[0] + ',' + from[1] + ' L' + to[0] + ',' + to[1],
+    tabIndex: 0,
+    role: "button",
+    "aria-label": 'Відкрити закупівлю ' + purchase.code + ': ' + origin.name + ' → ' + destination.name,
+    onClick: event => {
+      event.currentTarget.focus();
+      onPurchase?.(purchase);
+    },
+    onKeyDown: event => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        onPurchase?.(purchase);
+      }
+    }
+  }, /*#__PURE__*/React.createElement("title", null, purchase.code, ": \u0437\u0432\u2019\u044F\u0437\u043E\u043A \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456 ", origin.name, " \u2192 ", destination.name))))), /*#__PURE__*/React.createElement("div", {
     className: "network-map-points"
   }, clusters.map(c => /*#__PURE__*/React.createElement("button", {
     type: "button",
@@ -17808,7 +17853,7 @@ function NetworkMap({
     onClick: () => setCluster(null)
   }, "\u0417\u0433\u043E\u0440\u043D\u0443\u0442\u0438"))), /*#__PURE__*/React.createElement("p", {
     className: "network-map-note"
-  }, "\u041D\u0430\u043F\u0440\u044F\u043C\u043A\u0438 \u043F\u0435\u0440\u0435\u043C\u0456\u0449\u0435\u043D\u044C \u0441\u0445\u0435\u043C\u0430\u0442\u0438\u0447\u043D\u0456. ", points.some(p => p.coordinate_basis === 'branch') ? 'Для точок без власних координат використано центр філії. ' : '', outside ? outside + ' точок без координат у межах карти; вони залишаються в таблиці. ' : '', /*#__PURE__*/React.createElement("a", {
+  }, "\u041D\u0430\u043F\u0440\u044F\u043C\u043A\u0438 \u043F\u0435\u0440\u0435\u043C\u0456\u0449\u0435\u043D\u044C \u0441\u0445\u0435\u043C\u0430\u0442\u0438\u0447\u043D\u0456. ", suppliers.length ? 'Помаранчева лінія — зв’язок закупівлі між точками, не підтверджений маршрут транспорту. ' : '', points.some(p => p.coordinate_basis === 'branch') ? 'Для точок без власних координат використано центр філії. ' : '', outside ? outside + ' точок без координат у межах карти; вони залишаються в таблиці. ' : '', /*#__PURE__*/React.createElement("a", {
     href: map.sourceUrl,
     target: "_blank",
     rel: "noreferrer"
@@ -18008,6 +18053,9 @@ function moduleMapRows(network, model, rows) {
     if (model.id === 'points') add(row.id);else if (model.id === 'transfers') {
       add(row.source_location_id);
       add(row.destination_id);
+    } else if (model.id === 'purchases') {
+      add(row.location_id);
+      if ((network.rows.points || []).some(p => p.id === row.origin_location_id)) add(row.origin_location_id);
     } else if (model.id === 'retentions') {
       const invoice = (network.rows.invoices || []).find(i => i.invoice_id === row.invoice_id);
       add(invoice?.location_id);
@@ -18331,8 +18379,10 @@ function CoreModuleSurface({
     points: mapped.points,
     locations: network.locations || [],
     transfers: mapped.transfers,
+    purchases: model.id === 'purchases' ? rows : [],
     selected: point,
-    onPoint: onPoint
+    onPoint: onPoint,
+    onPurchase: detail
   }), !mapped.points.length && /*#__PURE__*/React.createElement("p", {
     role: "status"
   }, "\u0423 \u0446\u0438\u0445 \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u043D\u0435\u043C\u0430\u0454 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E\u0457 \u043F\u0440\u0438\u0432\u2019\u044F\u0437\u043A\u0438 \u0434\u043E \u0442\u043E\u0447\u043A\u0438. \u0412\u043E\u043D\u0438 \u0437\u0430\u043B\u0438\u0448\u0430\u044E\u0442\u044C\u0441\u044F \u0443 \u0440\u0435\u0454\u0441\u0442\u0440\u0456."), /*#__PURE__*/React.createElement("div", {
@@ -18494,8 +18544,13 @@ function NetworkStructure({
     points: points,
     locations: locations,
     transfers: rows.transfers || [],
+    purchases: rows.purchases || [],
     selected: point,
-    onPoint: onPoint
+    onPoint: onPoint,
+    onPurchase: row => onSelect({
+      kind: 'purchases',
+      id: row.id
+    })
   })), /*#__PURE__*/React.createElement("div", {
     className: "structure-grid"
   }, listed.map(b => {
@@ -24403,8 +24458,10 @@ function Connections() {
       url: ''
     }),
     [preview, setPreview] = useState(null),
-    [busy, setBusy] = useState(false);
-  const fileRef = useRef(null);
+    [busy, setBusy] = useState(false),
+    [failed, setFailed] = useState([]);
+  const fileRef = useRef(null),
+    entry = useRef(null);
   const call = async (path, body) => {
     const r = await fetch('/api/connectors/' + path, body ? {
       method: 'POST',
@@ -24419,16 +24476,37 @@ function Connections() {
     if (!r.ok) throw Error(d.error || 'Не вдалося виконати запит.');
     return d;
   };
-  const load = async () => {
+  const current = scope => entry.current === scope && scope === bosHttpScope();
+  const load = async (note = '') => {
+    const scope = entry.current;
     try {
-      setData(await call(''));
-      setError('');
+      const list = await call('');
+      if (current(scope)) {
+        setData(list);
+        setError(note);
+      }
     } catch (e) {
-      setError(e.message);
+      if (current(scope)) setError(e.message);
     }
   };
   useEffect(() => {
-    load();
+    const scope = bosHttpScope();
+    entry.current = scope;
+    (async () => {
+      let note = '';
+      if (bosCan('write')) {
+        try {
+          const result = await call('sync-stale/', new FormData());
+          if (current(scope)) setFailed(result.failed || []);
+        } catch (e) {
+          note = e.message;
+        }
+      }
+      if (current(scope)) await load(note);
+    })();
+    return () => {
+      entry.current = null;
+    };
   }, []);
   const source = () => {
     const f = new FormData();
@@ -24471,6 +24549,7 @@ function Connections() {
   });
   const doSync = id => run(async () => {
     await call(id + '/sync/', new FormData());
+    setFailed(rows => rows.filter(row => row.id !== id));
     await load();
   });
   const doDisable = id => run(async () => {
@@ -24482,7 +24561,7 @@ function Connections() {
   if (!data) return /*#__PURE__*/React.createElement("div", {
     className: "mon"
   }, /*#__PURE__*/React.createElement("p", null, error || 'Завантаження…'), error && /*#__PURE__*/React.createElement(Button, {
-    onClick: load
+    onClick: () => load()
   }, "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0438"));
   const when = v => v ? new Date(v).toLocaleString('uk-UA', {
     day: '2-digit',
@@ -24499,21 +24578,24 @@ function Connections() {
     className: "mon-card"
   }, /*#__PURE__*/React.createElement("header", null, /*#__PURE__*/React.createElement("h2", null, "\u041F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430"), /*#__PURE__*/React.createElement("span", null, data.connectors.length)), data.connectors.length ? /*#__PURE__*/React.createElement("div", {
     className: "erp-table"
-  }, /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", null, "\u041D\u0430\u0437\u0432\u0430"), /*#__PURE__*/React.createElement("th", null, "\u0421\u0435\u0440\u0432\u0456\u0441"), /*#__PURE__*/React.createElement("th", null, "\u0414\u0430\u043D\u0456"), /*#__PURE__*/React.createElement("th", null, "\u0421\u0442\u0430\u043D"), /*#__PURE__*/React.createElement("th", null, "\u041E\u043D\u043E\u0432\u043B\u0435\u043D\u043E"), /*#__PURE__*/React.createElement("th", null, "\u0420\u044F\u0434\u043A\u0456\u0432"), /*#__PURE__*/React.createElement("th", null))), /*#__PURE__*/React.createElement("tbody", null, data.connectors.map(c => /*#__PURE__*/React.createElement("tr", {
-    key: c.id,
-    className: 'bos-click-row' + (c.status === 'error' ? ' mon-late' : ''),
-    onClick: e => {
-      if (!e.target.closest('button')) show(c.id);
-    }
-  }, /*#__PURE__*/React.createElement("td", null, c.name), /*#__PURE__*/React.createElement("td", null, data.catalog.find(x => x.kind === c.kind)?.title || c.kind), /*#__PURE__*/React.createElement("td", null, c.dataset_label), /*#__PURE__*/React.createElement("td", null, c.status === 'error' ? c.last_error || c.status_label : c.status_label), /*#__PURE__*/React.createElement("td", null, when(c.last_sync_at)), /*#__PURE__*/React.createElement("td", null, monValue(c.row_count)), /*#__PURE__*/React.createElement("td", {
-    className: "mon-actions"
-  }, bosCan('write') && c.kind === 'google_sheets' && /*#__PURE__*/React.createElement(Button, {
-    disabled: busy,
-    onClick: () => doSync(c.id)
-  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438"), bosCan('write') && /*#__PURE__*/React.createElement(Button, {
-    disabled: busy,
-    onClick: () => doDisable(c.id)
-  }, "\u0412\u0438\u043C\u043A\u043D\u0443\u0442\u0438"))))))) : /*#__PURE__*/React.createElement("p", {
+  }, /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", null, "\u041D\u0430\u0437\u0432\u0430"), /*#__PURE__*/React.createElement("th", null, "\u0421\u0435\u0440\u0432\u0456\u0441"), /*#__PURE__*/React.createElement("th", null, "\u0414\u0430\u043D\u0456"), /*#__PURE__*/React.createElement("th", null, "\u0421\u0442\u0430\u043D"), /*#__PURE__*/React.createElement("th", null, "\u041E\u043D\u043E\u0432\u043B\u0435\u043D\u043E"), /*#__PURE__*/React.createElement("th", null, "\u0420\u044F\u0434\u043A\u0456\u0432"), /*#__PURE__*/React.createElement("th", null))), /*#__PURE__*/React.createElement("tbody", null, data.connectors.map(c => {
+    const failure = failed.find(row => row.id === c.id);
+    return /*#__PURE__*/React.createElement("tr", {
+      key: c.id,
+      className: (bosCan('write') ? 'bos-click-row' : '') + (failure || c.status === 'error' ? ' mon-late' : ''),
+      onClick: bosCan('write') ? e => {
+        if (!e.target.closest('button')) show(c.id);
+      } : undefined
+    }, /*#__PURE__*/React.createElement("td", null, c.name), /*#__PURE__*/React.createElement("td", null, data.catalog.find(x => x.kind === c.kind)?.title || c.kind), /*#__PURE__*/React.createElement("td", null, c.dataset_label), /*#__PURE__*/React.createElement("td", null, failure ? 'Помилка оновлення: ' + failure.error : c.status === 'error' ? c.last_error || c.status_label : c.status_label), /*#__PURE__*/React.createElement("td", null, when(c.last_sync_at)), /*#__PURE__*/React.createElement("td", null, monValue(c.row_count)), /*#__PURE__*/React.createElement("td", {
+      className: "mon-actions"
+    }, bosCan('write') && c.kind === 'google_sheets' && /*#__PURE__*/React.createElement(Button, {
+      disabled: busy,
+      onClick: () => doSync(c.id)
+    }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438"), bosCan('write') && /*#__PURE__*/React.createElement(Button, {
+      disabled: busy,
+      onClick: () => doDisable(c.id)
+    }, "\u0412\u0438\u043C\u043A\u043D\u0443\u0442\u0438")));
+  })))) : /*#__PURE__*/React.createElement("p", {
     className: "op-muted mon-empty"
   }, "\u0429\u0435 \u043D\u0456\u0447\u043E\u0433\u043E \u043D\u0435 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043E")), open && /*#__PURE__*/React.createElement("section", {
     className: "mon-card"

@@ -111,29 +111,57 @@ def create(request):
     return JsonResponse(_connector_dict(connector), status=201)
 
 
+def _locked(connector_id):
+    """Serialize with other connector writes (the existing ERP mutex), then re-read the row."""
+    from erp.service import write_lock
+    write_lock()
+    return Connector.objects.select_for_update().get(pk=connector_id)
+
+
 def sync_connector(connector):
-    """Read a published Google Sheet again; store a new snapshot only when its content changed."""
+    """Read a published Google Sheet again; store a new snapshot only when its content changed.
+
+    The fetch runs outside the transaction and the lock. last_sync_at is the moment the data
+    was read, so a slower fetch that started earlier cannot overwrite a newer applied result
+    or mark the source as failed after it; a disable during the fetch always wins.
+    """
+    started = timezone.now()
     try:
         table = sources.fetch_sheet(connector.source_url)
     except sources.SourceError as exc:
-        Connector.objects.filter(pk=connector.pk).update(status='error', last_error=str(exc)[:300])
+        with transaction.atomic():
+            current = _locked(connector.pk)
+            if current.status != 'disabled' and not _newer(current, started):
+                Connector.objects.filter(pk=current.pk).update(status='error', last_error=str(exc)[:300])
         raise
     with transaction.atomic():
-        latest = connector.snapshots.first()
+        current = _locked(connector.pk)
+        if current.status == 'disabled' or _newer(current, started):
+            return current
+        latest = current.snapshots.first()
         if latest is None or latest.sha256 != table['sha256']:
-            ConnectorSnapshot.objects.create(connector=connector, columns=table['columns'],
+            ConnectorSnapshot.objects.create(connector=current, columns=table['columns'],
                                              rows=table['rows'], row_count=table['row_count'],
                                              sha256=table['sha256'])
-        Connector.objects.filter(pk=connector.pk).update(status='connected', last_error='',
-                                                         last_sync_at=timezone.now())
+        Connector.objects.filter(pk=current.pk).update(status='connected', last_error='', last_sync_at=started)
     connector.refresh_from_db()
     return connector
 
 
+def _newer(current, started):
+    """A read that started at or after ours has already been applied."""
+    return current.last_sync_at is not None and current.last_sync_at >= started
+
+
 def stale_sheets(rows, now=None):
-    """Google Sheets connectors whose last reading is older than STALE_AFTER, oldest first."""
+    """Healthy Google Sheets read more than STALE_AFTER ago, oldest first.
+
+    A source in error is not retried automatically: it keeps its last successful time, and
+    retrying it would let broken sources hold the batch. It recovers through the manual
+    «Оновити» (sync), after which it is healthy and joins the automatic reading again.
+    """
     cutoff = (now or timezone.now()) - STALE_AFTER
-    return (rows.filter(kind='google_sheets').exclude(status='disabled')
+    return (rows.filter(kind='google_sheets', status='connected')
             .filter(Q(last_sync_at__isnull=True) | Q(last_sync_at__lt=cutoff))
             .order_by(F('last_sync_at').asc(nulls_first=True), 'pk')[:STALE_BATCH])
 
@@ -156,7 +184,7 @@ def sync(request, connector_id):
 @require_POST
 @errors
 def sync_stale(request):
-    """Periodic reading on use: refresh Google Sheets older than 15 minutes, no scheduler."""
+    """Periodic reading on use: refresh healthy Google Sheets older than 15 minutes, no scheduler."""
     synced, failed = [], []
     for connector in stale_sheets(_visible(_writer(request))):
         try:
@@ -181,7 +209,11 @@ def rows(request, connector_id):
 @require_POST
 @errors
 def disable(request, connector_id):
-    updated = _visible(_writer(request)).filter(pk=connector_id).update(status='disabled')
+    rows = _visible(_writer(request))
+    with transaction.atomic():
+        if rows.filter(pk=connector_id).exclude(status='disabled').exists():
+            _locked(connector_id)
+        updated = rows.filter(pk=connector_id).exclude(status='disabled').update(status='disabled')
     if not updated:
         raise Connector.DoesNotExist
     return JsonResponse({'id': connector_id, 'status': 'disabled'})
