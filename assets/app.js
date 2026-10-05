@@ -265,12 +265,12 @@ const NAV = [{
 }, {
   id: 'structure',
   label: 'Структура',
-  iconKey: 'organizer',
+  iconKey: 'structure',
   subs: []
 }, {
   id: 'erp',
   label: 'Операції',
-  iconKey: 'contracts',
+  iconKey: 'operations',
   subs: [{
     id: 'sales',
     label: 'Продажі',
@@ -340,12 +340,12 @@ const NAV = [{
 }, {
   id: 'documents',
   label: 'Документи',
-  iconKey: 'reports',
+  iconKey: 'documents',
   subs: []
 }, {
   id: 'connectors',
   label: 'Підключення',
-  iconKey: 'bank',
+  iconKey: 'connectors',
   subs: []
 }, {
   id: 'settings',
@@ -1075,6 +1075,76 @@ function Onboarding({
 // Icon set — inline SVG. Взято из Lucide (lucide.dev) — рисуем как функции возвращающие <svg>.
 // Все иконки в едином viewBox 24x24 + stroke-current. Цвет берётся от родителя через currentColor.
 const ICONS = {
+  structure: /*#__PURE__*/React.createElement("svg", {
+    width: "18",
+    height: "18",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }, /*#__PURE__*/React.createElement("circle", {
+    cx: "6",
+    cy: "6",
+    r: "2.5"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "18",
+    cy: "6",
+    r: "2.5"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "12",
+    cy: "18",
+    r: "2.5"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M8 7.5l2.6 8.3M16 7.5l-2.6 8.3M8.5 6h7"
+  })),
+  operations: /*#__PURE__*/React.createElement("svg", {
+    width: "18",
+    height: "18",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M21 8l-9-5-9 5 9 5 9-5z"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M3 8v8l9 5 9-5V8"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M12 13v8"
+  })),
+  documents: /*#__PURE__*/React.createElement("svg", {
+    width: "18",
+    height: "18",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M14 2v6h6M8 13h8M8 17h5"
+  })),
+  connectors: /*#__PURE__*/React.createElement("svg", {
+    width: "18",
+    height: "18",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M9 2v6M15 2v6"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M6 8h12v3a6 6 0 0 1-12 0z"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M12 17v5"
+  })),
   dashboard: /*#__PURE__*/React.createElement("svg", {
     width: "18",
     height: "18",
@@ -24328,6 +24398,27 @@ function monValue(v) {
   if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)) return v.split('-').reverse().join('.');
   return v;
 }
+const MON_LEVEL = {
+  danger: 'Терміново',
+  warning: 'Увага'
+};
+function MonAttention({
+  items,
+  onOpen
+}) {
+  return /*#__PURE__*/React.createElement("section", {
+    className: "mon-card mon-attention",
+    "aria-label": "\u041F\u043E\u0442\u0440\u0435\u0431\u0443\u0454 \u0443\u0432\u0430\u0433\u0438"
+  }, /*#__PURE__*/React.createElement("header", null, /*#__PURE__*/React.createElement("h2", null, "\u041F\u043E\u0442\u0440\u0435\u0431\u0443\u0454 \u0443\u0432\u0430\u0433\u0438"), /*#__PURE__*/React.createElement("span", null, items.length)), items.length ? /*#__PURE__*/React.createElement("ul", null, items.map((a, i) => /*#__PURE__*/React.createElement("li", {
+    key: i,
+    "data-level": a.level
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => onOpen(a.ref)
+  }, /*#__PURE__*/React.createElement("b", null, MON_LEVEL[a.level] || 'Увага'), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("strong", null, a.title), /*#__PURE__*/React.createElement("small", null, a.detail)), /*#__PURE__*/React.createElement("em", null, "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u2192"))))) : /*#__PURE__*/React.createElement("p", {
+    className: "mon-ok"
+  }, "\u0423\u0441\u0435 \u0433\u0430\u0440\u0430\u0437\u0434: \u043F\u0440\u043E\u0441\u0442\u0440\u043E\u0447\u0435\u043D\u044C \u0456 \u0431\u043B\u043E\u043A\u0443\u0432\u0430\u043D\u044C \u043D\u0435\u043C\u0430\u0454."));
+}
 function MonTable({
   table,
   onRow
@@ -24410,7 +24501,10 @@ function Monitoring({
   }, data.numbers.map(n => /*#__PURE__*/React.createElement("div", {
     key: n.key,
     className: 'mon-number' + (n.alert ? ' mon-alert' : '')
-  }, /*#__PURE__*/React.createElement("strong", null, monValue(n.value)), /*#__PURE__*/React.createElement("span", null, n.label)))), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("strong", null, monValue(n.value)), /*#__PURE__*/React.createElement("span", null, n.label)))), data.attention && /*#__PURE__*/React.createElement(MonAttention, {
+    items: data.attention,
+    onOpen: open
+  }), /*#__PURE__*/React.createElement("div", {
     className: "mon-queries",
     role: "group",
     "aria-label": "\u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043D\u0456 \u0437\u0430\u043F\u0438\u0442\u0438"
