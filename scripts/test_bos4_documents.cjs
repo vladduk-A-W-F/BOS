@@ -64,3 +64,44 @@ const button = (view,label) => tree(view).find(node=>node.type===Button&&node.ch
   assert.equal(Object.hasOwn(reviewCall.body,'contract_id'),false,'A contract must not leak to B');
   console.log('M8 document A→B contract reset and exact review payload: PASS');
 })().catch(error=>{console.error(error);process.exitCode=1});
+
+const uploadCode = app.match(/function documentUploadCode\([\s\S]*?\n}\n(?=function DocumentRegistry)/)?.[0];
+const registry = app.match(/function DocumentRegistry\([\s\S]*?\n}\n(?=function ActionJournal)/)?.[0];
+assert.ok(uploadCode && registry, 'compiled document upload code and registry');
+const uploads = [];
+const fields = {code:{value:''},revision:{value:'A'},title:{value:'Акт приймання'}};
+const uploadForm = {elements:fields,reset(){for(const field of Object.values(fields))field.value=''}};
+class UploadFormData {
+  constructor(form){this.values = new Map(Object.entries(form.elements).map(([key,field])=>[key,field.value]));}
+  get(key){return this.values.get(key);}
+  set(key,value){this.values.set(key,value);}
+}
+let uploadHook = 0;
+const uploadHooks = [];
+const uploadContext = {
+  React, FormData:UploadFormData, Card:()=>{}, Button:()=>{}, Input:()=>{}, DocViewer:()=>{},
+  OP_STATUS:{}, T:{red:'#f00'}, bosCan:()=>true, useEffect:()=>{},
+  useState(initial){const i=uploadHook++;if(!(i in uploadHooks))uploadHooks[i]=initial;return [uploadHooks[i],value=>{uploadHooks[i]=typeof value==='function'?value(uploadHooks[i]):value}];},
+  useRef(initial){const i=uploadHook++;if(!(i in uploadHooks))uploadHooks[i]={current:initial===null?uploadForm:initial};return uploadHooks[i];},
+  opFetch:async(path,body)=>{if(path==='documents/upload/'){uploads.push(body);throw Error('Server conflict');}return {items:[]};},
+};
+vm.createContext(uploadContext);
+vm.runInContext(uploadCode+registry,uploadContext);
+const uploadView=()=>{uploadHook=0;return uploadContext.DocumentRegistry()};
+const uploadSubmit=()=>tree(uploadView()).find(node=>node.type==='form'&&node.props.className==='op-upload').props.onSubmit({preventDefault(){}});
+(async()=>{
+  const fixed=uploadContext.documentUploadCode('Акт приймання',new Date(2026,9,5,14,30,12,123),'abc123');
+  assert.equal(fixed,'20261005-143012123-abc123-Акт-приймання');
+  assert.ok(uploadContext.documentUploadCode('Дуже довга назва '.repeat(20)).length<=80);
+  await uploadSubmit();
+  assert.equal(uploads.length,1,'one request; no hidden retry after conflict');
+  assert.equal(uploads[0].get('code'),fields.code.value,'generated code stays visible after error');
+  const generated=fields.code.value;
+  await uploadSubmit();
+  assert.equal(uploads[1].get('code'),generated,'retry reuses the same generated code');
+  fields.code.value='DOC-MANUAL';fields.revision.value='B';
+  await uploadSubmit();
+  assert.equal(uploads[2].get('code'),'DOC-MANUAL','new revision preserves manual document code');
+  assert.equal(uploads[2].get('revision'),'B');
+  console.log('Document upload generated code, stable retry, manual revision code: PASS');
+})().catch(error=>{console.error(error);process.exitCode=1});
