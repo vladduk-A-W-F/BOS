@@ -1,4 +1,5 @@
 import io
+import json
 from unittest import mock
 
 from django.contrib.auth import get_user_model
@@ -109,6 +110,20 @@ class ConnectorApiTests(TestCase):
         response = self.client.post('/api/connectors/preview/', {'kind': 'csv', 'file': broken, 'dataset': 'orders'})
         self.assertEqual(response.status_code, 200, response.content)
         self.assertEqual(response.json()['mapped']['rejected'], [{'row': 2, 'reason': '«Сума»: не число'}])
+
+    def test_preview_reads_the_table_with_the_persons_own_mapping(self):
+        own = json.dumps({'code': 'Замовлення', 'customer': 'Клієнт', 'amount': ''})
+        body = self.upload('/api/connectors/preview/', dataset='orders', mapping=own).json()
+        self.assertEqual(body['mapped']['mapping'], {'code': 'Замовлення', 'customer': 'Клієнт'})
+        self.assertEqual(body['mapped']['rows'][0], {'code': 'ЗМ-1', 'customer': 'ТОВ Ліс', 'currency': 'UAH'})
+        # The suggestion is still offered, so the person can return to it.
+        self.assertEqual(body['suggested_mapping']['amount'], 'Сума')
+        for bad, reason in ((json.dumps({'code': 'Замовлення'}), 'Клієнт'), ('[1]', 'формат'), ('{', 'формат'),
+                            (json.dumps({'code': 1}), 'формат'), (json.dumps({'code': 'Ні', 'customer': 'Клієнт'}), 'немає колонки')):
+            response = self.upload('/api/connectors/preview/', dataset='orders', mapping=bad)
+            self.assertEqual(response.status_code, 200, response.content)
+            self.assertIn(reason, response.json()['mapped']['error'])
+        self.assertFalse(Connector.objects.exists())
 
     def test_preview_writes_nothing_then_confirm_creates_snapshot(self):
         preview = self.upload('/api/connectors/preview/')
