@@ -11867,7 +11867,7 @@ function DocumentLinks({
   }, "\u041E\u0431\u0435\u0440\u0456\u0442\u044C \u0437\u0430\u043F\u0438\u0441"), (targets.orders || []).map(row => /*#__PURE__*/React.createElement("option", {
     key: 'order-' + row.id,
     value: 'order:' + row.id
-  }, "\u0417\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F ", row.code)), bosRole() === 'ceo' && (targets.invoices || []).map(row => /*#__PURE__*/React.createElement("option", {
+  }, "\u0417\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F ", row.code)), bosRole() === 'ceo' && [...new Map((targets.invoices || []).map(row => [row.invoice_id, row])).values()].map(row => /*#__PURE__*/React.createElement("option", {
     key: 'invoice-' + row.invoice_id,
     value: 'invoice:' + row.invoice_id
   }, "\u0420\u0430\u0445\u0443\u043D\u043E\u043A ", row.code)))), /*#__PURE__*/React.createElement(Button, {

@@ -24,7 +24,8 @@ function harness(role,doc={id:42,current:true}){
 }
 (async()=>{
  const rows={links:[{id:1,order:{id:3,code:'ZM-3'},invoice:null,note:'Джерело'}]};
- const snapshot={orders:[{id:3,code:'ZM-3'}],invoices:[{invoice_id:7,code:'RF-7'}],documents:[{id:42,code:'DOC'}]};
+ const snapshot={orders:[{id:3,code:'ZM-3'}],invoices:[{invoice_id:7,order_id:3,code:'RF-7'},{invoice_id:7,order_id:4,code:'RF-7'},{invoice_id:8,order_id:5,code:'RF-8'}],documents:[{id:42,code:'DOC'}]};
+ const snapshotBytes=JSON.stringify(snapshot);
  const observer=harness('observer');observer.render();
  assert.equal(observer.calls[0].path,'document-links/?document=42');observer.calls[0].resolve(rows);await tick();
  assert.ok(text(observer.render()).includes('Замовлення ZM-3'));
@@ -54,10 +55,15 @@ function harness(role,doc={id:42,current:true}){
  assert.ok(!all(old.render()).some(node=>node.type===old.Select),'old version response cannot supply targets after unmount');
  const newer=harness('ceo',{id:43,current:true});newer.render();assert.equal(newer.calls[0].path,'document-links/?document=43');newer.calls[0].resolve({links:[]});await tick();
  newer.button('Прив’язати до замовлення або рахунку').props.onClick();newer.calls[1].resolve(snapshot);await tick();
- view=newer.render();assert.ok(all(view).some(node=>node.type==='option'&&node.props.value==='invoice:7'));
+ view=newer.render();
+ const invoiceOptions=all(view).filter(node=>node.type==='option'&&String(node.props.value).startsWith('invoice:'));
+ assert.deepEqual(invoiceOptions.map(node=>node.props.value),['invoice:7','invoice:8'],'one option per invoice ID in first-seen order');
+ assert.equal(new Set(invoiceOptions.map(node=>node.props.key)).size,invoiceOptions.length,'React invoice keys are unique');
+ assert.equal(JSON.stringify(snapshot),snapshotBytes,'snapshot rows are not mutated');
  all(view).find(node=>node.type===newer.Select).props.onChange({target:{value:'invoice:7'}});
  newer.button('Перевірити прив’язку').props.onClick();
- assert.equal(JSON.stringify(all(newer.render()).find(node=>node.type===newer.ERPActionDialog).props.preset),JSON.stringify({document_id:43,invoice_id:7}));newer.unmount();
+ const invoicePreset=all(newer.render()).find(node=>node.type===newer.ERPActionDialog).props.preset;
+ assert.equal(JSON.stringify(invoicePreset),JSON.stringify({document_id:43,invoice_id:7}));newer.unmount();
 
  const source=fs.readFileSync(path.join(__dirname,'check_confirmation_recovery.cjs'),'utf8').split('function receipt(')[0]
   .replace('const context={React,window,document,sessionStorage:store,console,',"const context={useERPProjection:()=>({state:{status:'idle'},refresh:async()=>null}),React,window,document,sessionStorage:store,console,");
@@ -73,5 +79,8 @@ function harness(role,doc={id:42,current:true}){
  const confirm=dialog.requests.find(request=>request.url==='/api/operations/confirm/');
  assert.ok(confirm,'explicit confirmation uses existing endpoint');
  assert.equal(JSON.stringify(JSON.parse(confirm.options.body)),JSON.stringify({proposal_id:'11111111-1111-4111-8111-111111111111',confirmed:true}));dialog.unmount();
+ const invoiceDialog=context.make({action:'link_document',preset:invoicePreset});
+ const invoicePayload=await invoiceDialog.prepared();
+ assert.equal(JSON.stringify(invoicePayload),JSON.stringify({action:'erp_link_document',document_id:43,invoice_id:7}),'preview uses the selected invoice ID once');invoiceDialog.unmount();
  console.log('M8 document links: roles, version/account isolation, exact preview and explicit confirm: PASS');
 })().catch(error=>{console.error(error);process.exitCode=1});
