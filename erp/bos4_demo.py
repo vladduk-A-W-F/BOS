@@ -196,9 +196,10 @@ def _populate(pending_files):
     # Case 1: components for a furniture batch.
     zm141, zm141_id = order('ZM-0141', 'LOGISTIC', 'Андрій Мельник', '2026-10-20', 'ZHY-FG',
         [('SM-1800', 120), ('SM-2000', 80), ('SV-1500', 24), ('SHM-2', 12), ('TI-1', 18)])
-    document('KM-ZM-0141', 'Замовлення покупця ZM-0141 · Логістик Парк',
+    order_doc = document('KM-ZM-0141', 'Замовлення покупця ZM-0141 · Логістик Парк',
         'Облаштування розподільчого центру: стелажі СМ-1800 — 120, СМ-2000 — 80, столи СВ-1500 — 24, '
         'шафи ШМ-2 — 12, тумби ТІ-1 — 18. Сума 1 922 800,00 грн без ПДВ. Строк 20.10.2026.')
+    act('link_document', document_id=order_doc.pk, order_id=zm141_id)
     job1 = act('job', code='VZ-0141-1', item_id=items['SM-1800'], quantity='120', location_id=places['ZHY-SHOP'],
         owner_id=people['Ігор Бондар'].pk, due_date='2026-10-12', line_id=zm141['SM-1800'].pk)['production_id']
     job2 = act('job', code='VZ-0141-2', item_id=items['SM-2000'], quantity='80', location_id=places['ZHY-SHOP'],
@@ -226,10 +227,38 @@ def _populate(pending_files):
         moved = act('transfer', lot_id=lot, quantity=str(qty), location_id=places['ZHY-SHOP'],
             code='KM-T-' + article + '-' + str(lot), reason='Видача в цех під наряд VZ-0141-1', production_id=job1)['lot_id']
         act('reserve', lot_id=moved, quantity=str(qty), production_id=job1)
+    cert_rest = document('KM-CERT-ZK0311-REST', 'Сертифікат решти поставки ZK-0311',
+        'Кутник сталевий 40×40×4, решта 100 шт. за ZK-0311. Разом прийнято 300 шт.; 20 шт. видано під VZ-0141-1.')
+    rest = act('receive', purchase_id=po_angle, code='KM-L-MA-7075-ZK0311-REST',
+        location_id=places['ZHY-METAL'], quantity='100', documents={'certificate': cert_rest.pk})['lot_id']
+    act('quality', lot_id=rest, result='approved', inspector_id=quality.pk,
+        note='Решту поставки й сертифікат звірено, геометрія в допуску')
+    rest_shop = act('transfer', lot_id=rest, quantity='20', location_id=places['ZHY-SHOP'],
+        code='KM-T-MA-7075-ZK0311-REST', reason='Решта матеріалу під VZ-0141-1', production_id=job1)['lot_id']
+    act('reserve', lot_id=rest_shop, quantity='20', production_id=job1)
+    act('start', production_id=job1)
+    for operation, instruction, days in data.ROUTE:
+        act('operator', production_id=job1, operation=operation, operator_id=people['Ігор Бондар'].pk,
+            result='done', minutes=240, defects='0', note='Виконано для 120 стелажів СМ-1800 за VZ-0141-1')
+    batch_passport = document('KM-PASS-VZ-0141-1', 'Паспорт партії 120 стелажів СМ-1800',
+        'VZ-0141-1 для ZM-0141: виготовлено 120 стелажів СМ-1800, версія A. '
+        'Формування, зварювання, зачищення, фарбування й складання завершено; геометрію та комплектність перевірено.')
+    produced = act('finish', production_id=job1, quantity='120', code='KM-L-SM-1800-VZ0141',
+        location_id=places['ZHY-SHOP'], labor_cost='72000', documents={'passport': batch_passport.pk})['lot_id']
+    act('quality', lot_id=produced, result='approved', inspector_id=quality.pk,
+        note='120 стелажів відповідають специфікації; паспорт партії перевірено')
+    ready = act('transfer', lot_id=produced, quantity='120', location_id=places['ZHY-FG'],
+        code='KM-T-SM-1800-VZ0141', reason='Готова допущена партія для відвантаження за ZM-0141')['lot_id']
+    act('reserve', lot_id=ready, quantity='120', line_id=zm141['SM-1800'].pk)
+    act('ship', line_id=zm141['SM-1800'].pk, lot_id=ready, quantity='120', reference='VN-0141-1')
+    shipment_doc = document('KM-VN-0141-1', 'Видаткова накладна VN-0141-1 · Логістик Парк',
+        'Відвантажено 120 стелажів СМ-1800 з партії VZ-0141-1 за паспортом KM-PASS-VZ-0141-1. '
+        'Це частина ZM-0141: решта 134 вироби ще не відвантажена.')
+    act('link_document', document_id=shipment_doc.pk, order_id=zm141_id)
     act('reserve', lot_id=finished['SV-1500'], quantity='24', line_id=zm141['SV-1500'].pk)
-    Task.objects.create(title='Прийняти решту 100 кутників за ZK-0311 і видати 20 шт. у цех', priority='high',
-        status='active', assignee=store.full_name, assignee_employee=store, branch=branches['ZHY'],
-        deadline='2026-10-06', category='Склад', sales_order_id=zm141_id)
+    Task.objects.create(title='Підготувати решту 134 вироби за ZM-0141: СМ-2000, СВ-1500, ШМ-2 і ТІ-1', priority='high',
+        status='active', assignee=people['Ігор Бондар'].full_name, assignee_employee=people['Ігор Бондар'],
+        branch=branches['ZHY'], deadline='2026-10-12', category='Виробництво', sales_order_id=zm141_id)
 
     # Case 2: only the approved batch ships.
     shm2_kyiv = deliver('KM-P-0916', shm2_ok, 'KYI-WH', 40)
@@ -283,13 +312,17 @@ def _populate(pending_files):
     clock.save(update_fields=['value'])
     cases = [
         {'key': 'components', 'title': 'Комплектуючі для партії меблів',
-         'summary': 'Велике замовлення запускає закупівлю, приймання й виробництво.',
-         'result': {'label': 'Бракує до запуску', 'value': '20 кутників'},
+         'summary': 'Закупівля → приймання → виробництво → відвантаження 120 стелажів. Решта 134 вироби замовлення ще в роботі.',
+         'result': {'label': 'Виготовлено й відвантажено', 'value': '120 стелажів СМ-1800'},
          'steps': [
-             {'title': 'Замовлення клієнта', 'text': '254 вироби на 1 922 800 грн', 'order': 'ZM-0141'},
-             {'title': 'Закупівля', 'text': 'Кутник 300 шт., прийнято 200', 'purchase': 'ZK-0311'},
-             {'title': 'Видача в цех', 'text': 'Метал і кріплення зарезервовано під наряд', 'production': 'VZ-0141-1'},
-             {'title': 'Запуск', 'text': 'Чекає решту поставки', 'task': 'Прийняти решту 100 кутників'}]},
+             {'title': 'Замовлення й закупівля', 'text': 'ZM-0141: 254 вироби на 1 922 800 грн; ZK-0311: 300 кутників',
+              'order': 'ZM-0141', 'purchase': 'ZK-0311', 'document': 'KM-ZM-0141'},
+             {'title': 'Приймання й видача в цех', 'text': 'Прийнято 200 + 100 кутників; 480 кутників і решту матеріалів зарезервовано',
+              'purchase': 'ZK-0311', 'document': 'KM-CERT-ZK0311-REST'},
+             {'title': 'Виробництво й якість', 'text': '5 операцій завершено; випущено й допущено 120 стелажів СМ-1800',
+              'production': 'VZ-0141-1', 'lot': 'KM-L-SM-1800-VZ0141', 'document': 'KM-PASS-VZ-0141-1'},
+             {'title': 'Відвантаження', 'text': '120 стелажів відвантажено з Житомира; решта 134 вироби ще не відвантажена',
+              'shipment': 'VN-0141-1', 'lot': 'KM-T-SM-1800-VZ0141', 'document': 'KM-VN-0141-1'}]},
         {'key': 'quality', 'title': 'Відвантаження лише допущеної партії',
          'summary': 'Клієнт отримує тільки перевірені шафи; заблокована партія чекає.',
          'result': {'label': 'Відвантажено', 'value': '40 з 50 шаф'},

@@ -18,7 +18,7 @@ from operations.private_storage import verified_document_bytes
 from operations.service import as_of
 from tasks.models import Task
 from .balances import invoice_settlement
-from .models import Item, Location, Lot, SalesOrder, Purchase, Production, Movement, StockTransfer
+from .models import Item, Location, Lot, SalesOrder, Purchase, Production, Movement, StockTransfer, OperatorEntry, DocumentLink
 from .service import dispatch
 
 
@@ -64,17 +64,44 @@ class Bos4DemoTests(TransactionTestCase):
         cases = Configuration.objects.get(key='demo_cases').value['cases']
         self.assertEqual([c['title'] for c in cases], receipt['cases'])
 
-    def test_case_components_waits_for_rest_of_angle_delivery(self):
+    def test_case_components_completes_a_produced_and_shipped_batch(self):
         self.command()
         order = SalesOrder.objects.get(code='ZM-0141')
         self.assertEqual(sum(l.quantity * l.price for l in order.lines.all()), D('1922800'))
         po = Purchase.objects.get(code='ZK-0311')
-        self.assertEqual((po.quantity, po.received, po.status), (D(300), D(200), 'partial'))
+        self.assertEqual((po.quantity, po.received, po.status), (D(300), D(300), 'received'))
+        self.assertEqual(list(Movement.objects.filter(purchase=po, kind='receipt').order_by('id')
+                              .values_list('quantity', flat=True)), [D(200), D(100)])
         job = Production.objects.get(code='VZ-0141-1')
-        angle = job.reservations.filter(lot__item__code='MA-7075').aggregate(n=Sum('quantity'))['n']
-        self.assertEqual(angle, D(460))
-        with self.assertRaisesRegex(ValueError, 'Не всі матеріали'):
-            dispatch({'action': 'erp_start', 'production_id': job.pk}, 'ceo')
+        self.assertEqual((job.quantity, job.produced, job.status), (D(120), D(120), 'done'))
+        self.assertEqual(list(OperatorEntry.objects.filter(production=job).order_by('id')
+                              .values_list('operation', 'result')), [(step['name'], 'done') for step in job.routing])
+        for material in job.bom:
+            consumed = Movement.objects.filter(production=job, kind='consume', lot__item_id=material['item_id'])
+            self.assertEqual(-consumed.aggregate(n=Sum('quantity'))['n'], D(material['quantity']) * D(120))
+        self.assertEqual(job.reservations.aggregate(n=Sum('quantity'))['n'], D(0))
+        produced = Lot.objects.get(code='KM-L-SM-1800-VZ0141')
+        ready = Lot.objects.get(code='KM-T-SM-1800-VZ0141')
+        passport = Document.objects.get(code='KM-PASS-VZ-0141-1')
+        self.assertEqual((produced.quality, ready.quality), ('approved', 'approved'))
+        self.assertEqual(produced.documents, {'passport': passport.pk})
+        self.assertEqual(ready.documents, produced.documents)
+        self.assertEqual(ready.location_id, order.fulfillment_location_id)
+        self.assertEqual((produced.quantity, ready.quantity), (D(0), D(0)))
+        line = order.lines.get(item__code='SM-1800')
+        self.assertEqual((line.quantity, line.shipped), (D(120), D(120)))
+        shipment = Movement.objects.get(line=line, kind='shipment')
+        self.assertEqual((shipment.lot_id, shipment.quantity, shipment.reference), (ready.pk, D(-120), 'VN-0141-1'))
+        self.assertEqual(sum(l.quantity - l.shipped for l in order.lines.all()), D(134))
+        self.assertEqual(Production.objects.get(code='VZ-0141-2').status, 'planned')
+        self.assertEqual(Lot.objects.get(code='KM-L-MA-7075-ZK0311-REST').quantity, D(80))
+        self.assertEqual(set(DocumentLink.objects.filter(order=order).values_list('document__code', flat=True)),
+                         {'KM-ZM-0141', 'KM-VN-0141-1'})
+        case = Configuration.objects.get(key='demo_cases').value['cases'][0]
+        self.assertEqual(case['result'], {'label': 'Виготовлено й відвантажено', 'value': '120 стелажів СМ-1800'})
+        self.assertEqual(case['steps'][-1]['shipment'], shipment.reference)
+        for step in case['steps']:
+            self.assertTrue(Document.objects.filter(code=step['document']).exists())
         self.assertTrue(Purchase.objects.filter(code='ZK-0309', due_date__lt=as_of(), received=0).exists())
 
     def test_network_purchases_start_at_the_supplier_point(self):
