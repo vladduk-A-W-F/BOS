@@ -90,3 +90,49 @@ const paragraphs = warningTree.props.children.filter(child => Array.isArray(chil
 assert.equal(warningTree.type, 'details');
 assert.deepEqual(paragraphs.map(p => p.props.children[0]), warnings, 'every server warning stays available');
 console.log('M6 scoped counts, controlled disclosure and all server warnings: PASS');
+
+// Supplier lines use the actual filtered purchase and two visible, mapped points.
+const mapStart = source.indexOf('function networkProject(');
+const mapEnd = source.indexOf('function NetworkDocuments(', mapStart);
+const mapContext = {
+  React: context.React, Button: context.Button,
+  window: {BOS_NETWORK_MAP: {paths: [], translate: [480, 285], scale: 200, sourceUrl: '#', source: 'Тест', license: 'MIT'}},
+  useState: () => [null, () => {}], useEffect: () => {},
+};
+vm.createContext(mapContext);
+vm.runInContext(babel.transform(source.slice(mapStart, mapEnd), {presets: ['react']}).code, mapContext);
+const supplier = {id: 1, name: 'Постачальник', kind: 'supplier', map_lat: 50, map_lng: 20};
+const destination = {id: 2, name: 'Склад', kind: 'warehouse', map_lat: 50, map_lng: 30};
+const order = {id: 41, code: 'PO-41', location_id: 2, origin_location_id: 1, destination_id: 2};
+const lines = (points, purchases) => mapContext.networkSupplierLines(points, purchases);
+assert.equal(lines([supplier, destination], [order]).length, 1);
+assert.equal(lines([destination], [order]).length, 0, 'hidden supplier point');
+assert.equal(lines([supplier], [order]).length, 0, 'hidden destination point');
+assert.equal(lines([supplier, {...destination, map_lat: 95}], [order]).length, 0, 'invalid coordinate');
+assert.equal(lines([supplier, {...destination, map_lng: 20}], [order]).length, 0, 'coincident coordinates');
+assert.equal(lines([supplier, destination], [{...order, origin_location_id: null}]).length, 0, 'no invented origin');
+const mapRowsStart = source.indexOf('function moduleMapRows(');
+const mapRowsEnd = source.indexOf('function modulePointSelection(', mapRowsStart);
+const moduleMapRows = vm.runInNewContext(source.slice(mapRowsStart, mapRowsEnd) + '\nmoduleMapRows');
+const networkForMap = {locations: [supplier, destination], rows: {points: [supplier, destination]}};
+assert.deepEqual(Array.from(moduleMapRows(networkForMap, {id:'purchases'}, [order]).points, p=>p.id), [1, 2]);
+assert.deepEqual(Array.from(moduleMapRows({...networkForMap, rows:{points:[destination]}}, {id:'purchases'}, [order]).points, p=>p.id), [2], 'branch filter hides supplier');
+assert.deepEqual(Array.from(moduleMapRows(networkForMap, {id:'purchases'}, []).points), [], 'search excludes purchase');
+const walk = node => !node || typeof node !== 'object' ? [] : [node, ...(node.props?.children||[]).flatMap(child=>Array.isArray(child)?child.flatMap(walk):walk(child))];
+const opened = [];
+const transfer = {id: 9, code: 'TR-9', status: 'in_transit', source_location_id: 1, destination_id: 2};
+const rendered = mapContext.NetworkMap({points:[supplier,destination],locations:[supplier,destination],transfers:[transfer],purchases:[order],selected:'',onPoint(){},onPurchase:row=>opened.push(row.id)});
+const paths = walk(rendered).filter(node=>node.type==='path');
+const supplyPath = paths.find(node=>node.props.role==='button');
+assert.ok(supplyPath, 'supplier connection is a keyboard target');
+assert.equal(supplyPath.props.tabIndex, 0);
+assert.match(supplyPath.props['aria-label'], /PO-41/);
+let focused = false;
+supplyPath.props.onClick({currentTarget:{focus(){focused=true}}});
+let prevented = false;
+supplyPath.props.onKeyDown({key:'Enter',preventDefault(){prevented=true}});
+assert.deepEqual(opened, [41, 41]);
+assert.equal(focused, true, 'pointer invocation leaves a focus return target');
+assert.equal(prevented, true);
+assert.ok(paths.some(node=>node.props.key===9), 'in-transit route remains');
+console.log('M6 supplier line: endpoint, coordinates, filters, transfer and keyboard/click PASS');
