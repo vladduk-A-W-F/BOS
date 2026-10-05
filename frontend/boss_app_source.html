@@ -5935,7 +5935,7 @@ function Connections({targetId=null}={}){
     <label>Дані<Select value={form.dataset} onChange={e=>{setForm(p=>({...p,dataset:e.target.value}));invalidatePreview();}}><option value="orders">Замовлення</option><option value="payments">Оплати</option><option value="stock">Залишки</option><option value="calls">Дзвінки</option><option value="other">Інше</option></Select></label>
     {form.kind==='csv'?<label>Файл .xlsx або .csv<BosFile inputRef={fileRef} type="file" accept=".xlsx,.csv" onChange={invalidatePreview}/></label>:<label>Посилання на таблицю<Input value={form.url} onChange={e=>{setForm(p=>({...p,url:e.target.value}));invalidatePreview();}} placeholder="https://docs.google.com/spreadsheets/d/…"/></label>}
    </div>
-   <div className="erp-actions"><Button disabled={busy} onClick={()=>doPreview()}>Переглянути</Button>{preview&&<Button variant="primary" disabled={busy||!form.name.trim()} onClick={doCreate}>{checked?'Підключити з цією відповідністю':'Підключити'}</Button>}</div>
+   <div className="erp-actions"><Button disabled={busy} onClick={()=>doPreview()}>Переглянути</Button>{preview&&<Button variant="primary" disabled={busy||!form.name.trim()} onClick={doCreate}>{checked?'Підключити з цією відповідністю':preview.fields?.length>0?'Підключити без відповідності':'Підключити'}</Button>}</div>
    {busy&&<p role="status">Завантаження…</p>}
    {preview&&<div className="erp-table"><p className="op-muted">Рядків: {preview.row_count}</p><table><thead><tr>{preview.columns.map((c,i)=><th key={i}>{c}</th>)}</tr></thead><tbody>{preview.rows.map((r,i)=><tr key={i}>{r.map((v,j)=><td key={j}>{v}</td>)}</tr>)}</tbody></table></div>}
    {preview?.fields?.length>0&&<section aria-label="Попередній перегляд відповідності колонок">
