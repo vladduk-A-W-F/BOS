@@ -293,3 +293,44 @@ console.log('M7 compact finance journal: PASS');
   const gone=harness();gone.mount();gone.unmount();gone.requests[0].resolve({...base,sources:[source]});await tick();assert.equal(gone.state[0],null,'unmounted source response is ignored');
   console.log('M3 Monitoring source blocks, role-shaped rows, separate ERP totals, exact connector handoff and stale reads: PASS');
 })().catch(error=>{console.error(error);process.exitCode=1;});
+
+// M5: execute compiled Showcase reads with controlled replies and React hooks.
+(async()=>{
+  const app=fs.readFileSync(path.join(__dirname,'../assets/app.js'),'utf8');
+  const block=app.slice(app.indexOf('function Showcase('),app.indexOf('function AuthGate('));
+  assert.ok(block.startsWith('function Showcase('));
+  const nodes=n=>n&&typeof n==='object'?[n,...(n.children||[]).flatMap(nodes)]:[];
+  const tick=()=>new Promise(setImmediate);
+  const sample={company:'Демо',cases:[{key:'one',title:'Кейс',summary:'Підсумок',result:{value:'1',label:'Результат'},steps:[{title:'Крок',text:'Опис'}]}]};
+  function harness(){
+    let hook=0,effect,cleanup;const state=[],requests=[];
+    const context={React:{createElement:(type,props,...children)=>({type,props:props||{},children:children.flat(Infinity)})},BosMark:()=>{},AbortController,
+      useState(initial){const i=hook++;if(!(i in state))state[i]=initial;return [state[i],value=>state[i]=typeof value==='function'?value(state[i]):value];},
+      useEffect:fn=>effect=fn,
+      fetch:(url,options)=>new Promise((resolve,reject)=>requests.push({url,options,resolve,reject}))};
+    vm.createContext(context);vm.runInContext(block,context);
+    return {requests,state,render(){hook=0;return context.Showcase({onEnter:()=>{},busy:false,error:'',login:null});},mount(){this.render();cleanup=effect();},retry(){const button=nodes(this.render()).find(n=>n.type==='button'&&n.children.includes('Повторити завантаження кейсів'));assert.ok(button);button.props.onClick();cleanup();this.render();cleanup=effect();},unmount(){cleanup();}};
+  }
+  const reply=(request,body,status=200)=>request.resolve({ok:status===200,status,json:async()=>body});
+  const good=harness();good.mount();
+  assert.ok(nodes(good.render()).some(n=>n.props.role==='status'&&n.children.includes('Завантажуємо кейси…')));
+  reply(good.requests[0],sample);await tick();await tick();
+  assert.ok(nodes(good.render()).some(n=>n.props['aria-label']==='Кейси'));
+  assert.equal(good.requests[0].options.method,'GET');
+  const empty=harness();empty.mount();reply(empty.requests[0],{cases:[]});await tick();await tick();
+  assert.ok(nodes(empty.render()).some(n=>n.props.role==='status'&&n.children.includes('Кейси поки недоступні.')));
+  const failed=harness();failed.mount();reply(failed.requests[0],sample,503);await tick();await tick();
+  assert.ok(nodes(failed.render()).some(n=>n.props.role==='alert'));
+  failed.retry();assert.equal(failed.requests.length,2);assert.ok(failed.requests[0].options.signal.aborted);
+  assert.ok(failed.requests.every(r=>r.url==='/api/erp/showcase/'&&r.options.method==='GET'));
+  reply(failed.requests[1],{cases:[{title:'Incomplete'}]});await tick();await tick();
+  assert.ok(nodes(failed.render()).some(n=>n.props.role==='alert'),'malformed data is an error, never an empty list');
+  failed.retry();reply(failed.requests[2],sample);await tick();await tick();
+  assert.ok(nodes(failed.render()).some(n=>n.props['aria-label']==='Кейси'),'retry restores the actual cases');
+  assert.ok(!nodes(failed.render()).some(n=>n.props.role==='alert'),'successful retry clears the error');
+  const offline=harness();offline.mount();offline.requests[0].reject(new TypeError('Failed to fetch'));await tick();await tick();
+  assert.ok(nodes(offline.render()).some(n=>n.props.role==='alert'),'network failure is not a legitimate empty list');
+  const stale=harness();stale.mount();stale.unmount();reply(stale.requests[0],sample);await tick();await tick();
+  assert.equal(stale.state[0],null,'unmounted reply cannot install cases');
+  console.log('M5 Showcase loading, empty, failed and malformed GET, retry and cleanup: PASS');
+})().catch(error=>{console.error(error);process.exitCode=1;});

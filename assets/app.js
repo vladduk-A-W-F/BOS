@@ -25325,14 +25325,40 @@ function Showcase({
   login
 }) {
   const [data, setData] = useState(null),
+    [readState, setReadState] = useState('loading'),
+    [retry, setRetry] = useState(0),
     [active, setActive] = useState(0),
     [step, setStep] = useState(0);
   useEffect(() => {
-    fetch('/api/erp/showcase/').then(r => r.json()).then(setData).catch(() => setData({
-      cases: []
-    }));
-  }, []);
-  const cases = data?.cases || [],
+    let live = true;
+    const abort = new AbortController();
+    setReadState('loading');
+    setData(null);
+    fetch('/api/erp/showcase/', {
+      method: 'GET',
+      cache: 'no-store',
+      signal: abort.signal
+    }).then(async r => {
+      if (!r.ok) throw Error('Не вдалося завантажити кейси.');
+      const body = await r.json();
+      if (!body || typeof body !== 'object' || Array.isArray(body) || !Array.isArray(body.cases) || body.company != null && typeof body.company !== 'string' || body.cases.some(c => !c || typeof c !== 'object' || typeof c.key !== 'string' || typeof c.title !== 'string' || typeof c.summary !== 'string' || !c.result || typeof c.result.value !== 'string' || typeof c.result.label !== 'string' || !Array.isArray(c.steps) || !c.steps.length || c.steps.some(s => !s || typeof s.title !== 'string' || typeof s.text !== 'string'))) throw Error('Сервер повернув некоректні дані кейсів.');
+      return body;
+    }).then(body => {
+      if (live) {
+        setData(body);
+        setActive(0);
+        setStep(0);
+        setReadState('ready');
+      }
+    }).catch(() => {
+      if (live) setReadState('error');
+    });
+    return () => {
+      live = false;
+      abort.abort();
+    };
+  }, [retry]);
+  const cases = readState === 'ready' ? data.cases : [],
     current = cases[active],
     steps = current?.steps || [];
   const pick = i => {
@@ -25360,7 +25386,19 @@ function Showcase({
   }, busy ? 'Відкриваємо…' : 'Перейти до BoS'), error && /*#__PURE__*/React.createElement("p", {
     role: "alert",
     className: "show-error"
-  }, error)), cases.length > 0 && /*#__PURE__*/React.createElement("section", {
+  }, error)), readState === 'loading' && /*#__PURE__*/React.createElement("p", {
+    role: "status",
+    className: "show-cases"
+  }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0443\u0454\u043C\u043E \u043A\u0435\u0439\u0441\u0438\u2026"), readState === 'error' && /*#__PURE__*/React.createElement("section", {
+    className: "show-cases",
+    role: "alert"
+  }, /*#__PURE__*/React.createElement("p", null, "\u041D\u0435 \u0432\u0434\u0430\u043B\u043E\u0441\u044F \u043F\u043E\u043A\u0430\u0437\u0430\u0442\u0438 \u043A\u0435\u0439\u0441\u0438. \u041F\u0435\u0440\u0435\u0432\u0456\u0440\u0442\u0435 \u0437\u2019\u0454\u0434\u043D\u0430\u043D\u043D\u044F \u0439 \u043F\u043E\u0432\u0442\u043E\u0440\u0456\u0442\u044C \u0441\u043F\u0440\u043E\u0431\u0443."), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => setRetry(n => n + 1)
+  }, "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0438 \u0437\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F \u043A\u0435\u0439\u0441\u0456\u0432")), readState === 'ready' && !cases.length && /*#__PURE__*/React.createElement("p", {
+    role: "status",
+    className: "show-cases"
+  }, "\u041A\u0435\u0439\u0441\u0438 \u043F\u043E\u043A\u0438 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0456."), cases.length > 0 && /*#__PURE__*/React.createElement("section", {
     className: "show-cases",
     "aria-label": "\u041A\u0435\u0439\u0441\u0438"
   }, /*#__PURE__*/React.createElement("div", {
