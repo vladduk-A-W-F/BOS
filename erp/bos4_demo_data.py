@@ -5,7 +5,9 @@ samples/databases/adventure-works). From it we take material article numbers (Pr
 vendor roles, lead times and minimum lots (ProductVendor), and the production route
 (Location: Frame Forming, Frame Welding, Debur and Polish, Paint, Final Assembly).
 Names are translated into Ukrainian; finished goods, prices in UAH, quantities, people and
-counterparties are synthetic. No real company or client data.
+counterparties are synthetic. Bills of materials (PRODUCTS) are synthetic furniture compositions built
+from those AdventureWorks articles; they are not taken from AdventureWorks BillOfMaterials, which
+describes bicycles. No real company or client data.
 
 AdventureWorks notice (MIT License):
 Copyright (c) Microsoft Corporation.
