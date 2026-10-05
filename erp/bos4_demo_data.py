@@ -58,11 +58,11 @@ PEOPLE = (
     ('Дмитро Савченко', 'Керівник філії', 'Продажі', 'DNI'),
 )
 
-# key, name, AdventureWorks vendor it stands for
+# key, name, AdventureWorks vendor it stands for, city, lat, lng (GeoNames city centre, not an address)
 SUPPLIERS = (
-    ('METAL', 'Металопрокат Центр', 'Custom Frames, Inc.'),
-    ('FAST', 'Кріплення Плюс', 'Cruger Bike Company'),
-    ('PAINT', 'Порошкові фарби Схід', 'Trey Research'),
+    ('METAL', 'Металопрокат Центр', 'Custom Frames, Inc.', 'Кривий Ріг', 47.91048, 33.39178),
+    ('FAST', 'Кріплення Плюс', 'Cruger Bike Company', 'Харків', 49.98081, 36.25272),
+    ('PAINT', 'Порошкові фарби Схід', 'Trey Research', 'Запоріжжя', 47.82289, 35.19031),
 )
 
 # key, name, city

@@ -43,7 +43,9 @@ class Bos4DemoTests(TransactionTestCase):
             'Відвантаження лише допущеної партії', 'Рахунок, оплата й нагадування'])
         self.assertEqual(Branch.objects.count(), 4)
         self.assertEqual(Branch.objects.filter(parent__code='KM-KYI').count(), 3)
-        self.assertEqual(Location.objects.filter(branch__isnull=True).count(), 0)
+        # Only suppliers' own points are outside the company's branches.
+        self.assertEqual(set(Location.objects.filter(branch__isnull=True).values_list('kind', flat=True)), {'supplier'})
+        self.assertEqual(Location.objects.filter(kind='supplier', lat__isnull=False).count(), 3)
         self.assertEqual(Item.objects.filter(kind='product').count(), 8)
         self.assertEqual(Item.objects.filter(kind='material').count(), 16)
         self.assertFalse(get_user_model().objects.exists())
@@ -74,6 +76,20 @@ class Bos4DemoTests(TransactionTestCase):
         with self.assertRaisesRegex(ValueError, 'Не всі матеріали'):
             dispatch({'action': 'erp_start', 'production_id': job.pk}, 'ceo')
         self.assertTrue(Purchase.objects.filter(code='ZK-0309', due_date__lt=as_of(), received=0).exists())
+
+    def test_network_purchases_start_at_the_supplier_point(self):
+        from types import SimpleNamespace
+        from django.contrib.auth.models import Group
+        from boss_project.policy import Policy
+        from .network import build
+        self.command()
+        reader = get_user_model().objects.create_user(username='synthetic-network-reader')
+        reader.groups.add(Group.objects.get_or_create(name='ceo')[0])
+        rows = build(Policy(SimpleNamespace(user=reader, session={})), {'currency': 'UAH'})['rows']
+        metal = Location.objects.get(code='KM-SUP-METAL')
+        po = next(r for r in rows['purchases'] if r['code'] == 'ZK-0311')
+        self.assertEqual(po['origin_location_id'], metal.pk)
+        self.assertIn(metal.pk, [p['id'] for p in rows['points']])
 
     def test_case_quality_ships_only_approved_batch(self):
         self.command()
