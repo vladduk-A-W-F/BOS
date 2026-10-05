@@ -18331,6 +18331,23 @@ function NetworkStructure({
     production: 'Виробництво',
     supplier: 'Підрядник'
   })[p.kind] || 'Точка';
+  const [expanded, setExpanded] = useState({});
+  const setOpen = (key, value) => setExpanded(previous => previous[key] === value ? previous : {
+    ...previous,
+    [key]: value
+  });
+  useEffect(() => {
+    if (!branch && !point) return;
+    const selected = locations.find(p => String(p.id) === String(point));
+    const branchKey = selected ? String(selected.branch_id ?? 'unassigned') : branch;
+    if (branchKey) setExpanded(previous => ({
+      ...previous,
+      ['branch:' + branchKey]: true,
+      ...(selected ? {
+        ['point:' + point]: true
+      } : {})
+    }));
+  }, [branch, point]);
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Card, {
     className: "structure-map"
   }, /*#__PURE__*/React.createElement("div", {
@@ -18349,9 +18366,10 @@ function NetworkStructure({
     const own = points.filter(p => p.branch_id === b.id),
       counts = structureCounts(rows, own.map(p => p.id));
     return /*#__PURE__*/React.createElement("details", {
-      key: (b.id ?? 'unassigned') + ':' + point,
+      key: b.id ?? 'unassigned',
       className: "structure-cell",
-      defaultOpen: !!branch || own.some(p => String(p.id) === String(point))
+      open: expanded['branch:' + (b.id ?? 'unassigned')] === true,
+      onToggle: e => setOpen('branch:' + (b.id ?? 'unassigned'), e.currentTarget.open)
     }, /*#__PURE__*/React.createElement("summary", null, /*#__PURE__*/React.createElement("small", null, b.type === 'headquarters' ? 'Офіс' : 'Філія', " \xB7 ", b.short_name || 'Місто не задано'), /*#__PURE__*/React.createElement("strong", null, b.name), /*#__PURE__*/React.createElement("span", {
       className: "structure-counts"
     }, /*#__PURE__*/React.createElement("span", null, "\u0422\u043E\u0447\u043A\u0438 ", /*#__PURE__*/React.createElement("b", null, own.length)), /*#__PURE__*/React.createElement("span", null, "\u041F\u0430\u0440\u0442\u0456\u0457 ", /*#__PURE__*/React.createElement("b", null, counts.lots)), /*#__PURE__*/React.createElement("span", null, "\u0417\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F ", /*#__PURE__*/React.createElement("b", null, counts.orders)))), /*#__PURE__*/React.createElement("div", {
@@ -18362,7 +18380,8 @@ function NetworkStructure({
       return /*#__PURE__*/React.createElement("details", {
         key: p.id,
         className: "structure-cell structure-point",
-        defaultOpen: String(point) === String(p.id)
+        open: expanded['point:' + p.id] === true,
+        onToggle: e => setOpen('point:' + p.id, e.currentTarget.open)
       }, /*#__PURE__*/React.createElement("summary", null, /*#__PURE__*/React.createElement("small", null, kind(p), " \xB7 ", b.short_name || p.branch_name || 'Місто не задано'), /*#__PURE__*/React.createElement("strong", null, p.name), /*#__PURE__*/React.createElement("span", {
         className: "structure-counts"
       }, /*#__PURE__*/React.createElement("span", null, "\u041F\u0430\u0440\u0442\u0456\u0457 ", /*#__PURE__*/React.createElement("b", null, totals.lots)), /*#__PURE__*/React.createElement("span", null, "\u0417\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F ", /*#__PURE__*/React.createElement("b", null, totals.orders)), /*#__PURE__*/React.createElement("span", null, "\u0420\u043E\u0431\u043E\u0442\u0438 ", /*#__PURE__*/React.createElement("b", null, totals.jobs)))), /*#__PURE__*/React.createElement("div", {
@@ -18407,6 +18426,16 @@ function NetworkStructure({
       className: "op-muted"
     }, "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0442\u043E\u0447\u043E\u043A \u043D\u0435\u043C\u0430\u0454.")));
   })));
+}
+function NetworkWarnings({
+  warnings
+}) {
+  return warnings?.length ? /*#__PURE__*/React.createElement("details", {
+    className: "network-options"
+  }, /*#__PURE__*/React.createElement("summary", null, "\u041C\u0435\u0436\u0456 \u0434\u0430\u043D\u0438\u0445"), warnings.map((warning, i) => /*#__PURE__*/React.createElement("p", {
+    className: "op-muted",
+    key: i
+  }, warning))) : null;
 }
 function ERPNetwork({
   data,
@@ -18480,9 +18509,7 @@ function ERPNetwork({
     "aria-label": "\u0423\u043F\u0440\u0430\u0432\u043B\u0456\u043D\u043D\u044F \u043C\u0435\u0440\u0435\u0436\u0435\u044E"
   }, /*#__PURE__*/React.createElement("div", {
     className: "network-heading"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
-    className: "network-eyebrow"
-  }, window.BOS_RUNTIME?.mode === 'demo' ? 'Навчальні записи BoS' : 'РОБОЧІ ДАНІ BoS'), /*#__PURE__*/React.createElement("h3", null, "\u041A\u0430\u0440\u0442\u0430 \u043A\u043E\u043C\u043F\u0430\u043D\u0456\u0457")), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", null, "\u041A\u0430\u0440\u0442\u0430 \u043A\u043E\u043C\u043F\u0430\u043D\u0456\u0457")), /*#__PURE__*/React.createElement("span", {
     className: "erp-status"
   }, network?.data_mode === 'demo' ? 'Демонстраційна база' : 'Поточна база', " \xB7 ", network?.as_of ? erpDate(network.as_of) : '…')), /*#__PURE__*/React.createElement("nav", {
     className: "network-groups",
@@ -18561,14 +18588,11 @@ function ERPNetwork({
     onPoint: choosePoint,
     onRelatedPoint: chooseWorkspacePoint,
     onSelect: onSelect
-  }), network.warnings?.map((w, i) => /*#__PURE__*/React.createElement("p", {
-    className: "op-muted",
-    key: i
-  }, w)), group === 'operations' && /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement(NetworkWarnings, {
+    warnings: network.warnings
+  }), group === 'operations' && /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("div", {
     className: "erp-row"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", null, "\u041E\u043F\u0435\u0440\u0430\u0446\u0456\u0439\u043D\u0456 \u0440\u0435\u0454\u0441\u0442\u0440\u0438"), /*#__PURE__*/React.createElement("p", {
-    className: "op-muted"
-  }, "\u0421\u043F\u0456\u043B\u044C\u043D\u0456 \u0437\u0430\u043F\u0438\u0441\u0438, \u0447\u043E\u0442\u0438\u0440\u0438 \u0441\u043F\u043E\u0441\u043E\u0431\u0438 \u0440\u043E\u0431\u043E\u0442\u0438."))), /*#__PURE__*/React.createElement(CoreModuleWorkspace, {
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", null, "\u041E\u043F\u0435\u0440\u0430\u0446\u0456\u0439\u043D\u0456 \u0440\u0435\u0454\u0441\u0442\u0440\u0438"))), /*#__PURE__*/React.createElement(CoreModuleWorkspace, {
     network: network,
     table: table,
     onTable: setTable,
