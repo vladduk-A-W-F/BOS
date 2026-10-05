@@ -5997,7 +5997,8 @@ function Bank({
   settings,
   transactions,
   counterparties,
-  refetch
+  refetch,
+  compact = false
 }) {
   const [tab, setTab] = useState('journal'),
     [currency, setCurrency] = useState(C03_CURRENCIES.includes(settings?.currency) ? settings.currency : 'UAH'),
@@ -6152,7 +6153,7 @@ function Bank({
     style: {
       padding: 24
     }
-  }, /*#__PURE__*/React.createElement("h2", null, "\u0411\u0430\u043D\u043A \u0456 \u0436\u0443\u0440\u043D\u0430\u043B \u0433\u0440\u043E\u0448\u0435\u0439"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("h2", null, compact ? 'Журнал операцій' : 'Банк і журнал грошей'), /*#__PURE__*/React.createElement("div", {
     className: "erp-search-row"
   }, /*#__PURE__*/React.createElement(Input, {
     "aria-label": "\u041F\u043E\u0448\u0443\u043A \u0436\u0443\u0440\u043D\u0430\u043B\u0443",
@@ -6203,7 +6204,7 @@ function Bank({
     from: period.from,
     to: period.to,
     onChanged: refresh
-  }) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
+  }) : /*#__PURE__*/React.createElement(React.Fragment, null, !compact && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
   }, "\u041F\u0456\u0434\u0441\u0443\u043C\u043A\u0438 \u0441\u0435\u0440\u0432\u0435\u0440\u0430 \u0437\u0430 \u043E\u0431\u0440\u0430\u043D\u043E\u044E \u0432\u0430\u043B\u044E\u0442\u043E\u044E \u0439 \u043F\u0435\u0440\u0456\u043E\u0434\u043E\u043C \u0432\u043A\u043B\u044E\u0447\u0430\u044E\u0442\u044C \u0430\u0440\u0445\u0456\u0432\u043D\u0456 \u0437\u0430\u043F\u0438\u0441\u0438. \u0427\u0438\u0441\u0442\u0438\u0439 \u0440\u0443\u0445 \u043D\u0435 \u0454 \u0437\u0430\u043B\u0438\u0448\u043A\u043E\u043C \u0431\u0430\u043D\u043A\u0456\u0432\u0441\u044C\u043A\u043E\u0433\u043E \u0440\u0430\u0445\u0443\u043D\u043A\u0443. \u0420\u0443\u0447\u043D\u0456 \u0437\u0430\u043F\u0438\u0441\u0438 \u043D\u0435 \u043F\u0440\u0438\u043F\u0438\u0441\u0443\u044E\u0442\u044C\u0441\u044F \u0440\u0430\u0445\u0443\u043D\u043A\u0443 \u0432\u0438\u043F\u0438\u0441\u043A\u0438."), /*#__PURE__*/React.createElement("div", {
     className: "c03-kpis"
@@ -6241,7 +6242,7 @@ function Bank({
   })), /*#__PURE__*/React.createElement("span", null, m.month), /*#__PURE__*/React.createElement("span", null, "+", m.in), /*#__PURE__*/React.createElement("span", null, "\u2212", m.out)))), !months.length && /*#__PURE__*/React.createElement("p", null, "\u0414\u0430\u043D\u0456 \u0437\u0430 \u043F\u0435\u0440\u0456\u043E\u0434 \u043D\u0435 \u043E\u0442\u0440\u0438\u043C\u0430\u043D\u043E \u0430\u0431\u043E \u0437\u0430\u043F\u0438\u0441\u0456\u0432 \u043D\u0435\u043C\u0430\u0454.")), /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h3", null, "\u0412\u0438\u0442\u0440\u0430\u0442\u0438 \u0437\u0430 \u043A\u0430\u0442\u0435\u0433\u043E\u0440\u0456\u044F\u043C\u0438 \xB7 ", currency), /*#__PURE__*/React.createElement(ERPTable, {
     rows: current?.expense_categories || [],
     columns: [["Категорія", r => TX_CAT_LABELS[r.category] || r.category], ["Сума", 'amount']]
-  }))), /*#__PURE__*/React.createElement("div", {
+  })))), /*#__PURE__*/React.createElement("div", {
     className: "erp-row"
   }, /*#__PURE__*/React.createElement("h3", null, "\u0417\u0430\u043F\u0438\u0441\u0438 \u0436\u0443\u0440\u043D\u0430\u043B\u0443"), /*#__PURE__*/React.createElement(Button, {
     variant: "primary",
@@ -24021,6 +24022,7 @@ function FinanceWorkspace({
     refetchTasks: refetchTasks,
     onNavigate: onNavigate
   }), /*#__PURE__*/React.createElement(Bank, {
+    compact: true,
     settings: settings,
     transactions: transactions,
     counterparties: counterparties,

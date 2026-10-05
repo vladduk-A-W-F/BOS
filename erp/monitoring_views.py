@@ -34,7 +34,9 @@ def showcase(request):
         return JsonResponse({'cases': []})
     company = Configuration.objects.filter(key='organization').first()
     name = company.value.get('name', '') if company and isinstance(company.value, dict) else ''
-    return JsonResponse({'company': name, 'cases': cases.value.get('cases', [])})
+    # Public fields only, in the current wording from code; internal record codes stay behind sign-in.
+    from .bos4_demo import public_cases
+    return JsonResponse({'company': name, 'cases': public_cases(cases.value.get('cases', []))})
 
 
 @identity_errors

@@ -101,6 +101,65 @@ assert.equal((source.match(/<input [^>]*type="file"/g) || []).length, 1);
 }
 console.log('M7 navigation, legacy routes and role visibility: PASS');
 
+// M7: the actual compiled finance journal keeps records/filters/actions without the legacy dashboard.
+{
+  const app = fs.readFileSync(path.join(__dirname, '../assets/app.js'), 'utf8');
+  const bankCode = app.slice(app.indexOf('function Bank('), app.indexOf('const CP_TYPES ='));
+  const financeCode = app.slice(app.indexOf('function FinanceWorkspace('), app.indexOf('function App('));
+  assert.ok(bankCode && financeCode);
+  let state = [], cursor = 0, refreshes = 0, requests = 0;
+  const React = {createElement:(type,props,...children)=>({type,props:props||{},children:children.flat(Infinity)})};
+  const all = n => n&&typeof n==='object'?[n,...(n.children||[]).flatMap(all)]:[];
+  const text = n => typeof n==='string'?n:(n?.children||[]).map(text).join(' ');
+  const context = {React, window:{BOS_RUNTIME:{as_of:'2026-10-05'}},
+    useState:initial=>{const i=cursor++;if(!(i in state))state[i]=typeof initial==='function'?initial():initial;return [state[i],v=>{state[i]=typeof v==='function'?v(state[i]):v;}];},
+    useRef:()=>({current:0}),useEffect:()=>{},
+    useC03Requests:()=>({alive:{current:true},request:()=>{requests++;throw Error('Unexpected write/read');}}),
+    useFinanceCreateIntent:()=>({reset:()=>true,isPending:()=>false}),
+    C03_CURRENCIES:['UAH','EUR'],c03SelectedCurrency:()=>null,c03Amount:(v,c)=>`${v} ${c}`,
+    TX_CAT_LABELS:{other:'Інше'},T:{textMuted:'#777',green:'#070',red:'#700'},
+    Input:'Input',Button:'Button',Select:'Select',Card:'Card',Badge:'Badge',ERPTable:'ERPTable',
+    C03Errors:'C03Errors',C03Statements:'C03Statements',ERPWorkspace:'ERPWorkspace',BoSReadOnlyRecords:'BoSReadOnlyRecords',
+    bosRole:()=> 'ceo',bosCan:()=>true,
+  };
+  vm.createContext(context);
+  vm.runInContext(bankCode+'\n'+financeCode,context);
+  const props = {compact:true,settings:{currency:'UAH'},counterparties:[],refetch:()=>{refreshes++;},transactions:[
+    {id:1,currency:'UAH',date:'2026-10-02',direction:'in',category:'other',description:'Оплата шаф',amount:'100.00'},
+    {id:2,currency:'EUR',date:'2026-10-03',direction:'out',category:'other',description:'Доставка',amount:'2.00'},
+    {id:3,currency:'UAH',date:'2026-09-01',direction:'out',category:'other',description:'Попередній місяць',amount:'10.00'},
+  ]};
+  const render=()=>{cursor=0;return context.Bank(props);};
+  const journal=tree=>all(tree).find(n=>n.type==='ERPTable');
+  let tree=render();
+  assert.equal(all(tree).some(n=>['c03-kpis','c03-grid','c03-chart'].includes(n.props.className)),false);
+  assert.doesNotMatch(text(tree),/Підсумки сервера|Рух за місяцями|Витрати за категоріями/);
+  assert.match(text(tree),/Журнал операцій/);
+  assert.deepEqual(Array.from(journal(tree).props.rows,r=>r.id),[1]);
+  assert.ok(journal(tree).props.columns.some(([label])=>label==='Дія'),'record actions retained');
+  all(tree).find(n=>n.type==='Input'&&n.props['aria-label']==='Пошук журналу').props.onChange({target:{value:'немає'}});
+  assert.equal(journal(render()).props.rows.length,0,'search still filters records');
+  all(tree).find(n=>n.type==='Input'&&n.props['aria-label']==='Пошук журналу').props.onChange({target:{value:''}});
+  all(tree).find(n=>n.type==='Select'&&n.props.value==='UAH').props.onChange({target:{value:'EUR'}});
+  assert.deepEqual(Array.from(journal(render()).props.rows,r=>r.id),[2],'currency filter retained');
+  all(tree).find(n=>n.type==='Button'&&text(n)==='Оновити').props.onClick();
+  assert.equal(refreshes,1);
+  all(tree).find(n=>n.type==='Button'&&text(n)==='Виписки').props.onClick();
+  const statements=all(render()).find(n=>n.type==='C03Statements');
+  assert.deepEqual([statements.props.currency,statements.props.from,statements.props.to],['EUR','2026-10-01','2026-10-05']);
+  state=[];props.compact=false;tree=render();
+  assert.ok(all(tree).some(n=>n.props.className==='c03-kpis'),'legacy Bank retains dashboard by default');
+  assert.match(text(tree),/Банк і журнал грошей/);
+  const workspaceProps={sub:'invoices',transactions:[],contracts:[]};
+  const financeTree=context.FinanceWorkspace(workspaceProps);
+  assert.equal(all(financeTree).find(n=>n.type===context.Bank).props.compact,true);
+  assert.ok(all(financeTree).some(n=>n.type==='ERPWorkspace'&&n.props.view==='costs'),'invoice/payment path retained');
+  context.bosRole=()=> 'manager';context.bosCan=()=>false;
+  assert.equal(context.FinanceWorkspace(workspaceProps).type,'BoSReadOnlyRecords','manager keeps readonly route');
+  assert.equal(requests,0,'rendering and filtering do not submit any operation');
+}
+console.log('M7 compact finance journal: PASS');
+
 // M3: execute the compiled read-only source block and the connector handoff, including delayed replies.
 (async()=>{
   const app=fs.readFileSync(path.join(__dirname,'../assets/app.js'),'utf8');

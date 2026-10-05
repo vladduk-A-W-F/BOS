@@ -23,6 +23,66 @@ from .service import dispatch, write_lock
 
 
 VERSION = '1.0'
+
+# What the public first screen says about each case: plain words for a person, no internal record codes.
+# Kept in code (not only in the seeded database) so wording fixes reach installed demos without reseeding.
+PUBLIC_CASES = [
+    {'key': 'components', 'title': 'Комплектуючі для партії меблів',
+     'summary': 'Закупівля → приймання → виробництво → відвантаження 120 стелажів. Решта 134 вироби замовлення ще в роботі.',
+     'result': {'label': 'Виготовлено й відвантажено', 'value': '120 стелажів СМ-1800'},
+     'steps': [
+         {'title': 'Замовлення й закупівля', 'text': 'Замовлення на 254 вироби на 1 922 800 грн; під нього закуплено 300 кутників'},
+         {'title': 'Приймання й видача в цех', 'text': 'Прийнято 200 + 100 кутників; 480 кутників і решту матеріалів зарезервовано'},
+         {'title': 'Виробництво й якість', 'text': '5 операцій завершено; випущено й допущено 120 стелажів СМ-1800'},
+         {'title': 'Відвантаження', 'text': '120 стелажів відвантажено з Житомира; решта 134 вироби ще не відвантажена'}]},
+    {'key': 'quality', 'title': 'Відвантаження лише допущеної партії',
+     'summary': 'Клієнт отримує тільки перевірені шафи; заблокована партія чекає.',
+     'result': {'label': 'Відвантажено', 'value': '40 з 50 шаф'},
+     'steps': [
+         {'title': 'Резерв', 'text': 'Партія від 15.09 у Києві'},
+         {'title': 'Контроль якості', 'text': 'Партія від 18.09 заблокована'},
+         {'title': 'Відвантаження', 'text': '90 виробів за накладною'},
+         {'title': 'Доручення', 'text': 'Перефарбувати 25 шаф'}]},
+    {'key': 'payment', 'title': 'Рахунок, оплата й нагадування',
+     'summary': 'Часткова оплата не губиться: на решту є відповідальний і строк.',
+     'result': {'label': 'Залишок до оплати', 'value': '168 000 грн'},
+     'steps': [
+         {'title': 'Відвантаження', 'text': '30 верстаків і 20 столів'},
+         {'title': 'Рахунок', 'text': '420 000 грн, строк 01.10'},
+         {'title': 'Оплата', 'text': '252 000 грн, 60%'},
+         {'title': 'Нагадування', 'text': 'Доручення керівнику філії'}]},
+]
+# Internal records behind each step, used by the signed-in demo; never sent to the public screen.
+CASE_REFS = {
+    'components': [
+        {'order': 'ZM-0141', 'purchase': 'ZK-0311', 'document': 'KM-ZM-0141'},
+        {'purchase': 'ZK-0311', 'document': 'KM-CERT-ZK0311-REST'},
+        {'production': 'VZ-0141-1', 'lot': 'KM-L-SM-1800-VZ0141', 'document': 'KM-PASS-VZ-0141-1'},
+        {'shipment': 'VN-0141-1', 'lot': 'KM-T-SM-1800-VZ0141', 'document': 'KM-VN-0141-1'}],
+    'quality': [
+        {'order': 'ZM-0144', 'document': 'KM-ZM-0144'},
+        {'lot': 'KM-L-SHM-2-0918', 'document': 'KM-QC-SHM-2-0918'},
+        {'shipment': 'VN-0144-1', 'document': 'KM-VN-0144-1'},
+        {'task': 'Перефарбувати партію ШМ-2', 'document': 'KM-QC-SHM-2-0918'}],
+    'payment': [
+        {'order': 'ZM-0137', 'document': 'KM-VN-0137-1'},
+        {'invoice': 'RF-0137', 'document': 'KM-RF-0137'},
+        {'payment': 'PD-5521', 'document': 'KM-PD-5521'},
+        {'task': 'Нагадати «Агроснаб Дніпро»', 'document': 'KM-REM-RF-0137'}],
+}
+
+
+def public_cases(stored):
+    """The cases for the public screen: current wording from code for this demo's cases, public fields only."""
+    by_key = {case['key']: case for case in PUBLIC_CASES}
+    out = []
+    for case in stored if isinstance(stored, list) else []:
+        source = by_key.get(case.get('key')) if isinstance(case, dict) else None
+        if source is None:
+            continue
+        out.append({'key': source['key'], 'title': source['title'], 'summary': source['summary'],
+                    'result': source['result'], 'steps': [{'title': s['title'], 'text': s['text']} for s in source['steps']]})
+    return out
 MARKER = 'bos4_demo_seed'
 SEED_DATE = '2026-09-21'
 AS_OF = '2026-10-05'
@@ -333,36 +393,8 @@ def _populate(pending_files):
 
     clock.value = {**clock.value, 'as_of': AS_OF}
     clock.save(update_fields=['value'])
-    cases = [
-        {'key': 'components', 'title': 'Комплектуючі для партії меблів',
-         'summary': 'Закупівля → приймання → виробництво → відвантаження 120 стелажів. Решта 134 вироби замовлення ще в роботі.',
-         'result': {'label': 'Виготовлено й відвантажено', 'value': '120 стелажів СМ-1800'},
-         'steps': [
-             {'title': 'Замовлення й закупівля', 'text': 'ZM-0141: 254 вироби на 1 922 800 грн; ZK-0311: 300 кутників',
-              'order': 'ZM-0141', 'purchase': 'ZK-0311', 'document': 'KM-ZM-0141'},
-             {'title': 'Приймання й видача в цех', 'text': 'Прийнято 200 + 100 кутників; 480 кутників і решту матеріалів зарезервовано',
-              'purchase': 'ZK-0311', 'document': 'KM-CERT-ZK0311-REST'},
-             {'title': 'Виробництво й якість', 'text': '5 операцій завершено; випущено й допущено 120 стелажів СМ-1800',
-              'production': 'VZ-0141-1', 'lot': 'KM-L-SM-1800-VZ0141', 'document': 'KM-PASS-VZ-0141-1'},
-             {'title': 'Відвантаження', 'text': '120 стелажів відвантажено з Житомира; решта 134 вироби ще не відвантажена',
-              'shipment': 'VN-0141-1', 'lot': 'KM-T-SM-1800-VZ0141', 'document': 'KM-VN-0141-1'}]},
-        {'key': 'quality', 'title': 'Відвантаження лише допущеної партії',
-         'summary': 'Клієнт отримує тільки перевірені шафи; заблокована партія чекає.',
-         'result': {'label': 'Відвантажено', 'value': '40 з 50 шаф'},
-         'steps': [
-             {'title': 'Резерв', 'text': 'Партія від 15.09 у Києві', 'order': 'ZM-0144', 'document': 'KM-ZM-0144'},
-             {'title': 'Контроль якості', 'text': 'Партія від 18.09 заблокована', 'lot': 'KM-L-SHM-2-0918', 'document': 'KM-QC-SHM-2-0918'},
-             {'title': 'Відвантаження', 'text': '90 виробів за накладною', 'shipment': 'VN-0144-1', 'document': 'KM-VN-0144-1'},
-             {'title': 'Доручення', 'text': 'Перефарбувати 25 шаф', 'task': 'Перефарбувати партію ШМ-2', 'document': 'KM-QC-SHM-2-0918'}]},
-        {'key': 'payment', 'title': 'Рахунок, оплата й нагадування',
-         'summary': 'Часткова оплата не губиться: на решту є відповідальний і строк.',
-         'result': {'label': 'Залишок до оплати', 'value': '168 000 грн'},
-         'steps': [
-             {'title': 'Відвантаження', 'text': '30 верстаків і 20 столів', 'order': 'ZM-0137', 'document': 'KM-VN-0137-1'},
-             {'title': 'Рахунок', 'text': '420 000 грн, строк 01.10', 'invoice': 'RF-0137', 'document': 'KM-RF-0137'},
-             {'title': 'Оплата', 'text': '252 000 грн, 60%', 'payment': 'PD-5521', 'document': 'KM-PD-5521'},
-             {'title': 'Нагадування', 'text': 'Доручення керівнику філії', 'task': 'Нагадати «Агроснаб Дніпро»', 'document': 'KM-REM-RF-0137'}]},
-    ]
+    cases = [{**public, 'steps': [{**step, **refs} for step, refs in zip(public['steps'], CASE_REFS[public['key']])]}
+             for public in PUBLIC_CASES]
     Configuration.objects.create(key='demo_cases', value={'version': VERSION, 'synthetic': True, 'cases': cases})
     result = {'version': VERSION, 'synthetic': True, 'company': data.COMPANY['name'], 'as_of': AS_OF,
         'currency': 'UAH', 'cases': [c['title'] for c in cases],
