@@ -58,11 +58,16 @@ class MonitoringTests(TransactionTestCase):
         data = self.client.get('/api/erp/monitoring/').json()
         items = data['attention']
         titles = [a['title'] for a in items]
-        self.assertEqual(titles[0], 'Замовлення ZM-0144 прострочене на 2 дні')
+        # Titles name the customer or the product; the record code stays in the detail.
+        self.assertEqual(titles[0], 'Замовлення для ТОВ «Офіс Сіті» прострочене на 2 дні')
         self.assertIn('ТОВ «Агроснаб Дніпро» винен 168 000 грн', titles)
-        self.assertIn('Партія KM-L-SHM-2-0918 заблокована', titles)
-        self.assertTrue(any(t.startswith('Закупівля ZK-0309 запізнюється') for t in titles))
-        self.assertFalse(any(t.startswith('Закупівля ZK-0311 запізнюється') for t in titles))
+        self.assertIn('Шафа металева ШМ-2, двостулкова: партія заблокована', titles)
+        self.assertIn('Фарба порошкова сіра RAL 7035: постачання запізнюється на 2 дні', titles)
+        details = ' '.join(a['detail'] for a in items)
+        for code in ('ZM-0144', 'KM-L-SHM-2-0918', 'ZK-0309'):
+            self.assertIn(code, details)
+            self.assertFalse(any(code in t for t in titles))
+        self.assertNotIn('ZK-0311', details)
         # Worst first: every danger item comes before any warning.
         levels = [a['level'] for a in items]
         self.assertEqual(levels, sorted(levels, key=lambda l: l != 'danger'))

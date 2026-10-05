@@ -158,14 +158,17 @@ def _money(value, currency):
 
 
 def _attention(policy, today, orders, lots, debts, purchases, tasks):
-    """What needs a person's decision now, in plain words, worst first. Built from the same rows as the tables."""
+    """What needs a person's decision now, in plain words, worst first. Built from the same rows as the tables.
+
+    Titles name the customer or the product; record codes stay in the detail for searching and documents.
+    """
     out = []
     for r in orders:
         if r['late']:
             code, customer, _, due, shipped = r['cells'][:5]
             days = (today - date.fromisoformat(due)).days
-            out.append({'level': 'danger', 'ref': r['ref'], 'title': f'Замовлення {code} прострочене на {_days(days)}',
-                        'detail': f'{customer}: відвантажено {shipped}.'})
+            out.append({'level': 'danger', 'ref': r['ref'], 'title': f'Замовлення для {customer} прострочене на {_days(days)}',
+                        'detail': f'Відвантажено {shipped}. Номер {code}.'})
     for r in debts or []:
         if r['late']:
             code, customer, _, _, rest, _, days, currency = r['cells']
@@ -174,17 +177,17 @@ def _attention(policy, today, orders, lots, debts, purchases, tasks):
     for r in lots:
         if r['late']:
             item, place, qty, state, code = r['cells']
-            out.append({'level': 'danger', 'ref': r['ref'], 'title': f'Партія {code} заблокована',
-                        'detail': f'{item}, {qty} {r["unit"]} на «{place}». Не відвантажувати до рішення якості.'})
+            out.append({'level': 'danger', 'ref': r['ref'], 'title': f'{item}: партія заблокована',
+                        'detail': f'{qty} {r["unit"]} на «{place}». Не відвантажувати до рішення якості. Партія {code}.'})
     for r in purchases:
         code, item, supplier, rest, _, days = r['cells']
-        out.append({'level': 'warning', 'ref': r['ref'], 'title': f'Закупівля {code} запізнюється на {_days(days)}',
-                    'detail': f'{supplier}: чекаємо ще {rest} {r["unit"]} — {item}.'})
+        out.append({'level': 'warning', 'ref': r['ref'], 'title': f'{item}: постачання запізнюється на {_days(days)}',
+                    'detail': f'{supplier}: чекаємо ще {rest} {r["unit"]}. Закупівля {code}.'})
     for r in lots:
         if not r['late']:
             item, place, qty, state, code = r['cells']
-            out.append({'level': 'warning', 'ref': r['ref'], 'title': f'Партія {code}: {state.lower()}',
-                        'detail': f'{item}, {qty} {r["unit"]} на «{place}».'})
+            out.append({'level': 'warning', 'ref': r['ref'], 'title': f'{item}: партія {state.lower()}',
+                        'detail': f'{qty} {r["unit"]} на «{place}». Партія {code}.'})
     for r in tasks:
         if r['late']:
             title, who = r['cells'][:2]
