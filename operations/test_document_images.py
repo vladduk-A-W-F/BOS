@@ -3,6 +3,7 @@ import base64
 import struct
 import tempfile
 import zlib
+from unittest import mock
 from pathlib import Path
 
 from django.conf import settings
@@ -11,6 +12,15 @@ from django.test import Client, TransactionTestCase, override_settings
 
 from operations.models import Configuration, Document
 from scripts.check_support import login_test_client
+
+
+def oversized_png(width=7000, height=6000):
+    """Structurally valid, fully decodable 1-bit PNG over the 40 MP limit (42 MP, a few KB)."""
+    def chunk(kind, body):
+        return struct.pack('>I', len(body)) + kind + body + struct.pack('>I', zlib.crc32(kind + body))
+    rows = (b'\x00' + b'\x00' * ((width + 7) // 8)) * height
+    header = struct.pack('>IIBBBBB', width, height, 1, 0, 0, 0, 0)
+    return b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', header) + chunk(b'IDAT', zlib.compress(rows, 9)) + chunk(b'IEND', b'')
 
 
 def png_bytes(width=1, height=1, idat=None):
@@ -96,11 +106,20 @@ class DocumentImageTests(TransactionTestCase):
                   ('no-iend.png', png_bytes()[:-12]), ('tail.png', png_bytes() + b'x'),
                   # Valid chunk chain or markers, but no real pixel data.
                   ('fake-idat.png', png_bytes(idat=b'x')), ('empty-scan.jpg', empty_scan_jpeg()),
-                  ('too-large.png', png_bytes(width=100000, height=100000, idat=zlib.compress(b''))))
+                  ('too-large.png', oversized_png()))
         for name, data in broken:
             self.assertEqual(self.upload(name, data).status_code, 422)
         self.assertFalse(Document.objects.exists())
         self.assertEqual(self.files(), [])
+
+    def test_pixel_limit_alone_refuses_a_complete_image(self):
+        from operations import documents
+        data = oversized_png()
+        self.assertTrue(documents._png_complete(data))
+        # The same file is accepted once the limit allows it, so only the pixel limit refuses it.
+        with mock.patch.object(documents, 'MAX_IMAGE_PIXELS', 7000 * 6000):
+            self.assertEqual(documents.image_type('big.png', data), 'image/png')
+        self.assertIsNone(documents.image_type('big.png', data))
 
     def test_view_only_for_images_and_with_download_right(self):
         text = self.upload('note.txt', 'Залишок 120 шт.'.encode(), code='M8-TEXT').json()

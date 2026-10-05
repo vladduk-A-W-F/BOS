@@ -39,7 +39,7 @@ jobs:
     - if: steps.scope.outputs.run == 'true'
       run: python -m pip install -r requirements-ci.txt
     - if: steps.scope.outputs.run == 'true'
-      name: training + crm (SQLite, bos3-fasteners)
+      name: адресні тести змінених модулів (SQLite, bos3-fasteners)
       run: |
         mkdir -p "$RUNNER_TEMP/qa/media"
         BOS_TEST_DB_NAME="$RUNNER_TEMP/qa/bos3-fasteners-qa.sqlite3" BOS_TEST_MEDIA="$RUNNER_TEMP/qa/media" \
