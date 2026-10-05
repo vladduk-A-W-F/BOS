@@ -24531,12 +24531,19 @@ function MonTable({
   return /*#__PURE__*/React.createElement("section", {
     className: "mon-card"
   }, /*#__PURE__*/React.createElement("header", null, /*#__PURE__*/React.createElement("h2", null, table.title), /*#__PURE__*/React.createElement("span", null, table.total)), table.rows.length ? /*#__PURE__*/React.createElement("div", {
-    className: "erp-table",
+    className: "erp-table mon-table",
     tabIndex: 0
-  }, /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, table.columns.map(c => /*#__PURE__*/React.createElement("th", {
-    key: c
+  }, /*#__PURE__*/React.createElement("table", {
+    role: "table"
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
+    role: "row"
+  }, table.columns.map(c => /*#__PURE__*/React.createElement("th", {
+    key: c,
+    scope: "col",
+    role: "columnheader"
   }, c)))), /*#__PURE__*/React.createElement("tbody", null, table.rows.map((r, i) => /*#__PURE__*/React.createElement("tr", {
     key: i,
+    role: "row",
     className: 'bos-click-row' + (r.late ? ' mon-late' : ''),
     tabIndex: 0,
     onClick: () => onRow(r.ref),
@@ -24544,7 +24551,9 @@ function MonTable({
       if (e.key === 'Enter') onRow(r.ref);
     }
   }, r.cells.map((c, j) => /*#__PURE__*/React.createElement("td", {
-    key: j
+    key: j,
+    role: "cell",
+    "data-label": table.columns[j]
   }, monValue(c)))))))) : /*#__PURE__*/React.createElement("p", {
     className: "op-muted mon-empty"
   }, "\u041D\u0435\u043C\u0430\u0454 \u0437\u0430\u043F\u0438\u0441\u0456\u0432"));
