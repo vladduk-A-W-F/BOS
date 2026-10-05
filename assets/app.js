@@ -12050,11 +12050,15 @@ function DocViewer({
     [notice, setNotice] = useState('');
   const ref = useRef(null),
     seq = useRef(0),
-    activeId = useRef(id);
+    activeId = useRef(id),
+    alive = useRef(true),
+    origin = useRef(bosHttpScope()),
+    attachPending = useRef(false);
   async function open(version) {
     const n = ++seq.current;
     activeId.current = version;
     setLoading(true);
+    setBusy(false);
     setError('');
     setNotice('');
     setDoc(null);
@@ -12071,9 +12075,11 @@ function DocViewer({
     }
   }
   useEffect(() => {
+    alive.current = true;
     ref.current.showModal();
     open(id);
     return () => {
+      alive.current = false;
       seq.current++;
     };
   }, [id]);
@@ -12113,23 +12119,41 @@ function DocViewer({
       setBusy(false);
     }
   }
+  const attachSeq = seq.current;
+  const canAttach = () => alive.current && origin.current === bosHttpScope() && attachSeq === seq.current && !loading && !readOnly && bosCanAction('attach') && doc?.current && activeId.current === doc.id;
   async function attach() {
-    if (busy || !doc) return;
+    if (busy || attachPending.current === attachSeq || !canAttach()) return;
+    attachPending.current = attachSeq;
+    const documentId = doc.id;
     setBusy(true);
     setError('');
     setNotice('');
     try {
-      setAttachData(await erpFetch('snapshot/'));
+      const data = await erpFetch('snapshot/');
+      if (!canAttach()) return;
+      if (!data.documents?.some(d => d.id === documentId)) throw Error('Документ більше недоступний у поточному списку. Відкрийте його знову.');
+      setAttachData({
+        documentId,
+        sequence: attachSeq,
+        data
+      });
     } catch (e) {
-      setError(e.message);
+      if (canAttach()) setError(e.message);
     } finally {
-      setBusy(false);
+      if (attachPending.current === attachSeq) attachPending.current = false;
+      if (canAttach()) setBusy(false);
     }
   }
+  const dismiss = () => {
+    alive.current = false;
+    seq.current++;
+    setAttachData(null);
+    onClose();
+  };
   return /*#__PURE__*/React.createElement("dialog", {
     ref: ref,
     className: "bos-dialog",
-    onClose: onClose,
+    onClose: dismiss,
     style: {
       width: 'min(800px,95vw)'
     }
@@ -12197,21 +12221,29 @@ function DocViewer({
   }, c.number, " \xB7 ", c.name)))), /*#__PURE__*/React.createElement(Button, {
     disabled: busy,
     onClick: review
-  }, busy ? 'Обробка…' : 'Підтвердити ручну перевірку')), !readOnly && bosCanAction('attach') && doc.current && doc.status === 'approved' && /*#__PURE__*/React.createElement(Button, {
+  }, busy ? 'Обробка…' : 'Підтвердити ручну перевірку')), canAttach() && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, "\u041F\u0440\u0438\u0432\u2019\u044F\u0437\u043A\u0430 \u043D\u0435 \u043F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0443\u0454 \u044F\u043A\u0456\u0441\u0442\u044C \u0447\u0438 \u0434\u043E\u043F\u0443\u0441\u043A \u043F\u0430\u0440\u0442\u0456\u0457."), /*#__PURE__*/React.createElement(Button, {
     disabled: busy,
     onClick: attach
-  }, "\u041F\u0440\u0438\u0432\u2019\u044F\u0437\u0430\u0442\u0438 \u0434\u043E \u043F\u0430\u0440\u0442\u0456\u0457"), attachData && /*#__PURE__*/React.createElement(ERPActionDialog, {
+  }, "\u041F\u0440\u0438\u0432\u2019\u044F\u0437\u0430\u0442\u0438 \u0434\u043E \u043F\u0430\u0440\u0442\u0456\u0457")), attachData && canAttach() && attachData.documentId === doc.id && attachData.sequence === seq.current && /*#__PURE__*/React.createElement(ERPActionDialog, {
+    key: doc.id,
     action: "attach",
     preset: {
-      document_id: doc.id
+      document_id: attachData.documentId
     },
-    data: attachData,
+    data: attachData.data,
     onClose: () => setAttachData(null),
-    onDone: () => setNotice('Документ прив’язано до партії. Перевірте квитанцію в діалозі.')
+    onDone: () => {
+      if (canAttach()) setNotice('Документ прив’язано до партії. Якість не підтверджено; перевірте квитанцію в діалозі.');
+    }
   })), /*#__PURE__*/React.createElement("div", {
     className: "actions"
   }, /*#__PURE__*/React.createElement(Button, {
-    onClick: () => ref.current.close()
+    onClick: () => {
+      alive.current = false;
+      seq.current++;
+      setAttachData(null);
+      ref.current.close();
+    }
   }, "\u0417\u0430\u043A\u0440\u0438\u0442\u0438")));
 }
 // C01_HELPERS_BEGIN
@@ -15714,11 +15746,19 @@ function ERPActionDialog({
       label: [x.code, x.name || x.title, x.revision ? 'версія ' + x.revision : ''].filter(Boolean).join(' · ')
     }));
   }
+  const attachDocument = action === 'attach' ? (data.documents || []).find(row => row.id === Number(values.document_id)) : null;
+  const attachKind = action === 'attach' && attachDocument?.status !== 'approved' ? 'Додаток №' + Number(values.document_id) : null;
   function field([key, label, type = 'text']) {
     const value = values[key],
       base = type.replace('?', ''),
       optional = type.endsWith('?');
-    if (action === 'link_document' && ['document_id', 'order_id', 'invoice_id'].includes(key)) return value ? /*#__PURE__*/React.createElement("label", {
+    if (key === 'kind' && attachKind) return /*#__PURE__*/React.createElement("label", {
+      key: key
+    }, label, /*#__PURE__*/React.createElement(Input, {
+      readOnly: true,
+      value: attachKind
+    }), /*#__PURE__*/React.createElement("span", null, "\u041D\u0435\u043F\u0435\u0440\u0435\u0432\u0456\u0440\u0435\u043D\u0438\u0439 \u0444\u0430\u0439\u043B \u0434\u043E\u0434\u0430\u0454\u0442\u044C\u0441\u044F \u043E\u043A\u0440\u0435\u043C\u043E \u0439 \u043D\u0435 \u0437\u0430\u043C\u0456\u043D\u044E\u0454 \u043F\u0430\u0441\u043F\u043E\u0440\u0442, \u0441\u0435\u0440\u0442\u0438\u0444\u0456\u043A\u0430\u0442 \u0447\u0438 \u0456\u043D\u0448\u0438\u0439 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442 \u043F\u0430\u0440\u0442\u0456\u0457."));
+    if (action === 'link_document' && ['document_id', 'order_id', 'invoice_id'].includes(key) || action === 'attach' && key === 'document_id' && preset.document_id) return value ? /*#__PURE__*/React.createElement("label", {
       key: key
     }, label, /*#__PURE__*/React.createElement(Input, {
       readOnly: true,
@@ -16016,6 +16056,14 @@ function ERPActionDialog({
           }
           if (type.endsWith('?') && (v === '' || v == null)) continue;
           payload[k] = type === 'tags' ? Array.isArray(v) ? v : String(v).split(',').map(x => x.trim()).filter(Boolean) : k.endsWith('_id') || type === 'integer' ? Number(v) : v;
+        }
+      }
+      if (action === 'attach') {
+        const lot = (data.lots || []).find(row => row.id === payload.lot_id);
+        if (!attachDocument || !lot) throw Error('Оберіть доступні документ і партію.');
+        if (attachKind) {
+          if (Object.prototype.hasOwnProperty.call(lot.documents || {}, attachKind)) throw Error('Цей тип уже має документ партії. Неперевірений документ не замінює його.');
+          payload.kind = attachKind;
         }
       }
       const r = await request(action === 'register_supplier_invoice' ? '/api/operations/preview/' : '/api/erp/preview/', payload);
