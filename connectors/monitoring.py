@@ -20,7 +20,8 @@ def _freshness(connector, now):
     if connector.kind == 'google_sheets' and now - connector.last_sync_at > STALE_AFTER:
         return 'stale', 'Дані застаріли, оновіть джерело'
     if connector.kind == 'csv':
-        return 'file', 'Файл від ' + timezone.localtime(connector.last_sync_at).strftime('%d.%m.%Y %H:%M')
+        # The time itself is last_sync_at; screens format it in the viewer's time zone.
+        return 'file', 'Дані із завантаженого файлу'
     return 'fresh', 'Актуально'
 
 

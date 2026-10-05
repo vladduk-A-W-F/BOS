@@ -120,6 +120,7 @@ class SourcesMonitoringTests(TestCase):
         items = {s['name']: s for s in monitoring.build(self.policy('ceo'))}
         orders = items['Замовлення з Excel']
         self.assertEqual((orders['freshness'], orders['accepted'], orders['total'], orders['rejected']), ('file', 1, 2, 1))
+        self.assertEqual(orders['freshness_label'], 'Дані із завантаженого файлу')
         self.assertEqual(orders['table']['columns'], ['Номер замовлення', 'Клієнт', 'Сума', 'Валюта'])
         self.assertEqual(orders['table']['rows'][0]['cells'], ['ЗМ-1', 'ТОВ Ліс', '12500.00', 'UAH'])
         self.assertEqual(items['Оплати']['freshness'], 'stale')
