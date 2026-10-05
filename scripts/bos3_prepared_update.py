@@ -64,7 +64,8 @@ def update_prepared_source(path, source, source_sha256):
     if not isinstance(source, str) or not source or not isinstance(source_sha256, str) or (
             len(source_sha256) != 64 or any(char not in '0123456789abcdef' for char in source_sha256)):
         raise PreparedUpdateError('Source and SHA-256 are required')
-    preflight = json.loads(_powershell(PREFLIGHT, path))
+    _powershell('$null', path, timeout=60)
+    preflight = json.loads(_powershell(PREFLIGHT, path, timeout=60))
     if preflight.get('elevated') is not False or not preflight.get('sid') or (
             preflight['sid'] != preflight.get('owner_sid')) or not preflight.get('sddl'):
         raise PreparedUpdateError('Prepared owner must match a non-elevated current user')
