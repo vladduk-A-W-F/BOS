@@ -5891,14 +5891,17 @@ function Monitoring({onNavigate}){
 // BoS 4 «Підключення»: connect services the company already uses. Read-only import.
 function Connections(){
  const [data,setData]=useState(null),[error,setError]=useState(''),[open,setOpen]=useState(null),[form,setForm]=useState({kind:'csv',name:'',dataset:'orders',url:''}),[preview,setPreview]=useState(null),[busy,setBusy]=useState(false),[failed,setFailed]=useState([]);
- const fileRef=useRef(null),entry=useRef(null);
+ const [mapping,setMapping]=useState({}),[mapped,setMapped]=useState(null);
+ const fileRef=useRef(null),entry=useRef(null),previewSeq=useRef(0),mutationBusy=useRef(false);
  const call=async(path,body)=>{const r=await fetch('/api/connectors/'+path,body?{method:'POST',body}:{});let d;try{d=await r.json();}catch{throw Error('Сервіс підключень недоступний.');}if(!r.ok)throw Error(d.error||'Не вдалося виконати запит.');return d;};
  const current=scope=>entry.current===scope&&scope===bosHttpScope();
  const load=async(note='')=>{const scope=entry.current;try{const list=await call('');if(current(scope)){setData(list);setError(note);}}catch(e){if(current(scope))setError(e.message);}};
  useEffect(()=>{const scope=bosHttpScope();entry.current=scope;(async()=>{let note='';if(bosCan('write')){try{const result=await call('sync-stale/',new FormData());if(current(scope))setFailed(result.failed||[]);}catch(e){note=e.message;}}if(current(scope))await load(note);})();return()=>{entry.current=null;};},[]);
  const source=()=>{const f=new FormData();f.append('kind',form.kind);if(form.kind==='csv'){const file=fileRef.current?.files?.[0];if(!file)throw Error('Оберіть файл .xlsx або .csv.');f.append('file',file);}else f.append('url',form.url.trim());return f;};
- const run=async fn=>{if(busy)return;setBusy(true);setError('');try{await fn();}catch(e){setError(e.message);}finally{setBusy(false);}};
- const doPreview=()=>run(async()=>setPreview(await call('preview/',source())));
+ const run=async fn=>{if(busy||mutationBusy.current)return;mutationBusy.current=true;setBusy(true);setError('');try{await fn();}catch(e){setError(e.message);}finally{mutationBusy.current=false;setBusy(false);}};
+ const invalidatePreview=()=>{previewSeq.current++;setPreview(null);setMapping({});setMapped(null);if(!mutationBusy.current)setBusy(false);setError('');};
+ const chooseMapping=(field,column)=>{previewSeq.current++;setMapping(p=>({...p,[field]:column}));setMapped(null);if(!mutationBusy.current)setBusy(false);setError('');};
+ const doPreview=async(withMapping=false)=>{if(busy||mutationBusy.current)return;const scope=entry.current,seq=++previewSeq.current;setBusy(true);setError('');setMapped(null);if(!withMapping)setPreview(null);try{const f=source();f.append('dataset',form.dataset);if(withMapping)f.append('mapping',JSON.stringify(mapping));const result=await call('preview/',f);if(current(scope)&&seq===previewSeq.current){setPreview(result);if(!withMapping)setMapping(result.suggested_mapping||{});setMapped(result.mapped||null);}}catch(e){if(current(scope)&&seq===previewSeq.current)setError(e.message);}finally{if(current(scope)&&seq===previewSeq.current)setBusy(false);}};
  const doCreate=()=>run(async()=>{const f=source();f.append('name',form.name.trim());f.append('dataset',form.dataset);f.append('expected_sha256',preview.sha256);await call('create/',f);setPreview(null);setForm({kind:'csv',name:'',dataset:'orders',url:''});if(fileRef.current){fileRef.current.value='';bosFileName(fileRef.current);}await load();});
  const doSync=id=>run(async()=>{await call(id+'/sync/',new FormData());setFailed(rows=>rows.filter(row=>row.id!==id));await load();});
  const doDisable=id=>run(async()=>{await call(id+'/disable/',new FormData());setOpen(null);await load();});
@@ -5913,13 +5916,22 @@ function Connections(){
   {open&&<section className="mon-card"><header><h2>{open.name}</h2><span>{open.row_count}</span></header><div className="erp-table"><table><thead><tr>{open.columns.map((c,i)=><th key={i}>{c}</th>)}</tr></thead><tbody>{open.rows.slice(0,100).map((r,i)=><tr key={i}>{r.map((v,j)=><td key={j}>{v}</td>)}</tr>)}</tbody></table></div><Button onClick={()=>setOpen(null)}>Закрити</Button></section>}
   {bosCan('write')&&<section className="mon-card"><header><h2>Нове підключення</h2></header>
    <div className="erp-form">
-    <label>Сервіс<Select value={form.kind} onChange={e=>{setForm(p=>({...p,kind:e.target.value}));setPreview(null);}}><option value="csv">Excel / CSV</option><option value="google_sheets">Google Таблиці</option></Select></label>
+    <label>Сервіс<Select value={form.kind} onChange={e=>{setForm(p=>({...p,kind:e.target.value}));invalidatePreview();}}><option value="csv">Excel / CSV</option><option value="google_sheets">Google Таблиці</option></Select></label>
     <label>Назва<Input value={form.name} maxLength={120} onChange={e=>setForm(p=>({...p,name:e.target.value}))} placeholder="Замовлення з магазину"/></label>
-    <label>Дані<Select value={form.dataset} onChange={e=>setForm(p=>({...p,dataset:e.target.value}))}><option value="orders">Замовлення</option><option value="payments">Оплати</option><option value="stock">Залишки</option><option value="calls">Дзвінки</option><option value="other">Інше</option></Select></label>
-    {form.kind==='csv'?<label>Файл .xlsx або .csv<BosFile inputRef={fileRef} type="file" accept=".xlsx,.csv" onChange={()=>setPreview(null)}/></label>:<label>Посилання на таблицю<Input value={form.url} onChange={e=>{setForm(p=>({...p,url:e.target.value}));setPreview(null);}} placeholder="https://docs.google.com/spreadsheets/d/…"/></label>}
+    <label>Дані<Select value={form.dataset} onChange={e=>{setForm(p=>({...p,dataset:e.target.value}));invalidatePreview();}}><option value="orders">Замовлення</option><option value="payments">Оплати</option><option value="stock">Залишки</option><option value="calls">Дзвінки</option><option value="other">Інше</option></Select></label>
+    {form.kind==='csv'?<label>Файл .xlsx або .csv<BosFile inputRef={fileRef} type="file" accept=".xlsx,.csv" onChange={invalidatePreview}/></label>:<label>Посилання на таблицю<Input value={form.url} onChange={e=>{setForm(p=>({...p,url:e.target.value}));invalidatePreview();}} placeholder="https://docs.google.com/spreadsheets/d/…"/></label>}
    </div>
-   <div className="erp-actions"><Button disabled={busy} onClick={doPreview}>Переглянути</Button>{preview&&<Button variant="primary" disabled={busy||!form.name.trim()} onClick={doCreate}>Підключити</Button>}</div>
+   <div className="erp-actions"><Button disabled={busy} onClick={()=>doPreview()}>Переглянути</Button>{preview&&<Button variant="primary" disabled={busy||!form.name.trim()} onClick={doCreate}>Підключити</Button>}</div>
+   {busy&&<p role="status">Завантаження…</p>}
    {preview&&<div className="erp-table"><p className="op-muted">Рядків: {preview.row_count}</p><table><thead><tr>{preview.columns.map((c,i)=><th key={i}>{c}</th>)}</tr></thead><tbody>{preview.rows.map((r,i)=><tr key={i}>{r.map((v,j)=><td key={j}>{v}</td>)}</tr>)}</tbody></table></div>}
+   {preview?.fields?.length>0&&<section aria-label="Попередній перегляд відповідності колонок">
+    <h3>Відповідність колонок</h3><p className="op-muted">Мапінг використовується лише для попереднього перегляду й не зберігається. «Підключити» зберігає вихідну таблицю без цього мапінгу.</p>
+    <div className="erp-form">{preview.fields.map(field=><label key={field.field}>{field.label}{field.required?' · обов’язкове':''}<Select aria-label={field.label} required={field.required} value={mapping[field.field]||''} onChange={e=>chooseMapping(field.field,e.target.value)}><option value="">{field.required?'Оберіть колонку':'Пропустити'}</option>{preview.columns.map(column=><option key={column} value={column}>{column}</option>)}</Select></label>)}</div>
+    <Button disabled={busy} onClick={()=>doPreview(true)}>Переглянути з мапінгом</Button>
+    {!mapped&&!busy&&<p role="status" className="op-muted">Відповідність змінено. Перегляньте результат ще раз.</p>}
+    {mapped?.error&&<p role="alert" className="erp-error">{mapped.error}</p>}
+    {mapped&&!mapped.error&&<div className="erp-table"><p role="status">Усього: {mapped.total} · Прийнято: {mapped.accepted} · Відхилено: {mapped.total-mapped.accepted}</p><p className="op-muted">Перші 5 нормалізованих рядків</p>{mapped.rows?.length?<table><thead><tr>{preview.fields.filter(f=>f.field in (mapped.mapping||{})).map(f=><th key={f.field}>{f.label}</th>)}</tr></thead><tbody>{mapped.rows.slice(0,5).map((row,i)=><tr key={i}>{preview.fields.filter(f=>f.field in (mapped.mapping||{})).map(f=><td key={f.field}>{row[f.field]??'—'}</td>)}</tr>)}</tbody></table>:<p className="op-muted">Немає прийнятих рядків</p>}{mapped.rejected?.length>0&&<ul>{mapped.rejected.map(row=><li key={row.row}>Рядок {row.row}: {row.reason}</li>)}</ul>}</div>}
+   </section>}
   </section>}
   <section className="mon-card"><header><h2>Сервіси</h2></header>
    <div className="mon-catalog">{data.catalog.map(x=><div key={x.kind} className="mon-service"><strong>{x.title}</strong><span>{x.group}</span><p>{x.gives}</p><em data-state={x.state}>{x.state==='available'?'Працює':'Готується'}</em></div>)}</div>

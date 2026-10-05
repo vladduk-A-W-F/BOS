@@ -24675,8 +24675,12 @@ function Connections() {
     [preview, setPreview] = useState(null),
     [busy, setBusy] = useState(false),
     [failed, setFailed] = useState([]);
+  const [mapping, setMapping] = useState({}),
+    [mapped, setMapped] = useState(null);
   const fileRef = useRef(null),
-    entry = useRef(null);
+    entry = useRef(null),
+    previewSeq = useRef(0),
+    mutationBusy = useRef(false);
   const call = async (path, body) => {
     const r = await fetch('/api/connectors/' + path, body ? {
       method: 'POST',
@@ -24734,7 +24738,8 @@ function Connections() {
     return f;
   };
   const run = async fn => {
-    if (busy) return;
+    if (busy || mutationBusy.current) return;
+    mutationBusy.current = true;
     setBusy(true);
     setError('');
     try {
@@ -24742,10 +24747,52 @@ function Connections() {
     } catch (e) {
       setError(e.message);
     } finally {
+      mutationBusy.current = false;
       setBusy(false);
     }
   };
-  const doPreview = () => run(async () => setPreview(await call('preview/', source())));
+  const invalidatePreview = () => {
+    previewSeq.current++;
+    setPreview(null);
+    setMapping({});
+    setMapped(null);
+    if (!mutationBusy.current) setBusy(false);
+    setError('');
+  };
+  const chooseMapping = (field, column) => {
+    previewSeq.current++;
+    setMapping(p => ({
+      ...p,
+      [field]: column
+    }));
+    setMapped(null);
+    if (!mutationBusy.current) setBusy(false);
+    setError('');
+  };
+  const doPreview = async (withMapping = false) => {
+    if (busy || mutationBusy.current) return;
+    const scope = entry.current,
+      seq = ++previewSeq.current;
+    setBusy(true);
+    setError('');
+    setMapped(null);
+    if (!withMapping) setPreview(null);
+    try {
+      const f = source();
+      f.append('dataset', form.dataset);
+      if (withMapping) f.append('mapping', JSON.stringify(mapping));
+      const result = await call('preview/', f);
+      if (current(scope) && seq === previewSeq.current) {
+        setPreview(result);
+        if (!withMapping) setMapping(result.suggested_mapping || {});
+        setMapped(result.mapped || null);
+      }
+    } catch (e) {
+      if (current(scope) && seq === previewSeq.current) setError(e.message);
+    } finally {
+      if (current(scope) && seq === previewSeq.current) setBusy(false);
+    }
+  };
   const doCreate = () => run(async () => {
     const f = source();
     f.append('name', form.name.trim());
@@ -24838,7 +24885,7 @@ function Connections() {
         ...p,
         kind: e.target.value
       }));
-      setPreview(null);
+      invalidatePreview();
     }
   }, /*#__PURE__*/React.createElement("option", {
     value: "csv"
@@ -24854,10 +24901,13 @@ function Connections() {
     placeholder: "\u0417\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F \u0437 \u043C\u0430\u0433\u0430\u0437\u0438\u043D\u0443"
   })), /*#__PURE__*/React.createElement("label", null, "\u0414\u0430\u043D\u0456", /*#__PURE__*/React.createElement(Select, {
     value: form.dataset,
-    onChange: e => setForm(p => ({
-      ...p,
-      dataset: e.target.value
-    }))
+    onChange: e => {
+      setForm(p => ({
+        ...p,
+        dataset: e.target.value
+      }));
+      invalidatePreview();
+    }
   }, /*#__PURE__*/React.createElement("option", {
     value: "orders"
   }, "\u0417\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F"), /*#__PURE__*/React.createElement("option", {
@@ -24872,7 +24922,7 @@ function Connections() {
     inputRef: fileRef,
     type: "file",
     accept: ".xlsx,.csv",
-    onChange: () => setPreview(null)
+    onChange: invalidatePreview
   })) : /*#__PURE__*/React.createElement("label", null, "\u041F\u043E\u0441\u0438\u043B\u0430\u043D\u043D\u044F \u043D\u0430 \u0442\u0430\u0431\u043B\u0438\u0446\u044E", /*#__PURE__*/React.createElement(Input, {
     value: form.url,
     onChange: e => {
@@ -24880,19 +24930,21 @@ function Connections() {
         ...p,
         url: e.target.value
       }));
-      setPreview(null);
+      invalidatePreview();
     },
     placeholder: "https://docs.google.com/spreadsheets/d/\u2026"
   }))), /*#__PURE__*/React.createElement("div", {
     className: "erp-actions"
   }, /*#__PURE__*/React.createElement(Button, {
     disabled: busy,
-    onClick: doPreview
+    onClick: () => doPreview()
   }, "\u041F\u0435\u0440\u0435\u0433\u043B\u044F\u043D\u0443\u0442\u0438"), preview && /*#__PURE__*/React.createElement(Button, {
     variant: "primary",
     disabled: busy || !form.name.trim(),
     onClick: doCreate
-  }, "\u041F\u0456\u0434\u043A\u043B\u044E\u0447\u0438\u0442\u0438")), preview && /*#__PURE__*/React.createElement("div", {
+  }, "\u041F\u0456\u0434\u043A\u043B\u044E\u0447\u0438\u0442\u0438")), busy && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F\u2026"), preview && /*#__PURE__*/React.createElement("div", {
     className: "erp-table"
   }, /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
@@ -24902,7 +24954,50 @@ function Connections() {
     key: i
   }, r.map((v, j) => /*#__PURE__*/React.createElement("td", {
     key: j
-  }, v)))))))), /*#__PURE__*/React.createElement("section", {
+  }, v))))))), preview?.fields?.length > 0 && /*#__PURE__*/React.createElement("section", {
+    "aria-label": "\u041F\u043E\u043F\u0435\u0440\u0435\u0434\u043D\u0456\u0439 \u043F\u0435\u0440\u0435\u0433\u043B\u044F\u0434 \u0432\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u043E\u0441\u0442\u0456 \u043A\u043E\u043B\u043E\u043D\u043E\u043A"
+  }, /*#__PURE__*/React.createElement("h3", null, "\u0412\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u0456\u0441\u0442\u044C \u043A\u043E\u043B\u043E\u043D\u043E\u043A"), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041C\u0430\u043F\u0456\u043D\u0433 \u0432\u0438\u043A\u043E\u0440\u0438\u0441\u0442\u043E\u0432\u0443\u0454\u0442\u044C\u0441\u044F \u043B\u0438\u0448\u0435 \u0434\u043B\u044F \u043F\u043E\u043F\u0435\u0440\u0435\u0434\u043D\u044C\u043E\u0433\u043E \u043F\u0435\u0440\u0435\u0433\u043B\u044F\u0434\u0443 \u0439 \u043D\u0435 \u0437\u0431\u0435\u0440\u0456\u0433\u0430\u0454\u0442\u044C\u0441\u044F. \xAB\u041F\u0456\u0434\u043A\u043B\u044E\u0447\u0438\u0442\u0438\xBB \u0437\u0431\u0435\u0440\u0456\u0433\u0430\u0454 \u0432\u0438\u0445\u0456\u0434\u043D\u0443 \u0442\u0430\u0431\u043B\u0438\u0446\u044E \u0431\u0435\u0437 \u0446\u044C\u043E\u0433\u043E \u043C\u0430\u043F\u0456\u043D\u0433\u0443."), /*#__PURE__*/React.createElement("div", {
+    className: "erp-form"
+  }, preview.fields.map(field => /*#__PURE__*/React.createElement("label", {
+    key: field.field
+  }, field.label, field.required ? ' · обов’язкове' : '', /*#__PURE__*/React.createElement(Select, {
+    "aria-label": field.label,
+    required: field.required,
+    value: mapping[field.field] || '',
+    onChange: e => chooseMapping(field.field, e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, field.required ? 'Оберіть колонку' : 'Пропустити'), preview.columns.map(column => /*#__PURE__*/React.createElement("option", {
+    key: column,
+    value: column
+  }, column)))))), /*#__PURE__*/React.createElement(Button, {
+    disabled: busy,
+    onClick: () => doPreview(true)
+  }, "\u041F\u0435\u0440\u0435\u0433\u043B\u044F\u043D\u0443\u0442\u0438 \u0437 \u043C\u0430\u043F\u0456\u043D\u0433\u043E\u043C"), !mapped && !busy && /*#__PURE__*/React.createElement("p", {
+    role: "status",
+    className: "op-muted"
+  }, "\u0412\u0456\u0434\u043F\u043E\u0432\u0456\u0434\u043D\u0456\u0441\u0442\u044C \u0437\u043C\u0456\u043D\u0435\u043D\u043E. \u041F\u0435\u0440\u0435\u0433\u043B\u044F\u043D\u044C\u0442\u0435 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u0449\u0435 \u0440\u0430\u0437."), mapped?.error && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, mapped.error), mapped && !mapped.error && /*#__PURE__*/React.createElement("div", {
+    className: "erp-table"
+  }, /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, "\u0423\u0441\u044C\u043E\u0433\u043E: ", mapped.total, " \xB7 \u041F\u0440\u0438\u0439\u043D\u044F\u0442\u043E: ", mapped.accepted, " \xB7 \u0412\u0456\u0434\u0445\u0438\u043B\u0435\u043D\u043E: ", mapped.total - mapped.accepted), /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041F\u0435\u0440\u0448\u0456 5 \u043D\u043E\u0440\u043C\u0430\u043B\u0456\u0437\u043E\u0432\u0430\u043D\u0438\u0445 \u0440\u044F\u0434\u043A\u0456\u0432"), mapped.rows?.length ? /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, preview.fields.filter(f => f.field in (mapped.mapping || {})).map(f => /*#__PURE__*/React.createElement("th", {
+    key: f.field
+  }, f.label)))), /*#__PURE__*/React.createElement("tbody", null, mapped.rows.slice(0, 5).map((row, i) => /*#__PURE__*/React.createElement("tr", {
+    key: i
+  }, preview.fields.filter(f => f.field in (mapped.mapping || {})).map(f => /*#__PURE__*/React.createElement("td", {
+    key: f.field
+  }, row[f.field] ?? '—')))))) : /*#__PURE__*/React.createElement("p", {
+    className: "op-muted"
+  }, "\u041D\u0435\u043C\u0430\u0454 \u043F\u0440\u0438\u0439\u043D\u044F\u0442\u0438\u0445 \u0440\u044F\u0434\u043A\u0456\u0432"), mapped.rejected?.length > 0 && /*#__PURE__*/React.createElement("ul", null, mapped.rejected.map(row => /*#__PURE__*/React.createElement("li", {
+    key: row.row
+  }, "\u0420\u044F\u0434\u043E\u043A ", row.row, ": ", row.reason)))))), /*#__PURE__*/React.createElement("section", {
     className: "mon-card"
   }, /*#__PURE__*/React.createElement("header", null, /*#__PURE__*/React.createElement("h2", null, "\u0421\u0435\u0440\u0432\u0456\u0441\u0438")), /*#__PURE__*/React.createElement("div", {
     className: "mon-catalog"
