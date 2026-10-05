@@ -144,12 +144,31 @@ class MonitoringTests(TransactionTestCase):
         self.login('ceo')
         self.assertEqual(self.client.post('/api/erp/monitoring/').status_code, 405)
 
+    def test_showcase_wording_comes_from_code_for_an_installed_demo(self):
+        from operations.models import Configuration
+        row = Configuration.objects.get(key='demo_cases')
+        stored = row.value
+        stored['cases'][0]['steps'][0]['text'] = 'ZM-0141: стара редакція'
+        row.value = stored
+        row.save()
+        step = self.client.get('/api/erp/showcase/').json()['cases'][0]['steps'][0]
+        self.assertEqual(step['text'], 'Замовлення на 254 вироби на 1 922 800 грн; під нього закуплено 300 кутників')
+
     def test_showcase_is_public_only_for_demo(self):
         data = self.client.get('/api/erp/showcase/').json()
         self.assertEqual(data['company'], 'Каркас Меблі · демо')
         self.assertEqual([c['title'] for c in data['cases']], ['Комплектуючі для партії меблів',
             'Відвантаження лише допущеної партії', 'Рахунок, оплата й нагадування'])
         self.assertTrue(all(3 <= len(c['steps']) <= 4 for c in data['cases']))
+        # A person reads plain words: no internal record codes, and only public fields leave the server.
+        import re
+        code = re.compile(r'\b[A-Z]{2,4}-[A-Z0-9-]*\d')
+        for case in data['cases']:
+            self.assertEqual(set(case), {'key', 'title', 'summary', 'result', 'steps'})
+            for step in case['steps']:
+                self.assertEqual(set(step), {'title', 'text'})
+                self.assertIsNone(code.search(step['text']), step['text'])
+            self.assertIsNone(code.search(case['summary'] + case['result']['value']))
         with override_settings(BOS_DATA_MODE='production'):
             # Outside demo the address is not public at all.
             self.assertEqual(self.client.get('/api/erp/showcase/').status_code, 401)
