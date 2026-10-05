@@ -98,3 +98,15 @@ class DocumentLinkTests(TransactionTestCase):
         self.client.force_login(user)
         certificate = Document.objects.get(code='KM-CERT-ZK0311')
         self.assertEqual(self.links(document=certificate.pk).json()['lots'], [])
+
+    def test_only_an_exact_integer_id_links_a_lot(self):
+        # JSON true and 1.0 equal 1 in Python; they must not file a lot under document 1.
+        from .models import Lot
+        self.login('ceo')
+        first = Document.objects.order_by('pk').first()
+        lot = Lot.objects.exclude(documents={}).first()
+        for odd in (True, float(first.pk)):
+            Lot.objects.filter(pk=lot.pk).update(documents={'certificate': odd})
+            self.assertNotIn(lot.code, [x['code'] for x in self.links(document=first.pk).json()['lots']], odd)
+        Lot.objects.filter(pk=lot.pk).update(documents={'certificate': first.pk})
+        self.assertIn(lot.code, [x['code'] for x in self.links(document=first.pk).json()['lots']])

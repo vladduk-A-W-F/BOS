@@ -60,7 +60,7 @@ def document_links(request):
         if policy.documents().filter(pk=doc_id).exists():
             for lot in policy.queryset(Lot).exclude(documents={}).order_by('code').only('id', 'code', 'documents'):
                 lots += [{'id': lot.pk, 'code': lot.code, 'kind': kind}
-                         for kind, value in lot.documents.items() if value == doc_id]
+                         for kind, value in lot.documents.items() if type(value) is int and value == doc_id]
     return JsonResponse({'lots': lots[:50], 'links': [{
         'id': x.pk, 'note': x.note, 'created_at': x.created_at.isoformat(),
         'document': {'id': x.document_id, 'code': x.document.code, 'revision': x.document.revision,
