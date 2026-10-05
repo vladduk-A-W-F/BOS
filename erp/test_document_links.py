@@ -1,4 +1,5 @@
 """Documents attached to sales orders and invoices: preview/confirm write path, role-scoped reads."""
+import hashlib
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -23,7 +24,10 @@ class DocumentLinkTests(TransactionTestCase):
         seed_bos4_demo()
         self.order = SalesOrder.objects.get(code='ZM-0137')
         self.invoice = Invoice.objects.get(code='RF-0137')
-        self.document = Document.objects.get(code='KM-PD-5521')
+        # A document of the test's own: the demo company itself may link its documents to ZM-0137/RF-0137.
+        text = 'ДЕМО-ДАНІ. Синтетичне платіжне доручення для перевірки прив’язок.'
+        self.document = Document.objects.create(code='SYN-LINK-PD', revision='A', title='Синтетичне платіжне доручення',
+            access_level='operational', text=text, status='approved', checksum=hashlib.sha256(text.encode()).hexdigest())
         self.seed_links = DocumentLink.objects.count()
 
     def login(self, role):
@@ -48,9 +52,9 @@ class DocumentLinkTests(TransactionTestCase):
         self.login('ceo')
         self.assertEqual(self.link(order_id=self.order.pk, note='Платіжне доручення').status_code, 200)
         self.assertEqual(self.link(invoice_id=self.invoice.pk).status_code, 200)
-        by_order = self.links(order=self.order.pk).json()['links']
+        by_order = [x for x in self.links(order=self.order.pk).json()['links'] if x['document']['id'] == self.document.pk]
         self.assertEqual([(x['document']['code'], x['order']['code'], x['note']) for x in by_order],
-                         [('KM-PD-5521', 'ZM-0137', 'Платіжне доручення')])
+                         [('SYN-LINK-PD', 'ZM-0137', 'Платіжне доручення')])
         by_document = self.links(document=self.document.pk).json()['links']
         self.assertEqual({(x['order'] or x['invoice'])['code'] for x in by_document}, {'ZM-0137', 'RF-0137'})
         self.assertEqual(self.link(order_id=self.order.pk).status_code, 422)
