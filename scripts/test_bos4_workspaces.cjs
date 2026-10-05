@@ -48,4 +48,24 @@ const amountCode = source.slice(source.indexOf('function erpAmount('), source.in
 assert.ok(amountCode.includes('const erpMoney='));
 assert.deepEqual(Array.from(vm.runInNewContext(`${amountCode};[erpAmount('10900.00'),erpAmount('9007199254740993.125'),erpAmount('0.000'),erpMoney('777700.00','UAH'),erpMoney('-1234.5','UAH'),erpMoney('5.10','EUR'),erpMoney(null,'UAH')]`)),
   ['10\u00a0900', '9\u00a0007\u00a0199\u00a0254\u00a0740\u00a0993,125', '0', '777\u00a0700\u00a0грн', '-1\u00a0234,50\u00a0грн', '5,10\u00a0EUR', 'Недоступно']);
+// U7: no raw «{amount} {currency}» left in purchase facts; document kinds in Ukrainian; zero-only columns hidden.
+assert.doesNotMatch(source, /\{s\.[a-z_]+\} \{s\.currency\}/);
+assert.doesNotMatch(source, /додаткові витрати \{r\.extras\}/);
+assert.doesNotMatch(source, /\["Вартість",r=>erpNum\(/);
+assert.match(source, /r\.missing_documents\.map\(k=>ERP_DOC_KINDS\[k\]\|\|k\)/);
+assert.equal(vm.runInNewContext(`${source.match(/^const ERP_DOC_KINDS=.*;$/m)[0]};ERP_DOC_KINDS.passport`), 'паспорт виробу');
+for (const rows of ['data.lines', 'data.purchases']) {
+  assert.ok(source.includes(`...(erpAllZero(${rows},'cancelled_quantity')?[]:[`), rows);
+  assert.ok(source.includes(`...(erpAllZero(${rows},'returned_quantity')?[]:[`), rows);
+}
+// U7: purchase value is computed from exact decimal strings and rounded half-to-even like erp.balances.money
+// (vectors cross-checked against the server function), never through binary floats.
+const lineTotalCode = source.slice(source.indexOf('function erpLineTotal('), source.indexOf('const erpMoney='));
+assert.deepEqual(Array.from(vm.runInNewContext(`${lineTotalCode};[
+  erpLineTotal('1.015','1.00','0.00'), erpLineTotal('1.025','1.00','0'), erpLineTotal('1.005','1','0'),
+  erpLineTotal('300.000','520.00','0.00'), erpLineTotal('0.333','0.15','0.01'),
+  erpLineTotal('9007199254740993.125','1.00','0'), erpLineTotal('-1.015','1','0'), erpLineTotal('x','1')]`)),
+  ['1.02', '1.02', '1.00', '156000.00', '0.06', '9007199254740993.12', '-1.02', null]);
+assert.match(source, /\["Вартість",r=>erpMoney\(erpLineTotal\(r\.quantity,r\.price,r\.extras\),r\.currency\)\]/);
+assert.doesNotMatch(source, /toFixed\(2\),r\.currency/);
 console.log('M7 navigation, legacy routes and role visibility: PASS');

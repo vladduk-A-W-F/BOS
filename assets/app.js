@@ -14899,6 +14899,12 @@ function OrganizationSettings() {
 function AIChat(props) {
   return /*#__PURE__*/React.createElement(OperationsAssistant, props);
 }
+const ERP_DOC_KINDS = {
+  passport: 'паспорт виробу',
+  certificate: 'сертифікат якості',
+  invoice: 'рахунок',
+  drawing: 'креслення'
+};
 const ERP_LABELS = {
   closed_cancelled: 'Закрито зі скасуванням',
   open: 'Відкрите',
@@ -14954,6 +14960,37 @@ function erpAmount(v, cents = 0) {
 const ERP_CURRENCY = {
   UAH: 'грн'
 };
+// quantity*price+extras as an exact decimal string, rounded to cents half-to-even like the server (erp.balances.money).
+function erpLineTotal(quantity, price, extras = '0') {
+  const dec = v => {
+    const m = /^(-?)(\d+)(?:\.(\d+))?$/.exec(String(v ?? '0').trim());
+    return m ? {
+      n: BigInt(m[1] + m[2] + (m[3] || '')),
+      s: (m[3] || '').length
+    } : null;
+  };
+  const q = dec(quantity),
+    p = dec(price),
+    e = dec(extras);
+  if (!q || !p || !e) return null;
+  let n = q.n * p.n,
+    s = q.s + p.s;
+  const S = Math.max(s, e.s);
+  n = n * 10n ** BigInt(S - s) + e.n * 10n ** BigInt(S - e.s);
+  s = S;
+  if (s > 2) {
+    const d = 10n ** BigInt(s - 2),
+      neg = n < 0n;
+    let w = n / d,
+      r = n % d;
+    if (r < 0n) r = -r;
+    if (2n * r > d || 2n * r === d && w % 2n !== 0n) w += neg ? -1n : 1n;
+    n = w;
+  } else n *= 10n ** BigInt(2 - s);
+  const neg = n < 0n,
+    a = (neg ? -n : n).toString().padStart(3, '0');
+  return (neg ? '-' : '') + a.slice(0, -2) + '.' + a.slice(-2);
+}
 const erpMoney = (value, currency) => value == null ? 'Недоступно' : erpAmount(value, 2) + '\u00a0' + (ERP_CURRENCY[currency] || currency || '');
 const erpDateTime = x => {
   const d = new Date(x);
@@ -19084,7 +19121,7 @@ function ERPWorkspace({
     order_id: o.id
   }]])), /*#__PURE__*/React.createElement(ERPTable, {
     rows: data.lines.filter(l => l.order_id === o.id),
-    columns: [["Позиція", r => itemLabel(r.item_id)], ["Кількість", r => erpNum(r.quantity)], ["Відвантажено", r => erpNum(r.shipped)], ["Скасовано", r => r.cancelled_quantity == null ? '—' : erpNum(r.cancelled_quantity)], ["Повернуто фізично", r => r.returned_quantity == null ? '—' : erpNum(r.returned_quantity)], ["До виконання", r => erpNum(b03OpenLine(r))], ...(bosRole() !== 'observer' ? [["Ціна", r => erpNum(r.price) + ' ' + o.currency]] : []), ["Версія", 'revision'], ["Дії", r => buttons([['Резерв', 'reserve', {
+    columns: [["Позиція", r => itemLabel(r.item_id)], ["Кількість", r => erpNum(r.quantity)], ["Відвантажено", r => erpNum(r.shipped)], ...(erpAllZero(data.lines, 'cancelled_quantity') ? [] : [["Скасовано", r => r.cancelled_quantity == null ? '—' : erpNum(r.cancelled_quantity)]]), ...(erpAllZero(data.lines, 'returned_quantity') ? [] : [["Повернуто фізично", r => r.returned_quantity == null ? '—' : erpNum(r.returned_quantity)]]), ["До виконання", r => erpNum(b03OpenLine(r))], ...(bosRole() !== 'observer' ? [["Ціна", r => erpNum(r.price) + ' ' + o.currency]] : []), ["Версія", 'revision'], ["Дії", r => buttons([['Резерв', 'reserve', {
       line_id: r.id
     }], ['Виготовити', 'job', {
       line_id: r.id,
@@ -19194,9 +19231,9 @@ function ERPWorkspace({
     rows: filter(data.purchases),
     columns: [["Номер / постачальник", r => /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("strong", null, r.code), /*#__PURE__*/React.createElement("p", null, partner(r.supplier_id)))], ["Номенклатура", r => itemLabel(r.item_id)], ["Замовлено / отримано", r => /*#__PURE__*/React.createElement(React.Fragment, null, erpNum(r.quantity) + ' / ' + erpNum(r.received), r.approval_snapshot?.source === 'imported_open_balance' && /*#__PURE__*/React.createElement("p", {
       className: "op-muted"
-    }, "\u041F\u0435\u0440\u0435\u043D\u0435\u0441\u0435\u043D\u043E / \u043F\u0440\u0438\u0439\u043D\u044F\u0442\u043E \u043F\u0456\u0441\u043B\u044F \u0437\u0440\u0456\u0437\u0443"))], ["Скасовано", r => r.cancelled_quantity == null ? '—' : erpNum(r.cancelled_quantity)], ["Повернуто фізично", r => r.returned_quantity == null ? '—' : erpNum(r.returned_quantity)], ["До приймання", r => erpNum(b03OpenPurchase(r))], ["Поставка", r => /*#__PURE__*/React.createElement(React.Fragment, null, erpDate(r.due_date), r.due_date !== r.original_due && /*#__PURE__*/React.createElement("p", {
+    }, "\u041F\u0435\u0440\u0435\u043D\u0435\u0441\u0435\u043D\u043E / \u043F\u0440\u0438\u0439\u043D\u044F\u0442\u043E \u043F\u0456\u0441\u043B\u044F \u0437\u0440\u0456\u0437\u0443"))], ...(erpAllZero(data.purchases, 'cancelled_quantity') ? [] : [["Скасовано", r => r.cancelled_quantity == null ? '—' : erpNum(r.cancelled_quantity)]]), ...(erpAllZero(data.purchases, 'returned_quantity') ? [] : [["Повернуто фізично", r => r.returned_quantity == null ? '—' : erpNum(r.returned_quantity)]]), ["До приймання", r => erpNum(b03OpenPurchase(r))], ["Поставка", r => /*#__PURE__*/React.createElement(React.Fragment, null, erpDate(r.due_date), r.due_date !== r.original_due && /*#__PURE__*/React.createElement("p", {
       className: "erp-error"
-    }, "\u041F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u043E ", erpDate(r.original_due)))], ...(bosRole() !== 'observer' ? [["Вартість", r => erpNum(Number(r.quantity) * Number(r.price) + Number(r.extras)) + ' ' + r.currency]] : []), ["Робота", r => job(r.production_id)?.code || '—'], ["Дії", r => buttons([['Приймання', 'receive', {
+    }, "\u041F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u043E ", erpDate(r.original_due)))], ...(bosRole() !== 'observer' ? [["Вартість", r => erpMoney(erpLineTotal(r.quantity, r.price, r.extras), r.currency)]] : []), ["Робота", r => job(r.production_id)?.code || '—'], ["Дії", r => buttons([['Приймання', 'receive', {
       purchase_id: r.id,
       quantity: b03OpenPurchase(r)
     }], ['Змінити строк', 'postpone', {
@@ -19451,9 +19488,9 @@ function PurchaseSource({
     key: label
   }, /*#__PURE__*/React.createElement("span", null, label), /*#__PURE__*/React.createElement("strong", null, value, " ", s.unit)))), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
-  }, "\u0406\u0441\u0442\u043E\u0440\u0438\u0447\u043D\u0456 \u043D\u0430\u0434\u0445\u043E\u0434\u0436\u0435\u043D\u043D\u044F \u043B\u0438\u0448\u0430\u044E\u0442\u044C\u0441\u044F \u0432 \u0434\u0436\u0435\u0440\u0435\u043B\u0456. \u041D\u043E\u0432\u0456 \u043F\u0430\u0440\u0442\u0456\u0457 \u0442\u0430 \u0440\u0443\u0445\u0438 \u0443 BoS \u0437\u2019\u044F\u0432\u043B\u044F\u044E\u0442\u044C\u0441\u044F \u043F\u0456\u0441\u043B\u044F \u0444\u0430\u043A\u0442\u0438\u0447\u043D\u043E\u0433\u043E \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F."), commercial && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, "\u0426\u0456\u043D\u0430 \u043E\u0434\u0438\u043D\u0438\u0446\u0456: ", s.price, " ", s.currency, ". \u0412\u0438\u0442\u0440\u0430\u0442\u0438 \u0434\u043B\u044F \u043F\u0435\u0440\u0435\u043D\u0435\u0441\u0435\u043D\u043E\u0433\u043E \u0437\u0430\u043B\u0438\u0448\u043A\u0443: ", s.remaining_extras, " ", s.currency, "."), s.source_reference && /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, "\u041F\u0456\u0434\u0441\u0442\u0430\u0432\u0430 \u043F\u0435\u0440\u0435\u043D\u0435\u0441\u0435\u043D\u043D\u044F:"), " ", s.source_reference), /*#__PURE__*/React.createElement("p", {
+  }, "\u0406\u0441\u0442\u043E\u0440\u0438\u0447\u043D\u0456 \u043D\u0430\u0434\u0445\u043E\u0434\u0436\u0435\u043D\u043D\u044F \u043B\u0438\u0448\u0430\u044E\u0442\u044C\u0441\u044F \u0432 \u0434\u0436\u0435\u0440\u0435\u043B\u0456. \u041D\u043E\u0432\u0456 \u043F\u0430\u0440\u0442\u0456\u0457 \u0442\u0430 \u0440\u0443\u0445\u0438 \u0443 BoS \u0437\u2019\u044F\u0432\u043B\u044F\u044E\u0442\u044C\u0441\u044F \u043F\u0456\u0441\u043B\u044F \u0444\u0430\u043A\u0442\u0438\u0447\u043D\u043E\u0433\u043E \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F."), commercial && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", null, "\u0426\u0456\u043D\u0430 \u043E\u0434\u0438\u043D\u0438\u0446\u0456: ", erpMoney(s.price, s.currency), ". \u0412\u0438\u0442\u0440\u0430\u0442\u0438 \u0434\u043B\u044F \u043F\u0435\u0440\u0435\u043D\u0435\u0441\u0435\u043D\u043E\u0433\u043E \u0437\u0430\u043B\u0438\u0448\u043A\u0443: ", erpMoney(s.remaining_extras, s.currency), "."), s.source_reference && /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, "\u041F\u0456\u0434\u0441\u0442\u0430\u0432\u0430 \u043F\u0435\u0440\u0435\u043D\u0435\u0441\u0435\u043D\u043D\u044F:"), " ", s.source_reference), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
-  }, "\u041F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0456 \u0432\u0438\u0442\u0440\u0430\u0442\u0438 \u0443 \u0434\u0436\u0435\u0440\u0435\u043B\u0456: ", s.original_extras, " ", s.currency, ". \u0426\u0435 \u0440\u0435\u043A\u0432\u0456\u0437\u0438\u0442\u0438 \u043F\u0435\u0440\u0435\u043D\u0435\u0441\u0435\u043D\u043E\u0433\u043E \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F, \u0430 \u043D\u0435 \u043D\u043E\u0432\u0435 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043B\u044C\u043D\u0438\u043A\u0430.")), documents.length > 0 && /*#__PURE__*/React.createElement("div", {
+  }, "\u041F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0456 \u0432\u0438\u0442\u0440\u0430\u0442\u0438 \u0443 \u0434\u0436\u0435\u0440\u0435\u043B\u0456: ", erpMoney(s.original_extras, s.currency), ". \u0426\u0435 \u0440\u0435\u043A\u0432\u0456\u0437\u0438\u0442\u0438 \u043F\u0435\u0440\u0435\u043D\u0435\u0441\u0435\u043D\u043E\u0433\u043E \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F, \u0430 \u043D\u0435 \u043D\u043E\u0432\u0435 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043D\u044F \u043F\u043E\u0441\u0442\u0430\u0447\u0430\u043B\u044C\u043D\u0438\u043A\u0430.")), documents.length > 0 && /*#__PURE__*/React.createElement("div", {
     className: "erp-actions"
   }, documents.map(([kind, doc]) => /*#__PURE__*/React.createElement(Button, {
     key: kind,
@@ -19463,7 +19500,7 @@ function PurchaseSource({
     "aria-label": "\u041F\u043E\u0445\u043E\u0434\u0436\u0435\u043D\u043D\u044F \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u043B\u0456"
   }, /*#__PURE__*/React.createElement("h3", null, s.source === 'quote' ? 'Погоджена пропозиція' : 'Пряма закупівля'), /*#__PURE__*/React.createElement("p", null, [s.request_code, s.quote_code].filter(Boolean).join(' · ') || 'Закупівля без пов’язаної пропозиції'), commercial && s.agreed_quantity != null && /*#__PURE__*/React.createElement("div", {
     className: "bos-facts"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "\u041F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043E"), /*#__PURE__*/React.createElement("strong", null, s.agreed_quantity, " ", s.unit)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "\u041F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0430 \u0434\u0430\u0442\u0430"), /*#__PURE__*/React.createElement("strong", null, erpDate(s.agreed_due_date))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "\u0412\u0435\u0440\u0441\u0456\u044F"), /*#__PURE__*/React.createElement("strong", null, s.revision)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "\u0426\u0456\u043D\u0430 \u043E\u0434\u0438\u043D\u0438\u0446\u0456"), /*#__PURE__*/React.createElement("strong", null, s.price, " ", s.currency)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "\u0420\u0430\u0437\u043E\u0432\u0456 \u0432\u0438\u0442\u0440\u0430\u0442\u0438"), /*#__PURE__*/React.createElement("strong", null, s.extras, " ", s.currency))), commercial && s.original_terms && /*#__PURE__*/React.createElement("details", null, /*#__PURE__*/React.createElement("summary", null, "\u0421\u043A\u043B\u0430\u0434\u043E\u0432\u0456 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u0438\u0445 \u0432\u0438\u0442\u0440\u0430\u0442"), /*#__PURE__*/React.createElement(ERPTable, {
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "\u041F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u043E"), /*#__PURE__*/React.createElement("strong", null, s.agreed_quantity, " ", s.unit)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "\u041F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0430 \u0434\u0430\u0442\u0430"), /*#__PURE__*/React.createElement("strong", null, erpDate(s.agreed_due_date))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "\u0412\u0435\u0440\u0441\u0456\u044F"), /*#__PURE__*/React.createElement("strong", null, s.revision)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "\u0426\u0456\u043D\u0430 \u043E\u0434\u0438\u043D\u0438\u0446\u0456"), /*#__PURE__*/React.createElement("strong", null, erpMoney(s.price, s.currency))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "\u0420\u0430\u0437\u043E\u0432\u0456 \u0432\u0438\u0442\u0440\u0430\u0442\u0438"), /*#__PURE__*/React.createElement("strong", null, erpMoney(s.extras, s.currency)))), commercial && s.original_terms && /*#__PURE__*/React.createElement("details", null, /*#__PURE__*/React.createElement("summary", null, "\u0421\u043A\u043B\u0430\u0434\u043E\u0432\u0456 \u043F\u043E\u0433\u043E\u0434\u0436\u0435\u043D\u0438\u0445 \u0432\u0438\u0442\u0440\u0430\u0442"), /*#__PURE__*/React.createElement(ERPTable, {
     rows: [['Налагодження', 'setup'], ['Доставка', 'shipping'], ['Оснащення', 'tooling'], ['Додаткові процеси', 'special_processes']].map(([label, key]) => ({
       label,
       value: s.original_terms[key] ?? '0'
@@ -20588,7 +20625,7 @@ function BoSInspector({
         className: "bos-facts"
       }, [['Фізично', erpNum(r.quantity)], ['У резерві', erpNum(r.reserved)], ['Придатно й вільно', erpNum(r.available)], ['Якість', ERP_LABELS[r.quality]]].map(([l, v]) => /*#__PURE__*/React.createElement("div", {
         key: l
-      }, /*#__PURE__*/React.createElement("span", null, l), /*#__PURE__*/React.createElement("strong", null, v)))), bosCan('finance') && /*#__PURE__*/React.createElement("p", null, "\u0421\u043E\u0431\u0456\u0432\u0430\u0440\u0442\u0456\u0441\u0442\u044C \u043E\u0434\u0438\u043D\u0438\u0446\u0456 ", erpMoney(r.unit_cost, r.currency), "."), /*#__PURE__*/React.createElement("p", null, r.missing_documents.length ? 'Бракує перевірених документів: ' + r.missing_documents.join(', ') : 'Комплектність документів відповідає заданим вимогам.'), acts([['transfer', {
+      }, /*#__PURE__*/React.createElement("span", null, l), /*#__PURE__*/React.createElement("strong", null, v)))), bosCan('finance') && /*#__PURE__*/React.createElement("p", null, "\u0421\u043E\u0431\u0456\u0432\u0430\u0440\u0442\u0456\u0441\u0442\u044C \u043E\u0434\u0438\u043D\u0438\u0446\u0456 ", erpMoney(r.unit_cost, r.currency), "."), /*#__PURE__*/React.createElement("p", null, r.missing_documents.length ? 'Бракує перевірених документів: ' + r.missing_documents.map(k => ERP_DOC_KINDS[k] || k).join(', ') : 'Комплектність документів відповідає заданим вимогам.'), acts([['transfer', {
         lot_id: id,
         quantity: r.available
       }, 'Миттєве переміщення'], ['transfer_dispatch', {
@@ -20670,7 +20707,7 @@ function BoSInspector({
         rows: [["Скасовано", r.cancelled_quantity == null ? null : erpNum(r.cancelled_quantity)], ["Повернуто фізично постачальнику", r.returned_quantity == null ? null : erpNum(r.returned_quantity)], ["Поточний стан", ERP_LABELS[r.effective_status] || r.effective_status]]
       }), /*#__PURE__*/React.createElement("p", {
         className: "op-muted"
-      }, "\u041F\u043E\u0432\u0435\u0440\u043D\u0435\u043D\u043D\u044F \u043D\u0435 \u0437\u043C\u0435\u043D\u0448\u0443\u0454 \u0444\u0430\u043A\u0442 \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F \u0456 \u043D\u0435 \u0441\u0442\u0432\u043E\u0440\u044E\u0454 \u0437\u0430\u043C\u0456\u043D\u043D\u0443 \u043F\u043E\u0441\u0442\u0430\u0432\u043A\u0443."), bosRole() !== 'observer' && /*#__PURE__*/React.createElement("p", null, "\u0426\u0456\u043D\u0430 ", erpMoney(r.price, r.currency), "; \u0434\u043E\u0434\u0430\u0442\u043A\u043E\u0432\u0456 \u0432\u0438\u0442\u0440\u0430\u0442\u0438 ", r.extras, "."), /*#__PURE__*/React.createElement("p", null, "\u041E\u0447\u0456\u043A\u0443\u0454\u043C\u043E ", erpDate(r.due_date), "; \u043F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0438\u0439 \u0441\u0442\u0440\u043E\u043A ", erpDate(r.original_due), "."), r.production_id && /*#__PURE__*/React.createElement("p", null, "\u0414\u043B\u044F ", link('jobs', r.production_id)), r.request_id && /*#__PURE__*/React.createElement("p", null, "\u0417\u0430\u044F\u0432\u043A\u0430 ", label('requests', r.request_id)), /*#__PURE__*/React.createElement("p", null, "\u0422\u043E\u0447\u043A\u0430 \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F: ", r.destination_id ? link('locations', r.destination_id) : 'Не задано', " \xB7 \u043A\u0440\u0430\u0457\u043D\u0430 \u043F\u043E\u0445\u043E\u0434\u0436\u0435\u043D\u043D\u044F ", r.origin_country || 'Не задано'), acts([['purchase_network', {
+      }, "\u041F\u043E\u0432\u0435\u0440\u043D\u0435\u043D\u043D\u044F \u043D\u0435 \u0437\u043C\u0435\u043D\u0448\u0443\u0454 \u0444\u0430\u043A\u0442 \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F \u0456 \u043D\u0435 \u0441\u0442\u0432\u043E\u0440\u044E\u0454 \u0437\u0430\u043C\u0456\u043D\u043D\u0443 \u043F\u043E\u0441\u0442\u0430\u0432\u043A\u0443."), bosRole() !== 'observer' && /*#__PURE__*/React.createElement("p", null, "\u0426\u0456\u043D\u0430 ", erpMoney(r.price, r.currency), "; \u0434\u043E\u0434\u0430\u0442\u043A\u043E\u0432\u0456 \u0432\u0438\u0442\u0440\u0430\u0442\u0438 ", erpMoney(r.extras, r.currency), "."), /*#__PURE__*/React.createElement("p", null, "\u041E\u0447\u0456\u043A\u0443\u0454\u043C\u043E ", erpDate(r.due_date), "; \u043F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0438\u0439 \u0441\u0442\u0440\u043E\u043A ", erpDate(r.original_due), "."), r.production_id && /*#__PURE__*/React.createElement("p", null, "\u0414\u043B\u044F ", link('jobs', r.production_id)), r.request_id && /*#__PURE__*/React.createElement("p", null, "\u0417\u0430\u044F\u0432\u043A\u0430 ", label('requests', r.request_id)), /*#__PURE__*/React.createElement("p", null, "\u0422\u043E\u0447\u043A\u0430 \u043F\u0440\u0438\u0439\u043C\u0430\u043D\u043D\u044F: ", r.destination_id ? link('locations', r.destination_id) : 'Не задано', " \xB7 \u043A\u0440\u0430\u0457\u043D\u0430 \u043F\u043E\u0445\u043E\u0434\u0436\u0435\u043D\u043D\u044F ", r.origin_country || 'Не задано'), acts([['purchase_network', {
         purchase_id: id,
         destination_id: r.destination_id ?? '',
         origin_country: r.origin_country || ''
