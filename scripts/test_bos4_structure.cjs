@@ -136,3 +136,10 @@ assert.equal(focused, true, 'pointer invocation leaves a focus return target');
 assert.equal(prevented, true);
 assert.ok(paths.some(node=>node.props.key===9), 'in-transit route remains');
 console.log('M6 supplier line: endpoint, coordinates, filters, transfer and keyboard/click PASS');
+
+// U5: «Структура» has one refresh button: it reloads the record data, and the map reloads with it (data is an effect dependency).
+assert.doesNotMatch(source, /Оновити мережу/);
+assert.match(source, /<div className="erp-workspace">\{view!=='network'&&<div className="erp-row">/);
+assert.match(source, /content=<ERPNetwork data=\{data\} onRefresh=\{refresh\}/);
+assert.match(source, /<Button onClick=\{\(\)=>onRefresh\?onRefresh\(\):setVersion\(v=>v\+1\)\}>Оновити<\/Button>/);
+console.log('U5 one refresh on the structure screen: PASS');
