@@ -225,21 +225,47 @@ class StaleSheetSyncTests(TestCase):
         self.assertEqual(sorted(json.loads(out.getvalue())['synced']), sorted([self.stale.pk, self.never.pk]))
 
     def test_failing_sheets_do_not_starve_healthy_ones(self):
-        from datetime import timedelta
-        from django.utils import timezone
         broken = [Connector.objects.create(kind='google_sheets', name='Зламана %d' % i, dataset='orders',
                                            created_by=self.ceo, source_url=SHEET, status='error',
                                            last_error='закрито', last_sync_at=None) for i in range(12)]
-        healthy = Connector.objects.get(pk=self.stale.pk)
-        def fetch(url):
-            return sources.parse_csv(CSV)
-        with mock.patch.object(sources, 'fetch_sheet', side_effect=fetch):
+        with mock.patch.object(sources, 'fetch_sheet', return_value=sources.parse_csv(CSV)) as fetch:
             body = self.client.post('/api/connectors/sync-stale/').json()
-        names = [x['name'] for x in body['synced']]
-        self.assertIn(healthy.name, names)
-        self.assertIn('Ще не читали', names)
-        self.assertEqual(len(names), 10)
-        self.assertTrue(all(c.pk for c in broken))
+        self.assertEqual(sorted(x['name'] for x in body['synced']), ['Стара таблиця', 'Ще не читали'])
+        self.assertEqual(fetch.call_count, 2)
+        # Sources in error recover only through the manual sync, then rejoin the automatic reading.
+        self.assertTrue(all(Connector.objects.get(pk=c.pk).status == 'error' for c in broken))
+        with mock.patch.object(sources, 'fetch_sheet', return_value=sources.parse_csv(CSV)):
+            self.assertEqual(self.client.post(f'/api/connectors/{broken[11].pk}/sync/').status_code, 200)
+        self.assertEqual(Connector.objects.get(pk=broken[11].pk).status, 'connected')
+
+    def test_older_read_cannot_overwrite_a_newer_one(self):
+        from connectors.views import sync_connector
+        old_table = sources.parse_csv(CSV)
+        new_table = sources.parse_csv(CSV.replace(b'12500', b'99999'))
+        calls = []
+        def fetch(url):
+            calls.append(url)
+            if len(calls) == 1:
+                # A is still reading the old content when B starts later and applies the new one.
+                sync_connector(Connector.objects.get(pk=self.stale.pk))
+                return old_table
+            return new_table
+        with mock.patch.object(sources, 'fetch_sheet', side_effect=fetch):
+            sync_connector(Connector.objects.get(pk=self.stale.pk))
+        snapshots = ConnectorSnapshot.objects.filter(connector=self.stale)
+        self.assertEqual(snapshots.count(), 1)
+        self.assertEqual(snapshots.first().sha256, new_table['sha256'])
+        calls_b = []
+        def fetch_b(url):
+            if not calls_b:
+                calls_b.append(url)
+                with mock.patch.object(sources, 'fetch_sheet', return_value=new_table):
+                    sync_connector(Connector.objects.get(pk=self.never.pk))
+                raise sources.SourceError('тимчасово недоступна')
+            return new_table
+        with mock.patch.object(sources, 'fetch_sheet', side_effect=fetch_b), self.assertRaises(sources.SourceError):
+            sync_connector(Connector.objects.get(pk=self.never.pk))
+        self.assertEqual(Connector.objects.get(pk=self.never.pk).status, 'connected')
 
     def test_disable_during_fetch_wins_and_nothing_is_stored(self):
         def fetch(url):

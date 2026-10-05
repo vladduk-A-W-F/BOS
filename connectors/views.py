@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from django.db import transaction
-from django.db.models import Case, F, IntegerField, Q, When
+from django.db.models import F, Q
 from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_protect
@@ -121,43 +121,49 @@ def _locked(connector_id):
 def sync_connector(connector):
     """Read a published Google Sheet again; store a new snapshot only when its content changed.
 
-    The network fetch runs outside the transaction; the result is applied only after the
-    row is re-checked under the lock, so a disable during the fetch wins and a parallel
-    sync cannot add the same snapshot twice.
+    The fetch runs outside the transaction and the lock. last_sync_at is the moment the data
+    was read, so a slower fetch that started earlier cannot overwrite a newer applied result
+    or mark the source as failed after it; a disable during the fetch always wins.
     """
+    started = timezone.now()
     try:
         table = sources.fetch_sheet(connector.source_url)
     except sources.SourceError as exc:
         with transaction.atomic():
-            if _locked(connector.pk).status != 'disabled':
-                Connector.objects.filter(pk=connector.pk).update(status='error', last_error=str(exc)[:300])
+            current = _locked(connector.pk)
+            if current.status != 'disabled' and not _newer(current, started):
+                Connector.objects.filter(pk=current.pk).update(status='error', last_error=str(exc)[:300])
         raise
     with transaction.atomic():
         current = _locked(connector.pk)
-        if current.status == 'disabled':
+        if current.status == 'disabled' or _newer(current, started):
             return current
         latest = current.snapshots.first()
         if latest is None or latest.sha256 != table['sha256']:
             ConnectorSnapshot.objects.create(connector=current, columns=table['columns'],
                                              rows=table['rows'], row_count=table['row_count'],
                                              sha256=table['sha256'])
-        Connector.objects.filter(pk=current.pk).update(status='connected', last_error='',
-                                                       last_sync_at=timezone.now())
+        Connector.objects.filter(pk=current.pk).update(status='connected', last_error='', last_sync_at=started)
     connector.refresh_from_db()
     return connector
 
 
-def stale_sheets(rows, now=None):
-    """Google Sheets read more than STALE_AFTER ago. Healthy ones first, oldest first.
+def _newer(current, started):
+    """A read that started at or after ours has already been applied."""
+    return current.last_sync_at is not None and current.last_sync_at >= started
 
-    A source that keeps failing keeps its last successful time, so without this order ten
-    broken sheets would hold the whole batch and healthy ones would never be read again.
+
+def stale_sheets(rows, now=None):
+    """Healthy Google Sheets read more than STALE_AFTER ago, oldest first.
+
+    A source in error is not retried automatically: it keeps its last successful time, and
+    retrying it would let broken sources hold the batch. It recovers through the manual
+    «Оновити» (sync), after which it is healthy and joins the automatic reading again.
     """
     cutoff = (now or timezone.now()) - STALE_AFTER
-    return (rows.filter(kind='google_sheets').exclude(status='disabled')
+    return (rows.filter(kind='google_sheets', status='connected')
             .filter(Q(last_sync_at__isnull=True) | Q(last_sync_at__lt=cutoff))
-            .order_by(Case(When(status='error', then=1), default=0, output_field=IntegerField()),
-                      F('last_sync_at').asc(nulls_first=True), 'pk')[:STALE_BATCH])
+            .order_by(F('last_sync_at').asc(nulls_first=True), 'pk')[:STALE_BATCH])
 
 
 @csrf_protect
@@ -178,7 +184,7 @@ def sync(request, connector_id):
 @require_POST
 @errors
 def sync_stale(request):
-    """Periodic reading on use: refresh Google Sheets older than 15 minutes, no scheduler."""
+    """Periodic reading on use: refresh healthy Google Sheets older than 15 minutes, no scheduler."""
     synced, failed = [], []
     for connector in stale_sheets(_visible(_writer(request))):
         try:
