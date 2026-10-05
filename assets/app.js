@@ -11882,7 +11882,8 @@ function DocumentLinks({
   doc,
   readOnly
 }) {
-  const [links, setLinks] = useState(null),
+  const [lots, setLots] = useState([]),
+    [links, setLinks] = useState(null),
     [error, setError] = useState(''),
     [targets, setTargets] = useState(null),
     [target, setTarget] = useState(''),
@@ -11898,9 +11899,13 @@ function DocumentLinks({
     setError('');
     try {
       const result = await erpFetch('document-links/?document=' + doc.id);
-      if (current(n)) setLinks(result.links || []);
+      if (current(n)) {
+        setLots(result.lots || []);
+        setLinks(result.links || []);
+      }
     } catch (e) {
       if (current(n)) {
+        setLots([]);
         setLinks([]);
         setError(e.message);
       }
@@ -11960,9 +11965,11 @@ function DocumentLinks({
     }
   }, /*#__PURE__*/React.createElement("h3", null, "\u041F\u043E\u0432\u2019\u044F\u0437\u0430\u043D\u0456 \u0437\u0430\u043F\u0438\u0441\u0438"), links === null ? /*#__PURE__*/React.createElement("p", {
     role: "status"
-  }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0443\u0454\u043C\u043E \u0437\u0432\u2019\u044F\u0437\u043A\u0438\u2026") : links.length ? links.map(row => /*#__PURE__*/React.createElement("p", {
+  }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0443\u0454\u043C\u043E \u0437\u0432\u2019\u044F\u0437\u043A\u0438\u2026") : links.length || lots.length ? /*#__PURE__*/React.createElement(React.Fragment, null, lots.map(row => /*#__PURE__*/React.createElement("p", {
+    key: 'lot-' + row.id + '-' + row.kind
+  }, "\u041F\u0430\u0440\u0442\u0456\u044F ", row.code, " \xB7 ", ERP_DOC_KINDS[row.kind] || row.kind)), links.map(row => /*#__PURE__*/React.createElement("p", {
     key: row.id
-  }, row.order ? 'Замовлення ' + row.order.code : row.invoice ? 'Рахунок ' + row.invoice.code : 'Запис недоступний', row.note ? ' · ' + row.note : '')) : !error && /*#__PURE__*/React.createElement("p", null, "\u0417\u0432\u2019\u044F\u0437\u043A\u0456\u0432 \u043F\u043E\u043A\u0438 \u043D\u0435\u043C\u0430\u0454."), error && /*#__PURE__*/React.createElement("p", {
+  }, row.order ? 'Замовлення ' + row.order.code : row.invoice ? 'Рахунок ' + row.invoice.code : 'Запис недоступний', row.note ? ' · ' + row.note : ''))) : !error && /*#__PURE__*/React.createElement("p", null, "\u0417\u0432\u2019\u044F\u0437\u043A\u0456\u0432 \u043F\u043E\u043A\u0438 \u043D\u0435\u043C\u0430\u0454."), error && /*#__PURE__*/React.createElement("p", {
     role: "alert"
   }, error), notice && /*#__PURE__*/React.createElement("p", {
     role: "status"

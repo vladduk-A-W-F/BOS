@@ -78,3 +78,23 @@ class DocumentLinkTests(TransactionTestCase):
         self.assertFalse(DocumentLink.objects.exists())
         self.assertEqual(self.links().status_code, 422)
         self.assertEqual(self.links(order=self.order.pk, invoice=self.invoice.pk).status_code, 422)
+
+    def test_document_shows_the_lots_it_is_filed_under(self):
+        self.login('ceo')
+        certificate = Document.objects.get(code='KM-CERT-ZK0311')
+        lots = self.links(document=certificate.pk).json()['lots']
+        # The received lot and the lot split off it by a transfer (its code carries a database id).
+        self.assertEqual({x['kind'] for x in lots}, {'certificate'})
+        codes = sorted(x['code'] for x in lots)
+        self.assertEqual(len(codes), 2)
+        self.assertEqual(codes[0], 'KM-L-MA-7075-0926')
+        self.assertTrue(codes[1].startswith('KM-T-MA-7075-'))
+        self.assertEqual(self.links(order=self.order.pk).json()['lots'], [])
+
+    def test_lots_need_the_right_to_see_the_document(self):
+        # A manager without view_document sees no documents, so no lots through one either.
+        user = get_user_model().objects.create_user(username='synthetic-blind', password='synthetic-pass')
+        Group.objects.get_or_create(name='manager')[0].user_set.add(user)
+        self.client.force_login(user)
+        certificate = Document.objects.get(code='KM-CERT-ZK0311')
+        self.assertEqual(self.links(document=certificate.pk).json()['lots'], [])
