@@ -6116,9 +6116,14 @@ function Bank({
     style: {
       padding: 24
     }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "erp-row"
-  }, /*#__PURE__*/React.createElement("h2", null, "\u0411\u0430\u043D\u043A \u0456 \u0436\u0443\u0440\u043D\u0430\u043B \u0433\u0440\u043E\u0448\u0435\u0439"), /*#__PURE__*/React.createElement(Button, {
+  }, /*#__PURE__*/React.createElement("h2", null, "\u0411\u0430\u043D\u043A \u0456 \u0436\u0443\u0440\u043D\u0430\u043B \u0433\u0440\u043E\u0448\u0435\u0439"), /*#__PURE__*/React.createElement("div", {
+    className: "erp-search-row"
+  }, /*#__PURE__*/React.createElement(Input, {
+    "aria-label": "\u041F\u043E\u0448\u0443\u043A \u0436\u0443\u0440\u043D\u0430\u043B\u0443",
+    value: search,
+    onChange: e => setSearch(e.target.value),
+    placeholder: "\u041E\u043F\u0438\u0441 \u0430\u0431\u043E \u043A\u043E\u043D\u0442\u0440\u0430\u0433\u0435\u043D\u0442"
+  }), /*#__PURE__*/React.createElement(Button, {
     disabled: reading,
     onClick: refresh
   }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438")), /*#__PURE__*/React.createElement("div", {
@@ -6286,11 +6291,7 @@ function Bank({
   }, "\u0423\u0441\u0456 \u043A\u0430\u0442\u0435\u0433\u043E\u0440\u0456\u0457"), Object.entries(TX_CAT_LABELS).map(([k, l]) => /*#__PURE__*/React.createElement("option", {
     key: k,
     value: k
-  }, l)))), /*#__PURE__*/React.createElement("label", null, "\u041F\u043E\u0448\u0443\u043A", /*#__PURE__*/React.createElement(Input, {
-    value: search,
-    onChange: e => setSearch(e.target.value),
-    placeholder: "\u041E\u043F\u0438\u0441 \u0430\u0431\u043E \u043A\u043E\u043D\u0442\u0440\u0430\u0433\u0435\u043D\u0442"
-  }))), /*#__PURE__*/React.createElement(ERPTable, {
+  }, l))))), /*#__PURE__*/React.createElement(ERPTable, {
     rows: filtered,
     columns: [["Дата", 'date'], ["Опис", r => /*#__PURE__*/React.createElement("span", {
       className: "c03-text"
@@ -6557,16 +6558,16 @@ function Contractors({
       key: k,
       label: l
     }))
-  }), /*#__PURE__*/React.createElement(Input, {
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "erp-search-row"
+  }, /*#__PURE__*/React.createElement(Input, {
+    "aria-label": "\u041F\u043E\u0448\u0443\u043A \u043A\u043E\u043D\u0442\u0440\u0430\u0433\u0435\u043D\u0442\u0456\u0432",
     placeholder: "\u041F\u043E\u0448\u0443\u043A...",
     value: search,
-    onChange: e => setSearch(e.target.value),
-    style: {
-      width: 200,
-      fontSize: 12,
-      padding: '7px 10px'
-    }
-  })), /*#__PURE__*/React.createElement(Card, {
+    onChange: e => setSearch(e.target.value)
+  }), /*#__PURE__*/React.createElement(Button, {
+    onClick: refetch
+  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438"))), /*#__PURE__*/React.createElement(Card, {
     pad: 4
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -6988,16 +6989,16 @@ function Contracts({
       key: k,
       label: l
     }))
-  }), /*#__PURE__*/React.createElement(Input, {
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "erp-search-row"
+  }, /*#__PURE__*/React.createElement(Input, {
+    "aria-label": "\u041F\u043E\u0448\u0443\u043A \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u0456\u0432",
     placeholder: "\u041F\u043E\u0448\u0443\u043A...",
     value: search,
-    onChange: e => setSearch(e.target.value),
-    style: {
-      width: 220,
-      fontSize: 12,
-      padding: '7px 10px'
-    }
-  })), /*#__PURE__*/React.createElement("div", {
+    onChange: e => setSearch(e.target.value)
+  }), /*#__PURE__*/React.createElement(Button, {
+    onClick: refetch
+  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438"))), /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 14
     }
@@ -7456,16 +7457,17 @@ function Salaries({
   }, "\u0412\u0441\u0456 \u043F\u0435\u0440\u0456\u043E\u0434\u0438"), uniquePeriods.map(p => /*#__PURE__*/React.createElement("option", {
     key: p,
     value: p
-  }, p))), /*#__PURE__*/React.createElement(Input, {
+  }, p))), /*#__PURE__*/React.createElement("div", {
+    className: "erp-search-row"
+  }, /*#__PURE__*/React.createElement(Input, {
+    "aria-label": "\u041F\u043E\u0448\u0443\u043A \u0437\u0430\u0440\u043F\u043B\u0430\u0442",
     placeholder: "\u041F\u043E\u0448\u0443\u043A...",
     value: search,
-    onChange: e => setSearch(e.target.value),
-    style: {
-      width: 200,
-      fontSize: 12,
-      padding: '7px 10px'
-    }
-  }))), /*#__PURE__*/React.createElement(Card, {
+    onChange: e => setSearch(e.target.value)
+  }), /*#__PURE__*/React.createElement(Button, {
+    onClick: refetch,
+    disabled: saving
+  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438")))), /*#__PURE__*/React.createElement(Card, {
     pad: 4
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -14929,6 +14931,7 @@ const erpNum = x => Number(x || 0).toLocaleString('uk-UA', {
   maximumFractionDigits: 3
 });
 const erpMoney = (value, currency) => value == null ? 'Недоступно' : erpNum(value) + ' ' + currency;
+const erpAllZero = (rows, key) => rows.length > 0 && rows.every(row => typeof row[key] === 'number' ? row[key] === 0 : typeof row[key] === 'string' && /^[+-]?(?:0+(?:\.0+)?|\.0+)$/.test(row[key].trim()));
 async function erpFetch(path, data) {
   const r = await fetch('/api/erp/' + path, data === undefined ? {} : {
     method: 'POST',
@@ -19220,8 +19223,8 @@ function ERPWorkspace({
       kind: 'invoices',
       id: r.invoice_id
     }),
-    rows: data.invoices,
-    columns: [["Рахунок", 'code'], ["Замовлення", r => order(r.order_id)?.code], ["Сума", r => erpMoney(r.amount, r.currency)], ["Сплачено", r => erpMoney(r.paid, r.currency)], ["Чинний кредит", r => erpMoney(r.effective_credit, r.currency)], ["До оплати", r => erpMoney(r.open, r.currency)], ["Кредит клієнта", r => erpMoney(r.customer_credit, r.currency)], ["Термін", r => erpDate(r.due_date)], ["Дія", r => buttons([['Оплата', 'payment', {
+    rows: filter(data.invoices),
+    columns: [["Рахунок", 'code'], ["Замовлення", r => order(r.order_id)?.code], ["Сума", r => erpMoney(r.amount, r.currency)], ["Сплачено", r => erpMoney(r.paid, r.currency)], ...(!erpAllZero(data.invoices, "effective_credit") ? [["Чинний кредит", r => erpMoney(r.effective_credit, r.currency)]] : []), ["До оплати", r => erpMoney(r.open, r.currency)], ...(!erpAllZero(data.invoices, "customer_credit") ? [["Кредит клієнта", r => erpMoney(r.customer_credit, r.currency)]] : []), ["Термін", r => erpDate(r.due_date)], ["Дія", r => buttons([['Оплата', 'payment', {
       invoice_id: r.invoice_id,
       amount: r.collectible
     }, !flowPositive(r.collectible)]])]]
@@ -19238,7 +19241,7 @@ function ERPWorkspace({
   }, /*#__PURE__*/React.createElement("div", {
     className: "erp-row"
   }, view === 'import' && /*#__PURE__*/React.createElement("h3", null, "\u041F\u043E\u0447\u0430\u0442\u043A\u043E\u0432\u0438\u0439 \u0456\u043C\u043F\u043E\u0440\u0442"), /*#__PURE__*/React.createElement("div", {
-    className: "erp-actions"
+    className: "erp-search-row"
   }, view !== 'network' && view !== 'import' && /*#__PURE__*/React.createElement(Input, {
     "aria-label": "\u041F\u043E\u0448\u0443\u043A ERP",
     placeholder: "\u041A\u043E\u0434, \u043D\u0430\u0437\u0432\u0430, \u0448\u0442\u0440\u0438\u0445\u043A\u043E\u0434\u2026",
@@ -23753,18 +23756,18 @@ function BoSReadOnlyRecords({
   const filtered = rows.filter(r => !query || columns.some(([, field]) => typeof field === 'string' && String(r[field] ?? '').toLowerCase().includes(query.toLowerCase())));
   return /*#__PURE__*/React.createElement("div", {
     className: "erp-workspace"
-  }, /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("div", {
-    className: "erp-row"
-  }, /*#__PURE__*/React.createElement("h2", null, title), onRefresh && /*#__PURE__*/React.createElement(Button, {
-    onClick: onRefresh
-  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438")), /*#__PURE__*/React.createElement("p", {
+  }, /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement("h2", null, title), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
-  }, "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0437\u0430\u043F\u0438\u0441\u0438 \u0434\u043B\u044F \u043F\u0435\u0440\u0435\u0433\u043B\u044F\u0434\u0443. \u041D\u0430\u0442\u0438\u0441\u043D\u0456\u0442\u044C \u0440\u044F\u0434\u043E\u043A, \u0449\u043E\u0431 \u0432\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u043A\u0430\u0440\u0442\u043A\u0443."), /*#__PURE__*/React.createElement(Input, {
+  }, "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0456 \u0437\u0430\u043F\u0438\u0441\u0438 \u0434\u043B\u044F \u043F\u0435\u0440\u0435\u0433\u043B\u044F\u0434\u0443. \u041D\u0430\u0442\u0438\u0441\u043D\u0456\u0442\u044C \u0440\u044F\u0434\u043E\u043A, \u0449\u043E\u0431 \u0432\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u043A\u0430\u0440\u0442\u043A\u0443."), /*#__PURE__*/React.createElement("div", {
+    className: "erp-search-row"
+  }, /*#__PURE__*/React.createElement(Input, {
     "aria-label": 'Пошук: ' + title,
     value: query,
     onChange: e => setQuery(e.target.value),
     placeholder: "\u041F\u043E\u0448\u0443\u043A \u0443 \u0437\u0430\u043F\u0438\u0441\u0430\u0445\u2026"
-  }), loading && /*#__PURE__*/React.createElement("p", null, "\u041E\u043D\u043E\u0432\u043B\u0435\u043D\u043D\u044F\u2026"), error && /*#__PURE__*/React.createElement("p", {
+  }), onRefresh && /*#__PURE__*/React.createElement(Button, {
+    onClick: onRefresh
+  }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438")), loading && /*#__PURE__*/React.createElement("p", null, "\u041E\u043D\u043E\u0432\u043B\u0435\u043D\u043D\u044F\u2026"), error && /*#__PURE__*/React.createElement("p", {
     role: "alert",
     className: "erp-error"
   }, error), /*#__PURE__*/React.createElement(ERPTable, {
