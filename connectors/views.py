@@ -16,6 +16,7 @@ from .models import Connector, ConnectorSnapshot
 PREVIEW_ROWS = 20
 STALE_AFTER = timedelta(minutes=15)
 STALE_BATCH = 10
+MAX_MAPPING_CHARS = 20000
 
 
 def _writer(request):
@@ -62,9 +63,12 @@ def _chosen_mapping(raw, guess):
     """The `mapping` form field: a JSON object {field: column}; absent means the suggested one."""
     if raw is None or raw == '':
         return guess
+    if len(raw) > MAX_MAPPING_CHARS:
+        raise mapping.MappingError('Відповідність колонок передано в неправильному форматі.')
     try:
         value = json.loads(raw)
-    except ValueError:
+    except (ValueError, RecursionError):
+        # Deeply nested JSON exhausts the parser's recursion; it is a malformed mapping, not a server error.
         raise mapping.MappingError('Відповідність колонок передано в неправильному форматі.')
     if not isinstance(value, dict) or not all(isinstance(k, str) and isinstance(v, str) for k, v in value.items()):
         raise mapping.MappingError('Відповідність колонок передано в неправильному форматі.')

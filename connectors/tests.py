@@ -119,7 +119,8 @@ class ConnectorApiTests(TestCase):
         # The suggestion is still offered, so the person can return to it.
         self.assertEqual(body['suggested_mapping']['amount'], 'Сума')
         for bad, reason in ((json.dumps({'code': 'Замовлення'}), 'Клієнт'), ('[1]', 'формат'), ('{', 'формат'),
-                            (json.dumps({'code': 1}), 'формат'), (json.dumps({'code': 'Ні', 'customer': 'Клієнт'}), 'немає колонки')):
+                            (json.dumps({'code': 1}), 'формат'), ('[' * 100000 + '0' + ']' * 100000, 'формат'),
+                            ('{"code": "' + 'x' * 20000 + '"}', 'формат'), (json.dumps({'code': 'Ні', 'customer': 'Клієнт'}), 'немає колонки')):
             response = self.upload('/api/connectors/preview/', dataset='orders', mapping=bad)
             self.assertEqual(response.status_code, 200, response.content)
             self.assertIn(reason, response.json()['mapped']['error'])
