@@ -170,3 +170,56 @@ class ConnectorApiTests(TestCase):
         self.assertEqual(self.client.post(f'/api/connectors/{connector.pk}/disable/').status_code, 200)
         self.assertEqual(self.client.get('/api/connectors/').json()['connectors'], [])
         self.assertEqual(self.client.get(f'/api/connectors/{connector.pk}/rows/').status_code, 404)
+
+
+@override_settings(BOS_DATA_MODE='demo', PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'])
+class StaleSheetSyncTests(TestCase):
+    """Periodic reading on use: only Google Sheets older than 15 minutes, no scheduler."""
+
+    def setUp(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        self.ceo = get_user_model().objects.create_user(username='owner', password='synthetic-pass')
+        Group.objects.get_or_create(name='ceo')[0].user_set.add(self.ceo)
+        now = timezone.now()
+        make = lambda name, kind, age: Connector.objects.create(
+            kind=kind, name=name, dataset='orders', created_by=self.ceo,
+            source_url=SHEET if kind == 'google_sheets' else '',
+            last_sync_at=None if age is None else now - timedelta(minutes=age))
+        self.stale = make('Стара таблиця', 'google_sheets', 40)
+        self.never = make('Ще не читали', 'google_sheets', None)
+        self.fresh = make('Свіжа таблиця', 'google_sheets', 5)
+        self.file = make('Файл', 'csv', 400)
+        self.client.force_login(self.ceo)
+
+    def test_only_stale_sheets_are_read_again(self):
+        with mock.patch.object(sources, 'fetch_sheet', return_value=sources.parse_csv(CSV)) as fetch:
+            body = self.client.post('/api/connectors/sync-stale/').json()
+        self.assertEqual(sorted(x['name'] for x in body['synced']), ['Стара таблиця', 'Ще не читали'])
+        self.assertEqual(body['failed'], [])
+        self.assertEqual(fetch.call_count, 2)
+        self.assertEqual(ConnectorSnapshot.objects.filter(connector=self.stale).count(), 1)
+        self.assertFalse(ConnectorSnapshot.objects.filter(connector__in=[self.fresh, self.file]).exists())
+        with mock.patch.object(sources, 'fetch_sheet', return_value=sources.parse_csv(CSV)) as fetch:
+            self.assertEqual(self.client.post('/api/connectors/sync-stale/').json()['synced'], [])
+        fetch.assert_not_called()
+
+    def test_failure_is_reported_and_marked(self):
+        with mock.patch.object(sources, 'fetch_sheet', side_effect=sources.SourceError('закрито')):
+            body = self.client.post('/api/connectors/sync-stale/').json()
+        self.assertEqual(len(body['failed']), 2)
+        self.stale.refresh_from_db()
+        self.assertEqual((self.stale.status, self.stale.last_error), ('error', 'закрито'))
+
+    def test_observer_cannot_trigger_and_command_reads_the_same_set(self):
+        viewer = get_user_model().objects.create_user(username='viewer', password='synthetic-pass')
+        Group.objects.get_or_create(name='observer')[0].user_set.add(viewer)
+        self.client.force_login(viewer)
+        self.assertEqual(self.client.post('/api/connectors/sync-stale/').status_code, 403)
+        from io import StringIO
+        from django.core.management import call_command
+        out = StringIO()
+        with mock.patch.object(sources, 'fetch_sheet', return_value=sources.parse_csv(CSV)):
+            call_command('sync_connectors', stdout=out)
+        import json
+        self.assertEqual(sorted(json.loads(out.getvalue())['synced']), sorted([self.stale.pk, self.never.pk]))

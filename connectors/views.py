@@ -1,4 +1,7 @@
+from datetime import timedelta
+
 from django.db import transaction
+from django.db.models import F, Q
 from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_protect
@@ -10,6 +13,8 @@ from . import sources
 from .models import Connector, ConnectorSnapshot
 
 PREVIEW_ROWS = 20
+STALE_AFTER = timedelta(minutes=15)
+STALE_BATCH = 10
 
 
 def _writer(request):
@@ -106,18 +111,13 @@ def create(request):
     return JsonResponse(_connector_dict(connector), status=201)
 
 
-@csrf_protect
-@require_POST
-@errors
-def sync(request, connector_id):
-    connector = _visible(_writer(request)).get(pk=connector_id, kind='google_sheets')
-    if connector.status == 'disabled':
-        raise ValueError('Підключення вимкнено.')
+def sync_connector(connector):
+    """Read a published Google Sheet again; store a new snapshot only when its content changed."""
     try:
         table = sources.fetch_sheet(connector.source_url)
     except sources.SourceError as exc:
         Connector.objects.filter(pk=connector.pk).update(status='error', last_error=str(exc)[:300])
-        return JsonResponse({'error': str(exc), 'code': 'source'}, status=422)
+        raise
     with transaction.atomic():
         latest = connector.snapshots.first()
         if latest is None or latest.sha256 != table['sha256']:
@@ -127,7 +127,43 @@ def sync(request, connector_id):
         Connector.objects.filter(pk=connector.pk).update(status='connected', last_error='',
                                                          last_sync_at=timezone.now())
     connector.refresh_from_db()
+    return connector
+
+
+def stale_sheets(rows, now=None):
+    """Google Sheets connectors whose last reading is older than STALE_AFTER, oldest first."""
+    cutoff = (now or timezone.now()) - STALE_AFTER
+    return (rows.filter(kind='google_sheets').exclude(status='disabled')
+            .filter(Q(last_sync_at__isnull=True) | Q(last_sync_at__lt=cutoff))
+            .order_by(F('last_sync_at').asc(nulls_first=True), 'pk')[:STALE_BATCH])
+
+
+@csrf_protect
+@require_POST
+@errors
+def sync(request, connector_id):
+    connector = _visible(_writer(request)).get(pk=connector_id, kind='google_sheets')
+    if connector.status == 'disabled':
+        raise ValueError('Підключення вимкнено.')
+    try:
+        connector = sync_connector(connector)
+    except sources.SourceError as exc:
+        return JsonResponse({'error': str(exc), 'code': 'source'}, status=422)
     return JsonResponse(_connector_dict(connector))
+
+
+@csrf_protect
+@require_POST
+@errors
+def sync_stale(request):
+    """Periodic reading on use: refresh Google Sheets older than 15 minutes, no scheduler."""
+    synced, failed = [], []
+    for connector in stale_sheets(_visible(_writer(request))):
+        try:
+            synced.append(_connector_dict(sync_connector(connector)))
+        except sources.SourceError as exc:
+            failed.append({'id': connector.pk, 'name': connector.name, 'error': str(exc)})
+    return JsonResponse({'synced': synced, 'failed': failed})
 
 
 @require_GET
