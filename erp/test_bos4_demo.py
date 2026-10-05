@@ -89,7 +89,8 @@ class Bos4DemoTests(TransactionTestCase):
         metal = Location.objects.get(code='KM-SUP-METAL')
         po = next(r for r in rows['purchases'] if r['code'] == 'ZK-0311')
         self.assertEqual(po['origin_location_id'], metal.pk)
-        self.assertIn(metal.pk, [p['id'] for p in rows['points']])
+        point = next(p for p in rows['points'] if p['id'] == metal.pk)
+        self.assertEqual(point['branch_name'], metal.supplier.name)
 
     def test_case_quality_ships_only_approved_batch(self):
         self.command()
