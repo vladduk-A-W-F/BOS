@@ -5820,24 +5820,25 @@ function Monitoring({onNavigate}){
 
 // BoS 4 «Підключення»: connect services the company already uses. Read-only import.
 function Connections(){
- const [data,setData]=useState(null),[error,setError]=useState(''),[open,setOpen]=useState(null),[form,setForm]=useState({kind:'csv',name:'',dataset:'orders',url:''}),[preview,setPreview]=useState(null),[busy,setBusy]=useState(false);
- const fileRef=useRef(null);
+ const [data,setData]=useState(null),[error,setError]=useState(''),[open,setOpen]=useState(null),[form,setForm]=useState({kind:'csv',name:'',dataset:'orders',url:''}),[preview,setPreview]=useState(null),[busy,setBusy]=useState(false),[failed,setFailed]=useState([]);
+ const fileRef=useRef(null),entry=useRef(null);
  const call=async(path,body)=>{const r=await fetch('/api/connectors/'+path,body?{method:'POST',body}:{});let d;try{d=await r.json();}catch{throw Error('Сервіс підключень недоступний.');}if(!r.ok)throw Error(d.error||'Не вдалося виконати запит.');return d;};
- const load=async()=>{try{setData(await call(''));setError('');}catch(e){setError(e.message);}};
- useEffect(()=>{load();},[]);
+ const current=scope=>entry.current===scope&&scope===bosHttpScope();
+ const load=async(note='')=>{const scope=entry.current;try{const list=await call('');if(current(scope)){setData(list);setError(note);}}catch(e){if(current(scope))setError(e.message);}};
+ useEffect(()=>{const scope=bosHttpScope();entry.current=scope;(async()=>{let note='';if(bosCan('write')){try{const result=await call('sync-stale/',new FormData());if(current(scope))setFailed(result.failed||[]);}catch(e){note=e.message;}}if(current(scope))await load(note);})();return()=>{entry.current=null;};},[]);
  const source=()=>{const f=new FormData();f.append('kind',form.kind);if(form.kind==='csv'){const file=fileRef.current?.files?.[0];if(!file)throw Error('Оберіть файл .xlsx або .csv.');f.append('file',file);}else f.append('url',form.url.trim());return f;};
  const run=async fn=>{if(busy)return;setBusy(true);setError('');try{await fn();}catch(e){setError(e.message);}finally{setBusy(false);}};
  const doPreview=()=>run(async()=>setPreview(await call('preview/',source())));
  const doCreate=()=>run(async()=>{const f=source();f.append('name',form.name.trim());f.append('dataset',form.dataset);f.append('expected_sha256',preview.sha256);await call('create/',f);setPreview(null);setForm({kind:'csv',name:'',dataset:'orders',url:''});if(fileRef.current)fileRef.current.value='';await load();});
- const doSync=id=>run(async()=>{await call(id+'/sync/',new FormData());await load();});
+ const doSync=id=>run(async()=>{await call(id+'/sync/',new FormData());setFailed(rows=>rows.filter(row=>row.id!==id));await load();});
  const doDisable=id=>run(async()=>{await call(id+'/disable/',new FormData());setOpen(null);await load();});
  const show=id=>run(async()=>setOpen(await call(id+'/rows/')));
- if(!data)return <div className="mon"><p>{error||'Завантаження…'}</p>{error&&<Button onClick={load}>Повторити</Button>}</div>;
+ if(!data)return <div className="mon"><p>{error||'Завантаження…'}</p>{error&&<Button onClick={()=>load()}>Повторити</Button>}</div>;
  const when=v=>v?new Date(v).toLocaleString('uk-UA',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
  return <div className="mon">
   {error&&<p role="alert" className="erp-error">{error}</p>}
   <section className="mon-card"><header><h2>Підключені джерела</h2><span>{data.connectors.length}</span></header>
-   {data.connectors.length?<div className="erp-table"><table><thead><tr><th>Назва</th><th>Сервіс</th><th>Дані</th><th>Стан</th><th>Оновлено</th><th>Рядків</th><th></th></tr></thead><tbody>{data.connectors.map(c=><tr key={c.id} className={'bos-click-row'+(c.status==='error'?' mon-late':'')} onClick={e=>{if(!e.target.closest('button'))show(c.id);}}><td>{c.name}</td><td>{data.catalog.find(x=>x.kind===c.kind)?.title||c.kind}</td><td>{c.dataset_label}</td><td>{c.status==='error'?c.last_error||c.status_label:c.status_label}</td><td>{when(c.last_sync_at)}</td><td>{monValue(c.row_count)}</td><td className="mon-actions">{bosCan('write')&&c.kind==='google_sheets'&&<Button disabled={busy} onClick={()=>doSync(c.id)}>Оновити</Button>}{bosCan('write')&&<Button disabled={busy} onClick={()=>doDisable(c.id)}>Вимкнути</Button>}</td></tr>)}</tbody></table></div>:<p className="op-muted mon-empty">Ще нічого не підключено</p>}
+   {data.connectors.length?<div className="erp-table"><table><thead><tr><th>Назва</th><th>Сервіс</th><th>Дані</th><th>Стан</th><th>Оновлено</th><th>Рядків</th><th></th></tr></thead><tbody>{data.connectors.map(c=>{const failure=failed.find(row=>row.id===c.id);return <tr key={c.id} className={(bosCan('write')?'bos-click-row':'')+(failure||c.status==='error'?' mon-late':'')} onClick={bosCan('write')?e=>{if(!e.target.closest('button'))show(c.id);}:undefined}><td>{c.name}</td><td>{data.catalog.find(x=>x.kind===c.kind)?.title||c.kind}</td><td>{c.dataset_label}</td><td>{failure?'Помилка оновлення: '+failure.error:c.status==='error'?c.last_error||c.status_label:c.status_label}</td><td>{when(c.last_sync_at)}</td><td>{monValue(c.row_count)}</td><td className="mon-actions">{bosCan('write')&&c.kind==='google_sheets'&&<Button disabled={busy} onClick={()=>doSync(c.id)}>Оновити</Button>}{bosCan('write')&&<Button disabled={busy} onClick={()=>doDisable(c.id)}>Вимкнути</Button>}</td></tr>;})}</tbody></table></div>:<p className="op-muted mon-empty">Ще нічого не підключено</p>}
   </section>
   {open&&<section className="mon-card"><header><h2>{open.name}</h2><span>{open.row_count}</span></header><div className="erp-table"><table><thead><tr>{open.columns.map((c,i)=><th key={i}>{c}</th>)}</tr></thead><tbody>{open.rows.slice(0,100).map((r,i)=><tr key={i}>{r.map((v,j)=><td key={j}>{v}</td>)}</tr>)}</tbody></table></div><Button onClick={()=>setOpen(null)}>Закрити</Button></section>}
   {bosCan('write')&&<section className="mon-card"><header><h2>Нове підключення</h2></header>

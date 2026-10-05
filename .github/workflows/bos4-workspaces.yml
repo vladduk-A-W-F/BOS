@@ -8,6 +8,7 @@ name: BoS 4 — робочі екрани
       - 'scripts/test_bos4_workspaces.cjs'
       - 'scripts/test_bos4_structure.cjs'
       - 'scripts/test_bos4_documents.cjs'
+      - 'scripts/test_bos4_connectors_ui.cjs'
       - '.github/workflows/bos4-workspaces.yml'
 permissions:
   contents: read
@@ -25,6 +26,8 @@ jobs:
         run: node scripts/test_bos4_structure.cjs
       - name: Приватний перегляд фото та зміна версії документа
         run: node scripts/test_bos4_documents.cjs
+      - name: Оновлення підключень при відкритті та права ролей
+        run: node scripts/test_bos4_connectors_ui.cjs
       - name: Збірка інтерфейсу без нових залежностей
         run: node scripts/build_frontend.cjs
       - name: Похідні файли відповідають вихідному коду
