@@ -91,6 +91,23 @@ class MonitoringTests(TransactionTestCase):
         self.assertEqual(orders['columns'][-2:], ['Сума', 'Валюта'])
         self.assertTrue(all(r['cells'][-1] == 'UAH' for r in orders['rows']))
 
+    def test_connected_sources_are_a_separate_block(self):
+        from connectors.models import Connector, ConnectorSnapshot
+        from django.utils import timezone
+        self.login('ceo')
+        before = self.client.get('/api/erp/monitoring/').json()
+        self.assertEqual((before['sources'], before['source_attention']), ([], []))
+        owner = get_user_model().objects.get(username='synthetic-ceo')
+        source = Connector.objects.create(kind='csv', name='Замовлення з Excel', dataset='orders', created_by=owner,
+                                          mapping={'code': 'Номер', 'customer': 'Клієнт'}, last_sync_at=timezone.now())
+        ConnectorSnapshot.objects.create(connector=source, columns=['Номер', 'Клієнт'], rows=[['ЗМ-1', 'ТОВ Ліс']],
+                                         row_count=1, sha256='0' * 64)
+        data = self.client.get('/api/erp/monitoring/').json()
+        self.assertEqual(data['sources'][0]['table']['rows'][0]['cells'], ['ЗМ-1', 'ТОВ Ліс'])
+        self.assertEqual(data['source_attention'], [])
+        # ERP tables and attention are unchanged by a connected source.
+        self.assertEqual((data['tables'], data['attention']), (before['tables'], before['attention']))
+
     def test_attention_has_no_money_for_observer(self):
         self.login('observer')
         items = self.client.get('/api/erp/monitoring/').json()['attention']
