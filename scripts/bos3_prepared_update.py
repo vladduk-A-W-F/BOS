@@ -40,14 +40,14 @@ def _ordinary_file(path):
         raise PreparedUpdateError('Prepared path must be an ordinary unlinked file')
 
 
-def _powershell(script, path, temporary=None):
+def _powershell(script, path, temporary=None, *, timeout=15):
     base_env = os.environ.copy()
     base_env['BOS3_PREPARED_PATH'] = str(path)
     if temporary is not None:
         base_env['BOS3_PREPARED_TEMP'] = str(temporary)
     powershell, native_env = native_windows_powershell_environment(base_env)
     result = subprocess.run([powershell, '-NoProfile', '-NonInteractive', '-Command', script],
-                            env=native_env, capture_output=True, text=True, encoding='utf-8', timeout=15)
+                            env=native_env, capture_output=True, text=True, encoding='utf-8', timeout=timeout)
     if result.returncode:
         raise PreparedUpdateError('Native PowerShell ACL preflight failed')
     return result.stdout.strip()

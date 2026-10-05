@@ -1,0 +1,22 @@
+name: BoS — перевірка перед зупинкою
+'on':
+  pull_request:
+    paths:
+    - scripts/bos3_delivery_preflight.py
+    - scripts/test_bos3_delivery_preflight.py
+    - scripts/bos3_local.py
+    - scripts/bos3_prepared_update.py
+    - .github/workflows/bos-delivery-preflight.yml
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+    - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+    - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+      with:
+        python-version: '3.12'
+    - name: Синтетичні відмови без запуску чи зупинки застосунку
+      run: python -B -m unittest scripts.test_bos3_delivery_preflight

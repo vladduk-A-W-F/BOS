@@ -376,14 +376,14 @@ def verify_current_runtime_image():
         ops.close(handle)
 
 
-def process_command_line(pid):
+def process_command_line(pid, *, timeout=15):
     if not isinstance(pid, int) or pid <= 0:
         raise LocalError('Process receipt PID is malformed.')
     command = ('$p=Get-CimInstance Win32_Process -Filter "ProcessId = ' + str(pid)
         + '"; if ($null -ne $p) {[Console]::Out.Write($p.CommandLine)}')
     powershell, native_env = native_windows_powershell_environment()
     result = subprocess.run([powershell, '-NoProfile', '-NonInteractive', '-Command', command], env=native_env,
-        capture_output=True, text=True, encoding='utf-8', timeout=15)
+        capture_output=True, text=True, encoding='utf-8', timeout=timeout)
     if result.returncode:
         raise LocalError('Process command line cannot be verified.')
     return result.stdout
