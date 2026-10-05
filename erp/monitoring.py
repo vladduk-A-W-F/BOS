@@ -20,6 +20,7 @@ MOVES = {'opening': 'Початковий залишок', 'receipt': 'Надх�
          'transfer_dispatch': 'Відправлено', 'transfer_receive': 'Прийнято', 'consume': 'Списано у виробництво',
          'production': 'Випуск', 'shipment': 'Відвантаження', 'return': 'Повернення', 'adjustment': 'Коригування'}
 PRIORITY = {'high': 'Високий', 'medium': 'Середній', 'low': 'Низький'}
+CURRENCY = {'UAH': 'грн'}
 
 
 def _num(value):
@@ -47,9 +48,9 @@ def _open_orders(policy, today, overdue_only=False):
         cells = [order.code, order.customer.name, order.branch.short_name or order.branch.name if order.branch else '',
                  _date(order.due_date), f'{_num(ordered - remaining)} з {_num(ordered)}']
         if policy.ceo:
-            cells.append(_num(sum((l.quantity * l.price for l in lines), D(0))))
+            cells += [_num(sum((l.quantity * l.price for l in lines), D(0))), order.currency]
         rows.append({'ref': {'kind': 'order', 'id': order.pk}, 'late': order.due_date < today, 'cells': cells})
-    columns = ['Замовлення', 'Клієнт', 'Філія', 'Строк', 'Відвантажено'] + (['Сума, грн'] if policy.ceo else [])
+    columns = ['Замовлення', 'Клієнт', 'Філія', 'Строк', 'Відвантажено'] + (['Сума', 'Валюта'] if policy.ceo else [])
     return columns, rows
 
 
@@ -73,8 +74,8 @@ def _debts(policy, today, overdue_only=False):
         late = (today - invoice.due_date).days if invoice.due_date < today else 0
         rows.append({'ref': {'kind': 'invoice', 'id': invoice.pk}, 'late': late > 0,
                      'cells': [invoice.code, invoice.customer.name, _num(invoice.amount), _num(invoice.paid),
-                               _num(rest), _date(invoice.due_date), late]})
-    return ['Рахунок', 'Клієнт', 'Сума, грн', 'Оплачено, грн', 'Залишок, грн', 'Строк', 'Днів прострочки'], rows
+                               _num(rest), _date(invoice.due_date), late, invoice.currency]})
+    return ['Рахунок', 'Клієнт', 'Сума', 'Оплачено', 'Залишок', 'Строк', 'Днів прострочки', 'Валюта'], rows
 
 
 def _tasks(policy, today, overdue_only=False):
@@ -152,8 +153,8 @@ def _days(n):
     return f'{n} {word}'
 
 
-def _money(value):
-    return f'{_num(value):,}'.replace(',', ' ') + ' грн'
+def _money(value, currency):
+    return f'{_num(value):,}'.replace(',', ' ') + ' ' + CURRENCY.get(currency, currency)
 
 
 def _attention(policy, today, orders, lots, debts, purchases, tasks):
@@ -167,8 +168,8 @@ def _attention(policy, today, orders, lots, debts, purchases, tasks):
                         'detail': f'{customer}: відвантажено {shipped}.'})
     for r in debts or []:
         if r['late']:
-            code, customer, _, _, rest, _, days = r['cells']
-            out.append({'level': 'danger', 'ref': r['ref'], 'title': f'{customer} винен {_money(rest)}',
+            code, customer, _, _, rest, _, days, currency = r['cells']
+            out.append({'level': 'danger', 'ref': r['ref'], 'title': f'{customer} винен {_money(rest, currency)}',
                         'detail': f'Рахунок {code}, прострочка {_days(days)}.'})
     for r in lots:
         if r['late']:
@@ -209,9 +210,14 @@ def build(policy):
         {'key': 'purchases', 'label': 'Закупівель із запізненням', 'value': len(late_po), 'alert': len(late_po)},
     ]
     if debts:
-        numbers.insert(2, {'key': 'invoices', 'label': 'До оплати, грн',
-                           'value': _num(sum((D(str(r['cells'][4])) for r in debts[1]), D(0))),
-                           'alert': sum(r['late'] for r in debts[1])})
+        # One total per currency: UAH first, then others; no conversion.
+        currencies = sorted({r['cells'][7] for r in debts[1]}, key=lambda c: (c != 'UAH', c)) or ['UAH']
+        for i, currency in enumerate(currencies):
+            rows = [r for r in debts[1] if r['cells'][7] == currency]
+            numbers.insert(2 + i, {'key': 'invoices' if currency == 'UAH' else 'invoices_' + currency.lower(),
+                                   'label': 'До оплати, ' + CURRENCY.get(currency, currency),
+                                   'value': _num(sum((D(str(r['cells'][4])) for r in rows), D(0))),
+                                   'alert': sum(r['late'] for r in rows)})
     attention = _attention(policy, today, orders['rows'], lots['rows'], debts[1] if debts else None, late_po,
                            _tasks(policy, today)[1])
     return {'as_of': _date(today), 'numbers': numbers, 'tables': tables, 'attention': attention,
