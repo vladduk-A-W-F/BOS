@@ -67,6 +67,28 @@ class MonitoringTests(TransactionTestCase):
         self.assertTrue(all(a['ref']['kind'] and a['ref']['id'] for a in items))
         self.assertLessEqual(len(items), 8)
 
+    def test_foreign_currency_debt_keeps_its_currency_and_is_not_added_to_hryvnia(self):
+        from datetime import date
+        from operations.models import Invoice
+        customer = Invoice.objects.get(code='RF-0137').customer
+        Invoice.objects.create(code='RF-EUR-1', customer=customer, amount='1000.00', paid='250.00', currency='EUR',
+                               due_date=date(2026, 9, 30))
+        self.login('ceo')
+        data = self.client.get('/api/erp/monitoring/').json()
+        numbers = {n['key']: (n['label'], n['value']) for n in data['numbers']}
+        self.assertEqual(numbers['invoices'], ('До оплати, грн', 168000 + 777700))
+        self.assertEqual(numbers['invoices_eur'], ('До оплати, EUR', 750))
+        debts = {r['cells'][0]: r['cells'] for r in self.table(data, 'invoices')['rows']}
+        self.assertEqual((debts['RF-EUR-1'][4], debts['RF-EUR-1'][7]), (750, 'EUR'))
+        self.assertEqual(debts['RF-0137'][7], 'UAH')
+        self.assertNotIn('грн', ''.join(self.table(data, 'invoices')['columns']))
+        titles = [a['title'] for a in data['attention']]
+        self.assertIn(f'{customer.name} винен 750 EUR', titles)
+        self.assertIn(f'{customer.name} винен 168 000 грн', titles)
+        orders = self.table(data, 'orders')
+        self.assertEqual(orders['columns'][-2:], ['Сума', 'Валюта'])
+        self.assertTrue(all(r['cells'][-1] == 'UAH' for r in orders['rows']))
+
     def test_attention_has_no_money_for_observer(self):
         self.login('observer')
         items = self.client.get('/api/erp/monitoring/').json()['attention']
