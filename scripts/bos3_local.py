@@ -19,6 +19,7 @@ SOURCE = Path(__file__).resolve().parents[1]
 DEFAULT_ROOT = Path('D:/3/BOSDev/local-bos3/owner')
 PORT = 8030
 FIXTURE_ID = 'bos3-fasteners-uk-v1'
+DATASET_FIXTURES = {'bos3': FIXTURE_ID, 'bos4': 'bos4-demo-v1.0'}
 
 
 class LocalError(RuntimeError):
@@ -46,6 +47,17 @@ def atomic_json(path, value):
 
 def read_json(path):
     return json.loads(Path(path).read_text(encoding='utf-8'))
+
+
+def dataset_profile(prepared):
+    if not isinstance(prepared, dict):
+        raise LocalError('Local dataset receipt must be an object.')
+    dataset = prepared.get('dataset', 'bos3')
+    if not isinstance(dataset, str) or dataset not in DATASET_FIXTURES:
+        raise LocalError('Unknown local dataset profile; automatic switching is forbidden.')
+    if ('fixture_id' in prepared and prepared['fixture_id'] != DATASET_FIXTURES[dataset]):
+        raise LocalError('Local dataset profile and fixture receipt differ.')
+    return dataset
 
 
 def digest_source(source):
@@ -174,6 +186,8 @@ if (-not $seen[$current] -or -not $seen['S-1-5-18']) { exit 7 }
 
 
 def environment(paths, source, secret):
+    prepared = read_json(paths['prepared'])
+    dataset = dataset_profile(prepared)
     env = os.environ.copy()
     for key in ('BOS_TEST_DB_NAME', 'BOS_TEST_MEDIA', 'BOS_VERIFY_DB', 'BOS_REVIEW_ROOT',
                 'BOS_REVIEW_SEED_MODE', 'BOS_DATABASE_PATH', 'BOS_MEDIA_ROOT'):
@@ -188,11 +202,12 @@ def environment(paths, source, secret):
         'BOS3_LOCAL_DB': str(paths['database']),
         'BOS3_LOCAL_MEDIA': str(paths['media']),
         'BOS3_LOCAL_SECRET': secret,
-        'BOS3_TRAINING_ENABLED': '1',
+        'BOS3_LOCAL_DATASET': dataset,
+        'BOS3_TRAINING_ENABLED': '1' if dataset == 'bos3' else '0',
         'BOS3_TRAINING_PROFILE': 'isolated-synthetic',
-        'BOS3_TRAINING_DB_MARKER': FIXTURE_ID,
-        'BOS3_TRAINING_INSTALLATION_ID': read_json(paths['prepared'])['installation_id'],
-        'BOS3_TRAINING_OWNER_USERNAME': read_json(paths['prepared'])['owner_username'],
+        'BOS3_TRAINING_DB_MARKER': DATASET_FIXTURES[dataset],
+        'BOS3_TRAINING_INSTALLATION_ID': prepared['installation_id'],
+        'BOS3_TRAINING_OWNER_USERNAME': prepared['owner_username'],
         'BOS3_LOCAL_PORT': str(PORT),
         'BOS3_LOCAL_SOURCE_DIGEST': digest_source(source),
     })
@@ -249,7 +264,8 @@ with transaction.atomic():
 '''
 
 
-def initialize(paths, source):
+def initialize(paths, source, dataset='bos3'):
+    dataset_profile({'dataset': dataset})
     if os.name != 'nt':
         raise LocalError('The local BoS 3.0 lifecycle requires Windows.')
     validate_root(source, paths)
@@ -270,7 +286,7 @@ def initialize(paths, source):
     runtime_secrets = {'django_secret': django_secret}
     private_write(paths['runtime_secrets'], runtime_secrets)
     private_write(paths['owner_access'], owner_access)
-    prepared = {'schema': 1, 'scope': 'isolated local synthetic BoS 3.0 training instance',
+    prepared = {'schema': 1, 'scope': 'isolated local synthetic BoS instance', 'dataset': dataset,
         'source': str(source), 'source_sha256': digest_source(source), 'database': str(paths['database']),
         'media': str(paths['media']), 'port': PORT, 'owner_username': owner_username,
         'installation_id': installation_id, 'owner_access_file': str(paths['owner_access']),
@@ -282,9 +298,11 @@ def initialize(paths, source):
     env.update(BOS3_LOCAL_OWNER_USERNAME=owner_username, BOS3_LOCAL_OWNER_PASSWORD=owner_password)
     managed(['migrate', '--noinput'], env, paths)
     managed(['shell', '-c', OWNER_BOOTSTRAP], env, paths)
-    managed(['seed_bos3_fasteners', '--owner-username', owner_username], env, paths)
+    seed_command = (['seed_bos3_fasteners', '--owner-username', owner_username]
+                    if dataset == 'bos3' else ['seed_bos4_demo'])
+    managed(seed_command, env, paths)
     del env['BOS3_LOCAL_OWNER_PASSWORD']
-    prepared['fixture_id'] = FIXTURE_ID
+    prepared['fixture_id'] = DATASET_FIXTURES[dataset]
     prepared['initialized_at'] = datetime.now(timezone.utc).isoformat()
     atomic_json(paths['prepared'], prepared)
     print('Local BoS 3.0 synthetic instance initialized. Credentials remain only in its private file.')
@@ -539,6 +557,7 @@ def wait_for_child_announcement(paths, state):
 
 def start(paths, source):
     prepared = read_json(paths['prepared'])
+    dataset_profile(prepared)
     if prepared.get('source') != str(source) or prepared.get('source_sha256') != digest_source(source):
         raise LocalError('Prepared source changed or differs; start is refused.')
     if paths['process'].exists():
@@ -669,13 +688,17 @@ def main():
     parser.add_argument('--source', type=Path, default=SOURCE)
     parser.add_argument('--runtime', choices=('waitress', 'runserver'))
     parser.add_argument('--launch-id')
+    parser.add_argument('--dataset', choices=('bos3', 'bos4'),
+                        help='Synthetic dataset for a fresh init only (default: bos3).')
     args = parser.parse_args()
+    if args.dataset is not None and args.action != 'init':
+        raise LocalError('--dataset is allowed only for a fresh init; existing profiles cannot be switched.')
     source = args.source.resolve()
     if source != SOURCE.resolve():
         raise LocalError('Use the launcher from the exact accepted source directory.')
     paths = instance_paths(args.root)
     if args.action == 'init':
-        initialize(paths, source)
+        initialize(paths, source, args.dataset or 'bos3')
     elif args.action == 'start':
         start(paths, source)
     elif args.action == 'internal-serve':

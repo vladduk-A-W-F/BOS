@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 
 from demo_settings import *
+from scripts.bos3_local import dataset_profile, read_json
 
 
 def required(name):
@@ -32,7 +33,11 @@ DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': BOS3_LO
 MEDIA_ROOT = BOS3_LOCAL_MEDIA
 STATIC_ROOT = BOS3_LOCAL_ROOT / 'static'
 BOS_DATA_MODE = 'demo'
-BOS3_TRAINING_ENABLED = True
+BOS3_LOCAL_DATASET = dataset_profile(read_json(BOS3_LOCAL_ROOT / 'state' / 'prepared.json'))
+BOS3_TRAINING_ENABLED = BOS3_LOCAL_DATASET == 'bos3'
+if (os.environ.get('BOS3_LOCAL_DATASET', 'bos3') != BOS3_LOCAL_DATASET
+        or os.environ.get('BOS3_TRAINING_ENABLED', '1') != ('1' if BOS3_TRAINING_ENABLED else '0')):
+    raise RuntimeError('Local dataset environment differs from its persisted profile.')
 ANTHROPIC_API_KEY = ''
 
 # Session cookies are host-scoped, not port-scoped. Keep this local instance's
