@@ -15746,10 +15746,18 @@ function ERPActionDialog({
       label: [x.code, x.name || x.title, x.revision ? 'версія ' + x.revision : ''].filter(Boolean).join(' · ')
     }));
   }
+  const attachDocument = action === 'attach' ? (data.documents || []).find(row => row.id === Number(values.document_id)) : null;
+  const attachKind = action === 'attach' && attachDocument?.status !== 'approved' ? 'Додаток №' + Number(values.document_id) : null;
   function field([key, label, type = 'text']) {
     const value = values[key],
       base = type.replace('?', ''),
       optional = type.endsWith('?');
+    if (key === 'kind' && attachKind) return /*#__PURE__*/React.createElement("label", {
+      key: key
+    }, label, /*#__PURE__*/React.createElement(Input, {
+      readOnly: true,
+      value: attachKind
+    }), /*#__PURE__*/React.createElement("span", null, "\u041D\u0435\u043F\u0435\u0440\u0435\u0432\u0456\u0440\u0435\u043D\u0438\u0439 \u0444\u0430\u0439\u043B \u0434\u043E\u0434\u0430\u0454\u0442\u044C\u0441\u044F \u043E\u043A\u0440\u0435\u043C\u043E \u0439 \u043D\u0435 \u0437\u0430\u043C\u0456\u043D\u044E\u0454 \u043F\u0430\u0441\u043F\u043E\u0440\u0442, \u0441\u0435\u0440\u0442\u0438\u0444\u0456\u043A\u0430\u0442 \u0447\u0438 \u0456\u043D\u0448\u0438\u0439 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442 \u043F\u0430\u0440\u0442\u0456\u0457."));
     if (action === 'link_document' && ['document_id', 'order_id', 'invoice_id'].includes(key) || action === 'attach' && key === 'document_id' && preset.document_id) return value ? /*#__PURE__*/React.createElement("label", {
       key: key
     }, label, /*#__PURE__*/React.createElement(Input, {
@@ -16048,6 +16056,14 @@ function ERPActionDialog({
           }
           if (type.endsWith('?') && (v === '' || v == null)) continue;
           payload[k] = type === 'tags' ? Array.isArray(v) ? v : String(v).split(',').map(x => x.trim()).filter(Boolean) : k.endsWith('_id') || type === 'integer' ? Number(v) : v;
+        }
+      }
+      if (action === 'attach') {
+        const lot = (data.lots || []).find(row => row.id === payload.lot_id);
+        if (!attachDocument || !lot) throw Error('Оберіть доступні документ і партію.');
+        if (attachKind) {
+          if (Object.prototype.hasOwnProperty.call(lot.documents || {}, attachKind)) throw Error('Цей тип уже має документ партії. Неперевірений документ не замінює його.');
+          payload.kind = attachKind;
         }
       }
       const r = await request(action === 'register_supplier_invoice' ? '/api/operations/preview/' : '/api/erp/preview/', payload);

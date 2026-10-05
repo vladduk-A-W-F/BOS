@@ -122,6 +122,42 @@ const button = (view,label) => tree(view).find(node=>node.type===Button&&node.ch
   console.log('M8 document A→B contract reset and exact review payload: PASS');
 })().catch(error=>{console.error(error);process.exitCode=1});
 
+(async()=>{
+  const path=require('node:path');
+  const source=fs.readFileSync(path.join(__dirname,'check_confirmation_recovery.cjs'),'utf8').split('function receipt(')[0]
+    .replace('const context={React,window,document,sessionStorage:store,console,',"const context={useERPProjection:()=>({state:{status:'idle'},refresh:async()=>null}),React,window,document,sessionStorage:store,console,");
+  const sandbox={require,__dirname,console,setImmediate,setTimeout,clearTimeout,AbortController,Headers,URL,TextEncoder,Uint8Array};
+  vm.createContext(sandbox);vm.runInContext(source+'\nthis.make=harness;',sandbox);
+  function attachment(status,documents={passport:11},documentId=42){
+    const dialog=sandbox.make({action:'attach',preset:{document_id:documentId,lot_id:5,kind:'passport'}});
+    dialog.props.data.documents=[{id:documentId,status,title:'Синтетичний документ'}];
+    dialog.props.data.lots=[{id:5,code:'LOT-5',quality:'approved',documents}];
+    dialog.render();return dialog;
+  }
+  for(const status of ['ocr_required','needs_review','rejected']){
+    const dialog=attachment(status),kind='Додаток №42';
+    const input=dialog.all().find(node=>node.type===dialog.context.Input&&node.props.value===kind);
+    assert.ok(input?.props.readOnly&&!input.props.onChange,'unapproved kind is fixed, not the unsafe preset');
+    const payload=await dialog.prepared();
+    assert.equal(JSON.stringify(payload),JSON.stringify({action:'erp_attach',lot_id:5,kind,document_id:42}));
+    assert.equal(dialog.props.data.lots[0].documents.passport,11,'existing passport retained');
+    assert.equal(dialog.props.data.lots[0].quality,'approved','attachment does not approve/revoke quality');
+    dialog.click('Погодити й виконати');await dialog.flush();
+    assert.equal(JSON.stringify(JSON.parse(dialog.requests[1].options.body)),JSON.stringify({proposal_id:'11111111-1111-4111-8111-111111111111',confirmed:true}));
+    dialog.unmount();
+  }
+  const occupied=attachment('ocr_required',{'Додаток №42':11});
+  await occupied.preview();assert.equal(occupied.requests.length,0,'occupied kind must not create a preview');
+  assert.match(occupied.text(),/Неперевірений документ не замінює його/);occupied.unmount();
+  const second=attachment('ocr_required',{passport:11,'Додаток №42':42},43);
+  assert.equal((await second.prepared()).kind,'Додаток №43','another photo or scan has a separate attachment');second.unmount();
+  const approved=attachment('approved');
+  assert.equal((await approved.prepared()).kind,'passport','approved-document flow remains unchanged');approved.unmount();
+  const missing=attachment('ocr_required');missing.props.data.documents=[];missing.render();await missing.preview();
+  assert.equal(missing.requests.length,0,'missing visible document is refused');missing.unmount();
+  console.log('M8 actual attachment dialog: unapproved separate kind, occupied-kind refusal, multiple files, approved flow, explicit confirm: PASS');
+})().catch(error=>{console.error(error);process.exitCode=1});
+
 const uploadCode = app.match(/function documentUploadCode\([\s\S]*?\n}\n(?=function DocumentRegistry)/)?.[0];
 const registry = app.match(/function DocumentRegistry\([\s\S]*?\n}\n(?=function ActionJournal)/)?.[0];
 assert.ok(uploadCode && registry, 'compiled document upload code and registry');
