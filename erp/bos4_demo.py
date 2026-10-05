@@ -264,12 +264,23 @@ def _populate(pending_files):
     shm2_kyiv = deliver('KM-P-0916', shm2_ok, 'KYI-WH', 40)
     zm144, zm144_id = order('ZM-0144', 'OFFICE', 'Андрій Мельник', '2026-10-03', 'KYI-WH',
         [('SHM-2', 50), ('SHM-1', 30), ('TI-1', 20)])
+    order_quality_doc = document('KM-ZM-0144', 'Замовлення покупця ZM-0144 · Офіс Сіті',
+        'Замовлено 50 шаф ШМ-2, 30 шаф ШМ-1 і 20 тумб ТІ-1. Під відвантаження у Києві '
+        'зарезервовано лише 40 допущених шаф ШМ-2 з партії від 15.09 за паспортом KM-PASS-SHM-2.')
+    act('link_document', document_id=order_quality_doc.pk, order_id=zm144_id)
+    quality_doc = document('KM-QC-SHM-2-0918', 'Акт невідповідності партії ШМ-2 від 18.09',
+        'Партія KM-L-SHM-2-0918: 25 шаф ШМ-2 заблоковано через непрофарбовані зварні шви; '
+        'паспорт не оформлено, резервування й відвантаження заборонено. Наталія Ткаченко '
+        'має організувати перефарбування та оформлення паспорта до 07.10.2026. '
+        'Цей акт не є паспортом або дозволом на відвантаження.')
+    act('link_document', document_id=quality_doc.pk, order_id=zm144_id)
     for code, lot, qty in (('SHM-2', shm2_kyiv, 40), ('SHM-1', kyiv['SHM-1'], 30), ('TI-1', kyiv['TI-1'], 20)):
         act('reserve', lot_id=lot, quantity=str(qty), line_id=zm144[code].pk)
         act('ship', line_id=zm144[code].pk, lot_id=lot, quantity=str(qty), reference='VN-0144-1')
-    document('KM-VN-0144-1', 'Видаткова накладна VN-0144-1 · Офіс Сіті',
+    quality_shipment_doc = document('KM-VN-0144-1', 'Видаткова накладна VN-0144-1 · Офіс Сіті',
         'Шафи ШМ-2 — 40 (партія від 15.09), шафи ШМ-1 — 30, тумби ТІ-1 — 20. '
         'Решта 10 шаф ШМ-2 чекає: партія від 18.09 заблокована контролем якості.')
+    act('link_document', document_id=quality_shipment_doc.pk, order_id=zm144_id)
     act('invoice', order_id=zm144_id, code='RF-0144', due_date='2026-10-15')
     Task.objects.create(title='Перефарбувати партію ШМ-2 від 18.09 (25 шт.) і оформити паспорт', priority='high',
         status='active', assignee=quality.full_name, assignee_employee=quality, branch=branches['ZHY'],
@@ -286,11 +297,23 @@ def _populate(pending_files):
     for code, qty in (('VS-1500', 30), ('SV-1200', 20)):
         act('reserve', lot_id=dnipro[code], quantity=str(qty), line_id=zm137[code].pk)
         act('ship', line_id=zm137[code].pk, lot_id=dnipro[code], quantity=str(qty), reference='VN-0137-1')
+    payment_shipment_doc = document('KM-VN-0137-1', 'Видаткова накладна VN-0137-1 · Агроснаб Дніпро',
+        'За ZM-0137 відвантажено 30 верстаків ВС-1500 і 20 столів СВ-1200 з Дніпра. '
+        'Сума відвантаження 420 000,00 грн без ПДВ.')
+    act('link_document', document_id=payment_shipment_doc.pk, order_id=zm137_id)
     invoice = act('invoice', order_id=zm137_id, code='RF-0137', due_date='2026-10-01')
+    invoice_doc = document('KM-RF-0137', 'Рахунок RF-0137 · Агроснаб Дніпро',
+        'Рахунок за відвантаженням VN-0137-1 за ZM-0137: 420 000,00 грн без ПДВ. Строк оплати 01.10.2026.')
+    act('link_document', document_id=invoice_doc.pk, invoice_id=invoice['invoice_id'])
     act('payment', invoice_id=invoice['invoice_id'], amount=str((D(invoice['amount']) * D('0.6')).quantize(D('.01'))), reference='PD-5521')
-    document('KM-PD-5521', 'Платіжне доручення PD-5521 · Агроснаб Дніпро',
+    payment_doc = document('KM-PD-5521', 'Платіжне доручення PD-5521 · Агроснаб Дніпро',
         'Часткова оплата за рахунком RF-0137: 252 000,00 грн з 420 000,00 грн. Залишок 168 000,00 грн.')
+    act('link_document', document_id=payment_doc.pk, invoice_id=invoice['invoice_id'])
     manager = people['Дмитро Савченко']
+    reminder_doc = document('KM-REM-RF-0137', 'Нагадування про доплату за RF-0137',
+        'Після оплати PD-5521 на 252 000,00 грн залишок за RF-0137 становить 168 000,00 грн. '
+        'Дмитро Савченко, керівник філії Дніпро, має нагадати покупцю про доплату до 06.10.2026.')
+    act('link_document', document_id=reminder_doc.pk, invoice_id=invoice['invoice_id'])
     Task.objects.create(title='Нагадати «Агроснаб Дніпро» про доплату 168 000 грн за RF-0137', priority='high',
         status='active', assignee=manager.full_name, assignee_employee=manager, branch=branches['DNI'],
         deadline='2026-10-06', category='Фінанси', sales_order_id=zm137_id)
@@ -327,18 +350,18 @@ def _populate(pending_files):
          'summary': 'Клієнт отримує тільки перевірені шафи; заблокована партія чекає.',
          'result': {'label': 'Відвантажено', 'value': '40 з 50 шаф'},
          'steps': [
-             {'title': 'Резерв', 'text': 'Партія від 15.09 у Києві', 'order': 'ZM-0144'},
-             {'title': 'Контроль якості', 'text': 'Партія від 18.09 заблокована', 'lot': 'KM-L-SHM-2-0918'},
-             {'title': 'Відвантаження', 'text': '90 виробів за накладною', 'shipment': 'VN-0144-1'},
-             {'title': 'Доручення', 'text': 'Перефарбувати 25 шаф', 'task': 'Перефарбувати партію ШМ-2'}]},
+             {'title': 'Резерв', 'text': 'Партія від 15.09 у Києві', 'order': 'ZM-0144', 'document': 'KM-ZM-0144'},
+             {'title': 'Контроль якості', 'text': 'Партія від 18.09 заблокована', 'lot': 'KM-L-SHM-2-0918', 'document': 'KM-QC-SHM-2-0918'},
+             {'title': 'Відвантаження', 'text': '90 виробів за накладною', 'shipment': 'VN-0144-1', 'document': 'KM-VN-0144-1'},
+             {'title': 'Доручення', 'text': 'Перефарбувати 25 шаф', 'task': 'Перефарбувати партію ШМ-2', 'document': 'KM-QC-SHM-2-0918'}]},
         {'key': 'payment', 'title': 'Рахунок, оплата й нагадування',
          'summary': 'Часткова оплата не губиться: на решту є відповідальний і строк.',
          'result': {'label': 'Залишок до оплати', 'value': '168 000 грн'},
          'steps': [
-             {'title': 'Відвантаження', 'text': '30 верстаків і 20 столів', 'order': 'ZM-0137'},
-             {'title': 'Рахунок', 'text': '420 000 грн, строк 01.10', 'invoice': 'RF-0137'},
-             {'title': 'Оплата', 'text': '252 000 грн, 60%', 'payment': 'PD-5521'},
-             {'title': 'Нагадування', 'text': 'Доручення керівнику філії', 'task': 'Нагадати «Агроснаб Дніпро»'}]},
+             {'title': 'Відвантаження', 'text': '30 верстаків і 20 столів', 'order': 'ZM-0137', 'document': 'KM-VN-0137-1'},
+             {'title': 'Рахунок', 'text': '420 000 грн, строк 01.10', 'invoice': 'RF-0137', 'document': 'KM-RF-0137'},
+             {'title': 'Оплата', 'text': '252 000 грн, 60%', 'payment': 'PD-5521', 'document': 'KM-PD-5521'},
+             {'title': 'Нагадування', 'text': 'Доручення керівнику філії', 'task': 'Нагадати «Агроснаб Дніпро»', 'document': 'KM-REM-RF-0137'}]},
     ]
     Configuration.objects.create(key='demo_cases', value={'version': VERSION, 'synthetic': True, 'cases': cases})
     result = {'version': VERSION, 'synthetic': True, 'company': data.COMPANY['name'], 'as_of': AS_OF,

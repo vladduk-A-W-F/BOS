@@ -18,7 +18,7 @@ from operations.private_storage import verified_document_bytes
 from operations.service import as_of
 from tasks.models import Task
 from .balances import invoice_settlement
-from .models import Item, Location, Lot, SalesOrder, Purchase, Production, Movement, StockTransfer, OperatorEntry, DocumentLink
+from .models import Item, Location, Lot, SalesOrder, Purchase, Production, Movement, StockTransfer, OperatorEntry, DocumentLink, Inspection, Event
 from .service import dispatch
 
 
@@ -35,6 +35,15 @@ class Bos4DemoTests(TransactionTestCase):
         output = StringIO()
         call_command('seed_bos4_demo', stdout=output)
         return json.loads(output.getvalue())
+
+    def case_document_codes(self, key):
+        case = next(c for c in Configuration.objects.get(key='demo_cases').value['cases'] if c['key'] == key)
+        codes = [step['document'] for step in case['steps']]
+        for code in codes:
+            doc = Document.objects.get(code=code)
+            self.assertEqual(doc.status, 'approved')
+            self.assertEqual(verified_document_bytes(doc), doc.text.encode('utf-8'))
+        return codes
 
     def test_company_is_linked_branches_in_hryvnia_without_accounts(self):
         receipt = self.command()
@@ -121,7 +130,8 @@ class Bos4DemoTests(TransactionTestCase):
 
     def test_case_quality_ships_only_approved_batch(self):
         self.command()
-        line = SalesOrder.objects.get(code='ZM-0144').lines.get(item__code='SHM-2')
+        order = SalesOrder.objects.get(code='ZM-0144')
+        line = order.lines.get(item__code='SHM-2')
         self.assertEqual((line.quantity, line.shipped), (D(50), D(40)))
         blocked = Lot.objects.get(code='KM-L-SHM-2-0918')
         self.assertEqual((blocked.quality, blocked.quantity), ('blocked', D(25)))
@@ -129,14 +139,46 @@ class Bos4DemoTests(TransactionTestCase):
             dispatch({'action': 'erp_reserve', 'lot_id': blocked.pk, 'quantity': '10', 'line_id': line.pk}, 'ceo')
         self.assertFalse(Movement.objects.filter(lot=blocked, kind='shipment').exists())
         self.assertEqual(Invoice.objects.get(code='RF-0144').amount, D('777700'))
+        self.assertEqual(blocked.documents, {})
+        inspection = Inspection.objects.get(lot=blocked)
+        self.assertEqual((inspection.result, inspection.inspector.full_name), ('blocked', 'Наталія Ткаченко'))
+        self.assertIn('паспорт не оформлено', inspection.note)
+        shipments = Movement.objects.filter(line__order=order, kind='shipment').order_by('line__item__code')
+        self.assertEqual(list(shipments.values_list('line__item__code', 'quantity', 'reference', 'lot__quality')),
+                         [('SHM-1', D(-30), 'VN-0144-1', 'approved'),
+                          ('SHM-2', D(-40), 'VN-0144-1', 'approved'),
+                          ('TI-1', D(-20), 'VN-0144-1', 'approved')])
+        shipped_lot = shipments.get(line=line).lot
+        self.assertEqual(shipped_lot.documents, {'passport': Document.objects.get(code='KM-PASS-SHM-2').pk})
+        reserve = Event.objects.get(action='erp_reserve', payload__line_id=line.pk)
+        self.assertEqual((reserve.payload['lot_id'], reserve.payload['quantity']), (shipped_lot.pk, '40'))
+        task = Task.objects.get(title__startswith='Перефарбувати партію ШМ-2')
+        self.assertEqual((task.assignee_employee.full_name, str(task.deadline), task.status, task.sales_order_id),
+                         ('Наталія Ткаченко', '2026-10-07', 'active', order.pk))
+        codes = self.case_document_codes('quality')
+        self.assertEqual(codes, ['KM-ZM-0144', 'KM-QC-SHM-2-0918', 'KM-VN-0144-1', 'KM-QC-SHM-2-0918'])
+        self.assertEqual(set(DocumentLink.objects.filter(order=order).values_list('document__code', flat=True)), set(codes))
+        self.assertNotEqual(Document.objects.get(code='KM-QC-SHM-2-0918').pk, shipped_lot.documents['passport'])
 
     def test_case_payment_leaves_reminder_for_remaining_debt(self):
         self.command()
         invoice = Invoice.objects.get(code='RF-0137')
         self.assertEqual((invoice.amount, invoice.paid), (D('420000'), D('252000')))
         self.assertEqual(invoice_settlement(invoice)['receivable'], D('168000'))
+        self.assertEqual(str(invoice.due_date), '2026-10-01')
+        payment = Event.objects.get(action='erp_payment', payload__reference='PD-5521')
+        self.assertEqual((payment.payload['invoice_id'], D(payment.payload['amount'])), (invoice.pk, D('252000')))
         task = Task.objects.get(title__contains='RF-0137')
         self.assertEqual((task.assignee, task.priority, task.sales_order.code), ('Дмитро Савченко', 'high', 'ZM-0137'))
+        self.assertEqual((task.assignee_employee.full_name, str(task.deadline), task.status),
+                         ('Дмитро Савченко', '2026-10-06', 'active'))
+        shipments = Movement.objects.filter(line__order=task.sales_order, kind='shipment').order_by('line__item__code')
+        self.assertEqual(list(shipments.values_list('line__item__code', 'quantity', 'reference')),
+                         [('SV-1200', D(-20), 'VN-0137-1'), ('VS-1500', D(-30), 'VN-0137-1')])
+        codes = self.case_document_codes('payment')
+        self.assertEqual(codes, ['KM-VN-0137-1', 'KM-RF-0137', 'KM-PD-5521', 'KM-REM-RF-0137'])
+        self.assertEqual(list(DocumentLink.objects.filter(order=task.sales_order).values_list('document__code', flat=True)), codes[:1])
+        self.assertEqual(set(DocumentLink.objects.filter(invoice=invoice).values_list('document__code', flat=True)), set(codes[1:]))
         school = Invoice.objects.get(code='RF-0139')
         self.assertEqual(invoice_settlement(school)['receivable'], D('0'))
 
