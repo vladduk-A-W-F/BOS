@@ -8,6 +8,7 @@ import io
 import json
 from pathlib import Path
 import shutil
+import socket
 import sqlite3
 import tempfile
 import unittest
@@ -19,6 +20,8 @@ from scripts import owner_local_delivery as delivery
 DIGEST = 'f' * 64
 SECRET = 'synthetic-' + 'x' * 60
 PASSWORD = 'pbkdf2_sha256$synthetic-hash'
+LISTENING = delivery._listening                          # the real probe; setUp replaces the module attribute
+MIGRATION = 'connectors.0003_connector_url_kind'
 
 
 def fake_update(path, source, source_sha256):
@@ -51,6 +54,11 @@ class OwnerLocalDeliveryTests(unittest.TestCase):
             'INSERT INTO auth_user (password, last_login, is_superuser, username, first_name, last_name, email, '
             "is_staff, is_active, date_joined) VALUES (?, NULL, 0, 'synthetic-owner', '', '', '', 0, 1, "
             "'2026-10-01 00:00:00')", (PASSWORD,))
+        database.execute(
+            'INSERT INTO connectors_connector (kind, name, dataset, source_url, status, last_error, last_sync_at, '
+            "mapping, created_by_id, created_at) SELECT 'google_sheets', 'Synthetic orders', 'orders', "
+            "'https://example.invalid/orders.csv', 'connected', '', NULL, '{}', id, '2026-10-01 00:00:00' "
+            "FROM auth_user WHERE username = 'synthetic-owner'")
         database.commit()
         database.close()
 
@@ -64,7 +72,7 @@ class OwnerLocalDeliveryTests(unittest.TestCase):
         shutil.copytree(self.template / 'owner', folder / 'owner')
         self.paths = local.instance_paths(folder / 'owner')
         for patcher in (mock.patch.object(local, 'digest_source', return_value=DIGEST),
-                        mock.patch.object(local, 'localhost_port_is_free', return_value=None)):
+                        mock.patch.object(delivery, '_listening', return_value=False)):
             patcher.start()
             self.addCleanup(patcher.stop)
 
@@ -86,17 +94,32 @@ class OwnerLocalDeliveryTests(unittest.TestCase):
         with self.assertRaisesRegex(delivery.DeliveryError, 'process receipt'):
             delivery.backup(self.paths)
 
+    def test_a_server_counts_as_running_while_it_listens_not_while_its_port_waits(self):
+        server = socket.socket()
+        server.bind(('127.0.0.1', 0))
+        server.listen()
+        port = server.getsockname()[1]
+        self.assertTrue(LISTENING(port))
+        server.close()
+        self.assertFalse(LISTENING(port))
+        with mock.patch.object(delivery, '_listening', return_value=True), \
+                self.assertRaisesRegex(delivery.DeliveryError, 'answers'):
+            delivery.backup(self.paths)
+
     def test_migrate_applies_only_the_allowed_state_migration_and_keeps_data(self):
         saved = delivery.backup(self.paths)['backup']
         with mock.patch.object(delivery, 'ALLOWED_MIGRATIONS', frozenset()):
-            with self.assertRaisesRegex(delivery.DeliveryError, 'connectors.0003_connector_url_kind'):
+            with self.assertRaisesRegex(delivery.DeliveryError, MIGRATION):
                 delivery.migrate(self.paths, saved)
-        self.assertNotIn('connectors.0003_connector_url_kind', delivery._applied(self.paths['database']),
-                         'a refused plan applies nothing')
+        self.assertNotIn(MIGRATION, delivery._applied(self.paths['database']), 'a refused plan applies nothing')
         result = delivery.migrate(self.paths, saved)
-        self.assertEqual((result['applied'], result['integrity']), (['connectors.0003_connector_url_kind'], 'ok'))
-        self.assertIn('connectors.0003_connector_url_kind', delivery._applied(self.paths['database']))
+        self.assertEqual((result['applied'], result['integrity']), ([MIGRATION], 'ok'))
+        self.assertIn(MIGRATION, delivery._applied(self.paths['database']))
         self.assertEqual(delivery.migrate(self.paths, saved)['applied'], [], 'a repeated step has nothing to do')
+        with mock.patch.object(delivery, 'ALLOWED_MIGRATIONS', frozenset()):
+            self.assertEqual(delivery._problems(self.paths, Path(saved), json.loads(
+                (Path(saved) / 'FINGERPRINTS.json').read_text(encoding='utf-8'))),
+                [f'django_migrations: {MIGRATION} is outside the allowlist'])
 
     def test_bind_changes_only_the_source_pin(self):
         saved = delivery.backup(self.paths)['backup']
@@ -112,7 +135,7 @@ class OwnerLocalDeliveryTests(unittest.TestCase):
                 self.assertRaisesRegex(delivery.DeliveryError, 'dataset'):
             delivery.bind(self.paths, saved)
 
-    def test_verify_passes_after_a_sign_in_and_fails_on_a_changed_password(self):
+    def test_verify_passes_after_a_sign_in_and_a_source_reread_and_fails_on_changed_data(self):
         saved = delivery.backup(self.paths)['backup']
         delivery.migrate(self.paths, saved)
         self.paths['process'].write_text(json.dumps(
@@ -123,14 +146,26 @@ class OwnerLocalDeliveryTests(unittest.TestCase):
             self.assertEqual(delivery.verify(self.paths, saved)['result'], 'PASS')
             self.run_sql("UPDATE auth_user SET last_login = '2026-10-10 08:00:00'")
             self.run_sql("INSERT INTO django_session VALUES ('synthetic', 'synthetic', '2026-11-01 00:00:00')")
-            self.assertEqual(delivery.verify(self.paths, saved)['result'], 'PASS', 'a sign-in is not a data change')
+            self.run_sql("UPDATE connectors_connector SET status = 'error', last_error = 'timeout', "
+                         "last_sync_at = '2026-10-10 08:00:00'")
+            self.run_sql('INSERT INTO connectors_connectorsnapshot (connector_id, fetched_at, columns, rows, '
+                         "row_count, sha256) SELECT id, '2026-10-10 08:00:00', '[\"N\"]', '[[\"1\"]]', 1, ? "
+                         'FROM connectors_connector', DIGEST)
+            self.assertEqual(delivery.verify(self.paths, saved)['result'], 'PASS',
+                             'a sign-in and a re-read of a connected source are not data changes')
             self.run_sql("UPDATE auth_user SET password = 'pbkdf2_sha256$changed'")
+            self.run_sql("UPDATE connectors_connector SET name = 'Renamed'")
             result = delivery.verify(self.paths, saved)
         self.assertEqual(result['result'], 'FAIL')
         self.assertFalse(result['checks']['owner_password_unchanged'])
-        self.assertIn('auth_user: content differs (1 -> 1 rows)', result['problems'])
+        self.assertEqual(result['problems'], ['auth_user: content differs (1 -> 1 rows)',
+                                              'connectors_connector: content differs (1 -> 1 rows)'])
 
-    def test_rollback_restores_database_media_and_the_installed_pin(self):
+    def test_rollback_restores_database_media_and_pin_keeps_what_it_replaced_and_allows_a_new_attempt(self):
+        stamps = mock.patch.object(delivery, '_stamp', side_effect=['20261010-080000Z', '20261010-080001Z',
+                                                                     '20261010-080002Z'])
+        stamps.start()
+        self.addCleanup(stamps.stop)
         saved = Path(delivery.backup(self.paths)['backup'])
         delivery.migrate(self.paths, saved)
         with mock.patch('scripts.bos3_prepared_update.update_prepared_source', side_effect=fake_update):
@@ -141,17 +176,40 @@ class OwnerLocalDeliveryTests(unittest.TestCase):
             with self.assertRaisesRegex(delivery.DeliveryError, 'process receipt'):
                 delivery.rollback(self.paths, saved)
             self.paths['process'].unlink()
+            (saved.parent / 'zz-made-by-another-tool').mkdir()
+            (saved.parent / 'zz-made-by-another-tool' / delivery.JOURNAL).write_text('[]', encoding='utf-8')
             result = delivery.rollback(self.paths, saved)
         self.assertEqual(result['result'], 'PASS', result)
         self.assertEqual(delivery.fingerprints(self.paths['database']),
                          json.loads((saved / 'FINGERPRINTS.json').read_text(encoding='utf-8')))
-        self.assertNotIn('connectors.0003_connector_url_kind', delivery._applied(self.paths['database']))
+        self.assertNotIn(MIGRATION, delivery._applied(self.paths['database']))
         self.assertFalse((self.paths['media'] / 'docs' / 'after-backup.txt').exists())
-        self.assertTrue((Path(result['replaced_media_kept_in']) / 'docs' / 'after-backup.txt').exists())
+        kept = Path(result['replaced_kept_in'])
+        self.assertTrue((kept / 'media' / 'docs' / 'after-backup.txt').exists())
+        self.assertEqual(delivery.fingerprints(kept / 'data' / self.paths['database'].name)['auth_user']['rows'], 0,
+                         'the replaced database is kept as it was')
         self.assertEqual(json.loads(self.paths['prepared'].read_text(encoding='utf-8')),
                          json.loads((saved / 'prepared.json').read_text(encoding='utf-8')))
         journal = json.loads((saved / 'DELIVERY.json').read_text(encoding='utf-8'))
         self.assertEqual([entry['step'] for entry in journal], ['backup', 'migrate', 'bind', 'rollback'])
+        again = delivery.backup(self.paths)['backup']
+        self.assertEqual(delivery.migrate(self.paths, again)['applied'], [MIGRATION], 'a new attempt starts clean')
+        with self.assertRaisesRegex(delivery.DeliveryError, 'newer backup'):
+            delivery.rollback(self.paths, saved)
+
+    def test_rollback_refuses_a_foreign_or_damaged_backup_and_changes_nothing(self):
+        saved = Path(delivery.backup(self.paths)['backup'])
+        self.run_sql('DELETE FROM auth_user')
+        before = delivery.fingerprints(self.paths['database'])
+        foreign = self.paths['root'].parent / 'elsewhere' / saved.name
+        shutil.copytree(saved, foreign)
+        with self.assertRaisesRegex(delivery.DeliveryError, 'this installation'):
+            delivery.rollback(self.paths, foreign)
+        (saved / 'media' / 'docs' / 'photo.txt').write_text('damaged', encoding='utf-8')
+        with self.assertRaisesRegex(delivery.DeliveryError, 'manifest'):
+            delivery.rollback(self.paths, saved)
+        self.assertEqual(delivery.fingerprints(self.paths['database']), before)
+        self.assertEqual([p.name for p in saved.iterdir() if p.name.startswith('replaced-')], [])
 
     def test_the_command_line_needs_the_backup_and_never_prints_secrets(self):
         with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):

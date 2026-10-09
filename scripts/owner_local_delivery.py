@@ -17,6 +17,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import socket
 import sqlite3
 import subprocess
 import sys
@@ -31,12 +32,14 @@ from scripts import bos3_local as local  # noqa: E402
 # Migrations this release may apply by itself: Django state only, no SQL. Anything else needs its own plan.
 ALLOWED_MIGRATIONS = frozenset({'connectors.0003_connector_url_kind'})
 STATE_FILES = ('prepared.json', 'owner-access.json', 'runtime-secrets.json')
-# Tables the running server or a login may legitimately grow; they must never shrink.
-VOLATILE_TABLES = frozenset({'django_session', 'operations_loginattempt', 'connectors_connector',
-                             'connectors_connectorsnapshot'})
-IGNORED_COLUMNS = {'auth_user': frozenset({'last_login'})}
+# Tables a sign-in or the running source re-reader may legitimately grow; they must never shrink.
+VOLATILE_TABLES = frozenset({'django_session', 'operations_loginattempt', 'connectors_connectorsnapshot'})
+# Columns they write in place (connectors.views.sync_connector); every other column must stay as it was.
+IGNORED_COLUMNS = {'auth_user': frozenset({'last_login'}),
+                   'connectors_connector': frozenset({'status', 'last_error', 'last_sync_at'})}
 JOURNAL = 'DELIVERY.json'
 PLANNED = re.compile(r'^(\w+)\.(\d{4}\w*)\s*$', re.M)
+STAMPED = re.compile(r'^\d{8}-\d{6}Z-')                  # names of this tool's backups
 
 
 class DeliveryError(RuntimeError):
@@ -45,6 +48,10 @@ class DeliveryError(RuntimeError):
 
 def _now():
     return datetime.now(timezone.utc).isoformat(timespec='seconds')
+
+
+def _stamp():
+    return datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%SZ')   # UTC: names sort in time order
 
 
 def _sha(path):
@@ -132,28 +139,58 @@ def _journal(backup, step, result):
     return result
 
 
-def _journal_applied(backup):
-    path = Path(backup) / JOURNAL
-    entries = json.loads(path.read_text(encoding='utf-8')) if path.exists() else []
-    return [name for entry in entries if entry.get('step') == 'migrate' for name in entry.get('applied', [])]
+def _problems(paths, backup, saved):
+    """Differences of the live database from the backup beyond allowlisted migrations; empty means unchanged.
+
+    The applied migrations are measured in the two databases, not taken from the journal, so a repeated step
+    or a new attempt after a rollback counts exactly what is there.
+    """
+    applied = sorted(_applied(paths['database']) - _applied(backup / paths['database'].name))
+    outside = [f'django_migrations: {name} is outside the allowlist' for name in applied
+               if name not in ALLOWED_MIGRATIONS]
+    return outside + compare(saved, fingerprints(paths['database']), applied)
+
+
+def _listening(port=None):
+    """Whether a server accepts connections on the local port. A bind probe would also fail on TIME_WAIT."""
+    try:
+        with socket.create_connection(('127.0.0.1', port or local.PORT), timeout=2):
+            return True
+    except OSError:
+        return False
 
 
 def _require_stopped(paths):
     if paths['process'].exists():
         raise DeliveryError('A process receipt exists: run bos3_local.py stop (or status) with the installed '
                             'source first; never delete the receipt by hand.')
-    try:
-        local.localhost_port_is_free()
-    except OSError as error:
-        raise DeliveryError(f'Port {local.PORT} is busy: another server is running.') from error
+    if _listening():
+        raise DeliveryError(f'Port {local.PORT} answers: another server is running.')
 
 
-def _require_backup(backup):
-    backup = Path(backup)
-    for name in ('FINGERPRINTS.json', 'MANIFEST.json', 'prepared.json'):
-        if not (backup / name).is_file():
-            raise DeliveryError('Not a verified backup made by this tool: ' + str(backup))
+def _require_backup(paths, backup):
+    """Only the newest complete backup this tool made for this installation."""
+    backup, folder = Path(backup).resolve(), paths['root'] / 'backups'
+    if backup.parent != folder or not STAMPED.match(backup.name) or not all((backup / name).is_file() for name in (
+            JOURNAL, 'FINGERPRINTS.json', 'MANIFEST.json', 'prepared.json')):
+        raise DeliveryError('Not a backup this tool made for this installation: ' + backup.as_posix())
+    newer = sorted(p.name for p in folder.iterdir()
+                   if STAMPED.match(p.name) and p.name > backup.name and (p / JOURNAL).is_file())
+    if newer:
+        raise DeliveryError('A newer backup exists (' + ', '.join(newer) + '): use the one printed by the '
+                            'last backup step.')
     return backup
+
+
+def _copy_database(source, target):
+    """SQLite backup API copy; returns the integrity check of the target."""
+    reader, writer = _readonly(source), sqlite3.connect(target)
+    try:
+        reader.backup(writer)
+        return writer.execute('PRAGMA integrity_check').fetchone()[0]
+    finally:
+        reader.close()
+        writer.close()
 
 
 def _secret(paths):
@@ -167,12 +204,13 @@ def inspect(paths, backup=None):
     prepared = local.read_json(paths['prepared'])
     receipt = local.read_json(paths['process']) if paths['process'].exists() else None
     clean = _git_clean(SOURCE)
-    return {
-        'installed_source': prepared.get('source'), 'installed_source_sha256': prepared.get('source_sha256'),
+    return {                                               # paths with '/': the same in PowerShell and Git Bash
+        'installed_source': Path(prepared['source']).as_posix(),
+        'installed_source_sha256': prepared.get('source_sha256'),
         'dataset': prepared.get('dataset', 'bos3'), 'fixture_id': prepared.get('fixture_id'),
         'process_receipt': None if receipt is None else (receipt.get('status') if receipt.get('process')
                                                           else 'recovery_pending'),
-        'new_source': str(SOURCE), 'new_version': _version(), 'new_clean': clean,
+        'new_source': SOURCE.as_posix(), 'new_version': _version(), 'new_clean': clean,
         'new_source_sha256': local.digest_source(SOURCE) if clean else None,
     }
 
@@ -191,19 +229,13 @@ def preflight(paths, backup=None):
 
 def backup(paths, backup=None):
     _require_stopped(paths)
-    target = paths['root'] / 'backups' / (datetime.now().strftime('%Y%m%d-%H%M%S') + '-' + (_version() or 'unknown'))
+    target = paths['root'] / 'backups' / (_stamp() + '-' + (_version() or 'unknown'))
     target.mkdir(parents=True)
     if os.name == 'nt':
         local.protect_path(target, directory=True)       # private to the owner and SYSTEM, verified
     copy = target / paths['database'].name
-    reader, writer = _readonly(paths['database']), sqlite3.connect(copy)
-    try:
-        reader.backup(writer)                              # live database -> backup copy
-        if writer.execute('PRAGMA integrity_check').fetchone()[0] != 'ok':
-            raise DeliveryError('The backup copy failed its integrity check.')
-    finally:
-        reader.close()
-        writer.close()
+    if _copy_database(paths['database'], copy) != 'ok':  # live database -> backup copy
+        raise DeliveryError('The backup copy failed its integrity check.')
     if paths['media'].exists():
         shutil.copytree(paths['media'], target / 'media')
     else:
@@ -221,14 +253,15 @@ def backup(paths, backup=None):
     manifest = {name: _sha(target / name) for name in (copy.name, *STATE_FILES)}
     manifest.update({'media/' + name: digest for name, digest in _files(target / 'media').items()})
     (target / 'MANIFEST.json').write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8')
-    return _journal(target, 'backup', {'backup': str(target), 'files': len(manifest),
+    return _journal(target, 'backup', {'backup': target.as_posix(), 'files': len(manifest),
                                        'bytes': sum((target / name).stat().st_size for name in manifest),
                                        'tables': len(saved)})
 
 
 def migrate(paths, backup):
     _require_stopped(paths)
-    saved = json.loads((_require_backup(backup) / 'FINGERPRINTS.json').read_text(encoding='utf-8'))
+    backup = _require_backup(paths, backup)
+    saved = json.loads((backup / 'FINGERPRINTS.json').read_text(encoding='utf-8'))
     env = local.environment(paths, SOURCE, _secret(paths))
     local.managed(['migrate', '--plan'], env, paths)
     planned = ['.'.join(match) for match in PLANNED.findall((paths['logs'] / 'migrate.log').read_text(encoding='utf-8'))]
@@ -237,14 +270,13 @@ def migrate(paths, backup):
         raise DeliveryError('Migrations outside this release allowlist need their own plan: ' + ', '.join(unexpected))
     if planned:
         local.managed(['migrate', '--noinput'], env, paths)
-    applied = _journal_applied(backup) + planned          # a repeated step counts the earlier one too
     missing = sorted(set(planned) - _applied(paths['database']))
     connection = _readonly(paths['database'])
     try:
         integrity = connection.execute('PRAGMA integrity_check').fetchone()[0]
     finally:
         connection.close()
-    problems = compare(saved, fingerprints(paths['database']), applied)
+    problems = _problems(paths, backup, saved)
     if missing or integrity != 'ok' or problems:
         raise DeliveryError(f'Migration check failed: missing={missing} integrity={integrity} problems={problems}')
     return _journal(backup, 'migrate', {'applied': planned, 'integrity': integrity, 'data_unchanged': True})
@@ -252,7 +284,8 @@ def migrate(paths, backup):
 
 def bind(paths, backup):
     _require_stopped(paths)
-    saved = json.loads((_require_backup(backup) / 'prepared.json').read_text(encoding='utf-8'))
+    backup = _require_backup(paths, backup)
+    saved = json.loads((backup / 'prepared.json').read_text(encoding='utf-8'))
     digest = local.digest_source(SOURCE)
     from scripts.bos3_prepared_update import update_prepared_source
     update_prepared_source(paths['prepared'], str(SOURCE), digest)
@@ -286,14 +319,14 @@ def _owner_password(database, username):
 
 def verify(paths, backup):
     """Right after start and before anyone signs in: the new code serves, the owner's data is unchanged."""
-    backup = _require_backup(backup)
+    backup = _require_backup(paths, backup)
     receipt = local.read_json(paths['process']) if paths['process'].exists() else {}
     saved = json.loads((backup / 'FINGERPRINTS.json').read_text(encoding='utf-8'))
     manifest = json.loads((backup / 'MANIFEST.json').read_text(encoding='utf-8'))
     username = local.read_json(paths['prepared']).get('owner_username')
     home_status, home = _get('/')
     title = re.search(r'<title>(.*?)</title>', home, re.S)
-    problems = compare(saved, fingerprints(paths['database']), _journal_applied(backup))
+    problems = _problems(paths, backup, saved)
     checks = {
         'server_ready_on_new_source': receipt.get('status') == 'ready' and receipt.get('source') == str(SOURCE)
         and receipt.get('source_sha256') == local.digest_source(SOURCE),
@@ -312,35 +345,40 @@ def verify(paths, backup):
 
 
 def rollback(paths, backup):
+    """Backup -> live database, media and pin. Whatever it replaces is kept in <Backup>/replaced-<UTC time>."""
     _require_stopped(paths)
-    backup = _require_backup(backup)
+    backup = _require_backup(paths, backup)
     saved_prepared = json.loads((backup / 'prepared.json').read_text(encoding='utf-8'))
     manifest = json.loads((backup / 'MANIFEST.json').read_text(encoding='utf-8'))
-    reader, writer = _readonly(backup / paths['database'].name), sqlite3.connect(paths['database'])
-    try:
-        reader.backup(writer)                              # backup copy -> live database
-        integrity = writer.execute('PRAGMA integrity_check').fetchone()[0]
-    finally:
-        reader.close()
-        writer.close()
-    replaced = backup / ('media-replaced-' + datetime.now().strftime('%Y%m%d-%H%M%S'))
+    saved = json.loads((backup / 'FINGERPRINTS.json').read_text(encoding='utf-8'))
+    copy, media = backup / paths['database'].name, {k[6:]: v for k, v in manifest.items() if k.startswith('media/')}
+    if (_sha(copy) != manifest[copy.name] or fingerprints(copy) != saved or _files(backup / 'media') != media
+            or _sha(backup / 'prepared.json') != manifest['prepared.json']):
+        raise DeliveryError('The backup no longer matches its manifest; nothing was changed.')
+    replaced = backup / ('replaced-' + _stamp())
+    (replaced / 'data').mkdir(parents=True)
+    # the database file with its -journal or -wal file, if any
+    live = sorted(p for p in paths['database'].parent.glob(paths['database'].name + '*') if p.is_file())
+    for path in live:
+        shutil.copy2(path, replaced / 'data' / path.name)
+    if _files(replaced / 'data') != {path.name: _sha(path) for path in live}:
+        raise DeliveryError('The current database could not be kept; nothing was restored.')
+    integrity = _copy_database(copy, paths['database'])  # backup copy -> live database
     if paths['media'].exists():
-        shutil.move(str(paths['media']), str(replaced))   # kept for diagnosis, never deleted here
+        shutil.move(str(paths['media']), str(replaced / 'media'))
     shutil.copytree(backup / 'media', paths['media'])
     current = local.read_json(paths['prepared'])
     if (current.get('source'), current.get('source_sha256')) != (saved_prepared['source'], saved_prepared['source_sha256']):
         from scripts.bos3_prepared_update import update_prepared_source
         update_prepared_source(paths['prepared'], saved_prepared['source'], saved_prepared['source_sha256'])
-    saved = json.loads((backup / 'FINGERPRINTS.json').read_text(encoding='utf-8'))
     checks = {
         'database_restored': integrity == 'ok' and fingerprints(paths['database']) == saved,
-        'media_restored': _files(paths['media']) == {k[6:]: v for k, v in manifest.items() if k.startswith('media/')},
+        'media_restored': _files(paths['media']) == media,
         'prepared_restored': local.read_json(paths['prepared']) == saved_prepared,
         'private_state_unchanged': all(_sha(paths['state'] / name) == manifest[name]
                                        for name in ('owner-access.json', 'runtime-secrets.json')),
     }
-    return _journal(backup, 'rollback', {'checks': checks,
-                                         'replaced_media_kept_in': str(replaced) if replaced.exists() else None,
+    return _journal(backup, 'rollback', {'checks': checks, 'replaced_kept_in': replaced.as_posix(),
                                          'result': 'PASS' if all(checks.values()) else 'FAIL'})
 
 

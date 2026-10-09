@@ -25,9 +25,11 @@
 Що підставити:
 - `<Py>` — `D:/3/BOSDev/venv/Scripts/python.exe`;
 - `<Root>` — `D:/3/BOSDev/local-bos3/owner`;
-- `<Old>` — значення `source` із `<Root>/state/prepared.json`;
+- `<Old>` — `installed_source` з виводу кроку 2: тека встановленої версії з `<Root>/state/prepared.json`;
 - `<New>` — нова копія поруч із `<Old>`, наприклад `<тека, де лежить Old>/BOS-v0.4.0-dev.2`, не всередині `<Root>`;
 - `<Tool>` — `<Py> -X utf8 -B <New>/scripts/owner_local_delivery.py`.
+
+Шляхи писати лише з `/` — так їх друкує інструмент. У Git Bash `\` без лапок зникає, і команда відмовить.
 
 Сесію Claude запускати в окремому робочому клоні, наприклад `D:/3/BOSDev/claude-work/BOS`, — не в `<Old>` і не в `<New>`.
 
@@ -35,7 +37,7 @@
 1. **Нова копія.**
    - `git clone -c core.autocrlf=false https://github.com/vladduk-A-W-F/BOS.git <New>`;
    - потім `git -C <New> checkout --detach v0.4.0-dev.2`.
-2. **Огляд, лише читання:** `<Tool> inspect --root <Root>`. Має бути `new_version` = `0.4.0-dev.2`, `new_clean` = `true`, а `installed_source` — це `<Old>`. Інакше стоп.
+2. **Огляд, лише читання:** `<Tool> inspect --root <Root>`. Має бути `new_version` = `0.4.0-dev.2`, `new_clean` = `true`, а `installed_source` (`<Old>`) — інша тека, ніж `new_source`. Інакше стоп.
 3. **Preflight, лише читання:** `<Tool> preflight --root <Root>`.
    - `running: true` і `preflight: PASS` — перейти до кроку 4.
    - `running: false` і `installed_pin: OK` (ПК перезавантажено, сервер не працює) — крок 4 пропустити.
@@ -60,11 +62,11 @@
 Застосовується після будь-якої відмови після кроку 5 або результату FAIL у кроці 9:
 1. Якщо сервер запущено — `<Py> -X utf8 -B <New>/scripts/bos3_local.py stop --root <Root>`. Якщо після невдалого старту лишилась квитанція в стані `recovery_pending` — стоп і питання власнику.
 2. `<Tool> rollback --root <Root> --backup <Backup>`. Очікується `result: PASS`:
-   - БД повернено з копії (копія → жива БД);
-   - media повернено з копії, а замінені файли збережено в `<Backup>/media-replaced-…`;
+   - спершу інструмент звіряє копію з її `MANIFEST.json` і приймає лише останню копію цієї установки; інакше відмова, нічого не змінено;
+   - БД і media повернено з копії (копія → жива установка), а замінені файли збережено в `<Backup>/replaced-…`;
    - `prepared.json` знову вказує на `<Old>` — через той самий ACL-безпечний `update_prepared_source`.
 3. `<Py> -X utf8 -B <Old>/scripts/bos3_local.py start --root <Root>` і перевірити, що BoS відкривається.
-4. Написати звіт. Успіх не оголошувати.
+4. Написати звіт. Успіх не оголошувати. Нова спроба — лише з кроку 5, з новою копією.
 
 ## Квитанція
 `<Backup>/DELIVERY.json` — журнал кроків інструмента. Скопіювати його в `D:/3/BOSDev/qa-scratch/delivery-0.4.0-dev.2-<дата>/` разом із виводом кроків 1–4 і 8. У Git потрапляють лише посилання й SHA-256. Звіт власнику — до 10 рядків.
