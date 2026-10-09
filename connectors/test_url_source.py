@@ -35,11 +35,13 @@ class FetchUrlTests(SimpleTestCase):
     def test_csv_json_and_excel_from_a_public_link(self):
         table, seen = self.fetch('https://export.example.com/orders.csv?token=abc', 'Номер;Сума\nZM-1;10\n'.encode())
         self.assertEqual((table['columns'], table['rows']), (['Номер', 'Сума'], [['ZM-1', '10']]))
-        self.assertEqual(seen, [('export.example.com', ('93.184.216.34', 443), '/orders.csv?token=abc')])
-        rows = [{'code': 'ZM-1', 'amount': 10.5, 'tags': ['a']}, {'code': 'ZM-2', 'customer': None}]
+        self.assertEqual(seen, [('export.example.com', (('93.184.216.34', 443),), '/orders.csv?token=abc')])
+        _, seen = self.fetch('https://export.example.com/звіт 1.csv?a=b c&x=%2F#top', b'A\n1\n')
+        self.assertEqual(seen[0][2], '/%D0%B7%D0%B2%D1%96%D1%82%201.csv?a=b%20c&x=%2F', 'a pasted Cyrillic link is sent escaped')
+        rows = [{'code': 'ZM-1', 'amount': 10.5, 'tags': ['a']}, {'code': 'ZM-2', 'customer': None, 'paid': False}]
         table, _ = self.fetch('https://api.example.com/v1/orders', json.dumps({'data': rows}).encode(), 'application/json')
-        self.assertEqual(table['columns'], ['code', 'amount', 'tags', 'customer'])
-        self.assertEqual(table['rows'], [['ZM-1', '10.5', '["a"]', ''], ['ZM-2', '', '', '']])
+        self.assertEqual(table['columns'], ['code', 'amount', 'tags', 'customer', 'paid'])
+        self.assertEqual(table['rows'], [['ZM-1', '10.5', '["a"]', '', ''], ['ZM-2', '', '', '', 'false']])
         table, _ = self.fetch('https://api.example.com/rows', b'[["A","B"],["1","2"]]')
         self.assertEqual((table['columns'], table['rows']), (['A', 'B'], [['1', '2']]))
         from openpyxl import Workbook
@@ -56,9 +58,21 @@ class FetchUrlTests(SimpleTestCase):
             with self.subTest(url=url), self.assertRaises(sources.SourceError):
                 self.fetch(url, b'A\n1\n')
         for address in ('127.0.0.1', '10.0.0.5', '192.168.1.10', '172.16.0.1', '169.254.169.254', '100.64.0.1',
-                        '0.0.0.0', '::1', 'fd00::1', 'fe80::1', '224.0.0.1'):
+                        '0.0.0.0', '::1', 'fd00::1', 'fe80::1', '224.0.0.1',
+                        '::ffff:10.0.0.1', '64:ff9b::a00:1', '64:ff9b::7f00:1', '2002:a00:1::'):
             with self.subTest(address=address), self.assertRaisesRegex(sources.SourceError, 'внутрішньої мережі'):
                 self.fetch('https://intranet.example.com/a.csv', b'A\n1\n', addresses=('93.184.216.34', address))
+        table, seen = self.fetch('https://v6.example.com/a.csv', b'A\n1\n', addresses=('64:ff9b::808:808', '93.184.216.34'))
+        self.assertEqual((table['rows'], seen[0][1]), ([['1']], (('64:ff9b::808:808', 443), ('93.184.216.34', 443))),
+                         'NAT64 to a public address is public; every checked address is offered in order')
+
+    def test_the_next_checked_address_is_tried_when_one_does_not_answer(self):
+        with mock.patch.object(sources.socket, 'create_connection', side_effect=[OSError('no route'), 'tls-ready']) as connect:
+            self.assertEqual(sources._connect((('2606:4700::1111', 443), ('93.184.216.34', 443))), 'tls-ready')
+        self.assertEqual([c.args[0] for c in connect.call_args_list], [('2606:4700::1111', 443), ('93.184.216.34', 443)])
+        with mock.patch.object(sources.socket, 'create_connection', side_effect=OSError('no route')), \
+                self.assertRaises(OSError):
+            sources._connect((('93.184.216.34', 443),))
 
     def test_pages_redirects_and_broken_answers_are_explained(self):
         with self.assertRaisesRegex(sources.SourceError, 'вебсторінка'):
@@ -72,6 +86,12 @@ class FetchUrlTests(SimpleTestCase):
         with mock.patch.object(sources.socket, 'getaddrinfo', side_effect=socket.gaierror('nope')), \
                 self.assertRaisesRegex(sources.SourceError, 'не знайдено'):
             sources.fetch_url('https://missing.example.com/a.csv', get=lambda *a: (b'A\n1\n', ''))
+
+        def slow(*args):
+            raise TimeoutError('timed out')
+        with mock.patch.object(sources.socket, 'getaddrinfo', side_effect=resolver('93.184.216.34')), \
+                self.assertRaisesRegex(sources.SourceError, 'не відповів вчасно'):
+            sources.fetch_url('https://slow.example.com/a.csv', get=slow)
 
         class Response:
             def __init__(self, status):

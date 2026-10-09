@@ -8,7 +8,7 @@ import json
 import re
 import socket
 import ssl
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, quote, urlparse
 from urllib.request import Request, build_opener, HTTPRedirectHandler
 
 MAX_BYTES = 5 * 1024 * 1024
@@ -159,7 +159,7 @@ JSON_LISTS = ('data', 'items', 'results', 'rows', 'records')
 def _cell(value):
     if value is None:
         return ''
-    if isinstance(value, (dict, list)):
+    if isinstance(value, (dict, list, bool)):
         return json.dumps(value, ensure_ascii=False)
     return str(value)
 
@@ -190,8 +190,21 @@ def parse_json(raw):
     return _table([[str(c) for c in columns]] + [[_cell(row.get(c)) for c in columns] for row in data])
 
 
-def public_address(host, port=443):
-    """Resolve the host and refuse anything that is not a public internet address (no SSRF into the LAN)."""
+NAT64 = ipaddress.ip_network('64:ff9b::/96')
+
+
+def _public(address):
+    """A public internet address, judged by the IPv4 it carries when it is IPv4-mapped or NAT64."""
+    if address.version == 6:
+        if address.ipv4_mapped:
+            address = address.ipv4_mapped
+        elif address in NAT64:
+            address = ipaddress.IPv4Address(int(address) & 0xFFFFFFFF)
+    return address.is_global and not address.is_multicast
+
+
+def public_addresses(host, port=443):
+    """Resolve the host and refuse it if any address is not public internet (no SSRF into the LAN)."""
     try:
         infos = socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
     except OSError as exc:
@@ -199,16 +212,26 @@ def public_address(host, port=443):
     if not infos:
         raise SourceError('Сервер за посиланням не знайдено.')
     for info in infos:
-        address = ipaddress.ip_address(info[4][0].split('%')[0])
-        if not address.is_global or address.is_multicast:
+        if not _public(ipaddress.ip_address(info[4][0].split('%')[0])):
             raise SourceError('Посилання веде до внутрішньої мережі. Дозволені лише публічні адреси інтернету.')
-    return infos[0][4][:2]
+    return tuple(dict.fromkeys(info[4][:2] for info in infos))
 
 
-def _https_get(host, address, path):
-    """One GET to the already-checked address, verified TLS for the host name, no redirects followed."""
+def _connect(addresses):
+    """The first checked address that answers, like socket.create_connection does for a host name."""
+    error = None
+    for address in addresses:
+        try:
+            return socket.create_connection(address, timeout=FETCH_TIMEOUT)
+        except OSError as exc:
+            error = exc
+    raise error
+
+
+def _https_get(host, addresses, path):
+    """One GET to an already-checked address, verified TLS for the host name, no redirects followed."""
     context = ssl.create_default_context()
-    raw = socket.create_connection(address, timeout=FETCH_TIMEOUT)
+    raw = _connect(addresses)
     try:
         sock = context.wrap_socket(raw, server_hostname=host)
     except Exception:
@@ -240,12 +263,17 @@ def fetch_url(url, get=None):
         raise SourceError('Некоректне посилання.') from exc
     if port != 443:
         raise SourceError('Дозволено лише стандартний порт https (443).')
-    address = public_address(parts.hostname)
-    path = (parts.path or '/') + ('?' + parts.query if parts.query else '')
+    addresses = public_addresses(parts.hostname)
+    # A pasted link may keep Cyrillic letters or spaces; existing %-escapes stay as they are.
+    path = quote(parts.path or '/', safe="/%:@!$&'()*+,;=-._~")
+    if parts.query:
+        path += '?' + quote(parts.query, safe="/?%:@!$&'()*+,;=-._~")
     try:
-        raw, kind = (get or _https_get)(parts.hostname, address, path)
+        raw, kind = (get or _https_get)(parts.hostname, addresses, path)
     except SourceError:
         raise
+    except TimeoutError as exc:
+        raise SourceError('Сервер за посиланням не відповів вчасно.') from exc
     except Exception as exc:
         raise SourceError('Сервер за посиланням недоступний.') from exc
     head = raw.lstrip()[:15].lower()
