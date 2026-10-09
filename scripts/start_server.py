@@ -132,8 +132,14 @@ def serve(port, drain_timeout):
         refuse('встановлення Waitress 3.0.2 у середовищі інсталяції')
     if runtime_version != '3.0.2':
         refuse('версію Waitress 3.0.2')
-    return run_application(application, port=port, version=VERSION,
-                           runtime_version=runtime_version, drain_timeout=drain_timeout)
+    # Connected sources are read in this process only, and the reader ends with the server.
+    from connectors import periodic
+    periodic.start()
+    try:
+        return run_application(application, port=port, version=VERSION,
+                               runtime_version=runtime_version, drain_timeout=drain_timeout)
+    finally:
+        periodic.stop()
 
 
 def main():

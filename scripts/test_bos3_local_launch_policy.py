@@ -2,10 +2,13 @@
 
 import base64
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
+import sys
 import tempfile
+import types
 import unittest
 from unittest import mock
 
@@ -59,6 +62,30 @@ class LaunchPolicyTests(unittest.TestCase):
                 with self.assertRaisesRegex(bos3_local.LocalError,
                         'Hidden local server process could not be created'):
                     bos3_local.launch_via_powershell(args, cwd, env, paths)
+
+
+class ConnectorReadingTests(unittest.TestCase):
+    def test_the_served_process_starts_its_own_connector_reader_before_serving(self):
+        # Synthetic stand-ins: no Django, no socket, no gate files. Only the order inside internal_serve.
+        order = []
+        reader = types.ModuleType('connectors.periodic')
+        reader.start = lambda: order.append('reader')
+        waitress = types.ModuleType('waitress')
+        waitress.serve = lambda application, **options: order.append(('serve', options['host'], options['port']))
+        wsgi = types.ModuleType('boss_project.wsgi')
+        wsgi.application = object()
+        with mock.patch.object(bos3_local, 'wait_for_child_gate'), \
+                mock.patch.object(bos3_local, 'digest_source', return_value='synthetic-digest'), \
+                mock.patch.object(bos3_local, 'read_json',
+                                  return_value={'launch_id': 'synthetic-launch', 'source_sha256': 'synthetic-digest'}), \
+                mock.patch.dict(os.environ, {'BOS3_LOCAL_SOURCE_DIGEST': 'synthetic-digest'}), \
+                mock.patch.dict(sys.modules, {'connectors.periodic': reader, 'waitress': waitress,
+                                              'boss_project.wsgi': wsgi}), \
+                mock.patch.object(sys, 'path', list(sys.path)):
+            sys.modules.pop('connectors', None)
+            bos3_local.internal_serve({'process': Path('synthetic-receipt.json')}, Path('synthetic-source'),
+                                      'waitress', 'synthetic-launch')
+        self.assertEqual(order, ['reader', ('serve', '127.0.0.1', bos3_local.PORT)])
 
 
 if __name__ == '__main__':
