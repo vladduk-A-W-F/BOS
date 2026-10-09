@@ -2,7 +2,7 @@
 const fs=require('fs'),path=require('path');
 const root=path.resolve(__dirname,'..');
 const babel=require(path.join(root,'assets/babel.js'));
-const allowed=new Set(['React','ReactDOM','window','document','navigator','location','localStorage','sessionStorage','TextEncoder','AbortController','fetch','URL','Headers','FormData','File','Blob','FileReader','MediaRecorder','Audio','alert','confirm','prompt','console','setTimeout','clearTimeout','setInterval','clearInterval','requestAnimationFrame','cancelAnimationFrame','CustomEvent','DOMPurify','marked','atob','btoa','performance','URLSearchParams','Intl','getComputedStyle']);
+const allowed=new Set(['React','ReactDOM','window','document','navigator','location','history','PopStateEvent','localStorage','sessionStorage','TextEncoder','AbortController','fetch','URL','Headers','FormData','File','Blob','FileReader','MediaRecorder','Audio','alert','confirm','prompt','console','setTimeout','clearTimeout','setInterval','clearInterval','requestAnimationFrame','cancelAnimationFrame','CustomEvent','DOMPurify','marked','atob','btoa','performance','URLSearchParams','Intl','getComputedStyle']);
 
 function frontendScript(html){
  const match=html.match(/<script type="text\/babel">([\s\S]*?)<\/script>/);
