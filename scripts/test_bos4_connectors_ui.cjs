@@ -295,3 +295,22 @@ function harness(write,extra={}){
   assert.equal(switched.state[0],null,'old-account list response is ignored');
   console.log('M3 connector sync once, observer GET, failed rows/list, stale completion: PASS');
 })().catch(error=>{console.error(error);process.exitCode=1});
+
+// MCP: the CEO sees whether AI-client access is on and which keys exist; the server sends no block to other roles.
+(async()=>{
+  const words=tree=>nodes(tree).flatMap(n=>(n.children||[]).flat(Infinity)).filter(c=>typeof c==='string').join(' ');
+  const open=async mcp=>{
+    const ui=harness(true,{location:{origin:'http://127.0.0.1:8030'}});ui.mount();
+    ui.requests[0].resolve(response({synced:[],failed:[]}));await tick();
+    ui.requests[1].resolve(response(mcp===undefined?list:{...list,mcp}));await tick();
+    return nodes(ui.render()).find(n=>n.props['aria-label']==='ІІ-помічники (MCP)');
+  };
+  const on=await open({enabled:true,path:'/mcp/',keys:[{id:'ab12cd34',label:'Claude на ноутбуці',user:'owner',created_at:'2026-10-09T02:00:00+00:00'}]});
+  assert.ok(on,'CEO sees the MCP card');
+  for(const part of ['Увімкнено','http://127.0.0.1:8030/mcp/','Claude на ноутбуці','owner'])assert.ok(words(on).includes(part),part);
+  assert.ok(!JSON.stringify(on).includes('sha256'),'no key material on screen');
+  const off=await open({enabled:false,path:'/mcp/',keys:[]});
+  assert.ok(words(off).includes('Вимкнено')&&words(off).includes('mcp_access create'),'disabled card says how a key is issued on the server');
+  assert.equal(await open(undefined),undefined,'no card without the server block');
+  console.log('MCP card in «Підключення»: CEO state, key labels, no key material: PASS');
+})().catch(error=>{console.error(error);process.exitCode=1;});
