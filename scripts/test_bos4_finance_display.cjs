@@ -15,12 +15,12 @@ const context = {
   React: {Fragment: 'fragment', createElement: (type, props, ...children) => ({type, props: {...props, children}})},
   useState: initial => [slot++ === 0 ? data : slot === 6 ? search : initial, () => {}],
   useRef: () => ({current: 0}), useEffect() {},
-  bosCanView: () => true, bosCan: () => true, bosCanAction: () => false, bosRole: () => role,
+  bosCanView: () => true, bosCan: permission => permission !== 'finance' || role !== 'observer', bosCanAction: () => false, bosRole: () => role,
   Card: 'Card', ERPTable: 'ERPTable', Input: 'Input', Button: 'Button',
-  B03Ledger: 'B03Ledger', B03PendingLauncher: 'B03PendingLauncher',
-  BoSLink: 'BoSLink', NextAction: 'NextAction', OrderTrace: 'OrderTrace',
+  B03Ledger: 'B03Ledger', B03PendingLauncher: 'B03PendingLauncher', B03Settlement: 'B03Settlement', B03Facts: 'B03Facts',
+  BoSLink: 'BoSLink', DocViewer: 'DocViewer', NextAction: 'NextAction', OrderTrace: 'OrderTrace',
   OrderSupplyOptions: 'OrderSupplyOptions', OrderSettlement: 'OrderSettlement', T: {primary: '#000'},
-  ERP_LABELS: {}, flowPositive: value => Number(value) > 0,
+  ERP_LABELS: {}, B03_KINDS: {}, c03Scope: () => 'test', flowPositive: value => Number(value) > 0,
   erpFetch: async () => {refreshes++; return data;},
 };
 vm.createContext(context);
@@ -29,6 +29,7 @@ vm.runInContext(
   part('function b03FindRecord(', 'function b03OpenPurchase(') + '\n' +
   part('function erpRecordName(', 'function ERPWorkspace(') + '\n' +
   part('function ERPWorkspace(', 'const BOS_METRICS =') + '\n' +
+  part('const BOS_METRICS =', 'function BoSReadOnlyRecords(') + '\n' +
   part('function BoSReadOnlyRecords(', 'function WorkspaceTabs('), context);
 const allZero = vm.runInContext('erpAllZero', context);
 assert.equal(allZero([], 'credit'), false);
@@ -105,4 +106,75 @@ for (const [price, currency, expected] of [
   assert.equal(JSON.stringify(data), before, 'display must preserve order currency and line values');
 }
 assert.equal(refreshes, 0, 'rendering facts must not request or mutate data');
-console.log('U3 compiled finance display: credits, exact sales prices, role guard, unchanged data and adaptive toolbar PASS');
+function textOf(tree) {
+  if (tree == null || typeof tree === 'boolean') return '';
+  if (Array.isArray(tree)) return tree.map(textOf).join('');
+  return typeof tree === 'object' ? textOf(tree.props?.children) : String(tree);
+}
+function table(tree, label) {
+  const found = nodes(tree).filter(n => n.type === 'ERPTable')
+    .find(n => n.props.columns.some(([name]) => name === label));
+  assert(found, `missing ${label} table`);
+  return found;
+}
+function column(found, name, row = found.props.rows[0]) {
+  const renderer = found.props.columns.find(([label]) => label === name)?.[1];
+  assert(renderer, `missing ${name} column`);
+  return typeof renderer === 'function' ? renderer(row) : row[renderer];
+}
+const huge = '9007199254740993.12';
+const hugeUAH = '9\u00a0007\u00a0199\u00a0254\u00a0740\u00a0993,12\u00a0грн';
+const eur = '1\u00a0234,50\u00a0EUR';
+const item = {id: 1, code: 'ITEM', name: 'Виріб', unit: 'шт.', method: 'make', revision: 'A',
+  material: '', external_codes: {}, required_documents: [], minimum: '1', bom: [], routing: [],
+  planned_cost: huge, currency: 'UAH'};
+const job = {id: 2, code: 'JOB', item_id: 1, location_id: 3, owner_id: 4, quantity: '2', produced: '0',
+  revision: 'A', status: 'planned', needs_review: false, routing: [], bom: [],
+  planned_cost: '1234.50', actual_cost: huge, currency: 'EUR'};
+const order = {id: 5, code: 'ORDER', customer_id: 6, owner_id: 4, status: 'confirmed', currency: 'UAH'};
+const bill = {...invoice('0', '0'), invoice_id: 7, order_id: 5, paid: huge, open: null,
+  lines: [{line_id: 8, quantity: '2', price: huge}], retained: '0', collectible: '0'};
+const cost = {order_id: 5, code: 'ORDER', currency: 'UAH', order_value: huge,
+  shipped_value: '1234.50', shipped_cost: null, gross_margin: huge};
+const facts = {items: [item], jobs: [job], orders: [order], invoices: [bill], costs: [cost],
+  lines: [{id: 8, order_id: 5, item_id: 1, quantity: '2', shipped: '1', price: huge}],
+  locations: [{id: 3, name: 'Склад'}], employees: [{id: 4, full_name: 'Власник'}],
+  partners: [{id: 6, name: 'Клієнт'}], events: [], lots: [], purchases: [], reservations: [],
+  operator_entries: [], invoice_adjustments: [], source_movements: [], replenishment: [],
+  home: {financial: [{currency: 'UAH', order_value: huge}]}};
+function show(view, currentRole = 'ceo') {
+  data = facts; slot = 0; role = currentRole;
+  const before = JSON.stringify(data);
+  const tree = vm.runInContext(`ERPWorkspace({view:${JSON.stringify(view)}})`, context);
+  assert.equal(JSON.stringify(data), before, 'workspace must preserve monetary source data');
+  return tree;
+}
+function inspect(selection, currentRole = 'ceo') {
+  role = currentRole; slot = 0;
+  const before = JSON.stringify(facts);
+  const tree = context.BoSInspector({selection, data: facts, onSelect() {}, onClose() {}});
+  assert.equal(JSON.stringify(facts), before, 'inspector must preserve monetary source data');
+  return tree;
+}
+assert(textOf(column(table(show('catalog'), 'Коди й вимоги'), 'Коди й вимоги', item)).includes(hugeUAH));
+assert(textOf(show('production')).includes('1\u00a0234,50\u00a0EUR; факт: '+ '9\u00a0007\u00a0199\u00a0254\u00a0740\u00a0993,12\u00a0EUR'));
+assert(!textOf(column(table(show('catalog', 'observer'), 'Коди й вимоги'), 'Коди й вимоги', item)).includes(hugeUAH), 'observer cannot see catalog cost');
+assert(!textOf(show('production', 'observer')).includes('1\u00a0234,50\u00a0EUR'), 'observer cannot see job cost');
+let billTable = table(show('costs'), 'До оплати');
+assert.equal(column(billTable, 'Сплачено'), hugeUAH);
+assert.equal(column(billTable, 'До оплати'), 'Недоступно');
+assert(!nodes(show('costs', 'observer')).some(n => n.type === 'ERPTable' && n.props.columns.some(([name]) => name === 'Сплачено')));
+let metric = inspect({kind: 'metric', key: 'order_value', currency: 'UAH'});
+assert(textOf(metric).includes(hugeUAH));
+let costTable = table(metric, 'Портфель');
+assert.equal(column(costTable, 'Портфель'), hugeUAH);
+assert.equal(column(costTable, 'Відвантажено'), '1\u00a0234,50\u00a0грн');
+assert.equal(column(costTable, 'Собівартість'), 'Недоступно');
+assert(textOf(inspect({kind: 'metric', key: 'order_value', currency: 'UAH'}, 'observer')).includes('Показник недоступний'));
+let orderFacts = inspect({kind: 'orders', id: 5});
+assert(textOf(orderFacts).includes(hugeUAH));
+assert.equal(column(table(orderFacts, 'Ціна'), 'Ціна'), hugeUAH);
+let invoiceFacts = inspect({kind: 'invoices', id: 7});
+assert.equal(column(table(invoiceFacts, 'Ціна'), 'Ціна'), hugeUAH);
+assert.equal(refreshes, 0, 'rendering facts must not request or mutate data');
+console.log('U3 compiled finance display: exact workspace and inspector money, unavailable, role guards, unchanged data PASS');
