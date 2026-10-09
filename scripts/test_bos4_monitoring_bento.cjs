@@ -1,0 +1,130 @@
+// M2b: the compiled bento tiles of «Моніторинг» — roles, targets, the tile-less fallback and a reload without blanking.
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+
+const app = fs.readFileSync(path.join(__dirname, '../assets/app.js'), 'utf8');
+const block = app.slice(app.indexOf('const MON_KIND ='), app.indexOf('// BoS 4 «Підключення»'));
+assert.ok(block.includes('function MonBento(') && block.includes('function Monitoring('), 'bento lives in the monitoring block');
+const React = {Fragment: 'fragment', createElement: (type, props, ...children) => ({type, props: props || {}, children: children.flat(Infinity)})};
+const nodes = n => n && typeof n === 'object' ? [n, ...(n.children || []).flatMap(nodes)] : [];
+const text = n => nodes(n).flatMap(x => x.children || []).filter(c => typeof c === 'string' || typeof c === 'number').join('');
+const tick = () => new Promise(setImmediate);
+
+function context(extra = {}) {
+  let hook = 0, effect;
+  const state = [], refs = [];
+  const ctx = {React, Button: () => {}, BoSInspector: () => {}, C01TaskLegacy: () => {}, bosHttpScope: () => 'user:1',
+    document: {activeElement: null}, requestAnimationFrame: () => 0, cancelAnimationFrame: () => {},
+    erpDate: x => x ? String(x).slice(0, 10).split('-').reverse().join('.') : '—', erpDateTime: x => x,
+    erpMoney: (v, c) => v + ' ' + c,
+    useState(initial) { const i = hook++; if (!(i in state)) state[i] = typeof initial === 'function' ? initial() : initial; return [state[i], v => state[i] = typeof v === 'function' ? v(state[i]) : v]; },
+    useRef(initial) { const i = hook++; if (!(i in refs)) refs[i] = {current: initial}; return refs[i]; },
+    useEffect(fn) { effect = fn; }, ...extra};
+  vm.createContext(ctx);
+  vm.runInContext(block, ctx);
+  ctx.reset = () => { hook = 0; };
+  ctx.effect = () => effect;
+  ctx.state = state;
+  return ctx;
+}
+
+const day = (date, values) => ({date, orders: 0, deliveries: 0, jobs: 0, invoices: 0, ...values});
+const ceo = {
+  orders: {open: 4, late: 1, units_shipped: 480, units_total: 1639, top: [
+    {ref: {kind: 'order', id: 7}, customer: 'ТОВ «Склад-Мережа Схід»', code: 'ZM-0150', shipped: 270, total: 1275, due: '2026-11-27', late: false},
+    {ref: {kind: 'order', id: 2}, customer: 'ТОВ «Офіс Сіті»', code: 'ZM-0144', shipped: 90, total: 100, due: '2026-10-03', late: true}]},
+  production: {planned: 1, running: 29, done: 12, late: 0, steps_done: 58, steps_total: 145},
+  supply: {open: 2, late: 1, next: {ref: {kind: 'purchase', id: 3}, item: 'Лист сталевий', supplier: 'Металопрокат Центр', due: '2026-10-08'}},
+  money: [{currency: 'UAH', invoiced: '2669550.00', paid: '1048525.00', open: '1621025.00', overdue: '168000.00'}],
+  tasks: {open: 5, late: 0},
+  sources: {total: 2, fresh: 1, stale: 1, error: 0, file: 0, unknown: 0},
+  ahead: [day('2026-10-05', {jobs: 3}), day('2026-10-06', {jobs: 26}), day('2026-10-08', {deliveries: 1}), day('2026-10-19', {invoices: 1})],
+};
+const observer = {...ceo, money: [], ahead: ceo.ahead.map(d => ({...d, invoices: null}))};
+
+// Tiles, by role. Money and the invoice row of «Наступні 14 днів» exist only when the server sent them.
+const ctx = context();
+const routes = [], opened = [];
+const render = bento => ctx.MonBento({bento, attention: [], asOf: '2026-10-05', onOpen: ref => opened.push(ref), onNavigate: (...r) => routes.push(r)});
+const tiles = tree => nodes(tree).filter(n => n.type === ctx.MonTile);
+const titles = tree => tiles(tree).map(t => t.props.title);
+const full = render(ceo);
+assert.deepEqual(titles(full), ['Виконання замовлень', 'Гроші', 'Виробництво', 'Постачання', 'Доручення', 'Джерела даних', 'Наступні 14 днів']);
+assert.equal(full.props.className, 'mon-bento');
+const lean = render(observer);
+assert.deepEqual(titles(lean), ['Виконання замовлень', 'Виробництво', 'Постачання', 'Доручення', 'Джерела даних', 'Наступні 14 днів'], 'no money tile without money');
+assert.equal(lean.props.className, 'mon-bento mon-bento-nomoney');
+const rowsOf = tree => nodes(tree).filter(n => n.type === 'th' && n.props.scope === 'row').map(n => text(n));
+assert.deepEqual(rowsOf(full), ['Замовлення', 'Поставки', 'Роботи', 'Рахунки']);
+assert.deepEqual(rowsOf(lean), ['Замовлення', 'Поставки', 'Роботи'], 'no invoice row for a role without money');
+assert.ok(!JSON.stringify(lean).includes('1621025'), 'no amount reaches a role without money');
+
+// Nothing to show reads as words, not as «0%» or an empty ring.
+const empty = render({...observer, orders: {open: 0, late: 0, units_shipped: 0, units_total: 0, top: []},
+  production: {planned: 0, running: 0, done: 0, late: 0, steps_done: 0, steps_total: 0}, ahead: observer.ahead.map(d => ({...d, orders: 0, deliveries: 0, jobs: 0}))});
+assert.match(text(tiles(empty)[0]), /Немає замовлень у роботі/);
+assert.ok(!nodes(tiles(empty)[0]).some(n => n.type === ctx.MonMeter), 'no meter without orders');
+assert.match(text(tiles(empty)[1]), /Робіт немає/);
+assert.ok(!nodes(tiles(empty)[1]).some(n => n.type === ctx.MonRing));
+assert.match(text(tiles(empty)[5]), /На ці дні строків немає/);
+
+// Every tile opens its place; rows open their exact record.
+for (const tile of tiles(full)) {
+  const header = nodes(ctx.MonTile(tile.props)).find(n => n.type === 'button');
+  if (header) header.props.onClick();
+}
+assert.deepEqual(routes, [['erp', 'sales'], ['finance', 'invoices'], ['erp', 'production'], ['erp', 'purchase'], ['hr', 'tasks'], ['connectors', null]]);
+const orders = tiles(full)[0];
+nodes(orders).filter(n => n.type === 'button').forEach(b => b.props.onClick());
+nodes(tiles(full)[3]).filter(n => n.type === 'button').forEach(b => b.props.onClick());
+assert.deepEqual(opened, [{kind: 'order', id: 7}, {kind: 'order', id: 2}, {kind: 'purchase', id: 3}]);
+assert.ok(nodes(orders).some(n => n.props.className === 'mon-row-late'), 'a late order is marked in words and colour');
+assert.match(text(orders), /прострочено/);
+
+// Exact figures: the last value shown is the server's own; meters and the ring stay within 0–100 %.
+const count = (value, render) => context().MonCount(render ? {value, render} : {value});   // a fresh component each time
+assert.equal(count(1639), (1639).toLocaleString('uk-UA'));
+assert.equal(count(1621025, (v, done) => done ? 'exact' : 'moving'), 'exact', 'without motion the exact value shows at once');
+const moving = context({window: {matchMedia: () => ({matches: false})}});
+assert.equal(moving.MonCount({value: 1639}), '0', 'with motion allowed the count starts from zero');
+moving.effect()();                                                  // one animation frame is requested, nothing else
+for (const [part, whole, expected] of [[480, 1639, 29], [5, 0, 0], [7, 5, 100], [-1, 5, 0], ['58', '145', 40]]) assert.equal(ctx.monPercent(part, whole), expected);
+const meter = ctx.MonMeter({part: 90, whole: 100, late: true, label: 'x'});
+assert.equal(meter.props.role, 'meter'); assert.equal(meter.props['aria-valuenow'], 90); assert.equal(meter.props.className, 'mon-meter mon-meter-late');
+assert.equal(ctx.MonRing({part: 58, whole: 145, label: 'Операції'}).props['aria-label'], 'Операції: 40%');
+assert.deepEqual([0, 1, 2, 3, 4, 9, 10, 19, 20, 99].map(ctx.monHeat), ['', 'mon-h1', 'mon-h2', 'mon-h2', 'mon-h3', 'mon-h3', 'mon-h4', 'mon-h4', 'mon-h5', 'mon-h5']);
+const strip = tiles(full)[6];
+assert.ok(nodes(strip).some(n => n.type === 'td' && /mon-today/.test(n.props.className || '')), 'today is marked');
+assert.ok(nodes(strip).some(n => n.type === 'td' && n.props.className === 'mon-h5' && n.children.includes(26)));
+
+// Monitoring: tiles when the server sends them, the previous number row otherwise; a reload keeps facts on screen.
+(async () => {
+  const requests = [], listeners = {};
+  const mon = context({window: {addEventListener: (k, fn) => listeners[k] = fn, removeEventListener: k => delete listeners[k]},
+    erpFetch: p => new Promise((resolve, reject) => requests.push({p, resolve, reject}))});
+  const draw = () => { mon.reset(); return mon.Monitoring({onNavigate: () => {}}); };
+  draw(); mon.effect()();
+  assert.equal(requests[0].p, 'monitoring/');
+  requests[0].resolve({as_of: '2026-10-05', numbers: [{key: 'orders', value: 4, label: 'Замовлень у роботі'}], attention: [], tables: [], queries: [], bento: ceo});
+  await tick();
+  let tree = draw();
+  assert.ok(nodes(tree).some(n => n.type === mon.MonBento), 'tiles replace the number row');
+  assert.ok(!nodes(tree).some(n => n.props.className === 'mon-numbers'));
+  listeners['bos:data-changed']();
+  tree = draw();
+  assert.equal(tree.props.className, 'mon mon-busy', 'reload dims, never blanks');
+  assert.equal(tree.props['aria-busy'], 'true');
+  assert.ok(nodes(tree).some(n => n.type === mon.MonBento), 'previous facts stay visible while reloading');
+  requests[1].resolve({as_of: '2026-10-05', numbers: [{key: 'orders', value: 4, label: 'Замовлень у роботі'}], attention: [], tables: [], queries: []});
+  await tick();
+  tree = draw();
+  assert.equal(tree.props.className, 'mon');
+  assert.ok(nodes(tree).some(n => n.props.className === 'mon-numbers'), 'without bento the number row remains');
+  assert.ok(!nodes(tree).some(n => n.type === mon.MonBento));
+  const css = fs.readFileSync(path.join(__dirname, '../frontend/boss_app_source.html'), 'utf8');
+  assert.match(css, /@media\(prefers-reduced-motion:reduce\)\{\*,\*::before,\*::after\{animation:none!important;transition:none!important/, 'reduced motion switches the tile animation off');
+  assert.match(css, /\.mon-tile\{[^}]*animation:mon-rise[^}]*backwards/, 'tiles rise in once, then hover can lift them');
+  console.log('M2b bento tiles: roles, targets, exact figures, fallback and reload without blanking: PASS');
+})().catch(error => { console.error(error); process.exitCode = 1; });

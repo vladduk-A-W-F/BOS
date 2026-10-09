@@ -24665,6 +24665,304 @@ function MonTable({
     className: "op-muted mon-empty"
   }, "\u041D\u0435\u043C\u0430\u0454 \u0437\u0430\u043F\u0438\u0441\u0456\u0432"));
 }
+// Bento tiles (owner's decision 09.10): the same read-only facts as the tables below, as tiles at a glance.
+const MON_WEEKDAY = ['нд', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
+const MON_AHEAD = [['orders', 'Замовлення'], ['deliveries', 'Поставки'], ['jobs', 'Роботи'], ['invoices', 'Рахунки']];
+const MON_SOURCES = [['fresh', 'актуальні'], ['file', 'з файлу'], ['stale', 'застарілі'], ['error', 'з помилкою'], ['unknown', 'ще не прочитані']];
+function monPercent(part, whole) {
+  const w = Number(whole),
+    p = w > 0 ? Math.round(Number(part) / w * 100) : 0;
+  return Math.max(0, Math.min(100, Number.isFinite(p) ? p : 0));
+}
+function monHeat(n) {
+  return !n ? '' : n < 2 ? 'mon-h1' : n < 4 ? 'mon-h2' : n < 10 ? 'mon-h3' : n < 20 ? 'mon-h4' : 'mon-h5';
+}
+function monReduced() {
+  try {
+    return !window.matchMedia || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  } catch (e) {
+    return true;
+  }
+}
+const monInt = v => Math.round(Number(v) || 0).toLocaleString('uk-UA');
+// Counts up once to the server value; the last frame always shows the exact value it was given.
+function MonCount({
+  value,
+  render = monInt
+}) {
+  const target = Number(value),
+    [shown, setShown] = useState(() => Number.isFinite(target) && !monReduced() ? 0 : target);
+  useEffect(() => {
+    if (!Number.isFinite(target) || monReduced()) {
+      setShown(target);
+      return;
+    }
+    let frame = 0,
+      start = null;
+    const step = t => {
+      if (start === null) start = t;
+      const k = Math.min(1, (t - start) / 650);
+      setShown(k < 1 ? target * (1 - Math.pow(1 - k, 3)) : target);
+      if (k < 1) frame = requestAnimationFrame(step);
+    };
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
+  }, [target]);
+  return render(shown, shown === target);
+}
+function MonMeter({
+  part,
+  whole,
+  late,
+  label
+}) {
+  const p = monPercent(part, whole);
+  return /*#__PURE__*/React.createElement("div", {
+    className: 'mon-meter' + (late ? ' mon-meter-late' : ''),
+    role: "meter",
+    "aria-valuemin": 0,
+    "aria-valuemax": 100,
+    "aria-valuenow": p,
+    "aria-label": label
+  }, /*#__PURE__*/React.createElement("i", {
+    style: {
+      '--p': p / 100
+    }
+  }));
+}
+function MonRing({
+  part,
+  whole,
+  label
+}) {
+  const p = monPercent(part, whole),
+    r = 26,
+    c = +(2 * Math.PI * r).toFixed(2);
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "mon-ring",
+    viewBox: "0 0 64 64",
+    role: "img",
+    "aria-label": label + ': ' + p + '%'
+  }, /*#__PURE__*/React.createElement("circle", {
+    cx: "32",
+    cy: "32",
+    r: r,
+    className: "mon-ring-track"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "32",
+    cy: "32",
+    r: r,
+    className: "mon-ring-fill",
+    transform: "rotate(-90 32 32)",
+    style: {
+      strokeDasharray: c,
+      '--full': c,
+      '--off': +(c * (1 - p / 100)).toFixed(2)
+    }
+  }), /*#__PURE__*/React.createElement("text", {
+    x: "32",
+    y: "37",
+    textAnchor: "middle"
+  }, p, "%"));
+}
+function MonTile({
+  area,
+  order,
+  title,
+  count,
+  onOpen,
+  children
+}) {
+  return /*#__PURE__*/React.createElement("section", {
+    className: 'mon-tile mon-tile-' + area,
+    style: {
+      '--i': order
+    },
+    "aria-label": title
+  }, /*#__PURE__*/React.createElement("header", null, /*#__PURE__*/React.createElement("h2", null, onOpen ? /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: onOpen
+  }, title, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\u2192")) : title), count != null && /*#__PURE__*/React.createElement("span", null, monInt(count))), children);
+}
+function MonFlag({
+  children
+}) {
+  return /*#__PURE__*/React.createElement("p", {
+    className: "mon-flag"
+  }, /*#__PURE__*/React.createElement("b", {
+    "aria-hidden": "true"
+  }, "!"), children);
+}
+function MonBento({
+  bento,
+  attention,
+  asOf,
+  onOpen,
+  onNavigate
+}) {
+  const o = bento.orders,
+    job = bento.production,
+    supply = bento.supply,
+    tasks = bento.tasks,
+    src = bento.sources,
+    money = bento.money || [];
+  const days = bento.ahead || [],
+    rows = MON_AHEAD.filter(([k]) => days.some(d => d[k] != null));
+  const cash = money[0];
+  return /*#__PURE__*/React.createElement("div", {
+    className: 'mon-bento' + (cash ? '' : ' mon-bento-nomoney')
+  }, /*#__PURE__*/React.createElement(MonTile, {
+    area: "orders",
+    order: 0,
+    title: "\u0412\u0438\u043A\u043E\u043D\u0430\u043D\u043D\u044F \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u044C",
+    count: o.open,
+    onOpen: () => onNavigate('erp', 'sales')
+  }, o.open ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "mon-hero"
+  }, /*#__PURE__*/React.createElement("strong", null, /*#__PURE__*/React.createElement(MonCount, {
+    value: monPercent(o.units_shipped, o.units_total),
+    render: v => Math.round(v) + '%'
+  })), /*#__PURE__*/React.createElement("span", null, "\u0432\u0456\u0434\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043E ", /*#__PURE__*/React.createElement(MonCount, {
+    value: o.units_shipped
+  }), " \u0437 ", monInt(o.units_total), " \u0448\u0442.")), /*#__PURE__*/React.createElement(MonMeter, {
+    part: o.units_shipped,
+    whole: o.units_total,
+    label: "\u0412\u0456\u0434\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043E \u0432\u0456\u0434 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043E\u0433\u043E"
+  })) : /*#__PURE__*/React.createElement("p", {
+    className: "mon-line"
+  }, "\u041D\u0435\u043C\u0430\u0454 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u044C \u0443 \u0440\u043E\u0431\u043E\u0442\u0456."), o.late > 0 && /*#__PURE__*/React.createElement(MonFlag, null, "\u041F\u0440\u043E\u0441\u0442\u0440\u043E\u0447\u0435\u043D\u0438\u0445 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u044C: ", o.late), o.top.length > 0 && /*#__PURE__*/React.createElement("ul", {
+    className: "mon-orders"
+  }, o.top.map(row => /*#__PURE__*/React.createElement("li", {
+    key: row.ref.id
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => onOpen(row.ref),
+    className: row.late ? 'mon-row-late' : ''
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "mon-orders-who"
+  }, /*#__PURE__*/React.createElement("strong", null, row.customer), /*#__PURE__*/React.createElement("small", null, row.code, " \xB7 \u0434\u043E ", erpDate(row.due), row.late ? ' · прострочено' : '')), /*#__PURE__*/React.createElement("span", {
+    className: "mon-orders-num"
+  }, monInt(row.shipped), " \u0437 ", monInt(row.total)), /*#__PURE__*/React.createElement(MonMeter, {
+    part: row.shipped,
+    whole: row.total,
+    late: row.late,
+    label: 'Відвантажено для ' + row.customer
+  })))))), cash && /*#__PURE__*/React.createElement(MonTile, {
+    area: "money",
+    order: 1,
+    title: "\u0413\u0440\u043E\u0448\u0456",
+    onOpen: () => onNavigate('finance', 'invoices')
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "mon-hero"
+  }, /*#__PURE__*/React.createElement("strong", null, /*#__PURE__*/React.createElement(MonCount, {
+    value: Number(cash.open),
+    render: (v, done) => erpMoney(done ? cash.open : v.toFixed(2), cash.currency)
+  })), /*#__PURE__*/React.createElement("span", null, "\u0447\u0435\u043A\u0430\u0454\u043C\u043E \u043E\u043F\u043B\u0430\u0442\u0438")), /*#__PURE__*/React.createElement(MonMeter, {
+    part: cash.paid,
+    whole: cash.invoiced,
+    label: "\u0421\u043F\u043B\u0430\u0447\u0435\u043D\u043E \u0432\u0456\u0434 \u0432\u0438\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u043E\u0433\u043E"
+  }), /*#__PURE__*/React.createElement("p", {
+    className: "mon-line"
+  }, "\u0421\u043F\u043B\u0430\u0447\u0435\u043D\u043E ", erpMoney(cash.paid, cash.currency), " \u0437 ", erpMoney(cash.invoiced, cash.currency)), Number(cash.overdue) > 0 && /*#__PURE__*/React.createElement(MonFlag, null, "\u041F\u0440\u043E\u0441\u0442\u0440\u043E\u0447\u0435\u043D\u043E: ", erpMoney(cash.overdue, cash.currency)), money.slice(1).map(m => /*#__PURE__*/React.createElement("p", {
+    className: "mon-line",
+    key: m.currency
+  }, "\u0414\u043E \u043E\u043F\u043B\u0430\u0442\u0438 \u0432 ", m.currency, ": ", erpMoney(m.open, m.currency), Number(m.overdue) > 0 ? ' · прострочено ' + erpMoney(m.overdue, m.currency) : ''))), /*#__PURE__*/React.createElement(MonTile, {
+    area: "prod",
+    order: 2,
+    title: "\u0412\u0438\u0440\u043E\u0431\u043D\u0438\u0446\u0442\u0432\u043E",
+    onOpen: () => onNavigate('erp', 'production')
+  }, job.planned + job.running + job.done === 0 ? /*#__PURE__*/React.createElement("p", {
+    className: "mon-line"
+  }, "\u0420\u043E\u0431\u0456\u0442 \u043D\u0435\u043C\u0430\u0454.") : /*#__PURE__*/React.createElement("div", {
+    className: "mon-split"
+  }, job.running > 0 && /*#__PURE__*/React.createElement(MonRing, {
+    part: job.steps_done,
+    whole: job.steps_total,
+    label: "\u041E\u043F\u0435\u0440\u0430\u0446\u0456\u0457 \u0440\u043E\u0431\u0456\u0442, \u0449\u043E \u0432\u0438\u043A\u043E\u043D\u0443\u044E\u0442\u044C\u0441\u044F"
+  }), /*#__PURE__*/React.createElement("dl", null, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("dt", null, "\u0423 \u0440\u043E\u0431\u043E\u0442\u0456"), /*#__PURE__*/React.createElement("dd", null, /*#__PURE__*/React.createElement(MonCount, {
+    value: job.running
+  }))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("dt", null, "\u0417\u0430\u043F\u043B\u0430\u043D\u043E\u0432\u0430\u043D\u043E"), /*#__PURE__*/React.createElement("dd", null, monInt(job.planned))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("dt", null, "\u0412\u0438\u043A\u043E\u043D\u0430\u043D\u043E"), /*#__PURE__*/React.createElement("dd", null, monInt(job.done))))), job.steps_total > 0 && /*#__PURE__*/React.createElement("p", {
+    className: "mon-line"
+  }, "\u041E\u043F\u0435\u0440\u0430\u0446\u0456\u0439 \u0443 \u0440\u043E\u0431\u043E\u0442\u0430\u0445, \u0449\u043E \u0432\u0438\u043A\u043E\u043D\u0443\u044E\u0442\u044C\u0441\u044F: ", monInt(job.steps_done), " \u0437 ", monInt(job.steps_total)), job.late > 0 && /*#__PURE__*/React.createElement(MonFlag, null, "\u041F\u0440\u043E\u0441\u0442\u0440\u043E\u0447\u0435\u043D\u0438\u0445 \u0440\u043E\u0431\u0456\u0442: ", job.late)), /*#__PURE__*/React.createElement(MonTile, {
+    area: "supply",
+    order: 3,
+    title: "\u041F\u043E\u0441\u0442\u0430\u0447\u0430\u043D\u043D\u044F",
+    onOpen: () => onNavigate('erp', 'purchase')
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "mon-big"
+  }, /*#__PURE__*/React.createElement("strong", null, /*#__PURE__*/React.createElement(MonCount, {
+    value: supply.open
+  })), /*#__PURE__*/React.createElement("span", null, "\u0432\u0456\u0434\u043A\u0440\u0438\u0442\u0438\u0445 \u0437\u0430\u043A\u0443\u043F\u0456\u0432\u0435\u043B\u044C")), supply.late > 0 && /*#__PURE__*/React.createElement(MonFlag, null, "\u0417\u0430\u043F\u0456\u0437\u043D\u044E\u0454\u0442\u044C\u0441\u044F: ", supply.late), supply.next && /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "mon-next",
+    onClick: () => onOpen(supply.next.ref)
+  }, /*#__PURE__*/React.createElement("small", null, "\u041D\u0430\u0439\u0431\u043B\u0438\u0436\u0447\u0430 \u043F\u043E\u0441\u0442\u0430\u0432\u043A\u0430 \xB7 ", erpDate(supply.next.due)), /*#__PURE__*/React.createElement("strong", null, supply.next.item), /*#__PURE__*/React.createElement("small", null, supply.next.supplier))), /*#__PURE__*/React.createElement(MonTile, {
+    area: "tasks",
+    order: 4,
+    title: "\u0414\u043E\u0440\u0443\u0447\u0435\u043D\u043D\u044F",
+    onOpen: () => onNavigate('hr', 'tasks')
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "mon-big"
+  }, /*#__PURE__*/React.createElement("strong", null, /*#__PURE__*/React.createElement(MonCount, {
+    value: tasks.open
+  })), /*#__PURE__*/React.createElement("span", null, "\u0443 \u0440\u043E\u0431\u043E\u0442\u0456")), tasks.late > 0 ? /*#__PURE__*/React.createElement(MonFlag, null, "\u041F\u0440\u043E\u0441\u0442\u0440\u043E\u0447\u0435\u043D\u043E: ", tasks.late) : /*#__PURE__*/React.createElement("p", {
+    className: "mon-calm"
+  }, "\u0411\u0435\u0437 \u043F\u0440\u043E\u0441\u0442\u0440\u043E\u0447\u0435\u043D\u044C")), /*#__PURE__*/React.createElement(MonTile, {
+    area: "sources",
+    order: 5,
+    title: "\u0414\u0436\u0435\u0440\u0435\u043B\u0430 \u0434\u0430\u043D\u0438\u0445",
+    count: src.total || null,
+    onOpen: () => onNavigate('connectors', null)
+  }, src.total ? /*#__PURE__*/React.createElement("ul", {
+    className: "mon-states"
+  }, MON_SOURCES.filter(([k]) => src[k]).map(([k, label]) => /*#__PURE__*/React.createElement("li", {
+    key: k,
+    "data-state": k
+  }, /*#__PURE__*/React.createElement("b", null, monInt(src[k])), label))) : /*#__PURE__*/React.createElement("p", {
+    className: "mon-line"
+  }, "\u0429\u0435 \u043D\u0456\u0447\u043E\u0433\u043E \u043D\u0435 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043E. \u0422\u0430\u0431\u043B\u0438\u0446\u0456 Google \u0447\u0438 Excel \u043C\u043E\u0436\u043D\u0430 \u0434\u043E\u0434\u0430\u0442\u0438 \u0432 \xAB\u041F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043D\u044F\u0445\xBB.")), rows.length > 0 && /*#__PURE__*/React.createElement(MonTile, {
+    area: "ahead",
+    order: 6,
+    title: "\u041D\u0430\u0441\u0442\u0443\u043F\u043D\u0456 14 \u0434\u043D\u0456\u0432"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "mon-ahead",
+    tabIndex: 0,
+    role: "region",
+    "aria-label": "\u0421\u0442\u0440\u043E\u043A\u0438 \u043D\u0430 \u043D\u0430\u0441\u0442\u0443\u043F\u043D\u0456 14 \u0434\u043D\u0456\u0432"
+  }, /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
+    scope: "col"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "mon-sr"
+  }, "\u0429\u043E")), days.map(d => /*#__PURE__*/React.createElement("th", {
+    scope: "col",
+    key: d.date,
+    className: d.date === asOf ? 'mon-today' : undefined
+  }, /*#__PURE__*/React.createElement("small", null, MON_WEEKDAY[new Date(d.date + 'T00:00:00').getDay()]), d.date.slice(8, 10))))), /*#__PURE__*/React.createElement("tbody", null, rows.map(([k, label]) => /*#__PURE__*/React.createElement("tr", {
+    key: k
+  }, /*#__PURE__*/React.createElement("th", {
+    scope: "row"
+  }, label), days.map(d => /*#__PURE__*/React.createElement("td", {
+    key: d.date,
+    className: [monHeat(d[k]), d.date === asOf ? 'mon-today' : ''].filter(Boolean).join(' ') || undefined,
+    title: label + ', ' + erpDate(d.date) + ': ' + (d[k] || 0)
+  }, d[k] ? d[k] : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
+    className: "mon-sr"
+  }, "0"), /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\xB7"))))))))), /*#__PURE__*/React.createElement("p", {
+    className: "mon-note"
+  }, days.some(d => rows.some(([k]) => d[k])) ? 'Скільки строків припадає на кожен день' + (rows.length > 3 ? ' (рахунки — строк оплати)' : '') + '. Сьогодні виділено.' : 'На ці дні строків немає.')), attention && /*#__PURE__*/React.createElement("div", {
+    className: "mon-tile mon-tile-attention",
+    style: {
+      '--i': 7
+    }
+  }, /*#__PURE__*/React.createElement(MonAttention, {
+    items: attention,
+    onOpen: onOpen
+  })));
+}
 function Monitoring({
   onNavigate
 }) {
@@ -24684,6 +24982,8 @@ function Monitoring({
     }),
     current = scope => life.current.scope === scope && scope === bosHttpScope();
   const version = life.current.version;
+  const [reloading, setReloading] = useState(false);
+  // A reload keeps the previous facts on screen, inert (version check) and dimmed, instead of blanking the page.
   const load = async () => {
     const scope = life.current.scope,
       seq = ++life.current.load;
@@ -24691,7 +24991,7 @@ function Monitoring({
     ++life.current.record;
     ++life.current.version;
     ++taskSerial.current;
-    setData(null);
+    setReloading(true);
     setResult(null);
     setSelection(null);
     setTaskSelection(null);
@@ -24704,6 +25004,8 @@ function Monitoring({
       }
     } catch (e) {
       if (current(scope) && seq === life.current.load) setError(e.message);
+    } finally {
+      if (current(scope) && seq === life.current.load) setReloading(false);
     }
   };
   useEffect(() => {
@@ -24769,8 +25071,15 @@ function Monitoring({
     onClick: load
   }, "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0438"));
   return /*#__PURE__*/React.createElement("div", {
-    className: "mon"
-  }, /*#__PURE__*/React.createElement("div", {
+    className: 'mon' + (reloading ? ' mon-busy' : ''),
+    "aria-busy": reloading ? 'true' : undefined
+  }, data.bento ? /*#__PURE__*/React.createElement(MonBento, {
+    bento: data.bento,
+    attention: data.attention,
+    asOf: data.as_of,
+    onOpen: open,
+    onNavigate: onNavigate
+  }) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     className: "mon-numbers"
   }, data.numbers.map(n => /*#__PURE__*/React.createElement("div", {
     key: n.key,
@@ -24778,7 +25087,7 @@ function Monitoring({
   }, /*#__PURE__*/React.createElement("strong", null, monValue(n.value)), /*#__PURE__*/React.createElement("span", null, n.label)))), data.attention && /*#__PURE__*/React.createElement(MonAttention, {
     items: data.attention,
     onOpen: open
-  }), /*#__PURE__*/React.createElement("div", {
+  })), /*#__PURE__*/React.createElement("div", {
     className: "mon-queries",
     role: "group",
     "aria-label": "\u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043D\u0456 \u0437\u0430\u043F\u0438\u0442\u0438"
