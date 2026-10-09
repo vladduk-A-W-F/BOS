@@ -28,24 +28,26 @@ def _freshness(connector, now):
 def build(policy, now=None):
     """[{id, name, dataset, freshness, ...}] in the order the sources are listed in «Підключення»."""
     now = now or timezone.now()
-    out = []
-    for connector in _visible(policy).prefetch_related('snapshots'):
-        state, note = _freshness(connector, now)
-        item = {'id': connector.pk, 'name': connector.name, 'kind': connector.kind, 'dataset': connector.dataset,
-                'dataset_label': connector.get_dataset_display(), 'freshness': state, 'freshness_label': note,
-                'last_sync_at': connector.last_sync_at.isoformat() if connector.last_sync_at else None,
-                'mapped': bool(connector.mapping)}
-        if policy.role != 'observer':
-            read = read_mapped(connector, connector.snapshots.first())
-            if read is None:
-                item['problem'] = 'Колонки не зіставлено з полями BoS' if connector.dataset in mapping.FIELDS else ''
-            elif 'error' in read:
-                item['problem'] = 'Відповідність колонок застаріла: ' + read['error']
-            else:
-                item.update(accepted=read['accepted'], total=read['total'], rejected=read['total'] - read['accepted'],
-                            rejected_examples=read['rejected'][:5], table=_table(policy, connector, read))
-        out.append(item)
-    return out
+    return [source(policy, connector, now) for connector in _visible(policy).prefetch_related('snapshots')]
+
+
+def source(policy, connector, now=None):
+    """One visible source as this role sees it in «Моніторинг»: freshness, and mapped rows unless observer."""
+    state, note = _freshness(connector, now or timezone.now())
+    item = {'id': connector.pk, 'name': connector.name, 'kind': connector.kind, 'dataset': connector.dataset,
+            'dataset_label': connector.get_dataset_display(), 'freshness': state, 'freshness_label': note,
+            'last_sync_at': connector.last_sync_at.isoformat() if connector.last_sync_at else None,
+            'mapped': bool(connector.mapping)}
+    if policy.role != 'observer':
+        read = read_mapped(connector, connector.snapshots.first())
+        if read is None:
+            item['problem'] = 'Колонки не зіставлено з полями BoS' if connector.dataset in mapping.FIELDS else ''
+        elif 'error' in read:
+            item['problem'] = 'Відповідність колонок застаріла: ' + read['error']
+        else:
+            item.update(accepted=read['accepted'], total=read['total'], rejected=read['total'] - read['accepted'],
+                        rejected_examples=read['rejected'][:5], table=_table(policy, connector, read))
+    return item
 
 
 def _table(policy, connector, read):

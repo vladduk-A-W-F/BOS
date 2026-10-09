@@ -119,13 +119,20 @@ def tools(policy):
          'inputSchema': {'type': 'object', 'additionalProperties': False, 'required': ['code'],
                          'properties': {'code': {'type': 'string', 'minLength': 1, 'maxLength': 60}}},
          'annotations': read_only},
+        {'name': 'source_table', 'title': 'Дані підключеного джерела',
+         'description': 'Рядки підключеного джерела — файлу, Google Таблиці чи таблиці з іншого сервера — за '
+                        'збереженою відповідністю колонок, як у «Моніторингу» (до 50 рядків), і їхня свіжість. '
+                        'id — з monitoring_overview.sources. Нічого не завантажує заново.',
+         'inputSchema': {'type': 'object', 'additionalProperties': False, 'required': ['id'],
+                         'properties': {'id': {'type': 'integer', 'minimum': 1}}},
+         'annotations': read_only},
     ]
 
 
 def _overview(policy, arguments):
     from erp import monitoring
     data = monitoring.build(policy)
-    sources = [{'name': s['name'], 'dataset': s['dataset_label'], 'freshness': s['freshness_label'],
+    sources = [{'id': s['id'], 'name': s['name'], 'dataset': s['dataset_label'], 'freshness': s['freshness_label'],
                 'last_sync_at': s['last_sync_at']} for s in data['sources']]
     return {'as_of': data['as_of'], 'numbers': data['numbers'], 'attention': data['attention'] + data['source_attention'],
             'bento': data['bento'], 'sources': sources, 'queries': data['queries']}
@@ -166,7 +173,29 @@ def _order(policy, arguments):
     return out
 
 
-CALLS = {'monitoring_overview': _overview, 'standard_query': _query, 'order_status': _order}
+def _source(policy, arguments):
+    from . import monitoring as sources
+    from .views import _visible
+    source_id = arguments.get('id')
+    if isinstance(source_id, bool) or not isinstance(source_id, int):
+        raise ValueError('id джерела — ціле число з monitoring_overview.sources.')
+    connector = _visible(policy).filter(pk=source_id).first()
+    if connector is None:
+        raise LookupError('Джерело не знайдено або воно недоступне.')
+    item = sources.source(policy, connector)
+    out = {'id': item['id'], 'name': item['name'], 'dataset': item['dataset_label'],
+           'freshness': item['freshness_label'], 'last_sync_at': item['last_sync_at']}
+    if 'table' in item:
+        out.update(columns=item['table']['columns'], rows=[r['cells'] for r in item['table']['rows']],
+                   total=item['table']['total'], rejected=item['rejected'])
+    elif item.get('problem'):
+        out['problem'] = item['problem']
+    elif policy.role == 'observer':
+        out['note'] = 'Рядки джерел бачать керівник і менеджер; спостерігач бачить лише свіжість.'
+    return out
+
+
+CALLS = {'monitoring_overview': _overview, 'standard_query': _query, 'order_status': _order, 'source_table': _source}
 
 
 # --- JSON-RPC over HTTP ------------------------------------------------------------------------------------
