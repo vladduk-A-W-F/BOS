@@ -12,6 +12,7 @@ name: BoS 4 — робочі екрани
       - 'scripts/test_bos4_connectors_ui.cjs'
       - 'scripts/test_bos4_finance_display.cjs'
       - 'scripts/test_bos4_navigation_settings.cjs'
+      - 'scripts/test_bos4_monitoring_bento.cjs'
       - '.github/workflows/bos4-workspaces.yml'
 permissions:
   contents: read
@@ -37,6 +38,8 @@ jobs:
         run: node scripts/test_bos4_finance_display.cjs
       - name: Навігація Команди та додаткові налаштування
         run: node scripts/test_bos4_navigation_settings.cjs
+      - name: Бенто-плитки моніторингу за ролями
+        run: node scripts/test_bos4_monitoring_bento.cjs
       - name: Збірка інтерфейсу без нових залежностей
         run: node scripts/build_frontend.cjs
       - name: Похідні файли відповідають вихідному коду
