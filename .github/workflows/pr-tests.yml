@@ -44,9 +44,9 @@ jobs:
         if git diff --name-only "${{ github.event.pull_request.base.sha }}" HEAD | grep -qE '^erp/(bos4_demo_aw_v11|test_bos4_demo_v11)\.py$|^scripts/bos4_aw_subset\.py$'; then
           read -r COMMIT DIR <<< "$(python -c "from erp.bos4_demo_aw_v11 import PINS; print(PINS['commit'], PINS['path'])")"
           mkdir -p "$RUNNER_TEMP/aw/$DIR"
-          for name in AWBuildVersion Product BillOfMaterials SalesOrderHeader SalesOrderDetail; do
-            curl -fsSL --retry 3 -o "$RUNNER_TEMP/aw/$DIR/$name.csv" \
-              "https://raw.githubusercontent.com/microsoft/sql-server-samples/$COMMIT/$DIR/$name.csv"
+          for name in $(python -c "from erp.bos4_demo_aw_v11 import PINS; print(*sorted(PINS['csv_sha256']))"); do
+            curl -fsSL --retry 3 -o "$RUNNER_TEMP/aw/$DIR/$name" \
+              "https://raw.githubusercontent.com/microsoft/sql-server-samples/$COMMIT/$DIR/$name"
           done
           echo "BOS_AW_SOURCE=$RUNNER_TEMP/aw" >> "$GITHUB_ENV"
         fi

@@ -3,6 +3,7 @@
 Trusted management command for a fresh demo database only (BOS_DATA_MODE=demo).
 It never resets or mixes with existing rows. Data sources: erp/bos4_demo_data.py.
 """
+from datetime import date, timedelta
 from decimal import Decimal as D
 import hashlib
 
@@ -471,16 +472,138 @@ def _populate_aw(act, document, items, suppliers, customers, people, places, bra
         + aw.RATE['date'] + ': ' + hryvnia(aw.ORDER['aw_total_uah'])
         + f' ({aw.ORDER["aw_total_usd"]} USD).')
     act('link_document', document_id=order_doc.pk, order_id=out['order_id'])
-    Task.objects.create(title=f'Спланувати виробництво {units} каркасів і стелажів за великим замовленням '
-        + customer.name, priority='high', status='active', assignee=people['Ігор Бондар'].full_name,
-        assignee_employee=people['Ігор Бондар'], branch=branches['ZHY'], deadline='2026-10-20',
-        category='Виробництво', sales_order_id=out['order_id'])
+    supply = _supply_aw(act, document, items, suppliers, people, places, branches, out['order_id'])
+    Task.objects.create(title=f'Завершити виробництво й відвантаження решти {units - supply["aw_shipped_units"]} '
+        'каркасів і стелажів за великим замовленням ' + customer.name, priority='high', status='active',
+        assignee=people['Ігор Бондар'].full_name, assignee_employee=people['Ігор Бондар'], branch=branches['ZHY'],
+        deadline='2026-10-20', category='Виробництво', sales_order_id=out['order_id'])
     Configuration.objects.create(key='bos4_demo_provenance', value={
         'synthetic': True, 'pins': aw.PINS, 'ledger': [list(row) for row in aw.LEDGER],
         'aw_sales_order_id': aw.ORDER['aw_sales_order_id'], 'aw_order_date': aw.ORDER['aw_order_date'],
         'rate': aw.RATE, 'aw_total_usd': aw.ORDER['aw_total_usd'], 'aw_total_uah': aw.ORDER['aw_total_uah'],
         'scenario_total_uah': aw.ORDER['total_uah'],
         'order_code': AW_ORDER_CODE, 'excluded_leaves': aw.EXCLUDED_LEAVES,
+        'aw_work_order_ids': [j['aw_work_order_id'] for j in aw.JOBS],
+        'aw_purchase_records': {p['article']: [p['aw_purchase_order_id'], p['aw_po_detail_id'], p['aw_vendor_id']]
+                                for p in aw.PURCHASES},
+        'suppliers': {aw_id: v['key'] for aw_id, v in aw.VENDORS.items()}, 'order_store': aw.ORDER_STORE,
+        'first_start': aw.FIRST_START, 'as_of': aw.AS_OF,
         'scenario': ['клієнт ' + customer.name, 'філія й склад виконання', 'строк 27.11.2026',
-                     'документи й доручення', 'ціни матеріалів у UAH', 'сценарна ціна рядків']})
-    return {'aw_products': len(aw.PRODUCTS), 'aw_order_lines': len(lines), 'aw_order_units': units}
+                     'документи й доручення', 'ціни матеріалів у UAH', 'сценарна ціна рядків',
+                     'дата закупівлі й старту виробництва']})
+    return {'aw_products': len(aw.PRODUCTS), 'aw_order_lines': len(lines), 'aw_order_units': units, **supply}
+
+
+def _supply_aw(act, document, items, suppliers, people, places, branches, order_id):
+    """v1.1 supply chain for the large order as of aw.AS_OF: AW ProductInventory stock, ProductVendor purchases
+    (received), WorkOrder jobs (finished, running or planned), shipment, invoice and part payment."""
+    certificate = document('KM-CERT-AW-0150', 'Сертифікат якості металопрокату · залишок складу',
+        'Метал на складі комплектації на початок виконання замовлення ' + AW_ORDER_CODE + '. Кількості — AdventureWorks '
+        'ProductInventory (місця зберігання 1–6), перераховані за правилом «Залишок» у bos4_demo_provenance.')
+    delivered = document('KM-CERT-ZK-0150', 'Сертифікати постачальників металу · закупівлі ZK-0150',
+        'Металопрокат за закупівлями ZK-0150-01…' + f'{len(aw.PURCHASES):02d}' + ' під замовлення ' + AW_ORDER_CODE
+        + ' прийнято повністю; марка сталі й геометрія відповідають специфікаціям.')
+    inspector, foreman = people['Наталія Ткаченко'].pk, people['Ігор Бондар'].pk
+    # The order's own store keeps its AW stock and deliveries apart from the v1.0 metal store.
+    branch = branches[aw.ORDER_STORE['branch']]
+    store = act('location', code=PREFIX + aw.ORDER_STORE['key'], name=branch.short_name + ' · ' + aw.ORDER_STORE['name'],
+        kind='warehouse', branch_id=branch.pk, lat=branch.lat, lng=branch.lng,
+        address='Демо-точка; координати центру міста, не адреса об’єкта')['location_id']
+    vendors = {}
+    for aw_id, v in sorted(aw.VENDORS.items()):
+        if v['key'] in suppliers:
+            vendors[v['key']] = suppliers[v['key']]
+            continue
+        name = next(p['aw_vendor_name'] for p in aw.PURCHASES if p['aw_vendor_id'] == int(aw_id))
+        vendors[v['key']] = Counterparty.objects.create(name=v['name'], type='supplier', address=v['city'],
+            notes='Демо-постачальник. Роль узято з AdventureWorks (' + name + ').')
+        act('location', code=PREFIX + 'SUP-' + v['key'], name=v['name'] + ' · ' + v['city'], kind='supplier',
+            supplier_id=vendors[v['key']].pk, lat=v['lat'], lng=v['lng'],
+            address='Демо-точка постачальника; координати центру міста, не адреса об’єкта')
+    pool = {}                                  # article → [lot id, free quantity] in issue order
+    stock_lots = 0
+
+    def admit(lot, item, note):
+        act('quality', lot_id=lot, result='approved', inspector_id=inspector, note=note)
+        pool.setdefault(item.code, []).append([lot, None])
+
+    for row in aw.STOCK:
+        if D(row['quantity']) <= 0:
+            continue
+        item = Item.objects.get(pk=items[row['article']])
+        lot = act('opening', code='KM-L-AW-' + row['article'], item_id=item.pk, location_id=store,
+            quantity=row['quantity'], unit_cost=str(item.planned_cost), currency='UAH', revision='A',
+            documents={'certificate': certificate.pk} if 'certificate' in item.required_documents else {},
+            reason='Залишок складу комплектації (AdventureWorks ProductInventory)')['lot_id']
+        admit(lot, item, 'Вхідний контроль пройдено')
+        pool[item.code][-1][1] = D(row['quantity'])
+        stock_lots += 1
+    for n, p in enumerate(aw.PURCHASES, 1):
+        item = Item.objects.get(pk=items[p['article']])
+        po = act('purchase', code=f'ZK-0150-{n:02d}', item_id=item.pk, supplier_id=vendors[p['supplier']].pk,
+            quantity=p['quantity'], price=p['price'], currency='UAH', due_date=p['due_date'], revision='A',
+            destination_id=store, origin_country='UA',
+            direct_reason=f'Дефіцит під замовлення {AW_ORDER_CODE}: потреба {p["need"]}, на складі комплектації '
+                          f'{p["on_hand"]}. Запис AdventureWorks PO {p["aw_purchase_order_id"]}, '
+                          f'рядок {p["aw_po_detail_id"]}.')['purchase_id']
+        lot = act('receive', purchase_id=po, code=f'KM-L-ZK-0150-{n:02d}', location_id=store,
+            quantity=p['quantity'],
+            documents={'certificate': delivered.pk} if 'certificate' in item.required_documents else {})['lot_id']
+        admit(lot, item, 'Поставку прийнято повністю, сертифікат і кількість звірено')
+        pool[item.code][-1][1] = D(p['quantity'])
+    lines = {line.item.code: line.pk for line in SalesLine.objects.filter(order_id=order_id).select_related('item')}
+    products = {p['code']: p for p in aw.PRODUCTS}
+    shipped = []
+    for job in aw.JOBS:
+        product, qty = products[job['product']], D(job['quantity'])
+        production = act('job', code=job['code'], item_id=items[job['product']], quantity=str(job['quantity']),
+            location_id=places['ZHY-SHOP'], owner_id=foreman, due_date=job['due_date'],
+            line_id=lines[job['product']])['production_id']
+        if job['stage'] == 'planned':
+            continue
+        for article, rate in sorted(product['bom'].items()):
+            need = D(rate) * qty
+            for n, entry in enumerate(pool[article]):
+                take = min(need, entry[1])
+                if not take:
+                    continue
+                moved = act('transfer', lot_id=entry[0], quantity=str(take), location_id=places['ZHY-SHOP'],
+                    code=f'KM-T-{job["code"]}-{article}-{n}', reason='Видача в цех під наряд ' + job['code'],
+                    production_id=production)['lot_id']
+                act('reserve', lot_id=moved, quantity=str(take), production_id=production)
+                entry[1] -= take
+                need -= take
+                if not need:
+                    break
+            if need:
+                raise ValueError(f'Бракує {article} для {job["code"]}: перевірте закупівлі v1.1.')
+        act('start', production_id=production)
+        route = data.ROUTE if job['stage'] == 'finished' else data.ROUTE[:aw.RUNNING_DONE]
+        for operation, _, _ in route:
+            act('operator', production_id=production, operation=operation, operator_id=foreman, result='done',
+                minutes=240, defects='0', note=f'Виконано для {job["quantity"]} шт. за {job["code"]}')
+        if job['stage'] != 'finished':
+            continue
+        passport = document('KM-PASS-' + job['code'], f'Паспорт партії {job["quantity"]} шт. · {product["name"]}',
+            f'{job["code"]} для {AW_ORDER_CODE}: виготовлено {job["quantity"]} шт. «{product["name"]}», версія A. '
+            'Усі операції маршруту завершено; геометрію, покриття й комплектність перевірено.')
+        made = act('finish', production_id=production, quantity=str(job['quantity']), code='KM-L-' + job['code'],
+            location_id=places['ZHY-SHOP'], labor_cost=str(D(aw.LABOR[product['kind']]) * qty),
+            documents={'passport': passport.pk})['lot_id']
+        act('quality', lot_id=made, result='approved', inspector_id=inspector, note='Партія відповідає специфікації')
+        ready = act('transfer', lot_id=made, quantity=str(job['quantity']), location_id=places['ZHY-FG'],
+            code='KM-T-' + job['code'] + '-FG', reason='Готова допущена партія для ' + AW_ORDER_CODE)['lot_id']
+        act('reserve', lot_id=ready, quantity=str(job['quantity']), line_id=lines[job['product']])
+        act('ship', line_id=lines[job['product']], lot_id=ready, quantity=str(job['quantity']), reference='VN-0150-1')
+        shipped.append(job)
+    units = sum(j['quantity'] for j in shipped)
+    shipment = document('KM-VN-0150-1', 'Видаткова накладна VN-0150-1 · ' + AW_CUSTOMER['name'],
+        f'Відвантажено {len(shipped)} позицій, {units} шт. за {AW_ORDER_CODE}: '
+        + ', '.join(j['code'] for j in shipped) + '. Паспорти партій — KM-PASS-VZ-0150-…')
+    act('link_document', document_id=shipment.pk, order_id=order_id)
+    due = (date.fromisoformat(aw.AS_OF) + timedelta(days=aw.INVOICE_DAYS)).isoformat()
+    invoice = act('invoice', order_id=order_id, code='RF-0150', due_date=due)
+    paid = (D(invoice['amount']) * D(aw.PAYMENT_SHARE)).quantize(D('0.01'))
+    act('payment', invoice_id=invoice['invoice_id'], amount=str(paid), reference='PD-0150-1')
+    return {'aw_stock_lots': stock_lots, 'aw_purchases': len(aw.PURCHASES), 'aw_jobs': len(aw.JOBS),
+            'aw_shipped_units': units, 'aw_invoice': invoice['amount'], 'aw_paid': str(paid)}

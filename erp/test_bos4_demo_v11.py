@@ -1,4 +1,5 @@
 """BoS 4 demo v1.1: AdventureWorks catalog and a large order, pinned and consistent. Synthetic, new DB only."""
+from datetime import date, timedelta
 from decimal import Decimal as D, ROUND_HALF_UP
 from io import StringIO
 from pathlib import Path
@@ -13,9 +14,9 @@ from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import SimpleTestCase, TransactionTestCase, override_settings
 
-from operations.models import Configuration, Document
+from operations.models import Configuration, Document, Invoice
 from . import bos4_demo_aw_v11 as aw
-from .models import DocumentLink, Item, SalesOrder
+from .models import DocumentLink, InvoiceLink, Item, Lot, Movement, Production, Purchase, Reservation, SalesOrder
 
 
 class SubsetModuleTests(SimpleTestCase):
@@ -30,7 +31,10 @@ class SubsetModuleTests(SimpleTestCase):
             self.assertRegex(aw.PINS['csv_sha256'][name], r'^[0-9a-f]{64}$')
         self.assertEqual([row[0] for row in aw.LEDGER], ['Вибір замовлення', 'Кількість', 'Перерахунок ціни AW',
                                                          'Сценарна ціна', 'Виріб', 'Специфікація', 'Виключено',
+                                                         'Залишок', 'Закупівля', 'Виробництво', 'Виконання',
                                                          'Сценарне'])
+        for name in ('ProductInventory.csv', 'ProductVendor.csv', 'Vendor.csv', 'WorkOrder.csv'):
+            self.assertRegex(aw.PINS['csv_sha256'][name], r'^[0-9a-f]{64}$')
         self.assertEqual((aw.RATE['currency'], aw.RATE['date'], aw.RATE['uah_per_unit']), ('USD', '2026-10-01', '44.6819'))
         self.assertIn('НБУ', aw.RATE['source'])
 
@@ -73,6 +77,62 @@ class SubsetModuleTests(SimpleTestCase):
         self.assertEqual(D(aw.ORDER['aw_total_uah']), total_uah)
         self.assertEqual(D(aw.ORDER['total_uah']), scenario)
         self.assertEqual(aw.ORDER['aw_sales_order_number'], 'SO' + str(aw.ORDER['aw_sales_order_id']))
+
+    def test_stock_and_purchases_cover_the_order_exactly(self):
+        need = {}
+        by_code = {p['code']: p for p in aw.PRODUCTS}
+        for line in aw.ORDER['lines']:
+            for article, qty in by_code[line['code']]['bom'].items():
+                need[article] = need.get(article, D(0)) + D(qty) * line['quantity']
+        stock = {row['article']: D(row['quantity']) for row in aw.STOCK}
+        self.assertEqual(set(stock), {m['article'] for m in aw.MATERIALS.values()})
+        for row in aw.STOCK:
+            per = D(aw.MATERIALS[row['article']]['per_aw_unit'] or '1')
+            self.assertEqual(stock[row['article']], sum(D(r['aw_quantity']) for r in row['aw_rows']) * per)
+            self.assertTrue(all(1 <= r['aw_location_id'] <= 6 for r in row['aw_rows']))
+        bought = {p['article']: p for p in aw.PURCHASES}
+        self.assertEqual(set(bought), {a for a in need if need[a] > stock[a]})
+        for article, p in bought.items():
+            with self.subTest(article=article):
+                self.assertEqual((D(p['need']), D(p['on_hand'])), (need[article], stock[article]))
+                minimum = D(p['aw_min_order_qty']) * D(aw.MATERIALS[article]['per_aw_unit'] or '1') if p['aw_unit'] == 'EA' else D(0)
+                expected = max(need[article] - stock[article], minimum).to_integral_value(rounding='ROUND_CEILING')
+                self.assertEqual(D(p['quantity']), expected)
+                self.assertGreaterEqual(stock[article] + D(p['quantity']), need[article])
+                self.assertEqual(p['price'], aw.MATERIALS[article]['price'])
+                # The real AW purchase record decides the vendor; the mapping to a BoS supplier is one to one.
+                self.assertEqual(p['supplier'], aw.VENDORS[str(p['aw_vendor_id'])]['key'])
+                self.assertGreaterEqual(p['aw_po_order_date'], aw.ORDER['aw_order_date'])
+                self.assertEqual(D(p['aw_po_received_qty']), p['aw_po_qty'])
+                self.assertEqual(D(p['aw_po_unit_price_uah']),
+                                 (D(p['aw_po_unit_price_usd']) * D(aw.RATE['uah_per_unit'])).quantize(D('0.01'), rounding=ROUND_HALF_UP))
+                self.assertEqual(p['due_date'], str(date.fromisoformat(aw.FIRST_START) - timedelta(days=1)))
+                self.assertEqual(p['ordered_date'], str(date.fromisoformat(p['due_date']) - timedelta(days=p['lead_days'])))
+        keys = [v['key'] for v in aw.VENDORS.values()]
+        self.assertEqual(len(keys), len(set(keys)))
+        self.assertEqual(aw.VENDORS['1568']['key'], 'METAL')           # v1.0 «Металопрокат Центр» = Custom Frames
+        self.assertEqual({str(p['aw_vendor_id']) for p in aw.PURCHASES}, set(aw.VENDORS))
+
+    def test_jobs_follow_aw_work_orders_and_fit_the_order(self):
+        lines = aw.ORDER['lines']
+        self.assertEqual([(j['product'], j['quantity'], j['aw_detail_id']) for j in aw.JOBS],
+                         [(l['code'], l['quantity'], l['aw_detail_id']) for l in lines])
+        self.assertEqual(len({j['code'] for j in aw.JOBS}), len(lines))
+        shift = {date.fromisoformat(j['start_date']) - date.fromisoformat(j['aw_start_date']) for j in aw.JOBS}
+        shift |= {date.fromisoformat(j['due_date']) - date.fromisoformat(j['aw_due_date']) for j in aw.JOBS}
+        self.assertEqual(len(shift), 1)            # one shift for the whole schedule: AW offsets and durations kept
+        self.assertEqual(min(j['start_date'] for j in aw.JOBS), aw.FIRST_START)
+        self.assertGreater(aw.FIRST_START, max(p['due_date'] for p in aw.PURCHASES))
+        # The scenario «today» is the demo's own clock, and the stage of each job follows from it.
+        from .bos4_demo import AS_OF, SEED_DATE
+        self.assertEqual(aw.AS_OF, AS_OF)
+        self.assertGreaterEqual(min(p['due_date'] for p in aw.PURCHASES), SEED_DATE)
+        for j in aw.JOBS:
+            self.assertEqual(j['stage'], 'finished' if j['due_date'] < AS_OF else
+                             'running' if j['start_date'] <= AS_OF else 'planned')
+        self.assertGreaterEqual(sum(j['stage'] == 'finished' for j in aw.JOBS), 1)
+        self.assertLess(max(j['due_date'] for j in aw.JOBS), '2026-11-27')
+        self.assertTrue(all(j['aw_start_date'] >= aw.ORDER['aw_order_date'] for j in aw.JOBS))
 
     def test_bicycle_only_parts_never_enter_a_bom(self):
         used = {a for p in aw.PRODUCTS for a in p['bom']}
@@ -118,7 +178,7 @@ class SeedV11Tests(TransactionTestCase):
                              next(p['aw_number'] for p in aw.PRODUCTS if p['code'] == line.item.code))
             self.assertTrue(line.item.bom)
             self.assertTrue(Document.objects.filter(pk=line.item.document_id, status='approved').exists())
-        text = DocumentLink.objects.get(order=order).document.text
+        text = DocumentLink.objects.get(order=order, document__code='KM-ZM-0150').document.text
         amount = f'{total:,.2f}'.replace(',', ' ').replace('.', ',')
         self.assertIn(amount + ' грн', text)
         self.assertEqual(total, D(aw.ORDER['total_uah']))
@@ -128,6 +188,87 @@ class SeedV11Tests(TransactionTestCase):
         self.assertEqual((provenance['aw_sales_order_id'], provenance['pins'], provenance['rate']), (47395, aw.PINS, aw.RATE))
         self.assertEqual((provenance['aw_total_uah'], provenance['scenario_total_uah']), ('31489328.20', '6476450.00'))
         self.assertIn('клієнт ТОВ «Склад-Мережа Схід»', provenance['scenario'])
+        self.assertEqual(provenance['aw_work_order_ids'], [j['aw_work_order_id'] for j in aw.JOBS])
+
+    def test_supply_chain_is_seeded_through_the_ordinary_commands(self):
+        receipt = self.seed('1.1')
+        self.assertEqual((receipt['counts']['aw_jobs'], receipt['counts']['aw_purchases']), (40, len(aw.PURCHASES)))
+        order = SalesOrder.objects.get(code='ZM-0150')
+        for row in aw.STOCK:
+            lot = Lot.objects.get(code='KM-L-AW-' + row['article'])
+            opening = lot.movements.get(kind='opening')
+            self.assertEqual((opening.quantity, lot.quality, lot.location.code), (D(row['quantity']), 'approved', 'KM-ZHY-AW'))
+        stock = {row['article']: D(row['quantity']) for row in aw.STOCK}
+        for n, p in enumerate(aw.PURCHASES, 1):
+            with self.subTest(purchase=n):
+                po = Purchase.objects.select_related('supplier', 'destination').get(code=f'ZK-0150-{n:02d}')
+                self.assertEqual((po.item.code, po.quantity, po.received, po.price, str(po.due_date), po.destination.code),
+                                 (p['article'], D(p['quantity']), D(p['quantity']), D(p['price']), p['due_date'], 'KM-ZHY-AW'))
+                self.assertIn('(' + p['aw_vendor_name'] + ')', po.supplier.notes)
+                vendor = aw.VENDORS[str(p['aw_vendor_id'])]
+                self.assertEqual(po.supplier.name, vendor.get('name', 'Металопрокат Центр'))
+                reason = po.approval_snapshot['direct_reason']
+                self.assertIn(f'на складі комплектації {p["on_hand"]}', reason)
+                self.assertIn(f'PO {p["aw_purchase_order_id"]}, рядок {p["aw_po_detail_id"]}', reason)
+                # The reason states the real stock of the order's store: only the AW lot was there before.
+                before = Lot.objects.filter(item=po.item, location__code='KM-ZHY-AW').exclude(code=f'KM-L-ZK-0150-{n:02d}')
+                self.assertEqual([l.code for l in before], ['KM-L-AW-' + p['article']])
+                self.assertEqual(stock[p['article']], D(p['on_hand']))
+                self.assertGreaterEqual(D(p['on_hand']) + po.quantity, D(p['need']))
+                self.assertEqual(Lot.objects.get(code=f'KM-L-ZK-0150-{n:02d}').quality, 'approved')
+        # The v1.0 metal store is untouched by the large order: nothing of it is issued under VZ-0150.
+        self.assertFalse(Movement.objects.filter(reference__startswith='VZ-0150').exclude(
+            lot__code__regex=r'^KM-(L-AW-|L-ZK-0150-|T-VZ-0150-|L-VZ-0150-)').exists())
+        self.assertFalse(Movement.objects.filter(kind='transfer_out', reason__contains='VZ-0150',
+            lot__location__code='KM-ZHY-METAL').exists())
+        products = {p['code']: p for p in aw.PRODUCTS}
+        lines = {l.item.code: l for l in order.lines.select_related('item')}
+        for j in aw.JOBS:
+            with self.subTest(job=j['code']):
+                job = Production.objects.get(code=j['code'])
+                line = lines[j['product']]
+                self.assertEqual((job.line_id, job.item_id, job.quantity, str(job.due_date), job.location.code),
+                                 (line.pk, line.item_id, line.quantity, j['due_date'], 'KM-ZHY-SHOP'))
+                consumed, held = {}, {}
+                for m in Movement.objects.filter(production=job, kind='consume').select_related('lot__item'):
+                    consumed[m.lot.item.code] = consumed.get(m.lot.item.code, D(0)) - m.quantity
+                for r in Reservation.objects.filter(production=job).select_related('lot__item'):
+                    held[r.lot.item.code] = held.get(r.lot.item.code, D(0)) + r.quantity
+                need = {a: D(q) * job.quantity for a, q in products[j['product']]['bom'].items()}
+                if j['stage'] == 'finished':
+                    self.assertEqual((job.status, job.produced, line.shipped), ('done', job.quantity, job.quantity))
+                    self.assertEqual({a: consumed.get(a, D(0)) for a in need}, need)
+                    self.assertTrue(Document.objects.filter(code='KM-PASS-' + j['code'], status='approved').exists())
+                elif j['stage'] == 'running':
+                    self.assertEqual((job.status, job.produced, line.shipped), ('running', 0, 0))
+                    self.assertEqual({a: held.get(a, D(0)) for a in need}, need)
+                    self.assertEqual(job.entries.count(), aw.RUNNING_DONE)
+                else:
+                    self.assertEqual((job.status, held, consumed), ('planned', {}, {}))
+        finished = [j for j in aw.JOBS if j['stage'] == 'finished']
+        units = sum(j['quantity'] for j in finished)
+        amount = sum(D(j['quantity']) * lines[j['product']].price for j in finished)
+        invoice = Invoice.objects.get(code='RF-0150')
+        self.assertEqual((invoice.amount, invoice.paid, str(invoice.due_date)),
+                         (amount, (amount * D(aw.PAYMENT_SHARE)).quantize(D('0.01')), '2026-10-19'))
+        self.assertEqual(InvoiceLink.objects.get(invoice=invoice).order_id, order.pk)
+        self.assertEqual((receipt['counts']['aw_shipped_units'], D(receipt['counts']['aw_invoice'])), (units, amount))
+        shipment = DocumentLink.objects.get(order=order, document__code='KM-VN-0150-1').document.text
+        self.assertIn(f'{len(finished)} позицій, {units} шт.', shipment)
+        self.assertTrue(order.controlled_tasks.filter(title__contains=f'решти {1275 - units} ').exists())
+
+    def snapshot(self):
+        tables = (Item, Lot, Movement, Production, Purchase, Reservation, SalesOrder, Invoice, Document, Configuration)
+        return [list(t.objects.order_by('pk').values()) for t in tables]
+
+    def test_repeat_and_reverse_version_do_not_mutate(self):
+        self.seed('1.1')
+        before = self.snapshot()
+        self.assertFalse(self.seed('1.1')['created'])
+        self.assertEqual(self.snapshot(), before)
+        with self.assertRaisesRegex(CommandError, 'версії 1.1'):
+            self.seed('1.0')
+        self.assertEqual(self.snapshot(), before)
 
     def test_three_cases_and_public_screen_are_unchanged(self):
         self.seed('1.1')
@@ -146,7 +287,8 @@ class SeedV11Tests(TransactionTestCase):
         data = self.client.get('/api/erp/monitoring/').json()
         orders = next(t for t in data['tables'] if t['key'] == 'orders')
         row = next(r for r in orders['rows'] if r['cells'][0] == 'ZM-0150')
-        self.assertEqual(row['cells'][4], '0 з 1275')
+        shipped = sum(j['quantity'] for j in aw.JOBS if j['stage'] == 'finished')
+        self.assertEqual(row['cells'][4], f'{shipped} з 1275')
 
     def test_versions_never_mix(self):
         self.seed('1.0')
