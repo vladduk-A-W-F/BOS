@@ -326,5 +326,23 @@ function harness(write,extra={}){
   const rows=tree.filter(n=>n.type==='tr'&&n.props.onClick);
   const refresh=row=>nodes(row).some(n=>n.props.onClick&&(n.children||[]).flat(Infinity).includes('Оновити'));
   assert.deepEqual(rows.map(refresh),[true,false],'linked sources refresh, uploaded files do not');
-  console.log('Linked server source in «Підключення»: offered and refreshable: PASS');
+  // A refused link is explained beside the form's buttons; a failed «Оновити» stays above the list.
+  const formAt=tree=>nodes(tree).find(n=>n.type==='section'&&nodes(n).some(x=>x.type==='h2'&&x.children.includes('Нове підключення')));
+  const topAlert=tree=>tree.children.flat(Infinity).some(c=>c&&c.props?.role==='alert');
+  const form=ui.state.findIndex(v=>v&&typeof v==='object'&&v.kind==='csv'&&'dataset' in v);
+  ui.state[form]={kind:'url',name:'Інший сервер',dataset:'other',url:'https://localhost/export.csv'};
+  nodes(ui.render()).find(n=>n.props.onClick&&n.children.includes('Переглянути')).props.onClick();await tick();
+  assert.equal(ui.requests[2].url,'/api/connectors/preview/');
+  ui.requests[2].resolve(response({error:'Посилання веде до внутрішньої мережі.'},false));await tick();
+  let screen=ui.render();
+  assert.ok(nodes(formAt(screen)).some(n=>n.props.role==='alert'&&n.children.includes('Посилання веде до внутрішньої мережі.')),'the refusal is beside «Переглянути»');
+  assert.ok(!topAlert(screen),'and not above the list, out of sight');
+  const button=nodes(screen).find(n=>n.props?.onClick&&(n.children||[]).flat(Infinity).includes('Оновити'));
+  button.props.onClick();await tick();
+  assert.equal(ui.requests[3].url,'/api/connectors/8/sync/');
+  ui.requests[3].resolve(response({error:'Сервер за посиланням відповів кодом 403.'},false));await tick();
+  screen=ui.render();
+  assert.ok(topAlert(screen),'a failed refresh is reported above the list it belongs to');
+  assert.ok(!nodes(formAt(screen)).some(n=>n.props.role==='alert'),'and not in the form');
+  console.log('Linked server source in «Підключення»: offered, refreshable, messages where the action is: PASS');
 })().catch(error=>{console.error(error);process.exitCode=1;});

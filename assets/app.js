@@ -25182,6 +25182,7 @@ function Connections({
   const [checked, setChecked] = useState(false),
     [editMapping, setEditMapping] = useState({}),
     [notice, setNotice] = useState('');
+  const [atForm, setAtForm] = useState(false); // a message from «Нове підключення» is shown beside its buttons, not above the list
   const persist = checked;
   const fileRef = useRef(null),
     entry = useRef(null),
@@ -25257,13 +25258,14 @@ function Connections({
     } else f.append('url', form.url.trim());
     return f;
   };
-  const run = async fn => {
+  const run = async (fn, fromForm = false) => {
     if (busy || mutationBusy.current || !current(entry.current) || !bosCan('write')) return;
     const scope = entry.current;
     mutationBusy.current = true;
     setBusy(true);
     setError('');
     setNotice('');
+    setAtForm(fromForm);
     try {
       await fn();
     } catch (e) {
@@ -25302,6 +25304,8 @@ function Connections({
     checkedSeq.current = null;
     setBusy(true);
     setError('');
+    setNotice('');
+    setAtForm(true);
     setMapped(null);
     setChecked(false);
     if (!withMapping) setPreview(null);
@@ -25359,7 +25363,7 @@ function Connections({
         bosFileName(fileRef.current);
       }
       await load();
-    });
+    }, true);
   };
   const doSync = id => run(async () => {
     const scope = entry.current;
@@ -25449,10 +25453,10 @@ function Connections({
   };
   return /*#__PURE__*/React.createElement("div", {
     className: "mon"
-  }, error && /*#__PURE__*/React.createElement("p", {
+  }, error && !atForm && /*#__PURE__*/React.createElement("p", {
     role: "alert",
     className: "erp-error"
-  }, error), notice && /*#__PURE__*/React.createElement("p", {
+  }, error), notice && !atForm && /*#__PURE__*/React.createElement("p", {
     role: "status"
   }, notice), /*#__PURE__*/React.createElement("section", {
     className: "mon-card"
@@ -25593,7 +25597,12 @@ function Connections({
     variant: "primary",
     disabled: busy || !form.name.trim(),
     onClick: doCreate
-  }, checked ? 'Підключити з цією відповідністю' : preview.fields?.length > 0 ? 'Підключити без відповідності' : 'Підключити')), busy && /*#__PURE__*/React.createElement("p", {
+  }, checked ? 'Підключити з цією відповідністю' : preview.fields?.length > 0 ? 'Підключити без відповідності' : 'Підключити')), atForm && error && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, error), atForm && notice && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, notice), busy && /*#__PURE__*/React.createElement("p", {
     role: "status"
   }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F\u2026"), preview && /*#__PURE__*/React.createElement("div", {
     className: "erp-table"
