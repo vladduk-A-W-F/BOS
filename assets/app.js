@@ -25468,7 +25468,7 @@ function Connections({
       } : undefined
     }, /*#__PURE__*/React.createElement("td", null, c.name), /*#__PURE__*/React.createElement("td", null, data.catalog.find(x => x.kind === c.kind)?.title || c.kind), /*#__PURE__*/React.createElement("td", null, c.dataset_label), /*#__PURE__*/React.createElement("td", null, failure ? 'Помилка оновлення: ' + failure.error : c.status === 'error' ? c.last_error || c.status_label : c.status_label), /*#__PURE__*/React.createElement("td", null, when(c.last_sync_at)), /*#__PURE__*/React.createElement("td", null, monValue(c.row_count)), /*#__PURE__*/React.createElement("td", {
       className: "mon-actions"
-    }, bosCan('write') && c.kind === 'google_sheets' && /*#__PURE__*/React.createElement(Button, {
+    }, bosCan('write') && ['google_sheets', 'url'].includes(c.kind) && /*#__PURE__*/React.createElement(Button, {
       disabled: busy,
       onClick: () => doSync(c.id)
     }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438"), bosCan('write') && /*#__PURE__*/React.createElement(Button, {
@@ -25540,7 +25540,9 @@ function Connections({
     value: "csv"
   }, "Excel / CSV"), /*#__PURE__*/React.createElement("option", {
     value: "google_sheets"
-  }, "Google \u0422\u0430\u0431\u043B\u0438\u0446\u0456"))), /*#__PURE__*/React.createElement("label", null, "\u041D\u0430\u0437\u0432\u0430", /*#__PURE__*/React.createElement(Input, {
+  }, "Google \u0422\u0430\u0431\u043B\u0438\u0446\u0456"), /*#__PURE__*/React.createElement("option", {
+    value: "url"
+  }, "\u0422\u0430\u0431\u043B\u0438\u0446\u044F \u0437\u0430 \u043F\u043E\u0441\u0438\u043B\u0430\u043D\u043D\u044F\u043C (CSV, JSON, Excel)"))), /*#__PURE__*/React.createElement("label", null, "\u041D\u0430\u0437\u0432\u0430", /*#__PURE__*/React.createElement(Input, {
     value: form.name,
     maxLength: 120,
     onChange: e => setForm(p => ({
@@ -25572,7 +25574,7 @@ function Connections({
     type: "file",
     accept: ".xlsx,.csv",
     onChange: invalidatePreview
-  })) : /*#__PURE__*/React.createElement("label", null, "\u041F\u043E\u0441\u0438\u043B\u0430\u043D\u043D\u044F \u043D\u0430 \u0442\u0430\u0431\u043B\u0438\u0446\u044E", /*#__PURE__*/React.createElement(Input, {
+  })) : /*#__PURE__*/React.createElement("label", null, form.kind === 'url' ? 'Посилання на CSV, JSON або Excel' : 'Посилання на таблицю', /*#__PURE__*/React.createElement(Input, {
     value: form.url,
     onChange: e => {
       setForm(p => ({
@@ -25581,7 +25583,7 @@ function Connections({
       }));
       invalidatePreview();
     },
-    placeholder: "https://docs.google.com/spreadsheets/d/\u2026"
+    placeholder: form.kind === 'url' ? 'https://… (публічна адреса будь-якого сервера)' : 'https://docs.google.com/spreadsheets/d/…'
   }))), /*#__PURE__*/React.createElement("div", {
     className: "erp-actions"
   }, /*#__PURE__*/React.createElement(Button, {

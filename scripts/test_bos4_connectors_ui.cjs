@@ -314,3 +314,17 @@ function harness(write,extra={}){
   assert.equal(await open(undefined),undefined,'no card without the server block');
   console.log('MCP card in «Підключення»: CEO state, key labels, no key material: PASS');
 })().catch(error=>{console.error(error);process.exitCode=1;});
+
+// «Таблиця за посиланням»: offered in the form and refreshed with «Оновити» like a Google Sheet; files are not.
+(async()=>{
+  const ui=harness(true);ui.mount();ui.requests[0].resolve(response({synced:[],failed:[]}));await tick();
+  ui.requests[1].resolve(response({catalog:[],connectors:[
+    {id:8,name:'Інший сервер',kind:'url',dataset_label:'Інше',status:'connected',status_label:'Підключено',last_sync_at:null,row_count:2},
+    {id:9,name:'Файл',kind:'csv',dataset_label:'Інше',status:'connected',status_label:'Підключено',last_sync_at:null,row_count:2}]}));await tick();
+  const tree=nodes(ui.render());
+  assert.ok(tree.some(n=>n.type==='option'&&n.props.value==='url'),'the form offers a link to another server');
+  const rows=tree.filter(n=>n.type==='tr'&&n.props.onClick);
+  const refresh=row=>nodes(row).some(n=>n.props.onClick&&(n.children||[]).flat(Infinity).includes('Оновити'));
+  assert.deepEqual(rows.map(refresh),[true,false],'linked sources refresh, uploaded files do not');
+  console.log('Linked server source in «Підключення»: offered and refreshable: PASS');
+})().catch(error=>{console.error(error);process.exitCode=1;});

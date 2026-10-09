@@ -1,7 +1,8 @@
 """Periodic reading of connected sources inside the running BoS process (M3 §7).
 
 One reader per server process: the entry points start it after Django is ready, and it ends with the
-process. It reads only what «Оновити» would read — healthy published Google Sheets last read more than
+process. It reads only what «Оновити» would read — healthy linked sources (published Google Sheets and links
+to other servers) last read more than
 STALE_AFTER ago — through the same sync_connector, so a disable, an error or a newer manual read always
 wins, and a source in error keeps its last successful time until a person refreshes it. Uploaded files
 are never re-read. No external scheduler, queue or separate timer process; nothing is written to sources.
