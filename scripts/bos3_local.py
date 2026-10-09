@@ -495,8 +495,14 @@ def internal_serve(paths, source, runtime, launch_id):
     if runtime == 'waitress':
         from waitress import serve
         from boss_project.wsgi import application
+        from connectors import periodic
+        periodic.start()   # connected sources are read by this one process; it ends with it
         serve(application, host='127.0.0.1', port=PORT, threads=4)
         return
+    import django
+    django.setup()
+    from connectors import periodic
+    periodic.start()
     from django.core.management import execute_from_command_line
     execute_from_command_line([str(source / 'manage.py'), 'runserver', '127.0.0.1:' + str(PORT), '--noreload'])
 

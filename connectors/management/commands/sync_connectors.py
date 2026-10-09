@@ -2,20 +2,12 @@ import json
 
 from django.core.management.base import BaseCommand
 
-from connectors import sources
-from connectors.models import Connector
-from connectors.views import stale_sheets, sync_connector
+from connectors.periodic import run_once
 
 
 class Command(BaseCommand):
-    help = 'Оновлює опубліковані Google Таблиці, прочитані понад 15 хвилин тому. Лише читання джерел.'
+    help = ('Одноразово оновлює опубліковані Google Таблиці, прочитані понад 15 хвилин тому. Лише читання джерел. '
+            'Запущений сервер BoS робить це сам щохвилини; команда — для ручної перевірки.')
 
     def handle(self, *args, **options):
-        result = {'synced': [], 'failed': []}
-        for connector in stale_sheets(Connector.objects.all()):
-            try:
-                sync_connector(connector)
-                result['synced'].append(connector.pk)
-            except sources.SourceError as exc:
-                result['failed'].append({'id': connector.pk, 'error': str(exc)})
-        self.stdout.write(json.dumps(result, ensure_ascii=False))
+        self.stdout.write(json.dumps(run_once(), ensure_ascii=False))
