@@ -107,9 +107,14 @@ def _source_error(fn):
 @require_GET
 @errors
 def index(request):
-    connectors = _visible(Policy(request)).prefetch_related('snapshots')
-    return JsonResponse({'catalog': list(sources.CATALOG),
-                         'connectors': [_connector_dict(item) for item in connectors]})
+    policy = Policy(request)
+    connectors = _visible(policy).prefetch_related('snapshots')
+    out = {'catalog': list(sources.CATALOG), 'connectors': [_connector_dict(item) for item in connectors]}
+    if policy.ceo:
+        # Read access for AI clients (MCP): state and key labels only; keys are issued on the server.
+        from . import mcp
+        out['mcp'] = mcp.summary()
+    return JsonResponse(out)
 
 
 @csrf_protect
