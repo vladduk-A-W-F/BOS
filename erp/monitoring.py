@@ -3,7 +3,7 @@
 Every row comes from Policy-scoped querysets; money is shown only to the CEO,
 matching Policy.capabilities()['finance'].
 """
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal as D
 
 from django.utils import timezone
@@ -12,9 +12,11 @@ from operations.models import Invoice
 from operations.service import as_of
 from tasks.models import Task
 from .balances import invoice_settlement, purchase_open, sales_open
-from .models import Lot, Movement, Purchase, SalesOrder
+from .models import Lot, Movement, Production, Purchase, SalesOrder
 
 LIMIT = 50
+AHEAD_DAYS = 14   # «Наступні 14 днів» on the bento screen
+TOP_ORDERS = 4
 QUALITY = {'pending': 'Чекає перевірки', 'blocked': 'Заблоковано', 'rework': 'Доопрацювання', 'approved': 'Допущено'}
 MOVES = {'opening': 'Початковий залишок', 'receipt': 'Надходження', 'transfer_out': 'Видача', 'transfer_in': 'Прийнято',
          'transfer_dispatch': 'Відправлено', 'transfer_receive': 'Прийнято', 'consume': 'Списано у виробництво',
@@ -196,16 +198,106 @@ def _attention(policy, today, orders, lots, debts, purchases, tasks):
     return out[:8]
 
 
+def _money_text(value):
+    return str(D(value).quantize(D('0.01')))
+
+
+def _bento(policy, today, tasks, sources):
+    """Structured figures for the bento tiles of «Моніторинг». Same Policy scope and money rule as the tables.
+
+    Counts are integers, quantities plain numbers, money exact decimal strings (CEO only). `ahead` lists the next
+    AHEAD_DAYS days from the scenario date with what falls due on each: orders, deliveries, jobs and, for the CEO,
+    invoices; nothing is projected or estimated.
+    """
+    days = [today + timedelta(days=n) for n in range(AHEAD_DAYS)]
+    ahead = {d: {'date': _date(d), 'orders': 0, 'deliveries': 0, 'jobs': 0, 'invoices': 0 if policy.ceo else None}
+             for d in days}
+
+    orders, units_total, units_shipped = [], D(0), D(0)
+    for order in (policy.queryset(SalesOrder).filter(status='confirmed').select_related('customer')
+                  .prefetch_related('lines').order_by('due_date', 'code')):
+        lines = list(order.lines.all())
+        ordered = sum((l.quantity for l in lines), D(0))
+        remaining = sum((sales_open(l) for l in lines), D(0))
+        if not remaining:
+            continue
+        units_total += ordered
+        units_shipped += ordered - remaining
+        orders.append((remaining, order, ordered))
+        if order.due_date in ahead:
+            ahead[order.due_date]['orders'] += 1
+    top = sorted(orders, key=lambda o: (-o[0], o[1].due_date, o[1].code))[:TOP_ORDERS]
+
+    jobs = {'planned': 0, 'running': 0, 'done': 0, 'late': 0, 'steps_done': 0, 'steps_total': 0}
+    from .service import completed_steps
+    for job in policy.queryset(Production).order_by('pk'):
+        jobs[job.status] = jobs.get(job.status, 0) + 1
+        if job.status != 'done':
+            jobs['late'] += job.due_date < today
+            if job.due_date in ahead:
+                ahead[job.due_date]['jobs'] += 1
+        if job.status == 'running':
+            names = {step.get('name') for step in job.routing}
+            jobs['steps_total'] += len(names)
+            jobs['steps_done'] += len(names & completed_steps(job))
+
+    supply, upcoming = {'open': 0, 'late': 0}, []
+    for po in policy.queryset(Purchase).select_related('item', 'supplier').order_by('due_date', 'code'):
+        if not purchase_open(po):
+            continue
+        supply['open'] += 1
+        supply['late'] += po.due_date < today
+        if po.due_date >= today:
+            upcoming.append(po)
+        if po.due_date in ahead:
+            ahead[po.due_date]['deliveries'] += 1
+    following = upcoming[0] if upcoming else None
+    supply['next'] = {'ref': {'kind': 'purchase', 'id': following.pk}, 'item': following.item.name,
+                      'supplier': following.supplier.name, 'due': _date(following.due_date)} if following else None
+
+    money = {}
+    if policy.ceo:
+        for invoice in Invoice.objects.order_by('due_date', 'code'):
+            settled = invoice_settlement(invoice)
+            row = money.setdefault(invoice.currency, {'currency': invoice.currency, 'invoiced': D(0), 'paid': D(0),
+                                                      'open': D(0), 'overdue': D(0)})
+            row['invoiced'] += settled['net_amount']
+            row['paid'] += invoice.paid
+            row['open'] += settled['receivable']
+            if settled['receivable'] and invoice.due_date < today:
+                row['overdue'] += settled['receivable']
+            if settled['receivable'] and invoice.due_date in ahead:
+                ahead[invoice.due_date]['invoices'] += 1
+    money = [{k: (_money_text(v) if k != 'currency' else v) for k, v in row.items()}
+             for row in sorted(money.values(), key=lambda r: (r['currency'] != 'UAH', r['currency']))]
+
+    states = [s['freshness'] for s in sources]
+    return {
+        'orders': {'open': len(orders), 'late': sum(o[1].due_date < today for o in orders),
+                   'units_shipped': _num(units_shipped), 'units_total': _num(units_total),
+                   'top': [{'ref': {'kind': 'order', 'id': order.pk}, 'customer': order.customer.name, 'code': order.code,
+                            'shipped': _num(ordered - remaining), 'total': _num(ordered), 'due': _date(order.due_date),
+                            'late': order.due_date < today} for remaining, order, ordered in top]},
+        'production': jobs,
+        'supply': supply,
+        'money': money,
+        'tasks': {'open': len(tasks), 'late': sum(r['late'] for r in tasks)},
+        'sources': {'total': len(states), **{k: states.count(k) for k in ('fresh', 'stale', 'error', 'file', 'unknown')}},
+        'ahead': [ahead[d] for d in days],
+    }
+
+
 def build(policy):
     today = as_of()
     orders = _table('orders', 'Замовлення в роботі', *_open_orders(policy, today))
     lots = _table('lots', 'Проблемні партії', *_problem_lots(policy))
-    tasks = _table('tasks', 'Доручення', *_tasks(policy, today))
+    task_rows = _tasks(policy, today)
+    tasks = _table('tasks', 'Доручення', *task_rows)
     moves = _table('movements', 'Останні операції', *_movements(policy))
     debts = _debts(policy, today)
     tables = [orders, lots] + ([_table('invoices', 'Рахунки й оплати', *debts)] if debts else []) + [tasks, moves]
     late_po = _late_purchases(policy, today)[1]
-    late_tasks = sum(r['late'] for r in _tasks(policy, today)[1])
+    late_tasks = sum(r['late'] for r in task_rows[1])
     numbers = [
         {'key': 'orders', 'label': 'Замовлень у роботі', 'value': orders['total'], 'alert': sum(r['late'] for r in orders['rows'])},
         {'key': 'lots', 'label': 'Проблемних партій', 'value': lots['total'], 'alert': lots['total']},
@@ -222,11 +314,12 @@ def build(policy):
                                    'value': _num(sum((D(str(r['cells'][4])) for r in rows), D(0))),
                                    'alert': sum(r['late'] for r in rows)})
     attention = _attention(policy, today, orders['rows'], lots['rows'], debts[1] if debts else None, late_po,
-                           _tasks(policy, today)[1])
+                           task_rows[1])
     # Connected sources stay a separate block with their own attention items (ref kind «connector»),
     # so screens that only know ERP records are unaffected.
     from connectors import monitoring as connected
     sources = connected.build(policy)
     return {'as_of': _date(today), 'numbers': numbers, 'tables': tables, 'attention': attention,
             'sources': sources, 'source_attention': connected.attention(sources),
+            'bento': _bento(policy, today, task_rows[1], sources),
             'queries': [{'key': k, 'title': t} for k, t, ceo in QUERIES if policy.ceo or not ceo]}
