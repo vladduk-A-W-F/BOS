@@ -5,7 +5,7 @@ from django.db import models
 class Connector(models.Model):
     """A company service connected to BoS. Data is only read and stored as snapshots."""
 
-    KINDS = (('csv', 'Excel / CSV'), ('google_sheets', 'Google Таблиці'))
+    KINDS = (('csv', 'Excel / CSV'), ('google_sheets', 'Google Таблиці'), ('url', 'Таблиця за посиланням'))
     DATASETS = (('orders', 'Замовлення'), ('payments', 'Оплати'), ('stock', 'Залишки'),
                 ('calls', 'Дзвінки'), ('other', 'Інше'))
     STATUSES = (('connected', 'Підключено'), ('error', 'Помилка'), ('disabled', 'Вимкнено'))

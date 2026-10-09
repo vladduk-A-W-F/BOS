@@ -6,7 +6,7 @@ Money follows the existing rule: amounts and payments only for the CEO; the obse
 from django.utils import timezone
 
 from . import mapping
-from .views import STALE_AFTER, _visible, read_mapped
+from .views import LINKED, STALE_AFTER, _visible, read_mapped
 
 LIMIT = 50
 MONEY = ('amount', 'currency')
@@ -17,7 +17,7 @@ def _freshness(connector, now):
         return 'error', 'Помилка читання: ' + (connector.last_error or 'джерело недоступне')
     if connector.last_sync_at is None:
         return 'unknown', 'Ще не прочитано'
-    if connector.kind == 'google_sheets' and now - connector.last_sync_at > STALE_AFTER:
+    if connector.kind in LINKED and now - connector.last_sync_at > STALE_AFTER:
         return 'stale', 'Дані застаріли, оновіть джерело'
     if connector.kind == 'csv':
         # The time itself is last_sync_at; screens format it in the viewer's time zone.

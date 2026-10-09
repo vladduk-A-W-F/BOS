@@ -314,3 +314,35 @@ function harness(write,extra={}){
   assert.equal(await open(undefined),undefined,'no card without the server block');
   console.log('MCP card in «Підключення»: CEO state, key labels, no key material: PASS');
 })().catch(error=>{console.error(error);process.exitCode=1;});
+
+// «Таблиця за посиланням»: offered in the form and refreshed with «Оновити» like a Google Sheet; files are not.
+(async()=>{
+  const ui=harness(true);ui.mount();ui.requests[0].resolve(response({synced:[],failed:[]}));await tick();
+  ui.requests[1].resolve(response({catalog:[],connectors:[
+    {id:8,name:'Інший сервер',kind:'url',dataset_label:'Інше',status:'connected',status_label:'Підключено',last_sync_at:null,row_count:2},
+    {id:9,name:'Файл',kind:'csv',dataset_label:'Інше',status:'connected',status_label:'Підключено',last_sync_at:null,row_count:2}]}));await tick();
+  const tree=nodes(ui.render());
+  assert.ok(tree.some(n=>n.type==='option'&&n.props.value==='url'),'the form offers a link to another server');
+  const rows=tree.filter(n=>n.type==='tr'&&n.props.onClick);
+  const refresh=row=>nodes(row).some(n=>n.props.onClick&&(n.children||[]).flat(Infinity).includes('Оновити'));
+  assert.deepEqual(rows.map(refresh),[true,false],'linked sources refresh, uploaded files do not');
+  // A refused link is explained beside the form's buttons; a failed «Оновити» stays above the list.
+  const formAt=tree=>nodes(tree).find(n=>n.type==='section'&&nodes(n).some(x=>x.type==='h2'&&x.children.includes('Нове підключення')));
+  const topAlert=tree=>tree.children.flat(Infinity).some(c=>c&&c.props?.role==='alert');
+  const form=ui.state.findIndex(v=>v&&typeof v==='object'&&v.kind==='csv'&&'dataset' in v);
+  ui.state[form]={kind:'url',name:'Інший сервер',dataset:'other',url:'https://localhost/export.csv'};
+  nodes(ui.render()).find(n=>n.props.onClick&&n.children.includes('Переглянути')).props.onClick();await tick();
+  assert.equal(ui.requests[2].url,'/api/connectors/preview/');
+  ui.requests[2].resolve(response({error:'Посилання веде до внутрішньої мережі.'},false));await tick();
+  let screen=ui.render();
+  assert.ok(nodes(formAt(screen)).some(n=>n.props.role==='alert'&&n.children.includes('Посилання веде до внутрішньої мережі.')),'the refusal is beside «Переглянути»');
+  assert.ok(!topAlert(screen),'and not above the list, out of sight');
+  const button=nodes(screen).find(n=>n.props?.onClick&&(n.children||[]).flat(Infinity).includes('Оновити'));
+  button.props.onClick();await tick();
+  assert.equal(ui.requests[3].url,'/api/connectors/8/sync/');
+  ui.requests[3].resolve(response({error:'Сервер за посиланням відповів кодом 403.'},false));await tick();
+  screen=ui.render();
+  assert.ok(topAlert(screen),'a failed refresh is reported above the list it belongs to');
+  assert.ok(!nodes(formAt(screen)).some(n=>n.props.role==='alert'),'and not in the form');
+  console.log('Linked server source in «Підключення»: offered, refreshable, messages where the action is: PASS');
+})().catch(error=>{console.error(error);process.exitCode=1;});

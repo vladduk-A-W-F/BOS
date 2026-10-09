@@ -16,6 +16,7 @@ from .models import Connector, ConnectorSnapshot
 PREVIEW_ROWS = 20
 STALE_AFTER = timedelta(minutes=15)
 STALE_BATCH = 10
+LINKED = ('google_sheets', 'url')   # sources read again by their link; uploaded files are not
 MAX_MAPPING_CHARS = 20000
 
 
@@ -33,7 +34,7 @@ def _visible(policy):
 
 
 def _read_source(request):
-    """Return (kind, url, table) from an uploaded file or a Google Sheets link."""
+    """Return (kind, url, table) from an uploaded file, a Google Sheets link or a link to another server."""
     kind = request.POST.get('kind', '')
     if kind == 'csv':
         upload = request.FILES.get('file')
@@ -42,9 +43,11 @@ def _read_source(request):
         if upload.size > sources.MAX_BYTES:
             raise sources.SourceError('Файл більший за 5 МБ.')
         return kind, '', sources.parse_upload(upload.name, upload.read())
-    if kind == 'google_sheets':
+    if kind in LINKED:
         url = request.POST.get('url', '').strip()
-        return kind, url, sources.fetch_sheet(url)
+        if len(url) > 500:
+            raise sources.SourceError('Посилання задовге: максимум 500 символів.')
+        return kind, url, sources.fetch(kind, url)
     raise ValueError('Цей сервіс ще не підключається автоматично.')
 
 
@@ -179,7 +182,8 @@ def _locked(connector_id):
 
 
 def sync_connector(connector):
-    """Read a published Google Sheet again; store a new snapshot only when its content changed.
+    """Read a linked source (published Google Sheet or a link to another server) again; store a new snapshot
+    only when its content changed.
 
     The fetch runs outside the transaction and the lock. last_sync_at is the moment the data
     was read, so a slower fetch that started earlier cannot overwrite a newer applied result
@@ -187,7 +191,7 @@ def sync_connector(connector):
     """
     started = timezone.now()
     try:
-        table = sources.fetch_sheet(connector.source_url)
+        table = sources.fetch(connector.kind, connector.source_url)
     except sources.SourceError as exc:
         with transaction.atomic():
             current = _locked(connector.pk)
@@ -214,14 +218,15 @@ def _newer(current, started):
 
 
 def stale_sheets(rows, now=None):
-    """Healthy Google Sheets read more than STALE_AFTER ago, oldest first.
+    """Healthy linked sources (Google Sheets and links to other servers) read more than STALE_AFTER ago,
+    oldest first.
 
     A source in error is not retried automatically: it keeps its last successful time, and
     retrying it would let broken sources hold the batch. It recovers through the manual
     «Оновити» (sync), after which it is healthy and joins the automatic reading again.
     """
     cutoff = (now or timezone.now()) - STALE_AFTER
-    return (rows.filter(kind='google_sheets', status='connected')
+    return (rows.filter(kind__in=LINKED, status='connected')
             .filter(Q(last_sync_at__isnull=True) | Q(last_sync_at__lt=cutoff))
             .order_by(F('last_sync_at').asc(nulls_first=True), 'pk')[:STALE_BATCH])
 
@@ -230,7 +235,7 @@ def stale_sheets(rows, now=None):
 @require_POST
 @errors
 def sync(request, connector_id):
-    connector = _visible(_writer(request)).get(pk=connector_id, kind='google_sheets')
+    connector = _visible(_writer(request)).get(pk=connector_id, kind__in=LINKED)
     if connector.status == 'disabled':
         raise ValueError('Підключення вимкнено.')
     try:

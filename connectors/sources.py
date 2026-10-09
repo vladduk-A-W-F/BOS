@@ -1,10 +1,14 @@
 """Read tabular data from a company's own services. Read-only, size-limited, no secrets."""
 import csv
 import hashlib
+import http.client
 import io
+import ipaddress
 import json
 import re
-from urllib.parse import parse_qs, urlparse
+import socket
+import ssl
+from urllib.parse import parse_qs, quote, urlparse
 from urllib.request import Request, build_opener, HTTPRedirectHandler
 
 MAX_BYTES = 5 * 1024 * 1024
@@ -20,6 +24,8 @@ CATALOG = (
      'gives': 'Будь-яка таблиця: замовлення, оплати, залишки'},
     {'kind': 'google_sheets', 'title': 'Google Таблиці', 'group': 'Таблиці', 'state': 'available',
      'gives': 'Опублікована таблиця, оновлюється за посиланням'},
+    {'kind': 'url', 'title': 'Таблиця за посиланням', 'group': 'Інші сервери', 'state': 'available',
+     'gives': 'CSV, JSON або Excel з будь-якого сервера за https-посиланням'},
     {'kind': 'monobank', 'title': 'Monobank', 'group': 'Банк', 'state': 'planned',
      'gives': 'Виписки та надходження'},
     {'kind': 'privatbank', 'title': 'ПриватБанк', 'group': 'Банк', 'state': 'planned',
@@ -143,3 +149,148 @@ def fetch_sheet(url, opener=None):
     if raw.lstrip()[:15].lower().startswith(b'<!doctype html') or raw.lstrip()[:5].lower() == b'<html':
         raise SourceError('Таблиця не опублікована або закрита доступом.')
     return parse_csv(raw)
+
+
+# --- any other server: a public https link to CSV, JSON or Excel ----------------------------------------
+
+JSON_LISTS = ('data', 'items', 'results', 'rows', 'records')
+
+
+def _cell(value):
+    if value is None:
+        return ''
+    if isinstance(value, (dict, list, bool)):
+        return json.dumps(value, ensure_ascii=False)
+    return str(value)
+
+
+def parse_json(raw):
+    """A JSON array of objects (or of rows with a header row), or an object holding one under a common key."""
+    if len(raw) > MAX_BYTES:
+        raise SourceError('Файл більший за 5 МБ.')
+    try:
+        data = json.loads(_decode(raw))
+    except ValueError as exc:
+        raise SourceError('За посиланням некоректний JSON.') from exc
+    if isinstance(data, dict):
+        data = next((data[key] for key in JSON_LISTS if isinstance(data.get(key), list)), data)
+    if not isinstance(data, list) or not data:
+        raise SourceError('Очікується список записів JSON: масив об’єктів.')
+    if all(isinstance(row, list) for row in data):
+        return _table([[_cell(v) for v in row] for row in data])
+    if not all(isinstance(row, dict) for row in data):
+        raise SourceError('Очікується список записів JSON: масив об’єктів.')
+    columns = []
+    for row in data:
+        for key in row:
+            if key not in columns:
+                columns.append(key)
+        if len(columns) > MAX_COLUMNS:
+            raise SourceError(f'Забагато колонок: максимум {MAX_COLUMNS}.')
+    return _table([[str(c) for c in columns]] + [[_cell(row.get(c)) for c in columns] for row in data])
+
+
+NAT64 = ipaddress.ip_network('64:ff9b::/96')
+
+
+def _public(address):
+    """A public internet address, judged by the IPv4 it carries when it is IPv4-mapped or NAT64."""
+    if address.version == 6:
+        if address.ipv4_mapped:
+            address = address.ipv4_mapped
+        elif address in NAT64:
+            address = ipaddress.IPv4Address(int(address) & 0xFFFFFFFF)
+    return address.is_global and not address.is_multicast
+
+
+def public_addresses(host, port=443):
+    """Resolve the host and refuse it if any address is not public internet (no SSRF into the LAN)."""
+    try:
+        infos = socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
+    except OSError as exc:
+        raise SourceError('Сервер за посиланням не знайдено.') from exc
+    if not infos:
+        raise SourceError('Сервер за посиланням не знайдено.')
+    for info in infos:
+        if not _public(ipaddress.ip_address(info[4][0].split('%')[0])):
+            raise SourceError('Посилання веде до внутрішньої мережі. Дозволені лише публічні адреси інтернету.')
+    return tuple(dict.fromkeys(info[4][:2] for info in infos))
+
+
+def _connect(addresses):
+    """The first checked address that answers, like socket.create_connection does for a host name."""
+    error = None
+    for address in addresses:
+        try:
+            return socket.create_connection(address, timeout=FETCH_TIMEOUT)
+        except OSError as exc:
+            error = exc
+    raise error
+
+
+def _https_get(host, addresses, path):
+    """One GET to an already-checked address, verified TLS for the host name, no redirects followed."""
+    context = ssl.create_default_context()
+    raw = _connect(addresses)
+    try:
+        sock = context.wrap_socket(raw, server_hostname=host)
+    except Exception:
+        raw.close()
+        raise
+    connection = http.client.HTTPSConnection(host, 443, timeout=FETCH_TIMEOUT, context=context)
+    connection.sock = sock
+    try:
+        connection.request('GET', path, headers={'User-Agent': 'BoS-connector',
+                                                 'Accept': 'text/csv, application/json;q=0.9, */*;q=0.5'})
+        response = connection.getresponse()
+        if 300 <= response.status < 400:
+            raise SourceError('Посилання перенаправляє на іншу адресу. Вкажіть кінцеве посилання на файл.')
+        if response.status != 200:
+            raise SourceError(f'Сервер за посиланням відповів кодом {response.status}.')
+        return response.read(MAX_BYTES + 1), response.getheader('Content-Type', '') or ''
+    finally:
+        connection.close()
+
+
+def fetch_url(url, get=None):
+    """Read CSV, JSON or Excel from a public https link of any other server. Read-only, size- and time-limited."""
+    parts = urlparse((url or '').strip())
+    if parts.scheme != 'https' or not parts.hostname or parts.username or parts.password:
+        raise SourceError('Потрібне посилання https://… без логіна й пароля в адресі.')
+    try:
+        port = parts.port or 443
+    except ValueError as exc:
+        raise SourceError('Некоректне посилання.') from exc
+    if port != 443:
+        raise SourceError('Дозволено лише стандартний порт https (443).')
+    addresses = public_addresses(parts.hostname)
+    # A pasted link may keep Cyrillic letters or spaces; existing %-escapes stay as they are.
+    path = quote(parts.path or '/', safe="/%:@!$&'()*+,;=-._~")
+    if parts.query:
+        path += '?' + quote(parts.query, safe="/?%:@!$&'()*+,;=-._~")
+    try:
+        raw, kind = (get or _https_get)(parts.hostname, addresses, path)
+    except SourceError:
+        raise
+    except TimeoutError as exc:
+        raise SourceError('Сервер за посиланням не відповів вчасно.') from exc
+    except Exception as exc:
+        raise SourceError('Сервер за посиланням недоступний.') from exc
+    head = raw.lstrip()[:15].lower()
+    if head.startswith(b'<!doctype html') or head.startswith(b'<html'):
+        raise SourceError('За посиланням вебсторінка, а не таблиця. Потрібне пряме посилання на CSV, JSON або Excel.')
+    kind = kind.split(';')[0].strip().lower()
+    if raw[:2] == b'PK' or kind.endswith('spreadsheetml.sheet'):
+        return parse_xlsx(raw)
+    if kind.endswith('json') or head[:1] in (b'[', b'{'):
+        return parse_json(raw)
+    return parse_csv(raw)
+
+
+def fetch(kind, url):
+    """Read a connected source again by its kind; uploaded files are never re-read."""
+    if kind == 'google_sheets':
+        return fetch_sheet(url)
+    if kind == 'url':
+        return fetch_url(url)
+    raise SourceError('Це джерело не оновлюється за посиланням.')

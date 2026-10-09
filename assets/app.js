@@ -25182,6 +25182,7 @@ function Connections({
   const [checked, setChecked] = useState(false),
     [editMapping, setEditMapping] = useState({}),
     [notice, setNotice] = useState('');
+  const [atForm, setAtForm] = useState(false); // a message from «Нове підключення» is shown beside its buttons, not above the list
   const persist = checked;
   const fileRef = useRef(null),
     entry = useRef(null),
@@ -25257,13 +25258,14 @@ function Connections({
     } else f.append('url', form.url.trim());
     return f;
   };
-  const run = async fn => {
+  const run = async (fn, fromForm = false) => {
     if (busy || mutationBusy.current || !current(entry.current) || !bosCan('write')) return;
     const scope = entry.current;
     mutationBusy.current = true;
     setBusy(true);
     setError('');
     setNotice('');
+    setAtForm(fromForm);
     try {
       await fn();
     } catch (e) {
@@ -25302,6 +25304,8 @@ function Connections({
     checkedSeq.current = null;
     setBusy(true);
     setError('');
+    setNotice('');
+    setAtForm(true);
     setMapped(null);
     setChecked(false);
     if (!withMapping) setPreview(null);
@@ -25359,7 +25363,7 @@ function Connections({
         bosFileName(fileRef.current);
       }
       await load();
-    });
+    }, true);
   };
   const doSync = id => run(async () => {
     const scope = entry.current;
@@ -25449,10 +25453,10 @@ function Connections({
   };
   return /*#__PURE__*/React.createElement("div", {
     className: "mon"
-  }, error && /*#__PURE__*/React.createElement("p", {
+  }, error && !atForm && /*#__PURE__*/React.createElement("p", {
     role: "alert",
     className: "erp-error"
-  }, error), notice && /*#__PURE__*/React.createElement("p", {
+  }, error), notice && !atForm && /*#__PURE__*/React.createElement("p", {
     role: "status"
   }, notice), /*#__PURE__*/React.createElement("section", {
     className: "mon-card"
@@ -25468,7 +25472,7 @@ function Connections({
       } : undefined
     }, /*#__PURE__*/React.createElement("td", null, c.name), /*#__PURE__*/React.createElement("td", null, data.catalog.find(x => x.kind === c.kind)?.title || c.kind), /*#__PURE__*/React.createElement("td", null, c.dataset_label), /*#__PURE__*/React.createElement("td", null, failure ? 'Помилка оновлення: ' + failure.error : c.status === 'error' ? c.last_error || c.status_label : c.status_label), /*#__PURE__*/React.createElement("td", null, when(c.last_sync_at)), /*#__PURE__*/React.createElement("td", null, monValue(c.row_count)), /*#__PURE__*/React.createElement("td", {
       className: "mon-actions"
-    }, bosCan('write') && c.kind === 'google_sheets' && /*#__PURE__*/React.createElement(Button, {
+    }, bosCan('write') && ['google_sheets', 'url'].includes(c.kind) && /*#__PURE__*/React.createElement(Button, {
       disabled: busy,
       onClick: () => doSync(c.id)
     }, "\u041E\u043D\u043E\u0432\u0438\u0442\u0438"), bosCan('write') && /*#__PURE__*/React.createElement(Button, {
@@ -25540,7 +25544,9 @@ function Connections({
     value: "csv"
   }, "Excel / CSV"), /*#__PURE__*/React.createElement("option", {
     value: "google_sheets"
-  }, "Google \u0422\u0430\u0431\u043B\u0438\u0446\u0456"))), /*#__PURE__*/React.createElement("label", null, "\u041D\u0430\u0437\u0432\u0430", /*#__PURE__*/React.createElement(Input, {
+  }, "Google \u0422\u0430\u0431\u043B\u0438\u0446\u0456"), /*#__PURE__*/React.createElement("option", {
+    value: "url"
+  }, "\u0422\u0430\u0431\u043B\u0438\u0446\u044F \u0437\u0430 \u043F\u043E\u0441\u0438\u043B\u0430\u043D\u043D\u044F\u043C (CSV, JSON, Excel)"))), /*#__PURE__*/React.createElement("label", null, "\u041D\u0430\u0437\u0432\u0430", /*#__PURE__*/React.createElement(Input, {
     value: form.name,
     maxLength: 120,
     onChange: e => setForm(p => ({
@@ -25572,7 +25578,7 @@ function Connections({
     type: "file",
     accept: ".xlsx,.csv",
     onChange: invalidatePreview
-  })) : /*#__PURE__*/React.createElement("label", null, "\u041F\u043E\u0441\u0438\u043B\u0430\u043D\u043D\u044F \u043D\u0430 \u0442\u0430\u0431\u043B\u0438\u0446\u044E", /*#__PURE__*/React.createElement(Input, {
+  })) : /*#__PURE__*/React.createElement("label", null, form.kind === 'url' ? 'Посилання на CSV, JSON або Excel' : 'Посилання на таблицю', /*#__PURE__*/React.createElement(Input, {
     value: form.url,
     onChange: e => {
       setForm(p => ({
@@ -25581,7 +25587,7 @@ function Connections({
       }));
       invalidatePreview();
     },
-    placeholder: "https://docs.google.com/spreadsheets/d/\u2026"
+    placeholder: form.kind === 'url' ? 'https://… (публічна адреса будь-якого сервера)' : 'https://docs.google.com/spreadsheets/d/…'
   }))), /*#__PURE__*/React.createElement("div", {
     className: "erp-actions"
   }, /*#__PURE__*/React.createElement(Button, {
@@ -25591,7 +25597,12 @@ function Connections({
     variant: "primary",
     disabled: busy || !form.name.trim(),
     onClick: doCreate
-  }, checked ? 'Підключити з цією відповідністю' : preview.fields?.length > 0 ? 'Підключити без відповідності' : 'Підключити')), busy && /*#__PURE__*/React.createElement("p", {
+  }, checked ? 'Підключити з цією відповідністю' : preview.fields?.length > 0 ? 'Підключити без відповідності' : 'Підключити')), atForm && error && /*#__PURE__*/React.createElement("p", {
+    role: "alert",
+    className: "erp-error"
+  }, error), atForm && notice && /*#__PURE__*/React.createElement("p", {
+    role: "status"
+  }, notice), busy && /*#__PURE__*/React.createElement("p", {
     role: "status"
   }, "\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F\u2026"), preview && /*#__PURE__*/React.createElement("div", {
     className: "erp-table"
