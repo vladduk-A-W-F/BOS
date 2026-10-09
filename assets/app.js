@@ -24669,6 +24669,29 @@ function MonTable({
 const MON_WEEKDAY = ['нд', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
 const MON_AHEAD = [['orders', 'Замовлення'], ['deliveries', 'Поставки'], ['jobs', 'Роботи'], ['invoices', 'Рахунки']];
 const MON_SOURCES = [['fresh', 'актуальні'], ['file', 'з файлу'], ['stale', 'застарілі'], ['error', 'з помилкою'], ['unknown', 'ще не прочитані']];
+// One source in the tile: worst first, its state in words, then how many of its rows BoS could read.
+const MON_SOURCE_LIMIT = 4,
+  MON_SOURCE_RANK = {
+    error: 0,
+    stale: 1,
+    unknown: 2,
+    file: 3,
+    fresh: 4
+  };
+const MON_SOURCE_WORD = {
+  fresh: 'актуальне',
+  file: 'з файлу',
+  stale: 'застаріле',
+  error: 'помилка читання',
+  unknown: 'ще не прочитане'
+};
+function monSourceOrder(list) {
+  return [...list].sort((a, b) => (MON_SOURCE_RANK[a.freshness] ?? 5) - (MON_SOURCE_RANK[b.freshness] ?? 5) || String(a.name).localeCompare(String(b.name), 'uk'));
+}
+function monSourceNote(s) {
+  const word = MON_SOURCE_WORD[s.freshness] || s.freshness_label || '';
+  return s.total != null ? word + ' · прочитано ' + monInt(s.accepted) + ' з ' + monInt(s.total) : s.problem ? word + ' · потрібна відповідність колонок' : word;
+}
 function monPercent(part, whole) {
   const w = Number(whole),
     p = w > 0 ? Math.round(Number(part) / w * 100) : 0;
@@ -24800,7 +24823,9 @@ function MonBento({
   attention,
   asOf,
   onOpen,
-  onNavigate
+  onNavigate,
+  sources,
+  onSource
 }) {
   const o = bento.orders,
     job = bento.production,
@@ -24915,14 +24940,28 @@ function MonBento({
     title: "\u0414\u0436\u0435\u0440\u0435\u043B\u0430 \u0434\u0430\u043D\u0438\u0445",
     count: src.total || null,
     onOpen: () => onNavigate('connectors', null)
-  }, src.total ? /*#__PURE__*/React.createElement("ul", {
+  }, !src.total ? /*#__PURE__*/React.createElement("p", {
+    className: "mon-line"
+  }, "\u0429\u0435 \u043D\u0456\u0447\u043E\u0433\u043E \u043D\u0435 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043E. \u0424\u0430\u0439\u043B, Google \u0422\u0430\u0431\u043B\u0438\u0446\u044E \u0447\u0438 \u0442\u0430\u0431\u043B\u0438\u0446\u044E \u0437 \u0456\u043D\u0448\u043E\u0433\u043E \u0441\u0435\u0440\u0432\u0435\u0440\u0430 \u043C\u043E\u0436\u043D\u0430 \u0434\u043E\u0434\u0430\u0442\u0438 \u0432 \xAB\u041F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043D\u044F\u0445\xBB.") : /*#__PURE__*/React.createElement(React.Fragment, null, !(sources?.length && onSource && sources.length <= MON_SOURCE_LIMIT) && /*#__PURE__*/React.createElement("ul", {
     className: "mon-states"
   }, MON_SOURCES.filter(([k]) => src[k]).map(([k, label]) => /*#__PURE__*/React.createElement("li", {
     key: k,
     "data-state": k
-  }, /*#__PURE__*/React.createElement("b", null, monInt(src[k])), label))) : /*#__PURE__*/React.createElement("p", {
-    className: "mon-line"
-  }, "\u0429\u0435 \u043D\u0456\u0447\u043E\u0433\u043E \u043D\u0435 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043E. \u0422\u0430\u0431\u043B\u0438\u0446\u0456 Google \u0447\u0438 Excel \u043C\u043E\u0436\u043D\u0430 \u0434\u043E\u0434\u0430\u0442\u0438 \u0432 \xAB\u041F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043D\u044F\u0445\xBB.")), rows.length > 0 && /*#__PURE__*/React.createElement(MonTile, {
+  }, /*#__PURE__*/React.createElement("b", null, monInt(src[k])), label))), sources?.length > 0 && onSource && /*#__PURE__*/React.createElement("ul", {
+    className: "mon-sources"
+  }, monSourceOrder(sources).slice(0, MON_SOURCE_LIMIT).map(s => /*#__PURE__*/React.createElement("li", {
+    key: s.id
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "mon-source",
+    "data-state": s.freshness,
+    title: s.name,
+    onClick: () => onSource(s.id)
+  }, /*#__PURE__*/React.createElement("strong", null, s.name), /*#__PURE__*/React.createElement("small", null, monSourceNote(s)))))), sources?.length > MON_SOURCE_LIMIT && onSource && /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "mon-more",
+    onClick: () => onSource(null)
+  }, "\u0423\u0441\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430 (", monInt(sources.length), ") \u2193"))), rows.length > 0 && /*#__PURE__*/React.createElement(MonTile, {
     area: "ahead",
     order: 6,
     title: "\u041D\u0430\u0441\u0442\u0443\u043F\u043D\u0456 14 \u0434\u043D\u0456\u0432"
@@ -25032,6 +25071,20 @@ function Monitoring({
       if (current(scope) && seq === life.current.query) setError(e.message);
     }
   };
+  // A source in the bento tile opens its own data further down this page; keyboard focus follows.
+  const jump = id => {
+    const el = document.getElementById(id == null ? 'mon-sources' : 'mon-source-' + id);
+    if (!el) return;
+    el.scrollIntoView({
+      block: 'start',
+      behavior: monReduced() ? 'auto' : 'smooth'
+    });
+    try {
+      el.focus({
+        preventScroll: true
+      });
+    } catch (e) {}
+  };
   const open = async ref => {
     const scope = life.current.scope,
       seq = ++life.current.record;
@@ -25078,7 +25131,9 @@ function Monitoring({
     attention: data.attention,
     asOf: data.as_of,
     onOpen: open,
-    onNavigate: onNavigate
+    onNavigate: onNavigate,
+    sources: Array.isArray(data.sources) ? data.sources : null,
+    onSource: jump
   }) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     className: "mon-numbers"
   }, data.numbers.map(n => /*#__PURE__*/React.createElement("div", {
@@ -25116,6 +25171,8 @@ function Monitoring({
     table: t,
     onRow: open
   }))), Array.isArray(data.sources) && /*#__PURE__*/React.createElement("section", {
+    id: "mon-sources",
+    tabIndex: -1,
     "aria-label": "\u041F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430 \u0443 \u043C\u043E\u043D\u0456\u0442\u043E\u0440\u0438\u043D\u0433\u0443"
   }, /*#__PURE__*/React.createElement("h2", null, "\u041F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0456 \u0434\u0436\u0435\u0440\u0435\u043B\u0430"), /*#__PURE__*/React.createElement("p", {
     className: "op-muted"
@@ -25126,6 +25183,8 @@ function Monitoring({
     className: "op-muted"
   }, "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0438\u0445 \u0434\u0436\u0435\u0440\u0435\u043B \u043D\u0435\u043C\u0430\u0454"), data.sources.map(s => /*#__PURE__*/React.createElement("section", {
     className: "mon-card",
+    id: 'mon-source-' + s.id,
+    tabIndex: -1,
     key: s.id
   }, /*#__PURE__*/React.createElement("header", null, /*#__PURE__*/React.createElement("h3", null, s.name), /*#__PURE__*/React.createElement("span", null, s.dataset_label)), /*#__PURE__*/React.createElement("p", null, s.freshness_label, " \xB7 ", s.last_sync_at ? erpDateTime(s.last_sync_at) : '—'), s.problem && /*#__PURE__*/React.createElement("p", {
     role: "alert",

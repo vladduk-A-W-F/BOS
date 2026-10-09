@@ -99,18 +99,58 @@ const strip = tiles(full)[6];
 assert.ok(nodes(strip).some(n => n.type === 'td' && /mon-today/.test(n.props.className || '')), 'today is marked');
 assert.ok(nodes(strip).some(n => n.type === 'td' && n.props.className === 'mon-h5' && n.children.includes(26)));
 
+// «Джерела даних»: each source by name, worst first, opening its own data further down the page.
+const jumps = [];
+const counts = list => list.reduce((c, s) => ({...c, [s.freshness]: (c[s.freshness] || 0) + 1}), {total: list.length});
+const source = (id, name, freshness, extra = {}) => ({id, name, freshness, freshness_label: 'x', ...extra});
+const withSources = list => ctx.MonBento({bento: {...ceo, sources: counts(list)}, attention: [], asOf: '2026-10-05',
+  onOpen: () => {}, onNavigate: () => {}, sources: list, onSource: id => jumps.push(id)});
+const sourcesTile = tree => tiles(tree).find(t => t.props.title === 'Джерела даних');
+const sourceButtons = tile => nodes(tile).filter(n => n.type === 'button' && n.props.className === 'mon-source');
+const two = [source(1, 'Замовлення з іншої системи', 'fresh', {total: 2, accepted: 1}), source(2, 'Оплати з банку', 'error')];
+let tile = sourcesTile(withSources(two));
+assert.deepEqual(sourceButtons(tile).map(b => b.props['data-state']), ['error', 'fresh'], 'a broken source comes first');
+assert.match(text(sourceButtons(tile)[0]), /Оплати з банку.*помилка читання/);
+assert.match(text(sourceButtons(tile)[1]), /Замовлення з іншої системи.*актуальне · прочитано 1 з 2/);
+assert.ok(!nodes(tile).some(n => n.props.className === 'mon-states'), 'a short list needs no separate summary');
+sourceButtons(tile).forEach(b => b.props.onClick());
+assert.deepEqual(jumps, [2, 1]);
+const five = [...two, source(3, 'Склад', 'stale'), source(4, 'Каса', 'file', {total: 3, accepted: 3}), source(5, 'Дзвінки', 'unknown')];
+tile = sourcesTile(withSources(five));
+assert.ok(nodes(tile).some(n => n.props.className === 'mon-states'), 'many sources keep the summary');
+assert.deepEqual(sourceButtons(tile).map(b => b.props['data-state']), ['error', 'stale', 'unknown', 'file'], 'four, worst first');
+const everything = nodes(tile).find(n => n.props.className === 'mon-more');
+assert.match(text(everything), /Усі джерела \(5\)/);
+everything.props.onClick();
+assert.equal(jumps.at(-1), null, 'the whole list opens the sources section');
+tile = sourcesTile(render(ceo));
+assert.ok(nodes(tile).some(n => n.props.className === 'mon-states') && !sourceButtons(tile).length, 'an older server: summary only');
+assert.equal(ctx.monSourceNote(source(6, 'Склад', 'stale')), 'застаріле', 'the observer gets the state in words, no row counts');
+assert.equal(ctx.monSourceNote(source(7, 'Склад', 'fresh', {problem: 'Колонки не зіставлено з полями BoS'})), 'актуальне · потрібна відповідність колонок');
+
 // Monitoring: tiles when the server sends them, the previous number row otherwise; a reload keeps facts on screen.
 (async () => {
-  const requests = [], listeners = {};
+  const requests = [], listeners = {}, moved = [];
+  const element = id => ({scrollIntoView: options => moved.push([id, options]), focus: options => moved.push([id, 'focus', options])});
   const mon = context({window: {addEventListener: (k, fn) => listeners[k] = fn, removeEventListener: k => delete listeners[k]},
+    document: {activeElement: null, getElementById: id => ['mon-sources', 'mon-source-9'].includes(id) ? element(id) : null},
     erpFetch: p => new Promise((resolve, reject) => requests.push({p, resolve, reject}))});
   const draw = () => { mon.reset(); return mon.Monitoring({onNavigate: () => {}}); };
   draw(); mon.effect()();
   assert.equal(requests[0].p, 'monitoring/');
-  requests[0].resolve({as_of: '2026-10-05', numbers: [{key: 'orders', value: 4, label: 'Замовлень у роботі'}], attention: [], tables: [], queries: [], bento: ceo});
+  const listed = [source(9, 'Замовлення з іншої системи', 'file', {dataset_label: 'Замовлення', total: 2, accepted: 1, rejected: 1})];
+  requests[0].resolve({as_of: '2026-10-05', numbers: [{key: 'orders', value: 4, label: 'Замовлень у роботі'}], attention: [], tables: [], queries: [], bento: ceo, sources: listed});
   await tick();
   let tree = draw();
   assert.ok(nodes(tree).some(n => n.type === mon.MonBento), 'tiles replace the number row');
+  const tilesNode = nodes(tree).find(n => n.type === mon.MonBento);
+  assert.deepEqual(tilesNode.props.sources, listed, 'the tile lists the same sources as the section below');
+  assert.ok(nodes(tree).some(n => n.props.id === 'mon-sources' && n.props.tabIndex === -1));
+  assert.ok(nodes(tree).some(n => n.props.id === 'mon-source-9' && n.props.tabIndex === -1), 'each source card can take focus');
+  tilesNode.props.onSource(9); tilesNode.props.onSource(null); tilesNode.props.onSource(404);
+  assert.deepEqual(JSON.parse(JSON.stringify(moved)), [['mon-source-9', {block: 'start', behavior: 'auto'}], ['mon-source-9', 'focus', {preventScroll: true}],
+    ['mon-sources', {block: 'start', behavior: 'auto'}], ['mon-sources', 'focus', {preventScroll: true}]],
+    'scroll without motion when reduced motion is asked (or unknown), then keyboard focus; a missing card is ignored');
   assert.ok(!nodes(tree).some(n => n.props.className === 'mon-numbers'));
   listeners['bos:data-changed']();
   tree = draw();
@@ -126,5 +166,5 @@ assert.ok(nodes(strip).some(n => n.type === 'td' && n.props.className === 'mon-h
   const css = fs.readFileSync(path.join(__dirname, '../frontend/boss_app_source.html'), 'utf8');
   assert.match(css, /@media\(prefers-reduced-motion:reduce\)\{\*,\*::before,\*::after\{animation:none!important;transition:none!important/, 'reduced motion switches the tile animation off');
   assert.match(css, /\.mon-tile\{[^}]*animation:mon-rise[^}]*backwards/, 'tiles rise in once, then hover can lift them');
-  console.log('M2b bento tiles: roles, targets, exact figures, fallback and reload without blanking: PASS');
+  console.log('M2b bento tiles: roles, targets, exact figures, sources by name, fallback and reload without blanking: PASS');
 })().catch(error => { console.error(error); process.exitCode = 1; });
