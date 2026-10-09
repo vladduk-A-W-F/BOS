@@ -72,7 +72,7 @@ class McpTests(TransactionTestCase):
         self.assertEqual(self.rpc(token, 'notifications/initialized', message_id=None).status_code, 202)
         self.assertEqual(self.rpc(token, 'ping').json()['result'], {})
         listed = self.rpc(token, 'tools/list').json()['result']['tools']
-        self.assertEqual([t['name'] for t in listed], ['monitoring_overview', 'standard_query', 'order_status'])
+        self.assertEqual([t['name'] for t in listed], ['monitoring_overview', 'standard_query', 'order_status', 'source_table'])
         self.assertTrue(all(t['annotations']['readOnlyHint'] and not t['annotations']['destructiveHint'] for t in listed))
         self.assertIn('debts', listed[1]['inputSchema']['properties']['key']['enum'])
 
@@ -179,3 +179,50 @@ class McpTests(TransactionTestCase):
         nobody = get_user_model().objects.create_user(username='synthetic-norole', password='synthetic-pass')
         with self.assertRaises(CommandError):
             call_command('mcp_access', 'create', '--user', nobody.username, stdout=StringIO())
+
+    def test_connected_sources_are_read_by_role_from_their_stored_snapshot(self):
+        from datetime import timedelta
+        from unittest import mock
+        from django.utils import timezone
+        from . import sources
+        from .models import Connector, ConnectorSnapshot
+        owner, now = self.user('ceo'), timezone.now()
+        orders = Connector.objects.create(kind='url', name='Замовлення з іншого сервера', dataset='orders',
+                                          source_url='https://api.example.com/orders', last_sync_at=now, created_by=owner,
+                                          mapping={'code': 'Номер', 'customer': 'Клієнт', 'amount': 'Сума'})
+        ConnectorSnapshot.objects.create(connector=orders, columns=['Номер', 'Клієнт', 'Сума'], row_count=2, sha256='0' * 64,
+                                         rows=[['ЗВ-1', 'ТОВ «Синтетика»', '1250'], ['ЗВ-2', 'ФОП Тест', 'сто']])
+        payments = Connector.objects.create(kind='google_sheets', name='Оплати', dataset='payments', created_by=owner,
+                                            source_url='https://docs.google.com/x', last_sync_at=now - timedelta(hours=2),
+                                            mapping={'reference': 'Док', 'counterparty': 'Платник', 'amount': 'Сума'})
+        ConnectorSnapshot.objects.create(connector=payments, columns=['Док', 'Платник', 'Сума'], rows=[['PD-1', 'ТОВ', '5']],
+                                         row_count=1, sha256='1' * 64)
+        stock = Connector.objects.create(kind='csv', name='Залишки', dataset='stock', last_sync_at=now, created_by=owner)
+        ConnectorSnapshot.objects.create(connector=stock, columns=['Товар'], rows=[['Кутник']], row_count=1, sha256='2' * 64)
+        off = Connector.objects.create(kind='csv', name='Вимкнене', dataset='other', status='disabled', created_by=owner)
+        before = fingerprint()
+        ceo = self.key('ceo')
+        listed = self.call(ceo, 'monitoring_overview')['structuredContent']['sources']
+        self.assertEqual(sorted((s['id'], s['name']) for s in listed),
+                         [(c.pk, c.name) for c in (orders, payments, stock)], 'ids to ask for; no disabled source')
+        with mock.patch.object(sources, 'fetch', side_effect=AssertionError('no fetch')):
+            table = self.call(ceo, 'source_table', id=orders.pk)['structuredContent']
+        self.assertEqual(table['columns'], ['Номер замовлення', 'Клієнт', 'Сума', 'Валюта'])
+        self.assertEqual((table['rows'], table['total'], table['rejected']), ([['ЗВ-1', 'ТОВ «Синтетика»', '1250.00', 'UAH']], 1, 1))
+        self.assertEqual(table['freshness'], 'Актуально')
+        self.assertEqual(self.call(ceo, 'source_table', id=payments.pk)['structuredContent']['freshness'],
+                         'Дані застаріли, оновіть джерело')
+        self.assertEqual(self.call(ceo, 'source_table', id=stock.pk)['structuredContent']['problem'],
+                         'Колонки не зіставлено з полями BoS')
+        for wrong in (off.pk, 999999, 'abc', True, None):
+            with self.subTest(id=wrong):
+                self.assertTrue(self.call(ceo, 'source_table', id=wrong)['isError'])
+        manager = self.key('manager')
+        self.assertEqual(self.call(manager, 'source_table', id=orders.pk)['structuredContent']['columns'],
+                         ['Номер замовлення', 'Клієнт'])
+        hidden = self.call(manager, 'source_table', id=payments.pk)
+        self.assertTrue(hidden['isError'])
+        self.assertNotIn('PD-1', json.dumps(hidden, ensure_ascii=False))
+        observer = self.call(self.key('observer'), 'source_table', id=orders.pk)['structuredContent']
+        self.assertEqual(set(observer), {'id', 'name', 'dataset', 'freshness', 'last_sync_at', 'note'})
+        self.assertEqual(fingerprint(), before)
