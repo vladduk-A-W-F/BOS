@@ -20,6 +20,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView  # serves a static HTML template
 
+from connectors.mcp import endpoint as mcp_endpoint
 from .refinement_views import asset, runtime_status, start_guide
 from .version import VERSION
 from . import auth_views
@@ -28,6 +29,8 @@ urlpatterns = [
     path('api/training/', include('training.urls')),
     path('api/crm/', include('crm.urls')),
     path('api/connectors/', include('connectors.urls')),
+    # Read-only MCP for the owner's AI clients; off until a key is issued on the server (manage.py mcp_access).
+    path('mcp/', mcp_endpoint, name='bos-mcp'),
     path("api/statements/", include("finance.statement_urls")),
     path('api/auth/csrf/', auth_views.csrf, name='bos-auth-csrf'),
     path('api/auth/login/', auth_views.login, name='bos-auth-login'),
