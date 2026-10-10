@@ -126,6 +126,9 @@ class OwnerLocalDeliveryTests(unittest.TestCase):
         with mock.patch('scripts.bos3_prepared_update.update_prepared_source', side_effect=fake_update) as update:
             self.assertEqual(delivery.bind(self.paths, saved), {'source': str(delivery.SOURCE), 'source_sha256': DIGEST})
         update.assert_called_once_with(self.paths['prepared'], str(delivery.SOURCE), DIGEST)
+        with self.assertRaisesRegex(delivery.DeliveryError, 'already bound'):
+            delivery.backup(self.paths)                    # step 5 repeated after step 7
+        self.assertEqual(len(list((self.paths['root'] / 'backups').iterdir())), 1)
 
         def wider(path, source, source_sha256):
             fake_update(path, source, source_sha256)

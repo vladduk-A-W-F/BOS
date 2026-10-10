@@ -229,7 +229,10 @@ def preflight(paths, backup=None):
 
 def backup(paths, backup=None):
     _require_stopped(paths)
-    target = paths['root'] / 'backups' / (_stamp() + '-' + (_version() or 'unknown'))
+    if local.normalized(local.read_json(paths['prepared'])['source']) == local.normalized(SOURCE):
+        raise DeliveryError('The installation is already bound to this source: a backup now would not hold the '
+                            'installed version. Roll back with the last backup first.')
+    target =paths['root'] / 'backups' / (_stamp() + '-' + (_version() or 'unknown'))
     target.mkdir(parents=True)
     if os.name == 'nt':
         local.protect_path(target, directory=True)       # private to the owner and SYSTEM, verified
