@@ -16,7 +16,7 @@
 
 ## Поточна доставка
 - **Встановлено:** `9748b86`, версія `0.4.0-dev.1`, демо 1.0.
-- **Ціль:** тег `v0.4.0-dev.2` — commit main із версією `0.4.0-dev.2`.
+- **Ціль:** commit `28c55a53bfd6e74d2f5bdfb67ca3128061f2b0d2` — злиття #98 у main, версія `0.4.0-dev.2`. Тегу немає: хмарна сесія не може його створити.
 - **Міграції.** Інструмент застосує лише `connectors.0003_connector_url_kind`: вона змінює тільки стан Django, без SQL. Будь-яка інша міграція — відмова, потрібен окремий план.
 
 ## Як запускати
@@ -36,7 +36,7 @@
 ## Кроки
 1. **Нова копія.**
    - `git clone -c core.autocrlf=false https://github.com/vladduk-A-W-F/BOS.git <New>`;
-   - потім `git -C <New> checkout --detach v0.4.0-dev.2`.
+   - потім `git -C <New> checkout --detach 28c55a53bfd6e74d2f5bdfb67ca3128061f2b0d2`.
 2. **Огляд, лише читання:** `<Tool> inspect --root <Root>`. Має бути `new_version` = `0.4.0-dev.2`, `new_clean` = `true`, а `installed_source` (`<Old>`) — інша тека, ніж `new_source`. Інакше стоп.
 3. **Preflight, лише читання:** `<Tool> preflight --root <Root>`.
    - `running: true` і `preflight: PASS` — перейти до кроку 4.
